@@ -1,5 +1,5 @@
 import { Duel, DuelEnd } from "./Duel";
-import DuelEntity, { type CardAction, type DammyCardAction, type TDuelCauseReason } from "./DuelEntity";
+import DuelEntity, { type DammyCardAction, type TDuelCauseReason } from "./DuelEntity";
 import cardInfoDic from "@ygo/class/CardInfo";
 import type Duelist from "./Duelist";
 import {} from "@stk_utils/funcs/StkArrayUtils";
@@ -10,7 +10,6 @@ import type { TBattlePosition } from "@ygo/class/YgoTypes";
 export class DuelField {
   public readonly cells: DuelFieldCell[][];
   public readonly duel: Duel;
-  private draggingAction: CardAction | undefined;
   public constructor(duel: Duel) {
     this.duel = duel;
     this.cells = [...Array(7)].map(() => []) as DuelFieldCell[][];
@@ -167,7 +166,7 @@ export class DuelField {
     if (qty > 0 && choices.length < qty) {
       return;
     }
-    const target: DuelEntity[] | undefined = await this.duel.waitUserSelectEntitiesOnField(
+    const target: DuelEntity[] | undefined = await this.duel.view.waitUserSelectEntitiesOnField(
       chooser,
       choices,
       qty,
@@ -271,7 +270,7 @@ export class DuelField {
           actions: dammyActions,
           cancelable: false,
         });
-        const dammyAction = await this.duel.waitUserSubAction(_chooser, dammyActions, "カードを召喚先へドラッグ。");
+        const dammyAction = await this.duel.view.waitUserSubAction(_chooser, dammyActions, "カードを召喚先へドラッグ。");
 
         cell = dammyAction.cell || cell;
         pos = (dammyAction.action as DammyCardAction<TBattlePosition>).data;
@@ -312,18 +311,5 @@ export class DuelField {
       this.getGraveyard(entity.owner).acceptEntities([entity], "Top");
       return true;
     });
-  };
-  public readonly getDraggingAction = (): CardAction | undefined => {
-    return this.draggingAction;
-  };
-  public readonly setDraggingAction = (action: CardAction) => {
-    this.draggingAction = action;
-    const targetList = action.validate() || [];
-    this.getAllCells().forEach((cell) => (cell.canAcceptDrop = targetList.includes(cell)));
-    this.duel.requireUpdate();
-  };
-  public readonly removeDraggingAction = () => {
-    this.getAllCells().forEach((cell) => (cell.canAcceptDrop = false));
-    this.duel.requireUpdate();
   };
 }

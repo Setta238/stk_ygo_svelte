@@ -35,13 +35,13 @@
   };
   const dragStart = (ev: DragEvent, action: CardAction) => {
     console.log("drag start", ev, action);
-    action.entity.field.setDraggingAction(action);
+    action.entity.field.duel.view.setDraggingAction(action);
     isDragging.set(true);
   };
 
   const dragEnd = (ev: DragEvent, action: CardAction) => {
     console.log("drag end", ev, action);
-    action.entity.field.removeDraggingAction();
+    action.entity.field.duel.view.removeDraggingAction();
     if (ev.dataTransfer) {
       isDragging.set(false);
     }

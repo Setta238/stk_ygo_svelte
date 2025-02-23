@@ -63,12 +63,12 @@ class ModalController {
     this.cardActionSelectorArg = arg;
     this.states.DuelActionSelector = "Shown";
 
-    duel.onWaitEnd.append(this.cancelAll);
+    duel.view.onWaitEnd.append(this.cancelAll);
     this.onUpdateEvent.trigger();
     return new Promise((resolve) => {
       this.cardActionSelectorResolve = (value: CardAction | undefined) => {
         this.states.DuelActionSelector = "Disable";
-        duel.onWaitEnd.remove(this.cancelAll);
+        duel.view.onWaitEnd.remove(this.cancelAll);
         this.onUpdateEvent.trigger();
         resolve(value);
       };

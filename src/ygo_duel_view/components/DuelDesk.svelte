@@ -31,8 +31,8 @@
   const onDuelUpdate = () => {
     duel = duel;
   };
-  duel.onDuelUpdate.append(onDuelUpdate);
-  duel.onWaitStart.append(onDuelAction);
+  duel.view.onDuelUpdate.append(onDuelUpdate);
+  duel.view.onWaitStart.append(onDuelAction);
   const onOkClick = () => {
     console.log(selectedList);
     if (selectedEntitiesValidator(selectedList)) {
@@ -52,7 +52,7 @@
     <DuelDuelist duelist={duel.duelists.Below}></DuelDuelist>
   </div>
   <div class=" duel_desk_center v_flex">
-    <div class="duel_field_header">{`[TURN:${duel.turn}][PHASE:${duel.phase}] ${duel.message}`}</div>
+    <div class="duel_field_header">{`[TURN:${duel.turn}][PHASE:${duel.phase}] ${duel.view.message}`}</div>
     <div>
       {#if duel.turn > 0}
         <table class="duel_field">
@@ -69,7 +69,7 @@
       {/if}
     </div>
     <div class="duel_field_footer">
-      {#if duel.waitMode === "EntitiesSelect"}
+      {#if duel.view.waitMode === "EntitiesSelect"}
         <button on:click={onOkClick}>OK</button>
         <!-- <button on:click={onCancelClick}>cancel</button> -->
       {/if}

@@ -3,15 +3,13 @@ import Duelist, { type TDuelistType } from "@ygo_duel/class/Duelist";
 import DuelistProfile from "@ygo/class/DuelistProfile";
 import { DuelField } from "./DuelField";
 import DuelLog from "@ygo_duel/class/DuelLog";
-import StkEvent from "@stk_utils/class/StkEvent";
 import type DuelEntity from "@ygo_duel/class/DuelEntity";
-import { cardActionChainBlockTypes, type CardAction, type TCardActionType, type TSpellSpeed } from "@ygo_duel/class/DuelEntity";
+import { cardActionChainBlockTypes, type CardAction, type TCardActionType } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCell } from "./DuelFieldCell";
-import { modalController } from "@ygo_duel_view/class/ModalController";
+import { DuelViewController } from "@ygo_duel_view/class/DuelViewController";
 export type ProcKey = { turn: number; seq: number; chain: number };
 export type TDuelPhase = "draw" | "standby" | "main1" | "battle" | "main2" | "end";
 export type TDuelPhaseStep = "start" | "battle" | "damage" | "end" | undefined;
-export type TDuelWaitMode = "None" | "CardAction" | "EntitiesSelect" | "SubActionSelect";
 export const seats = ["Above", "Below"] as const;
 export type TSeat = (typeof seats)[number];
 export type DuelistAction = {
@@ -32,32 +30,12 @@ export class DuelEnd extends Error {
   }
 }
 export class Duel {
-  private onDuelUpdateEvent = new StkEvent<void>();
-  public get onDuelUpdate() {
-    return this.onDuelUpdateEvent.expose();
-  }
-  public readonly requireUpdate = () => {
-    this.onDuelUpdateEvent.trigger();
-  };
-  private onWaitStartEvent = new StkEvent<{ resolve: (action: DuelistAction) => void; entitiesValidator: (selectedEntities: DuelEntity[]) => boolean }>();
-  public get onWaitStart() {
-    return this.onWaitStartEvent.expose();
-  }
-  private onWaitEndEvent = new StkEvent<void>();
-  public get onWaitEnd() {
-    return this.onWaitEndEvent.expose();
-  }
+  public readonly view: DuelViewController;
   public readonly log: DuelLog;
   public procKey: ProcKey;
   public turn: number;
   public phase: TDuelPhase;
   public phaseStep: TDuelPhaseStep;
-  public message: string;
-  public waitMode: TDuelWaitMode;
-  public readonly enableCardPlayTypes: TCardActionType[];
-  public readonly enableSpellSpeeds: TSpellSpeed[];
-  public readonly enableActions: CardAction[];
-
   public nextPhaseList: TDuelPhase[];
   public field: DuelField;
   public readonly duelists: { [key in TSeat]: Duelist };
@@ -77,11 +55,6 @@ export class Duel {
     this.phase = "end";
     this.procKey = { turn: 0, seq: 0, chain: 0 };
     this.nextPhaseList = [];
-    this.message = "";
-    this.waitMode = "None";
-    this.enableCardPlayTypes = [];
-    this.enableSpellSpeeds = [];
-    this.enableActions = [];
     this.isEnded = false;
     const coin = Math.random() > 0.5;
 
@@ -103,6 +76,7 @@ export class Duel {
     Object.values(this.duelists).forEach(this.field.prepareHands);
 
     this.moveNextPhase("draw");
+    this.view = new DuelViewController(this);
   }
 
   public readonly getTurnPlayer = (): Duelist => {
@@ -191,7 +165,7 @@ export class Duel {
     this.moveNextPhase("main1");
   };
   private readonly procMainPhase = async () => {
-    const action = await this.waitUserAction(
+    const action = await this.view.waitUserAction(
       this.getTurnPlayer(),
       ["Summon", "ChangeBattlePosition", "IgnitionEffect", "QuickEffect"],
       ["Normal", "Quick", "Counter"]
@@ -215,7 +189,7 @@ export class Duel {
   private readonly procBattlePhaseStartStep = async () => {
     this.phaseStep = "start";
 
-    const action = await this.waitUserQuickEffect(
+    const action = await this.view.waitUserQuickEffect(
       this.getTurnPlayer(),
       ["QuickEffect"],
       ["Normal", "Quick", "Counter"],
@@ -231,7 +205,7 @@ export class Duel {
   private readonly procBattlePhaseBattleStep = async () => {
     while (true) {
       this.phaseStep = "battle";
-      const action = await this.waitUserAction(this.getTurnPlayer(), ["Battle", "QuickEffect"], ["Normal", "Quick", "Counter"]);
+      const action = await this.view.waitUserAction(this.getTurnPlayer(), ["Battle", "QuickEffect"], ["Normal", "Quick", "Counter"]);
       if (action.phaseChange) {
         return;
       }
@@ -252,132 +226,5 @@ export class Duel {
     }
     this.moveNextPhase("draw");
     return;
-  };
-
-  public readonly waitUserSelectEntitiesOnField = async (
-    duelist: Duelist,
-    entities: DuelEntity[],
-    qty: number,
-    validator: (selected: DuelEntity[]) => boolean,
-    cancelable: boolean, //TODO
-    message: string
-  ): Promise<DuelEntity[] | undefined> => {
-    let selected: DuelEntity[] = [];
-
-    if (duelist.duelistType === "NPC") {
-      // NPCはランダムに選択する
-      while (!validator(selected)) {
-        // 一個も選択しないパターンは最初にチェックするので、それ以外をランダムに試行する。
-        const _qty = qty > 0 ? qty : Math.floor(Math.random() * entities.length) + 1;
-        selected = entities.randomPick(_qty);
-      }
-      return selected;
-    }
-
-    this.field.getAllEntities().forEach((e) => (e.isSelectable = entities.includes(e)));
-
-    this.waitMode = "EntitiesSelect";
-    this.message = message;
-    const userAction: DuelistAction = await new Promise<DuelistAction>((resolve) => {
-      this.onDuelUpdateEvent.trigger();
-      this.onWaitStartEvent.trigger({
-        resolve: (tmp) => {
-          resolve(tmp);
-        },
-        entitiesValidator: validator,
-      });
-    });
-    this.waitMode = "None";
-    this.onWaitEndEvent.trigger();
-    if (userAction.surrender) {
-      throw new DuelEnd(this.duelists.Above);
-    }
-    if (userAction.selectedEntities) {
-      return userAction.selectedEntities;
-    }
-    return;
-  };
-
-  private readonly waitUserAction = async (
-    priorityHolder: Duelist,
-    enableCardPlayTypes: TCardActionType[],
-    enableSpellSpeeds: TSpellSpeed[]
-  ): Promise<DuelistAction> => {
-    const actions = this._prepareUserAction(priorityHolder, enableCardPlayTypes, enableSpellSpeeds);
-
-    if (priorityHolder.duelistType === "NPC") {
-      const action = actions.find((act) => act.playType === "Summon");
-      return action
-        ? { action: action }
-        : {
-            phaseChange: this.nextPhaseList[0],
-          };
-    }
-    this.message = `あなたの行動順です。`;
-    return await this._waitUserAction(priorityHolder, "CardAction");
-  };
-  public readonly waitUserSubAction = async (duelist: Duelist, enableActions: CardAction[], message: string): Promise<DuelistAction> => {
-    this.enableCardPlayTypes.reset();
-    this.enableSpellSpeeds.reset();
-    this.enableActions.reset(...enableActions);
-    this.message = message;
-    return await this._waitUserAction(duelist, "SubActionSelect");
-  };
-
-  private readonly waitUserQuickEffect = async (
-    priorityHolder: Duelist,
-    enableCardPlayTypes: TCardActionType[],
-    enableSpellSpeeds: TSpellSpeed[],
-    title: string
-  ): Promise<{ action: CardAction; cell?: DuelFieldCell } | undefined> => {
-    const actions = this._prepareUserAction(priorityHolder, enableCardPlayTypes, enableSpellSpeeds);
-    if (actions.length === 0) {
-      return;
-    }
-    const promise1 = modalController
-      .selectAction(this, {
-        title: title,
-        actions: actions,
-        cancelable: true,
-      })
-      .then((action) => {
-        return action && ({ action: action, cell: undefined } as { action: CardAction; cell?: DuelFieldCell });
-      });
-    const promise2 = this._waitUserAction(priorityHolder, "SubActionSelect").then((result) => {
-      return { action: result.action, cell: result.cell } as { action: CardAction; cell?: DuelFieldCell } | undefined;
-    });
-    return await Promise.any([promise1, promise2]);
-  };
-
-  private readonly _prepareUserAction = (priorityHolder: Duelist, enableCardPlayTypes: TCardActionType[], enableSpellSpeeds: TSpellSpeed[]): CardAction[] => {
-    this.priorityHolder = priorityHolder;
-    this.enableCardPlayTypes.reset(...enableCardPlayTypes);
-    this.enableSpellSpeeds.reset(...enableSpellSpeeds);
-    const result = this.field
-      .getAllEntities()
-      .filter((entity) => entity.controller === priorityHolder)
-      .map((entity) => entity.actions)
-      .flat()
-      .filter((action) => this.enableCardPlayTypes.includes(action.playType))
-      .filter((action) => this.enableSpellSpeeds.includes(action.spellSpeed))
-      .filter((action) => action.validate());
-    this.enableActions.reset(...result);
-    return result;
-  };
-
-  private readonly _waitUserAction = async (duelist: Duelist, waitMode: TDuelWaitMode): Promise<DuelistAction> => {
-    this.waitMode = waitMode;
-
-    const userAction: DuelistAction = await new Promise<DuelistAction>((resolve) => {
-      this.onDuelUpdateEvent.trigger();
-      this.onWaitStartEvent.trigger({ resolve, entitiesValidator: () => false });
-    });
-
-    this.waitMode = "None";
-    this.onWaitEndEvent.trigger();
-    if (userAction.surrender) {
-      throw new DuelEnd(this.duelists.Above);
-    }
-    return userAction;
   };
 }

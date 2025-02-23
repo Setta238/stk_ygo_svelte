@@ -15,7 +15,7 @@
   };
 
   cell?.onUpdate?.append(onCellUpdate);
-  cell?.field.duel.onDuelUpdate.append(onCellUpdate);
+  cell?.field.duel.view.onDuelUpdate.append(onCellUpdate);
 
   let action: (Action: DuelistAction) => void = () => {};
   let selectedEntitiesValidator: (selectedEntities: DuelEntity[]) => boolean = () => true;
@@ -25,7 +25,7 @@
     selectedEntitiesValidator = args.entitiesValidator;
   };
 
-  cell.field.duel.onWaitStart.append(onDuelAction);
+  cell.field.duel.view.onWaitStart.append(onDuelAction);
 
   const onPhaseButtonClick = (phase: TDuelPhase) => {
     console.log(phase);
@@ -69,7 +69,7 @@
     }
     try {
       if (cell.canAcceptDrop) {
-        const cardAction = cell.field.getDraggingAction();
+        const cardAction = cell.field.duel.view.getDraggingAction();
         if (cardAction) {
           action({
             action: cardAction,
@@ -78,11 +78,11 @@
         }
       }
     } finally {
-      cell.field.removeDraggingAction();
+      cell.field.duel.view.removeDraggingAction();
     }
   };
   const canAction = (...entities: DuelEntity[]) => {
-    return cell.field.duel.enableActions.filter((action) => entities.includes(action.entity)).length > 0;
+    return cell.field.duel.view.enableActions.filter((action) => entities.includes(action.entity)).length > 0;
   };
 </script>
 
@@ -96,7 +96,7 @@
   >
     {#if cell.cellType === "PhaseButton"}
       <div>【{cell.field.duel.phase}】</div>
-      {#if cell.field.duel.waitMode === "CardAction"}
+      {#if cell.field.duel.view.waitMode === "CardAction"}
         {#each cell.field.duel.nextPhaseList as phase}
           <div><button class="phase_button" onclick={() => onPhaseButtonClick(phase)}>{phase}</button></div>
         {/each}
@@ -106,22 +106,26 @@
     {:else if cell.cellType === "Hand"}
       <div class="flex" style="  margin: 0 auto;">
         {#each cell.entities as entity}
-          <button disabled={cell.field.duel.waitMode !== "CardAction" || !canAction(entity)} class="action_button" onclick={() => onActionButtonClick(entity)}>
-            <DuelCard {entity} isSelectable={cell.field.duel.waitMode === "EntitiesSelect" && entity.isSelectable} bind:selectedList />
+          <button
+            disabled={cell.field.duel.view.waitMode !== "CardAction" || !canAction(entity)}
+            class="action_button"
+            onclick={() => onActionButtonClick(entity)}
+          >
+            <DuelCard {entity} isSelectable={cell.field.duel.view.waitMode === "EntitiesSelect" && entity.isSelectable} bind:selectedList />
           </button>
         {/each}
       </div>
     {:else}
       <div>
         <button
-          disabled={!cell.field.duel.waitMode || !canAction(...cell.entities)}
+          disabled={!cell.field.duel.view.waitMode || !canAction(...cell.entities)}
           class="action_button"
           onclick={() => onActionButtonClick(...cell.entities)}
         >
           {#if cell.entities.length > 0}
             <DuelCard
               entity={cell.entities[0]}
-              isSelectable={cell.field.duel.waitMode === "EntitiesSelect" && cell.entities[0].isSelectable}
+              isSelectable={cell.field.duel.view.waitMode === "EntitiesSelect" && cell.entities[0].isSelectable}
               bind:selectedList
             />
           {/if}

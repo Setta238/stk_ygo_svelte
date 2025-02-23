@@ -258,6 +258,6 @@ export default class DuelEntity {
     if (this.field.duel.priorityHolder !== this.controller) {
       return [];
     }
-    return this.field.duel.enableActions.filter((action) => this === action.entity);
+    return this.field.duel.view.enableActions.filter((action) => this === action.entity);
   };
 }

@@ -5,7 +5,7 @@ import path from "path";
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [svelte()],
-  base: "https://setta238.github.io/stk_ygo_svelte/",
+  base: process.env.GITHUB_PAGES ? "stk_ygo_svelte" : "/",
   resolve: {
     alias: {
       "@stk_utils": path.join(__dirname, "src/stk_utils"),

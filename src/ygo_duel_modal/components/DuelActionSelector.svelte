@@ -47,7 +47,9 @@
     }
   };
   const close = () => {
-    modalController.cardActionSelectorResolve(undefined);
+    if (modalController.cardActionSelectorArg.cancelable) {
+      modalController.cardActionSelectorResolve(undefined);
+    }
   };
   const isDraggable = (action: CardAction) => {
     const tmp = action.validate();

@@ -20,6 +20,7 @@
   let action: (Action: DuelistAction) => void = () => {};
   let selectedEntitiesValidator: (selectedEntities: DuelEntity[]) => boolean = () => true;
   const onDuelAction: (args: { resolve: (action: DuelistAction) => void; entitiesValidator: (selectedEntities: DuelEntity[]) => boolean }) => void = (args) => {
+    selectedList.splice(0);
     action = args.resolve;
     selectedEntitiesValidator = args.entitiesValidator;
   };

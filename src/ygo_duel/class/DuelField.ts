@@ -250,6 +250,7 @@ export class DuelField {
     this.duel.log.write(`${result.status.name}を召喚（${entity.movedAs.join(",")}）。`, chooser ?? causedBy?.controller ?? entity.controller);
     return result;
   };
+
   private readonly _summon = async (
     entity: DuelEntity,
     selectablePosList: TBattlePosition[],
@@ -263,16 +264,18 @@ export class DuelField {
     let cell = selectableCells[0];
 
     if (selectableCells.length > 1 || selectablePosList.length > 1) {
-      const dammyActions = selectablePosList.map((pos) => DuelEntity.createDammyAction(entity, pos, selectableCells, pos));
-      modalController.selectAction(this.duel, {
-        title: "カードを召喚先へドラッグ。",
-        actions: dammyActions,
-        cancelable: false,
-      });
-      const dammyAction = await this.duel.waitUserSubAction(_chooser, dammyActions, "カードを召喚先へドラッグ。");
+      if (_chooser.duelistType !== "NPC") {
+        const dammyActions = selectablePosList.map((pos) => DuelEntity.createDammyAction(entity, pos, selectableCells, pos));
+        modalController.selectAction(this.duel, {
+          title: "カードを召喚先へドラッグ。",
+          actions: dammyActions,
+          cancelable: false,
+        });
+        const dammyAction = await this.duel.waitUserSubAction(_chooser, dammyActions, "カードを召喚先へドラッグ。");
 
-      cell = dammyAction.cell || cell;
-      pos = (dammyAction.action as DammyCardAction<TBattlePosition>).data;
+        cell = dammyAction.cell || cell;
+        pos = (dammyAction.action as DammyCardAction<TBattlePosition>).data;
+      }
     }
 
     if (!cell) {

@@ -75,7 +75,13 @@ export type TDuelEntityInfoDetail = {
 };
 export type TDuelEntityInfo = TCardInfoBase & TDuelEntityInfoDetail;
 const defaultNormalSummonValidate = (entity: DuelEntity): DuelFieldCell[] | undefined => {
+  // 手札にないカードは通常召喚不可。
   if (entity.fieldCell.cellType !== "Hand") {
+    return;
+  }
+
+  // 召喚権を使い切っていたら通常召喚不可。
+  if (entity.controller.normalSummonCount >= entity.controller.maxNormalSummonCount) {
     return;
   }
 
@@ -125,6 +131,7 @@ const defaultNormalSummonExecute = async (entity: DuelEntity, pos: TBattlePositi
 
   const emptyCells = entity.field.getEmptyMonsterZones(entity.controller);
   await entity.field.summon(entity, [pos], cell ? [cell] : emptyCells, causedBy, entity);
+  entity.controller.normalSummonCount++;
   return true;
 };
 

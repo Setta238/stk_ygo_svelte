@@ -21,6 +21,8 @@ export default class Duelist {
   public readonly deckInfo: DeckInfo;
   public readonly duelistType: TDuelistType;
   public readonly lifeLog: LifeLogRecord[];
+  public normalSummonCount: number;
+  public readonly maxNormalSummonCount: number;
   private lp: number;
   public constructor(duel: Duel, seat: TSeat, profile: DuelistProfile, duelistType: TDuelistType, deckInfo: DeckInfo) {
     this.duel = duel;
@@ -29,6 +31,8 @@ export default class Duelist {
     this.duelistType = duelistType;
     this.deckInfo = deckInfo;
     this.lifeLog = [];
+    this.normalSummonCount = 0;
+    this.maxNormalSummonCount = 1;
     this.lp = 8000;
   }
   public readonly damage = (point: number, entity: DuelEntity): LifeLogRecord => {

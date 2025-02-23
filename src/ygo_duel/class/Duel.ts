@@ -7,7 +7,8 @@ import StkEvent from "@stk_utils/class/StkEvent";
 import type DuelEntity from "@ygo_duel/class/DuelEntity";
 import { cardActionChainBlockTypes, type CardAction, type TCardActionType, type TSpellSpeed } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCell } from "./DuelFieldCell";
-export type ProcKey = { seq: number; chain: number };
+import { modalController } from "@ygo_duel_modal/class/ModalController";
+export type ProcKey = { turn: number; seq: number; chain: number };
 export type TDuelPhase = "draw" | "standby" | "main1" | "battle" | "main2" | "end";
 export type TDuelPhaseStep = "start" | "battle" | "damage" | "end" | undefined;
 export type TDuelWaitMode = "None" | "CardAction" | "EntitiesSelect" | "SubActionSelect";
@@ -74,7 +75,7 @@ export class Duel {
   ) {
     this.turn = 0;
     this.phase = "end";
-    this.procKey = { seq: 0, chain: 0 };
+    this.procKey = { turn: 0, seq: 0, chain: 0 };
     this.nextPhaseList = [];
     this.message = "";
     this.waitMode = "None";
@@ -168,6 +169,91 @@ export class Duel {
     }
   };
 
+  public readonly moveNextStep = (next: TDuelPhaseStep) => {
+    this.phaseStep = next;
+  };
+
+  private readonly procDrawPhase = async () => {
+    this.turn++;
+    this.procKey.turn = this.turn;
+    this.procKey.seq = 0;
+    this.procKey.chain = 0;
+    this.getTurnPlayer().normalSummonCount = 0;
+    this.log.write("ドローフェイズ開始。", this.getTurnPlayer());
+    if (this.turn === 1) {
+      this.log.write("先攻プレイヤーはドローできない。", this.getTurnPlayer());
+    } else {
+      this.field.draw(this.getTurnPlayer(), 1);
+    }
+    this.moveNextPhase("standby");
+  };
+  private readonly procStanbyPhase = async () => {
+    this.moveNextPhase("main1");
+  };
+  private readonly procMainPhase = async () => {
+    const action = await this.waitUserAction(
+      this.getTurnPlayer(),
+      ["Summon", "ChangeBattlePosition", "IgnitionEffect", "QuickEffect"],
+      ["Normal", "Quick", "Counter"]
+    );
+    if (action.action) {
+      this.procKey.seq++;
+      this.procKey.chain = ([...cardActionChainBlockTypes] as TCardActionType[]).includes(action.action.playType) ? 1 : 0;
+      console.log(action.action);
+      await action.action.execute(action.cell);
+    } else if (action.phaseChange) {
+      //todo 優先権
+      this.moveNextPhase(action.phaseChange);
+      return;
+    }
+  };
+  private readonly procBattlePhase = async () => {
+    await this.procBattlePhaseStartStep();
+    await this.procBattlePhaseBattleStep();
+    await this.procBattlePhaseEndStep();
+  };
+  private readonly procBattlePhaseStartStep = async () => {
+    this.phaseStep = "start";
+
+    const action = await this.waitUserQuickEffect(
+      this.getTurnPlayer(),
+      ["QuickEffect"],
+      ["Normal", "Quick", "Counter"],
+      "スタートステップです。効果を発動しますか？"
+    );
+
+    //todo クイックエフェクト
+
+    if (!action) {
+      return;
+    }
+  };
+  private readonly procBattlePhaseBattleStep = async () => {
+    while (true) {
+      this.phaseStep = "battle";
+      const action = await this.waitUserAction(this.getTurnPlayer(), ["Battle", "QuickEffect"], ["Normal", "Quick", "Counter"]);
+      if (action.phaseChange) {
+        return;
+      }
+    }
+  };
+  private readonly procBattlePhaseEndStep = async () => {
+    this.phaseStep = "end";
+    //todo 優先権
+    this.moveNextPhase("end");
+  };
+  private readonly procEndPhase = async () => {
+    while (true) {
+      const hand = this.field.getHandCell(this.getTurnPlayer());
+      if (hand.entities.length < 7) {
+        break;
+      }
+      await this.field.discard(this.getTurnPlayer(), hand.entities.length - 6, ["Rule"]);
+    }
+    this.moveNextPhase("draw");
+    return;
+  };
+
   public readonly waitUserSelectEntitiesOnField = async (
     duelist: Duelist,
     entities: DuelEntity[],
@@ -217,24 +303,15 @@ export class Duel {
     enableCardPlayTypes: TCardActionType[],
     enableSpellSpeeds: TSpellSpeed[]
   ): Promise<DuelistAction> => {
-    this.priorityHolder = priorityHolder;
-    this.enableCardPlayTypes.reset(...enableCardPlayTypes);
-    this.enableSpellSpeeds.reset(...enableSpellSpeeds);
-    this.enableActions.reset(
-      ...this.field
-        .getAllEntities()
-        .filter((entity) => entity.controller === priorityHolder)
-        .map((entity) => entity.actions)
-        .flat()
-        .filter((action) => this.enableCardPlayTypes.includes(action.playType))
-        .filter((action) => this.enableSpellSpeeds.includes(action.spellSpeed))
-        .filter((action) => action.validate())
-    );
+    const actions = this._prepareUserAction(priorityHolder, enableCardPlayTypes, enableSpellSpeeds);
 
     if (priorityHolder.duelistType === "NPC") {
-      return {
-        phaseChange: this.nextPhaseList[0],
-      };
+      const action = actions.find((act) => act.playType === "Summon");
+      return action
+        ? { action: action }
+        : {
+            phaseChange: this.nextPhaseList[0],
+          };
     }
     this.message = `あなたの行動順です。`;
     return await this._waitUserAction(priorityHolder, "CardAction");
@@ -245,6 +322,47 @@ export class Duel {
     this.enableActions.reset(...enableActions);
     this.message = message;
     return await this._waitUserAction(duelist, "SubActionSelect");
+  };
+
+  private readonly waitUserQuickEffect = async (
+    priorityHolder: Duelist,
+    enableCardPlayTypes: TCardActionType[],
+    enableSpellSpeeds: TSpellSpeed[],
+    title: string
+  ): Promise<{ action: CardAction; cell?: DuelFieldCell } | undefined> => {
+    const actions = this._prepareUserAction(priorityHolder, enableCardPlayTypes, enableSpellSpeeds);
+    if (actions.length === 0) {
+      return;
+    }
+    const promise1 = modalController
+      .selectAction(this, {
+        title: title,
+        actions: actions,
+        cancelable: true,
+      })
+      .then((action) => {
+        return action && ({ action: action, cell: undefined } as { action: CardAction; cell?: DuelFieldCell });
+      });
+    const promise2 = this._waitUserAction(priorityHolder, "SubActionSelect").then((result) => {
+      return { action: result.action, cell: result.cell } as { action: CardAction; cell?: DuelFieldCell } | undefined;
+    });
+    return await Promise.any([promise1, promise2]);
+  };
+
+  private readonly _prepareUserAction = (priorityHolder: Duelist, enableCardPlayTypes: TCardActionType[], enableSpellSpeeds: TSpellSpeed[]): CardAction[] => {
+    this.priorityHolder = priorityHolder;
+    this.enableCardPlayTypes.reset(...enableCardPlayTypes);
+    this.enableSpellSpeeds.reset(...enableSpellSpeeds);
+    const result = this.field
+      .getAllEntities()
+      .filter((entity) => entity.controller === priorityHolder)
+      .map((entity) => entity.actions)
+      .flat()
+      .filter((action) => this.enableCardPlayTypes.includes(action.playType))
+      .filter((action) => this.enableSpellSpeeds.includes(action.spellSpeed))
+      .filter((action) => action.validate());
+    this.enableActions.reset(...result);
+    return result;
   };
 
   private readonly _waitUserAction = async (duelist: Duelist, waitMode: TDuelWaitMode): Promise<DuelistAction> => {
@@ -261,55 +379,5 @@ export class Duel {
       throw new DuelEnd(this.duelists.Above);
     }
     return userAction;
-  };
-
-  private readonly procDrawPhase = async () => {
-    this.turn++;
-    this.log.write("ドローフェイズ開始。", this.getTurnPlayer());
-    if (this.turn === 1) {
-      this.log.write("先攻プレイヤーはドローできない。", this.getTurnPlayer());
-    } else {
-      this.field.draw(this.getTurnPlayer(), 1);
-    }
-    this.moveNextPhase("standby");
-  };
-  private readonly procStanbyPhase = async () => {
-    this.moveNextPhase("main1");
-  };
-  private readonly procMainPhase = async () => {
-    const action = await this.waitUserAction(
-      this.getTurnPlayer(),
-      ["Summon", "ChangeBattlePosition", "IgnitionEffect", "QuickEffect"],
-      ["Normal", "Quick", "Counter"]
-    );
-    if (action.action) {
-      this.procKey.seq++;
-      this.procKey.chain = ([...cardActionChainBlockTypes] as TCardActionType[]).includes(action.action.playType) ? 1 : 0;
-      console.log(action.action);
-      await action.action.execute(action.cell);
-    } else if (action.phaseChange) {
-      //todo 優先権
-      this.moveNextPhase(action.phaseChange);
-      return;
-    }
-  };
-  private readonly procBattlePhase = async () => {
-    const action = await this.waitUserAction(this.getTurnPlayer(), ["Battle", "QuickEffect"], ["Normal", "Quick", "Counter"]);
-    if (action.phaseChange) {
-      //todo 優先権
-      this.moveNextPhase(action.phaseChange);
-      return;
-    }
-  };
-  private readonly procEndPhase = async () => {
-    while (true) {
-      const hand = this.field.getHandCell(this.getTurnPlayer());
-      if (hand.entities.length < 7) {
-        break;
-      }
-      await this.field.discard(this.getTurnPlayer(), hand.entities.length - 6, ["Rule"]);
-    }
-    this.moveNextPhase("draw");
-    return;
   };
 }

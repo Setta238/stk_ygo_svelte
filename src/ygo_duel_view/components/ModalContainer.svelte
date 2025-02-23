@@ -1,9 +1,9 @@
 <script lang="ts" module>
   import { writable } from "svelte/store";
-  import DuelEntity, { type CardAction } from "../../ygo_duel/class/DuelEntity";
-  import { modalController } from "../class/ModalController";
-  import DuelEntitiesSelector from "./DuelEntitiesSelector.svelte";
-  import DuelActionSelector from "./DuelActionSelector.svelte";
+  import DuelEntity, { type CardAction } from "@ygo_duel/class/DuelEntity";
+  import { modalController } from "@ygo_duel_view/class/ModalController";
+  import DuelEntitiesSelector from "@ygo_duel_view/components/DuelEntitiesSelector.svelte";
+  import DuelActionSelector from "@ygo_duel_view/components/DuelActionSelector.svelte";
   let states = writable(modalController.states);
 
   const onModalControllerUpdate = () => {

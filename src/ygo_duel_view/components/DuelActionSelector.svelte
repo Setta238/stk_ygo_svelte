@@ -15,9 +15,9 @@
 </script>
 
 <script lang="ts">
-  import DuelCard from "@ygo_duel/components/DuelCard.svelte";
-  import DuelFieldCell from "@ygo_duel/components/DuelFieldCell.svelte";
-  import { modalController } from "@ygo_duel_modal/class/ModalController";
+  import DuelCard from "@ygo_duel_view/components/DuelCard.svelte";
+  import DuelFieldCell from "@ygo_duel_view/components/DuelFieldCell.svelte";
+  import { modalController } from "@ygo_duel_view/class/ModalController";
   interface IProp {
     resolve: (action?: CardAction, cell?: DuelFieldCell) => void;
     title: string;
@@ -47,7 +47,9 @@
     }
   };
   const close = () => {
-    modalController.cardActionSelectorResolve(undefined);
+    if (cancelable) {
+      modalController.cardActionSelectorResolve(undefined);
+    }
   };
   const isDraggable = (action: CardAction) => {
     const tmp = action.validate();

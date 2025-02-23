@@ -34,6 +34,7 @@
   duel.onDuelUpdate.append(onDuelUpdate);
   duel.onWaitStart.append(onDuelAction);
   const onOkClick = () => {
+    console.log(selectedList);
     if (selectedEntitiesValidator(selectedList)) {
       action({ selectedEntities: selectedList });
     }

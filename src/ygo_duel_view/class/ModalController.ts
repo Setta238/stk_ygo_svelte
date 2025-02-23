@@ -1,9 +1,9 @@
 import type { Duel } from "@ygo_duel/class/Duel";
-import StkEvent from "../../stk_utils/class/StkEvent";
-import type { CardAction } from "../../ygo_duel/class/DuelEntity";
-import type DuelEntity from "../../ygo_duel/class/DuelEntity";
-import type { CardActionSelectorArg } from "../components/DuelActionSelector.svelte";
-import type { DuelEntitiesSelectorArg } from "../components/DuelEntitiesSelector.svelte";
+import StkEvent from "@stk_utils/class/StkEvent";
+import type { CardAction } from "@ygo_duel/class/DuelEntity";
+import type DuelEntity from "@ygo_duel/class/DuelEntity";
+import type { CardActionSelectorArg } from "@ygo_duel_view/components/DuelActionSelector.svelte";
+import type { DuelEntitiesSelectorArg } from "@ygo_duel_view/components/DuelEntitiesSelector.svelte";
 
 const modalNames = ["DuelEntitiesSelector", "DuelActionSelector"] as const;
 export type TModalName = (typeof modalNames)[number];

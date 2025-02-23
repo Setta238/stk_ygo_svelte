@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { DuelFieldCell } from "../class/DuelFieldCell";
-  import { type DuelistAction, type TDuelPhase } from "../class/Duel";
+  import { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
+  import { type DuelistAction, type TDuelPhase } from "@ygo_duel/class/Duel";
 
-  import DuelCard from "../components/DuelCard.svelte";
-  import DuelEntity from "../class/DuelEntity";
-  import { modalController } from "../../ygo_duel_modal/class/ModalController";
+  import DuelCard from "@ygo_duel_view/components/DuelCard.svelte";
+  import DuelEntity from "@ygo_duel/class/DuelEntity";
+  import { modalController } from "@ygo_duel_view/class/ModalController";
 
   export let cell: DuelFieldCell;
 
@@ -20,6 +20,7 @@
   let action: (Action: DuelistAction) => void = () => {};
   let selectedEntitiesValidator: (selectedEntities: DuelEntity[]) => boolean = () => true;
   const onDuelAction: (args: { resolve: (action: DuelistAction) => void; entitiesValidator: (selectedEntities: DuelEntity[]) => boolean }) => void = (args) => {
+    selectedList.splice(0);
     action = args.resolve;
     selectedEntitiesValidator = args.entitiesValidator;
   };

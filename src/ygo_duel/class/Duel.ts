@@ -7,7 +7,7 @@ import StkEvent from "@stk_utils/class/StkEvent";
 import type DuelEntity from "@ygo_duel/class/DuelEntity";
 import { cardActionChainBlockTypes, type CardAction, type TCardActionType, type TSpellSpeed } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCell } from "./DuelFieldCell";
-import { modalController } from "@ygo_duel_modal/class/ModalController";
+import { modalController } from "@ygo_duel_view/class/ModalController";
 export type ProcKey = { turn: number; seq: number; chain: number };
 export type TDuelPhase = "draw" | "standby" | "main1" | "battle" | "main2" | "end";
 export type TDuelPhaseStep = "start" | "battle" | "damage" | "end" | undefined;

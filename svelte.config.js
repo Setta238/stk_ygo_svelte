@@ -9,7 +9,7 @@ export default {
       "@stk_utils": "./src/stk_utils",
       "@ygo":  "./src/ygo",
       "@ygo_duel":  "./src/ygo_duel",
-      "@ygo_duel_modal": "src/ygo_duel_modal",
+      "@ygo_duel_view": "src/ygo_duel_view",
     }
   }}
 

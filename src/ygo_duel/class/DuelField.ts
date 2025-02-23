@@ -3,7 +3,7 @@ import DuelEntity, { type CardAction, type DammyCardAction, type TDuelCauseReaso
 import cardInfoDic from "@ygo/class/CardInfo";
 import type Duelist from "./Duelist";
 import {} from "@stk_utils/funcs/StkArrayUtils";
-import { modalController } from "@ygo_duel_modal/class/ModalController";
+import { modalController } from "@ygo_duel_view/class/ModalController";
 import { cellTypeMaster, DuelFieldCell, type DuelFieldCellType } from "./DuelFieldCell";
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
 

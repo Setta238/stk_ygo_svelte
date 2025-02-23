@@ -6,9 +6,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && robocopy dist docs /MIR /DCOPY:DAT",
+    "build": "vite build",
     "preview": "vite preview",
-    "predeploy": "npm run build",
+    "predeploy": "vite build && robocopy dist docs /MIR /DCOPY:DAT",
     "deploy": "gh-pages -d docs",
     "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json"
     

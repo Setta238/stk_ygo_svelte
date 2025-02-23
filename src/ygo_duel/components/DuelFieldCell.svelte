@@ -97,11 +97,11 @@
       <div>【{cell.field.duel.phase}】</div>
       {#if cell.field.duel.waitMode === "CardAction"}
         {#each cell.field.duel.nextPhaseList as phase}
-          <div><button onclick={() => onPhaseButtonClick(phase)}>{phase}</button></div>
+          <div><button class="phase_button" onclick={() => onPhaseButtonClick(phase)}>{phase}</button></div>
         {/each}
       {/if}
     {:else if cell.cellType === "SurrenderButton"}
-      <div><button onclick={onSurrenderButtonClick}>サレンダー</button></div>
+      <div><button class="surrender_button" onclick={onSurrenderButtonClick}>サレンダー</button></div>
     {:else if cell.cellType === "Hand"}
       <div class="flex" style="  margin: 0 auto;">
         {#each cell.entities as entity}
@@ -168,7 +168,25 @@
     pointer-events: none;
   }
   .action_button * {
-    pointer-events: none; /* 追加 */
+    pointer-events: none;
+  }
+  .surrender_button,
+  .phase_button {
+    padding: 0 10px;
+    font-size: x-large;
+    border: 2px solid #000;
+    background: #fff;
+    font-weight: 700;
+    line-height: 1.5;
+    position: relative;
+    display: inline-block;
+    padding: 0.2rem 1rem;
+    cursor: pointer;
+  }
+  .surrender_button:hover,
+  .phase_button:hover {
+    color: #fff;
+    background: #000;
   }
   .duel_field_cell_Hand > div {
     display: flex;

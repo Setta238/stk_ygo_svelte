@@ -112,6 +112,23 @@
     justify-content: space-between;
     align-items: center;
   }
+  .duel_field_footer button {
+    padding: 0 10px;
+    font-size: x-large;
+    border: 2px solid #000;
+    background: #fff;
+    font-weight: 700;
+    line-height: 1.5;
+    position: relative;
+    display: inline-block;
+    padding: 0.3rem 2rem;
+    cursor: pointer;
+  }
+
+  .duel_field_footer button:hover {
+    color: #fff;
+    background: #000;
+  }
   .duel_desk_right {
     min-width: 15%;
     overflow: hidden;

@@ -6,10 +6,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && robocopy dist github_page /MIR /DCOPY:DAT",
+    "build": "vite build && robocopy dist docs /MIR /DCOPY:DAT",
     "preview": "vite preview",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d github_page",
+    "deploy": "gh-pages -d docs",
     "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json"
     
   },

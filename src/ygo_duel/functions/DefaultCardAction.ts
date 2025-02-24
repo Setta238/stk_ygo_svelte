@@ -119,6 +119,30 @@ export const defaultAttackExecute = async (entity: DuelEntity, pos?: TBattlePosi
 
   return true;
 };
+export const defaultBattlePotisionChangeValidate = (entity: DuelEntity): DuelFieldCell[] | undefined => {
+  if (entity.status.battlePotisionChangeCount > 0 || !entity.controller.isTurnPlayer) {
+    return undefined;
+  }
+  if (entity.fieldCell.cellType !== "ExtraMonsterZone" && entity.fieldCell.cellType !== "MonsterZone") {
+    return undefined;
+  }
+
+  return [];
+};
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const defaultBattlePotisionChangeExecute = async (entity: DuelEntity, _pos?: TBattlePosition, _cell?: DuelFieldCell): Promise<boolean> => {
+  if (entity.status.battlePotisionChangeCount > 0 || !entity.controller.isTurnPlayer) {
+    return false;
+  }
+  if (entity.fieldCell.cellType !== "ExtraMonsterZone" && entity.fieldCell.cellType !== "MonsterZone") {
+    return false;
+  }
+
+  entity.setBattlePosition(entity.battlePotion === "Attack" ? "Defense" : "Attack");
+  entity.status.battlePotisionChangeCount++;
+  return true;
+};
 export const defaultNormalAttackSummonRule: CardActionBase<void> = {
   title: "召喚",
   playType: "Summon",
@@ -142,4 +166,13 @@ export const defaultAttackRule: CardActionBase<void> = {
   validate: defaultAttackValidate,
   prepare: async () => {},
   execute: (entity, cell) => defaultAttackExecute(entity, undefined, cell),
+};
+
+export const defaultBattlePotisionChangeRule: CardActionBase<void> = {
+  title: "表示形式の変更",
+  playType: "ChangeBattlePosition",
+  spellSpeed: "Normal",
+  validate: defaultBattlePotisionChangeValidate,
+  prepare: async () => {},
+  execute: (entity, cell) => defaultBattlePotisionChangeExecute(entity, undefined, cell),
 };

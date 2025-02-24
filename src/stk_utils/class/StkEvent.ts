@@ -17,6 +17,10 @@ export default class StkEvent<T> {
     this.handlers.slice(0).forEach((h) => h(data));
   }
 
+  public clear() {
+    this.handlers.splice(0);
+  }
+
   public expose(): IStkEvent<T> {
     //追加・除外以外の操作を他クラスからさせないためにキャストする。
     return this;

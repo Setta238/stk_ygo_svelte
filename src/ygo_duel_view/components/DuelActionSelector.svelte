@@ -1,10 +1,10 @@
 <script lang="ts" module>
   import { writable } from "svelte/store";
-  import type { CardAction } from "@ygo_duel/class/DuelEntity";
+  import type { CardActionWIP } from "@ygo_duel/class/DuelEntity";
 
   export type CardActionSelectorArg = {
     title: string;
-    actions: CardAction[];
+    actions: CardActionWIP<unknown>[];
     cancelable: boolean;
   };
   export const dataKeys = {
@@ -19,9 +19,9 @@
   import DuelFieldCell from "@ygo_duel_view/components/DuelFieldCell.svelte";
   import { modalController } from "@ygo_duel_view/class/ModalController";
   interface IProp {
-    resolve: (action?: CardAction, cell?: DuelFieldCell) => void;
+    resolve: (action?: CardActionWIP<unknown>, cell?: DuelFieldCell) => void;
     title: string;
-    actions: CardAction[];
+    actions: CardActionWIP<unknown>[];
     cancelable: boolean;
   }
   let { resolve, title, actions, cancelable }: IProp = $props();
@@ -30,16 +30,16 @@
 
   let isDragging = writable(false);
 
-  const click = (action: CardAction) => {
+  const click = (action: CardActionWIP<unknown>) => {
     modalController.cardActionSelectorResolve(action);
   };
-  const dragStart = (ev: DragEvent, action: CardAction) => {
+  const dragStart = (ev: DragEvent, action: CardActionWIP<unknown>) => {
     console.log("drag start", ev, action);
     action.entity.field.duel.view.setDraggingAction(action);
     isDragging.set(true);
   };
 
-  const dragEnd = (ev: DragEvent, action: CardAction) => {
+  const dragEnd = (ev: DragEvent, action: CardActionWIP<unknown>) => {
     console.log("drag end", ev, action);
     action.entity.field.duel.view.removeDraggingAction();
     if (ev.dataTransfer) {
@@ -51,7 +51,7 @@
       modalController.cardActionSelectorResolve(undefined);
     }
   };
-  const isDraggable = (action: CardAction) => {
+  const isDraggable = (action: CardActionWIP<unknown>) => {
     const tmp = action.validate();
     return tmp ? tmp.length > 0 : false;
   };

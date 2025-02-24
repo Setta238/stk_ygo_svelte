@@ -1,13 +1,12 @@
 <script lang="ts" module>
   import { writable } from "svelte/store";
-  import DuelEntity, { type CardAction } from "@ygo_duel/class/DuelEntity";
+  import { DuelEntity, type CardActionWIP } from "@ygo_duel/class/DuelEntity";
   import { modalController } from "@ygo_duel_view/class/ModalController";
   import DuelEntitiesSelector from "@ygo_duel_view/components/DuelEntitiesSelector.svelte";
   import DuelActionSelector from "@ygo_duel_view/components/DuelActionSelector.svelte";
   let states = writable(modalController.states);
 
   const onModalControllerUpdate = () => {
-    console.log(states);
     states.set(modalController.states);
   };
   modalController?.onUpdate?.append(onModalControllerUpdate);
@@ -31,7 +30,7 @@
       title={modalController.cardActionSelectorArg.title}
       actions={modalController.cardActionSelectorArg.actions}
       cancelable={modalController.cardActionSelectorArg.cancelable}
-      resolve={(action: CardAction | undefined) => {
+      resolve={(action: CardActionWIP<unknown> | undefined) => {
         console.log(action);
         modalController.cardActionSelectorResolve(action);
       }}

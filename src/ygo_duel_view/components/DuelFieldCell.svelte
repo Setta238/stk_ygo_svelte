@@ -4,7 +4,6 @@
 
   import DuelCard from "@ygo_duel_view/components/DuelCard.svelte";
   import { DuelEntity, type CardAction, type CardActionWIP } from "@ygo_duel/class/DuelEntity";
-  import { modalController } from "@ygo_duel_view/class/ModalController";
   import type { DuelViewController, WaitStartEventArg } from "@ygo_duel_view/class/DuelViewController";
   import {} from "@stk_utils/funcs/StkArrayUtils";
   export let view: DuelViewController;
@@ -61,7 +60,7 @@
   const onActionButtonClick = (...entities: DuelEntity[]) => {
     const map = Map.groupBy(enableActions, (action) => action.entity);
     if (entities.length === 1) {
-      modalController
+      cell.field.duel.view.modalController
         .selectAction(view, {
           title: "行動を選択。",
           actions: (map.get(entities[0]) as CardActionWIP<unknown>[]) || [],
@@ -192,7 +191,6 @@
     background: #fff;
     font-weight: 700;
     line-height: 1.5;
-    position: relative;
     display: inline-block;
     padding: 0.2rem 1rem;
     cursor: pointer;

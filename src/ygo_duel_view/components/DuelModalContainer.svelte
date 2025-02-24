@@ -1,19 +1,18 @@
-<script lang="ts" module>
-  import { writable } from "svelte/store";
+<script lang="ts">
   import { DuelEntity, type CardActionWIP } from "@ygo_duel/class/DuelEntity";
-  import { modalController } from "@ygo_duel_view/class/ModalController";
   import DuelEntitiesSelector from "@ygo_duel_view/components/DuelEntitiesSelector.svelte";
   import DuelActionSelector from "@ygo_duel_view/components/DuelActionSelector.svelte";
-  let states = writable(modalController.states);
+  import { DuelModalController } from "@ygo_duel_view/class/DuelModalController";
+  export let modalController: DuelModalController;
 
   const onModalControllerUpdate = () => {
-    states.set(modalController.states);
+    modalController = modalController;
   };
   modalController?.onUpdate?.append(onModalControllerUpdate);
 </script>
 
 <div class="base">
-  {#if $states.DuelEntitiesSelector === "Shown"}
+  {#if modalController.states.DuelEntitiesSelector === "Shown"}
     <DuelEntitiesSelector
       title={modalController.duelEntitiesSelectorArg.title}
       entities={modalController.duelEntitiesSelectorArg.entities}
@@ -25,7 +24,7 @@
       }}
     />
   {/if}
-  {#if $states.DuelActionSelector === "Shown"}
+  {#if modalController.states.DuelActionSelector === "Shown"}
     <DuelActionSelector
       title={modalController.cardActionSelectorArg.title}
       actions={modalController.cardActionSelectorArg.actions}

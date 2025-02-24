@@ -3,7 +3,7 @@ import { Duel, DuelEnd, SystemError, type DuelistAction } from "@ygo_duel/class/
 import type { DuelEntity, CardAction, CardActionWIP } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 import type Duelist from "@ygo_duel/class/Duelist";
-import { modalController } from "./ModalController";
+import { DuelModalController } from "./DuelModalController";
 export type TDuelWaitMode = "None" | "SelectFieldAction" | "SelectAction" | "SelectFieldEntities" | "SelectEntites";
 export type WaitStartEventArg = {
   resolve: (action: DuelistAction) => void;
@@ -37,6 +37,7 @@ export class DuelViewController {
     return this.onDragEndEvent.expose();
   }
   public readonly duel: Duel;
+  public readonly modalController: DuelModalController;
   //  private draggingAction: CardActionWIP | undefined;
   public message: string;
   public waitMode: TDuelWaitMode;
@@ -44,6 +45,7 @@ export class DuelViewController {
     this.duel = duel;
     this.message = "";
     this.waitMode = "None";
+    this.modalController = new DuelModalController();
   }
 
   public readonly getCell = (row: number, column: number): DuelFieldCell => {
@@ -88,7 +90,7 @@ export class DuelViewController {
     const promiseList: Promise<CardActionWIP<unknown> | undefined>[] = [];
 
     promiseList.push(
-      modalController
+      this.modalController
         .selectAction(this, {
           title: message,
           actions: enableActions as CardActionWIP<unknown>[],
@@ -157,7 +159,7 @@ export class DuelViewController {
       }
       return selected;
     }
-
+    console.log(this.waitSelectEntities);
     this.waitMode = choises.every(
       (e) => (e.fieldCell.cellType === "FieldZone" && e.getIndexInCell() === 0) || (e.fieldCell.cellType === "Hand" && e.controller === chooser)
     )
@@ -193,7 +195,7 @@ export class DuelViewController {
     this.waitMode = "None";
     console.log(userAction);
     this.onWaitEndEvent.trigger();
-    if (userAction.surrender || userAction.retry) {
+    if (userAction.surrender) {
       throw new DuelEnd(this.duel.duelists.Above);
     }
     if (!cancelable && userAction.cancel) {

@@ -26,7 +26,6 @@ export type DuelistAction = {
   attack?: [DuelEntity, DuelEntity | undefined];
   cancel?: boolean;
   surrender?: boolean;
-  retry?: boolean;
 };
 
 export class DuelEnd extends Error {
@@ -309,14 +308,15 @@ export class Duel {
         this.getOpponentPlayer(attacker.controller).battleDamage(attacker.status.attack - defPoint, attacker);
       }
       this.field.destroyMany([defender], ["Battle"], attacker);
-    } else if (defender && atkPoint < defPoint) {
-      // 絶対防御将軍などを考慮
-      if (attacker.battlePotion === "Attack") {
-        attacker.controller.battleDamage(defPoint - attacker.status.attack, defender);
-      }
+    } else if (atkPoint < defPoint) {
+      // 絶対防御将軍が守備表示で攻撃しても反射ダメージが発生するとのこと。
+      attacker.controller.battleDamage(defPoint - attacker.status.attack, defender);
       if (defender.battlePotion === "Attack") {
         this.field.destroyMany([attacker], ["Battle"], defender);
       }
+    } else if (atkPoint === defPoint && defender.battlePotion === "Attack") {
+      this.field.destroyMany([attacker], ["Battle"], defender);
+      this.field.destroyMany([defender], ["Battle"], attacker);
     }
 
     const losers = Object.values(this.duelists).filter((duelist) => duelist.lp <= 0);

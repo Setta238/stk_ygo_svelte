@@ -17,7 +17,6 @@
 <script lang="ts">
   import DuelCard from "@ygo_duel_view/components/DuelCard.svelte";
   import DuelFieldCell from "@ygo_duel_view/components/DuelFieldCell.svelte";
-  import { modalController } from "@ygo_duel_view/class/ModalController";
   interface IProp {
     resolve: (action?: CardActionWIP<unknown>, cell?: DuelFieldCell) => void;
     title: string;
@@ -31,7 +30,7 @@
   let isDragging = writable(false);
 
   const click = (action: CardActionWIP<unknown>) => {
-    modalController.cardActionSelectorResolve(action);
+    resolve(action);
   };
   const dragStart = (ev: DragEvent, action: CardActionWIP<unknown>) => {
     console.log("drag start", ev, action);
@@ -48,7 +47,7 @@
   };
   const close = () => {
     if (cancelable) {
-      modalController.cardActionSelectorResolve(undefined);
+      resolve(undefined);
     }
   };
   const isDraggable = (action: CardActionWIP<unknown>) => {

@@ -9,7 +9,7 @@
   import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
   import type { WaitStartEventArg } from "@ygo_duel_view/class/DuelViewController";
   import {} from "@stk_utils/funcs/StkArrayUtils";
-  import { tick } from "svelte";
+  import ModalContainer from "@ygo_duel_view/components/DuelModalContainer.svelte";
 
   const duelist1Profile = new DuelistProfile();
   duelist1Profile.name = "あなた";
@@ -76,6 +76,7 @@
 <!-- <div><button on:click={() => {
     duel.field.pushDeck(duel.duelists.Below);
   }}>hoge</button></div>-->
+<ModalContainer modalController={duel.view.modalController} />
 <div class="flex duel_desk">
   <div class="duel_desk_left v_flex">
     <DuelDuelist duelist={duel.duelists.Above}></DuelDuelist>
@@ -168,7 +169,6 @@
     background: #fff;
     font-weight: 700;
     line-height: 1.5;
-    position: relative;
     display: inline-block;
     padding: 0.3rem 2rem;
     cursor: pointer;

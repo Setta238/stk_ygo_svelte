@@ -102,14 +102,14 @@ export const defaultAttackExecute = async (entity: DuelEntity, pos?: TBattlePosi
     return true;
   }
 
-  const target = await entity.field.duel.view.waitSelectEntities(
-    entity.controller,
-    entity.field.getAttackTargetMonsters(entity.controller),
-    1,
-    () => true,
-    "攻撃対象を選択。",
-    true
-  );
+  const targets = entity.field.getAttackTargetMonsters(entity.controller);
+  //TODO waitSelectEntitiesだとダイレクトアタックを選択できないので、あとで直す
+  if (targets.length === 0) {
+    entity.field.duel.declareAnAttack(entity, undefined);
+    return true;
+  }
+
+  const target = await entity.field.duel.view.waitSelectEntities(entity.controller, targets, 1, () => true, "攻撃対象を選択。", true);
 
   if (!target) {
     return false;

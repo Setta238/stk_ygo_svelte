@@ -4,7 +4,6 @@ import { type CardAction, type CardActionWIP, type TDuelCauseReason, DuelEntity 
 import cardInfoDic from "@ygo/class/CardInfo";
 import type Duelist from "./Duelist";
 import {} from "@stk_utils/funcs/StkArrayUtils";
-import { modalController } from "@ygo_duel_view/class/ModalController";
 import { cellTypeMaster, DuelFieldCell, type DuelFieldCellType } from "./DuelFieldCell";
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
 
@@ -214,7 +213,7 @@ export class DuelField {
       target = choices.randomPick(qty);
     } else {
       target =
-        (await modalController.selectDuelEntities(this.duel, {
+        (await this.duel.view.modalController.selectDuelEntities(this.duel, {
           title: `${qty}枚のカードを捨てる。`,
           entities: choices,
           validator: (list) => list.length === qty,
@@ -284,7 +283,7 @@ export class DuelField {
     if (selectableCells.length > 1 || selectablePosList.length > 1) {
       if (_chooser.duelistType !== "NPC") {
         const dammyActions = selectablePosList.map((pos) => DuelEntity.createDammyAction(entity, pos, selectableCells, pos));
-        modalController.selectAction(this.duel.view, {
+        this.duel.view.modalController.selectAction(this.duel.view, {
           title: "カードを召喚先へドラッグ。",
           actions: dammyActions as CardActionWIP<unknown>[],
           cancelable: false,

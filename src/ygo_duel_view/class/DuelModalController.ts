@@ -9,7 +9,7 @@ const modalNames = ["DuelEntitiesSelector", "DuelActionSelector"] as const;
 export type TModalName = (typeof modalNames)[number];
 export type TModalState = "Disable" | "Shown";
 
-class ModalController {
+export class DuelModalController {
   private onUpdateEvent = new StkEvent<void>();
   public get onUpdate() {
     return this.onUpdateEvent.expose();
@@ -74,6 +74,3 @@ class ModalController {
     });
   };
 }
-
-//TODO fix
-export const modalController = new ModalController();

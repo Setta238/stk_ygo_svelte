@@ -1,6 +1,6 @@
 import StkEvent from "../../stk_utils/class/StkEvent";
 import type { TDuelCauseReason } from "./DuelEntity";
-import type DuelEntity from "./DuelEntity";
+import type { DuelEntity } from "./DuelEntity";
 import type { DuelField } from "./DuelField";
 import type Duelist from "./Duelist";
 export type DuelFieldCellType =
@@ -14,7 +14,6 @@ export type DuelFieldCellType =
   | "ExtraMonsterZone"
   | "Banished"
   | "PhaseButton"
-  | "SurrenderButton"
   | "Disable";
 type TDuelEntityPos = "Top" | "Bottom";
 
@@ -42,7 +41,7 @@ export const cellTypeMaster = {
   },
   3: {
     0: "Banished",
-    1: "SurrenderButton",
+    1: "Disable",
     2: "ExtraMonsterZone",
     3: "Disable",
     4: "ExtraMonsterZone",
@@ -81,7 +80,6 @@ export class DuelFieldCell {
   public readonly column: number;
   public readonly cellType: DuelFieldCellType;
   public readonly owner: Duelist | undefined;
-  public canAcceptDrop: boolean;
   public entities: DuelEntity[];
   public constructor(duelField: DuelField, row: number, column: number, owner?: Duelist) {
     this.field = duelField;
@@ -90,7 +88,6 @@ export class DuelFieldCell {
     this.cellType = cellTypeMaster[row][column];
     this.owner = owner;
     this.entities = [];
-    this.canAcceptDrop = false;
   }
   public readonly releaseEntities = (entities: DuelEntity[], movedAs: TDuelCauseReason[], cousedBy?: DuelEntity): DuelEntity[] => {
     this.entities = this.entities.filter((e) => !entities.includes(e));

@@ -1,9 +1,9 @@
 import type { Duel } from "@ygo_duel/class/Duel";
-import StkEvent from "../../stk_utils/class/StkEvent";
-import type { CardAction } from "../../ygo_duel/class/DuelEntity";
-import type DuelEntity from "../../ygo_duel/class/DuelEntity";
-import type { CardActionSelectorArg } from "../components/DuelActionSelector.svelte";
-import type { DuelEntitiesSelectorArg } from "../components/DuelEntitiesSelector.svelte";
+import StkEvent from "@stk_utils/class/StkEvent";
+import type { CardActionWIP, DuelEntity } from "@ygo_duel/class/DuelEntity";
+import type { CardActionSelectorArg } from "@ygo_duel_view/components/DuelActionSelector.svelte";
+import type { DuelEntitiesSelectorArg } from "@ygo_duel_view/components/DuelEntitiesSelector.svelte";
+import type { DuelViewController } from "./DuelViewController";
 
 const modalNames = ["DuelEntitiesSelector", "DuelActionSelector"] as const;
 export type TModalName = (typeof modalNames)[number];
@@ -41,7 +41,6 @@ class ModalController {
   public readonly selectDuelEntities = async (duel: Duel, arg: DuelEntitiesSelectorArg): Promise<DuelEntity[] | undefined> => {
     this.duelEntitiesSelectorArg = arg;
     this.states.DuelEntitiesSelector = "Shown";
-    console.log(this);
     this.onUpdateEvent.trigger();
     return new Promise((resolve) => {
       this.duelEntitiesSelectorResolve = (value: DuelEntity[] | undefined) => {
@@ -56,23 +55,25 @@ class ModalController {
     actions: [],
     cancelable: false,
   };
-  public cardActionSelectorResolve: (action: CardAction | undefined) => void = () => {};
-  public cardActionSelectorValue: CardAction | undefined;
+  public cardActionSelectorResolve: (action: CardActionWIP<unknown> | undefined) => void = () => {};
+  public cardActionSelectorValue: CardActionWIP<unknown> | undefined;
 
-  public readonly selectAction = async (duel: Duel, arg: CardActionSelectorArg): Promise<CardAction | undefined> => {
+  public readonly selectAction = async (view: DuelViewController, arg: CardActionSelectorArg): Promise<CardActionWIP<unknown> | undefined> => {
     this.cardActionSelectorArg = arg;
     this.states.DuelActionSelector = "Shown";
 
-    duel.onWaitEnd.append(this.cancelAll);
+    view.onWaitEnd.append(this.cancelAll);
     this.onUpdateEvent.trigger();
     return new Promise((resolve) => {
-      this.cardActionSelectorResolve = (value: CardAction | undefined) => {
+      this.cardActionSelectorResolve = (value: CardActionWIP<unknown> | undefined) => {
         this.states.DuelActionSelector = "Disable";
-        duel.onWaitEnd.remove(this.cancelAll);
+        view.onWaitEnd.remove(this.cancelAll);
         this.onUpdateEvent.trigger();
         resolve(value);
       };
     });
   };
 }
+
+//TODO fix
 export const modalController = new ModalController();

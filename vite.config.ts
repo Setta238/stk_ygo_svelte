@@ -11,7 +11,7 @@ export default defineConfig({
       "@stk_utils": path.join(__dirname, "src/stk_utils"),
       "@ygo": path.join(__dirname, "src/ygo"),
       "@ygo_duel": path.join(__dirname, "src/ygo_duel"),
-      "@ygo_duel_modal": path.join(__dirname, "src/ygo_duel_modal"),
+      "@ygo_duel_view": path.join(__dirname, "src/ygo_duel_view"),
     },
   },
 });

@@ -6,12 +6,13 @@ import {
   type TCardInfoJson,
   type TEntityStatus,
 } from "@ygo/class/YgoTypes";
-import type { ProcKey } from "./Duel";
+import { SystemError, type ProcKey } from "./Duel";
 import type { DuelField } from "./DuelField";
 import type { DuelFieldCell } from "./DuelFieldCell";
 import type Duelist from "./Duelist";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
+import { defaultAttackRule, defaultNormalAttackSummonRule, defaultNormalSetSummonRule } from "@ygo_duel/functions/DefaultCardAction";
 export type TDuelEntity = "Card" | "Token";
 export type TDuelEntityFace = "FaceUp" | "FaceDown";
 export type TDuelEntityOrientation = "Horizontal" | "Vertical";
@@ -42,117 +43,49 @@ export type TDuelCauseReason =
   | "Discard"
   | "Battle"
   | "Rule";
-export const cardActionChainBlockTypes = ["TriggerEffect", "TriggerMandatoryEffect", "QuickEffect", "IgnitionEffect"] as const;
+export const cardActionChainBlockTypes = ["TriggerEffect", "TriggerMandatoryEffect", "MandatoryEffect", "QuickEffect", "IgnitionEffect"] as const;
 export type TCardActionChainBlockType = (typeof cardActionChainBlockTypes)[number];
-export const cardActionNonChainBlockTypes = ["Summon", "ChangeBattlePosition", "Battle", "IgnitionEffect"] as const;
+export const cardActionNonChainBlockTypes = ["Summon", "ChangeBattlePosition", "Battle"] as const;
 export type TCardActionNonChainBlockType = (typeof cardActionNonChainBlockTypes)[number];
 export type TCardActionType = TCardActionChainBlockType | TCardActionNonChainBlockType | "Dammy";
 export type TSpellSpeed = "Normal" | "Quick" | "Counter" | "Dammy";
-export type CardActionBase = {
+export type CardActionBase<T> = {
   title: string;
   playType: TCardActionType;
   spellSpeed: TSpellSpeed;
   validate: (entity: DuelEntity) => DuelFieldCell[] | undefined;
-  execute: (entity: DuelEntity, cell?: DuelFieldCell) => Promise<boolean>;
+  prepare: (entity: DuelEntity, cell?: DuelFieldCell) => Promise<T>;
+  execute: (entity: DuelEntity, cell?: DuelFieldCell, prepared?: T) => Promise<boolean>;
 };
-export type CardAction = {
+export type CardAction<T> = {
   title: string;
   entity: DuelEntity;
   seq: number;
   playType: TCardActionType;
   spellSpeed: TSpellSpeed;
   validate: () => DuelFieldCell[] | undefined;
-  execute: (cell?: DuelFieldCell) => Promise<boolean>;
+  prepare: (cell?: DuelFieldCell) => Promise<T>;
+  execute: (cell?: DuelFieldCell, prepared?: T) => Promise<boolean>;
 };
-export type DammyCardAction<T> = CardAction & {
-  data: T;
-};
+export type CardActionWIP<T> = CardAction<T> & { cell?: DuelFieldCell; pos: TBattlePosition };
 export type TDuelEntityType = "Card" | "Token" | "CardClone" | "Squatter";
 export type TDuelEntityInfoDetail = {
   name: string;
   entityType: TDuelEntityType;
-  cardPlayList: Array<CardAction>;
+  cardPlayList: Array<CardAction<unknown>>;
 };
 export type TDuelEntityInfo = TCardInfoBase & TDuelEntityInfoDetail;
-const defaultNormalSummonValidate = (entity: DuelEntity): DuelFieldCell[] | undefined => {
-  if (entity.fieldCell.cellType !== "Hand") {
-    return;
-  }
 
-  // レベルがないモンスターは通常召喚不可
-  if (!entity.status.level) {
-    return;
-  }
-  const emptyCells = entity.field.getEmptyMonsterZones(entity.controller);
-
-  // 4以下は空きセルが必要
-  if (entity.status.level < 5) {
-    return emptyCells.length > 0 ? emptyCells : undefined;
-  }
-
-  const releasableMonsters = entity.field.getReleasableMonsters(entity.controller);
-
-  // リリース可能なモンスターが不足する場合、アドバンス召喚不可
-  if (releasableMonsters.length < (entity.status.level < 7 ? 1 : 2)) {
-    return undefined;
-  }
-
-  return [];
-
-  // TODO : クロス・ソウルの「しなければならない」の制限の考慮。エクストラモンスターゾーンまたは相手モンスターゾーンにしかリリース可能なモンスターがいない場合、空きが必要。
-  // if (emptyCells.length > 0 || releasableMonsters.filter((m) => m.controller === entity.controller && m.fieldCell.cellType === "MonsterZone")) {
-  //   return true;
-  // }
-};
-
-const defaultNormalSummonExecute = async (entity: DuelEntity, pos: TBattlePosition, cell?: DuelFieldCell) => {
-  if (!entity.status.level) {
-    return false;
-  }
-  const causedBy: TDuelCauseReason[] = ["Rule", "NormalSummon"];
-  if (entity.status.level > 4) {
-    const releasableMonsters = entity.field.getReleasableMonsters(entity.controller);
-    const exZoneMonsters = entity.field.getExtraMonsterZones(entity.controller);
-    const qty = entity.status.level < 7 ? 1 : 2;
-
-    if (exZoneMonsters.length >= qty) {
-      releasableMonsters.filter((monster) => monster.fieldCell.cellType !== "ExtraMonsterZone");
-    }
-    await entity.field.release(entity.controller, entity.field.getReleasableMonsters(entity.controller), qty, ["AdvanceSummonRelease", "Rule"], entity);
-
-    causedBy.push("AdvanceSummon");
-  }
-
-  const emptyCells = entity.field.getEmptyMonsterZones(entity.controller);
-  await entity.field.summon(entity, [pos], cell ? [cell] : emptyCells, causedBy, entity);
-  return true;
-};
-
-const defaultNormalAttackSummonRule: CardActionBase = {
-  title: "召喚",
-  playType: "Summon",
-  spellSpeed: "Normal",
-  validate: defaultNormalSummonValidate,
-  execute: (entity, cell) => defaultNormalSummonExecute(entity, "Attack", cell),
-};
-const defaultNormalSetSummonRule: CardActionBase = {
-  title: "裏守備",
-  playType: "Summon",
-  spellSpeed: "Normal",
-  validate: defaultNormalSummonValidate,
-  execute: (entity, cell) => defaultNormalSummonExecute(entity, "Set", cell),
-};
-
-export default class DuelEntity {
+export class DuelEntity {
   private static nextActionSeq = 0;
   private static nextEntitySeq = 0;
-  public static actionDic: { [seq: number]: CardAction } = {};
+  public static actionDic: { [seq: number]: CardAction<unknown> } = {};
   public readonly seq: number;
   public readonly origin: TCardInfoJson;
   public readonly entityType: TDuelEntityType;
   public face: TDuelEntityFace;
   public isUnderControl: boolean;
-  public battlePotion: TBattlePosition | undefined;
+  private _battlePosition: TBattlePosition | undefined;
   public orientation: TDuelEntityOrientation;
   public controller: Duelist;
   public readonly owner: Duelist;
@@ -165,9 +98,11 @@ export default class DuelEntity {
 
   public readonly status: TEntityStatus;
 
-  public readonly actions: CardAction[] = [];
-  public isSelectable = false;
+  public readonly actions: CardAction<unknown>[] = [];
 
+  public get battlePotion() {
+    return this._battlePosition;
+  }
   protected constructor(
     owner: Duelist,
     controller: Duelist,
@@ -187,13 +122,17 @@ export default class DuelEntity {
     this.entityType = entityType;
     this.origin = cardInfo;
     this.status = JSON.parse(JSON.stringify(cardInfo));
+    this.status.canAttack = true;
+    this.status.canDirectAttack = true;
+    this.status.attackCount = 0;
+    this.status.isSelectableForAttack = true;
     this.face = face;
     this.isUnderControl = isVisibleForController;
     this.orientation = orientation;
     this.movedAs = ["Rule"];
     this.movedAt = field.duel.procKey;
   }
-  public static readonly createCardPlayList = (entity: DuelEntity, baseList: CardActionBase[]): CardAction[] => {
+  public static readonly createCardPlayList = (entity: DuelEntity, baseList: CardActionBase<unknown>[]): CardAction<unknown>[] => {
     const result = baseList.map((b) => {
       return {
         seq: DuelEntity.nextActionSeq++,
@@ -202,7 +141,8 @@ export default class DuelEntity {
         playType: b.playType,
         spellSpeed: b.spellSpeed,
         validate: () => b.validate(entity),
-        execute: (cell?: DuelFieldCell) => b.execute(entity, cell),
+        prepare: (cell?: DuelFieldCell) => b.prepare(entity, cell),
+        execute: (cell?: DuelFieldCell, prepared?: unknown) => b.execute(entity, cell, prepared),
       };
     });
 
@@ -215,13 +155,23 @@ export default class DuelEntity {
     const fieldCell = exMonsterCategories.filter((cat) => cardInfo.monsterCategories?.includes(cat)) ? field.getDeckCell(owner) : field.getExtraDeck(owner);
     const newCard = new DuelEntity(owner, owner, field, fieldCell, "Card", cardInfo, "FaceDown", false, "Vertical");
     if (newCard.origin?.kind === "Monster" && newCard.origin.monsterCategories?.union([...specialMonsterCategories]).length === 0) {
-      newCard.actions.push(...DuelEntity.createCardPlayList(newCard, [defaultNormalAttackSummonRule, defaultNormalSetSummonRule]));
+      newCard.actions.push(
+        ...DuelEntity.createCardPlayList(newCard, [defaultNormalAttackSummonRule, defaultNormalSetSummonRule, defaultAttackRule] as CardActionBase<unknown>[])
+      );
     }
     fieldCell.acceptEntities([newCard], "Top");
     return newCard;
   };
 
-  public static readonly createDammyAction = <T>(entity: DuelEntity, title: string, cells: DuelFieldCell[], data: T): DammyCardAction<T> => {
+  /**
+   * ドラッグ・アンド・ドロップ可能で選択不可能なCardActionを作成する。
+   * @param entity
+   * @param title
+   * @param cells
+   * @param pos
+   * @returns
+   */
+  public static readonly createDammyAction = (entity: DuelEntity, title: string, cells: DuelFieldCell[], pos: TBattlePosition): CardActionWIP<void> => {
     return {
       seq: DuelEntity.nextActionSeq++,
       title: title,
@@ -229,28 +179,32 @@ export default class DuelEntity {
       playType: "Dammy",
       spellSpeed: "Dammy",
       validate: () => cells,
+      prepare: async () => {},
       execute: async () => false,
-      data: data,
+      pos: pos,
     };
   };
 
+  public readonly getIndexInCell = (): number => {
+    const index = this.fieldCell.entities.indexOf(this);
+
+    if (index < 0) {
+      throw new SystemError("エンティティとセルの状態が矛盾している。", [this, this.fieldCell]);
+    }
+
+    return index;
+  };
+
   public readonly setBattlePosition = (pos: TBattlePosition): void => {
-    this.battlePotion = pos;
+    this._battlePosition = pos;
     this.orientation = pos === "Attack" ? "Vertical" : "Horizontal";
     this.face = pos === "Set" ? "FaceDown" : "FaceUp";
     this.isUnderControl = true;
   };
   public readonly setNonFieldPosition = (face: TDuelEntityFace, isUnderControl: boolean): void => {
-    this.battlePotion = undefined;
+    this._battlePosition = undefined;
     this.orientation = "Vertical";
     this.face = face;
     this.isUnderControl = isUnderControl;
-  };
-
-  public readonly getEnableActions = () => {
-    if (this.field.duel.priorityHolder !== this.controller) {
-      return [];
-    }
-    return this.field.duel.enableActions.filter((action) => this === action.entity);
   };
 }

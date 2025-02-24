@@ -45,7 +45,7 @@ export type TCardInfoWiki = {
   wikiTextAll: string;
 };
 
-export type TEntityStatus = {
+export type TEntityStatusBase = {
   name: string;
   kind: TCardKind;
   monsterCategories: Array<TMonsterCategory> | undefined;
@@ -61,6 +61,16 @@ export type TEntityStatus = {
   type: TMonsterType | undefined;
   pendulumScaleR: number | undefined;
   pendulumScaleL: number | undefined;
+  canAttack: boolean | undefined;
+  canDirectAttack: boolean | undefined;
+  attackCount: number | undefined;
+};
+
+export type TEntityStatus = TEntityStatusBase & {
+  canAttack: boolean;
+  canDirectAttack: boolean;
+  attackCount: number;
+  isSelectableForAttack: boolean /** falseのモンスターしかいない場合、ダイレクトアタックになる。《伝説のフィッシャーマン》など。 */;
 };
 
 export type TCardInfoBase = {
@@ -69,7 +79,7 @@ export type TCardInfoBase = {
   pendulumDescription: string;
 };
 
-export type TCardInfoJson = TCardInfoWiki & TEntityStatus & TCardInfoBase;
+export type TCardInfoJson = TCardInfoWiki & TEntityStatusBase & TCardInfoBase;
 
 export const MonsterAttributeDic = {
   Light: "光",

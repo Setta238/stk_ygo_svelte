@@ -1,6 +1,6 @@
 <script lang="ts">
   import { tick } from "svelte";
-  import type DuelLog from "../class/DuelLog";
+  import type DuelLog from "@ygo_duel/class/DuelLog";
   let duelLogRef: HTMLDivElement | undefined = undefined;
   export let log: DuelLog;
 

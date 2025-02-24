@@ -12,7 +12,7 @@ type DuelSummonLogRecord = {
   duelist: Duelist | undefined;
   text: string;
 };
-export default class DuelLog {
+export default class SummonLog {
   private onUpdateEvent = new StkEvent<void>();
   public get onUpdate() {
     return this.onUpdateEvent.expose();
@@ -24,6 +24,9 @@ export default class DuelLog {
     this.nextSeq = 0;
     this.duel = duel;
   }
+  public readonly dispose = () => {
+    this.onUpdateEvent.clear();
+  };
   public readonly write = (text: string, duelist?: Duelist) => {
     this.records.push({
       seq: this.nextSeq++,

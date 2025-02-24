@@ -1,7 +1,6 @@
 <script lang="ts">
-  import DuelDesk from "./ygo_duel/components/DuelDesk.svelte";
-  import ModalContainer from "./ygo_duel_modal/components/ModalContainer.svelte";
-  console.log("[app script]");
+  import DuelDesk from "@ygo_duel_view/components/DuelDesk.svelte";
+  import ModalContainer from "@ygo_duel_view/components/ModalContainer.svelte";
 </script>
 
 <ModalContainer />

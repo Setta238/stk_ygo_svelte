@@ -1,31 +1,56 @@
 <script lang="ts">
-  import { DuelFieldCell } from "../class/DuelFieldCell";
-  import { type DuelistAction, type TDuelPhase } from "../class/Duel";
+  import { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
+  import { type DuelistAction, type TDuelPhase } from "@ygo_duel/class/Duel";
 
-  import DuelCard from "../components/DuelCard.svelte";
-  import DuelEntity from "../class/DuelEntity";
-  import { modalController } from "../../ygo_duel_modal/class/ModalController";
+  import DuelCard from "@ygo_duel_view/components/DuelCard.svelte";
+  import { DuelEntity, type CardAction, type CardActionWIP } from "@ygo_duel/class/DuelEntity";
+  import { modalController } from "@ygo_duel_view/class/ModalController";
+  import type { DuelViewController, WaitStartEventArg } from "@ygo_duel_view/class/DuelViewController";
+  import {} from "@stk_utils/funcs/StkArrayUtils";
+  export let view: DuelViewController;
 
-  export let cell: DuelFieldCell;
+  export let row: number;
+
+  export let column: number;
 
   export let selectedList = [] as DuelEntity[];
 
+  let cell = view.getCell(row, column);
+
   const onCellUpdate = () => {
-    cell = cell;
+    cell = view.getCell(row, column);
   };
 
-  cell?.onUpdate?.append(onCellUpdate);
-  cell?.field.duel.onDuelUpdate.append(onCellUpdate);
+  cell.onUpdate.append(onCellUpdate);
+  view.onDuelUpdate.append(onCellUpdate);
 
+  let enableActions: CardAction<unknown>[];
   let action: (Action: DuelistAction) => void = () => {};
   let selectedEntitiesValidator: (selectedEntities: DuelEntity[]) => boolean = () => true;
-  const onDuelAction: (args: { resolve: (action: DuelistAction) => void; entitiesValidator: (selectedEntities: DuelEntity[]) => boolean }) => void = (args) => {
-    selectedList.splice(0);
+  let selectableEntities: DuelEntity[];
+  const onWaitStart: (args: WaitStartEventArg) => void = (args) => {
+    selectedList.reset();
     action = args.resolve;
+    enableActions = args.enableActions;
+    selectableEntities = args.selectableEntities;
     selectedEntitiesValidator = args.entitiesValidator;
   };
+  view.onWaitStart.append(onWaitStart);
 
-  cell.field.duel.onWaitStart.append(onDuelAction);
+  let draggingAction: CardActionWIP<unknown> | undefined;
+  let canAcceptDrop = false;
+  const onDragStart = (action: CardActionWIP<unknown>) => {
+    draggingAction = action;
+    canAcceptDrop = action.validate()?.includes(cell) || false;
+    onCellUpdate();
+  };
+  const onDragEnd = () => {
+    draggingAction = undefined;
+    canAcceptDrop = false;
+    onCellUpdate();
+  };
+  view.onDragStart.append(onDragStart);
+  view.onDragEnd.append(onDragEnd);
 
   const onPhaseButtonClick = (phase: TDuelPhase) => {
     console.log(phase);
@@ -33,26 +58,23 @@
       phaseChange: phase,
     });
   };
-  const onSurrenderButtonClick = () => {
-    action({
-      surrender: true,
-    });
-  };
   const onActionButtonClick = (...entities: DuelEntity[]) => {
+    const map = Map.groupBy(enableActions, (action) => action.entity);
     if (entities.length === 1) {
       modalController
-        .selectAction(cell.field.duel, {
+        .selectAction(view, {
           title: "行動を選択。",
-          actions: entities[0].getEnableActions(),
+          actions: (map.get(entities[0]) as CardActionWIP<unknown>[]) || [],
           cancelable: true,
         })
         .then((_action) => {
           action({
-            action: _action,
+            actionWIP: _action,
           });
         });
       return;
     }
+    //TODO デッキ発動、墓地発動、エクストラデッキ発動
   };
 
   const dragover = (ev: DragEvent) => {
@@ -63,67 +85,59 @@
   };
   const drop = (ev: DragEvent) => {
     ev.preventDefault();
-    console.log(ev);
+    console.log("drop", ev, canAcceptDrop, draggingAction);
     if (ev.dataTransfer) {
       ev.dataTransfer.dropEffect = "move";
     }
     try {
-      if (cell.canAcceptDrop) {
-        const cardAction = cell.field.getDraggingAction();
-        if (cardAction) {
-          action({
-            action: cardAction,
-            cell: cell,
-          });
-        }
+      if (canAcceptDrop && draggingAction) {
+        console.log(draggingAction, cell);
+        action({
+          actionWIP: { ...draggingAction, cell },
+        });
       }
     } finally {
-      cell.field.removeDraggingAction();
+      view.removeDraggingAction();
     }
   };
   const canAction = (...entities: DuelEntity[]) => {
-    return cell.field.duel.enableActions.filter((action) => entities.includes(action.entity)).length > 0;
+    if (!enableActions) {
+      return false;
+    }
+    return enableActions.filter((action) => entities.includes(action.entity)).length > 0;
   };
 </script>
 
 <td class={`duel_field_cell duel_field_cell_${cell.cellType}`} colspan={cell.cellType === "Hand" ? 7 : 1}>
   <div
-    class={`${cell.canAcceptDrop ? "can_accept_drop" : ""}`}
+    class={`${canAcceptDrop ? "can_accept_drop" : ""}`}
     role="listitem"
     style="min-height:90px;padding:5px"
     ondragover={(ev) => dragover(ev)}
     ondrop={(ev) => drop(ev)}
   >
     {#if cell.cellType === "PhaseButton"}
-      <div>【{cell.field.duel.phase}】</div>
-      {#if cell.field.duel.waitMode === "CardAction"}
-        {#each cell.field.duel.nextPhaseList as phase}
-          <div><button class="phase_button" onclick={() => onPhaseButtonClick(phase)}>{phase}</button></div>
-        {/each}
+      <div>【{view.duel.phase}】</div>
+      {#if view.waitMode === "SelectFieldAction"}
+        {#if !view.duel.isEnded}
+          {#each view.duel.nextPhaseList as phase}
+            <div><button class="phase_button" onclick={() => onPhaseButtonClick(phase)}>{phase}</button></div>
+          {/each}
+        {/if}
       {/if}
-    {:else if cell.cellType === "SurrenderButton"}
-      <div><button class="surrender_button" onclick={onSurrenderButtonClick}>サレンダー</button></div>
     {:else if cell.cellType === "Hand"}
       <div class="flex" style="  margin: 0 auto;">
         {#each cell.entities as entity}
-          <button disabled={cell.field.duel.waitMode !== "CardAction" || !canAction(entity)} class="action_button" onclick={() => onActionButtonClick(entity)}>
-            <DuelCard {entity} isSelectable={cell.field.duel.waitMode === "EntitiesSelect" && entity.isSelectable} bind:selectedList />
+          <button disabled={view.waitMode !== "SelectFieldAction" || !canAction(entity)} class="action_button" onclick={() => onActionButtonClick(entity)}>
+            <DuelCard {entity} isSelectable={selectableEntities && selectableEntities.includes(entity)} bind:selectedList />
           </button>
         {/each}
       </div>
     {:else}
       <div>
-        <button
-          disabled={!cell.field.duel.waitMode || !canAction(...cell.entities)}
-          class="action_button"
-          onclick={() => onActionButtonClick(...cell.entities)}
-        >
+        <button disabled={!view.waitMode || !canAction(...cell.entities)} class="action_button" onclick={() => onActionButtonClick(...cell.entities)}>
           {#if cell.entities.length > 0}
-            <DuelCard
-              entity={cell.entities[0]}
-              isSelectable={cell.field.duel.waitMode === "EntitiesSelect" && cell.entities[0].isSelectable}
-              bind:selectedList
-            />
+            <DuelCard entity={cell.entities[0]} isSelectable={selectableEntities && selectableEntities.includes(cell.entities[0])} bind:selectedList />
           {/if}
           {#if cell.cellType === "Deck" || cell.cellType === "ExtraDeck" || cell.cellType === "Graveyard" || cell.cellType === "Banished"}
             <div>{cell.entities.length}枚</div>
@@ -171,7 +185,6 @@
   .action_button * {
     pointer-events: none;
   }
-  .surrender_button,
   .phase_button {
     padding: 0 10px;
     font-size: x-large;
@@ -184,7 +197,6 @@
     padding: 0.2rem 1rem;
     cursor: pointer;
   }
-  .surrender_button:hover,
   .phase_button:hover {
     color: #fff;
     background: #000;
@@ -193,7 +205,7 @@
     display: flex;
   }
   .duel_field_cell_Hand {
-    background-color: cornsilk;
+    background-color: aliceblue;
   }
   .duel_field_cell_Deck {
     background-color: sienna;

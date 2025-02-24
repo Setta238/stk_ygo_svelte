@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type DuelEntity from "../../ygo_duel/class/DuelEntity";
+  import type { DuelEntity } from "../../ygo_duel/class/DuelEntity";
 
   export let entity: DuelEntity;
   export let isSelectable = false;
@@ -8,6 +8,7 @@
   let isSelected = false;
 
   const click = () => {
+    console.log(isSelectable);
     if (!isSelectable) {
       return;
     }
@@ -19,8 +20,10 @@
 
 {#if entity.face === "FaceUp" || isVisibleForcibly || (entity.controller.seat === "Below" && entity.isUnderControl)}
   <button
-    class="DuelCard button_style_reset {isSelected ? 'DuelCard_IsSelected' : ''} {isSelectable ? 'DuelCard_Is_Selectable' : ''}"
-    disabled={!isSelectable}
+    class="duel_card button_style_reset {entity.status.monsterCategories?.join(' ') || ''} {isSelected ? 'duel_card_selected' : ''} {isSelectable
+      ? 'duel_card_selectable'
+      : ''}"
+    disabled={entity.field.duel.isEnded || !isSelectable}
     on:click={click}
   >
     <table>
@@ -50,7 +53,8 @@
           </td>
           <td>
             <div>{entity.status.attack}</div>
-            <div>{entity.status.defense}</div>
+            <div>{entity.status.defense || 0}</div>
+            <!-- TODO FIX IT -->
           </td>
         </tr>
       </tbody>
@@ -60,7 +64,7 @@
     <div>【{entity.battlePotion === "Attack" ? "攻撃" : entity.battlePotion === "Defense" ? "表守備" : "裏守備"}】</div>
   {/if}
 {:else}
-  <div class="DuelCard DuelCardFaceDown"><div></div></div>
+  <div class="duel_card duel_card_face_down"><div></div></div>
 {/if}
 
 <style>
@@ -73,18 +77,21 @@
     color: inherit;
     background: none;
   }
-  .DuelCard {
+  .duel_card {
     min-width: 1px;
     height: fit-content;
     margin: 1px 5px;
     border: solid 1px #778ca3;
   }
-  .DuelCard:disabled,
-  .DuelCard:disabled * {
+  .duel_card.Normal {
+    background-color: cornsilk;
+  }
+  .duel_card:disabled,
+  .duel_card:disabled * {
     cursor: default;
     pointer-events: none;
   }
-  .DuelCard.DuelCard_Is_Selectable {
+  .duel_card.duel_card_selectable {
     display: block;
     min-width: 1px;
     height: fit-content;
@@ -92,14 +99,14 @@
     border: dotted 4px blue;
     pointer-events: initial;
   }
-  .DuelCard.DuelCard_IsSelected {
+  .duel_card.duel_card_selected {
     display: block;
     min-width: 1px;
     height: fit-content;
     margin: 1px 5px;
     border: solid 4px red;
   }
-  .DuelCardFaceDown {
+  .duel_card_face_down {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -107,7 +114,7 @@
     height: 80px;
     background-color: brown;
   }
-  .DuelCardFaceDown > div {
+  .duel_card_face_down > div {
     width: 30px;
     height: 50px;
     border-radius: 50%;

@@ -6,8 +6,10 @@
   import { Duel, type DuelistAction } from "../../ygo_duel/class/Duel";
   import DuelLog from "./DuelLog.svelte";
   import DuelDuelist from "./DuelDuelist.svelte";
-  import type DuelEntity from "@ygo_duel/class/DuelEntity";
-  console.log("foobar");
+  import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
+  import type { WaitStartEventArg } from "@ygo_duel_view/class/DuelViewController";
+  import {} from "@stk_utils/funcs/StkArrayUtils";
+  import { tick } from "svelte";
 
   const duelist1Profile = new DuelistProfile();
   duelist1Profile.name = "あなた";
@@ -15,30 +17,59 @@
   duelist2Profile.name = "NPC";
   const deck1 = new DeckInfo();
   const deck2 = new DeckInfo();
-  deck1.cardNames = Object.keys(cardInfoDic).slice(100, 140);
-  deck2.cardNames = Object.keys(cardInfoDic).slice(600, 640);
+  deck1.cardNames = [
+    "アレキサンドライドラゴン",
+    "幻殻竜",
+    "しゃりの軍貫",
+    "ジェネティック・ワーウルフ",
+    "機界騎士アヴラム",
+    "ジョングルグールの幻術師",
+    "ゾンビーノ",
+    "幻のグリフォン",
+    "ライドロン",
+    "フロストザウルス",
+    "エレキテルドラゴン",
+    "デーモンの召喚",
+    "青眼の白龍",
+  ];
+  deck1.cardNames = [...deck1.cardNames, ...deck1.cardNames, ...deck1.cardNames];
+  deck2.cardNames = Object.keys(cardInfoDic).randomPick(40);
 
   let duel = new Duel(duelist1Profile, "Player", deck1, duelist2Profile, "NPC", deck2);
-
+  let retryFlg = false;
   let action: (Action: DuelistAction) => void = () => {};
   let selectedEntitiesValidator: (selectedEntities: DuelEntity[]) => boolean = () => true;
-  const onDuelAction: (args: { resolve: (action: DuelistAction) => void; entitiesValidator: (selectedEntities: DuelEntity[]) => boolean }) => void = (args) => {
+  let selectableEntities: DuelEntity[];
+  const onWaitStart: (args: WaitStartEventArg) => void = (args) => {
     action = args.resolve;
     selectedEntitiesValidator = args.entitiesValidator;
+    selectableEntities = args.selectableEntities;
   };
 
   export let selectedList = [] as DuelEntity[];
   const onDuelUpdate = () => {
     duel = duel;
   };
-  duel.onDuelUpdate.append(onDuelUpdate);
-  duel.onWaitStart.append(onDuelAction);
+  duel.view.onDuelUpdate.append(onDuelUpdate);
+  duel.view.onWaitStart.append(onWaitStart);
   const onOkClick = () => {
+    console.log(selectedList);
     if (selectedEntitiesValidator(selectedList)) {
       action({ selectedEntities: selectedList });
     }
   };
 
+  const onRetryButtonClick = () => {
+    retryFlg = true;
+    action({
+      surrender: true,
+    });
+  };
+  const onSurrenderButtonClick = () => {
+    action({
+      surrender: true,
+    });
+  };
   duel.main();
 </script>
 
@@ -51,7 +82,15 @@
     <DuelDuelist duelist={duel.duelists.Below}></DuelDuelist>
   </div>
   <div class=" duel_desk_center v_flex">
-    <div class="duel_field_header">{`[TURN:${duel.turn}][PHASE:${duel.phase}] ${duel.message}`}</div>
+    <div class="duel_field_header">
+      {#if !duel.isEnded}
+        <div class="duel_field_header_message">{`[TURN:${duel.turn}][PHASE:${duel.phase}] ${duel.view.message}`}</div>
+        <div class="duel_field_header_buttons">
+          <!--        <button on:click={onRetryButtonClick}>リトライ</button>-->
+          <button on:click={onSurrenderButtonClick}>サレンダー</button>
+        </div>
+      {/if}
+    </div>
     <div>
       {#if duel.turn > 0}
         <table class="duel_field">
@@ -59,7 +98,7 @@
             {#each duel.field.cells as row, rowIndex}
               <tr class={`duel_desk_row_${rowIndex}`}>
                 {#each row as cell, colIndex}
-                  <DuelFieldCell {cell} bind:selectedList />
+                  <DuelFieldCell view={duel.view} row={rowIndex} column={colIndex} bind:selectedList />
                 {/each}
               </tr>
             {/each}
@@ -68,8 +107,8 @@
       {/if}
     </div>
     <div class="duel_field_footer">
-      {#if duel.waitMode === "EntitiesSelect"}
-        <button on:click={onOkClick}>OK</button>
+      {#if selectableEntities && selectableEntities.length > 0}
+        <button on:click={onOkClick} disabled={!selectedEntitiesValidator(selectedList)}>OK</button>
         <!-- <button on:click={onCancelClick}>cancel</button> -->
       {/if}
     </div>
@@ -105,7 +144,17 @@
     align-items: center;
   }
   .duel_field_header {
+    position: relative;
+    width: 100%;
+  }
+  .duel_field_header_message {
     font-size: x-large;
+  }
+  .duel_field_header_buttons {
+    position: absolute;
+    text-align: left;
+    top: 0px;
+    left: 0px;
   }
   .duel_desk_center {
     min-width: 60%;
@@ -138,5 +187,22 @@
     width: 100%;
     text-align: center;
     border-collapse: collapse;
+  }
+
+  .duel_field_header_buttons button {
+    padding: 0 10px;
+    font-size: x-large;
+    border: 2px solid #000;
+    background: #fff;
+    font-weight: 700;
+    line-height: 1.5;
+    position: relative;
+    display: inline-block;
+    padding: 0.2rem 1rem;
+    cursor: pointer;
+  }
+  .duel_field_header_buttons button:hover {
+    color: #fff;
+    background: #000;
   }
 </style>

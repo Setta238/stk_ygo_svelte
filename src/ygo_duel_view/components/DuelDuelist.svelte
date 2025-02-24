@@ -6,12 +6,12 @@
   const onlogUpdate = () => {
     duelist = duelist;
   };
-  duelist.duel.onDuelUpdate?.append(onlogUpdate);
+  duelist.duel.view.onDuelUpdate?.append(onlogUpdate);
 </script>
 
 <div class="duelist">
   <div class="duelist_name">{duelist.profile.name}</div>
-  <div class="duelist_lp">{duelist.getLp()}</div>
+  <div class="duelist_lp">{duelist.lp}</div>
 </div>
 
 <style>

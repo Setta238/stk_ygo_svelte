@@ -1,9 +1,9 @@
 import DuelistProfile from "@ygo/class/DuelistProfile";
 import DeckInfo from "@ygo/class/DeckInfo";
 import { Duel, type ProcKey, type TSeat } from "./Duel";
-import type DuelEntity from "./DuelEntity";
+import type { DuelEntity } from "./DuelEntity";
 
-type TLifeLogReason = "Damege" | "Heal" | "Lost" | "Pay" | "Set";
+type TLifeLogReason = "BattleDamage" | "EffectDamage" | "Heal" | "Lost" | "Pay" | "Set";
 export type TDuelistType = "NPC" | "Player";
 
 type LifeLogRecord = {
@@ -21,7 +21,9 @@ export default class Duelist {
   public readonly deckInfo: DeckInfo;
   public readonly duelistType: TDuelistType;
   public readonly lifeLog: LifeLogRecord[];
-  private lp: number;
+  public normalSummonCount: number;
+  public readonly maxNormalSummonCount: number;
+  private _lp: number;
   public constructor(duel: Duel, seat: TSeat, profile: DuelistProfile, duelistType: TDuelistType, deckInfo: DeckInfo) {
     this.duel = duel;
     this.seat = seat;
@@ -29,32 +31,44 @@ export default class Duelist {
     this.duelistType = duelistType;
     this.deckInfo = deckInfo;
     this.lifeLog = [];
-    this.lp = 8000;
+    this.normalSummonCount = 0;
+    this.maxNormalSummonCount = 1;
+    this._lp = 8000;
   }
-  public readonly damage = (point: number, entity: DuelEntity): LifeLogRecord => {
-    return this.setLp(this.lp - point, entity, "Damege");
+  public readonly battleDamage = (point: number, entity: DuelEntity): LifeLogRecord => {
+    return this.setLp(this._lp - point, entity, "BattleDamage");
+  };
+  public readonly effectDamage = (point: number, entity: DuelEntity): LifeLogRecord => {
+    return this.setLp(this._lp - point, entity, "EffectDamage");
   };
   public readonly lostLp = (point: number, entity: DuelEntity): LifeLogRecord => {
-    return this.setLp(this.lp - point, entity, "Lost");
+    return this.setLp(this._lp - point, entity, "Lost");
   };
   public readonly payLp = (point: number, entity: DuelEntity): LifeLogRecord => {
-    return this.setLp(this.lp - point, entity, "Pay");
+    return this.setLp(this._lp - point, entity, "Pay");
   };
   public readonly heal = (point: number, entity: DuelEntity): LifeLogRecord => {
-    return this.setLp(this.lp + point, entity, "Heal");
+    return this.setLp(this._lp + point, entity, "Heal");
   };
   public readonly setLp = (lp: number, entity?: DuelEntity, reason?: TLifeLogReason): LifeLogRecord => {
     const log = {
       procKey: this.duel.procKey,
       reason: reason || "Set",
-      beforeLp: this.lp,
+      beforeLp: this._lp,
       afterLp: lp,
       entity: entity,
     };
     this.lifeLog.push(log);
-    this.lp = lp;
+    this._lp = lp;
+
+    this.duel.log.info(`ライフポイント変動：${log.afterLp - log.beforeLp}（${log.beforeLp} ⇒ ${log.afterLp}）`, this);
 
     return log;
   };
-  public readonly getLp = () => this.lp;
+  public get lp() {
+    return this._lp;
+  }
+  public get isTurnPlayer() {
+    return this.duel.getTurnPlayer() === this;
+  }
 }

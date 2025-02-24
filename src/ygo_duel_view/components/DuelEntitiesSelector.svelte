@@ -8,8 +8,8 @@
 </script>
 
 <script lang="ts">
-  import type DuelEntity from "../../ygo_duel/class/DuelEntity";
-  import DuelCard from "../../ygo_duel/components/DuelCard.svelte";
+  import type { DuelEntity } from "../../ygo_duel/class/DuelEntity";
+  import DuelCard from "@ygo_duel_view/components/DuelCard.svelte";
   let { resolve, title, entities, validator, cancelable } = $props();
   let selectedList = $state([] as DuelEntity[]);
 

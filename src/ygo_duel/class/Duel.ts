@@ -196,7 +196,10 @@ export class Duel {
     }
     // TODO フェイズ強制処理
     this.procFreeAction(true);
-    this.field.getMonstersOnField().forEach((m) => (m.status.attackCount = 0));
+    this.field.getMonstersOnField().forEach((m) => {
+      m.status.attackCount = 0;
+      m.status.battlePotisionChangeCount = 0;
+    });
     this.moveNextPhase("standby");
   };
   private readonly procStanbyPhase = async () => {

@@ -12,7 +12,12 @@ import type { DuelFieldCell } from "./DuelFieldCell";
 import type Duelist from "./Duelist";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
-import { defaultAttackRule, defaultNormalAttackSummonRule, defaultNormalSetSummonRule } from "@ygo_duel/functions/DefaultCardAction";
+import {
+  defaultAttackRule,
+  defaultBattlePotisionChangeRule,
+  defaultNormalAttackSummonRule,
+  defaultNormalSetSummonRule,
+} from "@ygo_duel/functions/DefaultCardAction";
 export type TDuelEntity = "Card" | "Token";
 export type TDuelEntityFace = "FaceUp" | "FaceDown";
 export type TDuelEntityOrientation = "Horizontal" | "Vertical";
@@ -156,7 +161,12 @@ export class DuelEntity {
     const newCard = new DuelEntity(owner, owner, field, fieldCell, "Card", cardInfo, "FaceDown", false, "Vertical");
     if (newCard.origin?.kind === "Monster" && newCard.origin.monsterCategories?.union([...specialMonsterCategories]).length === 0) {
       newCard.actions.push(
-        ...DuelEntity.createCardPlayList(newCard, [defaultNormalAttackSummonRule, defaultNormalSetSummonRule, defaultAttackRule] as CardActionBase<unknown>[])
+        ...DuelEntity.createCardPlayList(newCard, [
+          defaultNormalAttackSummonRule,
+          defaultNormalSetSummonRule,
+          defaultAttackRule,
+          defaultBattlePotisionChangeRule,
+        ] as CardActionBase<unknown>[])
       );
     }
     fieldCell.acceptEntities([newCard], "Top");

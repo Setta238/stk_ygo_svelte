@@ -70,6 +70,7 @@ export type TEntityStatus = TEntityStatusBase & {
   canAttack: boolean;
   canDirectAttack: boolean;
   attackCount: number;
+  battlePotisionChangeCount: number;
   isSelectableForAttack: boolean /** falseのモンスターしかいない場合、ダイレクトアタックになる。《伝説のフィッシャーマン》など。 */;
 };
 

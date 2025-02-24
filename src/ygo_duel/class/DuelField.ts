@@ -311,7 +311,7 @@ export class DuelField {
     entity.fieldCell.releaseEntities([entity], [...moveAs, moveAsDic[pos]], causedBy);
     entity.setBattlePosition(pos);
     cell.acceptEntities([entity], "Top");
-
+    entity.status.battlePotisionChangeCount = 1;
     return entity;
   };
   public readonly destroyMany = async (entities: DuelEntity[], causedAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<DuelEntity[]> => {

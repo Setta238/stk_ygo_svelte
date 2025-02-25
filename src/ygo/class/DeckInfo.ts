@@ -1,4 +1,4 @@
-import cardInfoDic from "@ygo/class/CardInfo";
+import { cardInfoDic } from "@ygo/class/CardInfo";
 
 export default class DeckInfo {
   public cardNames = [] as string[];

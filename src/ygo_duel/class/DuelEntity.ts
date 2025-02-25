@@ -1,23 +1,11 @@
-import {
-  exMonsterCategories,
-  specialMonsterCategories,
-  type TBattlePosition,
-  type TCardInfoBase,
-  type TCardInfoJson,
-  type TEntityStatus,
-} from "@ygo/class/YgoTypes";
+import { exMonsterCategories, type TBattlePosition, type TCardInfoBase, type TCardInfoJson, type TEntityStatus } from "@ygo/class/YgoTypes";
 import { SystemError, type ProcKey } from "./Duel";
 import type { DuelField } from "./DuelField";
 import type { DuelFieldCell } from "./DuelFieldCell";
 import type Duelist from "./Duelist";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
-import {
-  defaultAttackRule,
-  defaultBattlePotisionChangeRule,
-  defaultNormalAttackSummonRule,
-  defaultNormalSetSummonRule,
-} from "@ygo_duel/functions/DefaultCardAction";
+import { getCardActions } from "@ygo/class/CardInfo";
 export type TDuelEntity = "Card" | "Token";
 export type TDuelEntityFace = "FaceUp" | "FaceDown";
 export type TDuelEntityOrientation = "Horizontal" | "Vertical";
@@ -39,18 +27,22 @@ export type TDuelCauseReason =
   | TDuelSummonPosCauseReason
   | "Draw"
   | "Destroy"
+  | "Effect"
   | "Release"
   | "AdvanceSummonRelease"
   | "FusionMaterial"
   | "SynchroMaterial"
   | "EyzMaterial"
   | "RitualMaterial"
+  | "Cost"
   | "Discard"
-  | "Battle"
+  | "BattleDestroy"
+  | "EffectDestroy"
+  | "RuleDestroy"
   | "Rule";
 export const cardActionChainBlockTypes = ["TriggerEffect", "TriggerMandatoryEffect", "MandatoryEffect", "QuickEffect", "IgnitionEffect"] as const;
 export type TCardActionChainBlockType = (typeof cardActionChainBlockTypes)[number];
-export const cardActionNonChainBlockTypes = ["Summon", "ChangeBattlePosition", "Battle"] as const;
+export const cardActionNonChainBlockTypes = ["NormalSummon", "SpecialSummon", "ChangeBattlePosition", "Battle"] as const;
 export type TCardActionNonChainBlockType = (typeof cardActionNonChainBlockTypes)[number];
 export type TCardActionType = TCardActionChainBlockType | TCardActionNonChainBlockType | "Dammy";
 export type TSpellSpeed = "Normal" | "Quick" | "Counter" | "Dammy";
@@ -71,9 +63,14 @@ export type CardAction<T> = {
   validate: () => DuelFieldCell[] | undefined;
   prepare: (cell?: DuelFieldCell) => Promise<T>;
   execute: (cell?: DuelFieldCell, prepared?: T) => Promise<boolean>;
+  autoWord?: string;
 };
 export type CardActionWIP<T> = CardAction<T> & { cell?: DuelFieldCell; pos: TBattlePosition };
-export type TDuelEntityType = "Card" | "Token" | "CardClone" | "Squatter";
+export const duelEntityCardTypes = ["Card", "Token", "Avatar"] as const;
+export type TDuelEntityCardType = (typeof duelEntityCardTypes)[number];
+export const duelEntityDammyTypes = ["Duelist", "Squatter"] as const;
+export type TDuelEntityDammyType = (typeof duelEntityDammyTypes)[number];
+export type TDuelEntityType = TDuelEntityCardType | TDuelEntityDammyType;
 export type TDuelEntityInfoDetail = {
   name: string;
   entityType: TDuelEntityType;
@@ -102,6 +99,33 @@ export class DuelEntity {
   public movedAt: ProcKey;
 
   public readonly status: TEntityStatus;
+  public get nm() {
+    return this.status.name;
+  }
+  public get atk() {
+    return this.status.attack;
+  }
+  public get def() {
+    return this.status.defense;
+  }
+  public get lvl() {
+    return this.status.level;
+  }
+  public get rank() {
+    return this.status.rank;
+  }
+  public get attr() {
+    return [this.status.attribute];
+  }
+  public get type() {
+    return [this.status.type];
+  }
+  public get psL() {
+    return [this.status.pendulumScaleL];
+  }
+  public get psR() {
+    return [this.status.pendulumScaleR];
+  }
 
   public readonly actions: CardAction<unknown>[] = [];
 
@@ -136,6 +160,7 @@ export class DuelEntity {
     this.orientation = orientation;
     this.movedAs = ["Rule"];
     this.movedAt = field.duel.procKey;
+    fieldCell.acceptEntities([this], "Top");
   }
   public static readonly createCardPlayList = (entity: DuelEntity, baseList: CardActionBase<unknown>[]): CardAction<unknown>[] => {
     const result = baseList.map((b) => {
@@ -155,21 +180,25 @@ export class DuelEntity {
 
     return result;
   };
+
+  /**
+   * 直接攻撃のときに面倒なので、プレイヤーをエンティティ扱いで手札においておく
+   * @param field
+   * @param duelist
+   * @returns
+   */
+  public static readonly createPlayerEntity = (duelist: Duelist): DuelEntity => {
+    const hand = duelist.duel.field.getHandCell(duelist);
+    return new DuelEntity(duelist, duelist, duelist.duel.field, hand, "Duelist", { name: duelist.profile.name, kind: "Monster" }, "FaceUp", true, "Vertical");
+  };
   public static readonly createCardEntity = (field: DuelField, owner: Duelist, cardInfo: TCardInfoJson): DuelEntity => {
     // cardはデッキまたはEXデッキに生成
     const fieldCell = exMonsterCategories.filter((cat) => cardInfo.monsterCategories?.includes(cat)) ? field.getDeckCell(owner) : field.getExtraDeck(owner);
     const newCard = new DuelEntity(owner, owner, field, fieldCell, "Card", cardInfo, "FaceDown", false, "Vertical");
-    if (newCard.origin?.kind === "Monster" && newCard.origin.monsterCategories?.union([...specialMonsterCategories]).length === 0) {
-      newCard.actions.push(
-        ...DuelEntity.createCardPlayList(newCard, [
-          defaultNormalAttackSummonRule,
-          defaultNormalSetSummonRule,
-          defaultAttackRule,
-          defaultBattlePotisionChangeRule,
-        ] as CardActionBase<unknown>[])
-      );
+    newCard.actions.push(...DuelEntity.createCardPlayList(newCard, getCardActions(newCard.origin.name)));
+    if (!newCard.actions) {
+      field.duel.log.info(`未実装カード${cardInfo.name}がデッキに投入された。`, owner);
     }
-    fieldCell.acceptEntities([newCard], "Top");
     return newCard;
   };
 
@@ -196,7 +225,7 @@ export class DuelEntity {
   };
 
   public readonly getIndexInCell = (): number => {
-    const index = this.fieldCell.entities.indexOf(this);
+    const index = this.fieldCell.cardEntities.indexOf(this);
 
     if (index < 0) {
       throw new SystemError("エンティティとセルの状態が矛盾している。", [this, this.fieldCell]);
@@ -216,5 +245,48 @@ export class DuelEntity {
     this.orientation = "Vertical";
     this.face = face;
     this.isUnderControl = isUnderControl;
+  };
+  private readonly summon = async (
+    to: DuelFieldCell,
+    pos: TBattlePosition,
+    summonType: TDuelSummonRuleCauseReason,
+    moveAs: TDuelCauseReason[],
+    causedBy?: DuelEntity
+  ): Promise<DuelFieldCell | undefined> => {
+    const moveAsDic: { [pos in TBattlePosition]: TDuelCauseReason } = {
+      Attack: "AttackSummon",
+      Defense: "DefenseSummon",
+      Set: "SetSummon",
+    };
+    if (!to.isAvailable) {
+      return;
+    }
+    this.fieldCell.releaseEntities([this], [summonType, moveAsDic[pos], ...moveAs], causedBy);
+    this.setBattlePosition(pos);
+    to.acceptEntities([this], "Top");
+    this.status.battlePotisionChangeCount = 1;
+    return to;
+  };
+  public readonly release = async (moveAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<DuelFieldCell | undefined> => {
+    return await this.sendGraveyard([...moveAs, "Destroy"], causedBy);
+  };
+  public readonly destroy = async (
+    by: "BattleDestroy" | "EffectDestroy" | "RuleDestroy",
+    moveAs: TDuelCauseReason[],
+    causedBy?: DuelEntity
+  ): Promise<DuelFieldCell | undefined> => {
+    return await this.sendGraveyard([...moveAs, by, "Destroy"], causedBy);
+  };
+  public readonly sendGraveyard = async (moveAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<DuelFieldCell | undefined> => {
+    this.setNonFieldPosition("FaceUp", true);
+    this.fieldCell.releaseEntities([this], moveAs, causedBy);
+
+    if (this.entityType === "Token") {
+      this.field.duel.log.info(`${this.nm}は消滅した。`, causedBy?.controller);
+      return;
+    }
+    const graveyard = this.field.getGraveyard(this.owner);
+    graveyard.acceptEntities([this], "Top");
+    return graveyard;
   };
 }

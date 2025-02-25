@@ -1,7 +1,7 @@
 import DuelistProfile from "@ygo/class/DuelistProfile";
 import DeckInfo from "@ygo/class/DeckInfo";
 import { Duel, type ProcKey, type TSeat } from "./Duel";
-import type { DuelEntity } from "./DuelEntity";
+import { DuelEntity } from "./DuelEntity";
 
 type TLifeLogReason = "BattleDamage" | "EffectDamage" | "Heal" | "Lost" | "Pay" | "Set";
 export type TDuelistType = "NPC" | "Player";
@@ -17,11 +17,16 @@ type LifeLogRecord = {
 export default class Duelist {
   public readonly duel: Duel;
   public readonly seat: TSeat;
+  public get entity() {
+    return this._entity as DuelEntity;
+  }
+  public _entity: DuelEntity | undefined;
   public readonly profile: DuelistProfile;
   public readonly deckInfo: DeckInfo;
   public readonly duelistType: TDuelistType;
   public readonly lifeLog: LifeLogRecord[];
   public normalSummonCount: number;
+  public specialSummonCount: number;
   public readonly maxNormalSummonCount: number;
   private _lp: number;
   public constructor(duel: Duel, seat: TSeat, profile: DuelistProfile, duelistType: TDuelistType, deckInfo: DeckInfo) {
@@ -32,9 +37,13 @@ export default class Duelist {
     this.deckInfo = deckInfo;
     this.lifeLog = [];
     this.normalSummonCount = 0;
+    this.specialSummonCount = 0;
     this.maxNormalSummonCount = 1;
     this._lp = 8000;
   }
+  public readonly initEntity = () => {
+    this._entity = DuelEntity.createPlayerEntity(this);
+  };
   public readonly battleDamage = (point: number, entity: DuelEntity): LifeLogRecord => {
     return this.setLp(this._lp - point, entity, "BattleDamage");
   };

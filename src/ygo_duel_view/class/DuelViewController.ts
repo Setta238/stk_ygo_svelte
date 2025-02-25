@@ -67,7 +67,9 @@ export class DuelViewController {
    */
   public readonly waitFieldAction = async (enableActions: CardAction<unknown>[], message: string): Promise<DuelistAction> => {
     if (this.duel.getTurnPlayer().duelistType === "NPC") {
-      const action = enableActions.find((act) => act.playType === "Summon");
+      const action = enableActions
+        .toSorted((left, right) => (right.entity.atk || 0) - (left.entity.atk || 0))
+        .find((act) => act.playType === "NormalSummon" || act.playType === "SpecialSummon");
       return action ? { actionWIP: action as CardActionWIP<unknown> } : { phaseChange: this.duel.nextPhaseList[0] };
     }
     return await this._waitDuelistAction(enableActions, "SelectFieldAction", message);
@@ -161,7 +163,9 @@ export class DuelViewController {
     }
     console.log(this.waitSelectEntities);
     this.waitMode = choises.every(
-      (e) => (e.fieldCell.cellType === "FieldZone" && e.getIndexInCell() === 0) || (e.fieldCell.cellType === "Hand" && e.controller === chooser)
+      (e) =>
+        ((e.fieldCell.cellType === "MonsterZone" || e.fieldCell.cellType === "ExtraMonsterZone") && e.getIndexInCell() === 0) ||
+        (e.fieldCell.cellType === "Hand" && e.controller === chooser)
     )
       ? "SelectEntites"
       : "SelectFieldEntities";

@@ -59,6 +59,7 @@ export const defaultNormalSummonExecute = async (entity: DuelEntity, pos: TBattl
       entity.controller,
       entity.field.getReleasableMonsters(entity.controller),
       qty,
+      "Cost",
       ["AdvanceSummonRelease", "Rule"],
       entity,
       cancelable
@@ -97,15 +98,15 @@ export const defaultAttackExecute = async (entity: DuelEntity, pos?: TBattlePosi
   if (entity.status.attackCount > 0 || entity.battlePotion !== "Attack") {
     return false;
   }
-  if (cell) {
-    entity.field.duel.declareAnAttack(entity, cell.cellType === "Hand" ? undefined : cell.entities[0]);
+  if (cell?.targetForAttack) {
+    entity.field.duel.declareAnAttack(entity, cell?.targetForAttack);
     return true;
   }
 
   const targets = entity.field.getAttackTargetMonsters(entity.controller);
-  //TODO waitSelectEntitiesだとダイレクトアタックを選択できないので、あとで直す
+  const opponent = entity.controller.duel.getOpponentPlayer(entity.controller).entity;
   if (targets.length === 0) {
-    entity.field.duel.declareAnAttack(entity, undefined);
+    entity.field.duel.declareAnAttack(entity, opponent);
     return true;
   }
 
@@ -115,12 +116,12 @@ export const defaultAttackExecute = async (entity: DuelEntity, pos?: TBattlePosi
     return false;
   }
 
-  entity.field.duel.declareAnAttack(entity, target.length > 0 ? undefined : target[0]);
+  entity.field.duel.declareAnAttack(entity, target.length > 0 ? target[0] : opponent);
 
   return true;
 };
 export const defaultBattlePotisionChangeValidate = (entity: DuelEntity): DuelFieldCell[] | undefined => {
-  if (entity.status.battlePotisionChangeCount > 0 || !entity.controller.isTurnPlayer) {
+  if (entity.status.battlePotisionChangeCount > 0 || entity.status.attackCount > 0 || !entity.controller.isTurnPlayer) {
     return undefined;
   }
   if (entity.fieldCell.cellType !== "ExtraMonsterZone" && entity.fieldCell.cellType !== "MonsterZone") {
@@ -143,23 +144,24 @@ export const defaultBattlePotisionChangeExecute = async (entity: DuelEntity, _po
   entity.status.battlePotisionChangeCount++;
   return true;
 };
-export const defaultNormalAttackSummonRule: CardActionBase<void> = {
+
+export const defaultNormalAttackSummonAction: CardActionBase<void> = {
   title: "召喚",
-  playType: "Summon",
+  playType: "NormalSummon",
   spellSpeed: "Normal",
   validate: defaultNormalSummonValidate,
   prepare: async () => {},
   execute: (entity, cell) => defaultNormalSummonExecute(entity, "Attack", cell),
 };
-export const defaultNormalSetSummonRule: CardActionBase<void> = {
-  title: "裏守備",
-  playType: "Summon",
+export const defaultNormalSetSummonAction: CardActionBase<void> = {
+  title: "セット",
+  playType: "NormalSummon",
   spellSpeed: "Normal",
   validate: defaultNormalSummonValidate,
   prepare: async () => {},
   execute: (entity, cell) => defaultNormalSummonExecute(entity, "Set", cell),
 };
-export const defaultAttackRule: CardActionBase<void> = {
+export const defaultAttackAction: CardActionBase<void> = {
   title: "攻撃宣言",
   playType: "Battle",
   spellSpeed: "Normal",
@@ -168,8 +170,8 @@ export const defaultAttackRule: CardActionBase<void> = {
   execute: (entity, cell) => defaultAttackExecute(entity, undefined, cell),
 };
 
-export const defaultBattlePotisionChangeRule: CardActionBase<void> = {
-  title: "表示形式の変更",
+export const defaultBattlePotisionChangeAction: CardActionBase<void> = {
+  title: "表示形式変更",
   playType: "ChangeBattlePosition",
   spellSpeed: "Normal",
   validate: defaultBattlePotisionChangeValidate,

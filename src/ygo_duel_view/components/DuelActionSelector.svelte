@@ -126,9 +126,12 @@
   .window {
     display: block;
     background-color: white;
-    opacity: 0.7;
+    opacity: 0.9;
     position: fixed;
     bottom: 0px;
     pointer-events: initial;
+  }
+  .window.minimum_mode {
+    opacity: 0.5;
   }
 </style>

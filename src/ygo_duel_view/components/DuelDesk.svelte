@@ -1,6 +1,6 @@
 <script lang="ts">
   import DuelFieldCell from "./DuelFieldCell.svelte";
-  import cardInfoDic from "../../ygo/class/CardInfo";
+  import { cardInfoDic } from "../../ygo/class/CardInfo";
   import DuelistProfile from "../../ygo/class/DuelistProfile";
   import DeckInfo from "../../ygo/class/DeckInfo";
   import { Duel, type DuelistAction } from "../../ygo_duel/class/Duel";
@@ -31,6 +31,7 @@
     "エレキテルドラゴン",
     "デーモンの召喚",
     "青眼の白龍",
+    "サイバー・ドラゴン",
   ];
   deck1.cardNames = [...deck1.cardNames, ...deck1.cardNames, ...deck1.cardNames];
   deck2.cardNames = Object.keys(cardInfoDic).randomPick(40);

@@ -1,5 +1,5 @@
 import StkEvent from "../../stk_utils/class/StkEvent";
-import type { TDuelCauseReason } from "./DuelEntity";
+import { duelEntityCardTypes, type TDuelCauseReason } from "./DuelEntity";
 import type { DuelEntity } from "./DuelEntity";
 import type { DuelField } from "./DuelField";
 import type Duelist from "./Duelist";
@@ -7,9 +7,9 @@ export type DuelFieldCellType =
   | "Hand"
   | "Deck"
   | "MonsterZone"
-  | "MagicZone"
+  | "SpellAndTrapZone"
   | "Graveyard"
-  | "FieldZone"
+  | "FieldSpellZone"
   | "ExtraDeck"
   | "ExtraMonsterZone"
   | "Banished"
@@ -23,11 +23,11 @@ export const cellTypeMaster = {
   },
   1: {
     0: "Deck",
-    1: "MagicZone",
-    2: "MagicZone",
-    3: "MagicZone",
-    4: "MagicZone",
-    5: "MagicZone",
+    1: "SpellAndTrapZone",
+    2: "SpellAndTrapZone",
+    3: "SpellAndTrapZone",
+    4: "SpellAndTrapZone",
+    5: "SpellAndTrapZone",
     6: "ExtraDeck",
   },
   2: {
@@ -37,7 +37,7 @@ export const cellTypeMaster = {
     3: "MonsterZone",
     4: "MonsterZone",
     5: "MonsterZone",
-    6: "FieldZone",
+    6: "FieldSpellZone",
   },
   3: {
     0: "Banished",
@@ -49,7 +49,7 @@ export const cellTypeMaster = {
     6: "Banished",
   },
   4: {
-    0: "FieldZone",
+    0: "FieldSpellZone",
     1: "MonsterZone",
     2: "MonsterZone",
     3: "MonsterZone",
@@ -59,11 +59,11 @@ export const cellTypeMaster = {
   },
   5: {
     0: "ExtraDeck",
-    1: "MagicZone",
-    2: "MagicZone",
-    3: "MagicZone",
-    4: "MagicZone",
-    5: "MagicZone",
+    1: "SpellAndTrapZone",
+    2: "SpellAndTrapZone",
+    3: "SpellAndTrapZone",
+    4: "SpellAndTrapZone",
+    5: "SpellAndTrapZone",
     6: "Deck",
   },
   6: {
@@ -80,17 +80,29 @@ export class DuelFieldCell {
   public readonly column: number;
   public readonly cellType: DuelFieldCellType;
   public readonly owner: Duelist | undefined;
-  public entities: DuelEntity[];
+  public get entities() {
+    return this._entities;
+  }
+  public get cardEntities() {
+    return this._entities.filter((e) => duelEntityCardTypes.find((t) => t === e.entityType));
+  }
+  public get targetForAttack() {
+    return this.cellType === "Hand" ? this._entities.find((e) => e.entityType === "Duelist") : this.cardEntities[0];
+  }
+  public get isAvailable() {
+    return this._entities.length === 0;
+  }
+  private _entities: DuelEntity[];
   public constructor(duelField: DuelField, row: number, column: number, owner?: Duelist) {
     this.field = duelField;
     this.row = row;
     this.column = column;
     this.cellType = cellTypeMaster[row][column];
     this.owner = owner;
-    this.entities = [];
+    this._entities = [];
   }
   public readonly releaseEntities = (entities: DuelEntity[], movedAs: TDuelCauseReason[], cousedBy?: DuelEntity): DuelEntity[] => {
-    this.entities = this.entities.filter((e) => !entities.includes(e));
+    this._entities = this._entities.filter((e) => !entities.includes(e));
     entities.forEach((entity) => {
       entity.movedAs.splice(0);
       entity.movedAs.push(...new Set(movedAs));
@@ -103,13 +115,16 @@ export class DuelFieldCell {
   };
   public readonly acceptEntities = (entities: DuelEntity[], pos: TDuelEntityPos) => {
     if (pos === "Bottom") {
-      this.entities.push(...entities);
+      this._entities.push(...entities);
     } else if (pos === "Top") {
-      this.entities.unshift(...entities);
+      this._entities.unshift(...entities);
     }
-    this.entities.forEach((entity) => {
+    this._entities.forEach((entity) => {
       entity.fieldCell = this;
     });
     this.onUpdateEvent.trigger();
+  };
+  public readonly shuffle = (): void => {
+    this._entities = this.entities.shuffle();
   };
 }

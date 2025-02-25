@@ -126,7 +126,7 @@
       {/if}
     {:else if cell.cellType === "Hand"}
       <div class="flex" style="  margin: 0 auto;">
-        {#each cell.entities as entity}
+        {#each cell.cardEntities as entity}
           <button disabled={view.waitMode !== "SelectFieldAction" || !canAction(entity)} class="action_button" onclick={() => onActionButtonClick(entity)}>
             <DuelCard {entity} isSelectable={selectableEntities && selectableEntities.includes(entity)} bind:selectedList />
           </button>
@@ -134,12 +134,12 @@
       </div>
     {:else}
       <div>
-        <button disabled={!view.waitMode || !canAction(...cell.entities)} class="action_button" onclick={() => onActionButtonClick(...cell.entities)}>
-          {#if cell.entities.length > 0}
-            <DuelCard entity={cell.entities[0]} isSelectable={selectableEntities && selectableEntities.includes(cell.entities[0])} bind:selectedList />
+        <button disabled={!view.waitMode || !canAction(...cell.cardEntities)} class="action_button" onclick={() => onActionButtonClick(...cell.cardEntities)}>
+          {#if cell.cardEntities.length > 0}
+            <DuelCard entity={cell.cardEntities[0]} isSelectable={selectableEntities && selectableEntities.includes(cell.cardEntities[0])} bind:selectedList />
           {/if}
           {#if cell.cellType === "Deck" || cell.cellType === "ExtraDeck" || cell.cellType === "Graveyard" || cell.cellType === "Banished"}
-            <div>{cell.entities.length}枚</div>
+            <div>{cell.cardEntities.length}枚</div>
           {/if}
         </button>
       </div>
@@ -211,7 +211,7 @@
   .duel_field_cell_MonsterZone {
     background-color: lightsalmon;
   }
-  .duel_field_cell_MagicZone {
+  .duel_field_cell_SpellAndTrapZone {
     background-color: teal;
   }
   .duel_field_cell_Graveyard {

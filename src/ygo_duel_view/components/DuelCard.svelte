@@ -29,8 +29,8 @@
     <table>
       <tbody>
         <tr>
-          <td> {entity.status.name} </td>
-          <td> {entity.status.attribute} </td>
+          <td> {entity.nm} </td>
+          <td> {entity.attr.join(" ")} </td>
         </tr>
         <tr>
           <td colspan="2" style="text-align: left;"> {"★".repeat(entity.status.level || 0)} </td>
@@ -39,8 +39,8 @@
           <tr>
             <td colspan="2">
               <div style="display:flex; justify-content: space-between; min-width:100%;">
-                <div>◀ {entity.status.pendulumScaleL}</div>
-                <div>{entity.status.pendulumScaleR} ▶</div>
+                <div>◀ {entity.psL}</div>
+                <div>{entity.psR} ▶</div>
               </div>
             </td>
           </tr>
@@ -48,12 +48,13 @@
         <tr>
           <td>
             <div style="display: flex;flex-direction: column;">
+              <div>{entity.type}</div>
               {#each entity.status.monsterCategories ?? [] as cat}<div style="margin-right: 0.2rem;">{cat}</div>{/each}
             </div>
           </td>
           <td>
-            <div>{entity.status.attack}</div>
-            <div>{entity.status.defense || 0}</div>
+            <div>{entity.atk}</div>
+            <div>{entity.def || 0}</div>
             <!-- TODO FIX IT -->
           </td>
         </tr>
@@ -61,7 +62,7 @@
     </table>
   </button>
   {#if entity.battlePotion}
-    <div>【{entity.battlePotion === "Attack" ? "攻撃" : entity.battlePotion === "Defense" ? "表守備" : "裏守備"}】</div>
+    <div>【{entity.battlePotion === "Attack" ? "攻撃表示" : entity.battlePotion === "Defense" ? "表守備表示" : "裏守備表示"}】</div>
   {/if}
 {:else}
   <div class="duel_card duel_card_face_down"><div></div></div>
@@ -85,6 +86,9 @@
   }
   .duel_card.Normal {
     background-color: cornsilk;
+  }
+  .duel_card.Effect {
+    background-color: chocolate;
   }
   .duel_card:disabled,
   .duel_card:disabled * {

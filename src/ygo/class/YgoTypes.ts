@@ -1,4 +1,4 @@
-export type TCardKind = "Monster" | "Magic" | "Trap";
+export type TCardKind = "Monster" | "Spell" | "Trap";
 export const exMonsterCategories = ["Synchro", "Fusion", "Xyz", "Link"] as const;
 export type TMonsterExSummonCategory = (typeof exMonsterCategories)[number];
 export const specialMonsterCategories = [...exMonsterCategories, "SpecialSummon"] as const;
@@ -34,36 +34,41 @@ export type TMonsterType =
   | "WingedBeast"
   | "Wyrm"
   | "Zombie";
-export type TMagicCategory = "Normal " | "Continuous" | "Field" | "QuickPlay" | "Equip";
+export type TSpellCategory = "Normal " | "Continuous" | "Field" | "QuickPlay" | "Equip";
 export type TTrapCategory = "Normal " | "Continuous" | "Counter";
 export type TBattlePosition = "Attack" | "Defense" | "Set";
 
 export type TCardInfoWiki = {
   name: string;
-  wikiName: string;
-  wikiHref: string;
-  wikiTextAll: string;
+  wikiName?: string;
+  wikiHref?: string;
+  wikiTextAll?: string;
 };
 
 export type TEntityStatusBase = {
   name: string;
   kind: TCardKind;
-  monsterCategories: Array<TMonsterCategory> | undefined;
-  magicCategories: TMagicCategory | undefined;
-  trapCategories: TTrapCategory | undefined;
-  nameTags: Array<string> | undefined;
-  level: number | undefined;
-  rank: number | undefined;
-  link: number | undefined;
-  attack: number | undefined;
-  defense: number | undefined;
-  attribute: TMonsterAttribute | undefined;
-  type: TMonsterType | undefined;
-  pendulumScaleR: number | undefined;
-  pendulumScaleL: number | undefined;
-  canAttack: boolean | undefined;
-  canDirectAttack: boolean | undefined;
-  attackCount: number | undefined;
+  monsterCategories?: Array<TMonsterCategory>;
+  spellCategories?: TSpellCategory;
+  trapCategories?: TTrapCategory;
+  nameTags?: Array<string>;
+  level?: number;
+  rank?: number;
+  link?: number;
+  attack?: number;
+  defense?: number;
+  attribute?: TMonsterAttribute;
+  type?: TMonsterType;
+  pendulumScaleR?: number;
+  pendulumScaleL?: number;
+};
+
+export type TEntityStatusDuel = {
+  canAttack?: boolean;
+  canDirectAttack?: boolean;
+  attackCount?: number;
+  originAttack?: number;
+  originDefence?: number;
 };
 
 export type TEntityStatus = TEntityStatusBase & {
@@ -75,12 +80,13 @@ export type TEntityStatus = TEntityStatusBase & {
 };
 
 export type TCardInfoBase = {
-  nameKana: string;
-  description: string;
-  pendulumDescription: string;
+  nameKana?: string;
+  description?: string;
+  pendulumDescription?: string;
 };
 
 export type TCardInfoJson = TCardInfoWiki & TEntityStatusBase & TCardInfoBase;
+export type TCardInfoDuel = TCardInfoJson & TEntityStatusDuel;
 
 export const MonsterAttributeDic = {
   Light: "光",

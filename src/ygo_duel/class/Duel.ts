@@ -85,9 +85,11 @@ export class Duel {
       Above: new Duelist(this, "Above", duelist2, duelist2Type, deck2),
     };
     this.priorityHolder = this.firstPlayer;
+    this.field = new DuelField(this);
+    //NOTE フィールドと生成順序が矛盾するので、初期化メソッドを一部外出しして誤魔化す
+    Object.values(this.duelists).forEach((duelist) => duelist.initEntity());
 
     this.view = new DuelViewController(this);
-    this.field = new DuelField(this);
     this.log = new DuelLog(this);
   }
 
@@ -171,7 +173,7 @@ export class Duel {
     }
   };
 
-  public readonly declareAnAttack = (attacker: DuelEntity, defender?: DuelEntity): void => {
+  public readonly declareAnAttack = (attacker: DuelEntity, defender: DuelEntity): void => {
     this.attackingMonster = attacker;
     this.targetForAttack = defender;
     attacker.status.attackCount++;
@@ -186,7 +188,10 @@ export class Duel {
     this.procKey.turn = this.turn;
     this.procKey.seq = 0;
     this.procKey.chain = 0;
-    this.getTurnPlayer().normalSummonCount = 0;
+    Object.values(this.duelists).forEach((duelist) => {
+      duelist.normalSummonCount = 0;
+      duelist.specialSummonCount = 0;
+    });
     this.log.info("ドローフェイズ開始。", this.getTurnPlayer());
     if (this.turn === 1) {
       this.log.info("先攻プレイヤーはドローできない。", this.getTurnPlayer());
@@ -211,7 +216,7 @@ export class Duel {
     while (true) {
       this.priorityHolder = this.getTurnPlayer();
       const action = await this.view.waitFieldAction(
-        this.getEnableActions(["Summon", "ChangeBattlePosition", "IgnitionEffect", "QuickEffect"], ["Normal", "Quick", "Counter"]),
+        this.getEnableActions(["NormalSummon", "SpecialSummon", "ChangeBattlePosition", "IgnitionEffect", "QuickEffect"], ["Normal", "Quick", "Counter"]),
         "あなたの手番です。"
       );
       if (action.actionWIP) {
@@ -279,7 +284,7 @@ export class Duel {
     const attacker = this.attackingMonster;
     const defender = this.targetForAttack;
 
-    if (!attacker || !attacker.status.attack) {
+    if (!attacker || !attacker.atk) {
       throw new SystemError("想定されない状態", this.attackingMonster, this.targetForAttack);
     }
 
@@ -299,24 +304,24 @@ export class Duel {
     //TODO エフェクト処理
 
     //ダメージ計算
-    const atkPoint = attacker.status.attack;
-    const defPoint = (defender?.battlePotion === "Attack" ? defender.status.attack : defender?.status.defense) || 0;
-    if (!defender) {
+    const atkPoint = attacker.atk;
+    const defPoint = (defender?.battlePotion === "Attack" ? defender.atk : defender?.def) || 0;
+    if (!defender || defender.entityType === "Duelist") {
       this.getOpponentPlayer(attacker.controller).battleDamage(atkPoint - defPoint, attacker);
     } else if (atkPoint > 0 && atkPoint > defPoint) {
       if (defender.battlePotion === "Attack") {
-        this.getOpponentPlayer(attacker.controller).battleDamage(attacker.status.attack - defPoint, attacker);
+        this.getOpponentPlayer(attacker.controller).battleDamage(atkPoint - defPoint, attacker);
       }
-      this.field.destroyMany([defender], ["Battle"], attacker);
+      this.field.destroyMany([defender], ["BattleDestroy"], attacker);
     } else if (atkPoint < defPoint) {
       // 絶対防御将軍が守備表示で攻撃しても反射ダメージが発生するとのこと。
-      attacker.controller.battleDamage(defPoint - attacker.status.attack, defender);
+      attacker.controller.battleDamage(defPoint - atkPoint, defender);
       if (defender.battlePotion === "Attack") {
-        this.field.destroyMany([attacker], ["Battle"], defender);
+        this.field.destroyMany([attacker], ["BattleDestroy"], defender);
       }
     } else if (atkPoint === defPoint && defender.battlePotion === "Attack") {
-      this.field.destroyMany([attacker], ["Battle"], defender);
-      this.field.destroyMany([defender], ["Battle"], attacker);
+      this.field.destroyMany([attacker], ["BattleDestroy"], defender);
+      this.field.destroyMany([defender], ["BattleDestroy"], attacker);
     }
 
     const losers = Object.values(this.duelists).filter((duelist) => duelist.lp <= 0);
@@ -350,10 +355,11 @@ export class Duel {
     this.procFreeAction(true);
     while (true) {
       const hand = this.field.getHandCell(this.getTurnPlayer());
-      if (hand.entities.length < 7) {
+      const qty = hand.cardEntities.length;
+      if (qty < 7) {
         break;
       }
-      await this.field.discard(this.getTurnPlayer(), hand.entities.length - 6, ["Rule"]);
+      await this.field.discard(this.getTurnPlayer(), qty - 6, ["Rule"]);
       // TODO トリガー効果のみ発動可能
     }
 
@@ -456,7 +462,7 @@ export class Duel {
 
   private readonly getEnableActions = (enableCardPlayTypes: TCardActionType[], enableSpellSpeeds: TSpellSpeed[]): CardAction<unknown>[] => {
     return this.field
-      .getAllEntities()
+      .getAllCardEntities()
       .filter((entity) => entity.controller === this.priorityHolder)
       .map((entity) => entity.actions)
       .flat()

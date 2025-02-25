@@ -1,7 +1,7 @@
 import { Duel, DuelEnd, SystemError } from "./Duel";
 import { type CardAction, type CardActionWIP, type TDuelCauseReason, DuelEntity } from "@ygo_duel/class/DuelEntity";
 
-import cardInfoDic from "@ygo/class/CardInfo";
+import { cardInfoDic } from "@ygo/class/CardInfo";
 import type Duelist from "./Duelist";
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import { cellTypeMaster, DuelFieldCell, type DuelFieldCellType } from "./DuelFieldCell";
@@ -32,6 +32,11 @@ export class DuelField {
       .map((cell) => cell.entities)
       .flat();
   };
+  public readonly getAllCardEntities = (): DuelEntity[] => {
+    return this.getAllCells()
+      .map((cell) => cell.cardEntities)
+      .flat();
+  };
   public readonly getEntities = (duelist: Duelist): DuelEntity[] => {
     return this.getAllEntities().filter((entity) => entity.controller === duelist);
   };
@@ -49,7 +54,7 @@ export class DuelField {
     return this.getCells("Graveyard").filter((cell) => cell.owner === duelist)[0];
   };
   public readonly getFieldZone = (duelist: Duelist): DuelFieldCell => {
-    return this.getCells("FieldZone").filter((cell) => cell.owner === duelist)[0];
+    return this.getCells("FieldSpellZone").filter((cell) => cell.owner === duelist)[0];
   };
   public readonly getBanished = (duelist: Duelist): DuelFieldCell => {
     return this.getCells("Banished").filter((cell) => cell.owner === duelist)[0];
@@ -58,18 +63,25 @@ export class DuelField {
     return this.getCells("MonsterZone").filter((cell) => cell.owner === duelist);
   };
   public readonly getExtraMonsterZones = (duelist: Duelist): DuelFieldCell[] => {
-    return this.getCells("ExtraMonsterZone").filter((cell) => cell.entities[0]?.controller === duelist);
+    return this.getCells("ExtraMonsterZone").filter((cell) => cell.cardEntities[0]?.controller === duelist);
   };
   public readonly getEmptyMonsterZones = (duelist: Duelist): DuelFieldCell[] => {
-    return this.getMonsterZones(duelist).filter((cell) => cell.entities.length === 0);
+    return this.getMonsterZones(duelist).filter((cell) => cell.cardEntities.length === 0);
   };
   public readonly getEmptyExtraZones = (duelist: Duelist): DuelFieldCell[] => {
-    return this.getExtraMonsterZones(duelist).length === 0 ? this.getMonsterZones(duelist).filter((cell) => cell.entities.length === 0) : [];
+    return this.getExtraMonsterZones(duelist).length === 0 ? this.getMonsterZones(duelist).filter((cell) => cell.cardEntities.length === 0) : [];
+  };
+  public readonly getAvailableMonsterZones = (duelist: Duelist): DuelFieldCell[] => {
+    return this.getMonsterZones(duelist).filter((cell) => cell.isAvailable);
+  };
+  public readonly getAvailableExtraZones = (duelist: Duelist): DuelFieldCell[] => {
+    // TODOエクストラリンク
+    return this.getExtraMonsterZones(duelist).length === 0 ? this.getMonsterZones(duelist).filter((cell) => cell.isAvailable) : [];
   };
 
   public readonly getMonstersOnField = (): DuelEntity[] => {
     return this.getCells("MonsterZone", "ExtraMonsterZone")
-      .map((cell) => cell.entities)
+      .map((cell) => cell.cardEntities)
       .filter((entities) => entities.length > 0)
       .map((entities) => entities[0])
       .filter((entity) => entity.entityType !== "Squatter");
@@ -89,7 +101,7 @@ export class DuelField {
       .filter((info) => info)
       .forEach((info) => DuelEntity.createCardEntity(this, duelist, info));
     this.duel.log.info(
-      `デッキをセット。メイン${this.getDeckCell(duelist).entities.length}枚。エクストラ${this.getExtraDeck(duelist).entities.length}枚。`,
+      `デッキをセット。メイン${this.getDeckCell(duelist).cardEntities.length}枚。エクストラ${this.getExtraDeck(duelist).cardEntities.length}枚。`,
       duelist
     );
     return;
@@ -97,7 +109,7 @@ export class DuelField {
 
   public readonly shuffleDeck = (duelist: Duelist): void => {
     const deckCell = this.getDeckCell(duelist);
-    deckCell.entities = deckCell.entities.shuffle();
+    deckCell.shuffle();
     this.duel.log.info(`デッキをシャッフル。`, duelist);
   };
 
@@ -139,7 +151,7 @@ export class DuelField {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     for (const _ of Array(times)) {
-      if (!deckCell.entities.length) {
+      if (!deckCell.cardEntities.length) {
         this.duel.log.info(
           cardNames.length > 0
             ? `デッキからカードを${times}枚ドローしようとしたが、${cardNames.length}枚しかドローできなかった。${cardNames}`
@@ -150,7 +162,7 @@ export class DuelField {
         duelist.setLp(0);
         return false;
       }
-      const card = deckCell.releaseEntities([deckCell.entities[0]], ["Draw"], cousedBy)[0];
+      const card = deckCell.releaseEntities([deckCell.cardEntities[0]], ["Draw"], cousedBy)[0];
       card.setNonFieldPosition("FaceDown", true);
       handCell.acceptEntities([card], "Bottom");
       cardNames.push(card.origin?.name || "!名称取得失敗!");
@@ -164,6 +176,7 @@ export class DuelField {
     chooser: Duelist,
     choices: DuelEntity[],
     qty: number,
+    by: "Cost" | "Effect",
     moveAs: TDuelCauseReason[],
     causedBy?: DuelEntity,
     allowZero?: boolean,
@@ -185,7 +198,16 @@ export class DuelField {
       return;
     }
 
-    const entities = await this._sendGraveyardMany(target, ["Release", ...moveAs], causedBy);
+    const entities: DuelEntity[] = [];
+    for (const entity of target) {
+      const flg = entity.release(["Release", by, ...moveAs], causedBy);
+      if (!flg) {
+        this.duel.log.info(`${entity.nm}をリリースできなかった。`, chooser);
+        break;
+      }
+      entities.push(entity);
+    }
+
     this.duel.log.info(
       `${entities.map((e) => e.status.name).join(", ")}をリリース（${[...new Set(entities.flatMap((e) => e.movedAs))].join(", ")}）。`,
       chooser
@@ -202,7 +224,7 @@ export class DuelField {
     filter?: (entity: DuelEntity) => boolean
   ): Promise<DuelEntity[]> => {
     const _filter: (entity: DuelEntity) => boolean = filter || (() => true);
-    const choices = this.getHandCell(duelist).entities.filter(_filter);
+    const choices = this.getHandCell(duelist).cardEntities.filter(_filter);
 
     if (choices.length < qty) {
       return [];

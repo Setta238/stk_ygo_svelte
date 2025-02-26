@@ -22,6 +22,7 @@
 
   cell.onUpdate.append(onCellUpdate);
   view.onDuelUpdate.append(onCellUpdate);
+  view.modalController.onUpdate.append(onCellUpdate);
 
   let enableActions: CardAction<unknown>[];
   let action: (Action: DuelistAction) => void = () => {};
@@ -100,7 +101,15 @@
     }
   };
   const canAction = (...entities: DuelEntity[]) => {
+    console.log(view.modalController.states);
+    console.log(Object.values(view.modalController.states).some((stat) => stat === "Shown"));
     if (!enableActions) {
+      return false;
+    }
+    if (view.waitMode !== "SelectFieldAction") {
+      return false;
+    }
+    if (Object.values(view.modalController.states).some((stat) => stat === "Shown")) {
       return false;
     }
     return enableActions.filter((action) => entities.includes(action.entity)).length > 0;
@@ -127,14 +136,18 @@
     {:else if cell.cellType === "Hand"}
       <div class="flex" style="  margin: 0 auto;">
         {#each cell.cardEntities as entity}
-          <button disabled={view.waitMode !== "SelectFieldAction" || !canAction(entity)} class="action_button" onclick={() => onActionButtonClick(entity)}>
+          <button disabled={!canAction(entity)} class="action_button {canAction(entity) && 'action_button_enable'}" onclick={() => onActionButtonClick(entity)}>
             <DuelCard {entity} isSelectable={selectableEntities && selectableEntities.includes(entity)} bind:selectedList />
           </button>
         {/each}
       </div>
     {:else}
       <div>
-        <button disabled={!view.waitMode || !canAction(...cell.cardEntities)} class="action_button" onclick={() => onActionButtonClick(...cell.cardEntities)}>
+        <button
+          disabled={!canAction(...cell.cardEntities)}
+          class="action_button {canAction(...cell.cardEntities) && 'action_button_enable'}"
+          onclick={() => onActionButtonClick(...cell.cardEntities)}
+        >
           {#if cell.cardEntities.length > 0}
             <DuelCard entity={cell.cardEntities[0]} isSelectable={selectableEntities && selectableEntities.includes(cell.cardEntities[0])} bind:selectedList />
           {/if}
@@ -168,7 +181,6 @@
   }
   .action_button {
     display: block;
-    background-color: red;
     width: fit-content;
     border-radius: 0%;
     padding: 0px;
@@ -183,6 +195,50 @@
   }
   .action_button * {
     pointer-events: none;
+  }
+
+  .action_button_enable {
+    position: relative;
+  }
+  /* ボタンの波紋 */
+  .action_button_enable::before {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    width: 100%;
+    height: 100%;
+    border: 0.2rem solid red;
+    border-radius: 30%;
+    background-color: transparent;
+    box-sizing: border-box;
+    pointer-events: none;
+    animation: pulsate 1.5s linear infinite;
+  }
+
+  .pulse-btn::after {
+    animation-delay: 1s;
+  }
+
+  /* ボタンの波紋が広がっていくアニメーション */
+  @keyframes pulsate {
+    0% {
+      transform: scale(1.2);
+      opacity: 0.8;
+    }
+
+    80% {
+      transform: scale(1.3);
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1.2);
+      opacity: 0;
+    }
   }
   .phase_button {
     padding: 0 10px;

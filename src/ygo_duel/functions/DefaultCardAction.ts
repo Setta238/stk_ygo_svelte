@@ -2,11 +2,6 @@ import type { TBattlePosition } from "@ygo/class/YgoTypes";
 import { DuelEntity, type TDuelCauseReason, type CardActionBase } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 export const defaultNormalSummonValidate = (entity: DuelEntity): DuelFieldCell[] | undefined => {
-  // 手札にないカードは通常召喚不可。
-  if (entity.fieldCell.cellType !== "Hand") {
-    return;
-  }
-
   // 召喚権を使い切っていたら通常召喚不可。
   if (entity.controller.normalSummonCount >= entity.controller.maxNormalSummonCount) {
     return;
@@ -124,19 +119,12 @@ export const defaultBattlePotisionChangeValidate = (entity: DuelEntity): DuelFie
   if (entity.status.battlePotisionChangeCount > 0 || entity.status.attackCount > 0 || !entity.controller.isTurnPlayer) {
     return undefined;
   }
-  if (entity.fieldCell.cellType !== "ExtraMonsterZone" && entity.fieldCell.cellType !== "MonsterZone") {
-    return undefined;
-  }
-
   return [];
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const defaultBattlePotisionChangeExecute = async (entity: DuelEntity, _pos?: TBattlePosition, _cell?: DuelFieldCell): Promise<boolean> => {
   if (entity.status.battlePotisionChangeCount > 0 || !entity.controller.isTurnPlayer) {
-    return false;
-  }
-  if (entity.fieldCell.cellType !== "ExtraMonsterZone" && entity.fieldCell.cellType !== "MonsterZone") {
     return false;
   }
 
@@ -149,6 +137,7 @@ export const defaultNormalAttackSummonAction: CardActionBase<void> = {
   title: "召喚",
   playType: "NormalSummon",
   spellSpeed: "Normal",
+  executableCells: ["Hand"],
   validate: defaultNormalSummonValidate,
   prepare: async () => {},
   execute: (entity, cell) => defaultNormalSummonExecute(entity, "Attack", cell),
@@ -157,6 +146,7 @@ export const defaultNormalSetSummonAction: CardActionBase<void> = {
   title: "セット",
   playType: "NormalSummon",
   spellSpeed: "Normal",
+  executableCells: ["Hand"],
   validate: defaultNormalSummonValidate,
   prepare: async () => {},
   execute: (entity, cell) => defaultNormalSummonExecute(entity, "Set", cell),
@@ -165,6 +155,7 @@ export const defaultAttackAction: CardActionBase<void> = {
   title: "攻撃宣言",
   playType: "Battle",
   spellSpeed: "Normal",
+  executableCells: ["MonsterZone", "ExtraMonsterZone"],
   validate: defaultAttackValidate,
   prepare: async () => {},
   execute: (entity, cell) => defaultAttackExecute(entity, undefined, cell),
@@ -174,6 +165,7 @@ export const defaultBattlePotisionChangeAction: CardActionBase<void> = {
   title: "表示形式変更",
   playType: "ChangeBattlePosition",
   spellSpeed: "Normal",
+  executableCells: ["MonsterZone", "ExtraMonsterZone"],
   validate: defaultBattlePotisionChangeValidate,
   prepare: async () => {},
   execute: (entity, cell) => defaultBattlePotisionChangeExecute(entity, undefined, cell),

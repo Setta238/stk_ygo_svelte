@@ -464,8 +464,8 @@ export class Duel {
     return this.field
       .getAllCardEntities()
       .filter((entity) => entity.controller === this.priorityHolder)
-      .map((entity) => entity.actions)
-      .flat()
+      .flatMap((entity) => entity.actions)
+      .filter((action) => action.executableCells.includes(action.entity.fieldCell.cellType))
       .filter((action) => enableCardPlayTypes.includes(action.playType))
       .filter((action) => enableSpellSpeeds.includes(action.spellSpeed))
       .filter((action) => action.validate());

@@ -22,7 +22,7 @@
   <button
     class="duel_card button_style_reset {entity.status.monsterCategories?.join(' ') || ''} {isSelected ? 'duel_card_selected' : ''} {isSelectable
       ? 'duel_card_selectable'
-      : ''}"
+      : ''} duel_card_{entity.orientation}"
     disabled={entity.field.duel.isEnded || !isSelectable}
     on:click={click}
   >

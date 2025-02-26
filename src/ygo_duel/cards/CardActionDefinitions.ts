@@ -10,10 +10,6 @@ import {
 
 export const createCardActionDefinitions = (): { name: string; actions: CardActionBase<unknown>[] }[] => {
   const validate_サイバー・ドラゴン = (entity: DuelEntity): DuelFieldCell[] | undefined => {
-    // 手札にないカードは通常召喚不可。
-    if (entity.fieldCell.cellType !== "Hand") {
-      return;
-    }
     const monsters = entity.field.getMonstersOnField();
     if (monsters.length == 0 || monsters.some((m) => m.controller === entity.controller)) {
       return undefined;
@@ -42,6 +38,7 @@ export const createCardActionDefinitions = (): { name: string; actions: CardActi
         title: "特殊召喚（攻撃）",
         playType: "SpecialSummon",
         spellSpeed: "Normal",
+        executableCells: ["Hand"],
         validate: validate_サイバー・ドラゴン,
         prepare: async () => {},
         execute: async (entity: DuelEntity, cell?: DuelFieldCell): Promise<boolean> => {
@@ -53,6 +50,7 @@ export const createCardActionDefinitions = (): { name: string; actions: CardActi
         title: "特殊召喚（守備）",
         playType: "SpecialSummon",
         spellSpeed: "Normal",
+        executableCells: ["Hand"],
         validate: validate_サイバー・ドラゴン,
         prepare: async () => {},
         execute: async (entity: DuelEntity, cell?: DuelFieldCell): Promise<boolean> => {

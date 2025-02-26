@@ -1,7 +1,7 @@
 import { exMonsterCategories, type TBattlePosition, type TCardInfoBase, type TCardInfoJson, type TEntityStatus } from "@ygo/class/YgoTypes";
 import { SystemError, type ProcKey } from "./Duel";
 import type { DuelField } from "./DuelField";
-import type { DuelFieldCell } from "./DuelFieldCell";
+import type { DuelFieldCell, DuelFieldCellType } from "./DuelFieldCell";
 import type Duelist from "./Duelist";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
@@ -50,6 +50,7 @@ export type CardActionBase<T> = {
   title: string;
   playType: TCardActionType;
   spellSpeed: TSpellSpeed;
+  executableCells: DuelFieldCellType[];
   validate: (entity: DuelEntity) => DuelFieldCell[] | undefined;
   prepare: (entity: DuelEntity, cell?: DuelFieldCell) => Promise<T>;
   execute: (entity: DuelEntity, cell?: DuelFieldCell, prepared?: T) => Promise<boolean>;
@@ -60,6 +61,7 @@ export type CardAction<T> = {
   seq: number;
   playType: TCardActionType;
   spellSpeed: TSpellSpeed;
+  executableCells: DuelFieldCellType[];
   validate: () => DuelFieldCell[] | undefined;
   prepare: (cell?: DuelFieldCell) => Promise<T>;
   execute: (cell?: DuelFieldCell, prepared?: T) => Promise<boolean>;
@@ -170,6 +172,7 @@ export class DuelEntity {
         entity: entity,
         playType: b.playType,
         spellSpeed: b.spellSpeed,
+        executableCells: b.executableCells,
         validate: () => b.validate(entity),
         prepare: (cell?: DuelFieldCell) => b.prepare(entity, cell),
         execute: (cell?: DuelFieldCell, prepared?: unknown) => b.execute(entity, cell, prepared),
@@ -217,6 +220,7 @@ export class DuelEntity {
       entity: entity,
       playType: "Dammy",
       spellSpeed: "Dammy",
+      executableCells: [entity.fieldCell.cellType],
       validate: () => cells,
       prepare: async () => {},
       execute: async () => false,

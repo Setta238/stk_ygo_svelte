@@ -71,7 +71,7 @@
             ondragend={(ev) => dragEnd(ev, action)}
           >
             <DuelCard entity={action.entity} isVisibleForcibly={true} />
-            <div>【{action.title}】</div>
+            <div>«{action.title}»</div>
           </button>
         {/each}
       </div>

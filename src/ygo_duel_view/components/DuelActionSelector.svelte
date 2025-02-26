@@ -15,44 +15,36 @@
 </script>
 
 <script lang="ts">
-  import DuelCard from "@ygo_duel_view/components/DuelCard.svelte";
-  import DuelFieldCell from "@ygo_duel_view/components/DuelFieldCell.svelte";
+  import DuelCard, { type TCardState } from "@ygo_duel_view/components/DuelCard.svelte";
+  import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
+  import DuelModalContainer from "./DuelModalContainer.svelte";
+  import type { DuelViewController } from "@ygo_duel_view/class/DuelViewController";
   interface IProp {
+    view: DuelViewController;
     resolve: (action?: CardActionWIP<unknown>, cell?: DuelFieldCell) => void;
     title: string;
     actions: CardActionWIP<unknown>[];
     cancelable: boolean;
   }
-  let { resolve, title, actions, cancelable }: IProp = $props();
+  let { view, resolve, title, actions, cancelable }: IProp = $props();
 
   let isShown = true;
 
-  let isDragging = writable(false);
-
-  const click = (action: CardActionWIP<unknown>) => {
-    resolve(action);
-  };
-  const dragStart = (ev: DragEvent, action: CardActionWIP<unknown>) => {
-    console.log("drag start", ev, action);
-    action.entity.field.duel.view.setDraggingAction(action);
-    isDragging.set(true);
-  };
-
-  const dragEnd = (ev: DragEvent, action: CardActionWIP<unknown>) => {
-    console.log("drag end", ev, action);
-    action.entity.field.duel.view.removeDraggingAction();
-    if (ev.dataTransfer) {
-      isDragging.set(false);
-    }
-  };
   const close = () => {
     if (cancelable) {
       resolve(undefined);
     }
   };
-  const isDraggable = (action: CardActionWIP<unknown>) => {
+
+  let isDragging = writable(false);
+
+  const onDragStart = () => isDragging.set(true);
+  const onDragEnd = () => isDragging.set(false);
+  view.onDragStart.append(onDragStart);
+  view.onDragEnd.append(onDragEnd);
+  const validateActions = (action: CardActionWIP<unknown>): TCardState => {
     const tmp = action.validate();
-    return tmp ? tmp.length > 0 : false;
+    return tmp && tmp.length > 0 ? "Draggable" : "Clickable";
   };
 </script>
 
@@ -63,16 +55,10 @@
       <div>{title}</div>
       <div class="flex">
         {#each actions as action}
-          <button
-            class="action_card button_style_reset"
-            draggable={isDraggable(action)}
-            onclick={() => click(action)}
-            ondragstart={(ev) => dragStart(ev, action)}
-            ondragend={(ev) => dragEnd(ev, action)}
-          >
-            <DuelCard entity={action.entity} isVisibleForcibly={true} />
+          <div>
+            <DuelCard entity={action.entity} isVisibleForcibly={true} state={validateActions(action)} actions={[action]} cardActionResolve={resolve} />
             <div>«{action.title}»</div>
-          </button>
+          </div>
         {/each}
       </div>
       {#if cancelable}

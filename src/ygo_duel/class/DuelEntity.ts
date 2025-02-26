@@ -44,7 +44,7 @@ export const cardActionChainBlockTypes = ["TriggerEffect", "TriggerMandatoryEffe
 export type TCardActionChainBlockType = (typeof cardActionChainBlockTypes)[number];
 export const cardActionNonChainBlockTypes = ["NormalSummon", "SpecialSummon", "ChangeBattlePosition", "Battle"] as const;
 export type TCardActionNonChainBlockType = (typeof cardActionNonChainBlockTypes)[number];
-export type TCardActionType = TCardActionChainBlockType | TCardActionNonChainBlockType | "Dammy";
+export type TCardActionType = TCardActionChainBlockType | TCardActionNonChainBlockType | "Dammy" | "RuleDraw";
 export type TSpellSpeed = "Normal" | "Quick" | "Counter" | "Dammy";
 export type CardActionBase<T> = {
   title: string;
@@ -272,7 +272,7 @@ export class DuelEntity {
     return to;
   };
   public readonly release = async (moveAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<DuelFieldCell | undefined> => {
-    return await this.sendGraveyard([...moveAs, "Destroy"], causedBy);
+    return await this.sendGraveyard([...moveAs, "Release"], causedBy);
   };
   public readonly destroy = async (
     by: "BattleDestroy" | "EffectDestroy" | "RuleDestroy",

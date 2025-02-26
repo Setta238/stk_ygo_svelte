@@ -26,6 +26,7 @@
   {/if}
   {#if modalController.states.DuelActionSelector === "Shown"}
     <DuelActionSelector
+      view={modalController.view}
       title={modalController.cardActionSelectorArg.title}
       actions={modalController.cardActionSelectorArg.actions}
       cancelable={modalController.cardActionSelectorArg.cancelable}

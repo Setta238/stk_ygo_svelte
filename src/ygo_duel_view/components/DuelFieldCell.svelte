@@ -2,7 +2,7 @@
   import { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
   import { type DuelistAction, type TDuelPhase } from "@ygo_duel/class/Duel";
 
-  import DuelCard from "@ygo_duel_view/components/DuelCard.svelte";
+  import DuelCard, { type TCardState } from "@ygo_duel_view/components/DuelCard.svelte";
   import { DuelEntity, type CardAction, type CardActionWIP } from "@ygo_duel/class/DuelEntity";
   import type { DuelViewController, WaitStartEventArg } from "@ygo_duel_view/class/DuelViewController";
   import {} from "@stk_utils/funcs/StkArrayUtils";
@@ -24,28 +24,28 @@
   view.onDuelUpdate.append(onCellUpdate);
   view.modalController.onUpdate.append(onCellUpdate);
 
-  let enableActions: CardAction<unknown>[];
+  let enableActions: CardActionWIP<unknown>[] = [];
   let action: (Action: DuelistAction) => void = () => {};
   let selectedEntitiesValidator: (selectedEntities: DuelEntity[]) => boolean = () => true;
   let selectableEntities: DuelEntity[];
   const onWaitStart: (args: WaitStartEventArg) => void = (args) => {
     selectedList.reset();
     action = args.resolve;
-    enableActions = args.enableActions;
+    enableActions = args.enableActions as CardActionWIP<unknown>[];
     selectableEntities = args.selectableEntities;
     selectedEntitiesValidator = args.entitiesValidator;
   };
   view.onWaitStart.append(onWaitStart);
 
-  let draggingAction: CardActionWIP<unknown> | undefined;
+  let draggingActions: CardActionWIP<unknown>[] | undefined;
   let canAcceptDrop = false;
-  const onDragStart = (action: CardActionWIP<unknown>) => {
-    draggingAction = action;
-    canAcceptDrop = action.validate()?.includes(cell) || false;
+  const onDragStart = (actions: CardActionWIP<unknown>[]) => {
+    draggingActions = actions;
+    canAcceptDrop = actions.some((action) => action.validate()?.includes(cell)) || false;
     onCellUpdate();
   };
   const onDragEnd = () => {
-    draggingAction = undefined;
+    draggingActions = undefined;
     canAcceptDrop = false;
     onCellUpdate();
   };
@@ -58,24 +58,6 @@
       phaseChange: phase,
     });
   };
-  const onActionButtonClick = (...entities: DuelEntity[]) => {
-    const map = Map.groupBy(enableActions, (action) => action.entity);
-    if (entities.length === 1) {
-      cell.field.duel.view.modalController
-        .selectAction(view, {
-          title: "行動を選択。",
-          actions: (map.get(entities[0]) as CardActionWIP<unknown>[]) || [],
-          cancelable: true,
-        })
-        .then((_action) => {
-          action({
-            actionWIP: _action,
-          });
-        });
-      return;
-    }
-    //TODO デッキ発動、墓地発動、エクストラデッキ発動
-  };
 
   const dragover = (ev: DragEvent) => {
     ev.preventDefault();
@@ -85,34 +67,65 @@
   };
   const drop = (ev: DragEvent) => {
     ev.preventDefault();
-    console.log("drop", ev, canAcceptDrop, draggingAction);
+    console.log("drop", ev, canAcceptDrop, draggingActions);
     if (ev.dataTransfer) {
       ev.dataTransfer.dropEffect = "move";
     }
     try {
-      if (canAcceptDrop && draggingAction) {
-        console.log(draggingAction, cell);
-        action({
-          actionWIP: { ...draggingAction, cell },
-        });
+      if (canAcceptDrop && draggingActions) {
+        console.log(draggingActions, cell);
+        if (draggingActions.length === 1) {
+          action({
+            actionWIP: { ...draggingActions[0], cell },
+          });
+        } else if (draggingActions.length > 1) {
+          cell.field.duel.view.modalController.cancelAll();
+          cell.field.duel.view.modalController.selectAction(cell.field.duel.view, {
+            title: "選択",
+            actions: draggingActions,
+            cancelable: false,
+          });
+        }
       }
     } finally {
-      view.removeDraggingAction();
+      view.removeDraggingActions();
     }
   };
-  const canAction = (...entities: DuelEntity[]) => {
-    console.log(view.modalController.states);
-    console.log(Object.values(view.modalController.states).some((stat) => stat === "Shown"));
-    if (!enableActions) {
-      return false;
+  const validateActions = (...entities: DuelEntity[]): TCardState => {
+    if (selectableEntities && selectableEntities.find((e1) => entities.find((e2) => e1 === e2))) {
+      console.log(
+        selectableEntities && selectableEntities.map((e) => e.seq),
+        entities.map((e) => e.seq)
+      );
+      return "Selectable";
+    }
+    if (!enableActions || enableActions.length === 0) {
+      return "Disabled";
     }
     if (view.waitMode !== "SelectFieldAction") {
-      return false;
+      return "Disabled";
     }
     if (Object.values(view.modalController.states).some((stat) => stat === "Shown")) {
-      return false;
+      return "Disabled";
     }
-    return enableActions.filter((action) => entities.includes(action.entity)).length > 0;
+    const actions = enableActions.filter((action) => entities.includes(action.entity));
+    if (actions.length === 0) {
+      return "Disabled";
+    }
+    if (actions.length > 1) {
+      return "Clickable";
+    }
+    if (enableActions[0].playType === "RuleDraw") {
+      return "Draggable";
+    }
+    if (["Deck", "ExtraDeck", "Graveyard", "Banished"].includes(cell.cellType)) {
+      return "Clickable";
+    }
+    if (actions[0].entity !== entities[0]) {
+      return "Clickable";
+    }
+    const tmp = actions[0].validate();
+    return tmp && tmp.length > 0 ? "Draggable" : "Clickable";
   };
 </script>
 
@@ -136,25 +149,29 @@
     {:else if cell.cellType === "Hand"}
       <div class="flex" style="  margin: 0 auto;">
         {#each cell.cardEntities as entity}
-          <button disabled={!canAction(entity)} class="action_button {canAction(entity) && 'action_button_enable'}" onclick={() => onActionButtonClick(entity)}>
-            <DuelCard {entity} isSelectable={selectableEntities && selectableEntities.includes(entity)} bind:selectedList />
-          </button>
+          <DuelCard
+            {entity}
+            state={validateActions(entity)}
+            actions={enableActions.filter((action) => action.entity === entity)}
+            cardActionResolve={undefined}
+            bind:selectedList
+          />
         {/each}
       </div>
     {:else}
       <div>
-        <button
-          disabled={!canAction(...cell.cardEntities)}
-          class="action_button {canAction(...cell.cardEntities) && 'action_button_enable'}"
-          onclick={() => onActionButtonClick(...cell.cardEntities)}
-        >
-          {#if cell.cardEntities.length > 0}
-            <DuelCard entity={cell.cardEntities[0]} isSelectable={selectableEntities && selectableEntities.includes(cell.cardEntities[0])} bind:selectedList />
-          {/if}
-          {#if cell.cellType === "Deck" || cell.cellType === "ExtraDeck" || cell.cellType === "Graveyard" || cell.cellType === "Banished"}
-            <div>{cell.cardEntities.length}枚</div>
-          {/if}
-        </button>
+        {#if cell.cardEntities.length > 0}
+          <DuelCard
+            entity={cell.cardEntities[0]}
+            state={validateActions(...cell.cardEntities)}
+            actions={enableActions.filter((action) => action.entity === cell.cardEntities[0])}
+            cardActionResolve={undefined}
+            bind:selectedList
+          />
+        {/if}
+        {#if cell.cellType === "Deck" || cell.cellType === "ExtraDeck" || cell.cellType === "Graveyard" || cell.cellType === "Banished"}
+          <div>{cell.cardEntities.length}枚</div>
+        {/if}
       </div>
     {/if}
   </div>
@@ -178,67 +195,6 @@
   }
   .duel_field_cell > div.can_accept_drop {
     border: dotted 3px red;
-  }
-  .action_button {
-    display: block;
-    width: fit-content;
-    border-radius: 0%;
-    padding: 0px;
-    font-family: inherit;
-    color: inherit;
-  }
-  .action_button:disabled {
-    display: block;
-    background-color: transparent;
-    cursor: default;
-    pointer-events: none;
-  }
-  .action_button * {
-    pointer-events: none;
-  }
-
-  .action_button_enable {
-    position: relative;
-  }
-  /* ボタンの波紋 */
-  .action_button_enable::before {
-    content: "";
-    display: block;
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    margin: auto;
-    width: 100%;
-    height: 100%;
-    border: 0.2rem solid red;
-    border-radius: 30%;
-    background-color: transparent;
-    box-sizing: border-box;
-    pointer-events: none;
-    animation: pulsate 1.5s linear infinite;
-  }
-
-  .pulse-btn::after {
-    animation-delay: 1s;
-  }
-
-  /* ボタンの波紋が広がっていくアニメーション */
-  @keyframes pulsate {
-    0% {
-      transform: scale(1.2);
-      opacity: 0.8;
-    }
-
-    80% {
-      transform: scale(1.3);
-      opacity: 0;
-    }
-    100% {
-      transform: scale(1.2);
-      opacity: 0;
-    }
   }
   .phase_button {
     padding: 0 10px;

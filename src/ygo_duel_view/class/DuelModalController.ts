@@ -15,6 +15,7 @@ export class DuelModalController {
     return this.onUpdateEvent.expose();
   }
   public readonly states: { [key in TModalName]: TModalState };
+  public readonly view: DuelViewController;
   public readonly cancelAll = (): void => {
     modalNames.forEach((name) => (this.states[name] = "Disable"));
     console.log(this, "cancelAll");
@@ -29,7 +30,8 @@ export class DuelModalController {
   };
   public duelEntitiesSelectorValue: DuelEntity[] | undefined;
   public duelEntitiesSelectorResolve: (value: DuelEntity[] | undefined) => void = () => {};
-  public constructor() {
+  public constructor(view: DuelViewController) {
+    this.view = view;
     this.states = modalNames.reduce(
       (dic, name) => {
         dic[name] = "Disable";

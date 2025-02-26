@@ -4,12 +4,17 @@ import type { DuelEntity, CardAction, CardActionWIP } from "@ygo_duel/class/Duel
 import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 import type Duelist from "@ygo_duel/class/Duelist";
 import { DuelModalController } from "./DuelModalController";
+import type { CardActionSelectorArg } from "@ygo_duel_view/components/DuelActionSelector.svelte";
+import type { DuelEntitiesSelectorArg } from "@ygo_duel_view/components/DuelEntitiesSelector.svelte";
 export type TDuelWaitMode = "None" | "SelectFieldAction" | "SelectAction" | "SelectFieldEntities" | "SelectEntites";
 export type WaitStartEventArg = {
   resolve: (action: DuelistAction) => void;
   enableActions: CardAction<unknown>[];
+  qty: number | undefined;
   selectableEntities: DuelEntity[];
   entitiesValidator: (selectedEntities: DuelEntity[]) => boolean;
+  cardActionSelectorArg?: CardActionSelectorArg; //TODO 要判断
+  duelEntitiesSelectorArg?: DuelEntitiesSelectorArg; //TODO 要判断
 };
 
 export class DuelViewController {
@@ -28,7 +33,7 @@ export class DuelViewController {
   public get onWaitEnd() {
     return this.onWaitEndEvent.expose();
   }
-  private onDragStartEvent = new StkEvent<CardActionWIP<unknown>>();
+  private onDragStartEvent = new StkEvent<CardActionWIP<unknown>[]>();
   public get onDragStart() {
     return this.onDragStartEvent.expose();
   }
@@ -45,7 +50,7 @@ export class DuelViewController {
     this.duel = duel;
     this.message = "";
     this.waitMode = "None";
-    this.modalController = new DuelModalController();
+    this.modalController = new DuelModalController(this);
   }
 
   public readonly getCell = (row: number, column: number): DuelFieldCell => {
@@ -129,14 +134,14 @@ export class DuelViewController {
     if (chooser.duelistType === "NPC") {
       throw Error("Not implemented");
     }
-    return await this._waitDuelistAction(enableActions, "SelectAction", message, undefined, undefined, cancelable);
+    return await this._waitDuelistAction(enableActions, "SelectAction", message, undefined, undefined, undefined, cancelable);
   };
 
   /**
    * コスト支払い中、チェーン処理中などに発生するエンティティ選択処理の待機。
    * @param duelist
    * @param entities
-   * @param qty
+   * @param qty 数量固定の場合
    * @param entitiesValidator
    * @param message
    * @param cancelable エラーチェックにのみ使用
@@ -145,23 +150,26 @@ export class DuelViewController {
   public readonly waitSelectEntities = async (
     chooser: Duelist,
     choises: DuelEntity[],
-    qty: number,
+    qty: number | undefined,
     validator: (selected: DuelEntity[]) => boolean,
     message: string,
     cancelable: boolean = false
   ): Promise<DuelEntity[] | undefined> => {
     let selected: DuelEntity[] = [];
 
+    if (qty && choises.length === qty) {
+      return [...choises];
+    }
+
     if (chooser.duelistType === "NPC") {
       // NPCはランダムに選択する
       while (!validator(selected)) {
         // 一個も選択しないパターンは最初にチェックするので、それ以外をランダムに試行する。
-        const _qty = qty > 0 ? qty : Math.floor(Math.random() * choises.length) + 1;
+        const _qty = qty && qty > 0 ? qty : Math.floor(Math.random() * choises.length) + 1;
         selected = choises.randomPick(_qty);
       }
       return selected;
     }
-    console.log(this.waitSelectEntities);
     this.waitMode = choises.every(
       (e) =>
         ((e.fieldCell.cellType === "MonsterZone" || e.fieldCell.cellType === "ExtraMonsterZone") && e.getIndexInCell() === 0) ||
@@ -170,7 +178,7 @@ export class DuelViewController {
       ? "SelectEntites"
       : "SelectFieldEntities";
 
-    const actions = await this._waitDuelistAction([], "SelectAction", message, choises, validator, cancelable);
+    const actions = await this._waitDuelistAction([], "SelectAction", message, choises, qty, validator, cancelable);
 
     return actions.selectedEntities;
   };
@@ -180,6 +188,7 @@ export class DuelViewController {
     waitMode: TDuelWaitMode,
     message: string,
     selectableEntities?: DuelEntity[],
+    qty?: number,
     entitiesValidator?: (selected: DuelEntity[]) => boolean,
     cancelable: boolean = false
   ): Promise<DuelistAction> => {
@@ -191,6 +200,7 @@ export class DuelViewController {
       this.onWaitStartEvent.trigger({
         resolve,
         enableActions,
+        qty: qty,
         entitiesValidator: entitiesValidator || (() => false),
         selectableEntities: selectableEntities || [],
       });
@@ -208,11 +218,11 @@ export class DuelViewController {
     return userAction;
   };
 
-  public readonly setDraggingAction = (action: CardActionWIP<unknown>) => {
-    this.onDragStartEvent.trigger(action);
+  public readonly setDraggingActions = (actions: CardActionWIP<unknown>[]) => {
+    this.onDragStartEvent.trigger(actions);
     this.requireUpdate();
   };
-  public readonly removeDraggingAction = () => {
+  public readonly removeDraggingActions = () => {
     this.onDragEndEvent.trigger();
   };
 }

@@ -49,6 +49,7 @@ export const defaultNormalSummonExecute = async (entity: DuelEntity, pos: TBattl
     if (exZoneMonsters.length >= qty) {
       releasableMonsters.filter((monster) => monster.fieldCell.cellType !== "ExtraMonsterZone");
     }
+    console.log("hoge");
 
     const cost = await entity.field.release(
       entity.controller,
@@ -104,14 +105,18 @@ export const defaultAttackExecute = async (entity: DuelEntity, pos?: TBattlePosi
     entity.field.duel.declareAnAttack(entity, opponent);
     return true;
   }
+  if (targets.length === 1) {
+    entity.field.duel.declareAnAttack(entity, targets[0]);
+    return true;
+  }
 
-  const target = await entity.field.duel.view.waitSelectEntities(entity.controller, targets, 1, () => true, "攻撃対象を選択。", true);
+  const target = await entity.field.duel.view.waitSelectEntities(entity.controller, targets, 1, (list) => list.length === 1, "攻撃対象を選択。", true);
 
   if (!target) {
     return false;
   }
 
-  entity.field.duel.declareAnAttack(entity, target.length > 0 ? target[0] : opponent);
+  entity.field.duel.declareAnAttack(entity, target[0]);
 
   return true;
 };

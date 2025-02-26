@@ -25,7 +25,7 @@
       <div>{title}</div>
       <div class="flex">
         {#each entities as entity}<div>
-            <DuelCard {entity} isVisibleForcibly={true} isSelectable bind:selectedList />
+            <DuelCard {entity} isVisibleForcibly={true} state="Selectable" cardActionResolve={undefined} bind:selectedList />
           </div>
         {/each}
       </div>

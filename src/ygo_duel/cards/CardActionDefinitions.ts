@@ -22,7 +22,7 @@ export const createCardActionDefinitions = (): { name: string; actions: CardActi
     const causedBy: TDuelCauseReason[] = ["Rule", "SpecialSummon"];
 
     const emptyCells = entity.field.getEmptyMonsterZones(entity.controller);
-    await entity.field.summon(entity, [pos], cell ? [cell] : emptyCells, causedBy, entity, undefined, true);
+    await entity.field.summon(entity, [pos], cell ? [cell] : emptyCells, "SpecialSummon", causedBy, entity, undefined, true);
     entity.controller.specialSummonCount++;
     return true;
   };

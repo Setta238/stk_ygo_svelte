@@ -1,5 +1,5 @@
 import { Duel, DuelEnd, SystemError } from "./Duel";
-import { type CardAction, type CardActionWIP, type TDuelCauseReason, DuelEntity } from "@ygo_duel/class/DuelEntity";
+import { type CardAction, type CardActionWIP, type TDuelCauseReason, type TDuelSummonRuleCauseReason, DuelEntity } from "@ygo_duel/class/DuelEntity";
 
 import { cardInfoDic } from "@ygo/class/CardInfo";
 import type Duelist from "./Duelist";
@@ -163,7 +163,7 @@ export class DuelField {
         return false;
       }
       const card = deckCell.releaseEntities([deckCell.cardEntities[0]], ["Draw"], cousedBy)[0];
-      card.setNonFieldPosition("FaceDown", true);
+      card.setNonFieldPosition("Set", true);
       handCell.acceptEntities([card], "Bottom");
       cardNames.push(card.origin?.name || "!名称取得失敗!");
     }
@@ -200,7 +200,7 @@ export class DuelField {
 
     const entities: DuelEntity[] = [];
     for (const entity of target) {
-      const flg = entity.release(["Release", by, ...moveAs], causedBy);
+      const flg = await entity.release(["Release", by, ...moveAs], causedBy);
       if (!flg) {
         this.duel.log.info(`${entity.nm}をリリースできなかった。`, chooser);
         break;
@@ -243,7 +243,7 @@ export class DuelField {
         })) || [];
     }
 
-    this._sendGraveyardMany(target, ["Discard", ...moveAs], cousedBy);
+    await this._sendGraveyardMany(target, ["Discard", ...moveAs], cousedBy);
 
     this.duel.log.info(`手札からカードを${target.length}枚捨てた。${target.map((e) => e.origin?.name)}。`, duelist);
 
@@ -254,13 +254,14 @@ export class DuelField {
     entities: DuelEntity[],
     posFilter: (entity: DuelEntity) => TBattlePosition[],
     cellFilter: (entity: DuelEntity) => DuelFieldCell[],
+    summonType: TDuelSummonRuleCauseReason,
     moveAs: TDuelCauseReason[],
     causedBy?: DuelEntity,
     chooserPicker?: (entity: DuelEntity) => Duelist
   ): Promise<DuelEntity[]> => {
     const result = await Promise.all(
       entities.map(async (entity) =>
-        this._summon(entity, posFilter(entity), cellFilter(entity), moveAs, causedBy, chooserPicker ? chooserPicker(entity) : undefined)
+        this._summon(entity, posFilter(entity), cellFilter(entity), summonType, moveAs, causedBy, chooserPicker ? chooserPicker(entity) : undefined)
       )
     );
     if (result.find((entity) => !entity)) {
@@ -272,6 +273,7 @@ export class DuelField {
     entity: DuelEntity,
     selectablePosList: TBattlePosition[],
     selectableCells: DuelFieldCell[],
+    summonType: TDuelSummonRuleCauseReason,
     moveAs: TDuelCauseReason[],
     causedBy?: DuelEntity,
     chooser?: Duelist,
@@ -279,7 +281,7 @@ export class DuelField {
   ): Promise<DuelEntity | undefined> => {
     console.log("hoge");
 
-    const result = await this._summon(entity, selectablePosList, selectableCells, moveAs, causedBy, chooser, cancelable);
+    const result = await this._summon(entity, selectablePosList, selectableCells, summonType, moveAs, causedBy, chooser, cancelable);
     console.log("hoge", result);
 
     if (!result) {
@@ -293,6 +295,7 @@ export class DuelField {
     entity: DuelEntity,
     selectablePosList: TBattlePosition[],
     selectableCells: DuelFieldCell[],
+    summonType: TDuelSummonRuleCauseReason,
     moveAs: TDuelCauseReason[],
     causedBy?: DuelEntity,
     chooser?: Duelist,
@@ -324,33 +327,18 @@ export class DuelField {
       }
     }
 
-    const moveAsDic: { [pos in TBattlePosition]: TDuelCauseReason } = {
-      Attack: "AttackSummon",
-      Defense: "DefenseSummon",
-      Set: "SetSummon",
-    };
-    entity.fieldCell.releaseEntities([entity], [...moveAs, moveAsDic[pos]], causedBy);
-    entity.setBattlePosition(pos);
-    cell.acceptEntities([entity], "Top");
-    entity.status.battlePotisionChangeCount = 1;
+    entity.summon(cell, pos, summonType, moveAs, causedBy);
+
     return entity;
   };
   public readonly destroyMany = async (entities: DuelEntity[], causedAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<DuelEntity[]> => {
     return await this._sendGraveyardMany(entities, [...causedAs, "Destroy"], causedBy);
   };
   private readonly _sendGraveyardMany = async (entities: DuelEntity[], moveAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<DuelEntity[]> => {
-    entities.forEach((entity) => {
-      entity.setNonFieldPosition("FaceUp", true);
-      entity.fieldCell.releaseEntities([entity], moveAs, causedBy);
-    });
+    for (const entity of entities) {
+      await entity.sendGraveyard(moveAs, causedBy);
+    }
 
-    return entities.filter((entity) => {
-      if (entity.entityType === "Token") {
-        this.duel.log.info(`${entity.origin.name}は消滅した。`, causedBy?.controller);
-        return false;
-      }
-      this.getGraveyard(entity.owner).acceptEntities([entity], "Top");
-      return true;
-    });
+    return entities.filter((entity) => entity.entityType !== "Token");
   };
 }

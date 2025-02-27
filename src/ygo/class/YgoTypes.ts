@@ -6,6 +6,24 @@ export type TMonsterSpecialSummonCategory = (typeof specialMonsterCategories)[nu
 export type TMonsterEffectCategory = "Toon" | "Spirit" | "Union" | "Gemini" | "FlipEffect";
 export type TMonsterOtherCategory = "Tuner" | "Effect" | "Normal" | "Pendulum" | "Token";
 export type TMonsterCategory = TMonsterSpecialSummonCategory | TMonsterEffectCategory | TMonsterOtherCategory;
+export const monsterCategoryDic: { [key in TMonsterCategory]: string } = {
+  Synchro: "シンクロ",
+  Fusion: "融合",
+  Xyz: "エクシーズ",
+  Link: "リンク",
+  SpecialSummon: "特殊召喚",
+  Toon: "トゥーン",
+  Spirit: "スピリット",
+  Union: "ユニオン",
+  Gemini: "デュアル",
+  FlipEffect: "リバース",
+  Tuner: "チューナー",
+  Effect: "エフェクト",
+  Normal: "通常",
+  Pendulum: "ペンデュラム",
+  Token: "トークン",
+};
+
 export type TMonsterAttribute = "Light" | "Dark" | "Earth" | "Water" | "Fire" | "Wind" | "Divine";
 export type TMonsterType =
   | "Aqua"
@@ -34,9 +52,24 @@ export type TMonsterType =
   | "WingedBeast"
   | "Wyrm"
   | "Zombie";
-export type TSpellCategory = "Normal " | "Continuous" | "Field" | "QuickPlay" | "Equip";
-export type TTrapCategory = "Normal " | "Continuous" | "Counter";
+export type TSpellCategory = "Normal" | "Continuous" | "Field" | "QuickPlay" | "Equip" | "Ritual";
+
+export const spellCategoryDic: { [key in TSpellCategory]: string } = {
+  Normal: "通常",
+  Continuous: "永続",
+  Field: "フィールド",
+  QuickPlay: "速攻",
+  Equip: "装備",
+  Ritual: "儀式",
+};
+export type TTrapCategory = "Normal" | "Continuous" | "Counter";
+export const trapCategoryDic: { [key in TTrapCategory]: string } = {
+  Normal: "通常",
+  Continuous: "永続",
+  Counter: "カウンター",
+};
 export type TBattlePosition = "Attack" | "Defense" | "Set";
+export type TNonBattlePosition = "FaceUp" | "Set" | "XysMaterial";
 
 export type TCardInfoWiki = {
   name: string;

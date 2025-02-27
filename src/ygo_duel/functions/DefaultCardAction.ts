@@ -72,7 +72,7 @@ export const defaultNormalSummonExecute = async (entity: DuelEntity, pos: TBattl
   }
 
   const emptyCells = entity.field.getEmptyMonsterZones(entity.controller);
-  await entity.field.summon(entity, [pos], cell ? [cell] : emptyCells, causedBy, entity, undefined, cancelable);
+  await entity.field.summon(entity, [pos], cell ? [cell] : emptyCells, "NormalSummon", causedBy, entity, undefined, cancelable);
   entity.controller.normalSummonCount++;
   return true;
 };

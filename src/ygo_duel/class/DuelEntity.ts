@@ -1,4 +1,11 @@
-import { exMonsterCategories, type TBattlePosition, type TCardInfoBase, type TCardInfoJson, type TEntityStatus } from "@ygo/class/YgoTypes";
+import {
+  exMonsterCategories,
+  type TBattlePosition,
+  type TCardInfoBase,
+  type TCardInfoJson,
+  type TEntityStatus,
+  type TNonBattlePosition,
+} from "@ygo/class/YgoTypes";
 import { SystemError, type ProcKey } from "./Duel";
 import type { DuelField } from "./DuelField";
 import type { DuelFieldCell, DuelFieldCellType } from "./DuelFieldCell";
@@ -244,13 +251,13 @@ export class DuelEntity {
     this.face = pos === "Set" ? "FaceDown" : "FaceUp";
     this.isUnderControl = true;
   };
-  public readonly setNonFieldPosition = (face: TDuelEntityFace, isUnderControl: boolean): void => {
+  public readonly setNonFieldPosition = (pos: TNonBattlePosition, isUnderControl: boolean): void => {
     this._battlePosition = undefined;
-    this.orientation = "Vertical";
-    this.face = face;
+    this.orientation = pos === "XysMaterial" ? "Horizontal" : "Vertical";
+    this.face = pos === "FaceUp" ? "FaceUp" : "FaceDown";
     this.isUnderControl = isUnderControl;
   };
-  private readonly summon = async (
+  public readonly summon = async (
     to: DuelFieldCell,
     pos: TBattlePosition,
     summonType: TDuelSummonRuleCauseReason,
@@ -282,6 +289,12 @@ export class DuelEntity {
     return await this.sendGraveyard([...moveAs, by, "Destroy"], causedBy);
   };
   public readonly sendGraveyard = async (moveAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<DuelFieldCell | undefined> => {
+    const graveyard = this.field.getGraveyard(this.owner);
+
+    console.log(new Date());
+    await this.field.duel.view.waitAnimation({ entity: this, to: graveyard, index: "Top" });
+    console.log(new Date());
+
     this.setNonFieldPosition("FaceUp", true);
     this.fieldCell.releaseEntities([this], moveAs, causedBy);
 
@@ -289,8 +302,19 @@ export class DuelEntity {
       this.field.duel.log.info(`${this.nm}は消滅した。`, causedBy?.controller);
       return;
     }
-    const graveyard = this.field.getGraveyard(this.owner);
     graveyard.acceptEntities([this], "Top");
     return graveyard;
   };
+  // private readonly moveToOtherCell = async (pos:TBattlePosition|TNonBattlePosition, moveAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<DuelFieldCell | undefined> => {
+  //   this.setNonFieldPosition("FaceUp", true);
+  //   this.fieldCell.releaseEntities([this], moveAs, causedBy);
+
+  //   if (this.entityType === "Token") {
+  //     this.field.duel.log.info(`${this.nm}は消滅した。`, causedBy?.controller);
+  //     return;
+  //   }
+  //   const graveyard = this.field.getGraveyard(this.owner);
+  //   graveyard.acceptEntities([this], "Top");
+  //   return graveyard;
+  // };
 }

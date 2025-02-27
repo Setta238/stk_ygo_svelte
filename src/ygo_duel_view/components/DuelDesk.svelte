@@ -1,3 +1,12 @@
+<script lang="ts" module>
+  import { crossfade } from "svelte/transition";
+
+  export const cardCrossFade = crossfade({
+    delay: 200,
+    duration: 800,
+  });
+</script>
+
 <script lang="ts">
   import DuelFieldCell from "./DuelFieldCell.svelte";
   import { cardInfoDic } from "../../ygo/class/CardInfo";
@@ -77,7 +86,6 @@
 <!-- <div><button on:click={() => {
     duel.field.pushDeck(duel.duelists.Below);
   }}>hoge</button></div>-->
-<ModalContainer modalController={duel.view.modalController} />
 <div class="flex duel_desk">
   <div class="duel_desk_left v_flex">
     <DuelDuelist duelist={duel.duelists.Above}></DuelDuelist>
@@ -119,6 +127,8 @@
     <DuelLog log={duel.log} />
   </div>
 </div>
+
+<ModalContainer modalController={duel.view.modalController} />
 
 <style>
   .v_flex {

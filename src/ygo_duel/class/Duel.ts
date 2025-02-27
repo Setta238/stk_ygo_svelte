@@ -312,16 +312,16 @@ export class Duel {
       if (defender.battlePotion === "Attack") {
         this.getOpponentPlayer(attacker.controller).battleDamage(atkPoint - defPoint, attacker);
       }
-      this.field.destroyMany([defender], ["BattleDestroy"], attacker);
+      await this.field.destroyMany([defender], ["BattleDestroy"], attacker);
     } else if (atkPoint < defPoint) {
       // 絶対防御将軍が守備表示で攻撃しても反射ダメージが発生するとのこと。
       attacker.controller.battleDamage(defPoint - atkPoint, defender);
       if (defender.battlePotion === "Attack") {
-        this.field.destroyMany([attacker], ["BattleDestroy"], defender);
+        await this.field.destroyMany([attacker], ["BattleDestroy"], defender);
       }
     } else if (atkPoint === defPoint && defender.battlePotion === "Attack") {
-      this.field.destroyMany([attacker], ["BattleDestroy"], defender);
-      this.field.destroyMany([defender], ["BattleDestroy"], attacker);
+      await this.field.destroyMany([attacker], ["BattleDestroy"], defender);
+      await this.field.destroyMany([defender], ["BattleDestroy"], attacker);
     }
 
     const losers = Object.values(this.duelists).filter((duelist) => duelist.lp <= 0);

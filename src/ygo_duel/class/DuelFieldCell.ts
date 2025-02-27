@@ -15,7 +15,7 @@ export type DuelFieldCellType =
   | "Banished"
   | "PhaseButton"
   | "Disable";
-type TDuelEntityPos = "Top" | "Bottom";
+export type TDuelEntityPos = "Top" | "Bottom";
 
 export const cellTypeMaster = {
   0: {

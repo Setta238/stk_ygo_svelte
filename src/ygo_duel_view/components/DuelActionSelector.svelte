@@ -113,7 +113,7 @@
     display: block;
     background-color: white;
     opacity: 0.9;
-    position: fixed;
+    position: absolute;
     bottom: 0px;
     pointer-events: initial;
   }

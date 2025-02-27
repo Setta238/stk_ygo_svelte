@@ -5,13 +5,14 @@
 <script lang="ts">
   import type { DuelistAction } from "@ygo_duel/class/Duel";
 
-  import type { CardAction, CardActionWIP, DuelEntity } from "@ygo_duel/class/DuelEntity";
-  import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
+  import { DuelEntity, type CardAction, type CardActionWIP } from "@ygo_duel/class/DuelEntity";
+  import { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
   import type { WaitStartEventArg } from "@ygo_duel_view/class/DuelViewController";
   export let entity: DuelEntity;
   export let state: TCardState = "Disabled";
   export let selectedList = [] as DuelEntity[];
   export let isVisibleForcibly = false;
+  export let showInfo = false;
   export let actions: CardActionWIP<unknown>[] = [];
   export let cardActionResolve: ((action?: CardActionWIP<unknown>, cell?: DuelFieldCell) => void) | undefined;
   let isSelected = false;
@@ -23,7 +24,6 @@
     duelistActionResolve = args.resolve;
   };
   entity.field.duel.view.onWaitStart.append(onWaitStart);
-
   let isDragging = false;
   const click = () => {
     console.log(state, actions, cardActionResolve);
@@ -92,45 +92,34 @@
     on:dragend={dragEnd}
     on:click={click}
   >
-    <table>
-      <tbody>
-        <tr>
-          <td> {entity.nm} </td>
-          <td> {entity.attr.join(" ")} </td>
-        </tr>
-        <tr>
-          <td colspan="2" style="text-align: left;"> {"★".repeat(entity.status.level || 0)} </td>
-        </tr>
-        {#if entity.status.monsterCategories?.includes("Pendulum")}
-          <tr>
-            <td colspan="2">
-              <div style="display:flex; justify-content: space-between; min-width:100%;">
-                <div>◀ {entity.psL}</div>
-                <div>{entity.psR} ▶</div>
-              </div>
-            </td>
-          </tr>
-        {/if}
-        <tr>
-          <td>
-            <div style="display: flex;flex-direction: column;">
-              <div>{entity.type}</div>
-              {#each entity.status.monsterCategories ?? [] as cat}<div style="margin-right: 0.2rem;">{cat}</div>{/each}
-            </div>
-          </td>
-          <td>
-            <div>{entity.atk}</div>
-            <div>{entity.def || 0}</div>
-            <!-- TODO FIX IT -->
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="duel_card duel_card_face_up">
+      <div class="duel_card_row">
+        <div>{entity.nm}</div>
+        <div>{entity.attr.join(" ")}</div>
+      </div>
+      <div class="duel_card_row">
+        <div>{"★".repeat(entity.status.level || 0)}</div>
+        <div>{"★".repeat(entity.status.rank || 0)}</div>
+      </div>
+      {#if entity.status.monsterCategories?.includes("Pendulum")}
+        <div class="duel_card_row">
+          <div>◀ {entity.psL}</div>
+          <div>{entity.psR} ▶</div>
+        </div>
+      {/if}
+      <div class="duel_card_row enum">
+        {#each entity.status.monsterCategories ?? [] as cat}<div>{cat}</div>{/each}
+      </div>
+      <div class="duel_card_row">
+        <div>{entity.type}</div>
+        <div>{entity.atk ?? "?"} / {entity.def ?? "?"}</div>
+      </div>
+    </div>
   </button>
 {:else}
   <div class="duel_card duel_card_face_down"><div></div></div>
 {/if}
-{#if entity.battlePotion}
+{#if entity.battlePotion && showInfo}
   <div>【{entity.battlePotion === "Attack" ? "攻撃表示" : entity.battlePotion === "Defense" ? "表守備表示" : "裏守備表示"}】</div>
 {/if}
 
@@ -144,11 +133,28 @@
     color: inherit;
     background: none;
   }
+  .duel_card_row {
+    padding: 0rem 0.15rem;
+    display: flex;
+    justify-content: space-between;
+  }
+  .duel_card_row.enum {
+    flex-wrap: wrap;
+    justify-content: left;
+  }
+  .duel_card_row > div {
+    margin: 0 0.3rem;
+  }
   .duel_card {
-    min-width: 1px;
-    height: fit-content;
-    margin: 1px 5px;
+    margin: 0.1rem 0.3rem;
     border: solid 1px #778ca3;
+  }
+
+  .duel_card.duel_card_face_up {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    height: 5.3rem;
   }
   .duel_card.Normal {
     background-color: cornsilk;
@@ -165,8 +171,7 @@
     display: block;
     min-width: 1px;
     height: fit-content;
-    margin: 1px 5px;
-    border: dotted 4px blue;
+    border: dotted 0.4px blue;
     pointer-events: initial;
   }
   .duel_card.duel_card_selected {
@@ -180,8 +185,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 60px;
-    height: 80px;
+    width: 4.1rem;
+    height: 5.3rem;
     background-color: brown;
   }
   .duel_card_face_down > div {

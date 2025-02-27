@@ -1,7 +1,7 @@
 import StkEvent from "@stk_utils/class/StkEvent";
 import { Duel, DuelEnd, SystemError, type DuelistAction } from "@ygo_duel/class/Duel";
 import type { DuelEntity, CardAction, CardActionWIP } from "@ygo_duel/class/DuelEntity";
-import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
+import type { DuelFieldCell, TDuelEntityPos } from "@ygo_duel/class/DuelFieldCell";
 import type Duelist from "@ygo_duel/class/Duelist";
 import { DuelModalController } from "./DuelModalController";
 import type { CardActionSelectorArg } from "@ygo_duel_view/components/DuelActionSelector.svelte";
@@ -15,6 +15,13 @@ export type WaitStartEventArg = {
   entitiesValidator: (selectedEntities: DuelEntity[]) => boolean;
   cardActionSelectorArg?: CardActionSelectorArg; //TODO 要判断
   duelEntitiesSelectorArg?: DuelEntitiesSelectorArg; //TODO 要判断
+};
+
+export type AnimationStartEventArg = {
+  entity: DuelEntity;
+  to: DuelFieldCell;
+  index: TDuelEntityPos;
+  resolve: () => void;
 };
 
 export class DuelViewController {
@@ -40,6 +47,10 @@ export class DuelViewController {
   private onDragEndEvent = new StkEvent<void>();
   public get onDragEnd() {
     return this.onDragEndEvent.expose();
+  }
+  private onAnimationStartEvent = new StkEvent<AnimationStartEventArg>();
+  public get onAnimation() {
+    return this.onAnimationStartEvent.expose();
   }
   public readonly duel: Duel;
   public readonly modalController: DuelModalController;
@@ -216,6 +227,10 @@ export class DuelViewController {
       throw new SystemError("キャンセル不可のアクションがキャンセルされた。", userAction, enableActions, waitMode, selectableEntities);
     }
     return userAction;
+  };
+
+  public readonly waitAnimation = async (args: Omit<AnimationStartEventArg, "resolve">): Promise<void> => {
+    return new Promise<void>((resolve) => this.onAnimationStartEvent.trigger({ ...args, resolve }));
   };
 
   public readonly setDraggingActions = (actions: CardActionWIP<unknown>[]) => {

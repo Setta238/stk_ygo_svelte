@@ -2,8 +2,7 @@
   import { crossfade } from "svelte/transition";
 
   export const cardCrossFade = crossfade({
-    delay: 200,
-    duration: 800,
+    duration: 400,
   });
 </script>
 
@@ -12,7 +11,7 @@
   import { cardInfoDic } from "../../ygo/class/CardInfo";
   import DuelistProfile from "../../ygo/class/DuelistProfile";
   import DeckInfo from "../../ygo/class/DeckInfo";
-  import { Duel, type DuelistAction } from "../../ygo_duel/class/Duel";
+  import { Duel, type DuelistResponse } from "../../ygo_duel/class/Duel";
   import DuelLog from "./DuelLog.svelte";
   import DuelDuelist from "./DuelDuelist.svelte";
   import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
@@ -35,7 +34,7 @@
     "ジョングルグールの幻術師",
     "ゾンビーノ",
     "幻のグリフォン",
-    "ライドロン",
+    "強欲な壺",
     "フロストザウルス",
     "エレキテルドラゴン",
     "デーモンの召喚",
@@ -47,10 +46,11 @@
 
   let duel = new Duel(duelist1Profile, "Player", deck1, duelist2Profile, "NPC", deck2);
   let retryFlg = false;
-  let action: (Action: DuelistAction) => void = () => {};
+  let action: (Action: DuelistResponse) => void = () => {};
   let selectedEntitiesValidator: (selectedEntities: DuelEntity[]) => boolean = () => true;
   let selectableEntities: DuelEntity[];
   const onWaitStart: (args: WaitStartEventArg) => void = (args) => {
+    console.log(args);
     action = args.resolve;
     selectedEntitiesValidator = args.entitiesValidator;
     selectableEntities = args.selectableEntities;
@@ -58,12 +58,12 @@
 
   export let selectedList = [] as DuelEntity[];
   const onDuelUpdate = () => {
+    console.log(duel);
     duel = duel;
   };
   duel.view.onDuelUpdate.append(onDuelUpdate);
   duel.view.onWaitStart.append(onWaitStart);
   const onOkClick = () => {
-    console.log(selectedList);
     if (selectedEntitiesValidator(selectedList)) {
       action({ selectedEntities: selectedList });
     }
@@ -94,7 +94,7 @@
   <div class=" duel_desk_center v_flex">
     <div class="duel_field_header">
       {#if !duel.isEnded}
-        <div class="duel_field_header_message">{`[TURN:${duel.turn}][PHASE:${duel.phase}] ${duel.view.message}`}</div>
+        <div class="duel_field_header_message">{`[TURN:${duel.clock.turn}][PHASE:${duel.phase}] ${duel.view.message}`}</div>
         <div class="duel_field_header_buttons">
           <!--        <button on:click={onRetryButtonClick}>リトライ</button>-->
           <button on:click={onSurrenderButtonClick}>サレンダー</button>
@@ -102,7 +102,7 @@
       {/if}
     </div>
     <div>
-      {#if duel.turn > 0}
+      {#if duel.clock.turn > 0}
         <table class="duel_field">
           <tbody>
             {#each duel.field.cells as row, rowIndex}

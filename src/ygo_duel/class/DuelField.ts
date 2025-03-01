@@ -1,5 +1,5 @@
 import { Duel, DuelEnd, SystemError } from "./Duel";
-import { type CardAction, type CardActionWIP, type TDuelCauseReason, type TDuelSummonRuleCauseReason, DuelEntity } from "@ygo_duel/class/DuelEntity";
+import { type CardAction, type TDuelCauseReason, type TDuelSummonRuleCauseReason, DuelEntity } from "@ygo_duel/class/DuelEntity";
 
 import { cardInfoDic } from "@ygo/class/CardInfo";
 import type Duelist from "./Duelist";
@@ -65,6 +65,9 @@ export class DuelField {
   public readonly getExtraMonsterZones = (duelist: Duelist): DuelFieldCell[] => {
     return this.getCells("ExtraMonsterZone").filter((cell) => cell.cardEntities[0]?.controller === duelist);
   };
+  public readonly getSpellTrapZones = (duelist: Duelist): DuelFieldCell[] => {
+    return this.getCells("SpellAndTrapZone").filter((cell) => cell.owner === duelist);
+  };
   public readonly getEmptyMonsterZones = (duelist: Duelist): DuelFieldCell[] => {
     return this.getMonsterZones(duelist).filter((cell) => cell.cardEntities.length === 0);
   };
@@ -77,6 +80,9 @@ export class DuelField {
   public readonly getAvailableExtraZones = (duelist: Duelist): DuelFieldCell[] => {
     // TODOエクストラリンク
     return this.getExtraMonsterZones(duelist).length === 0 ? this.getMonsterZones(duelist).filter((cell) => cell.isAvailable) : [];
+  };
+  public readonly getAvailableSpellTrapZones = (duelist: Duelist): DuelFieldCell[] => {
+    return this.getSpellTrapZones(duelist).filter((cell) => cell.isAvailable);
   };
 
   public readonly getMonstersOnField = (): DuelEntity[] => {
@@ -113,21 +119,21 @@ export class DuelField {
     this.duel.log.info(`デッキをシャッフル。`, duelist);
   };
 
-  public readonly prepareHands = (duelist: Duelist): boolean => {
-    return this.draw(duelist, 5);
+  public readonly prepareHands = async (duelist: Duelist): Promise<boolean> => {
+    return await this.draw(duelist, 5);
   };
 
-  public readonly draw = (duelist: Duelist, times: number, cousedBy?: DuelEntity): boolean => {
-    const flg = this._draw(duelist, times, cousedBy);
+  public readonly draw = async (duelist: Duelist, times: number, causedBy?: DuelEntity): Promise<boolean> => {
+    const flg = await this._draw(duelist, times, causedBy);
     if (!flg) {
       throw new DuelEnd(this.duel.getOpponentPlayer(duelist));
     }
     return flg;
   };
 
-  public readonly drawSameTime = (duelist1: Duelist, times1: number, duelist2: Duelist, times2: number, cousedBy?: DuelEntity): boolean => {
-    const flg1 = this._draw(duelist1, times1, cousedBy);
-    const flg2 = this._draw(duelist2, times1, cousedBy);
+  public readonly drawSameTime = async (duelist1: Duelist, times1: number, duelist2: Duelist, times2: number, causedBy?: DuelEntity): Promise<boolean> => {
+    const flg1 = await this._draw(duelist1, times1, causedBy);
+    const flg2 = await this._draw(duelist2, times1, causedBy);
     if (flg1 && flg2) {
       return true;
     }
@@ -141,14 +147,12 @@ export class DuelField {
     throw new DuelEnd();
   };
 
-  private readonly _draw = (duelist: Duelist, times: number, cousedBy?: DuelEntity): boolean => {
+  private readonly _draw = async (duelist: Duelist, times: number, causedBy?: DuelEntity): Promise<boolean> => {
     if (times < 1) {
       return true;
     }
     const deckCell = this.getDeckCell(duelist);
-    const handCell = this.getHandCell(duelist);
     const cardNames = [] as string[];
-
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     for (const _ of Array(times)) {
       if (!deckCell.cardEntities.length) {
@@ -162,9 +166,8 @@ export class DuelField {
         duelist.setLp(0);
         return false;
       }
-      const card = deckCell.releaseEntities([deckCell.cardEntities[0]], ["Draw"], cousedBy)[0];
-      card.setNonFieldPosition("Set", true);
-      handCell.acceptEntities([card], "Bottom");
+      const card = deckCell.cardEntities[0];
+      await card.draw(causedBy ? ["Effect"] : ["Rule"], causedBy);
       cardNames.push(card.origin?.name || "!名称取得失敗!");
     }
     this.duel.log.info(`デッキからカードを${cardNames.length}枚ドロー。${cardNames}。`, duelist);
@@ -200,11 +203,7 @@ export class DuelField {
 
     const entities: DuelEntity[] = [];
     for (const entity of target) {
-      const flg = await entity.release(["Release", by, ...moveAs], causedBy);
-      if (!flg) {
-        this.duel.log.info(`${entity.nm}をリリースできなかった。`, chooser);
-        break;
-      }
+      await entity.release(["Release", by, ...moveAs], causedBy);
       entities.push(entity);
     }
 
@@ -219,7 +218,7 @@ export class DuelField {
     duelist: Duelist,
     qty: number,
     moveAs: TDuelCauseReason[],
-    cousedBy?: DuelEntity,
+    causedBy?: DuelEntity,
     chooser?: Duelist,
     filter?: (entity: DuelEntity) => boolean
   ): Promise<DuelEntity[]> => {
@@ -243,7 +242,7 @@ export class DuelField {
         })) || [];
     }
 
-    await this._sendGraveyardMany(target, ["Discard", ...moveAs], cousedBy);
+    await this._sendGraveyardMany(target, ["Discard", ...moveAs], causedBy);
 
     this.duel.log.info(`手札からカードを${target.length}枚捨てた。${target.map((e) => e.origin?.name)}。`, duelist);
 
@@ -279,10 +278,7 @@ export class DuelField {
     chooser?: Duelist,
     cancelable: boolean = false
   ): Promise<DuelEntity | undefined> => {
-    console.log("hoge");
-
     const result = await this._summon(entity, selectablePosList, selectableCells, summonType, moveAs, causedBy, chooser, cancelable);
-    console.log("hoge", result);
 
     if (!result) {
       return;
@@ -310,7 +306,7 @@ export class DuelField {
         const dammyActions = selectablePosList.map((pos) => DuelEntity.createDammyAction(entity, pos, selectableCells, pos));
         this.duel.view.modalController.selectAction(this.duel.view, {
           title: "カードを召喚先へドラッグ。",
-          actions: dammyActions as CardActionWIP<unknown>[],
+          actions: dammyActions as CardAction<unknown>[],
           cancelable: false,
         });
         const dAct = await this.duel.view.waitSubAction(_chooser, dammyActions as CardAction<unknown>[], "カードを召喚先へドラッグ。", cancelable);
@@ -327,7 +323,42 @@ export class DuelField {
       }
     }
 
-    entity.summon(cell, pos, summonType, moveAs, causedBy);
+    await entity.summon(cell, pos, summonType, moveAs, causedBy);
+
+    return entity;
+  };
+
+  public readonly activateSpellTrapFromHand = async (
+    entity: DuelEntity,
+    selectableCells: DuelFieldCell[],
+    moveAs: TDuelCauseReason[],
+    causedBy?: DuelEntity,
+    chooser?: Duelist,
+    cancelable: boolean = false
+  ): Promise<DuelEntity | undefined> => {
+    const _chooser = chooser ?? causedBy?.controller ?? entity.controller;
+    let cell: DuelFieldCell = selectableCells.randomPick(1)[0];
+    if (selectableCells.length > 1) {
+      if (_chooser.duelistType !== "NPC") {
+        const dammyActions = [DuelEntity.createDammyAction(entity, "カードの発動", selectableCells, undefined)];
+        this.duel.view.modalController.selectAction(this.duel.view, {
+          title: "カードを魔法罠ゾーンへドラッグ",
+          actions: dammyActions as CardAction<unknown>[],
+          cancelable: false,
+        });
+        const dAct = await this.duel.view.waitSubAction(_chooser, dammyActions as CardAction<unknown>[], "カードを魔法罠ゾーンへドラッグ。", cancelable);
+        const action = dAct.actionWIP;
+        if (!action && !cancelable) {
+          throw new SystemError("", dAct);
+        }
+        if (!action) {
+          return;
+        }
+        cell = action.cell || cell;
+      }
+    }
+
+    await entity.activateSpellTrapFromHand(cell, moveAs, causedBy);
 
     return entity;
   };
@@ -340,5 +371,37 @@ export class DuelField {
     }
 
     return entities.filter((entity) => entity.entityType !== "Token");
+  };
+  public readonly setSpellTrap = async (
+    entity: DuelEntity,
+    cells: DuelFieldCell[],
+    causedBy?: DuelEntity,
+    chooser?: Duelist,
+    cancelable: boolean = false
+  ): Promise<DuelEntity | undefined> => {
+    let targetCell = cells[0];
+
+    const _chooser = chooser ?? causedBy?.controller ?? entity.controller;
+    if (cells.length > 1) {
+      if (_chooser.duelistType !== "NPC") {
+        const dammyActions = [DuelEntity.createDammyAction(entity, "セット", cells)];
+        this.duel.view.modalController.selectAction(this.duel.view, {
+          title: "カードをセット先へドラッグ",
+          actions: dammyActions as CardAction<unknown>[],
+          cancelable: false,
+        });
+        const dAct = await this.duel.view.waitSubAction(_chooser, dammyActions as CardAction<unknown>[], "カードをセット先へドラッグ", cancelable);
+        const action = dAct.actionWIP;
+
+        if (!action && !cancelable) {
+          throw new SystemError("", dAct);
+        }
+        if (!action) {
+          return;
+        }
+        targetCell = action.cell || targetCell;
+      }
+    }
+    await entity.setAsSpellTrap(targetCell, ["SpellTrapSet"], causedBy);
   };
 }

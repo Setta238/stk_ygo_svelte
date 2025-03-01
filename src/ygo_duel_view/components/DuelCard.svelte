@@ -3,30 +3,30 @@
 </script>
 
 <script lang="ts">
-  import type { DuelistAction } from "@ygo_duel/class/Duel";
+  import type { DuelistResponse } from "@ygo_duel/class/Duel";
 
-  import { DuelEntity, type CardAction, type CardActionWIP } from "@ygo_duel/class/DuelEntity";
+  import { DuelEntity, type CardAction } from "@ygo_duel/class/DuelEntity";
   import { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
   import type { WaitStartEventArg } from "@ygo_duel_view/class/DuelViewController";
   export let entity: DuelEntity;
   export let state: TCardState = "Disabled";
   export let selectedList = [] as DuelEntity[];
   export let isVisibleForcibly = false;
-  export let showInfo = false;
-  export let actions: CardActionWIP<unknown>[] = [];
-  export let cardActionResolve: ((action?: CardActionWIP<unknown>, cell?: DuelFieldCell) => void) | undefined;
+  export let actions: CardAction<unknown>[] = [];
+  export let cardActionResolve: ((action?: CardAction<unknown>, cell?: DuelFieldCell) => void) | undefined;
   let isSelected = false;
-  let duelistActionResolve: (Action: DuelistAction) => void = () => {};
+  let duelistActionResolve: (Action: DuelistResponse) => void = () => {};
   let qty: number | undefined;
   const onWaitStart: (args: WaitStartEventArg) => void = (args) => {
+    console.log(args);
     isSelected = false;
     qty = args.qty;
     duelistActionResolve = args.resolve;
   };
+  console.log(entity);
   entity.field.duel.view.onWaitStart.append(onWaitStart);
   let isDragging = false;
   const click = () => {
-    console.log(state, actions, cardActionResolve);
     if (state === "Disabled") {
       return;
     }
@@ -38,7 +38,6 @@
           selectedEntities: [entity],
         });
       }
-      console.log(entity, isSelected, selectedList);
       return;
     }
     if (actions.length === 1) {
@@ -67,13 +66,13 @@
   };
 
   const dragStart = (ev: DragEvent) => {
-    console.log("drag start", ev, actions);
+    console.info("drag start", ev, actions);
     entity.field.duel.view.setDraggingActions(actions);
     isDragging = true;
   };
 
   const dragEnd = (ev: DragEvent) => {
-    console.log("drag end", ev, actions);
+    console.info("drag end", ev, actions);
     entity.field.duel.view.removeDraggingActions();
     if (ev.dataTransfer) {
       isDragging = false;
@@ -83,7 +82,7 @@
 
 {#if entity.face === "FaceUp" || isVisibleForcibly || (entity.controller.seat === "Below" && entity.isUnderControl)}
   <button
-    class="duel_card button_style_reset {entity.status.monsterCategories?.join(' ') || ''} {isSelected
+    class="duel_card button_style_reset {entity.status.kind} {entity.status.monsterCategories?.join(' ') || ''} {isSelected
       ? 'duel_card_selected'
       : ''} {state} duel_card_{entity.orientation} {isDragging ? 'isDragging' : ''}"
     disabled={entity.field.duel.isEnded || state === "Disabled"}
@@ -91,11 +90,12 @@
     on:dragstart={dragStart}
     on:dragend={dragEnd}
     on:click={click}
+    title={entity.nm}
   >
     <div class="duel_card duel_card_face_up">
-      <div class="duel_card_row">
+      <div class="duel_card_row" style="position:relative">
         <div>{entity.nm}</div>
-        <div>{entity.attr.join(" ")}</div>
+        <div style="position: absolute;right:0rem ;background-color:inherit ">{entity.attr.join(" ")}</div>
       </div>
       <div class="duel_card_row">
         <div>{"★".repeat(entity.status.level || 0)}</div>
@@ -110,17 +110,16 @@
       <div class="duel_card_row enum">
         {#each entity.status.monsterCategories ?? [] as cat}<div>{cat}</div>{/each}
       </div>
-      <div class="duel_card_row">
-        <div>{entity.type}</div>
-        <div>{entity.atk ?? "?"} / {entity.def ?? "?"}</div>
-      </div>
+      {#if entity.status.kind === "Monster"}
+        <div class="duel_card_row">
+          <div>{entity.type}</div>
+          <div>{entity.atk ?? "?"} / {entity.def ?? "?"}</div>
+        </div>
+      {/if}
     </div>
   </button>
 {:else}
   <div class="duel_card duel_card_face_down"><div></div></div>
-{/if}
-{#if entity.battlePotion && showInfo}
-  <div>【{entity.battlePotion === "Attack" ? "攻撃表示" : entity.battlePotion === "Defense" ? "表守備表示" : "裏守備表示"}】</div>
 {/if}
 
 <style>
@@ -137,6 +136,9 @@
     padding: 0rem 0.15rem;
     display: flex;
     justify-content: space-between;
+    white-space: nowrap;
+    max-width: 6rem;
+    overflow: hidden;
   }
   .duel_card_row.enum {
     flex-wrap: wrap;
@@ -147,14 +149,25 @@
   }
   .duel_card {
     margin: 0.1rem 0.3rem;
+    padding: 0.1rem;
+    border: solid 1px #778ca3;
+    margin: 0.1rem 0.3rem;
+    padding: 0.1rem;
     border: solid 1px #778ca3;
   }
-
-  .duel_card.duel_card_face_up {
+  .duel_card_face_up {
     display: flex;
     justify-content: space-between;
     flex-direction: column;
-    height: 5.3rem;
+    height: 4.3rem;
+    margin: 0.1rem 0.3rem;
+    padding: 0.1rem;
+    border: solid 1px #778ca3;
+    min-width: 5rem;
+    max-width: 8rem;
+  }
+  .duel_card_row:first-child {
+    border: solid 0.01rem darkslategray;
   }
   .duel_card.Normal {
     background-color: cornsilk;
@@ -162,10 +175,14 @@
   .duel_card.Effect {
     background-color: chocolate;
   }
+  .duel_card.Spell {
+    background-color: forestgreen;
+    color: white;
+  }
   .duel_card:disabled,
   .duel_card:disabled * {
     cursor: default;
-    pointer-events: none;
+    pointer-events: painted;
   }
   .duel_card.Selectable {
     display: block;
@@ -186,12 +203,13 @@
     justify-content: center;
     align-items: center;
     width: 4.1rem;
+    max-width: 4.1rem;
     height: 5.3rem;
     background-color: brown;
   }
   .duel_card_face_down > div {
-    width: 30px;
-    height: 50px;
+    width: 1.8rem;
+    height: 3rem;
     border-radius: 50%;
     margin: auto;
     background-color: black;

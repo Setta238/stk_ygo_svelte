@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { DuelEntity, type CardActionWIP } from "@ygo_duel/class/DuelEntity";
+  import { DuelEntity, type CardAction } from "@ygo_duel/class/DuelEntity";
   import DuelEntitiesSelector from "@ygo_duel_view/components/DuelEntitiesSelector.svelte";
   import DuelActionSelector from "@ygo_duel_view/components/DuelActionSelector.svelte";
   import { DuelModalController } from "@ygo_duel_view/class/DuelModalController";
@@ -19,7 +19,7 @@
       validator={modalController.duelEntitiesSelectorArg.validator}
       cancelable={modalController.duelEntitiesSelectorArg.cancelable}
       resolve={(selectedList: DuelEntity[] | undefined) => {
-        console.log(selectedList);
+        console.info(selectedList);
         modalController.duelEntitiesSelectorResolve(selectedList);
       }}
     />
@@ -30,8 +30,8 @@
       title={modalController.cardActionSelectorArg.title}
       actions={modalController.cardActionSelectorArg.actions}
       cancelable={modalController.cardActionSelectorArg.cancelable}
-      resolve={(action: CardActionWIP<unknown> | undefined) => {
-        console.log(action);
+      resolve={(action: CardAction<unknown> | undefined) => {
+        console.info(action);
         modalController.cardActionSelectorResolve(action);
       }}
     />

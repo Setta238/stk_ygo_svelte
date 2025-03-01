@@ -82,8 +82,8 @@ export type TEntityStatusBase = {
   name: string;
   kind: TCardKind;
   monsterCategories?: Array<TMonsterCategory>;
-  spellCategories?: TSpellCategory;
-  trapCategories?: TTrapCategory;
+  spellCategory?: TSpellCategory;
+  trapCategory?: TTrapCategory;
   nameTags?: Array<string>;
   level?: number;
   rank?: number;

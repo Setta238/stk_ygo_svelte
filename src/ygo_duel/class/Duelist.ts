@@ -1,13 +1,14 @@
 import DuelistProfile from "@ygo/class/DuelistProfile";
 import DeckInfo from "@ygo/class/DeckInfo";
-import { Duel, type ProcKey, type TSeat } from "./Duel";
+import { Duel, type TSeat } from "./Duel";
 import { DuelEntity } from "./DuelEntity";
+import type { DuelClock } from "./DuelClock";
 
 type TLifeLogReason = "BattleDamage" | "EffectDamage" | "Heal" | "Lost" | "Pay" | "Set";
 export type TDuelistType = "NPC" | "Player";
 
 type LifeLogRecord = {
-  procKey: ProcKey;
+  clock: DuelClock;
   reason: TLifeLogReason;
   beforeLp: number;
   afterLp: number;
@@ -61,7 +62,7 @@ export default class Duelist {
   };
   public readonly setLp = (lp: number, entity?: DuelEntity, reason?: TLifeLogReason): LifeLogRecord => {
     const log = {
-      procKey: this.duel.procKey,
+      clock: this.duel.clock,
       reason: reason || "Set",
       beforeLp: this._lp,
       afterLp: lp,

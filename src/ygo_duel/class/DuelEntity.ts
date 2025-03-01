@@ -1,11 +1,19 @@
-import { exMonsterCategories, type TBattlePosition, type TCardInfoBase, type TCardInfoJson, type TEntityStatus } from "@ygo/class/YgoTypes";
-import { SystemError, type ProcKey } from "./Duel";
+import {
+  exMonsterCategories,
+  type TBattlePosition,
+  type TCardInfoBase,
+  type TCardInfoJson,
+  type TEntityStatus,
+  type TNonBattlePosition,
+} from "@ygo/class/YgoTypes";
+import { SystemError } from "./Duel";
 import type { DuelField } from "./DuelField";
-import type { DuelFieldCell, DuelFieldCellType } from "./DuelFieldCell";
+import type { DuelFieldCell, DuelFieldCellType, TDuelEntityMovePos } from "./DuelFieldCell";
 import type Duelist from "./Duelist";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import { getCardActions } from "@ygo/class/CardInfo";
+import type { DuelClock } from "./DuelClock";
 export type TDuelEntity = "Card" | "Token";
 export type TDuelEntityFace = "FaceUp" | "FaceDown";
 export type TDuelEntityOrientation = "Horizontal" | "Vertical";
@@ -39,10 +47,19 @@ export type TDuelCauseReason =
   | "BattleDestroy"
   | "EffectDestroy"
   | "RuleDestroy"
-  | "Rule";
-export const cardActionChainBlockTypes = ["TriggerEffect", "TriggerMandatoryEffect", "MandatoryEffect", "QuickEffect", "IgnitionEffect"] as const;
+  | "Rule"
+  | "SpellTrapSet"
+  | "SpellTrapActivate";
+export const cardActionChainBlockTypes = [
+  "TriggerEffect",
+  "TriggerMandatoryEffect",
+  "MandatoryEffect",
+  "QuickEffect",
+  "IgnitionEffect",
+  "CardActivation",
+] as const;
 export type TCardActionChainBlockType = (typeof cardActionChainBlockTypes)[number];
-export const cardActionNonChainBlockTypes = ["NormalSummon", "SpecialSummon", "ChangeBattlePosition", "Battle"] as const;
+export const cardActionNonChainBlockTypes = ["NormalSummon", "SpecialSummon", "ChangeBattlePosition", "Battle", "SpellTrapSet", "SpellTrapActivate"] as const;
 export type TCardActionNonChainBlockType = (typeof cardActionNonChainBlockTypes)[number];
 export type TCardActionType = TCardActionChainBlockType | TCardActionNonChainBlockType | "Dammy" | "RuleDraw";
 export type TSpellSpeed = "Normal" | "Quick" | "Counter" | "Dammy";
@@ -66,8 +83,9 @@ export type CardAction<T> = {
   prepare: (cell?: DuelFieldCell) => Promise<T>;
   execute: (cell?: DuelFieldCell, prepared?: T) => Promise<boolean>;
   autoWord?: string;
+  cell?: DuelFieldCell;
+  pos?: TBattlePosition;
 };
-export type CardActionWIP<T> = CardAction<T> & { cell?: DuelFieldCell; pos: TBattlePosition };
 export const duelEntityCardTypes = ["Card", "Token", "Avatar"] as const;
 export type TDuelEntityCardType = (typeof duelEntityCardTypes)[number];
 export const duelEntityDammyTypes = ["Duelist", "Squatter"] as const;
@@ -98,7 +116,8 @@ export class DuelEntity {
   public movedBy: DuelEntity | undefined;
   public readonly movedAs: TDuelCauseReason[];
   public movedFrom: DuelFieldCell | undefined;
-  public movedAt: ProcKey;
+  public movedAt: DuelClock;
+  public isDying: boolean;
 
   public readonly status: TEntityStatus;
   public get nm() {
@@ -161,7 +180,8 @@ export class DuelEntity {
     this.isUnderControl = isVisibleForController;
     this.orientation = orientation;
     this.movedAs = ["Rule"];
-    this.movedAt = field.duel.procKey;
+    this.movedAt = field.duel.clock;
+    this.isDying = false;
     fieldCell.acceptEntities([this], "Top");
   }
   public static readonly createCardPlayList = (entity: DuelEntity, baseList: CardActionBase<unknown>[]): CardAction<unknown>[] => {
@@ -213,7 +233,7 @@ export class DuelEntity {
    * @param pos
    * @returns
    */
-  public static readonly createDammyAction = (entity: DuelEntity, title: string, cells: DuelFieldCell[], pos: TBattlePosition): CardActionWIP<void> => {
+  public static readonly createDammyAction = (entity: DuelEntity, title: string, cells: DuelFieldCell[], pos?: TBattlePosition): CardAction<void> => {
     return {
       seq: DuelEntity.nextActionSeq++,
       title: title,
@@ -244,19 +264,19 @@ export class DuelEntity {
     this.face = pos === "Set" ? "FaceDown" : "FaceUp";
     this.isUnderControl = true;
   };
-  public readonly setNonFieldPosition = (face: TDuelEntityFace, isUnderControl: boolean): void => {
+  public readonly setNonFieldPosition = (pos: TNonBattlePosition, isUnderControl: boolean): void => {
     this._battlePosition = undefined;
-    this.orientation = "Vertical";
-    this.face = face;
+    this.orientation = pos === "XysMaterial" ? "Horizontal" : "Vertical";
+    this.face = pos === "FaceUp" ? "FaceUp" : "FaceDown";
     this.isUnderControl = isUnderControl;
   };
-  private readonly summon = async (
+  public readonly summon = async (
     to: DuelFieldCell,
     pos: TBattlePosition,
     summonType: TDuelSummonRuleCauseReason,
     moveAs: TDuelCauseReason[],
     causedBy?: DuelEntity
-  ): Promise<DuelFieldCell | undefined> => {
+  ): Promise<void> => {
     const moveAsDic: { [pos in TBattlePosition]: TDuelCauseReason } = {
       Attack: "AttackSummon",
       Defense: "DefenseSummon",
@@ -265,32 +285,61 @@ export class DuelEntity {
     if (!to.isAvailable) {
       return;
     }
-    this.fieldCell.releaseEntities([this], [summonType, moveAsDic[pos], ...moveAs], causedBy);
     this.setBattlePosition(pos);
-    to.acceptEntities([this], "Top");
+    await this._moveTo(to, "Top", [summonType, moveAsDic[pos], ...moveAs], causedBy);
     this.status.battlePotisionChangeCount = 1;
-    return to;
   };
-  public readonly release = async (moveAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<DuelFieldCell | undefined> => {
-    return await this.sendGraveyard([...moveAs, "Release"], causedBy);
+  public readonly release = async (moveAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<void> => {
+    await this.sendGraveyard([...moveAs, "Release"], causedBy);
   };
-  public readonly destroy = async (
-    by: "BattleDestroy" | "EffectDestroy" | "RuleDestroy",
-    moveAs: TDuelCauseReason[],
-    causedBy?: DuelEntity
-  ): Promise<DuelFieldCell | undefined> => {
-    return await this.sendGraveyard([...moveAs, by, "Destroy"], causedBy);
+  public readonly destroy = async (by: "BattleDestroy" | "EffectDestroy" | "RuleDestroy", moveAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<void> => {
+    await this.sendGraveyard([...moveAs, by, "Destroy"], causedBy);
   };
-  public readonly sendGraveyard = async (moveAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<DuelFieldCell | undefined> => {
-    this.setNonFieldPosition("FaceUp", true);
-    this.fieldCell.releaseEntities([this], moveAs, causedBy);
+  public readonly sendGraveyard = async (moveAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<void> => {
+    const graveyard = this.field.getGraveyard(this.owner);
 
-    if (this.entityType === "Token") {
+    await this._moveTo(graveyard, "Top", moveAs, causedBy);
+    this.setNonFieldPosition("FaceUp", true);
+  };
+  public readonly setAsSpellTrap = async (to: DuelFieldCell, moveAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<void> => {
+    await this._moveTo(to, "Top", [...moveAs, "SpellTrapSet"], causedBy);
+    this.setNonFieldPosition("Set", true);
+  };
+  public readonly activateSpellTrapFromHand = async (to: DuelFieldCell, moveAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<void> => {
+    this.setNonFieldPosition("FaceUp", true);
+    await this._moveTo(to, "Top", [...moveAs, "SpellTrapActivate"], causedBy);
+    this.isDying = true;
+  };
+  public readonly activateSpellTrapOnField = async (): Promise<void> => {
+    this.setNonFieldPosition("FaceUp", true);
+    this.isDying = true;
+  };
+  public readonly draw = async (moveAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<void> => {
+    await this._moveTo(this.field.getHandCell(this.owner), "Bottom", [...moveAs, "Draw"], causedBy);
+    this.setNonFieldPosition("Set", true);
+  };
+  private readonly _moveTo = async (to: DuelFieldCell, pos: TDuelEntityMovePos, moveAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<void> => {
+    if (this.field.duel.clock.turn > 0) {
+      await this.field.duel.view.waitAnimation({ entity: this, to: to, index: pos, count: 0 });
+    }
+    this.fieldCell.releaseEntities([this], moveAs, causedBy);
+    if (this.entityType === "Token" && this.fieldCell.cellType !== "MonsterZone") {
       this.field.duel.log.info(`${this.nm}は消滅した。`, causedBy?.controller);
       return;
     }
-    const graveyard = this.field.getGraveyard(this.owner);
-    graveyard.acceptEntities([this], "Top");
-    return graveyard;
+
+    to.acceptEntities([this], pos);
   };
+  // private readonly moveToOtherCell = async (pos:TBattlePosition|TNonBattlePosition, moveAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<DuelFieldCell | undefined> => {
+  //   this.setNonFieldPosition("FaceUp", true);
+  //   this.fieldCell.releaseEntities([this], moveAs, causedBy);
+
+  //   if (this.entityType === "Token") {
+  //     this.field.duel.log.info(`${this.nm}は消滅した。`, causedBy?.controller);
+  //     return;
+  //   }
+  //   const graveyard = this.field.getGraveyard(this.owner);
+  //   graveyard.acceptEntities([this], "Top");
+  //   return graveyard;
+  // };
 }

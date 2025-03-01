@@ -1,10 +1,10 @@
 <script lang="ts" module>
   import { writable } from "svelte/store";
-  import type { CardActionWIP } from "@ygo_duel/class/DuelEntity";
+  import type { CardAction } from "@ygo_duel/class/DuelEntity";
 
   export type CardActionSelectorArg = {
     title: string;
-    actions: CardActionWIP<unknown>[];
+    actions: CardAction<unknown>[];
     cancelable: boolean;
   };
   export const dataKeys = {
@@ -21,9 +21,9 @@
   import type { DuelViewController } from "@ygo_duel_view/class/DuelViewController";
   interface IProp {
     view: DuelViewController;
-    resolve: (action?: CardActionWIP<unknown>, cell?: DuelFieldCell) => void;
+    resolve: (action?: CardAction<unknown>, cell?: DuelFieldCell) => void;
     title: string;
-    actions: CardActionWIP<unknown>[];
+    actions: CardAction<unknown>[];
     cancelable: boolean;
   }
   let { view, resolve, title, actions, cancelable }: IProp = $props();
@@ -42,7 +42,7 @@
   const onDragEnd = () => isDragging.set(false);
   view.onDragStart.append(onDragStart);
   view.onDragEnd.append(onDragEnd);
-  const validateActions = (action: CardActionWIP<unknown>): TCardState => {
+  const validateActions = (action: CardAction<unknown>): TCardState => {
     const tmp = action.validate();
     return tmp && tmp.length > 0 ? "Draggable" : "Clickable";
   };
@@ -55,7 +55,7 @@
       <div>{title}</div>
       <div class="flex">
         {#each actions as action}
-          <div>
+          <div class="duel_card_wrapper">
             <DuelCard entity={action.entity} isVisibleForcibly={true} state={validateActions(action)} actions={[action]} cardActionResolve={resolve} />
             <div>«{action.title}»</div>
           </div>
@@ -113,9 +113,13 @@
     display: block;
     background-color: white;
     opacity: 0.9;
-    position: fixed;
+    position: absolute;
     bottom: 0px;
     pointer-events: initial;
+    height: fit-content;
+  }
+  .duel_card_wrapper {
+    font-size: x-small;
   }
   .window.minimum_mode {
     opacity: 0.5;

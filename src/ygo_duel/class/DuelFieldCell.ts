@@ -15,7 +15,7 @@ export type DuelFieldCellType =
   | "Banished"
   | "PhaseButton"
   | "Disable";
-type TDuelEntityPos = "Top" | "Bottom";
+export type TDuelEntityMovePos = "Top" | "Bottom";
 
 export const cellTypeMaster = {
   0: {
@@ -106,14 +106,14 @@ export class DuelFieldCell {
     entities.forEach((entity) => {
       entity.movedAs.splice(0);
       entity.movedAs.push(...new Set(movedAs));
-      entity.movedAt = entity.field.duel.procKey;
+      entity.movedAt = entity.field.duel.clock;
       entity.movedBy = cousedBy;
       entity.movedFrom = this;
     });
     this.onUpdateEvent.trigger();
     return entities;
   };
-  public readonly acceptEntities = (entities: DuelEntity[], pos: TDuelEntityPos) => {
+  public readonly acceptEntities = (entities: DuelEntity[], pos: TDuelEntityMovePos) => {
     if (pos === "Bottom") {
       this._entities.push(...entities);
     } else if (pos === "Top") {

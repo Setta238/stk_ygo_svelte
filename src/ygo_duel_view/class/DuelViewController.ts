@@ -1,20 +1,28 @@
 import StkEvent from "@stk_utils/class/StkEvent";
-import { Duel, DuelEnd, SystemError, type DuelistAction } from "@ygo_duel/class/Duel";
-import type { DuelEntity, CardAction, CardActionWIP } from "@ygo_duel/class/DuelEntity";
-import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
+import { Duel, DuelEnd, SystemError, type DuelistResponse } from "@ygo_duel/class/Duel";
+import type { DuelEntity, CardAction } from "@ygo_duel/class/DuelEntity";
+import type { DuelFieldCell, TDuelEntityMovePos } from "@ygo_duel/class/DuelFieldCell";
 import type Duelist from "@ygo_duel/class/Duelist";
 import { DuelModalController } from "./DuelModalController";
 import type { CardActionSelectorArg } from "@ygo_duel_view/components/DuelActionSelector.svelte";
 import type { DuelEntitiesSelectorArg } from "@ygo_duel_view/components/DuelEntitiesSelector.svelte";
 export type TDuelWaitMode = "None" | "SelectFieldAction" | "SelectAction" | "SelectFieldEntities" | "SelectEntites";
 export type WaitStartEventArg = {
-  resolve: (action: DuelistAction) => void;
+  resolve: (action: DuelistResponse) => void;
   enableActions: CardAction<unknown>[];
   qty: number | undefined;
   selectableEntities: DuelEntity[];
   entitiesValidator: (selectedEntities: DuelEntity[]) => boolean;
   cardActionSelectorArg?: CardActionSelectorArg; //TODO 要判断
   duelEntitiesSelectorArg?: DuelEntitiesSelectorArg; //TODO 要判断
+};
+
+export type AnimationStartEventArg = {
+  entity: DuelEntity;
+  to: DuelFieldCell;
+  index: TDuelEntityMovePos;
+  resolve: () => void;
+  count: number;
 };
 
 export class DuelViewController {
@@ -33,7 +41,7 @@ export class DuelViewController {
   public get onWaitEnd() {
     return this.onWaitEndEvent.expose();
   }
-  private onDragStartEvent = new StkEvent<CardActionWIP<unknown>[]>();
+  private onDragStartEvent = new StkEvent<CardAction<unknown>[]>();
   public get onDragStart() {
     return this.onDragStartEvent.expose();
   }
@@ -41,9 +49,13 @@ export class DuelViewController {
   public get onDragEnd() {
     return this.onDragEndEvent.expose();
   }
+  private onAnimationStartEvent = new StkEvent<AnimationStartEventArg>();
+  public get onAnimation() {
+    return this.onAnimationStartEvent.expose();
+  }
   public readonly duel: Duel;
   public readonly modalController: DuelModalController;
-  //  private draggingAction: CardActionWIP | undefined;
+  //  private draggingAction: CardAction | undefined;
   public message: string;
   public waitMode: TDuelWaitMode;
   constructor(duel: Duel) {
@@ -70,12 +82,13 @@ export class DuelViewController {
    * @param message
    * @returns
    */
-  public readonly waitFieldAction = async (enableActions: CardAction<unknown>[], message: string): Promise<DuelistAction> => {
+  public readonly waitFieldAction = async (enableActions: CardAction<unknown>[], message: string): Promise<DuelistResponse> => {
+    console.log(enableActions);
     if (this.duel.getTurnPlayer().duelistType === "NPC") {
       const action = enableActions
         .toSorted((left, right) => (right.entity.atk || 0) - (left.entity.atk || 0))
         .find((act) => act.playType === "NormalSummon" || act.playType === "SpecialSummon");
-      return action ? { actionWIP: action as CardActionWIP<unknown> } : { phaseChange: this.duel.nextPhaseList[0] };
+      return action ? { actionWIP: action as CardAction<unknown> } : { phaseChange: this.duel.nextPhaseList[0] };
     }
     return await this._waitDuelistAction(enableActions, "SelectFieldAction", message);
   };
@@ -89,22 +102,22 @@ export class DuelViewController {
     enableActions: CardAction<unknown>[],
     message: string,
     cancelable: boolean
-  ): Promise<CardActionWIP<unknown> | undefined> => {
+  ): Promise<CardAction<unknown> | undefined> => {
     if (enableActions.length === 0) {
       return;
     }
 
-    const promiseList: Promise<CardActionWIP<unknown> | undefined>[] = [];
+    const promiseList: Promise<CardAction<unknown> | undefined>[] = [];
 
     promiseList.push(
       this.modalController
         .selectAction(this, {
           title: message,
-          actions: enableActions as CardActionWIP<unknown>[],
+          actions: enableActions as CardAction<unknown>[],
           cancelable: cancelable,
         })
         .then((action) => {
-          return action && (action as CardActionWIP<unknown>);
+          return action && (action as CardAction<unknown>);
         })
     );
 
@@ -130,7 +143,7 @@ export class DuelViewController {
     enableActions: CardAction<unknown>[],
     message: string,
     cancelable: boolean = false
-  ): Promise<DuelistAction> => {
+  ): Promise<DuelistResponse> => {
     if (chooser.duelistType === "NPC") {
       throw Error("Not implemented");
     }
@@ -191,12 +204,12 @@ export class DuelViewController {
     qty?: number,
     entitiesValidator?: (selected: DuelEntity[]) => boolean,
     cancelable: boolean = false
-  ): Promise<DuelistAction> => {
+  ): Promise<DuelistResponse> => {
     this.waitMode = waitMode;
     this.message = message;
 
     this.onDuelUpdateEvent.trigger();
-    const userAction: DuelistAction = await new Promise<DuelistAction>((resolve) => {
+    const userAction: DuelistResponse = await new Promise<DuelistResponse>((resolve) => {
       this.onWaitStartEvent.trigger({
         resolve,
         enableActions,
@@ -207,7 +220,6 @@ export class DuelViewController {
     });
 
     this.waitMode = "None";
-    console.log(userAction);
     this.onWaitEndEvent.trigger();
     if (userAction.surrender) {
       throw new DuelEnd(this.duel.duelists.Above);
@@ -218,7 +230,12 @@ export class DuelViewController {
     return userAction;
   };
 
-  public readonly setDraggingActions = (actions: CardActionWIP<unknown>[]) => {
+  public readonly waitAnimation = async (args: Omit<AnimationStartEventArg, "resolve">): Promise<void> => {
+    this.onDuelUpdateEvent.trigger();
+    return new Promise<void>((resolve) => this.onAnimationStartEvent.trigger({ ...args, resolve }));
+  };
+
+  public readonly setDraggingActions = (actions: CardAction<unknown>[]) => {
     this.onDragStartEvent.trigger(actions);
     this.requireUpdate();
   };

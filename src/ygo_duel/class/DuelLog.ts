@@ -1,14 +1,15 @@
 import StkEvent from "@stk_utils/class/StkEvent";
-import { SystemError, type ProcKey, type TDuelPhase, type TDuelPhaseStep } from "./Duel";
+import { SystemError, type TDuelPhase, type TDuelPhaseStep } from "./Duel";
 import { Duel } from "./Duel";
 import type Duelist from "./Duelist";
+import type { DuelClock } from "./DuelClock";
 
 type DuelLogRecord = {
   seq: number;
   turn: number;
   phase: TDuelPhase;
   phaseStep: TDuelPhaseStep;
-  procKey: ProcKey;
+  clock: DuelClock;
   duelist: Duelist | undefined;
   text: string;
 };
@@ -28,7 +29,7 @@ export default class DuelLog {
     this.onUpdateEvent.clear();
   };
   public readonly error = (error: unknown) => {
-    console.log(error);
+    console.error(error);
     const lines = ["エラー発生"];
 
     if (error instanceof Error) {
@@ -54,14 +55,13 @@ export default class DuelLog {
 
     this.records.push({
       seq: this.nextSeq++,
-      turn: this.duel.turn,
+      turn: this.duel.clock.turn,
       phase: this.duel.phase,
       phaseStep: this.duel.phaseStep,
-      procKey: this.duel.procKey,
+      clock: this.duel.clock,
       duelist: duelist,
       text: _text,
     });
-    console.log(text);
     this.onUpdateEvent.trigger();
   };
 }

@@ -1,6 +1,6 @@
 import type { Duel } from "@ygo_duel/class/Duel";
 import StkEvent from "@stk_utils/class/StkEvent";
-import type { CardActionWIP, DuelEntity } from "@ygo_duel/class/DuelEntity";
+import type { CardAction, DuelEntity } from "@ygo_duel/class/DuelEntity";
 import type { CardActionSelectorArg } from "@ygo_duel_view/components/DuelActionSelector.svelte";
 import type { DuelEntitiesSelectorArg } from "@ygo_duel_view/components/DuelEntitiesSelector.svelte";
 import type { DuelViewController } from "./DuelViewController";
@@ -18,7 +18,7 @@ export class DuelModalController {
   public readonly view: DuelViewController;
   public readonly cancelAll = (): void => {
     modalNames.forEach((name) => (this.states[name] = "Disable"));
-    console.log(this, "cancelAll");
+    console.info(this, "cancelAll");
     this.onUpdateEvent.trigger();
   };
 
@@ -57,17 +57,17 @@ export class DuelModalController {
     actions: [],
     cancelable: false,
   };
-  public cardActionSelectorResolve: (action: CardActionWIP<unknown> | undefined) => void = () => {};
-  public cardActionSelectorValue: CardActionWIP<unknown> | undefined;
+  public cardActionSelectorResolve: (action: CardAction<unknown> | undefined) => void = () => {};
+  public cardActionSelectorValue: CardAction<unknown> | undefined;
 
-  public readonly selectAction = async (view: DuelViewController, arg: CardActionSelectorArg): Promise<CardActionWIP<unknown> | undefined> => {
+  public readonly selectAction = async (view: DuelViewController, arg: CardActionSelectorArg): Promise<CardAction<unknown> | undefined> => {
     this.cardActionSelectorArg = arg;
     this.states.DuelActionSelector = "Shown";
 
     view.onWaitEnd.append(this.cancelAll);
     this.onUpdateEvent.trigger();
     return new Promise((resolve) => {
-      this.cardActionSelectorResolve = (value: CardActionWIP<unknown> | undefined) => {
+      this.cardActionSelectorResolve = (value: CardAction<unknown> | undefined) => {
         this.states.DuelActionSelector = "Disable";
         view.onWaitEnd.remove(this.cancelAll);
         this.onUpdateEvent.trigger();

@@ -15,7 +15,27 @@
   /* ウィンドウの横幅 */
   --screen-height-px: tan(atan2(var(--screen-height), 1px));
   /* ウィンドウの高さ */
-}.screen_info:before {
+  color: black;
+}
+@media screen and (max-width: 900px)  {
+  :root {
+    font-size: 0.4rem;
+  }
+}
+@media screen and (min-width:901px) and (max-width: 1000px)  {
+  :root {
+    font-size: 0.5em;
+  }
+}@media screen and (min-width:1001px) and (max-width: 1300px) {
+  :root {
+    font-size: 0.7rem;
+  }
+}@media screen and (min-width:1301px) and (max-width: 1400px) {
+  :root {
+    font-size: 1rem;
+  }
+}
+.screen_info:before {
   content: '横幅：' counter(screen-width-px) 'px';
 }
 

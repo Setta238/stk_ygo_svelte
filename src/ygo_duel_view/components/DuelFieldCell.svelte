@@ -295,7 +295,7 @@
     box-shadow: 0 0 0.5rem #333;
   }
   .phase_display {
-    font-size: x-large;
+    font-size: 1.5rem;
     position: relative;
     overflow: hidden;
     padding: 0.5rem 0.5rem 0.5rem 0.5rem;
@@ -330,12 +330,12 @@
   }
   .lifepoint_display div {
     padding: 0.2rem 1rem;
-    font-size: x-large;
+    font-size: 1.4rem;
     background-color: snow;
   }
   .phase_button {
     padding: 0 10px;
-    font-size: x-large;
+    font-size: 1.4rem;
     border: 2px solid #000;
     background: #fff;
     font-weight: 700;

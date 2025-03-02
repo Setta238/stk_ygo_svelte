@@ -284,6 +284,11 @@
   .duel_card.Clickable,
   .duel_card.Draggable {
     position: relative;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    -webkit-touch-callout: none;
   }
   /* ボタンの波紋 */
   .duel_card.Clickable::before,

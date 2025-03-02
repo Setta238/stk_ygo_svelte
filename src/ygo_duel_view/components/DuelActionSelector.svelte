@@ -126,7 +126,7 @@
     height: fit-content;
   }
   .duel_card_wrapper {
-    font-size: x-small;
+    font-size: 0.9rem;
   }
   .window.minimum_mode {
     opacity: 0.5;

@@ -199,7 +199,7 @@
     width: 100%;
   }
   .duel_field_header_message {
-    font-size: x-large;
+    font-size: 1.4rem;
   }
   .duel_field_header_buttons {
     position: absolute;
@@ -214,7 +214,7 @@
   }
   .duel_field_footer button {
     padding: 0 10px;
-    font-size: x-large;
+    font-size: 1.4rem;
     border: 2px solid #000;
     background: #fff;
     font-weight: 700;
@@ -241,7 +241,7 @@
 
   .duel_field_header_buttons button {
     padding: 0 10px;
-    font-size: x-large;
+    font-size: 1.4rem;
     border: 2px solid #000;
     background: #fff;
     font-weight: 700;

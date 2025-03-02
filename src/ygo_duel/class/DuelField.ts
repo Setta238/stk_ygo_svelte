@@ -37,54 +37,6 @@ export class DuelField {
       .map((cell) => cell.cardEntities)
       .flat();
   };
-  public readonly getEntities = (duelist: Duelist): DuelEntity[] => {
-    return this.getAllEntities().filter((entity) => entity.controller === duelist);
-  };
-
-  public readonly getHandCell = (duelist: Duelist): DuelFieldCell => {
-    return this.getCells("Hand").filter((cell) => cell.owner === duelist)[0];
-  };
-  public readonly getDeckCell = (duelist: Duelist): DuelFieldCell => {
-    return this.getCells("Deck").filter((cell) => cell.owner === duelist)[0];
-  };
-  public readonly getExtraDeck = (duelist: Duelist): DuelFieldCell => {
-    return this.getCells("ExtraDeck").filter((cell) => cell.owner === duelist)[0];
-  };
-  public readonly getGraveyard = (duelist: Duelist): DuelFieldCell => {
-    return this.getCells("Graveyard").filter((cell) => cell.owner === duelist)[0];
-  };
-  public readonly getFieldZone = (duelist: Duelist): DuelFieldCell => {
-    return this.getCells("FieldSpellZone").filter((cell) => cell.owner === duelist)[0];
-  };
-  public readonly getBanished = (duelist: Duelist): DuelFieldCell => {
-    return this.getCells("Banished").filter((cell) => cell.owner === duelist)[0];
-  };
-  public readonly getMonsterZones = (duelist: Duelist): DuelFieldCell[] => {
-    return this.getCells("MonsterZone").filter((cell) => cell.owner === duelist);
-  };
-  public readonly getExtraMonsterZones = (duelist: Duelist): DuelFieldCell[] => {
-    return this.getCells("ExtraMonsterZone").filter((cell) => cell.cardEntities[0]?.controller === duelist);
-  };
-  public readonly getSpellTrapZones = (duelist: Duelist): DuelFieldCell[] => {
-    return this.getCells("SpellAndTrapZone").filter((cell) => cell.owner === duelist);
-  };
-  public readonly getEmptyMonsterZones = (duelist: Duelist): DuelFieldCell[] => {
-    return this.getMonsterZones(duelist).filter((cell) => cell.cardEntities.length === 0);
-  };
-  public readonly getEmptyExtraZones = (duelist: Duelist): DuelFieldCell[] => {
-    return this.getExtraMonsterZones(duelist).length === 0 ? this.getMonsterZones(duelist).filter((cell) => cell.cardEntities.length === 0) : [];
-  };
-  public readonly getAvailableMonsterZones = (duelist: Duelist): DuelFieldCell[] => {
-    return this.getMonsterZones(duelist).filter((cell) => cell.isAvailable);
-  };
-  public readonly getAvailableExtraZones = (duelist: Duelist): DuelFieldCell[] => {
-    // TODOエクストラリンク
-    return this.getExtraMonsterZones(duelist).length === 0 ? this.getMonsterZones(duelist).filter((cell) => cell.isAvailable) : [];
-  };
-  public readonly getAvailableSpellTrapZones = (duelist: Duelist): DuelFieldCell[] => {
-    return this.getSpellTrapZones(duelist).filter((cell) => cell.isAvailable);
-  };
-
   public readonly getMonstersOnField = (): DuelEntity[] => {
     return this.getCells("MonsterZone", "ExtraMonsterZone")
       .map((cell) => cell.cardEntities)
@@ -92,29 +44,24 @@ export class DuelField {
       .map((entities) => entities[0])
       .filter((entity) => entity.entityType !== "Squatter");
   };
-
-  public readonly getReleasableMonsters = (duelist: Duelist): DuelEntity[] => {
-    // TODO : クロス・ソウルと帝王の烈旋の考慮
-    return this.getMonstersOnField().filter((monster) => monster.controller === duelist);
+  public readonly getEntities = (duelist: Duelist): DuelEntity[] => {
+    return this.getAllEntities().filter((entity) => entity.controller === duelist);
   };
 
-  public readonly getAttackTargetMonsters = (attacker: Duelist): DuelEntity[] => {
-    return this.getMonstersOnField().filter((monster) => monster.status.isSelectableForAttack && monster.controller !== attacker);
-  };
   public readonly pushDeck = (duelist: Duelist): void => {
     duelist.deckInfo.cardNames
       .map((name) => cardInfoDic[name])
       .filter((info) => info)
       .forEach((info) => DuelEntity.createCardEntity(this, duelist, info));
     this.duel.log.info(
-      `デッキをセット。メイン${this.getDeckCell(duelist).cardEntities.length}枚。エクストラ${this.getExtraDeck(duelist).cardEntities.length}枚。`,
+      `デッキをセット。メイン${duelist.getDeckCell().cardEntities.length}枚。エクストラ${duelist.getExtraDeck().cardEntities.length}枚。`,
       duelist
     );
     return;
   };
 
   public readonly shuffleDeck = (duelist: Duelist): void => {
-    const deckCell = this.getDeckCell(duelist);
+    const deckCell = duelist.getDeckCell();
     deckCell.shuffle();
     this.duel.log.info(`デッキをシャッフル。`, duelist);
   };
@@ -126,7 +73,7 @@ export class DuelField {
   public readonly draw = async (duelist: Duelist, times: number, causedBy?: DuelEntity): Promise<boolean> => {
     const flg = await this._draw(duelist, times, causedBy);
     if (!flg) {
-      throw new DuelEnd(this.duel.getOpponentPlayer(duelist));
+      throw new DuelEnd(duelist.getOpponentPlayer());
     }
     return flg;
   };
@@ -138,11 +85,11 @@ export class DuelField {
       return true;
     }
 
-    if (!flg1) {
-      throw new DuelEnd(this.duel.getOpponentPlayer(duelist1));
+    if (flg1) {
+      throw new DuelEnd(duelist1);
     }
-    if (!flg2) {
-      throw new DuelEnd(this.duel.getOpponentPlayer(duelist2));
+    if (flg2) {
+      throw new DuelEnd(duelist1);
     }
     throw new DuelEnd();
   };
@@ -151,7 +98,7 @@ export class DuelField {
     if (times < 1) {
       return true;
     }
-    const deckCell = this.getDeckCell(duelist);
+    const deckCell = duelist.getDeckCell();
     const cardNames = [] as string[];
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     for (const _ of Array(times)) {
@@ -223,7 +170,7 @@ export class DuelField {
     filter?: (entity: DuelEntity) => boolean
   ): Promise<DuelEntity[]> => {
     const _filter: (entity: DuelEntity) => boolean = filter || (() => true);
-    const choices = this.getHandCell(duelist).cardEntities.filter(_filter);
+    const choices = duelist.getHandCell().cardEntities.filter(_filter);
 
     if (choices.length < qty) {
       return [];
@@ -234,12 +181,7 @@ export class DuelField {
       target = choices.randomPick(qty);
     } else {
       target =
-        (await this.duel.view.modalController.selectDuelEntities(this.duel, {
-          title: `${qty}枚のカードを捨てる。`,
-          entities: choices,
-          validator: (list) => list.length === qty,
-          cancelable: false,
-        })) || [];
+        (await this.duel.view.waitSelectEntities(chooser || duelist, choices, qty, (list) => list.length === qty, `${qty}枚カードを捨てる。`, false)) || [];
     }
 
     await this._sendGraveyardMany(target, ["Discard", ...moveAs], causedBy);
@@ -283,7 +225,7 @@ export class DuelField {
     if (!result) {
       return;
     }
-    this.duel.log.info(`${result.status.name}を召喚（${entity.movedAs.join(",")}）。`, chooser ?? causedBy?.controller ?? entity.controller);
+    this.duel.log.info(`${result.status.name}を召喚（${[...moveAs, summonType].join(",")}）。`, chooser ?? causedBy?.controller ?? entity.controller);
     return result;
   };
 
@@ -322,7 +264,7 @@ export class DuelField {
         pos = action.pos || pos;
       }
     }
-
+    console.log(cell, pos, summonType, moveAs, causedBy);
     await entity.summon(cell, pos, summonType, moveAs, causedBy);
 
     return entity;
@@ -365,6 +307,9 @@ export class DuelField {
   public readonly destroyMany = async (entities: DuelEntity[], causedAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<DuelEntity[]> => {
     return await this._sendGraveyardMany(entities, [...causedAs, "Destroy"], causedBy);
   };
+  public readonly sendGraveyardMany = async (entities: DuelEntity[], causedAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<DuelEntity[]> => {
+    return await this._sendGraveyardMany(entities, causedAs, causedBy);
+  };
   private readonly _sendGraveyardMany = async (entities: DuelEntity[], moveAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<DuelEntity[]> => {
     for (const entity of entities) {
       await entity.sendGraveyard(moveAs, causedBy);
@@ -403,5 +348,6 @@ export class DuelField {
       }
     }
     await entity.setAsSpellTrap(targetCell, ["SpellTrapSet"], causedBy);
+    this.duel.log.info(`${entity.status.name}をセット（${"SpellTrapSet"}）。`, chooser ?? causedBy?.controller ?? entity.controller);
   };
 }

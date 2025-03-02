@@ -3,6 +3,7 @@ import DeckInfo from "@ygo/class/DeckInfo";
 import { Duel, type TSeat } from "./Duel";
 import { DuelEntity } from "./DuelEntity";
 import type { DuelClock } from "./DuelClock";
+import type { DuelFieldCell } from "./DuelFieldCell";
 
 type TLifeLogReason = "BattleDamage" | "EffectDamage" | "Heal" | "Lost" | "Pay" | "Set";
 export type TDuelistType = "NPC" | "Player";
@@ -81,4 +82,58 @@ export default class Duelist {
   public get isTurnPlayer() {
     return this.duel.getTurnPlayer() === this;
   }
+  public readonly getOpponentPlayer = (): Duelist => {
+    return this.duel.firstPlayer === this ? this.duel.secondPlayer : this.duel.firstPlayer;
+  };
+  public readonly getHandCell = (): DuelFieldCell => {
+    return this.duel.field.getCells("Hand").filter((cell) => cell.owner === this)[0];
+  };
+  public readonly getDeckCell = (): DuelFieldCell => {
+    return this.duel.field.getCells("Deck").filter((cell) => cell.owner === this)[0];
+  };
+  public readonly getExtraDeck = (): DuelFieldCell => {
+    return this.duel.field.getCells("ExtraDeck").filter((cell) => cell.owner === this)[0];
+  };
+  public readonly getGraveyard = (): DuelFieldCell => {
+    return this.duel.field.getCells("Graveyard").filter((cell) => cell.owner === this)[0];
+  };
+  public readonly getFieldZone = (): DuelFieldCell => {
+    return this.duel.field.getCells("FieldSpellZone").filter((cell) => cell.owner === this)[0];
+  };
+  public readonly getBanished = (): DuelFieldCell => {
+    return this.duel.field.getCells("Banished").filter((cell) => cell.owner === this)[0];
+  };
+  public readonly getMonsterZones = (): DuelFieldCell[] => {
+    return this.duel.field.getCells("MonsterZone").filter((cell) => cell.owner === this);
+  };
+  public readonly getExtraMonsterZones = (): DuelFieldCell[] => {
+    return this.duel.field.getCells("ExtraMonsterZone").filter((cell) => cell.cardEntities[0]?.controller === this);
+  };
+  public readonly getSpellTrapZones = (): DuelFieldCell[] => {
+    return this.duel.field.getCells("SpellAndTrapZone").filter((cell) => cell.owner === this);
+  };
+  public readonly getEmptyMonsterZones = (): DuelFieldCell[] => {
+    return this.getMonsterZones().filter((cell) => cell.cardEntities.length === 0);
+  };
+  public readonly getEmptyExtraZones = (): DuelFieldCell[] => {
+    return this.getExtraMonsterZones().length === 0 ? this.getMonsterZones().filter((cell) => cell.cardEntities.length === 0) : [];
+  };
+  public readonly getAvailableMonsterZones = (): DuelFieldCell[] => {
+    return this.getMonsterZones().filter((cell) => cell.isAvailable);
+  };
+  public readonly getAvailableExtraZones = (): DuelFieldCell[] => {
+    // TODOエクストラリンク
+    return this.getExtraMonsterZones().length === 0 ? this.getMonsterZones().filter((cell) => cell.isAvailable) : [];
+  };
+  public readonly getAvailableSpellTrapZones = (): DuelFieldCell[] => {
+    return this.getSpellTrapZones().filter((cell) => cell.isAvailable);
+  };
+  public readonly getReleasableMonsters = (): DuelEntity[] => {
+    // TODO : クロス・ソウルと帝王の烈旋の考慮
+    return this.duel.field.getMonstersOnField().filter((monster) => monster.controller === this);
+  };
+
+  public readonly getAttackTargetMonsters = (): DuelEntity[] => {
+    return this.duel.field.getMonstersOnField().filter((monster) => monster.status.isSelectableForAttack && monster.controller !== this);
+  };
 }

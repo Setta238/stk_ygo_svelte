@@ -1,4 +1,3 @@
-import type { Duel } from "@ygo_duel/class/Duel";
 import StkEvent from "@stk_utils/class/StkEvent";
 import type { CardAction, DuelEntity } from "@ygo_duel/class/DuelEntity";
 import type { CardActionSelectorArg } from "@ygo_duel_view/components/DuelActionSelector.svelte";
@@ -40,7 +39,7 @@ export class DuelModalController {
       {} as { [key in TModalName]: TModalState }
     );
   }
-  public readonly selectDuelEntities = async (duel: Duel, arg: DuelEntitiesSelectorArg): Promise<DuelEntity[] | undefined> => {
+  public readonly selectDuelEntities = async (arg: DuelEntitiesSelectorArg): Promise<DuelEntity[] | undefined> => {
     this.duelEntitiesSelectorArg = arg;
     this.states.DuelEntitiesSelector = "Shown";
     this.onUpdateEvent.trigger();

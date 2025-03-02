@@ -18,7 +18,6 @@
   let cell = view.getCell(row, column);
 
   const onCellUpdate = () => {
-    console.log(cell);
     cell = view.getCell(row, column);
   };
 
@@ -31,7 +30,6 @@
   let selectedEntitiesValidator: (selectedEntities: DuelEntity[]) => boolean = () => true;
   let selectableEntities: DuelEntity[];
   const onWaitStart: (args: WaitStartEventArg) => void = (args) => {
-    console.log(cell);
     animationArg = undefined;
     selectedList.reset();
     action = args.resolve;
@@ -148,7 +146,12 @@
 </script>
 
 <td class={`duel_field_cell duel_field_cell_${cell.cellType}`} colspan={cell.cellType === "Hand" ? 7 : 1}>
-  <div class={`duel_card_wrapper ${canAcceptDrop ? "can_accept_drop" : ""}`} role="listitem" ondragover={(ev) => dragover(ev)} ondrop={(ev) => drop(ev)}>
+  <div
+    class={`duel_card_wrapper ${cell.cellType} ${canAcceptDrop ? "can_accept_drop" : ""}`}
+    role="listitem"
+    ondragover={(ev) => dragover(ev)}
+    ondrop={(ev) => drop(ev)}
+  >
     {#if cell.cellType === "PhaseButton"}
       <div>【{view.duel.phase}】</div>
       {#if view.waitMode === "SelectFieldAction"}
@@ -185,26 +188,28 @@
       {/if}
     {:else}
       {#if animationArg && animationArg.entity && animationArg.to === cell && animationArg.index === "Bottom"}
-        <div class="card_animation_receiver" in:receive={{ key: animationArg.entity.seq }}>
+        <div style="position: absolute;" class="card_animation_receiver" in:receive={{ key: animationArg.entity.seq }}>
           <DuelCard entity={animationArg.entity} state="Disabled" actions={[]} cardActionResolve={undefined} />
         </div>
       {/if}
       {#if cell.cardEntities.length > 0}
-        {#if !animationArg || animationArg.entity.seq !== cell.cardEntities[0].seq}
-          <div out:send={{ key: cell.cardEntities[0].seq }}>
-            <DuelCard
-              entity={cell.cardEntities[0]}
-              state={validateActions(...cell.cardEntities)}
-              actions={enableActions.filter((action) => action.entity === cell.cardEntities[0])}
-              cardActionResolve={undefined}
-              bind:selectedList
-            />
-          </div>
-          {#if cell.cardEntities[0].battlePotion}
-            <div>
-              【{cell.cardEntities[0].battlePotion === "Attack" ? "攻撃表示" : cell.cardEntities[0].battlePotion === "Defense" ? "表守備表示" : "裏守備表示"}】
+        {#each cell.cardEntities as entity, index}
+          {#if !animationArg || animationArg.entity.seq !== entity.seq}
+            <div style="position: absolute;" out:send={{ key: entity.seq }}>
+              <DuelCard
+                {entity}
+                state={index === 0 ? validateActions(...cell.cardEntities) : undefined}
+                actions={index === 0 ? enableActions.filter((action) => cell.cardEntities.includes(action.entity)) : undefined}
+                cardActionResolve={undefined}
+                bind:selectedList
+              />
             </div>
           {/if}
+        {/each}
+        {#if cell.cardEntities[0].battlePotion}
+          <div style="position: absolute; bottom:0rem">
+            【{cell.cardEntities[0].battlePotion === "Attack" ? "攻撃表示" : cell.cardEntities[0].battlePotion === "Defense" ? "表守備表示" : "裏守備表示"}】
+          </div>
         {/if}
       {/if}
       {#if cell.cellType === "Deck" || cell.cellType === "ExtraDeck" || cell.cellType === "Graveyard" || cell.cellType === "Banished"}
@@ -245,22 +250,27 @@
     border: dotted 3px red;
   }
   .duel_card_wrapper {
+    display: block;
     box-sizing: border-box;
     position: relative;
     width: 100%;
     height: 100%;
     min-height: 7rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     padding: 0rem;
+  }
+  .duel_card_wrapper > .card_animation_receiver {
   }
   .duel_card_wrapper > .card_animation_receiver {
     position: absolute;
     max-width: 4rem;
     margin: auto;
   }
-  .duel_card_wrapper > .card_animation_receiver.Hand {
+  .duel_card_wrapper.Hand {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .duel_card_wrapper.Hand > .card_animation_receiver {
     position: static;
     margin: 0px;
   }

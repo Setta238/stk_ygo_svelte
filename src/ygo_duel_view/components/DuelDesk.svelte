@@ -27,17 +27,17 @@
   const deck2 = new DeckInfo();
   deck1.cardNames = [
     "アレキサンドライドラゴン",
-    "幻殻竜",
-    "しゃりの軍貫",
+    "成金ゴブリン",
     "ジェネティック・ワーウルフ",
     "機界騎士アヴラム",
     "ジョングルグールの幻術師",
     "ゾンビーノ",
     "幻のグリフォン",
     "強欲な壺",
+    "天使の施し",
     "フロストザウルス",
     "エレキテルドラゴン",
-    "デーモンの召喚",
+    "おろかな埋葬",
     "青眼の白龍",
     "サイバー・ドラゴン",
   ];
@@ -46,14 +46,21 @@
 
   let duel = new Duel(duelist1Profile, "Player", deck1, duelist2Profile, "NPC", deck2);
   let retryFlg = false;
-  let action: (Action: DuelistResponse) => void = () => {};
+  let response: (Action: DuelistResponse) => void = () => {};
   let selectedEntitiesValidator: (selectedEntities: DuelEntity[]) => boolean = () => true;
   let selectableEntities: DuelEntity[];
   const onWaitStart: (args: WaitStartEventArg) => void = (args) => {
     console.log(args);
-    action = args.resolve;
+    response = args.resolve;
     selectedEntitiesValidator = args.entitiesValidator;
     selectableEntities = args.selectableEntities;
+    if (args.duelEntitiesSelectorArg) {
+      duel.view.modalController.selectDuelEntities(args.duelEntitiesSelectorArg).then((selected) => {
+        response({
+          selectedEntities: selected,
+        });
+      });
+    }
   };
 
   export let selectedList = [] as DuelEntity[];
@@ -65,18 +72,18 @@
   duel.view.onWaitStart.append(onWaitStart);
   const onOkClick = () => {
     if (selectedEntitiesValidator(selectedList)) {
-      action({ selectedEntities: selectedList });
+      response({ selectedEntities: selectedList });
     }
   };
 
   const onRetryButtonClick = () => {
     retryFlg = true;
-    action({
+    response({
       surrender: true,
     });
   };
   const onSurrenderButtonClick = () => {
-    action({
+    response({
       surrender: true,
     });
   };

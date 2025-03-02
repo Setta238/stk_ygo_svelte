@@ -12,14 +12,14 @@ export const defaultNormalSummonValidate = (entity: DuelEntity): DuelFieldCell[]
     return;
   }
 
-  const availableCells = entity.field.getAvailableMonsterZones(entity.controller);
+  const availableCells = entity.controller.getAvailableMonsterZones();
 
   // 4以下は空きセルが必要
   if (entity.status.level < 5) {
     return availableCells.length > 0 ? availableCells : undefined;
   }
 
-  const releasableMonsters = entity.field.getReleasableMonsters(entity.controller);
+  const releasableMonsters = entity.controller.getReleasableMonsters();
 
   // リリース可能なモンスターが不足する場合、アドバンス召喚不可
   // リリース処理が先にくるので、選択可能なセルはなし
@@ -40,8 +40,8 @@ export const defaultNormalSummonExecute = async (entity: DuelEntity, pos: TBattl
   let cancelable = true;
 
   if (entity.status.level > 4) {
-    const releasableMonsters = entity.field.getReleasableMonsters(entity.controller);
-    const exZoneMonsters = entity.field.getExtraMonsterZones(entity.controller);
+    const releasableMonsters = entity.controller.getReleasableMonsters();
+    const exZoneMonsters = entity.controller.getExtraMonsterZones();
     const qty = entity.status.level < 7 ? 1 : 2;
 
     if (exZoneMonsters.length >= qty) {
@@ -49,7 +49,7 @@ export const defaultNormalSummonExecute = async (entity: DuelEntity, pos: TBattl
     }
     const cost = await entity.field.release(
       entity.controller,
-      entity.field.getReleasableMonsters(entity.controller),
+      entity.controller.getReleasableMonsters(),
       qty,
       "Cost",
       ["AdvanceSummonRelease", "Rule"],
@@ -67,7 +67,7 @@ export const defaultNormalSummonExecute = async (entity: DuelEntity, pos: TBattl
     causedBy.push("AdvanceSummon");
   }
 
-  const availableCells = entity.field.getAvailableMonsterZones(entity.controller);
+  const availableCells = entity.controller.getAvailableMonsterZones();
   await entity.field.summon(entity, [pos], cell ? [cell] : availableCells, "NormalSummon", causedBy, entity, undefined, cancelable);
   entity.controller.normalSummonCount++;
   return true;
@@ -78,13 +78,13 @@ export const defaultAttackValidate = (entity: DuelEntity): DuelFieldCell[] | und
     return undefined;
   }
 
-  const enemies = entity.field.getAttackTargetMonsters(entity.controller);
+  const enemies = entity.controller.getAttackTargetMonsters();
 
   if (enemies.length > 0) {
     return enemies.map((e) => e.fieldCell);
   }
 
-  return [entity.field.getHandCell(entity.field.duel.getOpponentPlayer(entity.controller))];
+  return [entity.controller.getOpponentPlayer().getHandCell()];
 };
 export const defaultAttackExecute = async (entity: DuelEntity, pos?: TBattlePosition, cell?: DuelFieldCell): Promise<boolean> => {
   if (entity.status.attackCount > 0 || entity.battlePotion !== "Attack") {
@@ -95,8 +95,8 @@ export const defaultAttackExecute = async (entity: DuelEntity, pos?: TBattlePosi
     return true;
   }
 
-  const targets = entity.field.getAttackTargetMonsters(entity.controller);
-  const opponent = entity.controller.duel.getOpponentPlayer(entity.controller).entity;
+  const targets = entity.controller.getAttackTargetMonsters();
+  const opponent = entity.controller.getOpponentPlayer().entity;
   if (targets.length === 0) {
     entity.field.duel.declareAnAttack(entity, opponent);
     return true;
@@ -135,20 +135,41 @@ export const defaultBattlePotisionChangeExecute = async (entity: DuelEntity): Pr
 
 export const defaultSpellTrapSetValidate = (entity: DuelEntity): DuelFieldCell[] | undefined => {
   if (entity.status.spellCategory === "Field") {
-    const fieldZone = entity.field.getFieldZone(entity.controller);
+    const fieldZone = entity.controller.getFieldZone();
     return fieldZone.isAvailable ? [fieldZone] : undefined;
   }
-  const availableCells = entity.field.getAvailableSpellTrapZones(entity.controller);
+  const availableCells = entity.controller.getAvailableSpellTrapZones();
   return availableCells.length > 0 ? availableCells : undefined;
 };
 export const defaultSpellTrapSetExecute = async (entity: DuelEntity, _pos?: TBattlePosition, cell?: DuelFieldCell): Promise<boolean> => {
-  const availableCells = entity.field.getAvailableSpellTrapZones(entity.controller);
+  const availableCells = entity.controller.getAvailableSpellTrapZones();
   if (availableCells.length === 0) {
     return false;
   }
 
   await entity.field.setSpellTrap(entity, cell ? [cell] : availableCells, undefined, entity.controller, true);
   return true;
+};
+export const defaultSpellTrapValidate = (entity: DuelEntity, aotherCondition: (entity: DuelEntity) => boolean = () => true): DuelFieldCell[] | undefined => {
+  if (entity.fieldCell.cellType === "FieldSpellZone" && entity.face === "FaceDown") {
+    return [];
+  }
+
+  const availableCells = entity.controller.getAvailableSpellTrapZones();
+  return availableCells.length > 0 && aotherCondition(entity) ? availableCells : undefined;
+};
+export const defaultSpellTrapPrepare = async (entity: DuelEntity, _pos?: TBattlePosition, cell?: DuelFieldCell): Promise<boolean> => {
+  if (entity.fieldCell.cellType === "FieldSpellZone" && entity.face === "FaceDown") {
+    entity.setNonFieldPosition("FaceUp", true);
+    return true;
+  }
+  if (entity.fieldCell.cellType === "Hand") {
+    const causedBy: TDuelCauseReason[] = ["SpellTrapActivate"];
+    const availableCells = cell ? [cell] : entity.controller.getAvailableSpellTrapZones();
+    await entity.field.activateSpellTrapFromHand(entity, availableCells, causedBy, entity, entity.controller, true);
+    return true;
+  }
+  return false;
 };
 
 export const defaultNormalAttackSummonAction: CardActionBase<void> = {
@@ -158,7 +179,7 @@ export const defaultNormalAttackSummonAction: CardActionBase<void> = {
   executableCells: ["Hand"],
   validate: defaultNormalSummonValidate,
   prepare: async () => {},
-  execute: (entity, cell) => defaultNormalSummonExecute(entity, "Attack", cell),
+  execute: (entity, activater, cell) => defaultNormalSummonExecute(entity, "Attack", cell),
 };
 export const defaultNormalSetSummonAction: CardActionBase<void> = {
   title: "セット",
@@ -167,7 +188,7 @@ export const defaultNormalSetSummonAction: CardActionBase<void> = {
   executableCells: ["Hand"],
   validate: defaultNormalSummonValidate,
   prepare: async () => {},
-  execute: (entity, cell) => defaultNormalSummonExecute(entity, "Set", cell),
+  execute: (entity, activater, cell) => defaultNormalSummonExecute(entity, "Set", cell),
 };
 export const defaultAttackAction: CardActionBase<void> = {
   title: "攻撃宣言",
@@ -176,7 +197,7 @@ export const defaultAttackAction: CardActionBase<void> = {
   executableCells: ["MonsterZone", "ExtraMonsterZone"],
   validate: defaultAttackValidate,
   prepare: async () => {},
-  execute: (entity, cell) => defaultAttackExecute(entity, undefined, cell),
+  execute: (entity, activater, cell) => defaultAttackExecute(entity, undefined, cell),
 };
 
 export const defaultBattlePotisionChangeAction: CardActionBase<void> = {
@@ -196,5 +217,5 @@ export const defaultSpellTrapSetAction: CardActionBase<void> = {
   executableCells: ["Hand"],
   validate: defaultSpellTrapSetValidate,
   prepare: async () => {},
-  execute: (entity, cell) => defaultSpellTrapSetExecute(entity, "Set", cell),
+  execute: (entity, activater, cell) => defaultSpellTrapSetExecute(entity, "Set", cell),
 };

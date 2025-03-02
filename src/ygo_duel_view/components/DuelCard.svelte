@@ -18,12 +18,10 @@
   let duelistActionResolve: (Action: DuelistResponse) => void = () => {};
   let qty: number | undefined;
   const onWaitStart: (args: WaitStartEventArg) => void = (args) => {
-    console.log(args);
     isSelected = false;
     qty = args.qty;
     duelistActionResolve = args.resolve;
   };
-  console.log(entity);
   entity.field.duel.view.onWaitStart.append(onWaitStart);
   let isDragging = false;
   const click = () => {
@@ -40,7 +38,13 @@
       }
       return;
     }
+    if (actions.length === 0) {
+      return;
+    }
     if (actions.length === 1) {
+      if (actions[0].dragAndDropOnly) {
+        return;
+      }
       if (cardActionResolve) {
         cardActionResolve(actions[0]);
         return;
@@ -123,6 +127,14 @@
 {/if}
 
 <style>
+  .duel_card {
+    margin: 0.1rem 0.3rem;
+    padding: 0.1rem;
+    border: solid 1px #778ca3;
+    margin: 0.1rem 0.3rem;
+    padding: 0.1rem;
+    border: solid 1px #778ca3;
+  }
   .button_style_reset {
     display: block;
     border-radius: 0%;
@@ -146,14 +158,6 @@
   }
   .duel_card_row > div {
     margin: 0 0.3rem;
-  }
-  .duel_card {
-    margin: 0.1rem 0.3rem;
-    padding: 0.1rem;
-    border: solid 1px #778ca3;
-    margin: 0.1rem 0.3rem;
-    padding: 0.1rem;
-    border: solid 1px #778ca3;
   }
   .duel_card_face_up {
     display: flex;

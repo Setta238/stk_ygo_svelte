@@ -209,14 +209,23 @@ export class DuelViewController {
     this.message = message;
 
     this.onDuelUpdateEvent.trigger();
+
     const userAction: DuelistResponse = await new Promise<DuelistResponse>((resolve) => {
-      this.onWaitStartEvent.trigger({
+      const args: WaitStartEventArg = {
         resolve,
         enableActions,
         qty: qty,
         entitiesValidator: entitiesValidator || (() => false),
         selectableEntities: selectableEntities || [],
-      });
+      };
+      if (selectableEntities && entitiesValidator)
+        args.duelEntitiesSelectorArg = {
+          title: message,
+          entities: selectableEntities,
+          validator: entitiesValidator,
+          cancelable: false,
+        };
+      this.onWaitStartEvent.trigger(args);
     });
 
     this.waitMode = "None";

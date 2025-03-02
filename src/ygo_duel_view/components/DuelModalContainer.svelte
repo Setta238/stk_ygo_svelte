@@ -29,6 +29,7 @@
       view={modalController.view}
       title={modalController.cardActionSelectorArg.title}
       actions={modalController.cardActionSelectorArg.actions}
+      dragAndDropOnly={modalController.cardActionSelectorArg.dragAndDropOnly ?? false}
       cancelable={modalController.cardActionSelectorArg.cancelable}
       resolve={(action: CardAction<unknown> | undefined) => {
         console.info(action);

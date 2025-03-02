@@ -68,9 +68,19 @@ export type CardActionBase<T> = {
   playType: TCardActionType;
   spellSpeed: TSpellSpeed;
   executableCells: DuelFieldCellType[];
+  /**
+   * @param entity
+   * @returns 発動時にドラッグ・アンド・ドロップ可能である場合、選択肢のcellが返る。
+   */
   validate: (entity: DuelEntity) => DuelFieldCell[] | undefined;
+  /**
+   * フィールドに残らない魔法罠の場合、isDyingの設定が必要
+   * @param entity
+   * @param cell
+   * @returns
+   */
   prepare: (entity: DuelEntity, cell?: DuelFieldCell) => Promise<T>;
-  execute: (entity: DuelEntity, cell?: DuelFieldCell, prepared?: T) => Promise<boolean>;
+  execute: (entity: DuelEntity, activater: Duelist, cell?: DuelFieldCell, prepared?: T) => Promise<boolean>;
 };
 export type CardAction<T> = {
   title: string;
@@ -79,12 +89,29 @@ export type CardAction<T> = {
   playType: TCardActionType;
   spellSpeed: TSpellSpeed;
   executableCells: DuelFieldCellType[];
+  /**
+   *
+   * @returns 発動時にドラッグ・アンド・ドロップ可能である場合、選択肢のcellが返る。
+   */
   validate: () => DuelFieldCell[] | undefined;
+  /**
+   * チェーンに乗る処理の場合、コストの支払いや対象に取る処理までを行う。
+   * @param cell 効果発動時にドラッグ・アンド・ドロップなどで指定されたセルがある場合、値が入る。
+   * @returns 実行時に必要な任意の情報
+   */
   prepare: (cell?: DuelFieldCell) => Promise<T>;
-  execute: (cell?: DuelFieldCell, prepared?: T) => Promise<boolean>;
+  /**
+   *
+   * @param activater 効果発動時のコントローラー
+   * @param cell 効果発動時にドラッグ・アンド・ドロップなどで指定されたセルがある場合、値が入る。
+   * @param prepared 実行時に必要な任意の情報
+   * @returns 不発の場合、false
+   */
+  execute: (activater: Duelist, cell?: DuelFieldCell, prepared?: T) => Promise<boolean>;
   autoWord?: string;
   cell?: DuelFieldCell;
   pos?: TBattlePosition;
+  dragAndDropOnly?: boolean;
 };
 export const duelEntityCardTypes = ["Card", "Token", "Avatar"] as const;
 export type TDuelEntityCardType = (typeof duelEntityCardTypes)[number];
@@ -195,7 +222,7 @@ export class DuelEntity {
         executableCells: b.executableCells,
         validate: () => b.validate(entity),
         prepare: (cell?: DuelFieldCell) => b.prepare(entity, cell),
-        execute: (cell?: DuelFieldCell, prepared?: unknown) => b.execute(entity, cell, prepared),
+        execute: (activater: Duelist, cell?: DuelFieldCell, prepared?: unknown) => b.execute(entity, activater, cell, prepared),
       };
     });
 
@@ -211,12 +238,12 @@ export class DuelEntity {
    * @returns
    */
   public static readonly createPlayerEntity = (duelist: Duelist): DuelEntity => {
-    const hand = duelist.duel.field.getHandCell(duelist);
+    const hand = duelist.getHandCell();
     return new DuelEntity(duelist, duelist, duelist.duel.field, hand, "Duelist", { name: duelist.profile.name, kind: "Monster" }, "FaceUp", true, "Vertical");
   };
   public static readonly createCardEntity = (field: DuelField, owner: Duelist, cardInfo: TCardInfoJson): DuelEntity => {
     // cardはデッキまたはEXデッキに生成
-    const fieldCell = exMonsterCategories.filter((cat) => cardInfo.monsterCategories?.includes(cat)) ? field.getDeckCell(owner) : field.getExtraDeck(owner);
+    const fieldCell = exMonsterCategories.filter((cat) => cardInfo.monsterCategories?.includes(cat)) ? owner.getDeckCell() : owner.getExtraDeck();
     const newCard = new DuelEntity(owner, owner, field, fieldCell, "Card", cardInfo, "FaceDown", false, "Vertical");
     newCard.actions.push(...DuelEntity.createCardPlayList(newCard, getCardActions(newCard.origin.name)));
     if (!newCard.actions) {
@@ -245,6 +272,7 @@ export class DuelEntity {
       prepare: async () => {},
       execute: async () => false,
       pos: pos,
+      dragAndDropOnly: true,
     };
   };
 
@@ -296,7 +324,7 @@ export class DuelEntity {
     await this.sendGraveyard([...moveAs, by, "Destroy"], causedBy);
   };
   public readonly sendGraveyard = async (moveAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<void> => {
-    const graveyard = this.field.getGraveyard(this.owner);
+    const graveyard = this.owner.getGraveyard();
 
     await this._moveTo(graveyard, "Top", moveAs, causedBy);
     this.setNonFieldPosition("FaceUp", true);
@@ -315,7 +343,11 @@ export class DuelEntity {
     this.isDying = true;
   };
   public readonly draw = async (moveAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<void> => {
-    await this._moveTo(this.field.getHandCell(this.owner), "Bottom", [...moveAs, "Draw"], causedBy);
+    await this._moveTo(this.owner.getHandCell(), "Bottom", [...moveAs, "Draw"], causedBy);
+    this.setNonFieldPosition("Set", true);
+  };
+  public readonly salvage = async (moveAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<void> => {
+    await this._moveTo(this.owner.getHandCell(), "Bottom", moveAs, causedBy);
     this.setNonFieldPosition("Set", true);
   };
   private readonly _moveTo = async (to: DuelFieldCell, pos: TDuelEntityMovePos, moveAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<void> => {

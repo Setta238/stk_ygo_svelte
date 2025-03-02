@@ -1,12 +1,15 @@
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
-import { DuelEntity, type TDuelCauseReason, type CardActionBase } from "@ygo_duel/class/DuelEntity";
+import { DuelEntity, type CardActionBase } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
+import type Duelist from "@ygo_duel/class/Duelist";
 import {
   defaultAttackAction,
   defaultBattlePotisionChangeAction,
   defaultNormalAttackSummonAction,
   defaultNormalSetSummonAction,
+  defaultSpellTrapPrepare,
   defaultSpellTrapSetAction,
+  defaultSpellTrapValidate,
 } from "@ygo_duel/functions/DefaultCardAction";
 
 export const createCardActionDefinitions = (): { name: string; actions: CardActionBase<unknown>[] }[] => {
@@ -18,14 +21,12 @@ export const createCardActionDefinitions = (): { name: string; actions: CardActi
       return undefined;
     }
 
-    const emptyCells = entity.field.getEmptyMonsterZones(entity.controller);
+    const emptyCells = entity.controller.getEmptyMonsterZones();
     return emptyCells.length > 0 ? emptyCells : undefined;
   };
   const execute_サイバー・ドラゴン = async (entity: DuelEntity, pos: TBattlePosition, cell?: DuelFieldCell): Promise<boolean> => {
-    const causedBy: TDuelCauseReason[] = ["Rule", "SpecialSummon"];
-
-    const emptyCells = entity.field.getEmptyMonsterZones(entity.controller);
-    await entity.field.summon(entity, [pos], cell ? [cell] : emptyCells, "SpecialSummon", causedBy, entity, undefined, true);
+    const emptyCells = entity.controller.getEmptyMonsterZones();
+    await entity.field.summon(entity, [pos], cell ? [cell] : emptyCells, "SpecialSummon", ["Rule"], entity, undefined, true);
     entity.controller.specialSummonCount++;
     return true;
   };
@@ -44,8 +45,8 @@ export const createCardActionDefinitions = (): { name: string; actions: CardActi
         executableCells: ["Hand"],
         validate: validate_サイバー・ドラゴン,
         prepare: async () => {},
-        execute: async (entity: DuelEntity, cell?: DuelFieldCell): Promise<boolean> => {
-          execute_サイバー・ドラゴン(entity, "Attack", cell);
+        execute: async (entity: DuelEntity, activater: Duelist, cell?: DuelFieldCell): Promise<boolean> => {
+          await execute_サイバー・ドラゴン(entity, "Attack", cell);
           return true;
         },
       },
@@ -56,8 +57,8 @@ export const createCardActionDefinitions = (): { name: string; actions: CardActi
         executableCells: ["Hand"],
         validate: validate_サイバー・ドラゴン,
         prepare: async () => {},
-        execute: async (entity: DuelEntity, cell?: DuelFieldCell): Promise<boolean> => {
-          execute_サイバー・ドラゴン(entity, "Defense", cell);
+        execute: async (entity: DuelEntity, activater: Duelist, cell?: DuelFieldCell): Promise<boolean> => {
+          await execute_サイバー・ドラゴン(entity, "Defense", cell);
           return true;
         },
       },
@@ -66,32 +67,6 @@ export const createCardActionDefinitions = (): { name: string; actions: CardActi
 
   result.push(def_サイバー・ドラゴン);
 
-  const validate_強欲な壺 = (entity: DuelEntity): DuelFieldCell[] | undefined => {
-    if (entity.fieldCell.cellType === "FieldSpellZone" && entity.face === "FaceDown") {
-      return [];
-    }
-
-    const availableCells = entity.field.getAvailableSpellTrapZones(entity.controller);
-    return availableCells.length > 0 ? availableCells : undefined;
-  };
-  const prepare_強欲な壺 = async (entity: DuelEntity, _pos?: TBattlePosition, cell?: DuelFieldCell): Promise<boolean> => {
-    if (entity.fieldCell.cellType === "FieldSpellZone" && entity.face === "FaceDown") {
-      entity.setNonFieldPosition("FaceUp", true);
-      return true;
-    }
-    if (entity.fieldCell.cellType === "Hand") {
-      const causedBy: TDuelCauseReason[] = ["SpellTrapActivate"];
-      const availableCells = cell ? [cell] : entity.field.getAvailableSpellTrapZones(entity.controller);
-      await entity.field.activateSpellTrapFromHand(entity, availableCells, causedBy, entity, entity.controller, true);
-      return true;
-    }
-    return false;
-  };
-  const execute_強欲な壺 = async (entity: DuelEntity): Promise<boolean> => {
-    entity.isDying = true;
-    await entity.field.draw(entity.controller, 2, entity);
-    return true;
-  };
   const def_強欲な壺 = {
     name: "強欲な壺",
     actions: [
@@ -100,12 +75,14 @@ export const createCardActionDefinitions = (): { name: string; actions: CardActi
         playType: "CardActivation",
         spellSpeed: "Normal",
         executableCells: ["Hand", "SpellAndTrapZone"],
-        validate: validate_強欲な壺,
+        validate: defaultSpellTrapValidate,
         prepare: async (entity: DuelEntity, cell?: DuelFieldCell) => {
-          return await prepare_強欲な壺(entity, undefined, cell);
+          entity.isDying = true;
+          return await defaultSpellTrapPrepare(entity, undefined, cell);
         },
-        execute: async (entity: DuelEntity) => {
-          return await execute_強欲な壺(entity);
+        execute: async (entity: DuelEntity, activater: Duelist) => {
+          await entity.field.draw(activater, 2, entity);
+          return true;
         },
       },
       defaultSpellTrapSetAction,
@@ -113,6 +90,94 @@ export const createCardActionDefinitions = (): { name: string; actions: CardActi
   };
 
   result.push(def_強欲な壺);
+  const def_天使の施し = {
+    name: "天使の施し",
+    actions: [
+      {
+        title: "発動",
+        playType: "CardActivation",
+        spellSpeed: "Normal",
+        executableCells: ["Hand", "SpellAndTrapZone"],
+        validate: defaultSpellTrapValidate,
+        prepare: async (entity: DuelEntity, cell?: DuelFieldCell) => {
+          entity.isDying = true;
+          return await defaultSpellTrapPrepare(entity, undefined, cell);
+        },
+        execute: async (entity: DuelEntity, activater: Duelist) => {
+          await entity.field.draw(entity.controller, 3, entity);
+          await entity.field.discard(activater, 2, ["Effect", "Discard"], entity);
+          return true;
+        },
+      },
+      defaultSpellTrapSetAction,
+    ] as CardActionBase<unknown>[],
+  };
+
+  result.push(def_天使の施し);
+  const def_成金ゴブリン = {
+    name: "成金ゴブリン",
+    actions: [
+      {
+        title: "発動",
+        playType: "CardActivation",
+        spellSpeed: "Normal",
+        executableCells: ["Hand", "SpellAndTrapZone"],
+        validate: defaultSpellTrapValidate,
+        prepare: async (entity: DuelEntity, cell?: DuelFieldCell) => {
+          entity.isDying = true;
+          return await defaultSpellTrapPrepare(entity, undefined, cell);
+        },
+        execute: async (entity: DuelEntity, activater: Duelist) => {
+          await entity.field.draw(entity.controller, 1, entity);
+          // このドローは時の任意効果のトリガーにならない。
+          entity.field.duel.clock.incrementProcSeq();
+          activater.getOpponentPlayer().heal(1000, entity);
+          return true;
+        },
+      },
+      defaultSpellTrapSetAction,
+    ] as CardActionBase<unknown>[],
+  };
+
+  result.push(def_成金ゴブリン);
+  const def_おろかな埋葬 = {
+    name: "おろかな埋葬",
+    actions: [
+      {
+        title: "発動",
+        playType: "CardActivation",
+        spellSpeed: "Normal",
+        executableCells: ["Hand", "SpellAndTrapZone"],
+        // デッキにモンスターが一枚以上必要。
+        validate: (entity: DuelEntity) =>
+          defaultSpellTrapValidate(entity, (e) => e.controller.getDeckCell().cardEntities.some((card) => card.status.kind === "Monster")),
+        prepare: async (entity: DuelEntity, cell?: DuelFieldCell) => {
+          entity.isDying = true;
+          return await defaultSpellTrapPrepare(entity, undefined, cell);
+        },
+        execute: async (entity: DuelEntity, activater: Duelist) => {
+          if (activater.getDeckCell().cardEntities.every((card) => card.status.kind !== "Monster")) {
+            return false;
+          }
+          const target = await entity.field.duel.view.waitSelectEntities(
+            activater,
+            activater.getDeckCell().cardEntities.filter((entity) => entity.status.kind === "Monster"),
+            1,
+            (list) => list.length === 1,
+            "墓地に送るモンスターを選択",
+            false
+          );
+          for (const monster of target ?? []) {
+            await entity.field.sendGraveyardMany([monster], ["Effect"], entity);
+          }
+          return true;
+        },
+      },
+      defaultSpellTrapSetAction,
+    ] as CardActionBase<unknown>[],
+  };
+
+  result.push(def_おろかな埋葬);
 
   return result;
 };

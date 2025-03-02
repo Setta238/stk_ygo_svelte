@@ -87,9 +87,6 @@ export class Duel {
   public readonly getTurnPlayer = (): Duelist => {
     return this.clock.turn % 2 === 0 ? this.secondPlayer : this.firstPlayer;
   };
-  public readonly getOpponentPlayer = (duelist: Duelist): Duelist => {
-    return this.firstPlayer === duelist ? this.secondPlayer : this.firstPlayer;
-  };
   public readonly getNonTurnPlayer = (): Duelist => {
     return this.clock.turn % 2 === 0 ? this.firstPlayer : this.secondPlayer;
   };
@@ -175,10 +172,7 @@ export class Duel {
     this.attackingMonster = attacker;
     this.targetForAttack = defender;
     attacker.status.attackCount++;
-    this.log.info(
-      `攻撃宣言：${attacker.status.name} ⇒ ${defender?.status.name || this.getOpponentPlayer(attacker.controller).profile.name}`,
-      attacker.controller
-    );
+    this.log.info(`攻撃宣言：${attacker.status.name} ⇒ ${defender.status.name}`, attacker.controller);
   };
 
   private readonly procDrawPhase = async () => {
@@ -227,7 +221,7 @@ export class Duel {
       if (action.actionWIP) {
         if (([...cardActionNonChainBlockTypes] as string[]).includes(action.actionWIP.playType)) {
           //チェーンに乗らない処理を実行し、処理番号をインクリメント
-          await action.actionWIP.execute(action.actionWIP.cell);
+          await action.actionWIP.execute(this.priorityHolder, action.actionWIP.cell);
           this.clock.incrementProcSeq();
         } else {
           //チェーンに積んで、チェーン処理へ
@@ -283,7 +277,7 @@ export class Duel {
       }
       if (action.actionWIP) {
         //チェーンに乗らない処理を実行し、処理番号をインクリメント
-        await action.actionWIP.execute(action.actionWIP.cell);
+        await action.actionWIP.execute(this.priorityHolder, action.actionWIP.cell);
         this.clock.incrementProcSeq();
 
         //フリーチェーン処理へ
@@ -326,10 +320,10 @@ export class Duel {
     const atkPoint = attacker.atk;
     const defPoint = (defender?.battlePotion === "Attack" ? defender.atk : defender?.def) || 0;
     if (!defender || defender.entityType === "Duelist") {
-      this.getOpponentPlayer(attacker.controller).battleDamage(atkPoint - defPoint, attacker);
+      attacker.controller.getOpponentPlayer().battleDamage(atkPoint - defPoint, attacker);
     } else if (atkPoint > 0 && atkPoint > defPoint) {
       if (defender.battlePotion === "Attack") {
-        this.getOpponentPlayer(attacker.controller).battleDamage(atkPoint - defPoint, attacker);
+        attacker.controller.getOpponentPlayer().battleDamage(atkPoint - defPoint, attacker);
       }
       defender.isDying = true;
     } else if (atkPoint < defPoint) {
@@ -388,7 +382,7 @@ export class Duel {
       //
     }
     while (true) {
-      const hand = this.field.getHandCell(this.getTurnPlayer());
+      const hand = this.getTurnPlayer().getHandCell();
       const qty = hand.cardEntities.length;
       if (qty < 7) {
         break;
@@ -442,7 +436,7 @@ export class Duel {
       // 任意効果のクイックエフェクト
       let skipCount = 0;
       while (skipCount < 2) {
-        this.priorityHolder = this.getOpponentPlayer(this.priorityHolder);
+        this.priorityHolder = this.priorityHolder.getOpponentPlayer();
         const action = await this.view.waitQuickEffect(
           this.getEnableActions(["QuickEffect"], ["Normal", "Quick", "Counter"]),
           "クイックエフェクト発動タイミング。効果を発動しますか？",
@@ -459,6 +453,11 @@ export class Duel {
       return false;
     } finally {
       if (chainBlock) {
+        // この時点のコントローラーが効果処理を行う
+        const activater = chainBlock.entity.controller;
+
+        this.log.info(`${chainBlock.entity.nm}«${chainBlock.title}»を発動`, activater);
+
         const prepared = await chainBlock.prepare(chainBlock.cell);
 
         this.clock.incrementProcSeq();
@@ -467,7 +466,9 @@ export class Duel {
           undefined,
           _triggerEffets.filter((e) => e.seq !== chainBlock?.seq)
         );
-        await chainBlock.execute(chainBlock.cell, prepared);
+        this.log.info(`${chainBlock.entity.nm}«${chainBlock.title}»の効果処理`, activater);
+
+        await chainBlock.execute(activater, chainBlock.cell, prepared);
         this.clock.incrementProcSeq();
         if (isStartPoint) {
           await Promise.all(

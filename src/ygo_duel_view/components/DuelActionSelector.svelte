@@ -5,6 +5,7 @@
   export type CardActionSelectorArg = {
     title: string;
     actions: CardAction<unknown>[];
+    dragAndDropOnly?: boolean;
     cancelable: boolean;
   };
   export const dataKeys = {
@@ -17,16 +18,16 @@
 <script lang="ts">
   import DuelCard, { type TCardState } from "@ygo_duel_view/components/DuelCard.svelte";
   import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
-  import DuelModalContainer from "./DuelModalContainer.svelte";
   import type { DuelViewController } from "@ygo_duel_view/class/DuelViewController";
   interface IProp {
     view: DuelViewController;
     resolve: (action?: CardAction<unknown>, cell?: DuelFieldCell) => void;
     title: string;
     actions: CardAction<unknown>[];
+    dragAndDropOnly: boolean;
     cancelable: boolean;
   }
-  let { view, resolve, title, actions, cancelable }: IProp = $props();
+  let { view, resolve, title, actions, dragAndDropOnly, cancelable }: IProp = $props();
 
   let isShown = true;
 
@@ -56,7 +57,13 @@
       <div class="flex">
         {#each actions as action}
           <div class="duel_card_wrapper">
-            <DuelCard entity={action.entity} isVisibleForcibly={true} state={validateActions(action)} actions={[action]} cardActionResolve={resolve} />
+            <DuelCard
+              entity={action.entity}
+              isVisibleForcibly={true}
+              state={validateActions(action)}
+              actions={dragAndDropOnly ? [] : [action]}
+              cardActionResolve={resolve}
+            />
             <div>«{action.title}»</div>
           </div>
         {/each}

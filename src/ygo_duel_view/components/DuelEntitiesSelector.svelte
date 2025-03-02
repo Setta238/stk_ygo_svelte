@@ -23,7 +23,7 @@
     <button class="overlay" onclick={close}>★</button>
     <div class="window">
       <div>{title}</div>
-      <div class="flex">
+      <div class="entities_list">
         {#each entities as entity}<div>
             <DuelCard {entity} isVisibleForcibly={true} state="Selectable" cardActionResolve={undefined} bind:selectedList />
           </div>
@@ -40,8 +40,16 @@
 {/if}
 
 <style>
-  .flex {
+  .window {
+    display: block;
+    background-color: white;
+    opacity: 0.7;
+    max-width: 80%;
+  }
+  .entities_list {
     display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
   }
   .base {
     position: fixed;
@@ -64,10 +72,5 @@
     background-color: gray;
     opacity: 0.5;
     border-radius: 0%;
-  }
-  .window {
-    display: block;
-    background-color: white;
-    opacity: 0.7;
   }
 </style>

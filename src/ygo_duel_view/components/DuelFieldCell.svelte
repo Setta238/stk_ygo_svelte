@@ -152,13 +152,23 @@
     ondragover={(ev) => dragover(ev)}
     ondrop={(ev) => drop(ev)}
   >
-    {#if cell.cellType === "PhaseButton"}
-      <div>【{view.duel.phase}】</div>
-      {#if view.waitMode === "SelectFieldAction"}
-        {#if !view.duel.isEnded}
-          {#each view.duel.nextPhaseList as phase}
-            <div><button class="phase_button" onclick={() => onPhaseButtonClick(phase)}>{phase}</button></div>
-          {/each}
+    {#if cell.cellType === "Disable"}
+      {#if cell.row === 3}
+        {#if cell.column === 1}
+          <div class="phase_display"><span>{String(cell.field.duel.clock.turn).padStart(2, "0")}</span>{cell.field.duel.phase.toUpperCase()}</div>
+        {:else if cell.column === 3}
+          <div class="lifepoint_display">
+            <div>{cell.field.duel.duelists.Above.lp}</div>
+            <div>{cell.field.duel.duelists.Below.lp}</div>
+          </div>
+        {:else if cell.column === 5}
+          {#if view.waitMode === "SelectFieldAction"}
+            {#if !view.duel.isEnded}
+              {#each view.duel.nextPhaseList as phase}
+                <div><button class="phase_button" onclick={() => onPhaseButtonClick(phase)}>{phase.toUpperCase()}</button></div>
+              {/each}
+            {/if}
+          {/if}
         {/if}
       {/if}
     {:else if cell.cellType === "Hand"}
@@ -259,8 +269,6 @@
     padding: 0rem;
   }
   .duel_card_wrapper > .card_animation_receiver {
-  }
-  .duel_card_wrapper > .card_animation_receiver {
     position: absolute;
     max-width: 4rem;
     margin: auto;
@@ -285,6 +293,45 @@
     width: 1.1rem;
     text-align: center;
     box-shadow: 0 0 0.5rem #333;
+  }
+  .phase_display {
+    font-size: x-large;
+    position: relative;
+    overflow: hidden;
+    padding: 0.5rem 0.5rem 0.5rem 0.5rem;
+    border: 2px solid #000;
+    background-color: antiquewhite;
+    color: black;
+  }
+
+  .phase_display span {
+    z-index: 1;
+    left: 0;
+    margin-right: 0.5rem;
+    padding: 0rem 0.5rem;
+    background-color: #000;
+    color: #fff;
+  }
+
+  .lifepoint_display {
+    visibility: hidden;
+    margin: 0px;
+    min-height: 5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    color: black;
+    line-height: 1.1;
+  }
+  @media screen and (max-width: 1400px) {
+    .lifepoint_display {
+      visibility: inherit;
+    }
+  }
+  .lifepoint_display div {
+    padding: 0.2rem 1rem;
+    font-size: x-large;
+    background-color: snow;
   }
   .phase_button {
     padding: 0 10px;

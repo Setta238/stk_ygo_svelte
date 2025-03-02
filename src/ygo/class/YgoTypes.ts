@@ -23,6 +23,23 @@ export const monsterCategoryDic: { [key in TMonsterCategory]: string } = {
   Pendulum: "ペンデュラム",
   Token: "トークン",
 };
+export const monsterCategoryEmojiDic: { [key in TMonsterCategory]: string } = {
+  Synchro: "🎵",
+  Fusion: "🌀",
+  Xyz: "📰",
+  Link: "⛓️",
+  SpecialSummon: "🔯",
+  Toon: "📖",
+  Spirit: "👻",
+  Union: "🚗",
+  Gemini: "👫",
+  FlipEffect: "🔄",
+  Tuner: "🎶",
+  Effect: "✨",
+  Normal: "🔘",
+  Pendulum: "💠",
+  Token: "🐏",
+};
 
 export type TMonsterAttribute = "Light" | "Dark" | "Earth" | "Water" | "Fire" | "Wind" | "Divine";
 export type TMonsterType =
@@ -85,6 +102,7 @@ export type TEntityStatusBase = {
   spellCategory?: TSpellCategory;
   trapCategory?: TTrapCategory;
   nameTags?: Array<string>;
+  textTags?: Array<string>;
   level?: number;
   rank?: number;
   link?: number;
@@ -121,7 +139,7 @@ export type TCardInfoBase = {
 export type TCardInfoJson = TCardInfoWiki & TEntityStatusBase & TCardInfoBase;
 export type TCardInfoDuel = TCardInfoJson & TEntityStatusDuel;
 
-export const MonsterAttributeDic = {
+export const monsterAttributeDic = {
   Light: "光",
   Dark: "闇",
   Earth: "地",
@@ -132,10 +150,10 @@ export const MonsterAttributeDic = {
 } as { [key in TMonsterAttribute]: string };
 
 export const getMonsterAttribute = (text: string): TMonsterAttribute | undefined => {
-  return (Object.entries(MonsterAttributeDic) as [TMonsterAttribute, string][]).find((entry) => entry[1] === text)?.[0] || undefined;
+  return (Object.entries(monsterAttributeDic) as [TMonsterAttribute, string][]).find((entry) => entry[1] === text)?.[0] || undefined;
 };
 
-export const MonsterTypeDic = {
+export const monsterTypeDic = {
   Aqua: "水",
   Beast: "獣",
   BeastWarrior: "獣戦士",
@@ -164,6 +182,34 @@ export const MonsterTypeDic = {
   Zombie: "アンデット",
 } as { [key in TMonsterType]: string };
 
+export const monsterTypeEmojiDic = {
+  Aqua: "🚰",
+  Beast: "🐅",
+  BeastWarrior: "🦁",
+  CreatorGod: "🔆",
+  Cyberse: "💻️",
+  Dinosaur: "🦖",
+  DivineBeast: "💫",
+  Dragon: "🐲",
+  Fairy: "👼",
+  Fiend: "👿",
+  Fish: "🐟️",
+  Insect: "🦋",
+  Illusion: "🃏",
+  Machine: "🤖",
+  Plant: "🌱",
+  Psychic: "👁️",
+  Pyro: "🔥",
+  Reptile: "🦎",
+  Rock: "⛰",
+  SeaSerpent: "🐍",
+  Spellcaster: "🧙",
+  Thunder: "⚡️",
+  Warrior: "⚔️",
+  WingedBeast: "🦅",
+  Wyrm: "🐉",
+  Zombie: "🦴",
+} as { [key in TMonsterType]: string };
 export const getMonsterType = (text: string): TMonsterType | undefined => {
-  return (Object.entries(MonsterTypeDic) as [TMonsterType, string][]).find((entry) => entry[1] === text)?.[0] || undefined;
+  return (Object.entries(monsterTypeDic) as [TMonsterType, string][]).find((entry) => entry[1] === text)?.[0] || undefined;
 };

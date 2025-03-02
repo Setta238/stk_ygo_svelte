@@ -25,6 +25,7 @@ export class DuelModalController {
     title: "対象を選択",
     entities: [],
     validator: () => true,
+    qty: -1,
     cancelable: false,
   };
   public duelEntitiesSelectorValue: DuelEntity[] | undefined;

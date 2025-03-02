@@ -1,0 +1,29 @@
+@property --screen-width {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 100vw;
+}
+
+@property --screen-height {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 100vh;
+}
+
+:root {
+  --screen-width-px: tan(atan2(var(--screen-width), 1px));
+  /* ウィンドウの横幅 */
+  --screen-height-px: tan(atan2(var(--screen-height), 1px));
+  /* ウィンドウの高さ */
+}.screen_info:before {
+  content: '横幅：' counter(screen-width-px) 'px';
+}
+
+.screen_info:after {
+  content: '高さ：' counter(screen-height-px) 'px';
+}
+
+.screen_info:before,
+.screen_info:after {
+  counter-reset: screen-height-px var(--screen-height-px) screen-width-px var(--screen-width-px);
+}

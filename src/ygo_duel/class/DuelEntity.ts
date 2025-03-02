@@ -163,10 +163,10 @@ export class DuelEntity {
     return this.status.rank;
   }
   public get attr() {
-    return [this.status.attribute];
+    return this.status.attribute ? [this.status.attribute] : [];
   }
   public get type() {
-    return [this.status.type];
+    return this.status.type ? [this.status.type] : [];
   }
   public get psL() {
     return [this.status.pendulumScaleL];
@@ -324,10 +324,10 @@ export class DuelEntity {
     await this.sendGraveyard([...moveAs, by, "Destroy"], causedBy);
   };
   public readonly sendGraveyard = async (moveAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<void> => {
+    this.setNonFieldPosition("FaceUp", true);
     const graveyard = this.owner.getGraveyard();
 
     await this._moveTo(graveyard, "Top", moveAs, causedBy);
-    this.setNonFieldPosition("FaceUp", true);
   };
   public readonly setAsSpellTrap = async (to: DuelFieldCell, moveAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<void> => {
     await this._moveTo(to, "Top", [...moveAs, "SpellTrapSet"], causedBy);
@@ -346,7 +346,7 @@ export class DuelEntity {
     await this._moveTo(this.owner.getHandCell(), "Bottom", [...moveAs, "Draw"], causedBy);
     this.setNonFieldPosition("Set", true);
   };
-  public readonly salvage = async (moveAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<void> => {
+  public readonly addToHand = async (moveAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<void> => {
     await this._moveTo(this.owner.getHandCell(), "Bottom", moveAs, causedBy);
     this.setNonFieldPosition("Set", true);
   };

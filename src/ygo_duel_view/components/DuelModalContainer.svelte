@@ -17,6 +17,7 @@
       title={modalController.duelEntitiesSelectorArg.title}
       entities={modalController.duelEntitiesSelectorArg.entities}
       validator={modalController.duelEntitiesSelectorArg.validator}
+      qty={modalController.duelEntitiesSelectorArg.qty}
       cancelable={modalController.duelEntitiesSelectorArg.cancelable}
       resolve={(selectedList: DuelEntity[] | undefined) => {
         console.info(selectedList);

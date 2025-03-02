@@ -43,6 +43,8 @@
   .duelist {
     text-align: left;
     margin-right: 1rem;
+    line-height: 1.1;
+    width: 80%;
   }
   .duelist_name {
     font-size: 2rem;

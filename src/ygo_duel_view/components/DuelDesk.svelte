@@ -18,6 +18,7 @@
   import type { WaitStartEventArg } from "@ygo_duel_view/class/DuelViewController";
   import {} from "@stk_utils/funcs/StkArrayUtils";
   import ModalContainer from "@ygo_duel_view/components/DuelModalContainer.svelte";
+  import DuelCardInfo from "./DuelCardInfo.svelte";
 
   const duelist1Profile = new DuelistProfile();
   duelist1Profile.name = "あなた";
@@ -25,23 +26,43 @@
   duelist2Profile.name = "NPC";
   const deck1 = new DeckInfo();
   const deck2 = new DeckInfo();
+  deck1.cardNames = ["おろかな埋葬", "成金ゴブリン", "強欲な壺", "天使の施し", "増援", "Ｅ－エマージェンシーコール"];
   deck1.cardNames = [
+    ...deck1.cardNames,
+    ...deck1.cardNames,
+    ...deck1.cardNames,
     "アレキサンドライドラゴン",
-    "成金ゴブリン",
     "ジェネティック・ワーウルフ",
     "機界騎士アヴラム",
     "ジョングルグールの幻術師",
     "ゾンビーノ",
     "幻のグリフォン",
-    "強欲な壺",
-    "天使の施し",
     "フロストザウルス",
     "エレキテルドラゴン",
-    "おろかな埋葬",
     "青眼の白龍",
     "サイバー・ドラゴン",
+    "幻殻竜",
+    "しゃりの軍貫",
+    "チューン・ウォリアー",
+    "ライドロン",
+    "Ａ・マインド",
+    "ウォーター・スピリット",
+    "エンジェル・トランペッター",
+    "ガード・オブ・フレムベル",
+    "ギャラクシーサーペント",
+    "ジェネクス・コントローラー",
+    "スペース・オマジナイ・ウサギ",
+    "ハロハロ",
+    "ライブラの魔法秤",
+    "ラブラドライドラゴン",
+    "守護竜ユスティア",
+    "竜核の呪霊者",
+    "Ｅ・ＨＥＲＯ クレイマン",
+    "Ｅ・ＨＥＲＯ スパークマン",
+    "Ｅ・ＨＥＲＯ ネオス",
+    "Ｅ・ＨＥＲＯ バーストレディ",
+    "Ｅ・ＨＥＲＯ フェザーマン",
   ];
-  deck1.cardNames = [...deck1.cardNames, ...deck1.cardNames, ...deck1.cardNames];
   deck2.cardNames = Object.keys(cardInfoDic).randomPick(40);
 
   let duel = new Duel(duelist1Profile, "Player", deck1, duelist2Profile, "NPC", deck2);
@@ -62,6 +83,13 @@
       });
     }
   };
+  duel.view.onWaitStart.append(onWaitStart);
+
+  let focusedCard: DuelEntity | undefined = undefined;
+  const onShowCardEntity = (card?: DuelEntity) => {
+    focusedCard = card;
+  };
+  duel.view.onShowCardEntity.append(onShowCardEntity);
 
   export let selectedList = [] as DuelEntity[];
   const onDuelUpdate = () => {
@@ -69,7 +97,6 @@
     duel = duel;
   };
   duel.view.onDuelUpdate.append(onDuelUpdate);
-  duel.view.onWaitStart.append(onWaitStart);
   const onOkClick = () => {
     if (selectedEntitiesValidator(selectedList)) {
       response({ selectedEntities: selectedList });
@@ -96,6 +123,7 @@
 <div class="flex duel_desk">
   <div class="duel_desk_left v_flex">
     <DuelDuelist duelist={duel.duelists.Above}></DuelDuelist>
+    <DuelCardInfo entity={focusedCard}></DuelCardInfo>
     <DuelDuelist duelist={duel.duelists.Below}></DuelDuelist>
   </div>
   <div class=" duel_desk_center v_flex">
@@ -147,8 +175,6 @@
   }
   .duel_desk {
     margin: 0px;
-    max-height: 90%;
-    min-height: 90%;
     justify-content: space-between;
   }
   .duel_desk * {
@@ -156,9 +182,15 @@
     padding: 0px;
     font-size: 0.7rem;
   }
+  @media screen and (max-width: 1400px) {
+    .duel_desk_left,
+    .duel_desk_right {
+      display: none;
+    }
+  }
   .duel_desk_left {
     height: auto;
-    min-width: 15%;
+    min-width: 20%;
     justify-content: space-between;
     align-items: center;
   }

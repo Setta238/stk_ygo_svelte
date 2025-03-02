@@ -156,12 +156,13 @@ export const createCardActionDefinitions = (): { name: string; actions: CardActi
           return await defaultSpellTrapPrepare(entity, undefined, cell);
         },
         execute: async (entity: DuelEntity, activater: Duelist) => {
-          if (activater.getDeckCell().cardEntities.every((card) => card.status.kind !== "Monster")) {
+          const monsters = activater.getDeckCell().cardEntities.filter((entity) => entity.status.kind === "Monster");
+          if (monsters.length === 0) {
             return false;
           }
           const target = await entity.field.duel.view.waitSelectEntities(
             activater,
-            activater.getDeckCell().cardEntities.filter((entity) => entity.status.kind === "Monster"),
+            monsters,
             1,
             (list) => list.length === 1,
             "墓地に送るモンスターを選択",
@@ -178,6 +179,107 @@ export const createCardActionDefinitions = (): { name: string; actions: CardActi
   };
 
   result.push(def_おろかな埋葬);
+  const def_増援 = {
+    name: "増援",
+    actions: [
+      {
+        title: "発動",
+        playType: "CardActivation",
+        spellSpeed: "Normal",
+        executableCells: ["Hand", "SpellAndTrapZone"],
+        // デッキに対象モンスターが一枚以上必要。
+        validate: (entity: DuelEntity) =>
+          defaultSpellTrapValidate(
+            entity,
+            (e) =>
+              e.controller
+                .getDeckCell()
+                .cardEntities.filter((card) => card.status.kind === "Monster")
+                .filter((entity) => entity.status.type === "Warrior")
+                .filter((entity) => entity.status.level && entity.status.level < 5).length > 0
+          ),
+        prepare: async (entity: DuelEntity, cell?: DuelFieldCell) => {
+          entity.isDying = true;
+          return await defaultSpellTrapPrepare(entity, undefined, cell);
+        },
+        execute: async (entity: DuelEntity, activater: Duelist) => {
+          const monsters = activater
+            .getDeckCell()
+            .cardEntities.filter((entity) => entity.status.kind === "Monster")
+            .filter((entity) => entity.status.type === "Warrior")
+            .filter((entity) => entity.status.level && entity.status.level < 5);
+          if (monsters.length === 0) {
+            return false;
+          }
+          const target = await entity.field.duel.view.waitSelectEntities(
+            activater,
+            monsters,
+            1,
+            (list) => list.length === 1,
+            "手札に加えるモンスターを選択",
+            false
+          );
+          for (const monster of target ?? []) {
+            await monster.addToHand(["Effect"], entity);
+          }
+          return true;
+        },
+      },
+      defaultSpellTrapSetAction,
+    ] as CardActionBase<unknown>[],
+  };
+
+  result.push(def_増援);
+
+  const def_e_エマージェンシーコール = {
+    name: "Ｅ－エマージェンシーコール",
+    actions: [
+      {
+        title: "発動",
+        playType: "CardActivation",
+        spellSpeed: "Normal",
+        executableCells: ["Hand", "SpellAndTrapZone"],
+        // デッキに対象モンスターが一枚以上必要。
+        validate: (entity: DuelEntity) =>
+          defaultSpellTrapValidate(entity, (e) =>
+            e.controller
+              .getDeckCell()
+              .cardEntities.filter((card) => card.status.kind === "Monster")
+              .some((entity) => entity.status.nameTags && entity.status.nameTags.includes("Ｅ・ＨＥＲＯ"))
+          ),
+        prepare: async (entity: DuelEntity, cell?: DuelFieldCell) => {
+          entity.isDying = true;
+          return await defaultSpellTrapPrepare(entity, undefined, cell);
+        },
+        execute: async (entity: DuelEntity, activater: Duelist) => {
+          const monsters = activater
+            .getDeckCell()
+            .cardEntities.filter((entity) => entity.status.kind === "Monster")
+            .filter((entity) => entity.status.nameTags && entity.status.nameTags.includes("Ｅ・ＨＥＲＯ"));
+          if (monsters.length === 0) {
+            return false;
+          }
+          const target = await entity.field.duel.view.waitSelectEntities(
+            activater,
+            monsters,
+            1,
+            (list) => list.length === 1,
+            "手札に加えるモンスターを選択",
+            false
+          );
+          for (const monster of target ?? []) {
+            await monster.addToHand(["Effect"], entity);
+          }
+          return true;
+        },
+      },
+      defaultSpellTrapSetAction,
+    ] as CardActionBase<unknown>[],
+  };
+
+  result.push(def_e_エマージェンシーコール);
+
+  console.log(result);
 
   return result;
 };

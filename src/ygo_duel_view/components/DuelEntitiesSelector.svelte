@@ -3,6 +3,7 @@
     title: string;
     entities: DuelEntity[];
     validator: (entities: DuelEntity[]) => boolean;
+    qty: number;
     cancelable: boolean;
   };
 </script>
@@ -10,7 +11,7 @@
 <script lang="ts">
   import type { DuelEntity } from "../../ygo_duel/class/DuelEntity";
   import DuelCard from "@ygo_duel_view/components/DuelCard.svelte";
-  let { resolve, title, entities, validator, cancelable } = $props();
+  let { resolve, title, entities, validator, qty, cancelable } = $props();
   let selectedList = $state([] as DuelEntity[]);
 
   let isShown = true;
@@ -25,7 +26,14 @@
       <div>{title}</div>
       <div class="entities_list">
         {#each entities as entity}<div>
-            <DuelCard {entity} isVisibleForcibly={true} state="Selectable" cardActionResolve={undefined} bind:selectedList />
+            <DuelCard
+              {entity}
+              isVisibleForcibly={true}
+              state="Selectable"
+              entitySelectResolve={(selected: DuelEntity[]) => resolve(selected)}
+              {qty}
+              bind:selectedList
+            />
           </div>
         {/each}
       </div>
@@ -43,8 +51,8 @@
   .window {
     display: block;
     background-color: white;
-    opacity: 0.7;
-    max-width: 80%;
+    opacity: 0.9;
+    max-width: 50%;
   }
   .entities_list {
     display: flex;

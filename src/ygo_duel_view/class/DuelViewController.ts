@@ -53,6 +53,10 @@ export class DuelViewController {
   public get onAnimation() {
     return this.onAnimationStartEvent.expose();
   }
+  private onShowCardEntityEvent = new StkEvent<DuelEntity | undefined>();
+  public get onShowCardEntity() {
+    return this.onShowCardEntityEvent.expose();
+  }
   public readonly duel: Duel;
   public readonly modalController: DuelModalController;
   //  private draggingAction: CardAction | undefined;
@@ -67,6 +71,10 @@ export class DuelViewController {
 
   public readonly getCell = (row: number, column: number): DuelFieldCell => {
     return this.duel.field.cells[row][column];
+  };
+
+  public readonly showCardInfo = (card?: DuelEntity) => {
+    this.onShowCardEntityEvent.trigger(card);
   };
 
   public readonly dispose = () => {
@@ -223,6 +231,7 @@ export class DuelViewController {
           title: message,
           entities: selectableEntities,
           validator: entitiesValidator,
+          qty: qty ?? -1,
           cancelable: false,
         };
       this.onWaitStartEvent.trigger(args);

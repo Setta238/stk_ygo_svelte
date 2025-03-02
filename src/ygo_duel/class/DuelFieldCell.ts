@@ -13,7 +13,6 @@ export type DuelFieldCellType =
   | "ExtraDeck"
   | "ExtraMonsterZone"
   | "Banished"
-  | "PhaseButton"
   | "Disable";
 export type TDuelEntityMovePos = "Top" | "Bottom";
 
@@ -45,7 +44,7 @@ export const cellTypeMaster = {
     2: "ExtraMonsterZone",
     3: "Disable",
     4: "ExtraMonsterZone",
-    5: "PhaseButton",
+    5: "Disable",
     6: "Banished",
   },
   4: {

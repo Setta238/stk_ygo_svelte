@@ -4,6 +4,7 @@
 
 <main>
   <DuelDesk />
+  <div class="screen_info"></div>
 </main>
 
 <style>
@@ -13,6 +14,10 @@
     width: fit-content;
     justify-content: center;
     align-items: center;
-    padding: 10rem 0;
+  }
+  .screen_info {
+    position: absolute;
+    right: 1rem;
+    bottom: 1rem;
   }
 </style>

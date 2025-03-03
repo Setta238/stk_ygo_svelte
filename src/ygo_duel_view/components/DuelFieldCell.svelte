@@ -79,6 +79,16 @@
     });
   };
 
+  const onCellClick = () => {
+    cell.field.duel.view.infoBoardState = "Log";
+    if (cell.cellType === "Deck" || cell.cellType === "ExtraDeck" || cell.cellType === "Graveyard" || cell.cellType === "Banished") {
+      cell.field.duel.view.infoBoardState = "CellInfo";
+      cell.field.duel.view.infoBoardCell = cell;
+    }
+    cell.field.duel.view.requireUpdate();
+    console.info(cell);
+  };
+
   const dragover = (ev: DragEvent) => {
     ev.preventDefault();
     if (ev.dataTransfer) {
@@ -146,9 +156,12 @@
 </script>
 
 <td class={`duel_field_cell duel_field_cell_${cell.cellType}`} colspan={cell.cellType === "Hand" ? 7 : 1}>
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
+  <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
   <div
     class={`duel_card_wrapper ${cell.cellType} ${canAcceptDrop ? "can_accept_drop" : ""}`}
     role="listitem"
+    onclick={onCellClick}
     ondragover={(ev) => dragover(ev)}
     ondrop={(ev) => drop(ev)}
   >
@@ -267,6 +280,7 @@
     height: 100%;
     min-height: 7rem;
     padding: 0rem;
+    pointer-events: auto;
   }
   .duel_card_wrapper > .card_animation_receiver {
     position: absolute;

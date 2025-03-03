@@ -1,7 +1,7 @@
 import json from "@ygo/json/cardInfo.json";
 import type { TCardInfoJson } from "@ygo/class/YgoTypes";
 import type { CardActionBase } from "@ygo_duel/class/DuelEntity";
-import { createCardActionDefinitions } from "@ygo_duel/cards/CardActionDefinitions";
+import { createCardDefinitions } from "@ygo_duel/cards/CardDefinitions";
 import {
   defaultAttackAction,
   defaultBattlePotisionChangeAction,
@@ -9,9 +9,9 @@ import {
   defaultNormalSetSummonAction,
 } from "@ygo_duel/functions/DefaultCardAction";
 
-const cardActionDefinitions: Map<string, CardActionBase<unknown>[]> = new Map();
-createCardActionDefinitions().forEach((obj) => {
-  cardActionDefinitions.set(obj.name, obj.actions);
+const cardDefinitions: Map<string, CardActionBase<unknown>[]> = new Map();
+createCardDefinitions().forEach((obj) => {
+  cardDefinitions.set(obj.name, obj.actions);
 });
 
 const fuga = json as unknown as { [name: string]: TCardInfoJson };
@@ -23,7 +23,7 @@ export const cardInfoDic = Object.values(fuga).reduce(
   {} as { [name: string]: TCardInfoJson }
 );
 
-export const getCardActions = (name: string): CardActionBase<unknown>[] => {
+export const getCardDefinitions = (name: string): CardActionBase<unknown>[] => {
   if (!Object.hasOwn(cardInfoDic, name)) {
     return [];
   }
@@ -33,5 +33,5 @@ export const getCardActions = (name: string): CardActionBase<unknown>[] => {
     return [defaultNormalAttackSummonAction, defaultNormalSetSummonAction, defaultAttackAction, defaultBattlePotisionChangeAction] as CardActionBase<unknown>[];
   }
 
-  return cardActionDefinitions.get(name) || [];
+  return cardDefinitions.get(name) || [];
 };

@@ -1,5 +1,6 @@
 import {
   exMonsterCategories,
+  specialMonsterCategories,
   type TBattlePosition,
   type TCardInfoBase,
   type TCardInfoJson,
@@ -12,7 +13,7 @@ import type { DuelFieldCell, DuelFieldCellType, TDuelEntityMovePos } from "./Due
 import type Duelist from "./Duelist";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
-import { getCardActions } from "@ygo/class/CardInfo";
+import { getCardDefinitions } from "@ygo/class/CardInfo";
 import type { DuelClock } from "./DuelClock";
 export type TDuelEntity = "Card" | "Token";
 export type TDuelEntityFace = "FaceUp" | "FaceDown";
@@ -124,7 +125,42 @@ export type TDuelEntityInfoDetail = {
   cardPlayList: Array<CardAction<unknown>>;
 };
 export type TDuelEntityInfo = TCardInfoBase & TDuelEntityInfoDetail;
+export const CardSorter = (left: DuelEntity, right: DuelEntity): number => {
+  if (left.origin.kind === right.origin.kind) {
+    if (left.origin.kind === "Monster") {
+      const leftExFlg = (left.origin.monsterCategories?.union(exMonsterCategories).length ?? 0) > 0;
+      const rightExFlg = (right.origin.monsterCategories?.union(exMonsterCategories).length ?? 0) > 0;
+      if (leftExFlg !== rightExFlg) {
+        return rightExFlg ? 1 : -1;
+      }
+      if ((left.origin.link ?? 0) !== (right.origin.link ?? 0)) {
+        return (left.origin.link ?? 0) - (right.origin.link ?? 0);
+      }
+      if ((left.origin.rank ?? 0) !== (right.origin.rank ?? 0)) {
+        return (left.origin.rank ?? 0) - (right.origin.rank ?? 0);
+      }
+      if ((left.origin.level ?? 0) !== (right.origin.level ?? 0)) {
+        return (left.origin.level ?? 0) - (right.origin.level ?? 0);
+      }
+      if ((left.origin.attack ?? 0) !== (right.origin.attack ?? 0)) {
+        return (left.origin.attack ?? 0) - (right.origin.attack ?? 0);
+      }
+      if ((left.origin.defense ?? 0) !== (right.origin.defense ?? 0)) {
+        return (left.origin.defense ?? 0) - (right.origin.defense ?? 0);
+      }
+    }
+    return left.origin.name.localeCompare(right.origin.name);
+  }
 
+  if (left.origin.kind === "Monster") {
+    return -1;
+  }
+
+  if (left.origin.kind === "Spell") {
+    return right.origin.kind === "Monster" ? 1 : -1;
+  }
+  return 1;
+};
 export class DuelEntity {
   private static nextActionSeq = 0;
   private static nextEntitySeq = 0;
@@ -145,6 +181,7 @@ export class DuelEntity {
   public movedFrom: DuelFieldCell | undefined;
   public movedAt: DuelClock;
   public isDying: boolean;
+  public canReborn: boolean;
 
   public readonly status: TEntityStatus;
   public get nm() {
@@ -209,6 +246,8 @@ export class DuelEntity {
     this.movedAs = ["Rule"];
     this.movedAt = field.duel.clock;
     this.isDying = false;
+    this.canReborn = this.origin.monsterCategories?.union(specialMonsterCategories).length === 0;
+
     fieldCell.acceptEntities([this], "Top");
   }
   public static readonly createCardPlayList = (entity: DuelEntity, baseList: CardActionBase<unknown>[]): CardAction<unknown>[] => {
@@ -243,9 +282,9 @@ export class DuelEntity {
   };
   public static readonly createCardEntity = (field: DuelField, owner: Duelist, cardInfo: TCardInfoJson): DuelEntity => {
     // cardはデッキまたはEXデッキに生成
-    const fieldCell = exMonsterCategories.filter((cat) => cardInfo.monsterCategories?.includes(cat)) ? owner.getDeckCell() : owner.getExtraDeck();
+    const fieldCell = cardInfo.monsterCategories && cardInfo.monsterCategories.union(exMonsterCategories).length ? owner.getExtraDeck() : owner.getDeckCell();
     const newCard = new DuelEntity(owner, owner, field, fieldCell, "Card", cardInfo, "FaceDown", false, "Vertical");
-    newCard.actions.push(...DuelEntity.createCardPlayList(newCard, getCardActions(newCard.origin.name)));
+    newCard.actions.push(...DuelEntity.createCardPlayList(newCard, getCardDefinitions(newCard.origin.name)));
     if (!newCard.actions) {
       field.duel.log.info(`未実装カード${cardInfo.name}がデッキに投入された。`, owner);
     }

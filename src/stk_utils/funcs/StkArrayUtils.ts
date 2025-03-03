@@ -6,7 +6,7 @@ declare global {
     randomPick(num: number): T[];
     shuffle(): T[];
     reset(...newArray: T[]): void;
-    union(another: T[]): T[];
+    union(another: Readonly<T[]>): T[];
   }
 }
 

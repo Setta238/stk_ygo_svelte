@@ -12,7 +12,7 @@ import {
   defaultSpellTrapValidate,
 } from "@ygo_duel/functions/DefaultCardAction";
 
-export const createCardActionDefinitions = (): { name: string; actions: CardActionBase<unknown>[] }[] => {
+export const createCardDefinitions = (): { name: string; actions: CardActionBase<unknown>[] }[] => {
   const result: { name: string; actions: CardActionBase<unknown>[] }[] = [];
 
   const validate_サイバー・ドラゴン = (entity: DuelEntity): DuelFieldCell[] | undefined => {

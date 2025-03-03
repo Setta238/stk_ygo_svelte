@@ -3,7 +3,7 @@
 </script>
 
 <script lang="ts">
-  import { monsterCategoryEmojiDic, monsterTypeEmojiDic } from "@ygo/class/YgoTypes";
+  import { monsterCategoryDic, monsterCategoryEmojiDic, monsterTypeDic, monsterTypeEmojiDic } from "@ygo/class/YgoTypes";
 
   import type { DuelistResponse } from "@ygo_duel/class/Duel";
 
@@ -14,6 +14,7 @@
   export let state: TCardState = "Disabled";
   export let selectedList = [] as DuelEntity[];
   export let isVisibleForcibly = false;
+  export let isWideMode = false;
   export let actions: CardAction<unknown>[] = [];
   export let cardActionResolve: ((action?: CardAction<unknown>, cell?: DuelFieldCell) => void) | undefined = () => {};
   export let entitySelectResolve: ((entities: DuelEntity[]) => void) | undefined = () => {};
@@ -105,7 +106,7 @@
   <button
     class="duel_card button_style_reset {entity.status.kind} {entity.status.monsterCategories?.join(' ') || ''} {isSelected
       ? 'duel_card_selected'
-      : ''} {state} duel_card_{entity.orientation} {isDragging ? 'isDragging' : ''}"
+      : ''} {state} duel_card_{entity.orientation} {isDragging ? 'isDragging' : ''} {isWideMode ? 'duel_card_wide' : ''}"
     draggable={state === "Draggable"}
     on:dragstart={dragStart}
     on:dragend={dragEnd}
@@ -132,11 +133,13 @@
       {/if}
       {#if entity.status.kind === "Monster"}
         <div class="duel_card_row">
-          <div title={entity.status.monsterCategories?.join(" ")}>{entity.status.monsterCategories?.map((cat) => monsterCategoryEmojiDic[cat]).join()}</div>
+          <div title={entity.status.monsterCategories?.join(" ")}>
+            {entity.status.monsterCategories?.map((cat) => monsterCategoryEmojiDic[cat] + (isWideMode ? monsterCategoryDic[cat] : "")).join()}
+          </div>
         </div>
         <div class="duel_card_row duel_card_row_wide">
           <div>
-            {entity.type.map((t) => monsterTypeEmojiDic[t]).join()}
+            {entity.type.map((t) => monsterTypeEmojiDic[t] + (isWideMode ? monsterTypeDic[t] : "")).join()}
           </div>
           <div>{entity.atk ?? "?"} / {entity.def ?? "?"}</div>
         </div>
@@ -157,6 +160,9 @@
     border: solid 1px #778ca3;
     font-size: 0.7rem;
   }
+  .duel_card_wide {
+    width: 100%;
+  }
   .button_style_reset {
     display: block;
     border-radius: 0%;
@@ -173,6 +179,9 @@
     white-space: nowrap;
     max-width: 6rem;
     overflow: hidden;
+  }
+  .duel_card_wide .duel_card_row {
+    max-width: initial;
   }
   .duel_card .monster_attr {
     position: absolute;
@@ -229,6 +238,10 @@
     min-width: 5rem;
     max-width: 8rem;
   }
+  .duel_card_wide .duel_card_face_up {
+    max-width: initial;
+  }
+
   .duel_card_row:first-child {
     border: solid 0.01rem darkslategray;
   }
@@ -237,6 +250,9 @@
   }
   .duel_card.Effect {
     background-color: chocolate;
+  }
+  .duel_card.Syncro {
+    background-color: snow;
   }
   .duel_card.Spell {
     background-color: forestgreen;

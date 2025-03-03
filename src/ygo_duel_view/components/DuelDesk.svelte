@@ -18,15 +18,26 @@
   import type { WaitStartEventArg } from "@ygo_duel_view/class/DuelViewController";
   import {} from "@stk_utils/funcs/StkArrayUtils";
   import ModalContainer from "@ygo_duel_view/components/DuelModalContainer.svelte";
-  import DuelCardInfo from "./DuelCardInfo.svelte";
-
+  import DuelCardDetail from "./DuelCardDetail.svelte";
+  import DuelFieldCellInfo from "./DuelFieldCellInfo.svelte";
   const duelist1Profile = new DuelistProfile();
   duelist1Profile.name = "あなた";
   const duelist2Profile = new DuelistProfile();
   duelist2Profile.name = "NPC";
   const deck1 = new DeckInfo();
   const deck2 = new DeckInfo();
-  deck1.cardNames = ["おろかな埋葬", "成金ゴブリン", "強欲な壺", "天使の施し", "増援", "Ｅ－エマージェンシーコール"];
+  deck1.cardNames = [
+    "おろかな埋葬",
+    "成金ゴブリン",
+    "強欲な壺",
+    "天使の施し",
+    "増援",
+    "Ｅ－エマージェンシーコール",
+    "サイバー・ドラゴン",
+    "ナチュル・ガオドレイク",
+    "スクラップ・デスデーモン",
+    "大地の騎士ガイアナイト",
+  ];
   deck1.cardNames = [
     ...deck1.cardNames,
     ...deck1.cardNames,
@@ -40,7 +51,6 @@
     "フロストザウルス",
     "エレキテルドラゴン",
     "青眼の白龍",
-    "サイバー・ドラゴン",
     "幻殻竜",
     "しゃりの軍貫",
     "チューン・ウォリアー",
@@ -123,7 +133,7 @@
 <div class="flex duel_desk">
   <div class="duel_desk_left v_flex">
     <DuelDuelist duelist={duel.duelists.Above}></DuelDuelist>
-    <DuelCardInfo entity={focusedCard}></DuelCardInfo>
+    <DuelCardDetail entity={focusedCard}></DuelCardDetail>
     <DuelDuelist duelist={duel.duelists.Below}></DuelDuelist>
   </div>
   <div class=" duel_desk_center v_flex">
@@ -159,7 +169,11 @@
     </div>
   </div>
   <div class=" duel_desk_right" style="text-align: left;">
-    <DuelLog log={duel.log} />
+    {#if duel.view.infoBoardState === "Log"}
+      <DuelLog log={duel.log} />
+    {:else if duel.view.infoBoardState === "CellInfo"}
+      <DuelFieldCellInfo cell={duel.view.infoBoardCell} />
+    {/if}
   </div>
 </div>
 
@@ -176,6 +190,7 @@
   .duel_desk {
     margin: 0px;
     justify-content: space-between;
+    max-height: 90%;
   }
   .duel_desk * {
     margin: 0px;
@@ -230,8 +245,7 @@
   }
   .duel_desk_right {
     min-width: 15%;
-    overflow: hidden;
-    max-height: 100;
+    max-height: 100%;
   }
   .duel_field {
     width: 100%;

@@ -25,6 +25,7 @@ export type AnimationStartEventArg = {
   count: number;
 };
 
+export type TDuelDeskInfoBoardState = "Log" | "CellInfo";
 export class DuelViewController {
   private onDuelUpdateEvent = new StkEvent<void>();
   public get onDuelUpdate() {
@@ -62,10 +63,14 @@ export class DuelViewController {
   //  private draggingAction: CardAction | undefined;
   public message: string;
   public waitMode: TDuelWaitMode;
+  public infoBoardState: TDuelDeskInfoBoardState;
+  public infoBoardCell: DuelFieldCell;
   constructor(duel: Duel) {
     this.duel = duel;
     this.message = "";
     this.waitMode = "None";
+    this.infoBoardState = "Log";
+    this.infoBoardCell = duel.duelists.Below.getExtraDeck();
     this.modalController = new DuelModalController(this);
   }
 

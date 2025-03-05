@@ -197,6 +197,7 @@ export const createCardDefinitions = (): CardDefinition[] => {
           for (const monster of target ?? []) {
             await entity.field.sendGraveyardMany([monster], ["Effect"], entity);
           }
+          await activater.shuffleDeck();
           return true;
         },
       },

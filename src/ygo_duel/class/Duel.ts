@@ -101,7 +101,7 @@ export class Duel {
     this.log.info(`先攻：${this.firstPlayer.profile.name}`);
 
     Object.values(this.duelists).forEach(this.field.pushDeck);
-    Object.values(this.duelists).forEach(this.field.shuffleDeck);
+    Object.values(this.duelists).forEach((duelist) => duelist.shuffleDeck());
     await Promise.all(Object.values(this.duelists).map(this.field.prepareHands));
 
     console.log("hoge");

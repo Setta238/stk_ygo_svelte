@@ -45,9 +45,9 @@
   setLifePointLazy();
 </script>
 
-<div class="duelist">
+<div class="duelist {duelist.seat}">
   <div class="duelist_name">{duelist.profile.name}</div>
-  <div class="duelist_lp" style="top:{amplitude * 4}rem">{lifepoint}</div>
+  <div class="duelist_lp {resolve ? 'vibration' : ''}">{lifepoint}</div>
 </div>
 
 <style>
@@ -56,13 +56,55 @@
     text-align: left;
     margin-right: 1rem;
     line-height: 1.1;
-    width: 80%;
+    width: 90%;
+    padding: 0.3rem;
   }
+  .duelist.Below {
+    border: 0.3rem skyblue solid;
+  }
+  .duelist.Above {
+    border: 0.3rem wheat solid;
+  }
+
   .duelist_name {
+    border-left-style: solid;
+    border-left-width: 1rem;
+    padding: 0.5rem 1rem;
     font-size: 2rem;
+    width: fit-content;
+  }
+
+  .duelist.Below .duelist_name {
+    border-left-color: deepskyblue;
+    background-color: azure;
+  }
+  .duelist.Above .duelist_name {
+    border-left-color: tomato;
+    background-color: blanchedalmond;
   }
   .duelist_lp {
     position: relative;
+    text-align: right;
     font-size: 6rem;
+  }
+  .vibration {
+    animation: vibration 0.1s infinite;
+  }
+  @keyframes vibration {
+    0% {
+      transform: translate(0px, 0px) rotateZ(0deg);
+    }
+    25% {
+      transform: translate(1.4rem, 0.5rem) rotateZ(1deg);
+    }
+    50% {
+      transform: translate(0px, 0.5rem) rotateZ(0deg);
+    }
+    75% {
+      transform: translate(1.4rem, 0px) rotateZ(-1deg);
+    }
+    100% {
+      transform: translate(0px, 0px) rotateZ(0deg);
+    }
   }
 </style>

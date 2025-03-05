@@ -43,11 +43,16 @@
       }
     }
   };
-  const click = () => {
-    console.log(entity, state);
+
+  const showCardInfo = () => {
     if (entity.face === "FaceUp" || (entity.owner === entity.field.duel.duelists.Below && (entity.isUnderControl || isVisibleForcibly))) {
       entity.field.duel.view.showCardInfo(entity);
     }
+  };
+
+  const click = () => {
+    console.log(entity, state);
+    showCardInfo();
     if (state === "Disabled") {
       return;
     }
@@ -94,6 +99,13 @@
     isDragging = true;
   };
 
+  const dragover = (ev: DragEvent) => {
+    ev.preventDefault();
+    showCardInfo();
+    if (ev.dataTransfer) {
+      ev.dataTransfer.dropEffect = "move";
+    }
+  };
   const dragEnd = (ev: DragEvent) => {
     console.info("drag end", ev, actions);
     entity.field.duel.view.removeDraggingActions();
@@ -113,6 +125,7 @@
     on:dragend={dragEnd}
     on:click={click}
     on:dblclick={dblclick}
+    on:mouseenter={showCardInfo}
     title={entity.nm}
   >
     <div class="duel_card duel_card_face_up">

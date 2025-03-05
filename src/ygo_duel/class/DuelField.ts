@@ -60,12 +60,6 @@ export class DuelField {
     return;
   };
 
-  public readonly shuffleDeck = (duelist: Duelist): void => {
-    const deckCell = duelist.getDeckCell();
-    deckCell.shuffle();
-    this.duel.log.info(`デッキをシャッフル。`, duelist);
-  };
-
   public readonly prepareHands = async (duelist: Duelist): Promise<boolean> => {
     return await this.draw(duelist, 5);
   };

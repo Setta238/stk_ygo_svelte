@@ -140,4 +140,10 @@ export default class Duelist {
   public readonly getAttackTargetMonsters = (): DuelEntity[] => {
     return this.duel.field.getMonstersOnField().filter((monster) => monster.status.isSelectableForAttack && monster.controller !== this);
   };
+
+  public readonly shuffleDeck = (): void => {
+    const deckCell = this.getDeckCell();
+    deckCell.shuffle();
+    this.duel.log.info(`デッキをシャッフル。`, this);
+  };
 }

@@ -1,5 +1,5 @@
 export type TCardKind = "Monster" | "Spell" | "Trap";
-export const exMonsterCategories = ["Synchro", "Fusion", "Xyz", "Link"] as const;
+export const exMonsterCategories = ["Syncro", "Fusion", "Xyz", "Link"] as const;
 export type TMonsterExSummonCategory = (typeof exMonsterCategories)[number];
 export const specialMonsterCategories = [...exMonsterCategories, "SpecialSummon"] as const;
 export type TMonsterSpecialSummonCategory = (typeof specialMonsterCategories)[number];
@@ -7,7 +7,7 @@ export type TMonsterEffectCategory = "Toon" | "Spirit" | "Union" | "Gemini" | "F
 export type TMonsterOtherCategory = "Tuner" | "Effect" | "Normal" | "Pendulum" | "Token";
 export type TMonsterCategory = TMonsterSpecialSummonCategory | TMonsterEffectCategory | TMonsterOtherCategory;
 export const monsterCategoryDic: { [key in TMonsterCategory]: string } = {
-  Synchro: "シンクロ",
+  Syncro: "シンクロ",
   Fusion: "融合",
   Xyz: "エクシーズ",
   Link: "リンク",
@@ -18,13 +18,13 @@ export const monsterCategoryDic: { [key in TMonsterCategory]: string } = {
   Gemini: "デュアル",
   FlipEffect: "リバース",
   Tuner: "チューナー",
-  Effect: "エフェクト",
+  Effect: "効果",
   Normal: "通常",
   Pendulum: "ペンデュラム",
   Token: "トークン",
 };
 export const monsterCategoryEmojiDic: { [key in TMonsterCategory]: string } = {
-  Synchro: "🎵",
+  Syncro: "🎵",
   Fusion: "🌀",
   Xyz: "📰",
   Link: "⛓️",
@@ -114,19 +114,16 @@ export type TEntityStatusBase = {
   pendulumScaleL?: number;
 };
 
-export type TEntityStatusDuel = {
-  canAttack?: boolean;
-  canDirectAttack?: boolean;
-  attackCount?: number;
-  originAttack?: number;
-  originDefence?: number;
-};
-
 export type TEntityStatus = TEntityStatusBase & {
+  originAttack: number;
+  originDefence: number;
   canAttack: boolean;
   canDirectAttack: boolean;
+  canBeSyncroMaterial: boolean;
+  allowHandSyncro: boolean;
   attackCount: number;
   battlePotisionChangeCount: number;
+  isEffective: boolean;
   isSelectableForAttack: boolean /** falseのモンスターしかいない場合、ダイレクトアタックになる。《伝説のフィッシャーマン》など。 */;
 };
 
@@ -137,7 +134,6 @@ export type TCardInfoBase = {
 };
 
 export type TCardInfoJson = TCardInfoWiki & TEntityStatusBase & TCardInfoBase;
-export type TCardInfoDuel = TCardInfoJson & TEntityStatusDuel;
 
 export const monsterAttributeDic = {
   Light: "光",
@@ -195,7 +191,7 @@ export const monsterTypeEmojiDic = {
   Fiend: "👿",
   Fish: "🐟️",
   Insect: "🦋",
-  Illusion: "🃏",
+  Illusion: "🤡",
   Machine: "🤖",
   Plant: "🌱",
   Psychic: "👁️",

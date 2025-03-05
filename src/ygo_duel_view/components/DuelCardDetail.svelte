@@ -6,6 +6,8 @@
     monsterCategoryEmojiDic,
     monsterTypeDic,
     monsterTypeEmojiDic,
+    spellCategoryDic,
+    trapCategoryDic,
     type TEntityStatus,
   } from "@ygo/class/YgoTypes";
   import { DuelEntity, type CardAction } from "@ygo_duel/class/DuelEntity";
@@ -46,6 +48,16 @@
         {#each entity.status.monsterCategories ?? [] as cat}
           <div class="monster_cat {cat}">{monsterCategoryEmojiDic[cat]}{monsterCategoryDic[cat]}</div>
         {/each}
+      </div>
+    {:else if entity.status.kind === "Spell" && entity.status.spellCategory}
+      <div class="duel_card_row">
+        <div></div>
+        <div>{spellCategoryDic[entity.status.spellCategory]}魔法</div>
+      </div>
+    {:else if entity.status.kind === "Trap" && entity.status.trapCategory}
+      <div class="duel_card_row">
+        <div></div>
+        <div>{trapCategoryDic[entity.status.trapCategory]}罠</div>
       </div>
     {/if}
     <div class="duel_card_info_row">

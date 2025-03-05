@@ -10,10 +10,16 @@ import {
   defaultSpellTrapPrepare,
   defaultSpellTrapSetAction,
   defaultSpellTrapValidate,
+  getDefaultSyncroSummonAction,
 } from "@ygo_duel/functions/DefaultCardAction";
 
-export const createCardDefinitions = (): { name: string; actions: CardActionBase<unknown>[] }[] => {
-  const result: { name: string; actions: CardActionBase<unknown>[] }[] = [];
+export type CardDefinition = {
+  name: string;
+  actions: CardActionBase<unknown>[];
+};
+
+export const createCardDefinitions = (): CardDefinition[] => {
+  const result: CardDefinition[] = [];
 
   const validate_サイバー・ドラゴン = (entity: DuelEntity): DuelFieldCell[] | undefined => {
     const monsters = entity.field.getMonstersOnField();
@@ -44,7 +50,7 @@ export const createCardDefinitions = (): { name: string; actions: CardActionBase
         spellSpeed: "Normal",
         executableCells: ["Hand"],
         validate: validate_サイバー・ドラゴン,
-        prepare: async () => {},
+        prepare: async () => true,
         execute: async (entity: DuelEntity, activater: Duelist, cell?: DuelFieldCell): Promise<boolean> => {
           await execute_サイバー・ドラゴン(entity, "Attack", cell);
           return true;
@@ -56,7 +62,7 @@ export const createCardDefinitions = (): { name: string; actions: CardActionBase
         spellSpeed: "Normal",
         executableCells: ["Hand"],
         validate: validate_サイバー・ドラゴン,
-        prepare: async () => {},
+        prepare: async () => true,
         execute: async (entity: DuelEntity, activater: Duelist, cell?: DuelFieldCell): Promise<boolean> => {
           await execute_サイバー・ドラゴン(entity, "Defense", cell);
           return true;
@@ -66,6 +72,26 @@ export const createCardDefinitions = (): { name: string; actions: CardActionBase
   };
 
   result.push(def_サイバー・ドラゴン);
+
+  const def_大地の騎士ガイアナイト = {
+    name: "大地の騎士ガイアナイト",
+    actions: [defaultAttackAction, defaultBattlePotisionChangeAction, ...getDefaultSyncroSummonAction()] as CardActionBase<unknown>[],
+  };
+  result.push(def_大地の騎士ガイアナイト);
+  result.push({ ...def_大地の騎士ガイアナイト, name: "スクラップ・デスデーモン" });
+
+  const def_ナチュル・ガオドレイク = {
+    name: "ナチュル・ガオドレイク",
+    actions: [
+      defaultAttackAction,
+      defaultBattlePotisionChangeAction,
+      ...getDefaultSyncroSummonAction(
+        (tuners) => tuners.length === 1 && tuners.every((tuner) => tuner.attr.some((a) => a === "Earth")),
+        (nonTuners) => nonTuners.length > 0 && nonTuners.every((nonTuner) => nonTuner.attr.some((a) => a === "Earth"))
+      ),
+    ] as CardActionBase<unknown>[],
+  };
+  result.push(def_ナチュル・ガオドレイク);
 
   const def_強欲な壺 = {
     name: "強欲な壺",

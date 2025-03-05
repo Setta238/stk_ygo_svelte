@@ -7,6 +7,7 @@ declare global {
     shuffle(): T[];
     reset(...newArray: T[]): void;
     union(another: Readonly<T[]>): T[];
+    getAllOnOffPattern(): T[][];
   }
 }
 
@@ -30,4 +31,18 @@ Array.prototype.reset = function <T>(...newArray: T[]): void {
 };
 Array.prototype.union = function <T>(another: T[]): T[] {
   return (this as T[]).filter(another.includes, another);
+};
+
+Array.prototype.getAllOnOffPattern = function <T>(): T[][] {
+  const result: T[][] = [];
+  (this as T[]).forEach((item) => {
+    if (result.length == 0) {
+      result.push([item]);
+      result.push([]);
+      return;
+    }
+
+    result.forEach((pattern) => result.push([...pattern, item]));
+  });
+  return result;
 };

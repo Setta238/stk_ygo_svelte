@@ -13,8 +13,15 @@ import type { DuelFieldCell, DuelFieldCellType, TDuelEntityMovePos } from "./Due
 import type Duelist from "./Duelist";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
-import { getCardDefinitions } from "@ygo/class/CardInfo";
 import type { DuelClock } from "./DuelClock";
+
+import {
+  defaultAttackAction,
+  defaultBattlePotisionChangeAction,
+  defaultNormalAttackSummonAction,
+  defaultNormalSetSummonAction,
+} from "@ygo_duel/functions/DefaultCardAction";
+import { cardDefinitions, cardInfoDic } from "@ygo/class/CardInfo";
 export type TDuelEntity = "Card" | "Token";
 export type TDuelEntityFace = "FaceUp" | "FaceDown";
 export type TDuelEntityOrientation = "Horizontal" | "Vertical";
@@ -40,7 +47,7 @@ export type TDuelCauseReason =
   | "Release"
   | "AdvanceSummonRelease"
   | "FusionMaterial"
-  | "SynchroMaterial"
+  | "SyncroMaterial"
   | "EyzMaterial"
   | "RitualMaterial"
   | "Cost"
@@ -70,17 +77,27 @@ export type CardActionBase<T> = {
   spellSpeed: TSpellSpeed;
   executableCells: DuelFieldCellType[];
   /**
+   * 発動可能かどうかの検証
    * @param entity
    * @returns 発動時にドラッグ・アンド・ドロップ可能である場合、選択肢のcellが返る。
    */
   validate: (entity: DuelEntity) => DuelFieldCell[] | undefined;
   /**
+   * コストの支払い、対象に取るなど
    * フィールドに残らない魔法罠の場合、isDyingの設定が必要
    * @param entity
    * @param cell
    * @returns
    */
-  prepare: (entity: DuelEntity, cell?: DuelFieldCell) => Promise<T>;
+  prepare: (entity: DuelEntity, cell?: DuelFieldCell, cancelable?: boolean) => Promise<T | undefined>;
+  /**
+   * 実際の処理部分
+   * @param entity
+   * @param activater
+   * @param cell
+   * @param prepared
+   * @returns
+   */
   execute: (entity: DuelEntity, activater: Duelist, cell?: DuelFieldCell, prepared?: T) => Promise<boolean>;
 };
 export type CardAction<T> = {
@@ -100,7 +117,7 @@ export type CardAction<T> = {
    * @param cell 効果発動時にドラッグ・アンド・ドロップなどで指定されたセルがある場合、値が入る。
    * @returns 実行時に必要な任意の情報
    */
-  prepare: (cell?: DuelFieldCell) => Promise<T>;
+  prepare: (cell?: DuelFieldCell, cancelable?: boolean) => Promise<T | undefined>;
   /**
    *
    * @param activater 効果発動時のコントローラー
@@ -161,6 +178,7 @@ export const CardSorter = (left: DuelEntity, right: DuelEntity): number => {
   }
   return 1;
 };
+
 export class DuelEntity {
   private static nextActionSeq = 0;
   private static nextEntitySeq = 0;
@@ -181,7 +199,9 @@ export class DuelEntity {
   public movedFrom: DuelFieldCell | undefined;
   public movedAt: DuelClock;
   public isDying: boolean;
+  public isVanished: boolean;
   public canReborn: boolean;
+  public materials: DuelEntity[];
 
   public readonly status: TEntityStatus;
   public get nm() {
@@ -235,22 +255,27 @@ export class DuelEntity {
     this.fieldCell = fieldCell;
     this.entityType = entityType;
     this.origin = cardInfo;
-    this.status = JSON.parse(JSON.stringify(cardInfo));
-    this.status.canAttack = true;
-    this.status.canDirectAttack = true;
-    this.status.attackCount = 0;
-    this.status.isSelectableForAttack = true;
+    this.status = {
+      ...JSON.parse(JSON.stringify(cardInfo)),
+      canAttack: true,
+      isEffective: true,
+      canDirectAttack: false,
+      attackCount: 0,
+      isSelectableForAttack: true,
+      canBeSyncroMaterial: true,
+    };
     this.face = face;
     this.isUnderControl = isVisibleForController;
     this.orientation = orientation;
     this.movedAs = ["Rule"];
     this.movedAt = field.duel.clock;
     this.isDying = false;
+    this.isVanished = false;
     this.canReborn = this.origin.monsterCategories?.union(specialMonsterCategories).length === 0;
-
+    this.materials = [];
     fieldCell.acceptEntities([this], "Top");
   }
-  public static readonly createCardPlayList = (entity: DuelEntity, baseList: CardActionBase<unknown>[]): CardAction<unknown>[] => {
+  private static readonly createCardActionList = (entity: DuelEntity, baseList: CardActionBase<unknown>[]): CardAction<unknown>[] => {
     const result = baseList.map((b) => {
       return {
         seq: DuelEntity.nextActionSeq++,
@@ -284,9 +309,22 @@ export class DuelEntity {
     // cardはデッキまたはEXデッキに生成
     const fieldCell = cardInfo.monsterCategories && cardInfo.monsterCategories.union(exMonsterCategories).length ? owner.getExtraDeck() : owner.getDeckCell();
     const newCard = new DuelEntity(owner, owner, field, fieldCell, "Card", cardInfo, "FaceDown", false, "Vertical");
-    newCard.actions.push(...DuelEntity.createCardPlayList(newCard, getCardDefinitions(newCard.origin.name)));
-    if (!newCard.actions) {
+    if (!Object.hasOwn(cardInfoDic, newCard.origin.name)) {
       field.duel.log.info(`未実装カード${cardInfo.name}がデッキに投入された。`, owner);
+    }
+    const info = cardInfoDic[newCard.origin.name];
+
+    if (info.kind === "Monster" && info.monsterCategories?.includes("Normal")) {
+      newCard.actions.push(
+        ...DuelEntity.createCardActionList(newCard, [
+          defaultNormalAttackSummonAction,
+          defaultNormalSetSummonAction,
+          defaultAttackAction,
+          defaultBattlePotisionChangeAction,
+        ] as CardActionBase<unknown>[])
+      );
+    } else {
+      newCard.actions.push(...DuelEntity.createCardActionList(newCard, cardDefinitions.get(newCard.origin.name) || []));
     }
     return newCard;
   };

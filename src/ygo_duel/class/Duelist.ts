@@ -123,12 +123,16 @@ export default class Duelist {
   };
   public readonly getAvailableExtraZones = (): DuelFieldCell[] => {
     // TODOエクストラリンク
-    return this.getExtraMonsterZones().length === 0 ? this.getMonsterZones().filter((cell) => cell.isAvailable) : [];
+    return this.getExtraMonsterZones().length === 0 ? this.duel.field.getCells("ExtraMonsterZone").filter((cell) => cell.isAvailable) : [];
   };
   public readonly getAvailableSpellTrapZones = (): DuelFieldCell[] => {
     return this.getSpellTrapZones().filter((cell) => cell.isAvailable);
   };
   public readonly getReleasableMonsters = (): DuelEntity[] => {
+    // TODO : クロス・ソウルと帝王の烈旋の考慮
+    return this.getMonstersOnField();
+  };
+  public readonly getMonstersOnField = (): DuelEntity[] => {
     // TODO : クロス・ソウルと帝王の烈旋の考慮
     return this.duel.field.getMonstersOnField().filter((monster) => monster.controller === this);
   };

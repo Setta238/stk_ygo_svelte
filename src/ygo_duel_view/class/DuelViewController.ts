@@ -6,7 +6,7 @@ import type Duelist from "@ygo_duel/class/Duelist";
 import { DuelModalController } from "./DuelModalController";
 import type { CardActionSelectorArg } from "@ygo_duel_view/components/DuelActionSelector.svelte";
 import type { DuelEntitiesSelectorArg } from "@ygo_duel_view/components/DuelEntitiesSelector.svelte";
-export type TDuelWaitMode = "None" | "SelectFieldAction" | "SelectAction" | "SelectFieldEntities" | "SelectEntites";
+export type TDuelWaitMode = "None" | "SelectFieldAction" | "SelectAction" | "SelectFieldEntities" | "SelectEntities";
 export type WaitStartEventArg = {
   resolve: (action: DuelistResponse) => void;
   enableActions: CardAction<unknown>[];
@@ -196,15 +196,20 @@ export class DuelViewController {
       }
       return selected;
     }
+
     this.waitMode = choises.every(
       (e) =>
         ((e.fieldCell.cellType === "MonsterZone" || e.fieldCell.cellType === "ExtraMonsterZone") && e.getIndexInCell() === 0) ||
         (e.fieldCell.cellType === "Hand" && e.controller === chooser)
     )
-      ? "SelectEntites"
-      : "SelectFieldEntities";
+      ? "SelectFieldEntities"
+      : "SelectEntities";
 
-    const actions = await this._waitDuelistAction([], "SelectAction", message, choises, qty, validator, cancelable);
+    console.log(this.waitMode);
+
+    const actions = await this._waitDuelistAction([], this.waitMode, message, choises, qty, validator, cancelable);
+
+    console.log(actions);
 
     return actions.selectedEntities;
   };
@@ -231,7 +236,11 @@ export class DuelViewController {
         entitiesValidator: entitiesValidator || (() => false),
         selectableEntities: selectableEntities || [],
       };
-      if (selectableEntities && entitiesValidator)
+      console.log(selectableEntities);
+      console.log(entitiesValidator);
+      console.log(this.waitMode);
+      console.log(this.waitMode === "SelectEntities");
+      if (selectableEntities && entitiesValidator && this.waitMode === "SelectEntities")
         args.duelEntitiesSelectorArg = {
           title: message,
           entities: selectableEntities,

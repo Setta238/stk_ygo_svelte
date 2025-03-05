@@ -221,7 +221,14 @@ export class Duel {
       if (action.actionWIP) {
         if (([...cardActionNonChainBlockTypes] as string[]).includes(action.actionWIP.playType)) {
           //チェーンに乗らない処理を実行し、処理番号をインクリメント
-          await action.actionWIP.execute(this.priorityHolder, action.actionWIP.cell);
+          const prepared = await action.actionWIP.prepare(action.actionWIP.cell, true);
+          console.log(prepared);
+
+          if (!prepared) {
+            continue;
+          }
+
+          await action.actionWIP.execute(this.priorityHolder, action.actionWIP.cell, prepared);
           this.clock.incrementProcSeq();
         } else {
           //チェーンに積んで、チェーン処理へ

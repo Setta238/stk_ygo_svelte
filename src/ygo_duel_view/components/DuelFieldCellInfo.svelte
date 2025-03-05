@@ -16,7 +16,7 @@
 </script>
 
 <div class="duel_field_cell_info">
-  <div class="duel_field_cell_info_header">
+  <div class="duel_field_cell_info_header item_btn">
     <div>{cell.owner?.profile.name}</div>
     <div>{cell.cellType}</div>
   </div>
@@ -49,6 +49,13 @@
     display: flex;
     flex-direction: initial;
     position: sticky;
+    font-weight: bold;
+    padding: 0.25em 0.5em;
+    text-decoration: none;
+    color: #000000;
+    transition: 0.4s;
+    vertical-align: middle;
+    background: #00bcd4;
   }
   .duel_field_cell_info_header div {
     border-radius: 10%;

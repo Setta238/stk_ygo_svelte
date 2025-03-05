@@ -20,7 +20,6 @@
       qty={modalController.duelEntitiesSelectorArg.qty}
       cancelable={modalController.duelEntitiesSelectorArg.cancelable}
       resolve={(selectedList: DuelEntity[] | undefined) => {
-        console.info(selectedList);
         modalController.duelEntitiesSelectorResolve(selectedList);
       }}
     />

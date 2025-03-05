@@ -3,7 +3,7 @@
 </script>
 
 <script lang="ts">
-  import { monsterCategoryDic, monsterCategoryEmojiDic, monsterTypeDic, monsterTypeEmojiDic } from "@ygo/class/YgoTypes";
+  import { monsterCategoryDic, monsterCategoryEmojiDic, monsterTypeDic, monsterTypeEmojiDic, spellCategoryDic, trapCategoryDic } from "@ygo/class/YgoTypes";
 
   import type { DuelistResponse } from "@ygo_duel/class/Duel";
 
@@ -16,7 +16,7 @@
   export let isVisibleForcibly = false;
   export let isWideMode = false;
   export let actions: CardAction<unknown>[] = [];
-  export let cardActionResolve: ((action?: CardAction<unknown>, cell?: DuelFieldCell) => void) | undefined = () => {};
+  export let cardActionResolve: ((action?: CardAction<unknown>, cell?: DuelFieldCell) => void) | undefined;
   export let entitySelectResolve: ((entities: DuelEntity[]) => void) | undefined = () => {};
   let isSelected = false;
   let duelistResponseResolve: (res: DuelistResponse) => void = () => {};
@@ -67,6 +67,7 @@
         cardActionResolve(actions[0]);
         return;
       }
+      console.log(actions[0], duelistResponseResolve);
       duelistResponseResolve({
         actionWIP: actions[0],
       });
@@ -121,10 +122,22 @@
           <div class="monster_attr {attr}">●</div>
         {/each}
       </div>
-      <div class="duel_card_row">
-        <div>{"★".repeat(entity.status.level || 0)}</div>
-        <div>{"☆".repeat(entity.status.rank || 0)}</div>
-      </div>
+      {#if entity.status.kind === "Monster"}
+        <div class="duel_card_row">
+          <div>{"★".repeat(entity.status.level || 0)}</div>
+          <div>{"☆".repeat(entity.status.rank || 0)}</div>
+        </div>
+      {:else if entity.status.kind === "Spell" && entity.status.spellCategory}
+        <div class="duel_card_row">
+          <div></div>
+          <div>{spellCategoryDic[entity.status.spellCategory]}魔法</div>
+        </div>
+      {:else if entity.status.kind === "Trap" && entity.status.trapCategory}
+        <div class="duel_card_row">
+          <div></div>
+          <div>{trapCategoryDic[entity.status.trapCategory]}罠</div>
+        </div>
+      {/if}
       {#if entity.status.monsterCategories?.includes("Pendulum")}
         <div class="duel_card_row">
           <div>◀ {entity.psL}</div>
@@ -162,6 +175,19 @@
   }
   .duel_card_wide {
     width: 100%;
+  }
+  .duel_card_face_up {
+    display: flex;
+    flex-direction: column;
+    height: 4.3rem;
+    margin: 0.1rem 0.3rem;
+    padding: 0.1rem;
+    border: solid 1px #778ca3;
+    min-width: 5rem;
+    max-width: 8rem;
+  }
+  .duel_card_wide .duel_card_face_up {
+    max-width: initial;
   }
   .button_style_reset {
     display: block;
@@ -227,20 +253,6 @@
   .duel_card_row > div {
     margin: 0 0.3rem;
   }
-  .duel_card_face_up {
-    display: flex;
-    justify-content: space-between;
-    flex-direction: column;
-    height: 4.3rem;
-    margin: 0.1rem 0.3rem;
-    padding: 0.1rem;
-    border: solid 1px #778ca3;
-    min-width: 5rem;
-    max-width: 8rem;
-  }
-  .duel_card_wide .duel_card_face_up {
-    max-width: initial;
-  }
 
   .duel_card_row:first-child {
     border: solid 0.01rem darkslategray;
@@ -267,7 +279,7 @@
     display: block;
     min-width: 1px;
     height: fit-content;
-    border: dotted 0.4px blue;
+    border: dotted 0.2rem blue;
     pointer-events: initial;
   }
   .duel_card.duel_card_selected {

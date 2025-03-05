@@ -26,13 +26,13 @@
   view.modalController.onUpdate.append(onCellUpdate);
 
   let enableActions: CardAction<unknown>[] = [];
-  let action: (Action: DuelistResponse) => void = () => {};
+  let responseResolve: (action: DuelistResponse) => void = () => {};
   let selectedEntitiesValidator: (selectedEntities: DuelEntity[]) => boolean = () => true;
   let selectableEntities: DuelEntity[];
   const onWaitStart: (args: WaitStartEventArg) => void = (args) => {
     animationArg = undefined;
     selectedList.reset();
-    action = args.resolve;
+    responseResolve = args.resolve;
     enableActions = args.enableActions as CardAction<unknown>[];
     selectableEntities = args.selectableEntities;
     selectedEntitiesValidator = args.entitiesValidator;
@@ -74,9 +74,16 @@
 
   const onPhaseButtonClick = (phase: TDuelPhase) => {
     console.info(phase);
-    action({
+    responseResolve({
       phaseChange: phase,
     });
+  };
+
+  const canAction = () => {
+    return (
+      (cell.cellType === "Deck" || cell.cellType === "ExtraDeck" || cell.cellType === "Graveyard" || cell.cellType === "Banished") &&
+      cell.entities.flatMap((e) => e.actions).filter((act) => enableActions.map((a) => a.seq).some((seq) => seq === act.seq)).length > 0
+    );
   };
 
   const onCellClick = () => {
@@ -84,6 +91,25 @@
     if (cell.cellType === "Deck" || cell.cellType === "ExtraDeck" || cell.cellType === "Graveyard" || cell.cellType === "Banished") {
       cell.field.duel.view.infoBoardState = "CellInfo";
       cell.field.duel.view.infoBoardCell = cell;
+      cell.field.duel.view.requireUpdate();
+      const actions = cell.entities.flatMap((e) => e.actions).filter((act) => enableActions.map((a) => a.seq).some((seq) => seq === act.seq));
+      console.log(enableActions);
+      console.log(actions);
+      if (actions.length) {
+        const view = cell.field.duel.view;
+        view.modalController
+          .selectAction(view, {
+            title: "カードを選択。",
+            actions: actions,
+            cancelable: true,
+          })
+          .then((_action) => {
+            responseResolve({
+              actionWIP: _action,
+            });
+          });
+        return;
+      }
     }
     cell.field.duel.view.requireUpdate();
     console.info(cell);
@@ -105,7 +131,7 @@
       if (canAcceptDrop && draggingActions) {
         console.info(draggingActions, cell);
         if (draggingActions.length === 1) {
-          action({
+          responseResolve({
             actionWIP: { ...draggingActions[0], cell },
           });
         } else if (draggingActions.length > 1) {
@@ -159,7 +185,7 @@
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
   <div
-    class={`duel_card_wrapper ${cell.cellType} ${canAcceptDrop ? "can_accept_drop" : ""}`}
+    class={`duel_card_wrapper ${cell.cellType} ${canAcceptDrop ? "can_accept_drop" : ""} ${canAction() ? "can_action" : ""}`}
     role="listitem"
     onclick={onCellClick}
     ondragover={(ev) => dragover(ev)}
@@ -397,5 +423,46 @@
   }
   .duel_field_cell_ExtraMonsterZone {
     background-color: steelblue;
+  }
+  /* ボタンの波紋 */
+  .can_action::before,
+  .can_action::before,
+  .can_action::after,
+  .can_action::after {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    width: 100%;
+    height: 100%;
+    border: 0.2rem solid yellow;
+    border-radius: 30%;
+    box-sizing: border-box;
+    pointer-events: none;
+    animation: pulsate 2s ease-out infinite;
+  }
+
+  /* ボタンの波紋が広がっていくアニメーション */
+  @keyframes pulsate {
+    0% {
+      transform: scale(0.9);
+      filter: blur(0.3rem);
+      opacity: 0.8;
+    }
+
+    50% {
+      transform: scale(0.8);
+      filter: blur(0.5rem);
+      opacity: 0.6;
+    }
+    100% {
+      transform: scale(0.9);
+      filter: blur(0.3rem);
+      opacity: 0.8;
+    }
   }
 </style>

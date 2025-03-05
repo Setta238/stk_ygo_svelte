@@ -122,6 +122,41 @@ export class DuelField {
     return true;
   };
 
+  public readonly payMonstersForSpecialSummonCost = async (
+    chooser: Duelist,
+    choices: DuelEntity[],
+    qty: number,
+    validator: (entites: DuelEntity[]) => boolean,
+    moveAs: TDuelCauseReason[],
+    causedBy?: DuelEntity,
+    cancelable?: boolean
+  ): Promise<DuelEntity[] | undefined> => {
+    if (qty > 0 && choices.length < qty) {
+      return;
+    }
+    const target: DuelEntity[] | undefined = await this.duel.view.waitSelectEntities(
+      chooser,
+      choices,
+      qty,
+      validator,
+      "素材とするモンスターを選択",
+      cancelable
+    );
+
+    console.log(target);
+
+    if (!target) {
+      return;
+    }
+
+    for (const entity of target) {
+      await entity.release(["Release", ...moveAs], causedBy);
+    }
+
+    this.duel.log.info(`${target.map((e) => e.status.name).join(", ")}を素材とした（${[...new Set(target.flatMap((e) => e.movedAs))].join(", ")}）。`, chooser);
+    return target;
+  };
+
   public readonly release = async (
     chooser: Duelist,
     choices: DuelEntity[],

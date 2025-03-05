@@ -81,7 +81,6 @@
   let selectedEntitiesValidator: (selectedEntities: DuelEntity[]) => boolean = () => true;
   let selectableEntities: DuelEntity[];
   const onWaitStart: (args: WaitStartEventArg) => void = (args) => {
-    console.log(args);
     response = args.resolve;
     selectedEntitiesValidator = args.entitiesValidator;
     selectableEntities = args.selectableEntities;
@@ -103,7 +102,6 @@
 
   export let selectedList = [] as DuelEntity[];
   const onDuelUpdate = () => {
-    console.log(duel);
     duel = duel;
   };
   duel.view.onDuelUpdate.append(onDuelUpdate);

@@ -1,5 +1,5 @@
-import DuelistProfile from "@ygo/class/DuelistProfile";
-import DeckInfo from "@ygo/class/DeckInfo";
+import { type IDuelistProfile } from "@ygo/class/DuelistProfile";
+import { type IDeckInfo } from "@ygo/class/DeckInfo";
 import { Duel, type TSeat } from "./Duel";
 import { DuelEntity } from "./DuelEntity";
 import type { DuelClock } from "./DuelClock";
@@ -20,18 +20,22 @@ export default class Duelist {
   public readonly duel: Duel;
   public readonly seat: TSeat;
   public get entity() {
-    return this._entity as DuelEntity;
+    const avatar = this.getHandCell().entities.find((entity) => entity.entityType === "Duelist");
+    if (avatar) {
+      return avatar;
+    }
+    return DuelEntity.createPlayerEntity(this);
   }
   public _entity: DuelEntity | undefined;
-  public readonly profile: DuelistProfile;
-  public readonly deckInfo: DeckInfo;
+  public readonly profile: IDuelistProfile;
+  public readonly deckInfo: IDeckInfo;
   public readonly duelistType: TDuelistType;
   public readonly lifeLog: LifeLogRecord[];
   public normalSummonCount: number;
   public specialSummonCount: number;
   public readonly maxNormalSummonCount: number;
   private _lp: number;
-  public constructor(duel: Duel, seat: TSeat, profile: DuelistProfile, duelistType: TDuelistType, deckInfo: DeckInfo) {
+  public constructor(duel: Duel, seat: TSeat, profile: IDuelistProfile, duelistType: TDuelistType, deckInfo: IDeckInfo) {
     this.duel = duel;
     this.seat = seat;
     this.profile = profile;
@@ -43,9 +47,6 @@ export default class Duelist {
     this.maxNormalSummonCount = 1;
     this._lp = 8000;
   }
-  public readonly initEntity = () => {
-    this._entity = DuelEntity.createPlayerEntity(this);
-  };
   public readonly battleDamage = (point: number, entity: DuelEntity): LifeLogRecord => {
     return this.setLp(this._lp - point, entity, "BattleDamage");
   };

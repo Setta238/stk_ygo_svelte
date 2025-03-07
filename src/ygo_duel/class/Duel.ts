@@ -1,6 +1,6 @@
-import DeckInfo from "@ygo/class/DeckInfo";
+import { type IDeckInfo } from "@ygo/class/DeckInfo";
 import Duelist, { type TDuelistType } from "@ygo_duel/class/Duelist";
-import DuelistProfile from "@ygo/class/DuelistProfile";
+import { type IDuelistProfile } from "@ygo/class/DuelistProfile";
 import { DuelField } from "./DuelField";
 import DuelLog from "@ygo_duel/class/DuelLog";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
@@ -60,12 +60,12 @@ export class Duel {
   public isEnded: boolean;
   private coin = false;
   public constructor(
-    duelist1: DuelistProfile,
+    duelist1: IDuelistProfile,
     duelist1Type: TDuelistType,
-    deck1: DeckInfo,
-    duelist2: DuelistProfile,
+    deck1: IDeckInfo,
+    duelist2: IDuelistProfile,
     duelist2Type: TDuelistType,
-    deck2: DeckInfo
+    deck2: IDeckInfo
   ) {
     this.phase = "end";
     this.clock = new DuelClock();
@@ -77,8 +77,6 @@ export class Duel {
     };
     this.priorityHolder = this.firstPlayer;
     this.field = new DuelField(this);
-    //NOTE フィールドと生成順序が矛盾するので、初期化メソッドを一部外出しして誤魔化す
-    Object.values(this.duelists).forEach((duelist) => duelist.initEntity());
 
     this.view = new DuelViewController(this);
     this.log = new DuelLog(this);

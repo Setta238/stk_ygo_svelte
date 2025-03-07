@@ -1,4 +1,5 @@
 import {
+  cardKinds,
   exMonsterCategories,
   specialMonsterCategories,
   type TBattlePosition,
@@ -75,6 +76,7 @@ export type CardActionBase<T> = {
   title: string;
   playType: TCardActionType;
   spellSpeed: TSpellSpeed;
+  hasToTargetCards?: boolean;
   executableCells: DuelFieldCellType[];
   /**
    * 発動可能かどうかの検証
@@ -106,6 +108,8 @@ export type CardAction<T> = {
   seq: number;
   playType: TCardActionType;
   spellSpeed: TSpellSpeed;
+  hasToTargetCards?: boolean;
+
   executableCells: DuelFieldCellType[];
   /**
    *
@@ -142,41 +146,57 @@ export type TDuelEntityInfoDetail = {
   cardPlayList: Array<CardAction<unknown>>;
 };
 export type TDuelEntityInfo = TCardInfoBase & TDuelEntityInfoDetail;
-export const CardSorter = (left: DuelEntity, right: DuelEntity): number => {
-  if (left.origin.kind === right.origin.kind) {
-    if (left.origin.kind === "Monster") {
-      const leftExFlg = (left.origin.monsterCategories?.union(exMonsterCategories).length ?? 0) > 0;
-      const rightExFlg = (right.origin.monsterCategories?.union(exMonsterCategories).length ?? 0) > 0;
+export const CardSorter = (left: TCardInfoJson, right: TCardInfoJson): number => {
+  // エクストラデッキのモンスターは、魔法罠よりも下
+  const leftCatList = left.monsterCategories ?? [];
+  const rightCatList = right.monsterCategories ?? [];
+
+  for (const cat of exMonsterCategories.toReversed()) {
+    if (leftCatList.includes(cat) && !rightCatList.includes(cat)) {
+      return 1;
+    }
+    if (!leftCatList.includes(cat) && rightCatList.includes(cat)) {
+      return -1;
+    }
+  }
+
+  if (left.kind === right.kind) {
+    if (left.kind === "Monster") {
+      const leftExFlg = (left.monsterCategories?.union(exMonsterCategories).length ?? 0) > 0;
+      const rightExFlg = (right.monsterCategories?.union(exMonsterCategories).length ?? 0) > 0;
       if (leftExFlg !== rightExFlg) {
         return rightExFlg ? 1 : -1;
       }
-      if ((left.origin.link ?? 0) !== (right.origin.link ?? 0)) {
-        return (left.origin.link ?? 0) - (right.origin.link ?? 0);
+      if ((left.link ?? 0) !== (right.link ?? 0)) {
+        return (left.link ?? 0) - (right.link ?? 0);
       }
-      if ((left.origin.rank ?? 0) !== (right.origin.rank ?? 0)) {
-        return (left.origin.rank ?? 0) - (right.origin.rank ?? 0);
+      if ((left.rank ?? 0) !== (right.rank ?? 0)) {
+        return (left.rank ?? 0) - (right.rank ?? 0);
       }
-      if ((left.origin.level ?? 0) !== (right.origin.level ?? 0)) {
-        return (left.origin.level ?? 0) - (right.origin.level ?? 0);
+      if ((left.level ?? 0) !== (right.level ?? 0)) {
+        return (left.level ?? 0) - (right.level ?? 0);
       }
-      if ((left.origin.attack ?? 0) !== (right.origin.attack ?? 0)) {
-        return (left.origin.attack ?? 0) - (right.origin.attack ?? 0);
+      if ((left.attack ?? 0) !== (right.attack ?? 0)) {
+        return (left.attack ?? 0) - (right.attack ?? 0);
       }
-      if ((left.origin.defense ?? 0) !== (right.origin.defense ?? 0)) {
-        return (left.origin.defense ?? 0) - (right.origin.defense ?? 0);
+      if ((left.defense ?? 0) !== (right.defense ?? 0)) {
+        return (left.defense ?? 0) - (right.defense ?? 0);
       }
     }
-    return left.origin.name.localeCompare(right.origin.name);
+    return left.name.localeCompare(right.name);
   }
 
-  if (left.origin.kind === "Monster") {
-    return -1;
+  for (const kind of cardKinds.toReversed()) {
+    if (left.kind === kind) {
+      return -1;
+    }
   }
 
-  if (left.origin.kind === "Spell") {
-    return right.origin.kind === "Monster" ? 1 : -1;
-  }
-  return 1;
+  // 到達しないコード
+  return left.name.localeCompare(right.name);
+};
+export const CardEntitySorter = (left: DuelEntity, right: DuelEntity): number => {
+  return CardSorter(left.origin, right.origin);
 };
 
 export class DuelEntity {

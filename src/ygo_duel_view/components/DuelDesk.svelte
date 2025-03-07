@@ -9,8 +9,8 @@
 <script lang="ts">
   import DuelFieldCell from "./DuelFieldCell.svelte";
   import { cardInfoDic } from "../../ygo/class/CardInfo";
-  import DuelistProfile from "../../ygo/class/DuelistProfile";
-  import DeckInfo from "../../ygo/class/DeckInfo";
+  import { DuelistProfile } from "../../ygo/class/DuelistProfile";
+  import { DeckInfo } from "../../ygo/class/DeckInfo";
   import { Duel, type DuelistResponse } from "../../ygo_duel/class/Duel";
   import DuelLog from "./DuelLog.svelte";
   import DuelDuelist from "./DuelDuelist.svelte";
@@ -20,62 +20,9 @@
   import ModalContainer from "@ygo_duel_view/components/DuelModalContainer.svelte";
   import DuelCardDetail from "./DuelCardDetail.svelte";
   import DuelFieldCellInfo from "./DuelFieldCellInfo.svelte";
-  const duelist1Profile = new DuelistProfile();
-  duelist1Profile.name = "あなた";
-  const duelist2Profile = new DuelistProfile();
-  duelist2Profile.name = "NPC";
-  const deck1 = new DeckInfo();
-  const deck2 = new DeckInfo();
-  deck1.cardNames = [
-    "おろかな埋葬",
-    "成金ゴブリン",
-    "強欲な壺",
-    "天使の施し",
-    "増援",
-    "Ｅ－エマージェンシーコール",
-    "サイバー・ドラゴン",
-    "ナチュル・ガオドレイク",
-    "スクラップ・デスデーモン",
-    "大地の騎士ガイアナイト",
-  ];
-  deck1.cardNames = [
-    ...deck1.cardNames,
-    ...deck1.cardNames,
-    ...deck1.cardNames,
-    "アレキサンドライドラゴン",
-    "ジェネティック・ワーウルフ",
-    "機界騎士アヴラム",
-    "ジョングルグールの幻術師",
-    "ゾンビーノ",
-    "幻のグリフォン",
-    "フロストザウルス",
-    "エレキテルドラゴン",
-    "青眼の白龍",
-    "幻殻竜",
-    "しゃりの軍貫",
-    "チューン・ウォリアー",
-    "ライドロン",
-    "Ａ・マインド",
-    "ウォーター・スピリット",
-    "エンジェル・トランペッター",
-    "ガード・オブ・フレムベル",
-    "ギャラクシーサーペント",
-    "ジェネクス・コントローラー",
-    "スペース・オマジナイ・ウサギ",
-    "ハロハロ",
-    "ライブラの魔法秤",
-    "ラブラドライドラゴン",
-    "守護竜ユスティア",
-    "竜核の呪霊者",
-    "Ｅ・ＨＥＲＯ クレイマン",
-    "Ｅ・ＨＥＲＯ スパークマン",
-    "Ｅ・ＨＥＲＯ ネオス",
-    "Ｅ・ＨＥＲＯ バーストレディ",
-    "Ｅ・ＨＥＲＯ フェザーマン",
-  ];
-  deck2.cardNames = Object.keys(cardInfoDic).randomPick(40);
 
-  let duel = new Duel(duelist1Profile, "Player", deck1, duelist2Profile, "NPC", deck2);
+  export let duel: Duel;
+
   let retryFlg = false;
   let response: (Action: DuelistResponse) => void = () => {};
   let selectedEntitiesValidator: (selectedEntities: DuelEntity[]) => boolean = () => true;
@@ -128,6 +75,7 @@
 <!-- <div><button on:click={() => {
     duel.field.pushDeck(duel.duelists.Below);
   }}>hoge</button></div>-->
+<div style="position:absolute;right:0;top:0">{duel.clock.toString()}</div>
 <div class="flex duel_desk">
   <div class="duel_desk_left v_flex">
     <DuelDuelist duelist={duel.duelists.Above}></DuelDuelist>

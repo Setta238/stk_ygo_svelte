@@ -61,4 +61,7 @@ export class DuelClock {
     this._procSeq++;
     this._procTotalSeq++;
   };
+  public readonly toString = () => {
+    return `${this.procTotalSeq}(t${this.turn}-p${this.phaseSeq}-ps${this.stepSeq}-c${this.chainSeq}-cb${this.chainBlockSeq}-p${this.procSeq})`;
+  };
 }

@@ -359,16 +359,17 @@ export class DuelField {
     if (cells.length > 1) {
       if (_chooser.duelistType !== "NPC") {
         const dammyActions = [DuelEntity.createDammyAction(entity, "セット", cells)];
-        this.duel.view.modalController.selectAction(this.duel.view, {
+        const actionPromise = this.duel.view.modalController.selectAction(this.duel.view, {
           title: "カードをセット先へドラッグ",
           actions: dammyActions as CardAction<unknown>[],
-          cancelable: false,
+          cancelable: cancelable,
         });
-        const dAct = await this.duel.view.waitSubAction(_chooser, dammyActions as CardAction<unknown>[], "カードをセット先へドラッグ", cancelable);
-        const action = dAct.actionWIP;
+        const responsePromise = this.duel.view.waitSubAction(_chooser, dammyActions as CardAction<unknown>[], "カードをセット先へドラッグ", cancelable);
+
+        const action = await Promise.any([actionPromise, responsePromise.then((res) => res.actionWIP)]);
 
         if (!action && !cancelable) {
-          throw new SystemError("", dAct);
+          throw new SystemError("", action);
         }
         if (!action) {
           return;

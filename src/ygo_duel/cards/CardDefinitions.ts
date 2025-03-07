@@ -206,6 +206,55 @@ export const createCardDefinitions = (): CardDefinition[] => {
   };
 
   result.push(def_おろかな埋葬);
+  const def_死者蘇生 = {
+    name: "死者蘇生",
+    actions: [
+      {
+        title: "発動",
+        playType: "CardActivation",
+        spellSpeed: "Normal",
+        executableCells: ["Hand", "SpellAndTrapZone"],
+        hasToTargetCards: true,
+        // 墓地に蘇生可能モンスター、場に空きが必要。
+        validate: (entity: DuelEntity) =>
+          defaultSpellTrapValidate(
+            entity,
+            (e) =>
+              e.field
+                .getCells("Graveyard")
+                .flatMap((gy) => gy.cardEntities)
+                .filter((card) => card.origin.kind === "Monster" && card.canReborn).length > 0 && e.controller.getAvailableMonsterZones().length > 0
+          ),
+        prepare: async (entity: DuelEntity, cell?: DuelFieldCell) => {
+          entity.isDying = true;
+          const target = await entity.field.duel.view.waitSelectEntities(
+            entity.controller,
+            entity.field
+              .getCells("Graveyard")
+              .flatMap((gy) => gy.cardEntities)
+              .filter((card) => card.origin.kind === "Monster" && card.canReborn),
+            1,
+            (list) => list.length === 1,
+            "蘇生対象とするモンスターを選択",
+            false
+          );
+          await defaultSpellTrapPrepare(entity, undefined, cell);
+
+          return target?.[0];
+        },
+        execute: async (entity: DuelEntity, activater: Duelist, cell: DuelFieldCell, prepared: DuelEntity) => {
+          const emptyCells = activater.getEmptyMonsterZones();
+          prepared.controller = activater;
+          await entity.field.summon(prepared, ["Attack", "Defense"], emptyCells, "SpecialSummon", ["Effect"], entity, undefined, false);
+          entity.controller.specialSummonCount++;
+          return true;
+        },
+      },
+      defaultSpellTrapSetAction,
+    ] as CardActionBase<unknown>[],
+  };
+
+  result.push(def_死者蘇生);
   const def_増援 = {
     name: "増援",
     actions: [
@@ -305,6 +354,62 @@ export const createCardDefinitions = (): CardDefinition[] => {
   };
 
   result.push(def_e_エマージェンシーコール);
+  const def_光の援軍 = {
+    name: "光の援軍",
+    actions: [
+      {
+        title: "発動",
+        playType: "CardActivation",
+        spellSpeed: "Normal",
+        executableCells: ["Hand", "SpellAndTrapZone"],
+        // デッキに対象モンスターが一枚以上必要。
+        validate: (entity: DuelEntity) =>
+          defaultSpellTrapValidate(
+            entity,
+            (e) =>
+              e.controller
+                .getDeckCell()
+                .cardEntities.filter((card) => card.status.kind === "Monster")
+                .filter((entity) => (entity.lvl ?? 13) < 5)
+                .some((entity) => entity.status.nameTags && entity.status.nameTags.includes("ライトロード")) &&
+              e.controller.getDeckCell().cardEntities.length > 3
+          ),
+        prepare: async (entity: DuelEntity, cell?: DuelFieldCell) => {
+          entity.isDying = true;
+          const deck = entity.controller.getDeckCell();
+
+          Array(3).forEach(() => deck.cardEntities[0].sendGraveyard(["Cost"], entity));
+
+          return await defaultSpellTrapPrepare(entity, undefined, cell);
+        },
+        execute: async (entity: DuelEntity, activater: Duelist) => {
+          const monsters = activater
+            .getDeckCell()
+            .cardEntities.filter((entity) => entity.status.kind === "Monster")
+            .filter((entity) => (entity.lvl ?? 13) < 5)
+            .filter((entity) => entity.status.nameTags && entity.status.nameTags.includes("ライトロード"));
+          if (monsters.length === 0) {
+            return false;
+          }
+          const target = await entity.field.duel.view.waitSelectEntities(
+            activater,
+            monsters,
+            1,
+            (list) => list.length === 1,
+            "手札に加えるモンスターを選択",
+            false
+          );
+          for (const monster of target ?? []) {
+            await monster.addToHand(["Effect"], entity);
+          }
+          return true;
+        },
+      },
+      defaultSpellTrapSetAction,
+    ] as CardActionBase<unknown>[],
+  };
+
+  result.push(def_光の援軍);
 
   console.log(result);
 

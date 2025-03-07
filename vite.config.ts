@@ -10,6 +10,8 @@ export default defineConfig({
     alias: {
       "@stk_utils": path.join(__dirname, "src/stk_utils"),
       "@ygo": path.join(__dirname, "src/ygo"),
+      "@ygo_app": path.join(__dirname, "src/ygo_app"),
+      "@ygo_deck_editor": path.join(__dirname, "src/ygo_deck_editor"),
       "@ygo_duel": path.join(__dirname, "src/ygo_duel"),
       "@ygo_duel_view": path.join(__dirname, "src/ygo_duel_view"),
     },

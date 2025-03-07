@@ -1,5 +1,6 @@
-export type TCardKind = "Monster" | "Spell" | "Trap";
-export const exMonsterCategories = ["Syncro", "Fusion", "Xyz", "Link"] as const;
+export const cardKinds = ["Monster", "Spell", "Trap"] as const;
+export type TCardKind = (typeof cardKinds)[number];
+export const exMonsterCategories = ["Fusion", "Syncro", "Xyz", "Link"] as const;
 export type TMonsterExSummonCategory = (typeof exMonsterCategories)[number];
 export const specialMonsterCategories = [...exMonsterCategories, "SpecialSummon"] as const;
 export type TMonsterSpecialSummonCategory = (typeof specialMonsterCategories)[number];

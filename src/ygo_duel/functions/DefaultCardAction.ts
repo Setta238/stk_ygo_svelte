@@ -326,7 +326,7 @@ export const defaultSyncroSummonExecute = async (
   );
 
   activater.specialSummonCount++;
-
+  entity.canReborn = true;
   return true;
 };
 

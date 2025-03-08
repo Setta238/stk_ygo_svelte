@@ -1,0 +1,62 @@
+.duel_card.Normal {
+  background-color: cornsilk;
+  content: "●";
+}
+
+.duel_card.Effect {
+  background-color: chocolate;
+}
+
+.duel_card.Syncro {
+  background-color: snow;
+}
+
+.duel_card.Spell {
+  background-color: forestgreen;
+  color: white;
+}
+  
+.duel_card .monster_attr::after {
+  line-height: 100%;
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  font-size: 1em;
+  content: "●";
+  border-radius: 100%;
+  border: solid thin;
+}
+.monster_attr.Light::after {
+  color: yellow;
+  background-color: gold;
+}
+
+ .monster_attr.Dark::after {
+  color: indigo;
+  background-color: black;
+}
+
+ .monster_attr.Earth::after {
+  color: brown;
+  background-color: darkred;
+}
+
+ .monster_attr.Water::after {
+  color: aqua;
+  background-color: aquamarine;
+}
+
+ .monster_attr.Fire::after {
+  color: crimson;
+  background-color: orange;
+}
+
+ .monster_attr.Wind::after {
+  color: springgreen;
+  background-color: whitesmoke;
+}
+
+ .monster_attr.Divine::after {
+  color: blanchedalmond;
+  background-color: yellow;
+}

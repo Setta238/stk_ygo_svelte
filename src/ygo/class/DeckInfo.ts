@@ -19,21 +19,28 @@ export interface IDeckInfo {
 }
 
 export class DeckInfo implements IDeckInfo {
+  private static idb: StkIndexedDB<TTblNames> | undefined;
   private static tblHeader: TblDeckHeader;
   private static tblDetail: TblDeckDetail;
 
-  public static readonly getAllDeckInfo = async (idb: StkIndexedDB<TTblNames>): Promise<DeckInfo[]> => {
+  public static readonly getAllDeckInfo = async (idb?: StkIndexedDB<TTblNames>): Promise<DeckInfo[]> => {
+    if (idb) {
+      DeckInfo.idb = idb;
+    }
+    if (!DeckInfo.idb) {
+      throw new Error("illegal argument: idb is undefined.");
+    }
     if (!DeckInfo.tblHeader) {
-      DeckInfo.tblHeader = new TblDeckHeader(idb);
+      DeckInfo.tblHeader = new TblDeckHeader(DeckInfo.idb);
     }
     if (!DeckInfo.tblDetail) {
-      DeckInfo.tblDetail = new TblDeckDetail(idb);
+      DeckInfo.tblDetail = new TblDeckDetail(DeckInfo.idb);
     }
     const headers = await DeckInfo.tblHeader.getAll();
     const details = await DeckInfo.tblDetail.getAll();
 
     if (!headers.length) {
-      return [await DeckInfo.createNewDeck(sampleDecks[0].name, sampleDecks[0].description, sampleDecks[0].cardNames)];
+      return [await DeckInfo.prepareSampleDeck()];
     }
 
     return headers.map((header) => new DeckInfo(header, details));
@@ -58,6 +65,10 @@ export class DeckInfo implements IDeckInfo {
     );
 
     return new DeckInfo(header, details);
+  };
+
+  public static prepareSampleDeck = async () => {
+    return await DeckInfo.createNewDeck(sampleDecks[0].name, sampleDecks[0].description, sampleDecks[0].cardNames);
   };
 
   public readonly id: number;
@@ -89,23 +100,26 @@ export class DeckInfo implements IDeckInfo {
   public copy = async (): Promise<DeckInfo> => {
     return DeckInfo.createNewDeck(this.name, this.description, this.cardNames);
   };
-  public saveDeckInfo = async (newDeckInfo: IDeckInfo): Promise<DeckInfo> => {
+  public saveDeckInfo = async (newDeckInfo?: IDeckInfo): Promise<DeckInfo> => {
+    const _newDeckInfo = newDeckInfo ?? this;
+
     //ヘッダ情報更新
     await DeckInfo.tblHeader.update(this.id, (info) => {
       return {
         ...info,
-        name: newDeckInfo.name,
-        description: newDeckInfo.description,
+        name: _newDeckInfo.name,
+        description: _newDeckInfo.description,
       };
     });
 
     //旧明細削除
     const oldDetails = (await DeckInfo.tblDetail.getAll()).filter((detail) => detail.deckId === this.id);
+    console.log(_newDeckInfo.cardNames);
     await DeckInfo.tblDetail.delete(oldDetails.map((detail) => detail.id));
 
     //新明細作成
     const newDetails = await DeckInfo.tblDetail.insertMany(
-      newDeckInfo.cardNames.map((name, index) => {
+      _newDeckInfo.cardNames.map((name, index) => {
         return {
           deckId: this.id,
           seq: index,
@@ -115,6 +129,7 @@ export class DeckInfo implements IDeckInfo {
       })
     );
 
+    console.log(newDetails);
     //新規のデッキ情報を返す。
     return new DeckInfo(await DeckInfo.tblHeader.get(this.id), newDetails);
   };

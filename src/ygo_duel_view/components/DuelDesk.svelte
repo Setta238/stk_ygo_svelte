@@ -168,6 +168,9 @@
     top: 0px;
     left: 0px;
   }
+  .duel_field_header_buttons button {
+    border-radius: 0.5rem;
+  }
   .duel_desk_center {
     min-width: 60%;
     justify-content: space-between;
@@ -190,7 +193,7 @@
     background: #000;
   }
   .duel_desk_right {
-    min-width: 15%;
+    min-width: 20%;
     max-height: 100%;
   }
   .duel_field {

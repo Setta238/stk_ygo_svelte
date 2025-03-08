@@ -58,6 +58,7 @@
     line-height: 1.1;
     width: 90%;
     padding: 0.3rem;
+    background-color: whitesmoke;
   }
   .duelist.Below {
     border: 0.3rem skyblue solid;

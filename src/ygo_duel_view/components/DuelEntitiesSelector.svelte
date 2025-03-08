@@ -32,6 +32,7 @@
               state="Selectable"
               entitySelectResolve={(selected: DuelEntity[]) => resolve(selected)}
               {qty}
+              cardActionResolve={undefined}
               bind:selectedList
             />
           </div>
@@ -80,5 +81,21 @@
     background-color: gray;
     opacity: 0.5;
     border-radius: 0%;
+  }
+  .window button {
+    background-color: #ffffff;
+    display: inline-block;
+    padding: 0em 1em;
+    text-decoration: none;
+    color: #67c5ff;
+    border: solid 0.2rem #67c5ff;
+    border-radius: 3px;
+    transition: 0.4s;
+    margin: 0.1rem 0.3rem;
+  }
+
+  .window button:hover {
+    background: #67c5ff;
+    color: white;
   }
 </style>

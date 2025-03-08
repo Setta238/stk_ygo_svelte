@@ -28,6 +28,7 @@
   .duel_log {
     overflow-y: auto;
     max-height: 100%;
+    background-color: beige;
   }
   .duel_log td {
     padding: 0rem 0.5rem;

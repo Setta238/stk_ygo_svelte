@@ -17,24 +17,49 @@
   let duel: Duel | undefined;
   let mode = "None" as "Duel" | "DeckEdit" | "None";
 
-  let deck: DeckInfo | undefined;
-
   const userProfilePromise = DuelistProfile.getOrCreateNew(idb);
-  const userDecksPromise = DeckInfo.getAllDeckInfo(idb);
+  let userDecksPromise = DeckInfo.getAllDeckInfo(idb);
 
+  const saveUserProfile = async () => {
+    const userProfile = await userProfilePromise;
+    userProfile.save();
+  };
+  const reloadDeckInfos = () => {
+    userDecksPromise = DeckInfo.getAllDeckInfo(idb);
+  };
+  const prepareSampleDeck = async () => {
+    const userDecks = await userDecksPromise;
+    if (userDecks.length) {
+      return;
+    }
+    await DeckInfo.prepareSampleDeck();
+    reloadDeckInfos();
+  };
   const onDuelStartClick = async () => {
+    await Promise.all([saveUserProfile(), prepareSampleDeck()]);
     duel = new Duel(await userProfilePromise, "Player", (await userDecksPromise)[0], nonPlayerCharacters[0], "NPC", sampleDecks[0]);
   };
-  const onEditClick = () => {
+  const onEditClick = async () => {
+    console.log("hoge");
+    await Promise.all([saveUserProfile(), prepareSampleDeck()]);
     mode = "DeckEdit";
   };
+  const onDuelistNameKeyPress = async (ev: KeyboardEvent) => {
+    await saveUserProfile();
+
+    if (ev.key === "Enter" && !ev.repeat) {
+      const userProfile = await userProfilePromise;
+      userProfile.save();
+    }
+  };
+  prepareSampleDeck();
 </script>
 
 <main>
   {#if duel}
     <DuelDesk {duel} />
-  {:else if deck && mode === "DeckEdit"}
-    <DeckEditor deckInfo={deck} />
+  {:else if mode === "DeckEdit"}
+    <DeckEditor />
   {:else}
     <div class="app_body">
       {#await userProfilePromise}
@@ -42,16 +67,14 @@
       {:then userProfile}
         <div>
           <label for="duelist_name" class="duelist_name">名前：</label>
-          <input id="duelist_name" class="duelist_name" type="text" bind:value={userProfile.name} on:keypress={(ev) => console.log(ev, userProfile.name)} />
+          <input id="duelist_name" class="duelist_name" type="text" bind:value={userProfile.name} on:keypress={onDuelistNameKeyPress} />
         </div>
         <div>
           <button class="btn" on:click={onDuelStartClick}>duel start!</button>
         </div>
-        <!--
         <div>
           <button class="btn" on:click={onEditClick}>deck edit</button>
         </div>
-        -->
       {/await}
     </div>
   {/if}

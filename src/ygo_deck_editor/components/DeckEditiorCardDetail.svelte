@@ -8,67 +8,66 @@
     monsterTypeEmojiDic,
     spellCategoryDic,
     trapCategoryDic,
+    type TCardInfoJson,
     type TEntityStatus,
   } from "@ygo/class/YgoTypes";
   import { DuelEntity, type CardAction } from "@ygo_duel/class/DuelEntity";
   import { writable } from "svelte/store";
-  export let entity: DuelEntity | undefined = undefined;
-  const getInfo = () => (entity ? cardInfoDic[entity.origin.name] : undefined);
+  export let cardInfo: TCardInfoJson | undefined = undefined;
+  const getInfo = () => (cardInfo ? cardInfoDic[cardInfo.name] : undefined);
 </script>
 
-{#if entity}
-  <div class="duel_card duel_card_info {entity.origin.kind} {entity.origin.monsterCategories?.join(' ')}">
+{#if cardInfo}
+  <div class="duel_card duel_card_info {cardInfo.kind} {cardInfo.monsterCategories?.join(' ')}">
     <div class="duel_card_info_header">
       <div class="duel_card_info_row">
-        <div>{entity.nm}</div>
+        <div>{cardInfo.name}</div>
       </div>
       <div class="duel_card_info_row" style="position:sticky; top:0;">
-        <div>{"★".repeat(entity.status.level || 0)}</div>
-        <div>{"☆".repeat(entity.status.rank || 0)}</div>
+        <div>{"★".repeat(cardInfo.level || 0)}</div>
+        <div>{"☆".repeat(cardInfo.rank || 0)}</div>
       </div>
-      {#if entity.status.monsterCategories?.includes("Pendulum")}
+    </div>
+    <div class="duel_card_info_body">
+      {#if cardInfo.monsterCategories?.includes("Pendulum")}
         <div class="duel_card_info_row">
-          <div><pre class="description">{cardInfoDic[entity.origin.name].pendulumDescription}</pre></div>
+          <div><pre class="description">{cardInfoDic[cardInfo.name].pendulumDescription}</pre></div>
         </div>
         <div class="duel_card_info_row" style=" justify-content: space-between;">
-          <div>◀ {entity.psL}</div>
-          <div>{entity.psR} ▶</div>
+          <div>◀ {cardInfo.pendulumScaleL}</div>
+          <div>{cardInfo.pendulumScaleR} ▶</div>
         </div>
       {/if}
-      {#if entity.status.kind === "Monster"}
+      {#if cardInfo.kind === "Monster"}
         <div class="duel_card_info_row">
-          {#each entity.attr as attr}
-            <div class="monster_attr {attr}"></div>
-            <div>{monsterAttributeDic[attr]}属性</div>
-          {/each}
-          {#if entity.status.type}
-            <div class="monster_cat {entity.status.type}">{monsterTypeEmojiDic[entity.status.type]}{monsterTypeDic[entity.status.type]}族</div>
+          {#if cardInfo.attribute}
+            <div class="monster_attr {cardInfo.attribute}"></div>
+            <div>{monsterAttributeDic[cardInfo.attribute]}属性</div>
+          {/if}
+          {#if cardInfo.type}
+            <div class="monster_cat {cardInfo.type}">{monsterTypeEmojiDic[cardInfo.type]}{monsterTypeDic[cardInfo.type]}族</div>
           {/if}
         </div>
         <div class="duel_card_info_row">
-          {#each entity.status.monsterCategories ?? [] as cat}
+          {#each cardInfo.monsterCategories ?? [] as cat}
             <div class="monster_cat {cat}">{monsterCategoryEmojiDic[cat]}{monsterCategoryDic[cat]}</div>
           {/each}
         </div>
-      {:else if entity.status.kind === "Spell" && entity.status.spellCategory}
+      {:else if cardInfo.kind === "Spell" && cardInfo.spellCategory}
         <div class="duel_card_row">
           <div></div>
-          <div>{spellCategoryDic[entity.status.spellCategory]}魔法</div>
+          <div>{spellCategoryDic[cardInfo.spellCategory]}魔法</div>
         </div>
-      {:else if entity.status.kind === "Trap" && entity.status.trapCategory}
+      {:else if cardInfo.kind === "Trap" && cardInfo.trapCategory}
         <div class="duel_card_row">
           <div></div>
-          <div>{trapCategoryDic[entity.status.trapCategory]}罠</div>
+          <div>{trapCategoryDic[cardInfo.trapCategory]}罠</div>
         </div>
       {/if}
-    </div>
 
-    <div class="duel_card_info_body">
-      <div class="duel_card_info_row">
+      <div class="duel_card_info_row description">
         <div><pre class="description">{getInfo()?.description}</pre></div>
       </div>
-    </div>
-    <div class="duel_card_info_footer">
       <div class="duel_card_info_links">
         <a href={getInfo()?.wikiHref} target="_blank" rel="noopener noreferrer" title="遊戯王カードWiki">⇒遊戯王カードWiki</a>
       </div>
@@ -79,20 +78,17 @@
 <style>
   .duel_card_info {
     position: relative;
-    margin: 0.1rem 0.3rem;
     padding: 0.1rem;
-    border: solid 1px #778ca3;
     margin: 0.1rem 0.3rem;
-    padding: 0.1rem;
     border: solid 1px #778ca3;
-    font-size: 0.7rem;
     text-align: left;
-    height: 70%;
     font-size: 1.1rem;
-    max-height: 70%;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
+    width: 100%;
+
+    flex-grow: 1;
   }
   .button_style_reset {
     display: block;
@@ -114,9 +110,13 @@
   }
   .duel_card_info_body {
     flex-grow: 1;
-    display: initial;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+
+    max-height: initial;
   }
-  .duel_card_info_footer {
+  .duel_card_info_links {
     position: sticky;
     bottom: 0;
     background: inherit;
@@ -133,8 +133,10 @@
   .duel_card_info_links {
     background-color: white;
   }
+  .duel_card_info_row.description {
+    flex-grow: 1;
+  }
   .duel_card_info_row .description {
-    max-width: 98%;
     white-space: pre-wrap;
     margin: 0.5rem 0rem;
     max-height: initial;

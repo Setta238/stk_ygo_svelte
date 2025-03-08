@@ -2094,8 +2094,7 @@
 		"description": "常に太い竹を一本持っており、性格は非常に凶暴である。",
 		"cardType": "Monster",
 		"monsterCategories": [
-			"Normal",
-			"Effect"
+			"Normal"
 		],
 		"level": 4,
 		"attack": 1200,
@@ -2756,8 +2755,7 @@
 		"description": "この世の成仏できない霊が集まってできた怨霊。",
 		"cardType": "Monster",
 		"monsterCategories": [
-			"Normal",
-			"Effect"
+			"Normal"
 		],
 		"level": 2,
 		"attack": 600,

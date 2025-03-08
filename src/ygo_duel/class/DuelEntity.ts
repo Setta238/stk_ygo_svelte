@@ -162,11 +162,6 @@ export const CardSorter = (left: TCardInfoJson, right: TCardInfoJson): number =>
 
   if (left.kind === right.kind) {
     if (left.kind === "Monster") {
-      const leftExFlg = (left.monsterCategories?.union(exMonsterCategories).length ?? 0) > 0;
-      const rightExFlg = (right.monsterCategories?.union(exMonsterCategories).length ?? 0) > 0;
-      if (leftExFlg !== rightExFlg) {
-        return rightExFlg ? 1 : -1;
-      }
       if ((left.link ?? 0) !== (right.link ?? 0)) {
         return (left.link ?? 0) - (right.link ?? 0);
       }
@@ -183,12 +178,15 @@ export const CardSorter = (left: TCardInfoJson, right: TCardInfoJson): number =>
         return (left.defense ?? 0) - (right.defense ?? 0);
       }
     }
-    return left.name.localeCompare(right.name);
+    return left.name.localeCompare(right.name, "Ja");
   }
 
-  for (const kind of cardKinds.toReversed()) {
+  for (const kind of cardKinds) {
     if (left.kind === kind) {
       return -1;
+    }
+    if (right.kind === kind) {
+      return 1;
     }
   }
 
@@ -196,7 +194,9 @@ export const CardSorter = (left: TCardInfoJson, right: TCardInfoJson): number =>
   return left.name.localeCompare(right.name);
 };
 export const CardEntitySorter = (left: DuelEntity, right: DuelEntity): number => {
-  return CardSorter(left.origin, right.origin);
+  const hoge = CardSorter(left.origin, right.origin);
+  console.log(left.nm, right.nm, hoge);
+  return hoge;
 };
 
 export class DuelEntity {

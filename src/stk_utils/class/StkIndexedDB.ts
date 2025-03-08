@@ -39,7 +39,6 @@ export class StkIndexedDB<SN extends string> {
         console.log("onupgradeneeded");
         //onupgradeneededは、DBのバージョン更新(DBの新規作成も含む)時のみ実行
         const db: IDBDatabase = (event.target as IDBOpenDBRequest).result;
-        console.log(db);
         tblNames
           .filter((tblName) => !db.objectStoreNames.contains(tblName))
           .map((tblName) => {
@@ -172,7 +171,6 @@ export class StkIndexedDB<SN extends string> {
     const tran = db.transaction([storeName], "readwrite");
     const store = tran.objectStore(storeName);
     const pairs = records.map((r) => {
-      console.log("putRecords", r);
       return { record: r, request: store.put(r) };
     });
     return new Promise<R[]>((resolve, reject) => {

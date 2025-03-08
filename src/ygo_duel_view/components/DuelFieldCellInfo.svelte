@@ -29,7 +29,7 @@
           </div>
           {#each getList(face).toSorted(CardEntitySorter) as card}
             <div class="duel_field_cell_info_item">
-              <DuelCard entity={card} isVisibleForcibly={cell.owner === cell.field.duel.duelists.Below} isWideMode={true}></DuelCard>
+              <DuelCard entity={card} isVisibleForcibly={cell.owner === cell.field.duel.duelists.Below} isWideMode={true} cardActionResolve={undefined} />
             </div>
           {/each}
         </div>

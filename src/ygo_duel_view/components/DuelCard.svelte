@@ -132,7 +132,7 @@
       <div class="duel_card_row" style="position:relative">
         <div>{entity.nm}</div>
         {#each entity.attr as attr}
-          <div class="monster_attr {attr}">●</div>
+          <div class="monster_attr {attr}"></div>
         {/each}
       </div>
       {#if entity.status.kind === "Monster"}
@@ -202,14 +202,22 @@
   .duel_card_wide .duel_card_face_up {
     max-width: initial;
   }
-  .button_style_reset {
-    display: block;
-    border-radius: 0%;
-    padding: 0px;
-    outline: none;
-    font: inherit;
-    color: inherit;
-    background: none;
+
+  .duel_card_row:first-child {
+    border: solid 0.01rem darkslategray;
+    display: flex;
+    padding: 0;
+  }
+  .duel_card_row:first-child > div:first-child {
+    width: 1rem;
+    flex-grow: 1;
+  }
+  .duel_card .monster_attr {
+    padding: 0;
+    margin: 0;
+    display: inline-block;
+    position: sticky;
+    right: 0em;
   }
   .duel_card_row {
     padding: 0rem 0.15rem;
@@ -222,43 +230,6 @@
   .duel_card_wide .duel_card_row {
     max-width: initial;
   }
-  .duel_card .monster_attr {
-    position: absolute;
-    right: 0rem;
-    width: 0.8rem;
-    height: 0.8rem;
-    border-radius: 100%;
-    border: solid thin;
-    margin: auto 0.1rem;
-  }
-  .duel_card .monster_attr.Light {
-    color: yellow;
-    background-color: gold;
-  }
-  .duel_card .monster_attr.Dark {
-    color: indigo;
-    background-color: black;
-  }
-  .duel_card .monster_attr.Earth {
-    color: brown;
-    background-color: darkred;
-  }
-  .duel_card .monster_attr.Water {
-    color: aqua;
-    background-color: aquamarine;
-  }
-  .duel_card .monster_attr.Fire {
-    color: crimson;
-    background-color: orange;
-  }
-  .duel_card .monster_attr.Wind {
-    color: springgreen;
-    background-color: whitesmoke;
-  }
-  .duel_card .monster_attr.Divine {
-    color: blanchedalmond;
-    background-color: yellow;
-  }
   .duel_card_row.enum {
     flex-wrap: wrap;
     justify-content: left;
@@ -267,22 +238,6 @@
     margin: 0 0.3rem;
   }
 
-  .duel_card_row:first-child {
-    border: solid 0.01rem darkslategray;
-  }
-  .duel_card.Normal {
-    background-color: cornsilk;
-  }
-  .duel_card.Effect {
-    background-color: chocolate;
-  }
-  .duel_card.Syncro {
-    background-color: snow;
-  }
-  .duel_card.Spell {
-    background-color: forestgreen;
-    color: white;
-  }
   .duel_card.Disabled,
   .duel_card.Disabled * {
     cursor: default;

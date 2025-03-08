@@ -242,7 +242,7 @@
         </div>
       {/if}
       {#if cell.cardEntities.length > 0}
-        {#each cell.cardEntities as entity, index}
+        {#each cell.cardEntities.toReversed() as entity, index}
           {#if !animationArg || animationArg.entity.seq !== entity.seq}
             <div style="position: absolute;" out:send={{ key: entity.seq }}>
               <DuelCard
@@ -383,6 +383,7 @@
     display: inline-block;
     padding: 0.2rem 1rem;
     cursor: pointer;
+    border-radius: 0.5rem;
   }
   .phase_button:hover {
     color: #fff;

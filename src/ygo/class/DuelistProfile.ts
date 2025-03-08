@@ -43,12 +43,14 @@ export class DuelistProfile implements IDuelistProfile {
     this.description = header.description;
   }
 
-  public save = async (newInfo: IDuelistHeaderRecord): Promise<DuelistProfile> => {
+  public save = async (newInfo?: IDuelistHeaderRecord): Promise<DuelistProfile> => {
+    const _newInfo = newInfo ?? { id: this.id, name: this.name, description: this.description };
+
     //ヘッダ情報更新
     const newRecord = await DuelistProfile.tblHeader.update(this.id, (info) => {
       return {
         ...info,
-        ...newInfo,
+        ..._newInfo,
       };
     });
 

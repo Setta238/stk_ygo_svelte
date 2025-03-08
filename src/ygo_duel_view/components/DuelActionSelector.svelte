@@ -70,7 +70,7 @@
       </div>
       {#if cancelable}
         <div>
-          <button onclick={() => resolve()}>Cancel</button>
+          <button class="cancel_button" onclick={() => resolve()}>Cancel</button>
         </div>
       {/if}
     </div>
@@ -89,6 +89,15 @@
     font: inherit;
     color: inherit;
     background: none;
+  }
+  .cancel_button {
+    background-color: aliceblue;
+    margin: 0.3rem;
+    border-width: 0.2rem;
+    border-style: groove;
+    border-color: steelblue;
+    border-radius: 0.4rem;
+    outline: 1rem slategrey;
   }
   .base {
     position: fixed;

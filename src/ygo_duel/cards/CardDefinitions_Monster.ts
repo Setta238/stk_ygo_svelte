@@ -1,12 +1,10 @@
-import type { TBattlePosition } from "@ygo/class/YgoTypes";
 import { DuelEntity, type CardActionBase } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 import type Duelist from "@ygo_duel/class/Duelist";
 import {
   defaultAttackAction,
   defaultBattlePotisionChangeAction,
-  defaultNormalAttackSummonAction,
-  defaultNormalSetSummonAction,
+  defaultNormalSummonAction,
   getDefaultSyncroSummonAction,
 } from "@ygo_duel/functions/DefaultCardAction";
 
@@ -18,50 +16,32 @@ export type CardDefinition = {
 export const createCardDefinitions_Monster = (): CardDefinition[] => {
   const result: CardDefinition[] = [];
 
-  const validate_サイバー・ドラゴン = (entity: DuelEntity): DuelFieldCell[] | undefined => {
-    const monsters = entity.field.getMonstersOnField();
-    if (monsters.length == 0 || monsters.some((m) => m.controller === entity.controller)) {
-      return undefined;
-    }
-
-    const emptyCells = entity.controller.getAvailableMonsterZones();
-    return emptyCells.length > 0 ? emptyCells : undefined;
-  };
-  const execute_サイバー・ドラゴン = async (entity: DuelEntity, pos: TBattlePosition, cell?: DuelFieldCell): Promise<boolean> => {
-    const emptyCells = entity.controller.getAvailableMonsterZones();
-    await entity.field.summon(entity, [pos], cell ? [cell] : emptyCells, "SpecialSummon", ["Rule"], entity, undefined, true);
-    entity.controller.specialSummonCount++;
-    return true;
-  };
-
   const def_サイバー・ドラゴン = {
     name: "サイバー・ドラゴン",
     actions: [
-      defaultNormalAttackSummonAction,
-      defaultNormalSetSummonAction,
+      defaultNormalSummonAction,
       defaultAttackAction,
       defaultBattlePotisionChangeAction,
       {
-        title: "特殊召喚（攻撃）",
+        title: "特殊召喚",
         playType: "SpecialSummon",
         spellSpeed: "Normal",
         executableCells: ["Hand"],
-        validate: validate_サイバー・ドラゴン,
-        prepare: async () => true,
-        execute: async (entity: DuelEntity, activater: Duelist, cell?: DuelFieldCell): Promise<boolean> => {
-          await execute_サイバー・ドラゴン(entity, "Attack", cell);
-          return true;
+        validate: (entity: DuelEntity): DuelFieldCell[] | undefined => {
+          const monsters = entity.field.getMonstersOnField();
+          if (monsters.length == 0 || monsters.some((m) => m.controller === entity.controller)) {
+            return undefined;
+          }
+
+          const emptyCells = entity.controller.getAvailableMonsterZones();
+          return emptyCells.length > 0 ? emptyCells : undefined;
         },
-      },
-      {
-        title: "特殊召喚（守備）",
-        playType: "SpecialSummon",
-        spellSpeed: "Normal",
-        executableCells: ["Hand"],
-        validate: validate_サイバー・ドラゴン,
         prepare: async () => true,
         execute: async (entity: DuelEntity, activater: Duelist, cell?: DuelFieldCell): Promise<boolean> => {
-          await execute_サイバー・ドラゴン(entity, "Defense", cell);
+          const emptyCells = entity.controller.getAvailableMonsterZones();
+          console.log(emptyCells);
+          await entity.field.summon(entity, ["Attack", "Defense"], cell ? [cell] : emptyCells, "SpecialSummon", ["Rule"], entity, undefined, true);
+          entity.controller.specialSummonCount++;
           return true;
         },
       },
@@ -70,9 +50,51 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
 
   result.push(def_サイバー・ドラゴン);
 
+  const def_ディアボリックガイ = {
+    name: "Ｄ－ＨＥＲＯ ディアボリックガイ",
+    actions: [
+      defaultNormalSummonAction,
+      defaultAttackAction,
+      defaultBattlePotisionChangeAction,
+      {
+        title: "特殊召喚",
+        playType: "IgnitionEffect",
+        spellSpeed: "Normal",
+        executableCells: ["Graveyard"],
+        validate: (entity: DuelEntity): DuelFieldCell[] | undefined => {
+          if (entity.controller.getDeckCell().cardEntities.filter((card) => card.nm === "Ｄ－ＨＥＲＯ ディアボリックガイ").length === 0) {
+            return;
+          }
+
+          const availableCells = entity.controller.getAvailableMonsterZones();
+          return availableCells.length > 0 ? [] : undefined;
+        },
+        prepare: async (entity: DuelEntity) => {
+          console.log(entity);
+          await entity.banish(["Cost"], entity);
+        },
+        execute: async (entity: DuelEntity, activater: Duelist, cell?: DuelFieldCell): Promise<boolean> => {
+          const availableCells = entity.controller.getAvailableMonsterZones();
+          if (!availableCells.length) {
+            return false;
+          }
+          const newOne = entity.controller.getDeckCell().cardEntities.find((card) => card.nm === "Ｄ－ＨＥＲＯ ディアボリックガイ");
+          if (!newOne) {
+            return false;
+          }
+          console.log(cell, availableCells);
+          await entity.field.summon(newOne, ["Attack", "Defense"], cell ? [cell] : availableCells, "SpecialSummon", ["Effect"], entity);
+          entity.controller.specialSummonCount++;
+          return true;
+        },
+      },
+    ] as CardActionBase<unknown>[],
+  };
+
+  result.push(def_ディアボリックガイ);
   const def_大地の騎士ガイアナイト = {
     name: "大地の騎士ガイアナイト",
-    actions: [defaultAttackAction, defaultBattlePotisionChangeAction, ...getDefaultSyncroSummonAction()] as CardActionBase<unknown>[],
+    actions: [defaultAttackAction, defaultBattlePotisionChangeAction, getDefaultSyncroSummonAction()] as CardActionBase<unknown>[],
   };
   result.push(def_大地の騎士ガイアナイト);
   result.push({ ...def_大地の騎士ガイアナイト, name: "スクラップ・デスデーモン" });
@@ -82,7 +104,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
     actions: [
       defaultAttackAction,
       defaultBattlePotisionChangeAction,
-      ...getDefaultSyncroSummonAction(
+      getDefaultSyncroSummonAction(
         (tuners) => tuners.length === 1 && tuners.every((tuner) => tuner.attr.some((a) => a === "Earth")),
         (nonTuners) => nonTuners.length > 0 && nonTuners.every((nonTuner) => nonTuner.attr.some((a) => a === "Earth"))
       ),

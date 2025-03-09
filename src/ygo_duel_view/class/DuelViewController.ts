@@ -248,9 +248,11 @@ export class DuelViewController {
           qty: qty ?? -1,
           cancelable: false,
         };
+      console.log(args);
       this.onWaitStartEvent.trigger(args);
     });
 
+    console.log(userAction);
     this.waitMode = "None";
     this.onWaitEndEvent.trigger();
     if (userAction.surrender) {

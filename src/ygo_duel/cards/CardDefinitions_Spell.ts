@@ -6,6 +6,7 @@ import {
   defaultSpellTrapSetAction,
   defaultSpellTrapValidate,
   getDefaultHealBurnSpellAction as getDefaultHealOrBurnSpellAction,
+  getDefaultSalvageSpellAction,
   getDefaultSearchSpellAction,
   getLikeTradeInAction,
 } from "@ygo_duel/functions/DefaultCardAction";
@@ -292,20 +293,54 @@ export const createCardDefinitions_Spell = (): CardDefinition[] => {
 
   [
     {
+      name: "戦士の生還",
+      filter: (card: DuelEntity) => card.status.kind === "Monster" && card.type.includes("Warrior"),
+      qty: 1,
+    },
+    {
+      name: "ダーク・バースト",
+      filter: (card: DuelEntity) => card.status.kind === "Monster" && card.attr.includes("Dark") && (card.atk ?? 9999) <= 1500,
+      qty: 1,
+    },
+    {
+      name: "悪夢再び",
+      filter: (card: DuelEntity) => card.status.kind === "Monster" && card.attr.includes("Dark") && (card.def ?? 9999) === 0,
+      qty: 2,
+    },
+    {
+      name: "サルベージ",
+      filter: (card: DuelEntity) => card.status.kind === "Monster" && card.attr.includes("Water") && (card.atk ?? 9999) <= 1500,
+      qty: 2,
+    },
+    {
+      name: "バッテリーリサイクル",
+      filter: (card: DuelEntity) => card.status.kind === "Monster" && card.type.includes("Thunder") && (card.atk ?? 9999) <= 1500,
+      qty: 2,
+    },
+    {
+      name: "闇の量産工場",
+      filter: (card: DuelEntity) => card.status.kind === "Monster" && (card.status.monsterCategories ?? []).includes("Normal"),
+      qty: 2,
+    },
+  ].forEach((item) => {
+    result.push({
+      name: item.name,
+      actions: [getDefaultSalvageSpellAction(item.filter, item.qty), defaultSpellTrapSetAction] as CardActionBase<unknown>[],
+    });
+  });
+  [
+    {
       name: "トレード・イン",
-      filter: (card: DuelEntity) => card.status.kind === "Monster" && (card.status.level ?? 0) === 8,
+      filter: (card: DuelEntity) => card.status.kind === "Monster" && (card.lvl ?? 0) === 8,
     },
     {
       name: "調和の宝札",
       filter: (card: DuelEntity) =>
-        card.status.kind === "Monster" &&
-        (card.origin.monsterCategories ?? []).includes("Tuner") &&
-        card.status.type === "Dragon" &&
-        (card.status.attack ?? 9999) <= 1000,
+        card.status.kind === "Monster" && (card.origin.monsterCategories ?? []).includes("Tuner") && card.type.includes("Dragon") && (card.atk ?? 9999) <= 1000,
     },
     {
       name: "デステニー・ドロー",
-      filter: (card: DuelEntity) => card.status.kind === "Monster" && (card.origin.nameTags ?? []).includes("リゾネーター"),
+      filter: (card: DuelEntity) => card.status.kind === "Monster" && (card.origin.nameTags ?? []).includes("Ｄ－ＨＥＲＯ"),
     },
   ].forEach((item) => {
     result.push({

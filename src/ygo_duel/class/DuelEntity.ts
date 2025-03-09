@@ -16,12 +16,7 @@ import type Duelist from "./Duelist";
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { DuelClock } from "./DuelClock";
 
-import {
-  defaultAttackAction,
-  defaultBattlePotisionChangeAction,
-  defaultNormalAttackSummonAction,
-  defaultNormalSetSummonAction,
-} from "@ygo_duel/functions/DefaultCardAction";
+import { defaultAttackAction, defaultBattlePotisionChangeAction, defaultNormalSummonAction } from "@ygo_duel/functions/DefaultCardAction";
 import { cardDefinitions, cardInfoDic } from "@ygo/class/CardInfo";
 export type TDuelEntity = "Card" | "Token";
 export type TDuelEntityFace = "FaceUp" | "FaceDown";
@@ -191,12 +186,10 @@ export const CardSorter = (left: TCardInfoJson, right: TCardInfoJson): number =>
   }
 
   // 到達しないコード
-  return left.name.localeCompare(right.name);
+  return left.name.localeCompare(right.name, "Ja");
 };
 export const CardEntitySorter = (left: DuelEntity, right: DuelEntity): number => {
-  const hoge = CardSorter(left.origin, right.origin);
-  console.log(left.nm, right.nm, hoge);
-  return hoge;
+  return CardSorter(left.origin, right.origin);
 };
 
 export class DuelEntity {
@@ -337,8 +330,7 @@ export class DuelEntity {
     if (info.kind === "Monster" && info.monsterCategories?.includes("Normal")) {
       newCard.actions.push(
         ...DuelEntity.createCardActionList(newCard, [
-          defaultNormalAttackSummonAction,
-          defaultNormalSetSummonAction,
+          defaultNormalSummonAction,
           defaultAttackAction,
           defaultBattlePotisionChangeAction,
         ] as CardActionBase<unknown>[])
@@ -350,7 +342,6 @@ export class DuelEntity {
   };
 
   /**
-   * ドラッグ・アンド・ドロップ可能で選択不可能なCardActionを作成する。
    * @param entity
    * @param title
    * @param cells
@@ -369,7 +360,8 @@ export class DuelEntity {
       prepare: async () => {},
       execute: async () => false,
       pos: pos,
-      dragAndDropOnly: true,
+      cell: cells[0],
+      dragAndDropOnly: cells.length > 1,
     };
   };
 
@@ -426,6 +418,15 @@ export class DuelEntity {
 
     await this._moveTo(graveyard, "Top", moveAs, causedBy);
   };
+  public readonly banish = async (moveAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<void> => {
+    console.log(this);
+
+    this.setNonFieldPosition("FaceUp", true);
+
+    const banished = this.owner.getBanished();
+
+    await this._moveTo(banished, "Top", moveAs, causedBy);
+  };
   public readonly setAsSpellTrap = async (to: DuelFieldCell, moveAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<void> => {
     await this._moveTo(to, "Top", [...moveAs, "SpellTrapSet"], causedBy);
     this.setNonFieldPosition("Set", true);
@@ -448,6 +449,10 @@ export class DuelEntity {
     this.setNonFieldPosition("Set", true);
   };
   private readonly _moveTo = async (to: DuelFieldCell, pos: TDuelEntityMovePos, moveAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<void> => {
+    if (!to) {
+      throw new Error("illegal argument: to");
+    }
+
     if (this.field.duel.clock.turn > 0) {
       await this.field.duel.view.waitAnimation({ entity: this, to: to, index: pos, count: 0 });
     }

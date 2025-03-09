@@ -141,17 +141,17 @@ export class Duel {
   };
 
   public readonly moveNextPhase = (next: TDuelPhase) => {
-    if (next === "draw") {
-      this.clock.incrementTurn();
-    } else {
-      this.clock.incrementPhaseSeq();
-    }
     if (this.clock.turn < 1) {
       this.phase = "draw";
     } else if (next === "draw") {
       this.log.info(`ターン終了。`, this.getTurnPlayer());
     } else {
       this.log.info(`フェイズ移行（${this.phase}→${next}）`, this.getTurnPlayer());
+    }
+    if (next === "draw") {
+      this.clock.incrementTurn();
+    } else {
+      this.clock.incrementPhaseSeq();
     }
     this.phase = next;
     this.phaseStep = undefined;
@@ -215,12 +215,13 @@ export class Duel {
         "あなたの手番です。"
       );
 
+      console.log(action);
+
       // ユーザー入力がカードアクションだった場合、チェーンブロックを作るか作らないかで処理を分ける
       if (action.actionWIP) {
         if (([...cardActionNonChainBlockTypes] as string[]).includes(action.actionWIP.playType)) {
           //チェーンに乗らない処理を実行し、処理番号をインクリメント
           const prepared = await action.actionWIP.prepare(action.actionWIP.cell, true);
-          console.log(prepared);
 
           if (!prepared) {
             continue;
@@ -229,6 +230,7 @@ export class Duel {
           await action.actionWIP.execute(this.priorityHolder, action.actionWIP.cell, prepared);
           this.clock.incrementProcSeq();
         } else {
+          console.log(action);
           //チェーンに積んで、チェーン処理へ
           await this.procChainBlock(action.actionWIP);
         }
@@ -276,6 +278,8 @@ export class Duel {
       this.phaseStep = "battle";
       this.priorityHolder = this.getTurnPlayer();
       const action = await this.view.waitFieldAction(this.getEnableActions(["Battle"], ["Normal"]), "攻撃モンスターと対象を選択。");
+
+      console.log(action);
       if (action.phaseChange) {
         //エンドステップへ（※優先権の移動はない）
         break;
@@ -419,6 +423,8 @@ export class Duel {
         return this.getEnableActions(["TriggerMandatoryEffect", "TriggerEffect"], ["Normal"]);
       });
 
+    console.log(_triggerEffets);
+
     try {
       // 起点の効果がある場合、最初に積む。
       if (action) {
@@ -457,12 +463,16 @@ export class Duel {
       }
       return false;
     } finally {
+      console.log(chainBlock);
+
       if (chainBlock) {
         // この時点のコントローラーが効果処理を行う
         const activater = chainBlock.entity.controller;
-
-        this.log.info(`${chainBlock.entity.nm}«${chainBlock.title}»を発動`, activater);
-
+        if (chainBlock.playType === "CardActivation") {
+          this.log.info(`${chainBlock.entity.nm}を発動`, activater);
+        } else {
+          this.log.info(`${chainBlock.entity.nm}«${chainBlock.title}»を発動`, activater);
+        }
         const prepared = await chainBlock.prepare(chainBlock.cell);
 
         this.clock.incrementProcSeq();

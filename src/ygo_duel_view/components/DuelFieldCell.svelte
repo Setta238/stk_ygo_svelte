@@ -1,6 +1,6 @@
 <script lang="ts">
   import { crossfade } from "svelte/transition";
-  import { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
+  import { DuelFieldCell, stackCellTypes } from "@ygo_duel/class/DuelFieldCell";
   import { type DuelistResponse, type TDuelPhase } from "@ygo_duel/class/Duel";
 
   import DuelCard, { type TCardState } from "@ygo_duel_view/components/DuelCard.svelte";
@@ -58,6 +58,7 @@
   let animationArg: AnimationStartEventArg | undefined = undefined;
   const onCrossFade = (args: AnimationStartEventArg) => {
     if (cell === args.to || cell.entities.includes(args.entity)) {
+      console.log(args);
       animationArg = args;
       const resolve = args.resolve;
       cell = cell;
@@ -244,10 +245,10 @@
       {#if cell.cardEntities.length > 0}
         {#each cell.cardEntities.toReversed() as entity, index}
           {#if !animationArg || animationArg.entity.seq !== entity.seq}
-            <div style="position: absolute;" out:send={{ key: entity.seq }}>
+            <div style="position: absolute; display:flex;justify-content: center;" out:send={{ key: entity.seq }}>
               <DuelCard
                 {entity}
-                state={index === 0 ? validateActions(...cell.cardEntities) : undefined}
+                state={index === 0 && stackCellTypes.every((t) => t !== cell.cellType) ? validateActions(...cell.cardEntities) : undefined}
                 actions={index === 0 ? enableActions.filter((action) => cell.cardEntities.includes(action.entity)) : undefined}
                 cardActionResolve={undefined}
                 bind:selectedList
@@ -261,7 +262,7 @@
           </div>
         {/if}
       {/if}
-      {#if cell.cellType === "Deck" || cell.cellType === "ExtraDeck" || cell.cellType === "Graveyard" || cell.cellType === "Banished"}
+      {#if stackCellTypes.find((t) => t === cell.cellType)}
         <div class="badge">{cell.cardEntities.length}</div>
       {/if}
       {#if animationArg && animationArg.entity && animationArg.to === cell && animationArg.index === "Top"}
@@ -414,7 +415,6 @@
   }
   .duel_field_cell_Banished {
     background-color: midnightblue;
-    color: aliceblue;
   }
   .duel_field_cell_FieldZone {
     background-color: lightgreen;

@@ -3,17 +3,11 @@ import { duelEntityCardTypes, type TDuelCauseReason } from "./DuelEntity";
 import type { DuelEntity } from "./DuelEntity";
 import type { DuelField } from "./DuelField";
 import type Duelist from "./Duelist";
-export type DuelFieldCellType =
-  | "Hand"
-  | "Deck"
-  | "MonsterZone"
-  | "SpellAndTrapZone"
-  | "Graveyard"
-  | "FieldSpellZone"
-  | "ExtraDeck"
-  | "ExtraMonsterZone"
-  | "Banished"
-  | "Disable";
+export const stackCellTypes = ["Deck", "ExtraDeck", "Graveyard", "Banished"] as const;
+export const monsterZoneCellTypes = ["MonsterZone", "ExtraMonsterZone"] as const;
+export const spellTrapZoneCellTypes = ["SpellAndTrapZone", "FieldSpellZone"] as const;
+export const duelFieldCellTypes = [...stackCellTypes, ...monsterZoneCellTypes, ...spellTrapZoneCellTypes, "Hand", "Disable"] as const;
+export type DuelFieldCellType = (typeof duelFieldCellTypes)[number];
 export type TDuelEntityMovePos = "Top" | "Bottom";
 
 export const cellTypeMaster = {

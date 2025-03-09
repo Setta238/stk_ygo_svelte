@@ -4802,7 +4802,10 @@
 		"wikiName": "《トゥーン・アリゲーター》",
 		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%A5%C8%A5%A5%A1%BC%A5%F3%A1%A6%A5%A2%A5%EA%A5%B2%A1%BC%A5%BF%A1%BC%A1%D5",
 		"wikiTextAll": "通常モンスター\n星４/水属性/爬虫類族/攻 800/守1600\nアメリカンコミックの世界から現れた、ワニのモンスター。",
-		"kind": "Monster"
+		"kind": "Monster",
+		"nameTags": [
+			"トゥーン"
+		]
 	},
 	"トビペンギン": {
 		"name": "トビペンギン",
@@ -8375,7 +8378,10 @@
 		"wikiName": "《暗黒界の騎士 ズール》",
 		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%B0%C5%B9%F5%B3%A6%A4%CE%B5%B3%BB%CE%20%A5%BA%A1%BC%A5%EB%A1%D5",
 		"wikiTextAll": "通常モンスター\n星４/闇属性/悪魔族/攻1800/守1500\n暗黒界でその名を知らぬ者はいない、誇り高き騎士。\n決して弱き者に手を下す事はない。",
-		"kind": "Monster"
+		"kind": "Monster",
+		"nameTags": [
+			"暗黒界"
+		]
 	},
 	"暗黒界の番兵 レンジ": {
 		"name": "暗黒界の番兵 レンジ",
@@ -8393,7 +8399,10 @@
 		"wikiName": "《暗黒界の番兵 レンジ》",
 		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%B0%C5%B9%F5%B3%A6%A4%CE%C8%D6%CA%BC%20%A5%EC%A5%F3%A5%B8%A1%D5",
 		"wikiTextAll": "通常モンスター\n星４/闇属性/悪魔族/攻 100/守2100\n暗黒界随一の強靭な身体を誇り、\n「鉄壁レンジ」として暗黒界の人々から親しまれている。\n彼の守りを破れる者は少ない。",
-		"kind": "Monster"
+		"kind": "Monster",
+		"nameTags": [
+			"暗黒界"
+		]
 	},
 	"暗黒騎士ガイア": {
 		"name": "暗黒騎士ガイア",
@@ -13154,7 +13163,10 @@
 		"type": "Machine",
 		"wikiName": "《トゥーン・サイバー・ドラゴン》",
 		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%A5%C8%A5%A5%A1%BC%A5%F3%A1%A6%A5%B5%A5%A4%A5%D0%A1%BC%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5",
-		"wikiTextAll": "トゥーン・効果モンスター\n星５/光属性/機械族/攻2100/守1600\n(1)：相手フィールドにモンスターが存在し、\n自分フィールドにモンスターが存在しない場合、\nこのカードは手札から特殊召喚できる。\n(2)：このカードは召喚・反転召喚・特殊召喚したターンには攻撃できない。\n(3)：自分フィールドに「トゥーン・ワールド」が存在し、\n相手フィールドにトゥーンモンスターが存在しない場合、このカードは直接攻撃できる。"
+		"wikiTextAll": "トゥーン・効果モンスター\n星５/光属性/機械族/攻2100/守1600\n(1)：相手フィールドにモンスターが存在し、\n自分フィールドにモンスターが存在しない場合、\nこのカードは手札から特殊召喚できる。\n(2)：このカードは召喚・反転召喚・特殊召喚したターンには攻撃できない。\n(3)：自分フィールドに「トゥーン・ワールド」が存在し、\n相手フィールドにトゥーンモンスターが存在しない場合、このカードは直接攻撃できる。",
+		"nameTags": [
+			"トゥーン"
+		]
 	},
 	"サイバー・ドラゴン・コア": {
 		"name": "サイバー・ドラゴン・コア",
@@ -14450,7 +14462,10 @@
 		"spellCategory": "Normal",
 		"wikiName": "《トゥーンのもくじ》",
 		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%A5%C8%A5%A5%A1%BC%A5%F3%A4%CE%A4%E2%A4%AF%A4%B8%A1%D5",
-		"wikiTextAll": "通常魔法\n(1)：デッキから「トゥーン」カード１枚を手札に加える。"
+		"wikiTextAll": "通常魔法\n(1)：デッキから「トゥーン」カード１枚を手札に加える。",
+		"nameTags": [
+			"トゥーン"
+		]
 	},
 	"紫炎の狼煙": {
 		"name": "紫炎の狼煙",
@@ -14572,5 +14587,101 @@
 		"nameTags": [
 			"Ｄ－ＨＥＲＯ"
 		]
+	},
+	"サルベージ・ウォリアー": {
+		"name": "サルベージ・ウォリアー",
+		"nameKana": "",
+		"description": "このカードがアドバンス召喚に成功した時、\n手札または自分の墓地からチューナー１体を特殊召喚する事ができる。",
+		"pendulumDescription": "",
+		"kind": "Monster",
+		"monsterCategories": [
+			"Effect"
+		],
+		"level": 5,
+		"attack": 1900,
+		"defense": 1600,
+		"attribute": "Water",
+		"type": "Warrior",
+		"wikiName": "《サルベージ・ウォリアー》",
+		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%A5%B5%A5%EB%A5%D9%A1%BC%A5%B8%A1%A6%A5%A6%A5%A9%A5%EA%A5%A2%A1%BC%A1%D5",
+		"wikiTextAll": "効果モンスター\n星５/水属性/戦士族/攻1900/守1600\nこのカードがアドバンス召喚に成功した時、\n手札または自分の墓地からチューナー１体を特殊召喚する事ができる。"
+	},
+	"サルベージェント・ドライバー": {
+		"name": "サルベージェント・ドライバー",
+		"nameKana": "",
+		"description": "このカード名の(1)(2)の効果はそれぞれ１ターンに１度しか使用できない。\n(1)：このカードが手札・墓地に存在し、\n自分フィールドのサイバース族リンクモンスターが相手の効果によって破壊された場合に発動できる。\nこのカードを特殊召喚する。\n(2)：手札から魔法カード１枚を捨て、\n自分の墓地のサイバース族モンスター１体を対象として発動できる。\nそのモンスターを特殊召喚する。\nこの効果で特殊召喚したモンスターはこのターン直接攻撃できない。",
+		"pendulumDescription": "",
+		"kind": "Monster",
+		"monsterCategories": [
+			"Effect"
+		],
+		"level": 6,
+		"attack": 2200,
+		"defense": 2100,
+		"attribute": "Light",
+		"type": "Cyberse",
+		"wikiName": "《サルベージェント・ドライバー》",
+		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%A5%B5%A5%EB%A5%D9%A1%BC%A5%B8%A5%A7%A5%F3%A5%C8%A1%A6%A5%C9%A5%E9%A5%A4%A5%D0%A1%BC%A1%D5",
+		"wikiTextAll": "効果モンスター\n星６/光属性/サイバース族/攻2200/守2100\nこのカード名の(1)(2)の効果はそれぞれ１ターンに１度しか使用できない。\n(1)：このカードが手札・墓地に存在し、\n自分フィールドのサイバース族リンクモンスターが相手の効果によって破壊された場合に発動できる。\nこのカードを特殊召喚する。\n(2)：手札から魔法カード１枚を捨て、\n自分の墓地のサイバース族モンスター１体を対象として発動できる。\nそのモンスターを特殊召喚する。\nこの効果で特殊召喚したモンスターはこのターン直接攻撃できない。"
+	},
+	"サルベージ": {
+		"name": "サルベージ",
+		"nameKana": "",
+		"description": "(1)：自分の墓地の攻撃力１５００以下の水属性モンスター２体を対象として発動できる。\nその水属性モンスターを手札に加える。",
+		"kind": "Spell",
+		"spellCategory": "Normal",
+		"wikiName": "《サルベージ》",
+		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%A5%B5%A5%EB%A5%D9%A1%BC%A5%B8%A1%D5",
+		"wikiTextAll": "通常魔法\n(1)：自分の墓地の攻撃力１５００以下の水属性モンスター２体を対象として発動できる。\nその水属性モンスターを手札に加える。"
+	},
+	"バッテリーリサイクル": {
+		"name": "バッテリーリサイクル",
+		"nameKana": "",
+		"description": "(1)：自分の墓地の攻撃力１５００以下の雷族モンスター２体を対象として発動できる。\nその雷族モンスターを手札に加える。",
+		"kind": "Spell",
+		"spellCategory": "Normal",
+		"wikiName": "《バッテリーリサイクル》",
+		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%A5%D0%A5%C3%A5%C6%A5%EA%A1%BC%A5%EA%A5%B5%A5%A4%A5%AF%A5%EB%A1%D5",
+		"wikiTextAll": "通常魔法\n(1)：自分の墓地の攻撃力１５００以下の雷族モンスター２体を対象として発動できる。\nその雷族モンスターを手札に加える。"
+	},
+	"悪夢再び": {
+		"name": "悪夢再び",
+		"nameKana": "",
+		"description": "(1)：自分の墓地の守備力０の闇属性モンスター２体を対象として発動できる。\nその闇属性モンスターを手札に加える。",
+		"kind": "Spell",
+		"spellCategory": "Normal",
+		"wikiName": "《悪夢再び》",
+		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%B0%AD%CC%B4%BA%C6%A4%D3%A1%D5",
+		"wikiTextAll": "通常魔法\n(1)：自分の墓地の守備力０の闇属性モンスター２体を対象として発動できる。\nその闇属性モンスターを手札に加える。"
+	},
+	"闇の量産工場": {
+		"name": "闇の量産工場",
+		"nameKana": "",
+		"description": "(1)：自分の墓地の通常モンスター２体を対象として発動できる。\nそのモンスターを手札に加える。",
+		"kind": "Spell",
+		"spellCategory": "Normal",
+		"wikiName": "《闇の量産工場》",
+		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%B0%C7%A4%CE%CE%CC%BB%BA%B9%A9%BE%EC%A1%D5",
+		"wikiTextAll": "通常魔法\n(1)：自分の墓地の通常モンスター２体を対象として発動できる。\nそのモンスターを手札に加える。"
+	},
+	"戦士の生還": {
+		"name": "戦士の生還",
+		"nameKana": "",
+		"description": "(1)：自分の墓地の戦士族モンスター１体を対象として発動できる。\nその戦士族モンスターを手札に加える。",
+		"kind": "Spell",
+		"spellCategory": "Normal",
+		"wikiName": "《戦士の生還》",
+		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%C0%EF%BB%CE%A4%CE%C0%B8%B4%D4%A1%D5",
+		"wikiTextAll": "通常魔法\n(1)：自分の墓地の戦士族モンスター１体を対象として発動できる。\nその戦士族モンスターを手札に加える。"
+	},
+	"暗黒よりの軍勢": {
+		"name": "暗黒よりの軍勢",
+		"nameKana": "",
+		"description": "(1)：自分の墓地の「暗黒界」モンスター２体を対象として発動できる。\nそのモンスターを手札に加える。",
+		"kind": "Trap",
+		"trapCategory": "Normal",
+		"wikiName": "《暗黒よりの軍勢》",
+		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%B0%C5%B9%F5%A4%E8%A4%EA%A4%CE%B7%B3%C0%AA%A1%D5",
+		"wikiTextAll": "通常罠\n(1)：自分の墓地の「暗黒界」モンスター２体を対象として発動できる。\nそのモンスターを手札に加える。"
 	}
 }

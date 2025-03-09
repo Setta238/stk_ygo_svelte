@@ -15,7 +15,12 @@ export class DuelField {
     this.cells = [...Array(7)].map(() => []) as DuelFieldCell[][];
     for (const row of Object.keys(cellTypeMaster).map(Number)) {
       for (const column of Object.keys(cellTypeMaster[row]).map(Number)) {
-        this.cells[row][column] = new DuelFieldCell(this, row, column, row < 3 ? duel.duelists.Above : row > 3 ? duel.duelists.Below : undefined);
+        this.cells[row][column] = new DuelFieldCell(
+          this,
+          row,
+          column,
+          row < 3 ? duel.duelists.Above : row > 3 ? duel.duelists.Below : column === 0 ? duel.duelists.Above : column === 6 ? duel.duelists.Below : undefined
+        );
       }
     }
   }
@@ -274,17 +279,19 @@ export class DuelField {
 
     if (selectableCells.length > 1 || selectablePosList.length > 1) {
       if (_chooser.duelistType !== "NPC") {
+        const msg = selectableCells.length > 1 ? "カードを召喚先へドラッグ。" : "表示形式を選択。";
         const dammyActions = selectablePosList.map((pos) => DuelEntity.createDammyAction(entity, pos, selectableCells, pos));
-        this.duel.view.modalController.selectAction(this.duel.view, {
-          title: "カードを召喚先へドラッグ。",
+        const p1 = this.duel.view.modalController.selectAction(this.duel.view, {
+          title: msg,
           actions: dammyActions as CardAction<unknown>[],
           cancelable: false,
         });
-        const dAct = await this.duel.view.waitSubAction(_chooser, dammyActions as CardAction<unknown>[], "カードを召喚先へドラッグ。", cancelable);
-        const action = dAct.actionWIP;
+        const p2 = this.duel.view.waitSubAction(_chooser, dammyActions as CardAction<unknown>[], msg, cancelable).then((res) => res.actionWIP);
+
+        const action = await Promise.any([p1, p2]);
 
         if (!action && !cancelable) {
-          throw new SystemError("", dAct);
+          throw new SystemError("", action);
         }
         if (!action) {
           return;

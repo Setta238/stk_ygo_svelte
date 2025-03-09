@@ -68,6 +68,7 @@ export class DuelModalController {
     this.onUpdateEvent.trigger();
     return new Promise((resolve) => {
       this.cardActionSelectorResolve = (value: CardAction<unknown> | undefined) => {
+        console.log(value);
         this.states.DuelActionSelector = "Disable";
         view.onWaitEnd.remove(this.cancelAll);
         this.onUpdateEvent.trigger();

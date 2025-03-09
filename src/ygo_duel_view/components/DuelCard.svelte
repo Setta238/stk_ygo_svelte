@@ -172,6 +172,8 @@
       {/if}
     </div>
   </button>
+{:else if entity.battlePotion === "Set"}
+  <div class="duel_card duel_card_face_down duel_card_face_down_defense"><div></div></div>
 {:else}
   <div class="duel_card duel_card_face_down"><div></div></div>
 {/if}
@@ -262,16 +264,22 @@
     justify-content: center;
     align-items: center;
     width: 4.1rem;
-    max-width: 4.1rem;
-    height: 5.3rem;
+    height: 5.6rem;
     background-color: brown;
   }
   .duel_card_face_down > div {
     width: 1.8rem;
     height: 3rem;
-    border-radius: 50%;
-    margin: auto;
+    border-radius: 100%;
     background-color: black;
+  }
+  .duel_card_face_down_defense {
+    width: 5.6rem;
+    height: 4.1rem;
+  }
+  .duel_card_face_down_defense > div {
+    width: 3rem;
+    height: 1.8rem;
   }
   .action_button * {
     pointer-events: none;

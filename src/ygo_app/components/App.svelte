@@ -16,16 +16,39 @@
 
   let duel: Duel | undefined;
   let mode = "None" as "Duel" | "DeckEdit" | "None";
-
+  let selectedDeckId = 0;
   const userProfilePromise = DuelistProfile.getOrCreateNew(idb);
-  let userDecksPromise = DeckInfo.getAllDeckInfo(idb);
+  let userDecksPromise = DeckInfo.getAllDeckInfo(idb).then((deckInfos) => {
+    selectedDeckId = (
+      deckInfos.find((deckInfo) => deckInfo.lastUsedAt.getTime() === Math.max(...deckInfos.map((deckInfo) => deckInfo.lastUsedAt.getTime()))) ?? deckInfos[0]
+    ).id;
+    return deckInfos;
+  });
+
+  const getSelectedDeckInfo = async () => {
+    let deckInfo = (await userDecksPromise).find((info) => info.id === selectedDeckId);
+    if (!deckInfo) {
+      deckInfo = (await reloadDeckInfos()).find((info) => info.id === selectedDeckId);
+    }
+    if (!deckInfo) {
+      throw new Error("illegal state");
+    }
+    return deckInfo;
+  };
 
   const saveUserProfile = async () => {
     const userProfile = await userProfilePromise;
     userProfile.save();
   };
   const reloadDeckInfos = () => {
-    userDecksPromise = DeckInfo.getAllDeckInfo(idb);
+    userDecksPromise = DeckInfo.getAllDeckInfo(idb).then((deckInfos) => {
+      selectedDeckId = (
+        deckInfos.find((deckInfo) => deckInfo.lastUsedAt.getTime() === Math.max(...deckInfos.map((deckInfo) => deckInfo.lastUsedAt.getTime()))) ?? deckInfos[0]
+      ).id;
+      return deckInfos;
+    });
+
+    return userDecksPromise;
   };
   const prepareSampleDeck = async () => {
     const userDecks = await userDecksPromise;
@@ -37,7 +60,9 @@
   };
   const onDuelStartClick = async () => {
     await Promise.all([saveUserProfile(), prepareSampleDeck()]);
-    duel = new Duel(await userProfilePromise, "Player", (await userDecksPromise)[0], nonPlayerCharacters[0], "NPC", sampleDecks[0]);
+    const selectedDeck = await getSelectedDeckInfo();
+    selectedDeck.updateTimestamp();
+    duel = new Duel(await userProfilePromise, "Player", await getSelectedDeckInfo(), nonPlayerCharacters[0], "NPC", sampleDecks[0]);
   };
   const onEditClick = async () => {
     console.log("hoge");
@@ -69,9 +94,21 @@
           <label for="duelist_name" class="duelist_name">名前：</label>
           <input id="duelist_name" class="duelist_name" type="text" bind:value={userProfile.name} on:keypress={onDuelistNameKeyPress} />
         </div>
-        <div>
-          <button class="btn" on:click={onDuelStartClick}>duel start!</button>
-        </div>
+        {#await userDecksPromise}
+          <div>デッキ情報の読み込み、もしくは作成中...</div>
+        {:then userDecks}
+          <div>
+            <label for="deck_selector" class="deck_selector">デッキ：</label>
+            <select id="deck_selector" class="deck_selector" bind:value={selectedDeckId}>
+              {#each userDecks as userDeck}
+                <option value={userDeck.id}>{userDeck.name}</option>
+              {/each}
+            </select>
+          </div>
+          <div>
+            <button class="btn" on:click={onDuelStartClick}>duel start!</button>
+          </div>
+        {/await}
         <div>
           <button class="btn" on:click={onEditClick}>deck edit</button>
         </div>
@@ -97,6 +134,10 @@
   .app_body {
     display: flex;
     flex-direction: column;
+    background-color: seashell;
+    border-style: ridge;
+    border-color: black;
+    border-width: 0.5rem;
   }
   .app_body > div {
     margin: 1rem;
@@ -106,7 +147,8 @@
     right: 1rem;
     bottom: 1rem;
   }
-  .duelist_name {
+  .duelist_name,
+  .deck_selector {
     font-size: 1.4rem;
     text-decoration: none;
   }

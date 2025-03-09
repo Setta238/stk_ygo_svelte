@@ -100,6 +100,15 @@ export class DeckInfo implements IDeckInfo {
   public copy = async (): Promise<DeckInfo> => {
     return DeckInfo.createNewDeck(this.name, this.description, this.cardNames);
   };
+  public updateTimestamp = async (): Promise<void> => {
+    //ヘッダ情報更新
+    await DeckInfo.tblHeader.update(this.id, (info) => {
+      return {
+        ...info,
+        lastUsedAt: new Date(),
+      };
+    });
+  };
   public saveDeckInfo = async (newDeckInfo?: IDeckInfo): Promise<DeckInfo> => {
     const _newDeckInfo = newDeckInfo ?? this;
 

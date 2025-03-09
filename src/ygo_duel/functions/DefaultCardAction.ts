@@ -32,12 +32,7 @@ export const defaultNormalSummonValidate = (entity: DuelEntity): DuelFieldCell[]
   // }
 };
 
-export const defaultNormalSummonPrepare = async (
-  entity: DuelEntity,
-  pos: TBattlePosition,
-  cell?: DuelFieldCell,
-  cancelable?: boolean
-): Promise<DuelEntity[] | undefined> => {
+export const defaultNormalSummonPrepare = async (entity: DuelEntity, cell?: DuelFieldCell, cancelable?: boolean): Promise<DuelEntity[] | undefined> => {
   if (!entity.status.level) {
     return [];
   }
@@ -73,7 +68,7 @@ export const defaultNormalSummonPrepare = async (
   return materials;
 };
 
-export const defaultNormalSummonExecute = async (entity: DuelEntity, pos: TBattlePosition, cell?: DuelFieldCell, prepared?: DuelEntity[]): Promise<boolean> => {
+export const defaultNormalSummonExecute = async (entity: DuelEntity, cell?: DuelFieldCell, prepared?: DuelEntity[]): Promise<boolean> => {
   if (!entity.status.level) {
     return false;
   }
@@ -85,7 +80,16 @@ export const defaultNormalSummonExecute = async (entity: DuelEntity, pos: TBattl
   }
 
   const availableCells = entity.controller.getAvailableMonsterZones();
-  await entity.field.summon(entity, [pos], cell ? [cell] : availableCells, "NormalSummon", causedBy, entity, undefined, prepared && prepared.length === 0);
+  await entity.field.summon(
+    entity,
+    ["Attack", "Set"],
+    cell ? [cell] : availableCells,
+    "NormalSummon",
+    causedBy,
+    entity,
+    undefined,
+    prepared && prepared.length === 0
+  );
   entity.controller.normalSummonCount++;
   return true;
 };
@@ -103,7 +107,7 @@ export const defaultAttackValidate = (entity: DuelEntity): DuelFieldCell[] | und
 
   return [entity.controller.getOpponentPlayer().getHandCell()];
 };
-export const defaultAttackExecute = async (entity: DuelEntity, pos?: TBattlePosition, cell?: DuelFieldCell): Promise<boolean> => {
+export const defaultAttackExecute = async (entity: DuelEntity, cell?: DuelFieldCell): Promise<boolean> => {
   if (entity.status.attackCount > 0 || entity.battlePotion !== "Attack") {
     return false;
   }
@@ -243,7 +247,7 @@ export const defaultSyncroSummonValidate = (
   nonTunersValidator: (nonTuners: DuelEntity[]) => boolean = (nonTuners) => nonTuners.length > 0
 ): DuelFieldCell[] | undefined => {
   let materials = [
-    ...entity.controller.getMonstersOnField().filter((card) => card.face === "FaceUp"),
+    ...entity.controller.getMonstersOnField().filter((card) => card.battlePotion !== "Set"),
     ...entity.controller.getHandCell().entities.filter((card) => card.origin.kind === "Monster"),
   ].filter((m) => m.status.canBeSyncroMaterial);
 
@@ -263,16 +267,14 @@ export const defaultSyncroSummonValidate = (
 };
 export const defaultSyncroSummonPrepare = async (
   entity: DuelEntity,
-  pos: TBattlePosition,
   cell?: DuelFieldCell,
   cancelable?: boolean,
   tunersValidator: (tuners: DuelEntity[]) => boolean = (tuners) => tuners.length === 1,
   nonTunersValidator: (nonTuners: DuelEntity[]) => boolean = (nonTuners) => nonTuners.length > 0
 ): Promise<DuelEntity[] | undefined> => {
-  let _materials = [
-    ...entity.controller.getMonstersOnField(),
-    ...entity.controller.getHandCell().entities.filter((card) => card.origin.kind === "Monster"),
-  ].filter((m) => m.status.canBeSyncroMaterial);
+  let _materials = [...entity.controller.getMonstersOnField(), ...entity.controller.getHandCell().entities.filter((card) => card.origin.kind === "Monster")]
+    .filter((m) => m.battlePotion !== "Set")
+    .filter((m) => m.status.canBeSyncroMaterial);
 
   if (_materials.every((m) => !m.status.allowHandSyncro)) {
     _materials = entity.controller.getMonstersOnField();
@@ -302,13 +304,7 @@ export const defaultSyncroSummonPrepare = async (
 
   return materials;
 };
-export const defaultSyncroSummonExecute = async (
-  entity: DuelEntity,
-  activater: Duelist,
-  pos: TBattlePosition,
-  cell?: DuelFieldCell,
-  prepared?: DuelEntity[]
-): Promise<boolean> => {
+export const defaultSyncroSummonExecute = async (entity: DuelEntity, activater: Duelist, cell?: DuelFieldCell, prepared?: DuelEntity[]): Promise<boolean> => {
   if (prepared && prepared.length > 0) {
     entity.materials.reset(...prepared);
   }
@@ -316,7 +312,7 @@ export const defaultSyncroSummonExecute = async (
   const availableCells = [...activater.getAvailableMonsterZones(), ...activater.getAvailableExtraZones()];
   await entity.field.summon(
     entity,
-    [pos],
+    ["Attack", "Defense"],
     cell ? [cell] : availableCells,
     "SyncroSummon",
     ["Rule", "SpecialSummon"],
@@ -330,23 +326,14 @@ export const defaultSyncroSummonExecute = async (
   return true;
 };
 
-export const defaultNormalAttackSummonAction: CardActionBase<DuelEntity[]> = {
-  title: "召喚",
+export const defaultNormalSummonAction: CardActionBase<DuelEntity[]> = {
+  title: "通常召喚",
   playType: "NormalSummon",
   spellSpeed: "Normal",
   executableCells: ["Hand"],
   validate: defaultNormalSummonValidate,
-  prepare: (entity, cell, cancelable) => defaultNormalSummonPrepare(entity, "Attack", cell, cancelable),
-  execute: (entity, activater, cell, prepared) => defaultNormalSummonExecute(entity, "Attack", cell, prepared),
-};
-export const defaultNormalSetSummonAction: CardActionBase<DuelEntity[]> = {
-  title: "セット",
-  playType: "NormalSummon",
-  spellSpeed: "Normal",
-  executableCells: ["Hand"],
-  validate: defaultNormalSummonValidate,
-  prepare: (entity, cell, cancelable) => defaultNormalSummonPrepare(entity, "Set", cell, cancelable),
-  execute: (entity, activater, cell, prepared) => defaultNormalSummonExecute(entity, "Set", cell, prepared),
+  prepare: (entity, cell, cancelable) => defaultNormalSummonPrepare(entity, cell, cancelable),
+  execute: (entity, activater, cell, prepared) => defaultNormalSummonExecute(entity, cell, prepared),
 };
 export const defaultAttackAction: CardActionBase<boolean> = {
   title: "攻撃宣言",
@@ -355,7 +342,7 @@ export const defaultAttackAction: CardActionBase<boolean> = {
   executableCells: ["MonsterZone", "ExtraMonsterZone"],
   validate: defaultAttackValidate,
   prepare: async () => true,
-  execute: (entity, activater, cell) => defaultAttackExecute(entity, undefined, cell),
+  execute: (entity, activater, cell) => defaultAttackExecute(entity, cell),
 };
 
 export const defaultBattlePotisionChangeAction: CardActionBase<boolean> = {
@@ -381,31 +368,18 @@ export const defaultSpellTrapSetAction: CardActionBase<boolean> = {
 export const getDefaultSyncroSummonAction = (
   tunersValidator: (tuners: DuelEntity[]) => boolean = (tuners) => tuners.length === 1,
   nonTunersValidator: (nonTuners: DuelEntity[]) => boolean = (nonTuners) => nonTuners.length > 0
-): CardActionBase<DuelEntity[]>[] => {
-  return [
-    {
-      title: "シンクロ召喚（攻撃）",
-      playType: "SpecialSummon",
-      spellSpeed: "Normal",
-      executableCells: ["ExtraDeck"],
-      validate: (entity: DuelEntity) => defaultSyncroSummonValidate(entity, tunersValidator, nonTunersValidator),
-      prepare: (entity: DuelEntity, cell?: DuelFieldCell, cancelable?: boolean) =>
-        defaultSyncroSummonPrepare(entity, "Attack", cell, cancelable, tunersValidator, nonTunersValidator),
-      execute: (entity: DuelEntity, activater: Duelist, cell?: DuelFieldCell, prepared?: DuelEntity[]): Promise<boolean> =>
-        defaultSyncroSummonExecute(entity, activater, "Attack", cell, prepared),
-    },
-    {
-      title: "シンクロ召喚（守備）",
-      playType: "SpecialSummon",
-      spellSpeed: "Normal",
-      executableCells: ["ExtraDeck"],
-      validate: (entity: DuelEntity) => defaultSyncroSummonValidate(entity, tunersValidator, nonTunersValidator),
-      prepare: (entity: DuelEntity, cell?: DuelFieldCell, cancelable?: boolean) =>
-        defaultSyncroSummonPrepare(entity, "Defense", cell, cancelable, tunersValidator, nonTunersValidator),
-      execute: (entity: DuelEntity, activater: Duelist, cell?: DuelFieldCell, prepared?: DuelEntity[]): Promise<boolean> =>
-        defaultSyncroSummonExecute(entity, activater, "Defense", cell, prepared),
-    },
-  ];
+): CardActionBase<DuelEntity[]> => {
+  return {
+    title: "シンクロ召喚",
+    playType: "SpecialSummon",
+    spellSpeed: "Normal",
+    executableCells: ["ExtraDeck"],
+    validate: (entity: DuelEntity) => defaultSyncroSummonValidate(entity, tunersValidator, nonTunersValidator),
+    prepare: (entity: DuelEntity, cell?: DuelFieldCell, cancelable?: boolean) =>
+      defaultSyncroSummonPrepare(entity, cell, cancelable, tunersValidator, nonTunersValidator),
+    execute: (entity: DuelEntity, activater: Duelist, cell?: DuelFieldCell, prepared?: DuelEntity[]): Promise<boolean> =>
+      defaultSyncroSummonExecute(entity, activater, cell, prepared),
+  };
 };
 
 export const getDefaultSearchSpellAction = (filter: (card: DuelEntity) => boolean): CardActionBase<boolean> => {
@@ -430,6 +404,40 @@ export const getDefaultSearchSpellAction = (filter: (card: DuelEntity) => boolea
         await monster.addToHand(["Effect"], entity);
       }
       activater.shuffleDeck();
+      return true;
+    },
+  };
+};
+
+export const getDefaultSalvageSpellAction = (filter: (card: DuelEntity) => boolean, qty: number): CardActionBase<boolean> => {
+  return {
+    title: "発動",
+    playType: "CardActivation",
+    spellSpeed: "Normal",
+    executableCells: ["Hand", "SpellAndTrapZone"],
+    hasToTargetCards: true,
+    // 墓地にに対象カードが一枚以上必要。
+    validate: (entity: DuelEntity) => defaultSpellTrapValidate(entity, (e) => e.controller.getGraveyard().cardEntities.filter(filter).length >= qty),
+    prepare: async (entity: DuelEntity, cell?: DuelFieldCell) => {
+      entity.isDying = true;
+      return await defaultSpellTrapPrepare(entity, undefined, cell);
+    },
+    execute: async (entity: DuelEntity, activater: Duelist) => {
+      const monsters = activater.getGraveyard().cardEntities.filter(filter);
+      if (monsters.length === 0) {
+        return false;
+      }
+      const target = await entity.field.duel.view.waitSelectEntities(
+        activater,
+        monsters,
+        qty,
+        (list) => list.length === qty,
+        "手札に加えるカードを選択",
+        false
+      );
+      for (const monster of target ?? []) {
+        await monster.addToHand(["Effect"], entity);
+      }
       return true;
     },
   };

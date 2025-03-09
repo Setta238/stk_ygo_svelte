@@ -407,3 +407,82 @@ export const getDefaultSyncroSummonAction = (
     },
   ];
 };
+
+export const getDefaultSearchSpellAction = (filter: (card: DuelEntity) => boolean): CardActionBase<boolean> => {
+  return {
+    title: "発動",
+    playType: "CardActivation",
+    spellSpeed: "Normal",
+    executableCells: ["Hand", "SpellAndTrapZone"],
+    // デッキに対象カードが一枚以上必要。
+    validate: (entity: DuelEntity) => defaultSpellTrapValidate(entity, (e) => e.controller.getDeckCell().cardEntities.filter(filter).length > 0),
+    prepare: async (entity: DuelEntity, cell?: DuelFieldCell) => {
+      entity.isDying = true;
+      return await defaultSpellTrapPrepare(entity, undefined, cell);
+    },
+    execute: async (entity: DuelEntity, activater: Duelist) => {
+      const monsters = activater.getDeckCell().cardEntities.filter(filter);
+      if (monsters.length === 0) {
+        return false;
+      }
+      const target = await entity.field.duel.view.waitSelectEntities(activater, monsters, 1, (list) => list.length === 1, "手札に加えるカードを選択", false);
+      for (const monster of target ?? []) {
+        await monster.addToHand(["Effect"], entity);
+      }
+      activater.shuffleDeck();
+      return true;
+    },
+  };
+};
+export const getLikeTradeInAction = (filter: (card: DuelEntity) => boolean): CardActionBase<boolean> => {
+  return {
+    title: "発動",
+    playType: "CardActivation",
+    spellSpeed: "Normal",
+    executableCells: ["Hand", "SpellAndTrapZone"],
+    // 手札に対象カードが一枚以上必要。
+    validate: (entity: DuelEntity) =>
+      defaultSpellTrapValidate(
+        entity,
+        (e) => e.controller.getHandCell().cardEntities.filter(filter).length > 0 && e.controller.getDeckCell().cardEntities.length > 1
+      ),
+    prepare: async (entity: DuelEntity, cell?: DuelFieldCell) => {
+      entity.isDying = true;
+      await entity.field.discard(entity.controller, 1, ["Discard", "Cost"], entity, entity.controller, filter);
+      return await defaultSpellTrapPrepare(entity, undefined, cell);
+    },
+    execute: async (entity: DuelEntity, activater: Duelist) => {
+      await activater.draw(2, entity);
+      return true;
+    },
+  };
+};
+
+export const getDefaultHealBurnSpellAction = (calcDamage: (entity: DuelEntity) => [number, number]): CardActionBase<boolean> => {
+  return {
+    title: "発動",
+    playType: "CardActivation",
+    spellSpeed: "Normal",
+    executableCells: ["Hand", "SpellAndTrapZone"],
+    // デッキに対象カードが一枚以上必要。
+    validate: () => [],
+    prepare: async (entity: DuelEntity, cell?: DuelFieldCell) => {
+      entity.isDying = true;
+      return await defaultSpellTrapPrepare(entity, undefined, cell);
+    },
+    execute: async (entity: DuelEntity, activater: Duelist) => {
+      const [toSelf, toOpponent] = calcDamage(entity);
+      if (toOpponent > 0) {
+        activater.getOpponentPlayer().heal(toOpponent, entity);
+      } else if (toOpponent < 0) {
+        activater.getOpponentPlayer().effectDamage(Math.abs(toOpponent), entity);
+      }
+      if (toSelf > 0) {
+        activater.heal(toSelf, entity);
+      } else if (toSelf < 0) {
+        activater.effectDamage(Math.abs(toSelf), entity);
+      }
+      return true;
+    },
+  };
+};

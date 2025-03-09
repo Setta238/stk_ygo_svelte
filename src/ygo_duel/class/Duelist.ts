@@ -1,6 +1,6 @@
 import { type IDuelistProfile } from "@ygo/class/DuelistProfile";
 import { type IDeckInfo } from "@ygo/class/DeckInfo";
-import { Duel, type TSeat } from "./Duel";
+import { Duel, DuelEnd, type TSeat } from "./Duel";
 import { DuelEntity } from "./DuelEntity";
 import type { DuelClock } from "./DuelClock";
 import type { DuelFieldCell } from "./DuelFieldCell";
@@ -140,6 +140,14 @@ export default class Duelist {
 
   public readonly getAttackTargetMonsters = (): DuelEntity[] => {
     return this.duel.field.getMonstersOnField().filter((monster) => monster.status.isSelectableForAttack && monster.controller !== this);
+  };
+
+  public readonly draw = async (times: number, causedBy?: DuelEntity): Promise<boolean> => {
+    const flg = await this.duel.field.draw(this, times, causedBy);
+    if (!flg) {
+      throw new DuelEnd(this.getOpponentPlayer());
+    }
+    return flg;
   };
 
   public readonly shuffleDeck = (): void => {

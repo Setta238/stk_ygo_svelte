@@ -1,8 +1,9 @@
 <script lang="ts">
-  import { DuelEntity, type CardAction } from "@ygo_duel/class/DuelEntity";
+  import { DuelEntity } from "@ygo_duel/class/DuelEntity";
   import DuelEntitiesSelector from "@ygo_duel_view/components/DuelEntitiesSelector.svelte";
   import DuelActionSelector from "@ygo_duel_view/components/DuelActionSelector.svelte";
   import { DuelModalController } from "@ygo_duel_view/class/DuelModalController";
+  import type { ICardAction } from "@ygo_duel/class/DuelCardAction";
   export let modalController: DuelModalController;
 
   const onModalControllerUpdate = () => {
@@ -31,7 +32,7 @@
       actions={modalController.cardActionSelectorArg.actions}
       dragAndDropOnly={modalController.cardActionSelectorArg.dragAndDropOnly ?? false}
       cancelable={modalController.cardActionSelectorArg.cancelable}
-      resolve={(action: CardAction<unknown> | undefined) => {
+      resolve={(action: ICardAction<unknown> | undefined) => {
         console.info(action);
         modalController.cardActionSelectorResolve(action);
       }}

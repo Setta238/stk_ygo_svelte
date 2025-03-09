@@ -1,48 +1,39 @@
 <script lang="ts" module>
   export type DuelTextSelectorArg = {
     title: string;
-    choises: { seq: number; text: string };
-    validator: (entities: DuelEntity[]) => boolean;
-    qty: number;
+    choises: { seq: number; text: string }[];
     cancelable: boolean;
   };
 </script>
 
 <script lang="ts">
-  import type { DuelEntity } from "../../ygo_duel/class/DuelEntity";
-  import DuelCard from "@ygo_duel_view/components/DuelCard.svelte";
-  let { resolve, title, entities, validator, qty, cancelable } = $props();
-  let selectedList = $state([] as DuelEntity[]);
-
+  export let arg: DuelTextSelectorArg;
+  export let resolve: (selected?: number) => void;
   let isShown = true;
 
-  const close = () => {};
+  const close = () => {
+    if (!arg.cancelable) {
+      return;
+    }
+    resolve(undefined);
+    isShown = false;
+  };
 </script>
 
 {#if isShown}
   <div class="base">
     <button class="overlay" onclick={close}>★</button>
     <div class="window">
-      <div>{title}</div>
-      <div class="entities_list">
-        {#each entities as entity}<div>
-            <DuelCard
-              {entity}
-              isVisibleForcibly={true}
-              state="Selectable"
-              entitySelectResolve={(selected: DuelEntity[]) => resolve(selected)}
-              {qty}
-              bind:selectedList
-            />
+      <div>{arg.title}</div>
+      <div class="text_list">
+        {#each arg.choises as { seq, text }}<div>
+            {seq}{text}
           </div>
         {/each}
       </div>
-      <div>
-        <button disabled={!validator(selectedList)} onclick={() => resolve(selectedList)}>OK</button>
-        {#if cancelable}
-          <button onclick={() => resolve(undefined)}>Cancel</button>
-        {/if}
-      </div>
+      {#if arg.cancelable}
+        <button onclick={() => resolve(undefined)}>Cancel</button>
+      {/if}
     </div>
   </div>
 {/if}
@@ -54,7 +45,7 @@
     opacity: 0.9;
     max-width: 50%;
   }
-  .entities_list {
+  .text_list {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;

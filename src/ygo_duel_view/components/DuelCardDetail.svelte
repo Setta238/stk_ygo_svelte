@@ -8,10 +8,8 @@
     monsterTypeEmojiDic,
     spellCategoryDic,
     trapCategoryDic,
-    type TEntityStatus,
   } from "@ygo/class/YgoTypes";
-  import { DuelEntity, type CardAction } from "@ygo_duel/class/DuelEntity";
-  import { writable } from "svelte/store";
+  import { DuelEntity } from "@ygo_duel/class/DuelEntity";
   export let entity: DuelEntity | undefined = undefined;
   const getInfo = () => (entity ? cardInfoDic[entity.origin.name] : undefined);
 </script>

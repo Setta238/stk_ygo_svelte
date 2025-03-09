@@ -1,5 +1,5 @@
-import type { TBattlePosition } from "@ygo/class/YgoTypes";
-import { DuelEntity, type TDuelCauseReason, type CardActionBase } from "@ygo_duel/class/DuelEntity";
+import type { CardActionBase } from "@ygo_duel/class/DuelCardAction";
+import { DuelEntity, type TDuelCauseReason } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 import type Duelist from "@ygo_duel/class/Duelist";
 export const defaultNormalSummonValidate = (entity: DuelEntity): DuelFieldCell[] | undefined => {
@@ -162,7 +162,7 @@ export const defaultSpellTrapSetValidate = (entity: DuelEntity): DuelFieldCell[]
   const availableCells = entity.controller.getAvailableSpellTrapZones();
   return availableCells.length > 0 ? availableCells : undefined;
 };
-export const defaultSpellTrapSetExecute = async (entity: DuelEntity, _pos?: TBattlePosition, cell?: DuelFieldCell): Promise<boolean> => {
+export const defaultSpellTrapSetExecute = async (entity: DuelEntity, cell?: DuelFieldCell): Promise<boolean> => {
   const availableCells = entity.controller.getAvailableSpellTrapZones();
   if (availableCells.length === 0) {
     return false;
@@ -171,15 +171,15 @@ export const defaultSpellTrapSetExecute = async (entity: DuelEntity, _pos?: TBat
   await entity.field.setSpellTrap(entity, cell ? [cell] : availableCells, undefined, entity.controller, true);
   return true;
 };
-export const defaultSpellTrapValidate = (entity: DuelEntity, aotherCondition: (entity: DuelEntity) => boolean = () => true): DuelFieldCell[] | undefined => {
+export const defaultSpellTrapValidate = (entity: DuelEntity): DuelFieldCell[] | undefined => {
   if (entity.fieldCell.cellType === "FieldSpellZone" && entity.face === "FaceDown") {
     return [];
   }
 
   const availableCells = entity.controller.getAvailableSpellTrapZones();
-  return availableCells.length > 0 && aotherCondition(entity) ? availableCells : undefined;
+  return availableCells.length > 0 ? availableCells : undefined;
 };
-export const defaultSpellTrapPrepare = async (entity: DuelEntity, _pos?: TBattlePosition, cell?: DuelFieldCell): Promise<boolean> => {
+export const defaultSpellTrapPrepare = async (entity: DuelEntity, cell?: DuelFieldCell): Promise<boolean> => {
   if (entity.fieldCell.cellType === "FieldSpellZone" && entity.face === "FaceDown") {
     entity.setNonFieldPosition("FaceUp", true);
     return true;
@@ -322,7 +322,7 @@ export const defaultSyncroSummonExecute = async (entity: DuelEntity, activater: 
   );
 
   activater.specialSummonCount++;
-  entity.canReborn = true;
+  entity.isRebornable = true;
   return true;
 };
 
@@ -362,7 +362,7 @@ export const defaultSpellTrapSetAction: CardActionBase<boolean> = {
   executableCells: ["Hand"],
   validate: defaultSpellTrapSetValidate,
   prepare: async () => true,
-  execute: (entity, activater, cell) => defaultSpellTrapSetExecute(entity, "Set", cell),
+  execute: (entity, activater, cell) => defaultSpellTrapSetExecute(entity, cell),
 };
 
 export const getDefaultSyncroSummonAction = (
@@ -389,10 +389,15 @@ export const getDefaultSearchSpellAction = (filter: (card: DuelEntity) => boolea
     spellSpeed: "Normal",
     executableCells: ["Hand", "SpellAndTrapZone"],
     // デッキに対象カードが一枚以上必要。
-    validate: (entity: DuelEntity) => defaultSpellTrapValidate(entity, (e) => e.controller.getDeckCell().cardEntities.filter(filter).length > 0),
+    validate: (entity: DuelEntity) => {
+      if (entity.controller.getDeckCell().cardEntities.filter(filter).length === 0) {
+        return;
+      }
+      return defaultSpellTrapValidate(entity);
+    },
     prepare: async (entity: DuelEntity, cell?: DuelFieldCell) => {
       entity.isDying = true;
-      return await defaultSpellTrapPrepare(entity, undefined, cell);
+      return await defaultSpellTrapPrepare(entity, cell);
     },
     execute: async (entity: DuelEntity, activater: Duelist) => {
       const monsters = activater.getDeckCell().cardEntities.filter(filter);
@@ -417,10 +422,15 @@ export const getDefaultSalvageSpellAction = (filter: (card: DuelEntity) => boole
     executableCells: ["Hand", "SpellAndTrapZone"],
     hasToTargetCards: true,
     // 墓地にに対象カードが一枚以上必要。
-    validate: (entity: DuelEntity) => defaultSpellTrapValidate(entity, (e) => e.controller.getGraveyard().cardEntities.filter(filter).length >= qty),
+    validate: (entity: DuelEntity) => {
+      if (entity.controller.getGraveyard().cardEntities.filter(filter).length >= qty) {
+        return;
+      }
+      return defaultSpellTrapValidate(entity);
+    },
     prepare: async (entity: DuelEntity, cell?: DuelFieldCell) => {
       entity.isDying = true;
-      return await defaultSpellTrapPrepare(entity, undefined, cell);
+      return await defaultSpellTrapPrepare(entity, cell);
     },
     execute: async (entity: DuelEntity, activater: Duelist) => {
       const monsters = activater.getGraveyard().cardEntities.filter(filter);
@@ -449,15 +459,19 @@ export const getLikeTradeInAction = (filter: (card: DuelEntity) => boolean): Car
     spellSpeed: "Normal",
     executableCells: ["Hand", "SpellAndTrapZone"],
     // 手札に対象カードが一枚以上必要。
-    validate: (entity: DuelEntity) =>
-      defaultSpellTrapValidate(
-        entity,
-        (e) => e.controller.getHandCell().cardEntities.filter(filter).length > 0 && e.controller.getDeckCell().cardEntities.length > 1
-      ),
+    validate: (entity: DuelEntity) => {
+      if (entity.controller.getHandCell().cardEntities.filter(filter).length === 0) {
+        return;
+      }
+      if (entity.controller.getDeckCell().cardEntities.length < 2) {
+        return;
+      }
+      return defaultSpellTrapValidate(entity);
+    },
     prepare: async (entity: DuelEntity, cell?: DuelFieldCell) => {
       entity.isDying = true;
       await entity.field.discard(entity.controller, 1, ["Discard", "Cost"], entity, entity.controller, filter);
-      return await defaultSpellTrapPrepare(entity, undefined, cell);
+      return await defaultSpellTrapPrepare(entity, cell);
     },
     execute: async (entity: DuelEntity, activater: Duelist) => {
       await activater.draw(2, entity);
@@ -476,7 +490,7 @@ export const getDefaultHealBurnSpellAction = (calcDamage: (entity: DuelEntity) =
     validate: () => [],
     prepare: async (entity: DuelEntity, cell?: DuelFieldCell) => {
       entity.isDying = true;
-      return await defaultSpellTrapPrepare(entity, undefined, cell);
+      return await defaultSpellTrapPrepare(entity, cell);
     },
     execute: async (entity: DuelEntity, activater: Duelist) => {
       const [toSelf, toOpponent] = calcDamage(entity);

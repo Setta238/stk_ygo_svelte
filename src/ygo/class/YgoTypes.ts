@@ -146,6 +146,7 @@ export type TEntityStatusBase = {
   type?: TMonsterType;
   pendulumScaleR?: number;
   pendulumScaleL?: number;
+  canReborn?: boolean;
 };
 
 export type TEntityStatus = TEntityStatusBase & {

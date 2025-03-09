@@ -12037,7 +12037,7 @@
 		"type": "Spellcaster",
 		"wikiName": "《封印されし者の右足》",
 		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%C9%F5%B0%F5%A4%B5%A4%EC%A4%B7%BC%D4%A4%CE%B1%A6%C2%AD%A1%D5",
-		"wikiTextAll": "通常モンスター（制限カード）\n星１/闇属性/魔法使い族/攻 200/守 300\n封印された右足。封印を解くと、無限の力を得られる。",
+		"wikiTextAll": "通常モンスター\n星１/闇属性/魔法使い族/攻 200/守 300\n封印された右足。封印を解くと、無限の力を得られる。",
 		"kind": "Monster"
 	},
 	"封印されし者の右腕": {
@@ -12055,7 +12055,7 @@
 		"type": "Spellcaster",
 		"wikiName": "《封印されし者の右腕》",
 		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%C9%F5%B0%F5%A4%B5%A4%EC%A4%B7%BC%D4%A4%CE%B1%A6%CF%D3%A1%D5",
-		"wikiTextAll": "通常モンスター（制限カード）\n星１/闇属性/魔法使い族/攻 200/守 300\n封印された右腕。封印を解くと、無限の力を得られる。",
+		"wikiTextAll": "通常モンスター\n星１/闇属性/魔法使い族/攻 200/守 300\n封印された右腕。封印を解くと、無限の力を得られる。",
 		"kind": "Monster"
 	},
 	"封印されし者の左足": {
@@ -12073,7 +12073,7 @@
 		"type": "Spellcaster",
 		"wikiName": "《封印されし者の左足》",
 		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%C9%F5%B0%F5%A4%B5%A4%EC%A4%B7%BC%D4%A4%CE%BA%B8%C2%AD%A1%D5",
-		"wikiTextAll": "通常モンスター（制限カード）\n星１/闇属性/魔法使い族/攻 200/守 300\n封印された左足。封印を解くと、無限の力を得られる。",
+		"wikiTextAll": "通常モンスター\n星１/闇属性/魔法使い族/攻 200/守 300\n封印された左足。封印を解くと、無限の力を得られる。",
 		"kind": "Monster"
 	},
 	"封印されし者の左腕": {
@@ -12091,7 +12091,7 @@
 		"type": "Spellcaster",
 		"wikiName": "《封印されし者の左腕》",
 		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%C9%F5%B0%F5%A4%B5%A4%EC%A4%B7%BC%D4%A4%CE%BA%B8%CF%D3%A1%D5",
-		"wikiTextAll": "通常モンスター（制限カード）\n星１/闇属性/魔法使い族/攻 200/守 300\n封印された左腕。封印を解くと、無限の力を得られる。",
+		"wikiTextAll": "通常モンスター\n星１/闇属性/魔法使い族/攻 200/守 300\n封印された左腕。封印を解くと、無限の力を得られる。",
 		"kind": "Monster"
 	},
 	"封印の鎖": {
@@ -13483,7 +13483,7 @@
 		"spellCategory": "Normal",
 		"wikiName": "《強欲な壺》",
 		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%B6%AF%CD%DF%A4%CA%D4%E4%A1%D5",
-		"wikiTextAll": "通常魔法（禁止カード）\n(1)：自分はデッキから２枚ドローする。"
+		"wikiTextAll": "通常魔法\n(1)：自分はデッキから２枚ドローする。"
 	},
 	"天使の施し": {
 		"name": "天使の施し",
@@ -13493,7 +13493,7 @@
 		"spellCategory": "Normal",
 		"wikiName": "《天使の施し》",
 		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%C5%B7%BB%C8%A4%CE%BB%DC%A4%B7%A1%D5",
-		"wikiTextAll": "通常魔法（禁止カード）\n自分のデッキからカードを３枚ドローし、その後手札を２枚選択して捨てる。"
+		"wikiTextAll": "通常魔法\n自分のデッキからカードを３枚ドローし、その後手札を２枚選択して捨てる。"
 	},
 	"成金ゴブリン": {
 		"name": "成金ゴブリン",
@@ -13513,7 +13513,7 @@
 		"spellCategory": "Normal",
 		"wikiName": "《おろかな埋葬》",
 		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%A4%AA%A4%ED%A4%AB%A4%CA%CB%E4%C1%F2%A1%D5",
-		"wikiTextAll": "通常魔法（制限カード）\n(1)：デッキからモンスター１体を墓地へ送る。"
+		"wikiTextAll": "通常魔法\n(1)：デッキからモンスター１体を墓地へ送る。"
 	},
 	"増援": {
 		"name": "増援",
@@ -13523,7 +13523,7 @@
 		"spellCategory": "Normal",
 		"wikiName": "《増援》",
 		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%C1%FD%B1%E7%A1%D5",
-		"wikiTextAll": "通常魔法（制限カード）\n(1)：デッキからレベル４以下の戦士族モンスター１体を手札に加える。"
+		"wikiTextAll": "通常魔法\n(1)：デッキからレベル４以下の戦士族モンスター１体を手札に加える。"
 	},
 	"増援部隊": {
 		"name": "増援部隊",
@@ -13627,7 +13627,7 @@
 		"spellCategory": "Normal",
 		"wikiName": "《死者蘇生》",
 		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%BB%E0%BC%D4%C1%C9%C0%B8%A1%D5",
-		"wikiTextAll": "通常魔法（制限カード）\n(1)：自分か相手の墓地のモンスター１体を対象として発動できる。\nそのモンスターを自分フィールドに特殊召喚する。"
+		"wikiTextAll": "通常魔法\n(1)：自分か相手の墓地のモンスター１体を対象として発動できる。\nそのモンスターを自分フィールドに特殊召喚する。"
 	},
 	"ライトロード・セイント ミネルバ": {
 		"name": "ライトロード・セイント ミネルバ",
@@ -13715,7 +13715,8 @@
 		"wikiTextAll": "特殊召喚・チューナー・効果モンスター\n星４/光属性/獣戦士族/攻1100/守2000\nこのカードは通常召喚できず、カードの効果でのみ特殊召喚できる。\n(1)：このカードがモンスターの効果でデッキから墓地へ送られた場合に発動する。\nこのカードを特殊召喚する。\n(2)：このカードをリリースし、相手フィールドのモンスター１体を対象として発動できる。\nその相手モンスターを破壊する。\nその後、自分のデッキの上からカードを３枚墓地へ送る。",
 		"nameTags": [
 			"ライトロード"
-		]
+		],
+		"canReborn": true
 	},
 	"ライトロード・ビースト ウォルフ": {
 		"name": "ライトロード・ビースト ウォルフ",
@@ -13737,7 +13738,8 @@
 		"wikiTextAll": "特殊召喚・効果モンスター\n星４/光属性/獣戦士族/攻2100/守 300\nこのカードは通常召喚できず、カードの効果でのみ特殊召喚できる。\n(1)：このカードがデッキから墓地へ送られた場合に発動する。\nこのカードを特殊召喚する。",
 		"nameTags": [
 			"ライトロード"
-		]
+		],
+		"canReborn": true
 	},
 	"ライトロード・シーフ ライニャン": {
 		"name": "ライトロード・シーフ ライニャン",
@@ -14525,7 +14527,7 @@
 		"spellCategory": "Normal",
 		"wikiName": "《簡易融合》",
 		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%B4%CA%B0%D7%CD%BB%B9%E7%A1%D5",
-		"wikiTextAll": "通常魔法（制限カード）\nこのカード名のカードは１ターンに１枚しか発動できない。\n(1)：１０００ＬＰを払って発動できる。\nレベル５以下の融合モンスター１体を融合召喚扱いとしてＥＸデッキから特殊召喚する。\nこの効果で特殊召喚したモンスターは攻撃できず、エンドフェイズに破壊される。"
+		"wikiTextAll": "通常魔法\nこのカード名のカードは１ターンに１枚しか発動できない。\n(1)：１０００ＬＰを払って発動できる。\nレベル５以下の融合モンスター１体を融合召喚扱いとしてＥＸデッキから特殊召喚する。\nこの効果で特殊召喚したモンスターは攻撃できず、エンドフェイズに破壊される。"
 	},
 	"テラ・フォーミング": {
 		"name": "テラ・フォーミング",
@@ -14535,7 +14537,7 @@
 		"spellCategory": "Normal",
 		"wikiName": "《テラ・フォーミング》",
 		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%A5%C6%A5%E9%A1%A6%A5%D5%A5%A9%A1%BC%A5%DF%A5%F3%A5%B0%A1%D5",
-		"wikiTextAll": "通常魔法（制限カード）\n(1)：デッキからフィールド魔法カード１枚を手札に加える。"
+		"wikiTextAll": "通常魔法\n(1)：デッキからフィールド魔法カード１枚を手札に加える。"
 	},
 	"コール・リゾネーター": {
 		"name": "コール・リゾネーター",
@@ -14683,5 +14685,114 @@
 		"wikiName": "《暗黒よりの軍勢》",
 		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%B0%C5%B9%F5%A4%E8%A4%EA%A4%CE%B7%B3%C0%AA%A1%D5",
 		"wikiTextAll": "通常罠\n(1)：自分の墓地の「暗黒界」モンスター２体を対象として発動できる。\nそのモンスターを手札に加える。"
+	},
+	"伝説の白石": {
+		"name": "伝説の白石",
+		"nameKana": "",
+		"description": "(1)：このカードが墓地へ送られた場合に発動する。\nデッキから「青眼の白龍」１体を手札に加える。",
+		"pendulumDescription": "",
+		"kind": "Monster",
+		"monsterCategories": [
+			"Tuner",
+			"Effect"
+		],
+		"level": 1,
+		"attack": 300,
+		"defense": 250,
+		"attribute": "Light",
+		"type": "Dragon",
+		"wikiName": "《伝説の白石》",
+		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%C5%C1%C0%E2%A4%CE%C7%F2%C0%D0%A1%D5",
+		"wikiTextAll": "チューナー・効果モンスター\n星１/光属性/ドラゴン族/攻 300/守 250\n(1)：このカードが墓地へ送られた場合に発動する。\nデッキから「青眼の白龍」１体を手札に加える。"
+	},
+	"強欲で貪欲な壺": {
+		"name": "強欲で貪欲な壺",
+		"nameKana": "",
+		"description": "このカード名のカードは１ターンに１枚しか発動できない。\n(1)：自分のデッキの上からカード１０枚を裏側表示で除外して発動できる。\n自分はデッキから２枚ドローする。",
+		"kind": "Spell",
+		"spellCategory": "Normal",
+		"wikiName": "《強欲で貪欲な壺》",
+		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%B6%AF%CD%DF%A4%C7%EC%C5%CD%DF%A4%CA%D4%E4%A1%D5",
+		"wikiTextAll": "通常魔法\nこのカード名のカードは１ターンに１枚しか発動できない。\n(1)：自分のデッキの上からカード１０枚を裏側表示で除外して発動できる。\n自分はデッキから２枚ドローする。"
+	},
+	"手札抹殺": {
+		"name": "手札抹殺",
+		"nameKana": "",
+		"description": "(1)：手札があるプレイヤーは、その手札を全て捨てる。\nその後、そのプレイヤーは自身が捨てた枚数分ドローする。",
+		"kind": "Spell",
+		"spellCategory": "Normal",
+		"wikiName": "《手札抹殺》",
+		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%BC%EA%BB%A5%CB%F5%BB%A6%A1%D5",
+		"wikiTextAll": "通常魔法\n(1)：手札があるプレイヤーは、その手札を全て捨てる。\nその後、そのプレイヤーは自身が捨てた枚数分ドローする。"
+	},
+	"魔法石の採掘": {
+		"name": "魔法石の採掘",
+		"nameKana": "",
+		"description": "(1)：手札を２枚捨て、自分の墓地の魔法カード１枚を対象として発動できる。\nそのカードを手札に加える。",
+		"kind": "Spell",
+		"spellCategory": "Normal",
+		"wikiName": "《魔法石の採掘》",
+		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%CB%E2%CB%A1%C0%D0%A4%CE%BA%CE%B7%A1%A1%D5",
+		"wikiTextAll": "通常魔法\n(1)：手札を２枚捨て、自分の墓地の魔法カード１枚を対象として発動できる。\nそのカードを手札に加える。"
+	},
+	"貪欲な壺": {
+		"name": "貪欲な壺",
+		"nameKana": "",
+		"description": "(1)：自分の墓地のモンスター５体を対象として発動できる。\nそのモンスター５体をデッキに戻してシャッフルする。\nその後、自分は２枚ドローする。",
+		"kind": "Spell",
+		"spellCategory": "Normal",
+		"wikiName": "《貪欲な壺》",
+		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%EC%C5%CD%DF%A4%CA%D4%E4%A1%D5",
+		"wikiTextAll": "通常魔法\n(1)：自分の墓地のモンスター５体を対象として発動できる。\nそのモンスター５体をデッキに戻してシャッフルする。\nその後、自分は２枚ドローする。"
+	},
+	"死者転生": {
+		"name": "死者転生",
+		"nameKana": "",
+		"description": "(1)：手札を１枚捨て、自分の墓地のモンスター１体を対象として発動できる。\nそのモンスターを手札に加える。",
+		"kind": "Spell",
+		"spellCategory": "Normal",
+		"wikiName": "《死者転生》",
+		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%BB%E0%BC%D4%C5%BE%C0%B8%A1%D5",
+		"wikiTextAll": "通常魔法\n(1)：手札を１枚捨て、自分の墓地のモンスター１体を対象として発動できる。\nそのモンスターを手札に加える。"
+	},
+	"魔法再生": {
+		"name": "魔法再生",
+		"nameKana": "",
+		"description": "手札の魔法カードを２枚墓地に送る。\n自分の墓地から魔法カードを１枚選択し、手札に加える。",
+		"kind": "Spell",
+		"spellCategory": "Normal",
+		"wikiName": "《魔法再生》",
+		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%CB%E2%CB%A1%BA%C6%C0%B8%A1%D5",
+		"wikiTextAll": "通常魔法\n手札の魔法カードを２枚墓地に送る。\n自分の墓地から魔法カードを１枚選択し、手札に加える。"
+	},
+	"おろかな重葬": {
+		"name": "おろかな重葬",
+		"nameKana": "",
+		"description": "このカード名のカードは１ターンに１枚しか発動できず、\nこのカードを発動するターン、自分は魔法・罠カードをセットできない。\n(1)：ＬＰを半分払って発動できる。\nＥＸデッキからモンスター１体を墓地へ送る。",
+		"kind": "Spell",
+		"spellCategory": "Normal",
+		"wikiName": "《おろかな重葬》",
+		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%A4%AA%A4%ED%A4%AB%A4%CA%BD%C5%C1%F2%A1%D5",
+		"wikiTextAll": "通常魔法\nこのカード名のカードは１ターンに１枚しか発動できず、\nこのカードを発動するターン、自分は魔法・罠カードをセットできない。\n(1)：ＬＰを半分払って発動できる。\nＥＸデッキからモンスター１体を墓地へ送る。"
+	},
+	"おろかな副葬": {
+		"name": "おろかな副葬",
+		"nameKana": "",
+		"description": "このカード名のカードは１ターンに１枚しか発動できない。\n(1)：デッキから魔法・罠カード１枚を墓地へ送る。",
+		"kind": "Spell",
+		"spellCategory": "Normal",
+		"wikiName": "《おろかな副葬》",
+		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%A4%AA%A4%ED%A4%AB%A4%CA%C9%FB%C1%F2%A1%D5",
+		"wikiTextAll": "通常魔法（準制限カード）\nこのカード名のカードは１ターンに１枚しか発動できない。\n(1)：デッキから魔法・罠カード１枚を墓地へ送る。"
+	},
+	"おろかな転生": {
+		"name": "おろかな転生",
+		"nameKana": "",
+		"description": "相手の墓地に存在するカード１枚を選択して発動する。\n選択したカードをデッキに戻す。",
+		"kind": "Spell",
+		"spellCategory": "QuickPlay",
+		"wikiName": "《おろかな転生》",
+		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%A4%AA%A4%ED%A4%AB%A4%CA%C5%BE%C0%B8%A1%D5",
+		"wikiTextAll": "速攻魔法\n相手の墓地に存在するカード１枚を選択して発動する。\n選択したカードをデッキに戻す。"
 	}
 }

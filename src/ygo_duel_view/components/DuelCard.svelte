@@ -6,8 +6,9 @@
   import { monsterCategoryDic, monsterCategoryEmojiDic, monsterTypeDic, monsterTypeEmojiDic, spellCategoryDic, trapCategoryDic } from "@ygo/class/YgoTypes";
 
   import type { DuelistResponse } from "@ygo_duel/class/Duel";
+  import type { ICardAction } from "@ygo_duel/class/DuelCardAction";
 
-  import { DuelEntity, type CardAction } from "@ygo_duel/class/DuelEntity";
+  import { DuelEntity } from "@ygo_duel/class/DuelEntity";
   import { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
   import type { WaitStartEventArg } from "@ygo_duel_view/class/DuelViewController";
   export let entity: DuelEntity;
@@ -15,8 +16,8 @@
   export let selectedList = [] as DuelEntity[];
   export let isVisibleForcibly = false;
   export let isWideMode = false;
-  export let actions: CardAction<unknown>[] = [];
-  export let cardActionResolve: ((action?: CardAction<unknown>, cell?: DuelFieldCell) => void) | undefined;
+  export let actions: ICardAction<unknown>[] = [];
+  export let cardActionResolve: ((action?: ICardAction<unknown>, cell?: DuelFieldCell) => void) | undefined;
   export let entitySelectResolve: ((entities: DuelEntity[]) => void) | undefined = () => {};
   let isSelected = false;
   let duelistResponseResolve: (res: DuelistResponse) => void = () => {};
@@ -74,7 +75,7 @@
       }
       console.log(actions[0], duelistResponseResolve);
       duelistResponseResolve({
-        actionWIP: actions[0],
+        action: actions[0],
       });
       return;
     }
@@ -87,7 +88,7 @@
       })
       .then((_action) => {
         duelistResponseResolve({
-          actionWIP: _action,
+          action: _action,
         });
       });
     return;

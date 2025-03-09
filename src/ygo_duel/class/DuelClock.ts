@@ -1,4 +1,12 @@
-export class DuelClock {
+export interface IDuelClock {
+  turn: number;
+  phaseSeq: number;
+  stepSeq: number;
+  chainSeq: number;
+  procSeq: number;
+  procTotalSeq: number;
+}
+export class DuelClock implements IDuelClock {
   private _turn: number = 0;
   private _phaseSeq: number = 0;
   private _stepSeq: number = 0;
@@ -63,5 +71,15 @@ export class DuelClock {
   };
   public readonly toString = () => {
     return `${this.procTotalSeq}(t${this.turn}-p${this.phaseSeq}-ps${this.stepSeq}-c${this.chainSeq}-cb${this.chainBlockSeq}-p${this.procSeq})`;
+  };
+  public readonly getClone = (): IDuelClock => {
+    return {
+      turn: this.turn,
+      phaseSeq: this.phaseSeq,
+      stepSeq: this.stepSeq,
+      chainSeq: this.chainSeq,
+      procSeq: this.procSeq,
+      procTotalSeq: this.procTotalSeq,
+    };
   };
 }

@@ -4,9 +4,10 @@ import { type IDuelistProfile } from "@ygo/class/DuelistProfile";
 import { DuelField } from "./DuelField";
 import DuelLog from "@ygo_duel/class/DuelLog";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
-import { cardActionNonChainBlockTypes, type CardAction, type TCardActionType, type TSpellSpeed } from "@ygo_duel/class/DuelEntity";
 import { DuelViewController } from "@ygo_duel_view/class/DuelViewController";
 import { DuelClock } from "./DuelClock";
+import DuelCardActionLog from "./DuelCardActionLog";
+import { cardActionNonChainBlockTypes, type CardAction, type ICardAction, type TCardActionType, type TSpellSpeed } from "./DuelCardAction";
 export type TDuelPhase = "draw" | "standby" | "main1" | "battle" | "main2" | "end";
 export type TDuelPhaseStep = "start" | "battle" | "damage" | "end" | undefined;
 export const seats = ["Above", "Below"] as const;
@@ -15,7 +16,7 @@ export type DuelistResponse = {
   phaseChange?: TDuelPhase;
   selectedEntities?: DuelEntity[];
   sendMessage?: string;
-  actionWIP?: CardAction<unknown>;
+  action?: ICardAction<unknown>;
   attack?: [DuelEntity, DuelEntity | undefined];
   cancel?: boolean;
   surrender?: boolean;
@@ -41,6 +42,7 @@ export class SystemError extends Error {
 export class Duel {
   public readonly view: DuelViewController;
   public readonly log: DuelLog;
+  public readonly cardActionLog: DuelCardActionLog;
   public clock: DuelClock;
   public phase: TDuelPhase;
   public phaseStep: TDuelPhaseStep;
@@ -80,6 +82,7 @@ export class Duel {
 
     this.view = new DuelViewController(this);
     this.log = new DuelLog(this);
+    this.cardActionLog = new DuelCardActionLog(this);
   }
 
   public readonly getTurnPlayer = (): Duelist => {
@@ -218,21 +221,21 @@ export class Duel {
       console.log(action);
 
       // ユーザー入力がカードアクションだった場合、チェーンブロックを作るか作らないかで処理を分ける
-      if (action.actionWIP) {
-        if (([...cardActionNonChainBlockTypes] as string[]).includes(action.actionWIP.playType)) {
+      if (action.action) {
+        if (([...cardActionNonChainBlockTypes] as string[]).includes(action.action.playType)) {
           //チェーンに乗らない処理を実行し、処理番号をインクリメント
-          const prepared = await action.actionWIP.prepare(action.actionWIP.cell, true);
+          const prepared = await action.action.prepare(action.action.cell, true);
 
           if (!prepared) {
             continue;
           }
 
-          await action.actionWIP.execute(this.priorityHolder, action.actionWIP.cell, prepared);
+          await action.action.execute(this.priorityHolder, action.action.cell, prepared);
           this.clock.incrementProcSeq();
         } else {
           console.log(action);
           //チェーンに積んで、チェーン処理へ
-          await this.procChainBlock(action.actionWIP);
+          await this.procChainBlock(action.action);
         }
         while (await this.procChainBlock()) {
           //
@@ -284,9 +287,9 @@ export class Duel {
         //エンドステップへ（※優先権の移動はない）
         break;
       }
-      if (action.actionWIP) {
+      if (action.action) {
         //チェーンに乗らない処理を実行し、処理番号をインクリメント
-        await action.actionWIP.execute(this.priorityHolder, action.actionWIP.cell);
+        await action.action.execute(this.priorityHolder, action.action.cell);
         this.clock.incrementProcSeq();
 
         //フリーチェーン処理へ
@@ -409,21 +412,23 @@ export class Duel {
   /**
    * チェーンが発生しうる場合の処理
    */
-  private readonly procChainBlock = async (action?: CardAction<unknown>, triggerEffects?: CardAction<unknown>[]): Promise<boolean> => {
+  private readonly procChainBlock = async (action?: ICardAction<unknown>, triggerEffects?: ICardAction<unknown>[]): Promise<boolean> => {
     // チェーン開始判定
     const isStartPoint = this.clock.chainBlockSeq === 0;
 
-    let chainBlock: CardAction<unknown> | undefined;
+    let chainBlock: ICardAction<unknown> | undefined;
+
+    console.log(triggerEffects?.length);
 
     //両方のプレイヤーの誘発効果を収集する。
-    const _triggerEffets =
+    let _triggerEffets =
       triggerEffects ??
       Object.values(this.duelists).flatMap((duelist) => {
         this.priorityHolder = duelist;
         return this.getEnableActions(["TriggerMandatoryEffect", "TriggerEffect"], ["Normal"]);
       });
 
-    console.log(_triggerEffets);
+    console.log(_triggerEffets.length);
 
     try {
       // 起点の効果がある場合、最初に積む。
@@ -439,7 +444,12 @@ export class Duel {
 
         // 誘発効果が選択された場合、次のチェーンを積みに行く
         if (triggerEffect) {
-          chainBlock = action;
+          console.log(_triggerEffets.length);
+
+          _triggerEffets = _triggerEffets.filter((effect) => effect !== triggerEffect);
+          console.log(_triggerEffets.length);
+
+          chainBlock = triggerEffect;
           return true;
         }
       }
@@ -499,7 +509,7 @@ export class Duel {
       }
     }
   };
-  private readonly selectTriggerEffect = async (triggerEffects: CardAction<unknown>[]): Promise<CardAction<unknown> | undefined> => {
+  private readonly selectTriggerEffect = async (triggerEffects: ICardAction<unknown>[]): Promise<ICardAction<unknown> | undefined> => {
     // 誘発効果の処理順に従って効果を抽出する。
     if (triggerEffects.length > 0) {
       for (const triggerType of ["TriggerMandatoryEffect", "TriggerEffect"] as TCardActionType[]) {
@@ -515,6 +525,7 @@ export class Duel {
 
           // 強制効果が残り１の場合、選択をスキップ
           if (effects.length === 1 && triggerType === "TriggerMandatoryEffect") {
+            console.log(effects[0]);
             return effects[0] as CardAction<unknown>;
           }
 

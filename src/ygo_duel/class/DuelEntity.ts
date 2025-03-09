@@ -10,14 +10,15 @@ import {
 } from "@ygo/class/YgoTypes";
 import { SystemError } from "./Duel";
 import type { DuelField } from "./DuelField";
-import type { DuelFieldCell, DuelFieldCellType, TDuelEntityMovePos } from "./DuelFieldCell";
+import type { DuelFieldCell, TDuelEntityMovePos } from "./DuelFieldCell";
 import type Duelist from "./Duelist";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
-import type { DuelClock } from "./DuelClock";
+import type { IDuelClock } from "./DuelClock";
 
 import { defaultAttackAction, defaultBattlePotisionChangeAction, defaultNormalSummonAction } from "@ygo_duel/functions/DefaultCardAction";
 import { cardDefinitions, cardInfoDic } from "@ygo/class/CardInfo";
+import { CardAction, type CardActionBase, type ICardAction } from "./DuelCardAction";
 export type TDuelEntity = "Card" | "Token";
 export type TDuelEntityFace = "FaceUp" | "FaceDown";
 export type TDuelEntityOrientation = "Horizontal" | "Vertical";
@@ -54,82 +55,7 @@ export type TDuelCauseReason =
   | "Rule"
   | "SpellTrapSet"
   | "SpellTrapActivate";
-export const cardActionChainBlockTypes = [
-  "TriggerEffect",
-  "TriggerMandatoryEffect",
-  "MandatoryEffect",
-  "QuickEffect",
-  "IgnitionEffect",
-  "CardActivation",
-] as const;
-export type TCardActionChainBlockType = (typeof cardActionChainBlockTypes)[number];
-export const cardActionNonChainBlockTypes = ["NormalSummon", "SpecialSummon", "ChangeBattlePosition", "Battle", "SpellTrapSet", "SpellTrapActivate"] as const;
-export type TCardActionNonChainBlockType = (typeof cardActionNonChainBlockTypes)[number];
-export type TCardActionType = TCardActionChainBlockType | TCardActionNonChainBlockType | "Dammy" | "RuleDraw";
-export type TSpellSpeed = "Normal" | "Quick" | "Counter" | "Dammy";
-export type CardActionBase<T> = {
-  title: string;
-  playType: TCardActionType;
-  spellSpeed: TSpellSpeed;
-  hasToTargetCards?: boolean;
-  executableCells: DuelFieldCellType[];
-  /**
-   * 発動可能かどうかの検証
-   * @param entity
-   * @returns 発動時にドラッグ・アンド・ドロップ可能である場合、選択肢のcellが返る。
-   */
-  validate: (entity: DuelEntity) => DuelFieldCell[] | undefined;
-  /**
-   * コストの支払い、対象に取るなど
-   * フィールドに残らない魔法罠の場合、isDyingの設定が必要
-   * @param entity
-   * @param cell
-   * @returns
-   */
-  prepare: (entity: DuelEntity, cell?: DuelFieldCell, cancelable?: boolean) => Promise<T | undefined>;
-  /**
-   * 実際の処理部分
-   * @param entity
-   * @param activater
-   * @param cell
-   * @param prepared
-   * @returns
-   */
-  execute: (entity: DuelEntity, activater: Duelist, cell?: DuelFieldCell, prepared?: T) => Promise<boolean>;
-};
-export type CardAction<T> = {
-  title: string;
-  entity: DuelEntity;
-  seq: number;
-  playType: TCardActionType;
-  spellSpeed: TSpellSpeed;
-  hasToTargetCards?: boolean;
 
-  executableCells: DuelFieldCellType[];
-  /**
-   *
-   * @returns 発動時にドラッグ・アンド・ドロップ可能である場合、選択肢のcellが返る。
-   */
-  validate: () => DuelFieldCell[] | undefined;
-  /**
-   * チェーンに乗る処理の場合、コストの支払いや対象に取る処理までを行う。
-   * @param cell 効果発動時にドラッグ・アンド・ドロップなどで指定されたセルがある場合、値が入る。
-   * @returns 実行時に必要な任意の情報
-   */
-  prepare: (cell?: DuelFieldCell, cancelable?: boolean) => Promise<T | undefined>;
-  /**
-   *
-   * @param activater 効果発動時のコントローラー
-   * @param cell 効果発動時にドラッグ・アンド・ドロップなどで指定されたセルがある場合、値が入る。
-   * @param prepared 実行時に必要な任意の情報
-   * @returns 不発の場合、false
-   */
-  execute: (activater: Duelist, cell?: DuelFieldCell, prepared?: T) => Promise<boolean>;
-  autoWord?: string;
-  cell?: DuelFieldCell;
-  pos?: TBattlePosition;
-  dragAndDropOnly?: boolean;
-};
 export const duelEntityCardTypes = ["Card", "Token", "Avatar"] as const;
 export type TDuelEntityCardType = (typeof duelEntityCardTypes)[number];
 export const duelEntityDammyTypes = ["Duelist", "Squatter"] as const;
@@ -210,10 +136,10 @@ export class DuelEntity {
   public movedBy: DuelEntity | undefined;
   public readonly movedAs: TDuelCauseReason[];
   public movedFrom: DuelFieldCell | undefined;
-  public movedAt: DuelClock;
+  public movedAt: IDuelClock;
   public isDying: boolean;
   public isVanished: boolean;
-  public canReborn: boolean;
+  public isRebornable: boolean;
   public materials: DuelEntity[];
 
   public readonly status: TEntityStatus;
@@ -284,24 +210,13 @@ export class DuelEntity {
     this.movedAt = field.duel.clock;
     this.isDying = false;
     this.isVanished = false;
-    this.canReborn = this.origin.monsterCategories?.union(specialMonsterCategories).length === 0;
+    this.isRebornable = true;
+    this.resetRebornable();
     this.materials = [];
     fieldCell.acceptEntities([this], "Top");
   }
   private static readonly createCardActionList = (entity: DuelEntity, baseList: CardActionBase<unknown>[]): CardAction<unknown>[] => {
-    const result = baseList.map((b) => {
-      return {
-        seq: DuelEntity.nextActionSeq++,
-        title: b.title,
-        entity: entity,
-        playType: b.playType,
-        spellSpeed: b.spellSpeed,
-        executableCells: b.executableCells,
-        validate: () => b.validate(entity),
-        prepare: (cell?: DuelFieldCell) => b.prepare(entity, cell),
-        execute: (activater: Duelist, cell?: DuelFieldCell, prepared?: unknown) => b.execute(entity, activater, cell, prepared),
-      };
-    });
+    const result = baseList.map((b) => new CardAction(DuelEntity.nextActionSeq++, entity, b));
 
     result.forEach((act) => (DuelEntity.actionDic[act.seq] = act));
 
@@ -348,7 +263,7 @@ export class DuelEntity {
    * @param pos
    * @returns
    */
-  public static readonly createDammyAction = (entity: DuelEntity, title: string, cells: DuelFieldCell[], pos?: TBattlePosition): CardAction<void> => {
+  public static readonly createDammyAction = (entity: DuelEntity, title: string, cells: DuelFieldCell[], pos?: TBattlePosition): ICardAction<void> => {
     return {
       seq: DuelEntity.nextActionSeq++,
       title: title,
@@ -356,6 +271,9 @@ export class DuelEntity {
       playType: "Dammy",
       spellSpeed: "Dammy",
       executableCells: [entity.fieldCell.cellType],
+      hasToTargetCards: false,
+      isOnlyNTimesPerDuel: 0,
+      isOnlyNTimesPerTurn: 0,
       validate: () => cells,
       prepare: async () => {},
       execute: async () => false,
@@ -448,7 +366,19 @@ export class DuelEntity {
     await this._moveTo(this.owner.getHandCell(), "Bottom", moveAs, causedBy);
     this.setNonFieldPosition("Set", true);
   };
-  private readonly _moveTo = async (to: DuelFieldCell, pos: TDuelEntityMovePos, moveAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<void> => {
+  public readonly returnToDeck = async (pos: TDuelEntityMovePos, moveAs: TDuelCauseReason[], causedBy: DuelEntity): Promise<DuelFieldCell | undefined> => {
+    const dest =
+      this.origin.monsterCategories && this.origin.monsterCategories.union(exMonsterCategories).length ? this.owner.getExtraDeck() : this.owner.getDeckCell();
+    this.setNonFieldPosition("Set", true);
+    this.resetRebornable();
+    return await this._moveTo(dest, pos, moveAs, causedBy);
+  };
+  private readonly _moveTo = async (
+    to: DuelFieldCell,
+    pos: TDuelEntityMovePos,
+    moveAs: TDuelCauseReason[],
+    causedBy?: DuelEntity
+  ): Promise<DuelFieldCell | undefined> => {
     if (!to) {
       throw new Error("illegal argument: to");
     }
@@ -464,16 +394,8 @@ export class DuelEntity {
 
     to.acceptEntities([this], pos);
   };
-  // private readonly moveToOtherCell = async (pos:TBattlePosition|TNonBattlePosition, moveAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<DuelFieldCell | undefined> => {
-  //   this.setNonFieldPosition("FaceUp", true);
-  //   this.fieldCell.releaseEntities([this], moveAs, causedBy);
 
-  //   if (this.entityType === "Token") {
-  //     this.field.duel.log.info(`${this.nm}は消滅した。`, causedBy?.controller);
-  //     return;
-  //   }
-  //   const graveyard = this.field.getGraveyard(this.owner);
-  //   graveyard.acceptEntities([this], "Top");
-  //   return graveyard;
-  // };
+  private readonly resetRebornable = () => {
+    this.isRebornable = this.origin.monsterCategories?.union(specialMonsterCategories).length === 0 || (this.origin.canReborn ?? false);
+  };
 }

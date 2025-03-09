@@ -99,7 +99,7 @@ export class DuelFieldCell {
     entities.forEach((entity) => {
       entity.movedAs.splice(0);
       entity.movedAs.push(...new Set(movedAs));
-      entity.movedAt = entity.field.duel.clock;
+      entity.movedAt = entity.field.duel.clock.getClone();
       entity.movedBy = cousedBy;
       entity.movedFrom = this;
     });

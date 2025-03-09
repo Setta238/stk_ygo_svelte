@@ -4,10 +4,11 @@
   import { type DuelistResponse, type TDuelPhase } from "@ygo_duel/class/Duel";
 
   import DuelCard, { type TCardState } from "@ygo_duel_view/components/DuelCard.svelte";
-  import { DuelEntity, type CardAction } from "@ygo_duel/class/DuelEntity";
+  import { DuelEntity } from "@ygo_duel/class/DuelEntity";
   import type { AnimationStartEventArg, DuelViewController, WaitStartEventArg } from "@ygo_duel_view/class/DuelViewController";
   import {} from "@stk_utils/funcs/StkArrayUtils";
   import { cardCrossFade } from "@ygo_duel_view/components/DuelDesk.svelte";
+  import type { ICardAction } from "@ygo_duel/class/DuelCardAction";
   export let view: DuelViewController;
 
   export let row: number;
@@ -25,7 +26,7 @@
   view.onDuelUpdate.append(onCellUpdate);
   view.modalController.onUpdate.append(onCellUpdate);
 
-  let enableActions: CardAction<unknown>[] = [];
+  let enableActions: ICardAction<unknown>[] = [];
   let responseResolve: (action: DuelistResponse) => void = () => {};
   let selectedEntitiesValidator: (selectedEntities: DuelEntity[]) => boolean = () => true;
   let selectableEntities: DuelEntity[];
@@ -33,15 +34,15 @@
     animationArg = undefined;
     selectedList.reset();
     responseResolve = args.resolve;
-    enableActions = args.enableActions as CardAction<unknown>[];
+    enableActions = args.enableActions as ICardAction<unknown>[];
     selectableEntities = args.selectableEntities;
     selectedEntitiesValidator = args.entitiesValidator;
   };
   view.onWaitStart.append(onWaitStart);
 
-  let draggingActions: CardAction<unknown>[] | undefined;
+  let draggingActions: ICardAction<unknown>[] | undefined;
   let canAcceptDrop = false;
-  const onDragStart = (actions: CardAction<unknown>[]) => {
+  const onDragStart = (actions: ICardAction<unknown>[]) => {
     draggingActions = actions;
     canAcceptDrop = actions.some((action) => action.validate()?.includes(cell)) || false;
     onCellUpdate();
@@ -106,7 +107,7 @@
           })
           .then((_action) => {
             responseResolve({
-              actionWIP: _action,
+              action: _action,
             });
           });
         return;
@@ -133,7 +134,7 @@
         console.info(draggingActions, cell);
         if (draggingActions.length === 1) {
           responseResolve({
-            actionWIP: { ...draggingActions[0], cell },
+            action: { ...draggingActions[0], cell },
           });
         } else if (draggingActions.length > 1) {
           cell.field.duel.view.modalController.cancelAll();

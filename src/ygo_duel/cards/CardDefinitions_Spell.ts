@@ -1,4 +1,4 @@
-import { DuelEntity, type CardActionBase } from "@ygo_duel/class/DuelEntity";
+import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 import type Duelist from "@ygo_duel/class/Duelist";
 import {
@@ -10,6 +10,9 @@ import {
   getDefaultSearchSpellAction,
   getLikeTradeInAction,
 } from "@ygo_duel/functions/DefaultCardAction";
+
+import {} from "@stk_utils/funcs/StkArrayUtils";
+import type { CardActionBase } from "@ygo_duel/class/DuelCardAction";
 
 export type CardDefinition = {
   name: string;
@@ -27,10 +30,15 @@ export const createCardDefinitions_Spell = (): CardDefinition[] => {
         playType: "CardActivation",
         spellSpeed: "Normal",
         executableCells: ["Hand", "SpellAndTrapZone"],
-        validate: defaultSpellTrapValidate,
+        validate: (entity: DuelEntity) => {
+          if (entity.controller.getDeckCell().cardEntities.length < 2) {
+            return;
+          }
+          return defaultSpellTrapValidate(entity);
+        },
         prepare: async (entity: DuelEntity, cell?: DuelFieldCell) => {
           entity.isDying = true;
-          return await defaultSpellTrapPrepare(entity, undefined, cell);
+          return await defaultSpellTrapPrepare(entity, cell);
         },
         execute: async (entity: DuelEntity, activater: Duelist) => {
           await entity.field.draw(activater, 2, entity);
@@ -42,6 +50,61 @@ export const createCardDefinitions_Spell = (): CardDefinition[] => {
   };
 
   result.push(def_強欲な壺);
+  const def_貪欲な壺 = {
+    name: "貪欲な壺",
+    actions: [
+      {
+        title: "発動",
+        playType: "CardActivation",
+        spellSpeed: "Normal",
+        executableCells: ["Hand", "SpellAndTrapZone"],
+        validate: (entity: DuelEntity) => {
+          if (entity.controller.getGraveyard().cardEntities.filter((card) => card.status.kind === "Monster").length < 5) {
+            return;
+          }
+          return defaultSpellTrapValidate(entity);
+        },
+        prepare: async (entity: DuelEntity, cell?: DuelFieldCell) => {
+          entity.isDying = true;
+          const target = await entity.field.duel.view.waitSelectEntities(
+            entity.controller,
+            entity.controller.getGraveyard().cardEntities.filter((card) => card.status.kind === "Monster"),
+            5,
+            (selected) => selected.length === 5,
+            "デッキに戻すモンスターを選択。",
+            false
+          );
+          if (!target) {
+            return;
+          }
+          await defaultSpellTrapPrepare(entity, cell);
+          return target;
+        },
+        execute: async (entity: DuelEntity, activater: Duelist, cell: DuelFieldCell, prepared: DuelEntity[]) => {
+          const cells: DuelFieldCell[] = [];
+          //デッキorエクストラデッキに戻す
+          for (const card of prepared) {
+            const dest = await card.returnToDeck("Top", ["Effect"], entity);
+            if (dest) {
+              cells.push(dest);
+            }
+          }
+
+          //デッキに戻っていた場合、シャッフル。
+          cells
+            .getDistinct()
+            .filter((cell) => cell.cellType === "Deck")
+            .forEach((cell) => cell.shuffle());
+
+          await entity.field.draw(activater, 2, entity);
+          return true;
+        },
+      },
+      defaultSpellTrapSetAction,
+    ] as CardActionBase<unknown>[],
+  };
+
+  result.push(def_貪欲な壺);
   const def_天使の施し = {
     name: "天使の施し",
     actions: [
@@ -50,10 +113,15 @@ export const createCardDefinitions_Spell = (): CardDefinition[] => {
         playType: "CardActivation",
         spellSpeed: "Normal",
         executableCells: ["Hand", "SpellAndTrapZone"],
-        validate: defaultSpellTrapValidate,
+        validate: (entity: DuelEntity) => {
+          if (entity.controller.getDeckCell().cardEntities.length < 3) {
+            return;
+          }
+          return defaultSpellTrapValidate(entity);
+        },
         prepare: async (entity: DuelEntity, cell?: DuelFieldCell) => {
           entity.isDying = true;
-          return await defaultSpellTrapPrepare(entity, undefined, cell);
+          return await defaultSpellTrapPrepare(entity, cell);
         },
         execute: async (entity: DuelEntity, activater: Duelist) => {
           await entity.field.draw(entity.controller, 3, entity);
@@ -74,10 +142,15 @@ export const createCardDefinitions_Spell = (): CardDefinition[] => {
         playType: "CardActivation",
         spellSpeed: "Normal",
         executableCells: ["Hand", "SpellAndTrapZone"],
-        validate: defaultSpellTrapValidate,
+        validate: (entity: DuelEntity) => {
+          if (entity.controller.getDeckCell().cardEntities.length < 1) {
+            return;
+          }
+          return defaultSpellTrapValidate(entity);
+        },
         prepare: async (entity: DuelEntity, cell?: DuelFieldCell) => {
           entity.isDying = true;
-          return await defaultSpellTrapPrepare(entity, undefined, cell);
+          return await defaultSpellTrapPrepare(entity, cell);
         },
         execute: async (entity: DuelEntity, activater: Duelist) => {
           await entity.field.draw(entity.controller, 1, entity);
@@ -101,11 +174,15 @@ export const createCardDefinitions_Spell = (): CardDefinition[] => {
         spellSpeed: "Normal",
         executableCells: ["Hand", "SpellAndTrapZone"],
         // デッキにモンスターが一枚以上必要。
-        validate: (entity: DuelEntity) =>
-          defaultSpellTrapValidate(entity, (e) => e.controller.getDeckCell().cardEntities.some((card) => card.status.kind === "Monster")),
+        validate: (entity: DuelEntity) => {
+          if (entity.controller.getDeckCell().cardEntities.filter((card) => card.status.kind === "Monster").length === 0) {
+            return;
+          }
+          return defaultSpellTrapValidate(entity);
+        },
         prepare: async (entity: DuelEntity, cell?: DuelFieldCell) => {
           entity.isDying = true;
-          return await defaultSpellTrapPrepare(entity, undefined, cell);
+          return await defaultSpellTrapPrepare(entity, cell);
         },
         execute: async (entity: DuelEntity, activater: Duelist) => {
           const monsters = activater.getDeckCell().cardEntities.filter((entity) => entity.status.kind === "Monster");
@@ -132,6 +209,44 @@ export const createCardDefinitions_Spell = (): CardDefinition[] => {
   };
 
   result.push(def_おろかな埋葬);
+  const def_おろかな副葬 = {
+    name: "おろかな副葬",
+    actions: [
+      {
+        title: "発動",
+        playType: "CardActivation",
+        spellSpeed: "Normal",
+        executableCells: ["Hand", "SpellAndTrapZone"],
+        isOnlyNTimesPerTurn: 1,
+        // デッキにモンスターが一枚以上必要。
+        validate: (entity: DuelEntity) => {
+          if (entity.controller.getDeckCell().cardEntities.filter((card) => card.status.kind !== "Monster").length === 0) {
+            return;
+          }
+          return defaultSpellTrapValidate(entity);
+        },
+        prepare: async (entity: DuelEntity, cell?: DuelFieldCell) => {
+          entity.isDying = true;
+          return await defaultSpellTrapPrepare(entity, cell);
+        },
+        execute: async (entity: DuelEntity, activater: Duelist) => {
+          const monsters = activater.getDeckCell().cardEntities.filter((entity) => entity.status.kind !== "Monster");
+          if (monsters.length === 0) {
+            return false;
+          }
+          const target = await entity.field.duel.view.waitSelectEntities(activater, monsters, 1, (list) => list.length === 1, "墓地に送る魔法罠を選択", false);
+          for (const monster of target ?? []) {
+            await entity.field.sendGraveyardMany([monster], ["Effect"], entity);
+          }
+          await activater.shuffleDeck();
+          return true;
+        },
+      },
+      defaultSpellTrapSetAction,
+    ] as CardActionBase<unknown>[],
+  };
+
+  result.push(def_おろかな副葬);
   const def_死者蘇生 = {
     name: "死者蘇生",
     actions: [
@@ -142,15 +257,15 @@ export const createCardDefinitions_Spell = (): CardDefinition[] => {
         executableCells: ["Hand", "SpellAndTrapZone"],
         hasToTargetCards: true,
         // 墓地に蘇生可能モンスター、場に空きが必要。
-        validate: (entity: DuelEntity) =>
-          defaultSpellTrapValidate(
-            entity,
-            (e) =>
-              e.field
-                .getCells("Graveyard")
-                .flatMap((gy) => gy.cardEntities)
-                .filter((card) => card.origin.kind === "Monster" && card.canReborn).length > 0 && e.controller.getAvailableMonsterZones().length > 0
-          ),
+        validate: (entity: DuelEntity) => {
+          if (entity.controller.getGraveyard().cardEntities.filter((card) => card.status.kind === "Monster").length === 0) {
+            return;
+          }
+          if (entity.controller.getAvailableMonsterZones().length === 0) {
+            return;
+          }
+          return defaultSpellTrapValidate(entity);
+        },
         prepare: async (entity: DuelEntity, cell?: DuelFieldCell) => {
           entity.isDying = true;
           const target = await entity.field.duel.view.waitSelectEntities(
@@ -158,13 +273,13 @@ export const createCardDefinitions_Spell = (): CardDefinition[] => {
             entity.field
               .getCells("Graveyard")
               .flatMap((gy) => gy.cardEntities)
-              .filter((card) => card.origin.kind === "Monster" && card.canReborn),
+              .filter((card) => card.origin.kind === "Monster" && card.isRebornable),
             1,
             (list) => list.length === 1,
             "蘇生対象とするモンスターを選択",
             false
           );
-          await defaultSpellTrapPrepare(entity, undefined, cell);
+          await defaultSpellTrapPrepare(entity, cell);
 
           return target?.[0];
         },
@@ -182,6 +297,51 @@ export const createCardDefinitions_Spell = (): CardDefinition[] => {
 
   result.push(def_死者蘇生);
 
+  const def_手札抹殺 = {
+    name: "手札抹殺",
+    actions: [
+      {
+        title: "発動",
+        playType: "CardActivation",
+        spellSpeed: "Normal",
+        executableCells: ["Hand", "SpellAndTrapZone"],
+        validate: (entity: DuelEntity) => {
+          if (
+            entity.controller.getDeckCell().cardEntities.length < entity.controller.getHandCell().cardEntities.filter((card) => card.seq !== entity.seq).length
+          ) {
+            return;
+          }
+          if (
+            entity.field
+              .getAllCells()
+              .filter((c) => c.cellType === "Hand")
+              .flatMap((c) => c.cardEntities)
+              .filter((card) => card.seq !== entity.seq).length === 0
+          ) {
+            return;
+          }
+          return defaultSpellTrapValidate(entity);
+        },
+        prepare: (entity: DuelEntity, cell?: DuelFieldCell) => defaultSpellTrapPrepare(entity, cell),
+        execute: async (entity: DuelEntity, activater: Duelist) => {
+          const h1 = activater.getHandCell().cardEntities.length;
+          const h2 = activater.getOpponentPlayer().getHandCell().cardEntities.length;
+
+          await entity.field.discard(activater, h1, ["Effect"], entity);
+          await entity.field.discard(activater.getOpponentPlayer(), h2, ["Effect"], entity);
+
+          activater.duel.clock.incrementProcSeq();
+
+          await entity.field.drawSameTime(activater, h1, activater.getOpponentPlayer(), h2, entity);
+
+          return true;
+        },
+      },
+      defaultSpellTrapSetAction,
+    ] as CardActionBase<unknown>[],
+  };
+  result.push(def_手札抹殺);
+
   const def_光の援軍 = {
     name: "光の援軍",
     actions: [
@@ -191,24 +351,28 @@ export const createCardDefinitions_Spell = (): CardDefinition[] => {
         spellSpeed: "Normal",
         executableCells: ["Hand", "SpellAndTrapZone"],
         // デッキに対象モンスターが一枚以上必要。
-        validate: (entity: DuelEntity) =>
-          defaultSpellTrapValidate(
-            entity,
-            (e) =>
-              e.controller
-                .getDeckCell()
-                .cardEntities.filter((card) => card.status.kind === "Monster")
-                .filter((entity) => (entity.lvl ?? 13) < 5)
-                .some((entity) => entity.status.nameTags && entity.status.nameTags.includes("ライトロード")) &&
-              e.controller.getDeckCell().cardEntities.length > 3
-          ),
+        validate: (entity: DuelEntity) => {
+          if (entity.controller.getDeckCell().cardEntities.length < 4) {
+            return;
+          }
+          if (
+            entity.controller
+              .getDeckCell()
+              .cardEntities.filter((card) => card.status.kind === "Monster")
+              .filter((entity) => (entity.lvl ?? 13) < 5)
+              .filter((entity) => entity.status.nameTags && entity.status.nameTags.includes("ライトロード")).length === 0
+          ) {
+            return;
+          }
+          return defaultSpellTrapValidate(entity);
+        },
         prepare: async (entity: DuelEntity, cell?: DuelFieldCell) => {
           entity.isDying = true;
           const deck = entity.controller.getDeckCell();
 
           Array(3).forEach(() => deck.cardEntities[0].sendGraveyard(["Cost"], entity));
 
-          return await defaultSpellTrapPrepare(entity, undefined, cell);
+          return await defaultSpellTrapPrepare(entity, cell);
         },
         execute: async (entity: DuelEntity, activater: Duelist) => {
           const monsters = activater

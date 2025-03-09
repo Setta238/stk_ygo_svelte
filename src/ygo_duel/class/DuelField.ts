@@ -1,11 +1,12 @@
 import { Duel, DuelEnd, SystemError } from "./Duel";
-import { type CardAction, type TDuelCauseReason, type TDuelSummonRuleCauseReason, DuelEntity } from "@ygo_duel/class/DuelEntity";
+import { type TDuelCauseReason, type TDuelSummonRuleCauseReason, DuelEntity } from "@ygo_duel/class/DuelEntity";
 
 import { cardInfoDic } from "@ygo/class/CardInfo";
 import type Duelist from "./Duelist";
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import { cellTypeMaster, DuelFieldCell, type DuelFieldCellType } from "./DuelFieldCell";
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
+import type { CardAction, ICardAction } from "./DuelCardAction";
 
 export class DuelField {
   public readonly cells: DuelFieldCell[][];
@@ -283,10 +284,10 @@ export class DuelField {
         const dammyActions = selectablePosList.map((pos) => DuelEntity.createDammyAction(entity, pos, selectableCells, pos));
         const p1 = this.duel.view.modalController.selectAction(this.duel.view, {
           title: msg,
-          actions: dammyActions as CardAction<unknown>[],
+          actions: dammyActions as ICardAction<unknown>[],
           cancelable: false,
         });
-        const p2 = this.duel.view.waitSubAction(_chooser, dammyActions as CardAction<unknown>[], msg, cancelable).then((res) => res.actionWIP);
+        const p2 = this.duel.view.waitSubAction(_chooser, dammyActions as ICardAction<unknown>[], msg, cancelable).then((res) => res.action);
 
         const action = await Promise.any([p1, p2]);
 
@@ -325,7 +326,7 @@ export class DuelField {
           cancelable: false,
         });
         const dAct = await this.duel.view.waitSubAction(_chooser, dammyActions as CardAction<unknown>[], "カードを魔法罠ゾーンへドラッグ。", cancelable);
-        const action = dAct.actionWIP;
+        const action = dAct.action;
         if (!action && !cancelable) {
           throw new SystemError("", dAct);
         }
@@ -373,7 +374,7 @@ export class DuelField {
         });
         const responsePromise = this.duel.view.waitSubAction(_chooser, dammyActions as CardAction<unknown>[], "カードをセット先へドラッグ", cancelable);
 
-        const action = await Promise.any([actionPromise, responsePromise.then((res) => res.actionWIP)]);
+        const action = await Promise.any([actionPromise, responsePromise.then((res) => res.action)]);
 
         if (!action && !cancelable) {
           throw new SystemError("", action);

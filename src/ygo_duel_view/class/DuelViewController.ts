@@ -1,15 +1,16 @@
 import StkEvent from "@stk_utils/class/StkEvent";
 import { Duel, DuelEnd, SystemError, type DuelistResponse } from "@ygo_duel/class/Duel";
-import type { DuelEntity, CardAction } from "@ygo_duel/class/DuelEntity";
+import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCell, TDuelEntityMovePos } from "@ygo_duel/class/DuelFieldCell";
 import type Duelist from "@ygo_duel/class/Duelist";
 import { DuelModalController } from "./DuelModalController";
 import type { CardActionSelectorArg } from "@ygo_duel_view/components/DuelActionSelector.svelte";
 import type { DuelEntitiesSelectorArg } from "@ygo_duel_view/components/DuelEntitiesSelector.svelte";
+import type { ICardAction } from "@ygo_duel/class/DuelCardAction";
 export type TDuelWaitMode = "None" | "SelectFieldAction" | "SelectAction" | "SelectFieldEntities" | "SelectEntities";
 export type WaitStartEventArg = {
   resolve: (action: DuelistResponse) => void;
-  enableActions: CardAction<unknown>[];
+  enableActions: ICardAction<unknown>[];
   qty: number | undefined;
   selectableEntities: DuelEntity[];
   entitiesValidator: (selectedEntities: DuelEntity[]) => boolean;
@@ -42,7 +43,7 @@ export class DuelViewController {
   public get onWaitEnd() {
     return this.onWaitEndEvent.expose();
   }
-  private onDragStartEvent = new StkEvent<CardAction<unknown>[]>();
+  private onDragStartEvent = new StkEvent<ICardAction<unknown>[]>();
   public get onDragStart() {
     return this.onDragStartEvent.expose();
   }
@@ -95,13 +96,13 @@ export class DuelViewController {
    * @param message
    * @returns
    */
-  public readonly waitFieldAction = async (enableActions: CardAction<unknown>[], message: string): Promise<DuelistResponse> => {
+  public readonly waitFieldAction = async (enableActions: ICardAction<unknown>[], message: string): Promise<DuelistResponse> => {
     console.log(enableActions);
     if (this.duel.getTurnPlayer().duelistType === "NPC") {
       const action = enableActions
         .toSorted((left, right) => (right.entity.atk || 0) - (left.entity.atk || 0))
         .find((act) => act.playType === "NormalSummon" || act.playType === "SpecialSummon");
-      return action ? { actionWIP: action as CardAction<unknown> } : { phaseChange: this.duel.nextPhaseList[0] };
+      return action ? { action: action as ICardAction<unknown> } : { phaseChange: this.duel.nextPhaseList[0] };
     }
     return await this._waitDuelistAction(enableActions, "SelectFieldAction", message);
   };
@@ -112,31 +113,31 @@ export class DuelViewController {
    * @returns
    */
   public readonly waitQuickEffect = async (
-    enableActions: CardAction<unknown>[],
+    enableActions: ICardAction<unknown>[],
     message: string,
     cancelable: boolean
-  ): Promise<CardAction<unknown> | undefined> => {
+  ): Promise<ICardAction<unknown> | undefined> => {
     if (enableActions.length === 0) {
       return;
     }
 
-    const promiseList: Promise<CardAction<unknown> | undefined>[] = [];
+    const promiseList: Promise<ICardAction<unknown> | undefined>[] = [];
 
     promiseList.push(
       this.modalController
         .selectAction(this, {
           title: message,
-          actions: enableActions as CardAction<unknown>[],
+          actions: enableActions as ICardAction<unknown>[],
           cancelable: cancelable,
         })
         .then((action) => {
-          return action && (action as CardAction<unknown>);
+          return action && (action as ICardAction<unknown>);
         })
     );
 
     promiseList.push(
       this._waitDuelistAction(enableActions, "SelectAction", this.message).then((result) => {
-        return result.actionWIP;
+        return result.action;
       })
     );
 
@@ -153,7 +154,7 @@ export class DuelViewController {
    */
   public readonly waitSubAction = async (
     chooser: Duelist,
-    enableActions: CardAction<unknown>[],
+    enableActions: ICardAction<unknown>[],
     message: string,
     cancelable: boolean = false
   ): Promise<DuelistResponse> => {
@@ -215,7 +216,7 @@ export class DuelViewController {
   };
 
   private readonly _waitDuelistAction = async (
-    enableActions: CardAction<unknown>[],
+    enableActions: ICardAction<unknown>[],
     waitMode: TDuelWaitMode,
     message: string,
     selectableEntities?: DuelEntity[],
@@ -269,7 +270,7 @@ export class DuelViewController {
     return new Promise<void>((resolve) => this.onAnimationStartEvent.trigger({ ...args, resolve }));
   };
 
-  public readonly setDraggingActions = (actions: CardAction<unknown>[]) => {
+  public readonly setDraggingActions = (actions: ICardAction<unknown>[]) => {
     this.onDragStartEvent.trigger(actions);
     this.requireUpdate();
   };

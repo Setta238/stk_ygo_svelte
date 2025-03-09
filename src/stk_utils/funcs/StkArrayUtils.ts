@@ -8,6 +8,7 @@ declare global {
     reset(...newArray: T[]): void;
     union(another: Readonly<T[]>): T[];
     getAllOnOffPattern(): T[][];
+    getDistinct(): T[];
   }
 }
 
@@ -45,4 +46,8 @@ Array.prototype.getAllOnOffPattern = function <T>(): T[][] {
     result.forEach((pattern) => result.push([...pattern, item]));
   });
   return result;
+};
+
+Array.prototype.getDistinct = function <T>(): T[] {
+  return Array.from(new Set(this as T[]));
 };

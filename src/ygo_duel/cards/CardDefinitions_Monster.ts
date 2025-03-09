@@ -1,4 +1,5 @@
-import { DuelEntity, type CardActionBase } from "@ygo_duel/class/DuelEntity";
+import type { CardActionBase } from "@ygo_duel/class/DuelCardAction";
+import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 import type Duelist from "@ygo_duel/class/Duelist";
 import {
@@ -39,7 +40,6 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
         prepare: async () => true,
         execute: async (entity: DuelEntity, activater: Duelist, cell?: DuelFieldCell): Promise<boolean> => {
           const emptyCells = entity.controller.getAvailableMonsterZones();
-          console.log(emptyCells);
           await entity.field.summon(entity, ["Attack", "Defense"], cell ? [cell] : emptyCells, "SpecialSummon", ["Rule"], entity, undefined, true);
           entity.controller.specialSummonCount++;
           return true;
@@ -57,7 +57,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
       defaultAttackAction,
       defaultBattlePotisionChangeAction,
       {
-        title: "特殊召喚",
+        title: "リクルート",
         playType: "IgnitionEffect",
         spellSpeed: "Normal",
         executableCells: ["Graveyard"],
@@ -82,7 +82,6 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
           if (!newOne) {
             return false;
           }
-          console.log(cell, availableCells);
           await entity.field.summon(newOne, ["Attack", "Defense"], cell ? [cell] : availableCells, "SpecialSummon", ["Effect"], entity);
           entity.controller.specialSummonCount++;
           return true;
@@ -111,6 +110,53 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
     ] as CardActionBase<unknown>[],
   };
   result.push(def_ナチュル・ガオドレイク);
+
+  console.log(result);
+
+  const def_ライトロード・ビーストウォルフ = {
+    name: "ライトロード・ビースト ウォルフ",
+    actions: [
+      defaultAttackAction,
+      defaultBattlePotisionChangeAction,
+      {
+        title: "自己再生",
+        playType: "TriggerMandatoryEffect",
+        spellSpeed: "Normal",
+        executableCells: ["Graveyard"],
+        validate: (entity: DuelEntity): DuelFieldCell[] | undefined => {
+          if (entity.movedAt.chainSeq !== entity.field.duel.clock.chainSeq - 1) {
+            return;
+          }
+          if (entity.movedFrom?.cellType !== "Deck") {
+            return;
+          }
+          const availableCells = entity.controller.getAvailableMonsterZones();
+          console.log(availableCells);
+          return availableCells.length > 0 ? [] : undefined;
+        },
+        prepare: async (entity: DuelEntity) => {
+          console.log(entity);
+          return true;
+        },
+        execute: async (entity: DuelEntity, activater: Duelist, cell?: DuelFieldCell): Promise<boolean> => {
+          const availableCells = entity.controller.getAvailableMonsterZones();
+          if (!availableCells.length) {
+            return false;
+          }
+          if (entity.fieldCell.cellType !== "Graveyard" && entity.fieldCell.cellType !== "Banished") {
+            return false;
+          }
+          if (entity.face === "FaceDown") {
+            return false;
+          }
+          await entity.field.summon(entity, ["Attack", "Defense"], cell ? [cell] : availableCells, "SpecialSummon", ["Effect"], entity);
+          entity.controller.specialSummonCount++;
+          return true;
+        },
+      },
+    ] as CardActionBase<unknown>[],
+  };
+  result.push(def_ライトロード・ビーストウォルフ);
 
   console.log(result);
 

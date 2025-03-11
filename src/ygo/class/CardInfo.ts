@@ -1,7 +1,7 @@
 import json from "@ygo/json/cardInfo.json";
 import type { TCardInfoJson } from "@ygo/class/YgoTypes";
-import type { CardActionBase } from "@ygo_duel/class/DuelEntity";
 import { createCardDefinitions } from "@ygo_duel/cards/CardDefinitions";
+import type { CardActionBase } from "@ygo_duel/class/DuelCardAction";
 
 const _cardDefinitions: Map<string, CardActionBase<unknown>[]> = new Map();
 createCardDefinitions().forEach((obj) => {

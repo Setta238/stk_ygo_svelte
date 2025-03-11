@@ -118,6 +118,7 @@ export class DeckInfo implements IDeckInfo {
         ...info,
         name: _newDeckInfo.name,
         description: _newDeckInfo.description,
+        lastUsedAt: new Date(),
       };
     });
 

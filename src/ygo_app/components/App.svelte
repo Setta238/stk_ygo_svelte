@@ -11,7 +11,7 @@
   import DuelDesk from "@ygo_duel_view/components/DuelDesk.svelte";
   import DeckEditor from "@ygo_deck_editor/components/DeckEditor.svelte";
   import { StkIndexedDB } from "@stk_utils/class/StkIndexedDB";
-
+  import timestampJson from "@stk_utils/json/timestamp.json";
   const idb = new StkIndexedDB<TTblNames>("stk_ygo_svelte", currentVersion, tblNames);
 
   let duel: Duel | undefined;
@@ -19,6 +19,13 @@
   let selectedDeckId = 0;
   const userProfilePromise = DuelistProfile.getOrCreateNew(idb);
   let userDecksPromise = DeckInfo.getAllDeckInfo(idb).then((deckInfos) => {
+    Promise.all(
+      deckInfos
+        .filter((deckInfo) => !deckInfo.lastUsedAt)
+        .map((deckInfo) => {
+          deckInfo.saveDeckInfo();
+        })
+    );
     selectedDeckId = (
       deckInfos.find((deckInfo) => deckInfo.lastUsedAt.getTime() === Math.max(...deckInfos.map((deckInfo) => deckInfo.lastUsedAt.getTime()))) ?? deckInfos[0]
     ).id;
@@ -116,6 +123,7 @@
     </div>
   {/if}
   <div class="debug_info">
+    <span>build at: {timestampJson.timestamp}</span>
     <span class="screen_info"></span>
   </div>
 </main>

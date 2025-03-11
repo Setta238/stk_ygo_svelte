@@ -147,6 +147,7 @@ export type TEntityStatusBase = {
   pendulumScaleR?: number;
   pendulumScaleL?: number;
   canReborn?: boolean;
+  cardId?: number;
 };
 
 export type TEntityStatus = TEntityStatusBase & {

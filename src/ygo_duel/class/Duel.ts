@@ -101,11 +101,11 @@ export class Duel {
     this.log.info("【デュエル開始】");
     this.log.info(`先攻：${this.firstPlayer.profile.name}`);
 
-    Object.values(this.duelists).forEach(this.field.pushDeck);
+    // 下の三行はまとめても良いが、ログ的に交互にやったほうがそれっぽいのでこのままにする。
+    Object.values(this.duelists).forEach((duelist) => duelist.pushDeck());
     Object.values(this.duelists).forEach((duelist) => duelist.shuffleDeck());
-    await Promise.all(Object.values(this.duelists).map(this.field.prepareHands));
+    await Promise.all(Object.values(this.duelists).map((duelist) => duelist.draw(5, undefined, undefined)));
 
-    console.log("hoge");
     this.moveNextPhase("draw");
     this.view.requireUpdate();
 
@@ -185,7 +185,7 @@ export class Duel {
     if (this.clock.turn === 1) {
       this.log.info("先攻プレイヤーはドローできない。", this.getTurnPlayer());
     } else {
-      await this.field.draw(this.getTurnPlayer(), 1);
+      await this.getTurnPlayer().draw(1, undefined, undefined);
     }
     // TODO フェイズ強制処理
     while (await this.procChainBlock()) {
@@ -231,7 +231,8 @@ export class Duel {
           }
 
           await action.action.execute(this.priorityHolder, action.action.cell, prepared);
-          this.clock.incrementProcSeq();
+
+          this.clock.incrementChainSeq();
         } else {
           console.log(action);
           //チェーンに積んで、チェーン処理へ
@@ -282,7 +283,6 @@ export class Duel {
       this.priorityHolder = this.getTurnPlayer();
       const action = await this.view.waitFieldAction(this.getEnableActions(["Battle"], ["Normal"]), "攻撃モンスターと対象を選択。");
 
-      console.log(action);
       if (action.phaseChange) {
         //エンドステップへ（※優先権の移動はない）
         break;
@@ -290,7 +290,7 @@ export class Duel {
       if (action.action) {
         //チェーンに乗らない処理を実行し、処理番号をインクリメント
         await action.action.execute(this.priorityHolder, action.action.cell);
-        this.clock.incrementProcSeq();
+        this.clock.incrementChainSeq();
 
         //フリーチェーン処理へ
         while (await this.procChainBlock()) {
@@ -337,16 +337,16 @@ export class Duel {
       if (defender.battlePotion === "Attack") {
         attacker.controller.getOpponentPlayer().battleDamage(atkPoint - defPoint, attacker);
       }
-      defender.isDying = true;
+      defender.info.isDying = true;
     } else if (atkPoint < defPoint) {
       // 絶対防御将軍が守備表示で攻撃しても反射ダメージが発生するとのこと。
       attacker.controller.battleDamage(defPoint - atkPoint, defender);
       if (defender.battlePotion === "Attack") {
-        attacker.isDying = true;
+        attacker.info.isDying = true;
       }
     } else if (atkPoint === defPoint && defender.battlePotion === "Attack") {
-      attacker.isDying = true;
-      defender.isDying = true;
+      attacker.info.isDying = true;
+      defender.info.isDying = true;
     }
 
     const losers = Object.values(this.duelists).filter((duelist) => duelist.lp <= 0);
@@ -360,11 +360,19 @@ export class Duel {
     }
 
     // 破壊が確定していたモンスターは墓地に送られる。
-    if (attacker.isDying) {
-      await this.field.destroyMany([attacker], ["BattleDestroy"], defender);
-    }
-    if (defender?.isDying) {
-      await this.field.destroyMany([defender], ["BattleDestroy"], attacker);
+    if (defender && attacker.info.isDying && defender.info.isDying && attacker.owner !== defender.owner) {
+      // 行先が異なることが確定しているなら、同時にアニメーションさせる。
+      await Promise.all([
+        attacker.destroy("BattleDestroy", [], defender, defender?.controller),
+        defender.destroy("BattleDestroy", [], attacker, attacker.controller),
+      ]);
+    } else {
+      if (attacker.info.isDying) {
+        await attacker.destroy("BattleDestroy", [], defender, defender?.controller);
+      }
+      if (defender?.info.isDying) {
+        await defender.destroy("BattleDestroy", [], attacker, attacker.controller);
+      }
     }
 
     //ダメージ計算後
@@ -399,7 +407,7 @@ export class Duel {
       if (qty < 7) {
         break;
       }
-      await this.field.discard(this.getTurnPlayer(), qty - 6, ["Rule"]);
+      await this.getTurnPlayer().discard(qty - 6, ["Rule"]);
       // TODO トリガー効果のみ発動可能
     }
 
@@ -496,13 +504,14 @@ export class Duel {
         await chainBlock.execute(activater, chainBlock.cell, prepared);
         this.clock.incrementProcSeq();
         if (isStartPoint) {
+          // 効果を発動した魔法罠は墓地送り（光の護封剣などを除く）
           await Promise.all(
             this.field
               .getAllCells()
               .filter((c) => c.cellType === "SpellAndTrapZone")
               .flatMap((c) => c.entities)
-              .filter((e) => e.isDying)
-              .map((e) => e.sendGraveyard(["Rule"]))
+              .filter((e) => e.info.isDying)
+              .map((e) => e.sendToGraveyard(["Rule"], undefined, undefined))
           );
           this.clock.incrementChainSeq();
         }

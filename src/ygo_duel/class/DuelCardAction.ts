@@ -24,6 +24,7 @@ export type CardActionBase<T> = {
   executableCells: DuelFieldCellType[];
   isOnlyNTimesPerTurn?: number;
   isOnlyNTimesPerDuel?: number;
+  actionGroupNamePerTurn?: string;
   /**
    * 発動可能かどうかの検証
    * @param entity
@@ -115,6 +116,9 @@ export class CardAction<T> implements ICardAction<T> {
   public get isOnlyNTimesPerTurn() {
     return this.cardActionBase.isOnlyNTimesPerTurn ?? 0;
   }
+  public get actionGroupNamePerTurn() {
+    return this.cardActionBase.actionGroupNamePerTurn;
+  }
 
   constructor(seq: number, entity: DuelEntity, cardActionBase: CardActionBase<T>) {
     this.seq = seq;
@@ -124,15 +128,19 @@ export class CardAction<T> implements ICardAction<T> {
 
   public readonly validate = () => {
     if (this.isOnlyNTimesPerDuel > 0) {
-      if (this.entity.field.duel.cardActionLog.records.filter((rec) => this.isSame(rec.cardAction)).length >= this.isOnlyNTimesPerDuel) {
+      if (
+        this.entity.field.duel.cardActionLog.records.filter((rec) => this.isSame(rec.cardAction)).filter((rec) => rec.activater).length >=
+        this.isOnlyNTimesPerDuel
+      ) {
         return;
       }
     }
     if (this.isOnlyNTimesPerTurn > 0) {
       if (
         this.entity.field.duel.cardActionLog.records
-          .filter((rec) => this.isSame(rec.cardAction))
-          .filter((rec) => rec.turn === this.entity.field.duel.clock.turn).length >= this.isOnlyNTimesPerTurn
+          .filter((rec) => this.isSameGroupPerTurn(rec.cardAction))
+          .filter((rec) => rec.turn === this.entity.field.duel.clock.turn)
+          .filter((rec) => rec.activater).length >= this.isOnlyNTimesPerTurn
       ) {
         return;
       }
@@ -153,4 +161,8 @@ export class CardAction<T> implements ICardAction<T> {
   public readonly execute = (activater: Duelist, cell?: DuelFieldCell, prepared?: T) => this.cardActionBase.execute(this.entity, activater, cell, prepared);
 
   public readonly isSame = (other: CardAction<unknown>) => this.entity.origin.name === other.entity.origin.name && this.title === other.title;
+  public readonly isSameGroupPerTurn = (other: CardAction<unknown>) =>
+    this.actionGroupNamePerTurn
+      ? this.entity.origin.name === other.entity.origin.name && this.actionGroupNamePerTurn === other.actionGroupNamePerTurn
+      : this.isSame(other);
 }

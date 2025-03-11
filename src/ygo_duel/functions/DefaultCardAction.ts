@@ -75,7 +75,7 @@ export const defaultNormalSummonExecute = async (entity: DuelEntity, cell?: Duel
   const causedBy: TDuelCauseReason[] = ["Rule", "NormalSummon"];
 
   if (prepared && prepared.length > 0) {
-    entity.materials.reset(...prepared);
+    entity.info.materials.reset(...prepared);
     causedBy.push("AdvanceSummon");
   }
 
@@ -180,6 +180,7 @@ export const defaultSpellTrapValidate = (entity: DuelEntity): DuelFieldCell[] | 
   return availableCells.length > 0 ? availableCells : undefined;
 };
 export const defaultSpellTrapPrepare = async (entity: DuelEntity, cell?: DuelFieldCell): Promise<boolean> => {
+  entity.info.isDying = true;
   if (entity.fieldCell.cellType === "FieldSpellZone" && entity.face === "FaceDown") {
     entity.setNonFieldPosition("FaceUp", true);
     return true;
@@ -241,11 +242,11 @@ export const defaultSyncroMaterialsValidator = (
   return true;
 };
 
-export const defaultSyncroSummonValidate = (
+const getEnableSyncroSummonPattern = (
   entity: DuelEntity,
   tunersValidator: (tuners: DuelEntity[]) => boolean = (tuners) => tuners.length === 1,
   nonTunersValidator: (nonTuners: DuelEntity[]) => boolean = (nonTuners) => nonTuners.length > 0
-): DuelFieldCell[] | undefined => {
+): DuelEntity[][] => {
   let materials = [
     ...entity.controller.getMonstersOnField().filter((card) => card.battlePotion !== "Set"),
     ...entity.controller.getHandCell().entities.filter((card) => card.origin.kind === "Monster"),
@@ -256,14 +257,17 @@ export const defaultSyncroSummonValidate = (
   }
 
   if (materials.length < 2) {
-    return;
+    return [];
   }
 
-  for (const pattern of materials.getAllOnOffPattern()) {
-    if (defaultSyncroMaterialsValidator(entity, pattern, tunersValidator, nonTunersValidator)) {
-      return [];
-    }
-  }
+  return materials.getAllOnOffPattern().filter((pattern) => defaultSyncroMaterialsValidator(entity, pattern, tunersValidator, nonTunersValidator));
+};
+export const defaultSyncroSummonValidate = (
+  entity: DuelEntity,
+  tunersValidator: (tuners: DuelEntity[]) => boolean = (tuners) => tuners.length === 1,
+  nonTunersValidator: (nonTuners: DuelEntity[]) => boolean = (nonTuners) => nonTuners.length > 0
+): DuelFieldCell[] | undefined => {
+  return getEnableSyncroSummonPattern(entity, tunersValidator, nonTunersValidator).length > 0 ? [] : undefined;
 };
 export const defaultSyncroSummonPrepare = async (
   entity: DuelEntity,
@@ -272,25 +276,24 @@ export const defaultSyncroSummonPrepare = async (
   tunersValidator: (tuners: DuelEntity[]) => boolean = (tuners) => tuners.length === 1,
   nonTunersValidator: (nonTuners: DuelEntity[]) => boolean = (nonTuners) => nonTuners.length > 0
 ): Promise<DuelEntity[] | undefined> => {
-  let _materials = [...entity.controller.getMonstersOnField(), ...entity.controller.getHandCell().entities.filter((card) => card.origin.kind === "Monster")]
-    .filter((m) => m.battlePotion !== "Set")
-    .filter((m) => m.status.canBeSyncroMaterial);
+  const patterns = getEnableSyncroSummonPattern(entity, tunersValidator, nonTunersValidator);
 
-  if (_materials.every((m) => !m.status.allowHandSyncro)) {
-    _materials = entity.controller.getMonstersOnField();
+  if (patterns.length === 1) {
+    for (const material of patterns[0]) {
+      await material.sendToGraveyard(["SyncroMaterial", "Rule", "SpecialSummonMaterial"], entity, entity.controller);
+    }
+    return patterns[0];
   }
 
-  if (_materials.length < 2) {
-    return;
-  }
+  const choices = patterns.flatMap((p) => p).getDistinct();
 
-  console.log(_materials);
-  const materials = await entity.field.payMonstersForSpecialSummonCost(
+  const materials = await entity.field.sendToGraveyard(
+    "シンクロ素材とするモンスターを選択",
     entity.controller,
-    _materials,
+    choices,
     -1,
     (selected) => defaultSyncroMaterialsValidator(entity, selected, tunersValidator, nonTunersValidator),
-    ["SyncroMaterial", "Rule"],
+    ["SyncroMaterial", "Rule", "SpecialSummonMaterial"],
     entity,
     cancelable
   );
@@ -306,7 +309,7 @@ export const defaultSyncroSummonPrepare = async (
 };
 export const defaultSyncroSummonExecute = async (entity: DuelEntity, activater: Duelist, cell?: DuelFieldCell, prepared?: DuelEntity[]): Promise<boolean> => {
   if (prepared && prepared.length > 0) {
-    entity.materials.reset(...prepared);
+    entity.info.materials.reset(...prepared);
   }
 
   const availableCells = [...activater.getAvailableMonsterZones(), ...activater.getAvailableExtraZones()];
@@ -322,7 +325,7 @@ export const defaultSyncroSummonExecute = async (entity: DuelEntity, activater: 
   );
 
   activater.specialSummonCount++;
-  entity.isRebornable = true;
+  entity.info.isRebornable = true;
   return true;
 };
 
@@ -395,10 +398,7 @@ export const getDefaultSearchSpellAction = (filter: (card: DuelEntity) => boolea
       }
       return defaultSpellTrapValidate(entity);
     },
-    prepare: async (entity: DuelEntity, cell?: DuelFieldCell) => {
-      entity.isDying = true;
-      return await defaultSpellTrapPrepare(entity, cell);
-    },
+    prepare: defaultSpellTrapPrepare,
     execute: async (entity: DuelEntity, activater: Duelist) => {
       const monsters = activater.getDeckCell().cardEntities.filter(filter);
       if (monsters.length === 0) {
@@ -406,7 +406,7 @@ export const getDefaultSearchSpellAction = (filter: (card: DuelEntity) => boolea
       }
       const target = await entity.field.duel.view.waitSelectEntities(activater, monsters, 1, (list) => list.length === 1, "手札に加えるカードを選択", false);
       for (const monster of target ?? []) {
-        await monster.addToHand(["Effect"], entity);
+        await monster.addToHand(["Effect"], entity, activater);
       }
       activater.shuffleDeck();
       return true;
@@ -423,15 +423,12 @@ export const getDefaultSalvageSpellAction = (filter: (card: DuelEntity) => boole
     hasToTargetCards: true,
     // 墓地にに対象カードが一枚以上必要。
     validate: (entity: DuelEntity) => {
-      if (entity.controller.getGraveyard().cardEntities.filter(filter).length >= qty) {
+      if (entity.controller.getGraveyard().cardEntities.filter(filter).length < qty) {
         return;
       }
       return defaultSpellTrapValidate(entity);
     },
-    prepare: async (entity: DuelEntity, cell?: DuelFieldCell) => {
-      entity.isDying = true;
-      return await defaultSpellTrapPrepare(entity, cell);
-    },
+    prepare: defaultSpellTrapPrepare,
     execute: async (entity: DuelEntity, activater: Duelist) => {
       const monsters = activater.getGraveyard().cardEntities.filter(filter);
       if (monsters.length === 0) {
@@ -446,7 +443,7 @@ export const getDefaultSalvageSpellAction = (filter: (card: DuelEntity) => boole
         false
       );
       for (const monster of target ?? []) {
-        await monster.addToHand(["Effect"], entity);
+        await monster.addToHand(["Effect"], entity, activater);
       }
       return true;
     },
@@ -469,12 +466,11 @@ export const getLikeTradeInAction = (filter: (card: DuelEntity) => boolean): Car
       return defaultSpellTrapValidate(entity);
     },
     prepare: async (entity: DuelEntity, cell?: DuelFieldCell) => {
-      entity.isDying = true;
-      await entity.field.discard(entity.controller, 1, ["Discard", "Cost"], entity, entity.controller, filter);
+      await entity.controller.discard(1, ["Discard", "Cost"], entity, entity.controller, filter);
       return await defaultSpellTrapPrepare(entity, cell);
     },
     execute: async (entity: DuelEntity, activater: Duelist) => {
-      await activater.draw(2, entity);
+      await activater.draw(2, entity, activater);
       return true;
     },
   };
@@ -486,12 +482,8 @@ export const getDefaultHealBurnSpellAction = (calcDamage: (entity: DuelEntity) =
     playType: "CardActivation",
     spellSpeed: "Normal",
     executableCells: ["Hand", "SpellAndTrapZone"],
-    // デッキに対象カードが一枚以上必要。
-    validate: () => [],
-    prepare: async (entity: DuelEntity, cell?: DuelFieldCell) => {
-      entity.isDying = true;
-      return await defaultSpellTrapPrepare(entity, cell);
-    },
+    validate: defaultSpellTrapValidate,
+    prepare: defaultSpellTrapPrepare,
     execute: async (entity: DuelEntity, activater: Duelist) => {
       const [toSelf, toOpponent] = calcDamage(entity);
       if (toOpponent > 0) {

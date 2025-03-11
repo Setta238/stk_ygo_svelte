@@ -47,7 +47,25 @@ Array.prototype.getAllOnOffPattern = function <T>(): T[][] {
   });
   return result;
 };
+// Array.prototype.getAllOnOffPattern = function* <T>(qty?: number, shuffle?: boolean): Generator<T[]> {
+//   const source: T[] = shuffle ? (this as T[]).shuffle() : (this as T[]);
+//   const tmp: T[][] = [[]];
+//   for (const item of source) {
+//     for (const pattern of tmp) {
+//       if (qty) {
+//         if (pattern.length === qty - 1) {
+//           yield [...pattern, item];
+//           continue;
+//         }
+//       }
+//       tmp.push([...pattern, item]);
+//     }
+//   }
 
+//   for (const pattern of tmp) {
+//     yield pattern;
+//   }
+// };
 Array.prototype.getDistinct = function <T>(): T[] {
   return Array.from(new Set(this as T[]));
 };

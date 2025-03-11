@@ -143,6 +143,7 @@
 		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%A3%C5%A1%A6%A3%C8%A3%C5%A3%D2%A3%CF%20%A5%AF%A5%EC%A5%A4%A5%DE%A5%F3%A1%D5",
 		"wikiTextAll": "通常モンスター\n星４/地属性/戦士族/攻 800/守2000\n粘土でできた頑丈な体を持つＥ・ＨＥＲＯ。\n体をはって、仲間のＥ・ＨＥＲＯを守り抜く。",
 		"kind": "Monster",
+		"cardId": 6312,
 		"nameTags": [
 			"Ｅ・ＨＥＲＯ"
 		]
@@ -14794,5 +14795,171 @@
 		"wikiName": "《おろかな転生》",
 		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%A4%AA%A4%ED%A4%AB%A4%CA%C5%BE%C0%B8%A1%D5",
 		"wikiTextAll": "速攻魔法\n相手の墓地に存在するカード１枚を選択して発動する。\n選択したカードをデッキに戻す。"
+	},
+	"ワン・フォー・ワン": {
+		"name": "ワン・フォー・ワン",
+		"nameKana": "",
+		"description": "(1)：手札からモンスター１体を墓地へ送って発動できる。\n手札・デッキからレベル１モンスター１体を特殊召喚する。",
+		"kind": "Spell",
+		"spellCategory": "Normal",
+		"wikiName": "《ワン・フォー・ワン》",
+		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%A5%EF%A5%F3%A1%A6%A5%D5%A5%A9%A1%BC%A1%A6%A5%EF%A5%F3%A1%D5",
+		"wikiTextAll": "通常魔法（制限カード）\n(1)：手札からモンスター１体を墓地へ送って発動できる。\n手札・デッキからレベル１モンスター１体を特殊召喚する。"
+	},
+	"終末の騎士": {
+		"name": "終末の騎士",
+		"nameKana": "",
+		"description": "(1)：このカードが召喚・反転召喚・特殊召喚に成功した時に発動できる。\nデッキから闇属性モンスター１体を墓地へ送る。",
+		"pendulumDescription": "",
+		"kind": "Monster",
+		"monsterCategories": [
+			"Effect"
+		],
+		"level": 4,
+		"attack": 1400,
+		"defense": 1200,
+		"attribute": "Dark",
+		"type": "Warrior",
+		"wikiName": "《終末の騎士》",
+		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%BD%AA%CB%F6%A4%CE%B5%B3%BB%CE%A1%D5",
+		"wikiTextAll": "効果モンスター\n星４/闇属性/戦士族/攻1400/守1200\n(1)：このカードが召喚・反転召喚・特殊召喚に成功した時に発動できる。\nデッキから闇属性モンスター１体を墓地へ送る。"
+	},
+	"アンノウン・シンクロン": {
+		"name": "アンノウン・シンクロン",
+		"nameKana": "",
+		"description": "「アンノウン・シンクロン」の(1)の方法による特殊召喚はデュエル中に１度しかできない。\n(1)：相手フィールドにモンスターが存在し、自分フィールドにモンスターが存在しない場合、\nこのカードは手札から特殊召喚できる。",
+		"pendulumDescription": "",
+		"kind": "Monster",
+		"monsterCategories": [
+			"Tuner",
+			"Effect"
+		],
+		"level": 1,
+		"attribute": "Dark",
+		"type": "Machine",
+		"wikiName": "《アンノウン・シンクロン》",
+		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%A5%A2%A5%F3%A5%CE%A5%A6%A5%F3%A1%A6%A5%B7%A5%F3%A5%AF%A5%ED%A5%F3%A1%D5",
+		"wikiTextAll": "チューナー・効果モンスター\n星１/闇属性/機械族/攻   0/守   0\n「アンノウン・シンクロン」の(1)の方法による特殊召喚はデュエル中に１度しかできない。\n(1)：相手フィールドにモンスターが存在し、自分フィールドにモンスターが存在しない場合、\nこのカードは手札から特殊召喚できる。",
+		"nameTags": [
+			"シンクロン"
+		]
+	},
+	"ゾンビキャリア": {
+		"name": "ゾンビキャリア",
+		"nameKana": "",
+		"description": "(1)：このカードが墓地に存在する場合、手札を１枚デッキの一番上に戻して発動できる。\nこのカードを特殊召喚する。\nこの効果で特殊召喚したこのカードは、フィールドから離れた場合に除外される。",
+		"pendulumDescription": "",
+		"kind": "Monster",
+		"monsterCategories": [
+			"Tuner",
+			"Effect"
+		],
+		"level": 2,
+		"attack": 400,
+		"defense": 200,
+		"attribute": "Dark",
+		"type": "Zombie",
+		"wikiName": "《ゾンビキャリア》",
+		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%A5%BE%A5%F3%A5%D3%A5%AD%A5%E3%A5%EA%A5%A2%A1%D5",
+		"wikiTextAll": "チューナー・効果モンスター\n星２/闇属性/アンデット族/攻 400/守 200\n(1)：このカードが墓地に存在する場合、手札を１枚デッキの一番上に戻して発動できる。\nこのカードを特殊召喚する。\nこの効果で特殊召喚したこのカードは、フィールドから離れた場合に除外される。"
+	},
+	"Ａ・Ｏ・Ｊ アンノウン・クラッシャー": {
+		"name": "Ａ・Ｏ・Ｊ アンノウン・クラッシャー",
+		"nameKana": "",
+		"description": "このカードが光属性モンスターと戦闘を行った時、\nそのモンスターをゲームから除外する。",
+		"pendulumDescription": "",
+		"kind": "Monster",
+		"monsterCategories": [
+			"Effect"
+		],
+		"level": 3,
+		"attack": 1200,
+		"defense": 800,
+		"attribute": "Dark",
+		"type": "Machine",
+		"wikiName": "《Ａ・Ｏ・Ｊ アンノウン・クラッシャー》",
+		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%A3%C1%A1%A6%A3%CF%A1%A6%A3%CA%20%A5%A2%A5%F3%A5%CE%A5%A6%A5%F3%A1%A6%A5%AF%A5%E9%A5%C3%A5%B7%A5%E3%A1%BC%A1%D5",
+		"wikiTextAll": "効果モンスター\n星３/闇属性/機械族/攻1200/守 800\nこのカードが光属性モンスターと戦闘を行った時、\nそのモンスターをゲームから除外する。"
+	},
+	"マスマティシャン": {
+		"name": "マスマティシャン",
+		"nameKana": "",
+		"description": "(1)：このカードが召喚に成功した時に発動できる。\nデッキからレベル４以下のモンスター１体を墓地へ送る。\n(2)：このカードが戦闘で破壊され墓地へ送られた時に発動できる。\n自分はデッキから１枚ドローする。",
+		"pendulumDescription": "",
+		"kind": "Monster",
+		"monsterCategories": [
+			"Effect"
+		],
+		"level": 3,
+		"attack": 1500,
+		"defense": 500,
+		"attribute": "Earth",
+		"type": "Spellcaster",
+		"wikiName": "《マスマティシャン》",
+		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%A5%DE%A5%B9%A5%DE%A5%C6%A5%A3%A5%B7%A5%E3%A5%F3%A1%D5",
+		"wikiTextAll": "効果モンスター\n星３/地属性/魔法使い族/攻1500/守 500\n(1)：このカードが召喚に成功した時に発動できる。\nデッキからレベル４以下のモンスター１体を墓地へ送る。\n(2)：このカードが戦闘で破壊され墓地へ送られた時に発動できる。\n自分はデッキから１枚ドローする。"
+	},
+	"ローンファイア・ブロッサム": {
+		"name": "ローンファイア・ブロッサム",
+		"nameKana": "",
+		"description": "(1)：１ターンに１度、自分フィールドの表側表示の植物族モンスター１体をリリースして発動できる。\nデッキから植物族モンスター１体を特殊召喚する。",
+		"pendulumDescription": "",
+		"kind": "Monster",
+		"monsterCategories": [
+			"Effect"
+		],
+		"level": 3,
+		"attack": 500,
+		"defense": 1400,
+		"attribute": "Fire",
+		"type": "Plant",
+		"wikiName": "《ローンファイア・ブロッサム》",
+		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%A5%ED%A1%BC%A5%F3%A5%D5%A5%A1%A5%A4%A5%A2%A1%A6%A5%D6%A5%ED%A5%C3%A5%B5%A5%E0%A1%D5",
+		"wikiTextAll": "効果モンスター\n星３/炎属性/植物族/攻 500/守1400\n(1)：１ターンに１度、自分フィールドの表側表示の植物族モンスター１体をリリースして発動できる。\nデッキから植物族モンスター１体を特殊召喚する。"
+	},
+	"タイム・エスケーパー": {
+		"name": "タイム・エスケーパー",
+		"nameKana": "",
+		"description": "このカードを手札から捨て、\n自分フィールド上に表側表示で存在する\nサイキック族モンスター１体を選択して発動する。\n選択したモンスターを次の自分のスタンバイフェイズ時までゲームから除外する。\nこの効果は相手ターンでも発動する事ができる。",
+		"pendulumDescription": "",
+		"kind": "Monster",
+		"monsterCategories": [
+			"Effect"
+		],
+		"level": 2,
+		"attack": 500,
+		"defense": 100,
+		"attribute": "Earth",
+		"type": "Psychic",
+		"wikiName": "《タイム・エスケーパー》",
+		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%A5%BF%A5%A4%A5%E0%A1%A6%A5%A8%A5%B9%A5%B1%A1%BC%A5%D1%A1%BC%A1%D5",
+		"wikiTextAll": "効果モンスター\n星２/地属性/サイキック族/攻 500/守 100\nこのカードを手札から捨て、\n自分フィールド上に表側表示で存在する\nサイキック族モンスター１体を選択して発動する。\n選択したモンスターを次の自分のスタンバイフェイズ時までゲームから除外する。\nこの効果は相手ターンでも発動する事ができる。"
+	},
+	"ドットスケーパー": {
+		"name": "ドットスケーパー",
+		"nameKana": "",
+		"description": "このカード名の(1)(2)の効果は１ターンに１度、いずれか１つしか使用できず、それぞれデュエル中に１度しか使用できない。\n(1)：このカードが墓地へ送られた場合に発動できる。このカードを特殊召喚する。\n(2)：このカードが除外された場合に発動できる。このカードを特殊召喚する。",
+		"pendulumDescription": "",
+		"kind": "Monster",
+		"monsterCategories": [
+			"Effect"
+		],
+		"level": 1,
+		"defense": 2100,
+		"attribute": "Earth",
+		"type": "Cyberse",
+		"wikiName": "《ドットスケーパー》",
+		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%A5%C9%A5%C3%A5%C8%A5%B9%A5%B1%A1%BC%A5%D1%A1%BC%A1%D5",
+		"wikiTextAll": "効果モンスター\n星１/地属性/サイバース族/攻   0/守2100\nこのカード名の(1)(2)の効果は１ターンに１度、いずれか１つしか使用できず、\nそれぞれデュエル中に１度しか使用できない。\n(1)：このカードが墓地へ送られた場合に発動できる。\nこのカードを特殊召喚する。\n(2)：このカードが除外された場合に発動できる。\nこのカードを特殊召喚する。"
+	},
+	"ダーク・バースト": {
+		"name": "ダーク・バースト",
+		"nameKana": "",
+		"description": "(1)：自分の墓地の攻撃力１５００以下の闇属性モンスター１体を対象として発動できる。\nその闇属性モンスターを手札に加える。",
+		"kind": "Spell",
+		"spellCategory": "Normal",
+		"wikiName": "《ダーク・バースト》",
+		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%A5%C0%A1%BC%A5%AF%A1%A6%A5%D0%A1%BC%A5%B9%A5%C8%A1%D5",
+		"wikiTextAll": "通常魔法\n(1)：自分の墓地の攻撃力１５００以下の闇属性モンスター１体を対象として発動できる。\nその闇属性モンスターを手札に加える。"
 	}
 }

@@ -3,6 +3,7 @@ export interface IDuelClock {
   phaseSeq: number;
   stepSeq: number;
   chainSeq: number;
+  chainBlockSeq: number;
   procSeq: number;
   procTotalSeq: number;
 }
@@ -78,8 +79,18 @@ export class DuelClock implements IDuelClock {
       phaseSeq: this.phaseSeq,
       stepSeq: this.stepSeq,
       chainSeq: this.chainSeq,
+      chainBlockSeq: this.chainBlockSeq,
       procSeq: this.procSeq,
       procTotalSeq: this.procTotalSeq,
     };
+  };
+  public readonly isSameChain = (other: IDuelClock): boolean => {
+    return this.turn === other.turn && this.phaseSeq === other.phaseSeq && this.stepSeq === other.stepSeq && this.chainSeq === other.chainSeq;
+  };
+  public readonly isPreviousChain = (other: IDuelClock): boolean => {
+    return this.turn === other.turn && this.phaseSeq === other.phaseSeq && this.stepSeq === other.stepSeq && this.chainSeq === other.chainSeq + 1;
+  };
+  public readonly isPreviousProc = (other: IDuelClock): boolean => {
+    return this.procTotalSeq === other.procTotalSeq + 1;
   };
 }

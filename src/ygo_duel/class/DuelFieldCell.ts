@@ -1,5 +1,5 @@
 import StkEvent from "../../stk_utils/class/StkEvent";
-import { duelEntityCardTypes, type TDuelCauseReason } from "./DuelEntity";
+import { duelEntityCardTypes } from "./DuelEntity";
 import type { DuelEntity } from "./DuelEntity";
 import type { DuelField } from "./DuelField";
 import type Duelist from "./Duelist";
@@ -94,15 +94,8 @@ export class DuelFieldCell {
     this.owner = owner;
     this._entities = [];
   }
-  public readonly releaseEntities = (entities: DuelEntity[], movedAs: TDuelCauseReason[], cousedBy?: DuelEntity): DuelEntity[] => {
+  public readonly releaseEntities = (entities: DuelEntity[]): DuelEntity[] => {
     this._entities = this._entities.filter((e) => !entities.includes(e));
-    entities.forEach((entity) => {
-      entity.movedAs.splice(0);
-      entity.movedAs.push(...new Set(movedAs));
-      entity.movedAt = entity.field.duel.clock.getClone();
-      entity.movedBy = cousedBy;
-      entity.movedFrom = this;
-    });
     this.onUpdateEvent.trigger();
     return entities;
   };

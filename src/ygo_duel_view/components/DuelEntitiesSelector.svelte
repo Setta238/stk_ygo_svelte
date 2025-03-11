@@ -11,7 +11,7 @@
 <script lang="ts">
   import type { DuelEntity } from "../../ygo_duel/class/DuelEntity";
   import DuelCard from "@ygo_duel_view/components/DuelCard.svelte";
-  let { resolve, title, entities, validator, qty, cancelable } = $props();
+  let { resolve, title, entities, validator, qty, cancelable }: DuelEntitiesSelectorArg & { resolve: (selected: DuelEntity[] | undefined) => void } = $props();
   let selectedList = $state([] as DuelEntity[]);
 
   let isShown = true;
@@ -21,23 +21,26 @@
 
 {#if isShown}
   <div class="base">
-    <button class="overlay" onclick={close}>★</button>
+    <button class="overlay" onclick={close}>☆</button>
     <div class="window">
       <div>{title}</div>
-      <div class="entities_list">
-        {#each entities as entity}<div>
-            <DuelCard
-              {entity}
-              isVisibleForcibly={true}
-              state="Selectable"
-              entitySelectResolve={(selected: DuelEntity[]) => resolve(selected)}
-              {qty}
-              cardActionResolve={undefined}
-              bind:selectedList
-            />
-          </div>
-        {/each}
-      </div>
+      {#each entities.map((e) => e.controller.seat).getDistinct() as seat}
+        <div class="entities_list {seat}">
+          {#each entities.filter((e) => e.controller.seat === seat) as entity}<div>
+              <DuelCard
+                {entity}
+                isVisibleForcibly={true}
+                state="Selectable"
+                entitySelectResolve={(selected: DuelEntity[]) => resolve(selected)}
+                {qty}
+                cardActionResolve={undefined}
+                bind:selectedList
+              />
+            </div>
+          {/each}
+        </div>
+      {/each}
+
       <div>
         <button disabled={!validator(selectedList)} onclick={() => resolve(selectedList)}>OK</button>
         {#if cancelable}
@@ -54,11 +57,15 @@
     background-color: white;
     opacity: 0.9;
     max-width: 50%;
+    padding: 0.5rem;
   }
   .entities_list {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+    justify-content: space-between;
+    margin: 0.3rem;
+    padding: 0.5rem;
   }
   .base {
     position: fixed;
@@ -97,5 +104,11 @@
   .window button:hover {
     background: #67c5ff;
     color: white;
+  }
+  .entities_list.Below {
+    background-color: azure;
+  }
+  .entities_list.Above {
+    background-color: blanchedalmond;
   }
 </style>

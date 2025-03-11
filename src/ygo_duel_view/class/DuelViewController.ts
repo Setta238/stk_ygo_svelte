@@ -99,6 +99,7 @@ export class DuelViewController {
   public readonly waitFieldAction = async (enableActions: ICardAction<unknown>[], message: string): Promise<DuelistResponse> => {
     console.log(enableActions);
     if (this.duel.getTurnPlayer().duelistType === "NPC") {
+      // TODO NPCがおろかな埋葬または闇の量産工場を選択したときにフリーズしたので、一旦魔法を使用禁止にする。
       const action = enableActions
         .toSorted((left, right) => (right.entity.atk || 0) - (left.entity.atk || 0))
         .find((act) => act.playType === "NormalSummon" || act.playType === "SpecialSummon");
@@ -190,6 +191,7 @@ export class DuelViewController {
 
     if (chooser.duelistType === "NPC") {
       // NPCはランダムに選択する
+
       while (!validator(selected)) {
         // 一個も選択しないパターンは最初にチェックするので、それ以外をランダムに試行する。
         const _qty = qty && qty > 0 ? qty : Math.floor(Math.random() * choises.length) + 1;

@@ -9,7 +9,6 @@ import {
   type TNonBattlePosition,
 } from "@ygo/class/YgoTypes";
 import { SystemError } from "./Duel";
-import type { DuelField } from "./DuelField";
 import type { DuelFieldCell, TDuelEntityMovePos } from "./DuelFieldCell";
 import type Duelist from "./Duelist";
 
@@ -43,6 +42,7 @@ export type TDuelCauseReason =
   | "Effect"
   | "Release"
   | "AdvanceSummonRelease"
+  | "SpecialSummonMaterial"
   | "FusionMaterial"
   | "SyncroMaterial"
   | "EyzMaterial"
@@ -118,6 +118,15 @@ export const CardEntitySorter = (left: DuelEntity, right: DuelEntity): number =>
   return CardSorter(left.origin, right.origin);
 };
 
+export type DuelEntityInfomation = {
+  isDying: boolean;
+  isVanished: boolean;
+  isRebornable: boolean;
+  materials: DuelEntity[];
+  willBeBanished: boolean;
+  willReturnToDeck: boolean;
+};
+
 export class DuelEntity {
   private static nextActionSeq = 0;
   private static nextEntitySeq = 0;
@@ -131,18 +140,25 @@ export class DuelEntity {
   public orientation: TDuelEntityOrientation;
   public controller: Duelist;
   public readonly owner: Duelist;
-  public field: DuelField;
+  public get field() {
+    return this.owner.duel.field;
+  }
   public fieldCell: DuelFieldCell;
-  public movedBy: DuelEntity | undefined;
-  public readonly movedAs: TDuelCauseReason[];
-  public movedFrom: DuelFieldCell | undefined;
-  public movedAt: IDuelClock;
-  public isDying: boolean;
-  public isVanished: boolean;
-  public isRebornable: boolean;
-  public materials: DuelEntity[];
+  public wasMovedBy: DuelEntity | undefined;
+  public wasMovedByWhom: Duelist | undefined;
+  public readonly wasMovedAs: TDuelCauseReason[];
+  public wasMovedFrom: DuelFieldCell | undefined;
+  public wasMovedAt: IDuelClock;
 
-  public readonly status: TEntityStatus;
+  private _status: TEntityStatus;
+  private _info: DuelEntityInfomation;
+  public get status() {
+    return this._status;
+  }
+  public get info() {
+    return this._info;
+  }
+
   public get nm() {
     return this.status.name;
   }
@@ -176,10 +192,20 @@ export class DuelEntity {
   public get battlePotion() {
     return this._battlePosition;
   }
+  /**
+   *
+   * @param owner
+   * @param controller エクストラモンスターゾーンだとコントローラーが確定しないので、念の為引数として残しておく
+   * @param fieldCell
+   * @param entityType
+   * @param cardInfo
+   * @param face
+   * @param isVisibleForController
+   * @param orientation
+   */
   protected constructor(
     owner: Duelist,
     controller: Duelist,
-    field: DuelField,
     fieldCell: DuelFieldCell,
     entityType: TDuelEntityType,
     cardInfo: TCardInfoJson,
@@ -190,29 +216,20 @@ export class DuelEntity {
     this.seq = DuelEntity.nextEntitySeq++;
     this.owner = owner;
     this.controller = controller;
-    this.field = field;
     this.fieldCell = fieldCell;
     this.entityType = entityType;
     this.origin = cardInfo;
-    this.status = {
-      ...JSON.parse(JSON.stringify(cardInfo)),
-      canAttack: true,
-      isEffective: true,
-      canDirectAttack: false,
-      attackCount: 0,
-      isSelectableForAttack: true,
-      canBeSyncroMaterial: true,
-    };
+    this._status = JSON.parse(JSON.stringify(cardInfo));
+    this.resetStatus();
+    this._info = { isDying: false, isVanished: false, isRebornable: true, materials: [], willBeBanished: false, willReturnToDeck: false };
+    this.resetInfo();
     this.face = face;
     this.isUnderControl = isVisibleForController;
     this.orientation = orientation;
-    this.movedAs = ["Rule"];
-    this.movedAt = field.duel.clock;
-    this.isDying = false;
-    this.isVanished = false;
-    this.isRebornable = true;
-    this.resetRebornable();
-    this.materials = [];
+    this.wasMovedAs = ["Rule"];
+    this.wasMovedAt = this.field.duel.clock;
+    this.wasMovedByWhom = owner;
+
     fieldCell.acceptEntities([this], "Top");
   }
   private static readonly createCardActionList = (entity: DuelEntity, baseList: CardActionBase<unknown>[]): CardAction<unknown>[] => {
@@ -231,14 +248,14 @@ export class DuelEntity {
    */
   public static readonly createPlayerEntity = (duelist: Duelist): DuelEntity => {
     const hand = duelist.getHandCell();
-    return new DuelEntity(duelist, duelist, duelist.duel.field, hand, "Duelist", { name: duelist.profile.name, kind: "Monster" }, "FaceUp", true, "Vertical");
+    return new DuelEntity(duelist, duelist, hand, "Duelist", { name: duelist.profile.name, kind: "Monster" }, "FaceUp", true, "Vertical");
   };
-  public static readonly createCardEntity = (field: DuelField, owner: Duelist, cardInfo: TCardInfoJson): DuelEntity => {
+  public static readonly createCardEntity = (owner: Duelist, cardInfo: TCardInfoJson): DuelEntity => {
     // cardはデッキまたはEXデッキに生成
     const fieldCell = cardInfo.monsterCategories && cardInfo.monsterCategories.union(exMonsterCategories).length ? owner.getExtraDeck() : owner.getDeckCell();
-    const newCard = new DuelEntity(owner, owner, field, fieldCell, "Card", cardInfo, "FaceDown", false, "Vertical");
+    const newCard = new DuelEntity(owner, owner, fieldCell, "Card", cardInfo, "FaceDown", false, "Vertical");
     if (!Object.hasOwn(cardInfoDic, newCard.origin.name)) {
-      field.duel.log.info(`未実装カード${cardInfo.name}がデッキに投入された。`, owner);
+      owner.duel.log.info(`未実装カード${cardInfo.name}がデッキに投入された。`, owner);
     }
     const info = cardInfoDic[newCard.origin.name];
 
@@ -310,7 +327,8 @@ export class DuelEntity {
     pos: TBattlePosition,
     summonType: TDuelSummonRuleCauseReason,
     moveAs: TDuelCauseReason[],
-    causedBy?: DuelEntity
+    movedBy: DuelEntity | undefined,
+    movedByWhom: Duelist | undefined
   ): Promise<void> => {
     const moveAsDic: { [pos in TBattlePosition]: TDuelCauseReason } = {
       Attack: "AttackSummon",
@@ -321,81 +339,154 @@ export class DuelEntity {
       return;
     }
     this.setBattlePosition(pos);
-    await this._moveTo(to, "Top", [summonType, moveAsDic[pos], ...moveAs], causedBy);
+    await this._moveTo(to, "Top", [summonType, moveAsDic[pos], ...moveAs], movedBy, movedByWhom);
     this.status.battlePotisionChangeCount = 1;
   };
-  public readonly release = async (moveAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<void> => {
-    await this.sendGraveyard([...moveAs, "Release"], causedBy);
+  public readonly setAsSpellTrap = async (
+    to: DuelFieldCell,
+    moveAs: TDuelCauseReason[],
+    movedBy: DuelEntity | undefined,
+    movedByWhom: Duelist | undefined
+  ): Promise<void> => {
+    await this._moveTo(to, "Top", [...moveAs, "SpellTrapSet"], movedBy, movedByWhom);
+    this.setNonFieldPosition("Set", true);
   };
-  public readonly destroy = async (by: "BattleDestroy" | "EffectDestroy" | "RuleDestroy", moveAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<void> => {
-    await this.sendGraveyard([...moveAs, by, "Destroy"], causedBy);
+  public readonly activateSpellTrapFromHand = async (
+    to: DuelFieldCell,
+    moveAs: TDuelCauseReason[],
+    movedBy: DuelEntity | undefined,
+    movedByWhom: Duelist | undefined
+  ): Promise<void> => {
+    this.setNonFieldPosition("FaceUp", true);
+    await this._moveTo(to, "Top", [...moveAs, "SpellTrapActivate"], movedBy, movedByWhom);
   };
-  public readonly sendGraveyard = async (moveAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<void> => {
+  public readonly activateSpellTrapOnField = async (): Promise<void> => {
+    this.setNonFieldPosition("FaceUp", true);
+  };
+  public readonly draw = async (moveAs: TDuelCauseReason[], movedBy: DuelEntity | undefined, movedByWhom: Duelist | undefined): Promise<void> => {
+    await this._moveTo(this.owner.getHandCell(), "Bottom", [...moveAs, "Draw"], movedBy, movedByWhom);
+    this.setNonFieldPosition("Set", true);
+  };
+  public readonly addToHand = async (moveAs: TDuelCauseReason[], movedBy: DuelEntity | undefined, movedByWhom: Duelist | undefined): Promise<void> => {
+    await this._moveTo(this.owner.getHandCell(), "Bottom", moveAs, movedBy, movedByWhom);
+    this.setNonFieldPosition("Set", true);
+  };
+  public readonly release = async (moveAs: TDuelCauseReason[], movedBy: DuelEntity | undefined, movedByWhom: Duelist | undefined): Promise<void> => {
+    await this.sendToGraveyard([...moveAs, "Release"], movedBy, movedByWhom);
+  };
+  public readonly destroy = async (
+    by: "BattleDestroy" | "EffectDestroy" | "RuleDestroy",
+    moveAs: TDuelCauseReason[],
+    movedBy: DuelEntity | undefined,
+    movedByWhom: Duelist | undefined
+  ): Promise<void> => {
+    await this.sendToGraveyard([...moveAs, by, "Destroy"], movedBy, movedByWhom);
+  };
+  public readonly sendToGraveyard = async (moveAs: TDuelCauseReason[], movedBy: DuelEntity | undefined, movedByWhom: Duelist | undefined): Promise<void> => {
+    if (this.info.willBeBanished) {
+      return await this.banish(moveAs, movedBy, movedByWhom);
+    }
+    if (this.info.willReturnToDeck) {
+      return await this.banish(moveAs, movedBy, movedByWhom);
+    }
+
+    this.info.isDying = false;
     this.setNonFieldPosition("FaceUp", true);
     const graveyard = this.owner.getGraveyard();
 
-    await this._moveTo(graveyard, "Top", moveAs, causedBy);
+    await this._moveTo(graveyard, "Top", moveAs, movedBy, movedByWhom);
   };
-  public readonly banish = async (moveAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<void> => {
-    console.log(this);
+  public readonly banish = async (moveAs: TDuelCauseReason[], movedBy: DuelEntity | undefined, movedByWhom: Duelist | undefined): Promise<void> => {
+    if (this.info.willReturnToDeck) {
+      return await this.banish(moveAs, movedBy, movedByWhom);
+    }
 
+    this.info.isDying = false;
     this.setNonFieldPosition("FaceUp", true);
 
     const banished = this.owner.getBanished();
 
-    await this._moveTo(banished, "Top", moveAs, causedBy);
+    await this._moveTo(banished, "Top", moveAs, movedBy, movedByWhom);
+    this.info.willBeBanished = false;
   };
-  public readonly setAsSpellTrap = async (to: DuelFieldCell, moveAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<void> => {
-    await this._moveTo(to, "Top", [...moveAs, "SpellTrapSet"], causedBy);
-    this.setNonFieldPosition("Set", true);
+  public readonly banishTemporarily = async (moveAs: TDuelCauseReason[], movedBy: DuelEntity | undefined, movedByWhom: Duelist | undefined): Promise<void> => {
+    if (this.info.willBeBanished) {
+      return await this.banish(moveAs, movedBy, movedByWhom);
+    }
+    if (this.info.willReturnToDeck) {
+      return await this.banish(moveAs, movedBy, movedByWhom);
+    }
+    throw new Error("not implemented");
   };
-  public readonly activateSpellTrapFromHand = async (to: DuelFieldCell, moveAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<void> => {
-    this.setNonFieldPosition("FaceUp", true);
-    await this._moveTo(to, "Top", [...moveAs, "SpellTrapActivate"], causedBy);
-    this.isDying = true;
-  };
-  public readonly activateSpellTrapOnField = async (): Promise<void> => {
-    this.setNonFieldPosition("FaceUp", true);
-    this.isDying = true;
-  };
-  public readonly draw = async (moveAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<void> => {
-    await this._moveTo(this.owner.getHandCell(), "Bottom", [...moveAs, "Draw"], causedBy);
-    this.setNonFieldPosition("Set", true);
-  };
-  public readonly addToHand = async (moveAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<void> => {
-    await this._moveTo(this.owner.getHandCell(), "Bottom", moveAs, causedBy);
-    this.setNonFieldPosition("Set", true);
-  };
-  public readonly returnToDeck = async (pos: TDuelEntityMovePos, moveAs: TDuelCauseReason[], causedBy: DuelEntity): Promise<DuelFieldCell | undefined> => {
+  public readonly returnToDeck = async (
+    pos: TDuelEntityMovePos,
+    moveAs: TDuelCauseReason[],
+    movedBy: DuelEntity | undefined,
+    movedByWhom: Duelist | undefined
+  ): Promise<DuelFieldCell | undefined> => {
+    if (this.info.willBeBanished) {
+      await this.banish(moveAs, movedBy, movedByWhom);
+      return this.owner.getBanished();
+    }
+
     const dest =
       this.origin.monsterCategories && this.origin.monsterCategories.union(exMonsterCategories).length ? this.owner.getExtraDeck() : this.owner.getDeckCell();
-    this.setNonFieldPosition("Set", true);
-    this.resetRebornable();
-    return await this._moveTo(dest, pos, moveAs, causedBy);
+    this.setNonFieldPosition("Set", false);
+    this.resetInfo();
+    this.resetStatus();
+    return await this._moveTo(dest, pos, moveAs, movedBy, movedByWhom);
   };
   private readonly _moveTo = async (
     to: DuelFieldCell,
     pos: TDuelEntityMovePos,
-    moveAs: TDuelCauseReason[],
-    causedBy?: DuelEntity
+    movedAs: TDuelCauseReason[],
+    movedBy: DuelEntity | undefined,
+    movedByWhom: Duelist | undefined
   ): Promise<DuelFieldCell | undefined> => {
     if (!to) {
+      // ミスで一回あったので念の為おいておく
       throw new Error("illegal argument: to");
     }
 
     if (this.field.duel.clock.turn > 0) {
       await this.field.duel.view.waitAnimation({ entity: this, to: to, index: pos, count: 0 });
     }
-    this.fieldCell.releaseEntities([this], moveAs, causedBy);
+    this.fieldCell.releaseEntities([this]);
+    this.wasMovedAs.splice(0);
+    this.wasMovedAs.push(...new Set(movedAs));
+    this.wasMovedAt = this.field.duel.clock.getClone();
+    this.wasMovedBy = movedBy;
+    this.wasMovedFrom = this.fieldCell;
+    this.wasMovedByWhom = movedByWhom;
     if (this.entityType === "Token" && this.fieldCell.cellType !== "MonsterZone") {
-      this.field.duel.log.info(`${this.nm}は消滅した。`, causedBy?.controller);
+      this.field.duel.log.info(`${this.nm}は消滅した。`, this.controller);
       return;
     }
 
     to.acceptEntities([this], pos);
   };
 
-  private readonly resetRebornable = () => {
-    this.isRebornable = this.origin.monsterCategories?.union(specialMonsterCategories).length === 0 || (this.origin.canReborn ?? false);
+  private readonly resetInfo = () => {
+    this._info = {
+      isDying: false,
+      isVanished: false,
+      isRebornable: this.origin.monsterCategories?.union(specialMonsterCategories).length === 0 || (this.origin.canReborn ?? false),
+      materials: [],
+      willBeBanished: false,
+      willReturnToDeck: false,
+    };
+  };
+
+  private readonly resetStatus = () => {
+    this._status = {
+      ...JSON.parse(JSON.stringify(this.origin)),
+      canAttack: true,
+      isEffective: true,
+      canDirectAttack: false,
+      attackCount: 0,
+      isSelectableForAttack: true,
+      canBeSyncroMaterial: true,
+      willBeBanished: false,
+    };
   };
 }

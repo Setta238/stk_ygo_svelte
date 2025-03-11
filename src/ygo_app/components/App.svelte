@@ -115,7 +115,9 @@
       {/await}
     </div>
   {/if}
-  <div class="screen_info"></div>
+  <div class="debug_info">
+    <span class="screen_info"></span>
+  </div>
 </main>
 
 <style>
@@ -142,7 +144,7 @@
   .app_body > div {
     margin: 1rem;
   }
-  .screen_info {
+  .debug_info {
     position: absolute;
     right: 1rem;
     bottom: 1rem;

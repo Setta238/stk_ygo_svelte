@@ -12,6 +12,11 @@
   import { DuelEntity } from "@ygo_duel/class/DuelEntity";
   export let entity: DuelEntity | undefined = undefined;
   const getInfo = () => (entity ? cardInfoDic[entity.origin.name] : undefined);
+  const getKonamiUrl = () => {
+    return entity && (entity.origin.cardId ?? 0 > 0)
+      ? `https://www.db.yugioh-card.com/yugiohdb/card_search.action?ope=2&cid=${entity.origin.cardId}`
+      : `https://www.db.yugioh-card.com/yugiohdb/card_search.action?ope=1&sess=1&rp=10&mode=&sort=1&keyword=${getInfo()?.name}&stype=1&ctype=&othercon=2&starfr=&starto=&pscalefr=&pscaleto=&linkmarkerfr=&linkmarkerto=&link_m=2&atkfr=&atkto=&deffr=&defto=&releaseDStart=1&releaseMStart=1&releaseYStart=1999&releaseDEnd=&releaseMEnd=&releaseYEnd=`;
+  };
 </script>
 
 {#if entity}
@@ -69,6 +74,9 @@
     <div class="duel_card_info_footer">
       <div class="duel_card_info_links">
         <a href={getInfo()?.wikiHref} target="_blank" rel="noopener noreferrer" title="遊戯王カードWiki">⇒遊戯王カードWiki</a>
+        <a href={getKonamiUrl()} target="_blank" rel="noopener noreferrer" title="コナミカードデータベース">
+          ⇒{entity?.origin.cardId ? "公式カードページ" : "公式で検索"}
+        </a>
       </div>
     </div>
   </div>

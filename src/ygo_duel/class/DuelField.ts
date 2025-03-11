@@ -1,7 +1,6 @@
-import { Duel, DuelEnd, SystemError } from "./Duel";
+import { Duel, DuelEnd, SystemError, type TSeat } from "./Duel";
 import { type TDuelCauseReason, type TDuelSummonRuleCauseReason, DuelEntity } from "@ygo_duel/class/DuelEntity";
 
-import { cardInfoDic } from "@ygo/class/CardInfo";
 import type Duelist from "./Duelist";
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import { cellTypeMaster, DuelFieldCell, type DuelFieldCellType } from "./DuelFieldCell";
@@ -54,75 +53,84 @@ export class DuelField {
     return this.getAllEntities().filter((entity) => entity.controller === duelist);
   };
 
-  public readonly pushDeck = (duelist: Duelist): void => {
-    duelist.deckInfo.cardNames
-      .map((name) => cardInfoDic[name])
-      .filter((info) => info)
-      .forEach((info) => DuelEntity.createCardEntity(this, duelist, info));
-    this.duel.log.info(
-      `デッキをセット。メイン${duelist.getDeckCell().cardEntities.length}枚。エクストラ${duelist.getExtraDeck().cardEntities.length}枚。`,
-      duelist
+  public readonly sendGraveyardAtSameTime = async (
+    entites: DuelEntity[],
+    cousedAs: TDuelCauseReason[],
+    causedBy: DuelEntity,
+    activator: Duelist
+  ): Promise<void> => {
+    // 持ち主で仕分ける
+    const grouped: { [seat in TSeat]: DuelEntity[] } = entites.reduce(
+      (wip, entity) => {
+        wip[entity.owner.seat].push(entity);
+        return wip;
+      },
+      {
+        Above: [] as DuelEntity[],
+        Below: [] as DuelEntity[],
+      }
     );
-    return;
+
+    // それぞれ墓地送りを連鎖させる
+    const promises = Object.values(grouped).map(
+      (entites) =>
+        new Promise<void>((resolve) => {
+          // 起点となるダミーのPromise
+          let promise = new Promise<void>((r) => r());
+          for (const entity of entites) {
+            // thenでつなぐ
+            promise = promise.then(() => entity.sendToGraveyard(cousedAs, causedBy, activator));
+          }
+          // すべて終わったら、大元のPromiseを終了させる
+          promise.then(() => resolve());
+        })
+    );
+    // 両方完了するのを待つ
+    await Promise.all(promises);
   };
 
-  public readonly prepareHands = async (duelist: Duelist): Promise<boolean> => {
-    return await this.draw(duelist, 5);
-  };
+  public readonly drawAtSameTime = async (
+    duelist1: Duelist,
+    times1: number,
+    duelist2: Duelist,
+    times2: number,
+    causedBy: DuelEntity,
+    causedByWhome: Duelist
+  ): Promise<void> => {
+    const winners: Duelist[] = [];
+    const errors: unknown[] = [];
 
-  public readonly draw = async (duelist: Duelist, times: number, causedBy?: DuelEntity): Promise<boolean> => {
-    const flg = await this._draw(duelist, times, causedBy);
-    if (!flg) {
-      throw new DuelEnd(duelist.getOpponentPlayer());
-    }
-    return flg;
-  };
+    const promises = [duelist1.draw(times1, causedBy, causedByWhome), duelist2.draw(times2, causedBy, causedByWhome)].map((p) =>
+      p.catch((reason) => {
+        if (reason instanceof DuelEnd) {
+          if (reason.winner) {
+            winners.push(reason.winner);
+          }
+        } else {
+          errors.push(reason);
+        }
+      })
+    );
 
-  public readonly drawSameTime = async (duelist1: Duelist, times1: number, duelist2: Duelist, times2: number, causedBy?: DuelEntity): Promise<boolean> => {
-    const flg1 = await this._draw(duelist1, times1, causedBy);
-    const flg2 = await this._draw(duelist2, times1, causedBy);
-    if (flg1 && flg2) {
-      return true;
+    await Promise.all(promises);
+
+    if (errors.length) {
+      throw new SystemError("ドロー処理で想定されない例外が発生した。", duelist1, times1, duelist2, times2, causedBy, ...errors);
     }
 
-    if (flg1) {
-      throw new DuelEnd(duelist1);
+    if (winners.length === 0) {
+      return;
     }
-    if (flg2) {
-      throw new DuelEnd(duelist1);
+
+    if (winners.length === 1) {
+      throw new DuelEnd(winners[0]);
     }
+
     throw new DuelEnd();
   };
 
-  private readonly _draw = async (duelist: Duelist, times: number, causedBy?: DuelEntity): Promise<boolean> => {
-    if (times < 1) {
-      return true;
-    }
-    const deckCell = duelist.getDeckCell();
-    const cardNames = [] as string[];
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    for (const _ of Array(times)) {
-      if (!deckCell.cardEntities.length) {
-        this.duel.log.info(
-          cardNames.length > 0
-            ? `デッキからカードを${times}枚ドローしようとしたが、${cardNames.length}枚しかドローできなかった。${cardNames}`
-            : "デッキからカードをドローできなかった。",
-          duelist
-        );
-        this.duel.isEnded = true;
-        duelist.setLp(0);
-        return false;
-      }
-      const card = deckCell.cardEntities[0];
-      await card.draw(causedBy ? ["Effect"] : ["Rule"], causedBy);
-      cardNames.push(card.origin?.name || "!名称取得失敗!");
-    }
-    this.duel.log.info(`デッキからカードを${cardNames.length}枚ドロー。${cardNames}。`, duelist);
-
-    return true;
-  };
-
-  public readonly payMonstersForSpecialSummonCost = async (
+  public readonly sendToGraveyard = async (
+    msg: string,
     chooser: Duelist,
     choices: DuelEntity[],
     qty: number,
@@ -130,30 +138,21 @@ export class DuelField {
     moveAs: TDuelCauseReason[],
     causedBy?: DuelEntity,
     cancelable?: boolean
-  ): Promise<DuelEntity[] | undefined> => {
+  ) => {
     if (qty > 0 && choices.length < qty) {
       return;
     }
-    const target: DuelEntity[] | undefined = await this.duel.view.waitSelectEntities(
-      chooser,
-      choices,
-      qty,
-      validator,
-      "素材とするモンスターを選択",
-      cancelable
-    );
-
-    console.log(target);
+    const target: DuelEntity[] | undefined = await this.duel.view.waitSelectEntities(chooser, choices, qty, validator, msg, cancelable);
 
     if (!target) {
       return;
     }
 
     for (const entity of target) {
-      await entity.release(["Release", ...moveAs], causedBy);
+      await entity.sendToGraveyard(moveAs, causedBy, chooser);
     }
 
-    this.duel.log.info(`${target.map((e) => e.status.name).join(", ")}を素材とした（${[...new Set(target.flatMap((e) => e.movedAs))].join(", ")}）。`, chooser);
+    this.duel.log.info(`${target.map((e) => e.status.name).join(", ")}を墓地に送った（${moveAs.getDistinct().join(", ")}）。`, chooser);
     return target;
   };
 
@@ -185,45 +184,15 @@ export class DuelField {
 
     const entities: DuelEntity[] = [];
     for (const entity of target) {
-      await entity.release(["Release", by, ...moveAs], causedBy);
+      await entity.release(["Release", by, ...moveAs], causedBy, chooser);
       entities.push(entity);
     }
 
     this.duel.log.info(
-      `${entities.map((e) => e.status.name).join(", ")}をリリース（${[...new Set(entities.flatMap((e) => e.movedAs))].join(", ")}）。`,
+      `${entities.map((e) => e.status.name).join(", ")}をリリース（${[...new Set(entities.flatMap((e) => e.wasMovedAs))].join(", ")}）。`,
       chooser
     );
     return entities;
-  };
-
-  public readonly discard = async (
-    duelist: Duelist,
-    qty: number,
-    moveAs: TDuelCauseReason[],
-    causedBy?: DuelEntity,
-    chooser?: Duelist,
-    filter?: (entity: DuelEntity) => boolean
-  ): Promise<DuelEntity[]> => {
-    const _filter: (entity: DuelEntity) => boolean = filter || (() => true);
-    const choices = duelist.getHandCell().cardEntities.filter(_filter);
-
-    if (choices.length < qty) {
-      return [];
-    }
-    let target = [] as DuelEntity[];
-    if ((chooser || duelist).duelistType === "NPC") {
-      // NPCに選択権がある場合、ランダムに手札を捨てる。
-      target = choices.randomPick(qty);
-    } else {
-      target =
-        (await this.duel.view.waitSelectEntities(chooser || duelist, choices, qty, (list) => list.length === qty, `${qty}枚カードを捨てる。`, false)) || [];
-    }
-
-    await this._sendGraveyardMany(target, ["Discard", ...moveAs], causedBy);
-
-    this.duel.log.info(`手札からカードを${target.length}枚捨てた。${target.map((e) => e.origin?.name)}。`, duelist);
-
-    return target;
   };
 
   public readonly summonMany = async (
@@ -302,7 +271,7 @@ export class DuelField {
       }
     }
     console.log(cell, pos, summonType, moveAs, causedBy);
-    await entity.summon(cell, pos, summonType, moveAs, causedBy);
+    await entity.summon(cell, pos, summonType, moveAs, causedBy, _chooser);
 
     return entity;
   };
@@ -337,22 +306,9 @@ export class DuelField {
       }
     }
 
-    await entity.activateSpellTrapFromHand(cell, moveAs, causedBy);
+    await entity.activateSpellTrapFromHand(cell, moveAs, causedBy, _chooser);
 
     return entity;
-  };
-  public readonly destroyMany = async (entities: DuelEntity[], causedAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<DuelEntity[]> => {
-    return await this._sendGraveyardMany(entities, [...causedAs, "Destroy"], causedBy);
-  };
-  public readonly sendGraveyardMany = async (entities: DuelEntity[], causedAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<DuelEntity[]> => {
-    return await this._sendGraveyardMany(entities, causedAs, causedBy);
-  };
-  private readonly _sendGraveyardMany = async (entities: DuelEntity[], moveAs: TDuelCauseReason[], causedBy?: DuelEntity): Promise<DuelEntity[]> => {
-    for (const entity of entities) {
-      await entity.sendGraveyard(moveAs, causedBy);
-    }
-
-    return entities.filter((entity) => entity.entityType !== "Token");
   };
   public readonly setSpellTrap = async (
     entity: DuelEntity,
@@ -385,7 +341,7 @@ export class DuelField {
         targetCell = action.cell || targetCell;
       }
     }
-    await entity.setAsSpellTrap(targetCell, ["SpellTrapSet"], causedBy);
+    await entity.setAsSpellTrap(targetCell, ["SpellTrapSet"], causedBy, _chooser);
     this.duel.log.info(`${entity.status.name}をセット（${"SpellTrapSet"}）。`, chooser ?? causedBy?.controller ?? entity.controller);
   };
 }

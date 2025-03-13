@@ -172,7 +172,7 @@ export class Duel {
   public readonly declareAnAttack = (attacker: DuelEntity, defender: DuelEntity): void => {
     this.attackingMonster = attacker;
     this.targetForAttack = defender;
-    attacker.status.attackCount++;
+    attacker.info.attackCount++;
     this.log.info(`攻撃宣言：${attacker.status.name} ⇒ ${defender.status.name}`, attacker.controller);
   };
 
@@ -191,10 +191,7 @@ export class Duel {
     while (await this.procChainBlock()) {
       //
     }
-    this.field.getMonstersOnField().forEach((m) => {
-      m.status.attackCount = 0;
-      m.status.battlePotisionChangeCount = 0;
-    });
+    this.field.getEntiteisOnField().forEach((m) => m.initForTurn());
     this.moveNextPhase("standby");
   };
   private readonly procStanbyPhase = async () => {
@@ -210,7 +207,7 @@ export class Duel {
       this.priorityHolder = this.getTurnPlayer();
 
       // ユーザー入力を待つ。
-      const action = await this.view.waitFieldAction(
+      const response = await this.view.waitFieldAction(
         this.getEnableActions(
           ["NormalSummon", "SpellTrapSet", "SpecialSummon", "ChangeBattlePosition", "IgnitionEffect", "QuickEffect", "CardActivation"],
           ["Normal", "Quick", "Counter"]
@@ -218,25 +215,28 @@ export class Duel {
         "あなたの手番です。"
       );
 
-      console.log(action);
+      console.log(response);
 
       // ユーザー入力がカードアクションだった場合、チェーンブロックを作るか作らないかで処理を分ける
-      if (action.action) {
-        if (([...cardActionNonChainBlockTypes] as string[]).includes(action.action.playType)) {
-          //チェーンに乗らない処理を実行し、処理番号をインクリメント
-          const prepared = await action.action.prepare(action.action.cell, true);
+      if (response && response.action) {
+        if (([...cardActionNonChainBlockTypes] as string[]).includes(response.action.playType)) {
+          console.log("is not chainable", response);
 
-          if (!prepared) {
+          //チェーンに乗らない処理を実行し、処理番号をインクリメント
+          const prepared = await response.action.prepare(response.action.cell, true);
+
+          if (prepared === undefined) {
             continue;
           }
 
-          await action.action.execute(this.priorityHolder, action.action.cell, prepared);
+          await response.action.execute(this.priorityHolder, response.action.cell, prepared);
 
           this.clock.incrementChainSeq();
         } else {
-          console.log(action);
+          console.log("is chainable", response);
+
           //チェーンに積んで、チェーン処理へ
-          await this.procChainBlock(action.action);
+          await this.procChainBlock(response.action);
         }
         while (await this.procChainBlock()) {
           //
@@ -244,7 +244,7 @@ export class Duel {
         continue;
       }
 
-      const nextPhase = action.phaseChange;
+      const nextPhase = response.phaseChange;
       // フェイズ移行前に、相手に優先権が移る。
       if (nextPhase) {
         this.priorityHolder = this.getNonTurnPlayer();
@@ -375,9 +375,14 @@ export class Duel {
       }
     }
 
+    // チェーン番号を加算
+    this.clock.incrementChainSeq();
+
     //ダメージ計算後
     this.log.info("ダメージ計算後", this.getTurnPlayer());
-    //TODO エフェクト処理
+    while (await this.procChainBlock()) {
+      //
+    }
 
     //ダメージステップ終了時
     this.log.info("ダメージステップ終了時", this.getTurnPlayer());
@@ -467,7 +472,7 @@ export class Duel {
       while (skipCount < 2) {
         this.priorityHolder = this.priorityHolder.getOpponentPlayer();
         const action = await this.view.waitQuickEffect(
-          this.getEnableActions(["QuickEffect"], ["Normal", "Quick", "Counter"]),
+          this.getEnableActions(["QuickEffect", "CardActivation"], ["Quick", "Counter"]),
           "クイックエフェクト発動タイミング。効果を発動しますか？",
           true
         );
@@ -513,6 +518,7 @@ export class Duel {
               .filter((e) => e.info.isDying)
               .map((e) => e.sendToGraveyard(["Rule"], undefined, undefined))
           );
+          // チェーン番号を加算。
           this.clock.incrementChainSeq();
         }
       }

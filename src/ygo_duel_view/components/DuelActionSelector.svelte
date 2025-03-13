@@ -1,10 +1,9 @@
 <script lang="ts" module>
   import { writable } from "svelte/store";
-  import type { CardAction } from "@ygo_duel/class/DuelEntity";
-
+  import type { CardAction, ICardAction } from "@ygo_duel/class/DuelCardAction";
   export type CardActionSelectorArg = {
     title: string;
-    actions: CardAction<unknown>[];
+    actions: ICardAction<unknown>[];
     dragAndDropOnly?: boolean;
     cancelable: boolean;
   };
@@ -21,9 +20,9 @@
   import type { DuelViewController } from "@ygo_duel_view/class/DuelViewController";
   interface IProp {
     view: DuelViewController;
-    resolve: (action?: CardAction<unknown>, cell?: DuelFieldCell) => void;
+    resolve: (action?: ICardAction<unknown>, cell?: DuelFieldCell) => void;
     title: string;
-    actions: CardAction<unknown>[];
+    actions: ICardAction<unknown>[];
     dragAndDropOnly: boolean;
     cancelable: boolean;
   }
@@ -43,7 +42,7 @@
   const onDragEnd = () => isDragging.set(false);
   view.onDragStart.append(onDragStart);
   view.onDragEnd.append(onDragEnd);
-  const validateActions = (action: CardAction<unknown>): TCardState => {
+  const validateActions = (action: ICardAction<unknown>): TCardState => {
     const tmp = action.validate();
     return tmp && tmp.length > 0 ? "Draggable" : "Clickable";
   };

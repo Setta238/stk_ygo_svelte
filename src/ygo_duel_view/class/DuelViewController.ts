@@ -99,10 +99,9 @@ export class DuelViewController {
   public readonly waitFieldAction = async (enableActions: ICardAction<unknown>[], message: string): Promise<DuelistResponse> => {
     console.log(enableActions);
     if (this.duel.getTurnPlayer().duelistType === "NPC") {
-      // TODO NPCがおろかな埋葬または闇の量産工場を選択したときにフリーズしたので、一旦魔法を使用禁止にする。
       const action = enableActions
         .toSorted((left, right) => (right.entity.atk || 0) - (left.entity.atk || 0))
-        .find((act) => act.playType === "NormalSummon" || act.playType === "SpecialSummon");
+        .find((act) => act.playType === "NormalSummon" || act.playType === "SpecialSummon" || act.playType === "CardActivation");
       return action ? { action: action as ICardAction<unknown> } : { phaseChange: this.duel.nextPhaseList[0] };
     }
     return await this._waitDuelistAction(enableActions, "SelectFieldAction", message);
@@ -255,7 +254,6 @@ export class DuelViewController {
       this.onWaitStartEvent.trigger(args);
     });
 
-    console.log(userAction);
     this.waitMode = "None";
     this.onWaitEndEvent.trigger();
     if (userAction.surrender) {
@@ -265,6 +263,14 @@ export class DuelViewController {
       throw new SystemError("キャンセル不可のアクションがキャンセルされた。", userAction, enableActions, waitMode, selectableEntities);
     }
     return userAction;
+  };
+
+  public readonly waitSelectText = async (choises: { seq: number; text: string }[], msg: string, cancelable: boolean = false): Promise<number | undefined> => {
+    return this.duel.view.modalController.selectText(this.duel.view, {
+      title: msg,
+      choises: choises,
+      cancelable: cancelable,
+    });
   };
 
   public readonly waitAnimation = async (args: Omit<AnimationStartEventArg, "resolve">): Promise<void> => {

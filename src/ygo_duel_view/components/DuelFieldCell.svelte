@@ -8,7 +8,7 @@
   import type { AnimationStartEventArg, DuelViewController, WaitStartEventArg } from "@ygo_duel_view/class/DuelViewController";
   import {} from "@stk_utils/funcs/StkArrayUtils";
   import { cardCrossFade } from "@ygo_duel_view/components/DuelDesk.svelte";
-  import type { ICardAction } from "@ygo_duel/class/DuelCardAction";
+  import { CardAction, type ICardAction } from "@ygo_duel/class/DuelCardAction";
   export let view: DuelViewController;
 
   export let row: number;
@@ -133,9 +133,9 @@
       if (canAcceptDrop && draggingActions) {
         console.info(draggingActions, cell);
         if (draggingActions.length === 1) {
-          responseResolve({
-            action: { ...draggingActions[0], cell },
-          });
+          const action = draggingActions[0].getClone();
+          action.cell = cell;
+          responseResolve({ action: action });
         } else if (draggingActions.length > 1) {
           cell.field.duel.view.modalController.cancelAll();
           cell.field.duel.view.modalController.selectAction(cell.field.duel.view, {

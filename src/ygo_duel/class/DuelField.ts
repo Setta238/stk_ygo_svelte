@@ -1,9 +1,9 @@
 import { Duel, DuelEnd, SystemError, type TSeat } from "./Duel";
-import { type TDuelCauseReason, type TDuelSummonRuleCauseReason, DuelEntity } from "@ygo_duel/class/DuelEntity";
+import { type TDuelCauseReason, type TSummonRuleCauseReason, DuelEntity } from "@ygo_duel/class/DuelEntity";
 
 import type Duelist from "./Duelist";
 import {} from "@stk_utils/funcs/StkArrayUtils";
-import { cellTypeMaster, DuelFieldCell, type DuelFieldCellType } from "./DuelFieldCell";
+import { cellTypeMaster, DuelFieldCell, monsterZoneCellTypes, playFieldCellTypes, type DuelFieldCellType } from "./DuelFieldCell";
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
 import type { CardAction, ICardAction } from "./DuelCardAction";
 
@@ -29,7 +29,7 @@ export class DuelField {
     return this.cells.flat();
   };
 
-  public readonly getCells = (...cellTypeList: DuelFieldCellType[]): DuelFieldCell[] => {
+  public readonly getCells = (...cellTypeList: Readonly<DuelFieldCellType[]>): DuelFieldCell[] => {
     return this.getAllCells().filter((cell) => cellTypeList.includes(cell.cellType));
   };
   public readonly getAllEntities = (): DuelEntity[] => {
@@ -43,11 +43,16 @@ export class DuelField {
       .flat();
   };
   public readonly getMonstersOnField = (): DuelEntity[] => {
-    return this.getCells("MonsterZone", "ExtraMonsterZone")
+    return this.getCells(...monsterZoneCellTypes)
       .map((cell) => cell.cardEntities)
       .filter((entities) => entities.length > 0)
-      .map((entities) => entities[0])
-      .filter((entity) => entity.entityType !== "Squatter");
+      .map((entities) => entities[0]);
+  };
+  public readonly getEntiteisOnField = (): DuelEntity[] => {
+    return this.getCells(...playFieldCellTypes)
+      .map((cell) => cell.cardEntities)
+      .filter((entities) => entities.length > 0)
+      .map((entities) => entities[0]);
   };
   public readonly getEntities = (duelist: Duelist): DuelEntity[] => {
     return this.getAllEntities().filter((entity) => entity.controller === duelist);
@@ -199,7 +204,7 @@ export class DuelField {
     entities: DuelEntity[],
     posFilter: (entity: DuelEntity) => TBattlePosition[],
     cellFilter: (entity: DuelEntity) => DuelFieldCell[],
-    summonType: TDuelSummonRuleCauseReason,
+    summonType: TSummonRuleCauseReason,
     moveAs: TDuelCauseReason[],
     causedBy?: DuelEntity,
     chooserPicker?: (entity: DuelEntity) => Duelist
@@ -218,7 +223,7 @@ export class DuelField {
     entity: DuelEntity,
     selectablePosList: TBattlePosition[],
     selectableCells: DuelFieldCell[],
-    summonType: TDuelSummonRuleCauseReason,
+    summonType: TSummonRuleCauseReason,
     moveAs: TDuelCauseReason[],
     causedBy?: DuelEntity,
     chooser?: Duelist,
@@ -237,7 +242,7 @@ export class DuelField {
     entity: DuelEntity,
     selectablePosList: TBattlePosition[],
     selectableCells: DuelFieldCell[],
-    summonType: TDuelSummonRuleCauseReason,
+    summonType: TSummonRuleCauseReason,
     moveAs: TDuelCauseReason[],
     causedBy?: DuelEntity,
     chooser?: Duelist,
@@ -316,7 +321,7 @@ export class DuelField {
     causedBy?: DuelEntity,
     chooser?: Duelist,
     cancelable: boolean = false
-  ): Promise<DuelEntity | undefined> => {
+  ): Promise<DuelFieldCell | undefined> => {
     let targetCell = cells[0];
 
     const _chooser = chooser ?? causedBy?.controller ?? entity.controller;
@@ -343,5 +348,6 @@ export class DuelField {
     }
     await entity.setAsSpellTrap(targetCell, ["SpellTrapSet"], causedBy, _chooser);
     this.duel.log.info(`${entity.status.name}をセット（${"SpellTrapSet"}）。`, chooser ?? causedBy?.controller ?? entity.controller);
+    return targetCell;
   };
 }

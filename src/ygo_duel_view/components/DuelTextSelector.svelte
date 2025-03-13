@@ -25,12 +25,11 @@
     <button class="overlay" onclick={close}>★</button>
     <div class="window">
       <div>{arg.title}</div>
-      <div class="text_list">
-        {#each arg.choises as { seq, text }}<div>
-            {seq}{text}
-          </div>
+      <ui class="text_list">
+        {#each arg.choises as { seq, text }}
+          <li class="text_item {seq}"><button onclick={() => resolve(seq)}> {text} </button></li>
         {/each}
-      </div>
+      </ui>
       {#if arg.cancelable}
         <button onclick={() => resolve(undefined)}>Cancel</button>
       {/if}
@@ -46,9 +45,14 @@
     max-width: 50%;
   }
   .text_list {
+    padding: 0.2rem;
     display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
+    flex-direction: column;
+  }
+  .text_item {
+    padding: 0.2rem;
+    display: flex;
+    flex-direction: column;
   }
   .base {
     position: fixed;

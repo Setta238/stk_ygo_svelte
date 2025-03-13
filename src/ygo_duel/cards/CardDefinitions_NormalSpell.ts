@@ -19,7 +19,7 @@ export type CardDefinition = {
   actions: CardActionBase<unknown>[];
 };
 
-export const createCardDefinitions_Spell = (): CardDefinition[] => {
+export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
   const result: CardDefinition[] = [];
 
   const def_強欲な壺 = {
@@ -534,6 +534,8 @@ export const createCardDefinitions_Spell = (): CardDefinition[] => {
             activater,
             false
           );
+
+          activater.shuffleDeck();
 
           return true;
         },

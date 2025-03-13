@@ -1,12 +1,14 @@
+import type { TBattlePosition } from "@ygo/class/YgoTypes";
 import { SystemError } from "@ygo_duel/class/Duel";
 import type { CardActionBase } from "@ygo_duel/class/DuelCardAction";
-import { DuelEntity } from "@ygo_duel/class/DuelEntity";
-import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
+import { DuelEntity, type TDestoryCauseReason } from "@ygo_duel/class/DuelEntity";
+import type { DuelFieldCell, DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
 import type Duelist from "@ygo_duel/class/Duelist";
 import {
   defaultAttackAction,
   defaultBattlePotisionChangeAction,
   defaultNormalSummonAction,
+  getDefalutRecruiterAction,
   getDefaultSyncroSummonAction,
 } from "@ygo_duel/functions/DefaultCardAction";
 
@@ -45,8 +47,42 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
     name: "サイバー・ドラゴン",
     actions: [defaultNormalSummonAction, defaultAttackAction, defaultBattlePotisionChangeAction, action_サイバー・ドラゴン] as CardActionBase<unknown>[],
   };
-
   result.push(def_サイバー・ドラゴン);
+
+  const def_六武衆のご隠居 = {
+    name: "六武衆のご隠居",
+    actions: [defaultNormalSummonAction, defaultAttackAction, defaultBattlePotisionChangeAction, action_サイバー・ドラゴン] as CardActionBase<unknown>[],
+  };
+
+  result.push(def_六武衆のご隠居);
+
+  const def_ジャンク・フォアード = {
+    name: "ジャンク・フォアード",
+    actions: [
+      defaultNormalSummonAction,
+      defaultAttackAction,
+      defaultBattlePotisionChangeAction,
+      {
+        title: "特殊召喚",
+        playType: "SpecialSummon",
+        spellSpeed: "Normal",
+        executableCells: ["Hand"],
+        validate: (entity: DuelEntity): DuelFieldCell[] | undefined => {
+          const emptyCells = entity.controller.getAvailableMonsterZones();
+          return emptyCells.length > 0 ? emptyCells : undefined;
+        },
+        prepare: async () => true,
+        execute: async (entity: DuelEntity, activater: Duelist, cell?: DuelFieldCell): Promise<boolean> => {
+          const emptyCells = entity.controller.getAvailableMonsterZones();
+          await entity.field.summon(entity, ["Attack", "Defense"], cell ? [cell] : emptyCells, "SpecialSummon", ["Rule"], entity, undefined, true);
+          entity.controller.specialSummonCount++;
+          return true;
+        },
+      },
+    ] as CardActionBase<unknown>[],
+  };
+
+  result.push(def_ジャンク・フォアード);
 
   const def_アンノウン・シンクロン = {
     name: "アンノウン・シンクロン",
@@ -190,7 +226,6 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
             return false;
           }
           await entity.field.summon(entity, ["Attack", "Defense"], cell ? [cell] : availableCells, "SpecialSummon", ["Effect"], entity, activater);
-          entity.info.willBeBanished = true;
           entity.controller.specialSummonCount++;
           return true;
         },
@@ -210,6 +245,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
         playType: "TriggerEffect",
         spellSpeed: "Normal",
         executableCells: ["MonsterZone"],
+        canExecuteOnDamageStep: true,
         validate: (entity: DuelEntity): DuelFieldCell[] | undefined => {
           if (entity.wasMovedAs.union(["SpecialSummon", "NormalSummon"]).length === 0) {
             return;
@@ -252,10 +288,10 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
           if (!entity.wasMovedAs.includes("NormalSummon")) {
             return;
           }
-          if (!entity.field.duel.clock.isPreviousChain(entity.wasMovedAt)) {
+          if (!entity.isMoveAtPreviousChain) {
             return;
           }
-          if (entity.controller.getDeckCell().cardEntities.filter((card) => (card.lvl ?? 5) < 5)) {
+          if (!entity.controller.getDeckCell().cardEntities.find((card) => (card.lvl ?? 5) < 5)) {
             return;
           }
           return [];
@@ -276,11 +312,12 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
         playType: "TriggerEffect",
         spellSpeed: "Normal",
         executableCells: ["Graveyard"],
+        canExecuteOnDamageStep: true,
         validate: (entity: DuelEntity): DuelFieldCell[] | undefined => {
           if (!entity.wasMovedAs.includes("BattleDestroy")) {
             return;
           }
-          if (!entity.field.duel.clock.isPreviousChain(entity.wasMovedAt)) {
+          if (!entity.isMoveAtPreviousChain) {
             return;
           }
           if (entity.controller.getDeckCell().cardEntities.length === 0) {
@@ -319,8 +356,6 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
     ] as CardActionBase<unknown>[],
   };
   result.push(def_ナチュル・ガオドレイク);
-
-  console.log(result);
 
   const def_ライトロード・ビーストウォルフ = {
     name: "ライトロード・ビースト ウォルフ",
@@ -371,7 +406,244 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
   };
   result.push(def_ライトロード・ビーストウォルフ);
 
-  console.log(result);
+  const def_伝説の白石 = {
+    name: "伝説の白石",
+    actions: [
+      defaultAttackAction,
+      defaultBattlePotisionChangeAction,
+      {
+        title: "①サーチ",
+        playType: "TriggerEffect",
+        spellSpeed: "Normal",
+        executableCells: ["Graveyard"],
+        validate: (entity: DuelEntity): DuelFieldCell[] | undefined => {
+          if (!entity.field.duel.clock.isPreviousChain(entity.wasMovedAt)) {
+            return;
+          }
+          if (entity.wasMovedFrom?.cellType === "Banished") {
+            return;
+          }
+          return entity.controller.getDeckCell().cardEntities.find((card) => card.nm === "青眼の白龍") ? [] : undefined;
+        },
+        prepare: async () => true,
+        execute: async (entity: DuelEntity, activater: Duelist): Promise<boolean> => {
+          // 青眼の白龍固定なので、一枚見つけたらそれでよい。
+          const monster = activater.getDeckCell().cardEntities.find((card) => card.nm === "青眼の白龍");
+          if (!monster) {
+            return false;
+          }
+          await monster.addToHand(["Effect"], entity, activater);
+          activater.shuffleDeck();
+          return true;
+        },
+      },
+    ] as CardActionBase<unknown>[],
+  };
+  result.push(def_伝説の白石);
 
+  [
+    {
+      name: "キラー・ポテト",
+      filter: (card: DuelEntity) => card.attr.includes("Dark") && (card.atk ?? 9999) <= 1500,
+      qtyList: [1],
+      posList: ["Attack"] as TBattlePosition[],
+      destoryTypes: ["EffectDestroy"] as TDestoryCauseReason[],
+      executableCells: ["Graveyard"] as DuelFieldCellType[],
+    },
+    {
+      name: "キラー・トマト",
+      filter: (card: DuelEntity) => card.attr.includes("Dark") && (card.atk ?? 9999) <= 1500,
+      qtyList: [1],
+      posList: ["Attack"] as TBattlePosition[],
+      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      executableCells: ["Graveyard"] as DuelFieldCellType[],
+    },
+    {
+      name: "巨大ネズミ",
+      filter: (card: DuelEntity) => card.attr.includes("Earth") && (card.atk ?? 9999) <= 1500,
+      qtyList: [1],
+      posList: ["Attack"] as TBattlePosition[],
+      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      executableCells: ["Graveyard"] as DuelFieldCellType[],
+    },
+    {
+      name: "グリズリーマザー",
+      filter: (card: DuelEntity) => card.attr.includes("Water") && (card.atk ?? 9999) <= 1500,
+      qtyList: [1],
+      posList: ["Attack"] as TBattlePosition[],
+      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      executableCells: ["Graveyard"] as DuelFieldCellType[],
+    },
+    {
+      name: "シャインエンジェル",
+      filter: (card: DuelEntity) => card.attr.includes("Light") && (card.atk ?? 9999) <= 1500,
+      qtyList: [1],
+      posList: ["Attack"] as TBattlePosition[],
+      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      executableCells: ["Graveyard"] as DuelFieldCellType[],
+    },
+    {
+      name: "ドラゴンフライ",
+      filter: (card: DuelEntity) => card.attr.includes("Wind") && (card.atk ?? 9999) <= 1500,
+      qtyList: [1],
+      posList: ["Attack"] as TBattlePosition[],
+      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      executableCells: ["Graveyard"] as DuelFieldCellType[],
+    },
+    {
+      name: "ＵＦＯタートル",
+      filter: (card: DuelEntity) => card.attr.includes("Fire") && (card.atk ?? 9999) <= 1500,
+      qtyList: [1],
+      posList: ["Attack"] as TBattlePosition[],
+      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      executableCells: ["Graveyard"] as DuelFieldCellType[],
+    },
+    {
+      name: "荒野の女戦士",
+      filter: (card: DuelEntity) => card.attr.includes("Earth") && card.type.includes("Warrior") && (card.atk ?? 9999) <= 1500,
+      qtyList: [1],
+      posList: ["Attack"] as TBattlePosition[],
+      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      executableCells: ["Graveyard"] as DuelFieldCellType[],
+    },
+    {
+      name: "リトル・トルーパー",
+      filter: (card: DuelEntity) => card.type.includes("Warrior") && (card.lvl ?? 9999) < 3,
+      qtyList: [1],
+      posList: ["Set"] as TBattlePosition[],
+      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      executableCells: ["Graveyard", "Banished"] as DuelFieldCellType[],
+    },
+    {
+      name: "破面竜",
+      filter: (card: DuelEntity) => card.type.includes("Warrior") && (card.def ?? 9999) <= 1500,
+      qtyList: [1],
+      posList: ["Attack", "Defense"] as TBattlePosition[],
+      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      executableCells: ["Graveyard"] as DuelFieldCellType[],
+    },
+    {
+      name: "共鳴虫",
+      filter: (card: DuelEntity) => card.type.includes("Insect") && (card.atk ?? 9999) <= 1500,
+      qtyList: [1],
+      posList: ["Attack", "Defense"] as TBattlePosition[],
+      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      executableCells: ["Graveyard"] as DuelFieldCellType[],
+    },
+    {
+      name: "ピラミッド・タートル",
+      filter: (card: DuelEntity) => card.type.includes("Zombie") && (card.def ?? 9999) <= 2000,
+      qtyList: [1],
+      posList: ["Attack", "Defense"] as TBattlePosition[],
+      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      executableCells: ["Graveyard"] as DuelFieldCellType[],
+    },
+    {
+      name: "ユーフォロイド",
+      filter: (card: DuelEntity) => card.type.includes("Machine") && (card.atk ?? 9999) <= 1500,
+      qtyList: [1],
+      posList: ["Attack"] as TBattlePosition[],
+      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      executableCells: ["Graveyard"] as DuelFieldCellType[],
+    },
+    {
+      name: "ヘル・セキュリティ",
+      filter: (card: DuelEntity) => card.type.includes("Fiend") && (card.lvl ?? 9999) === 1,
+      qtyList: [1],
+      posList: ["Attack", "Defense"] as TBattlePosition[],
+      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      executableCells: ["Graveyard"] as DuelFieldCellType[],
+    },
+    {
+      name: "ガスタ・イグル",
+      filter: (card: DuelEntity) => (card.status.nameTags ?? []).includes("ガスタ") && (card.status.monsterCategories ?? []).includes("Tuner"),
+      qtyList: [1],
+      posList: ["Attack", "Defense"] as TBattlePosition[],
+      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      executableCells: ["Graveyard"] as DuelFieldCellType[],
+    },
+    {
+      name: "幻影の魔術士",
+      filter: (card: DuelEntity) => (card.status.nameTags ?? []).includes("ＨＥＲＯ") && (card.atk ?? 9999) <= 1000,
+      qtyList: [1],
+      posList: ["Defense"] as TBattlePosition[],
+      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      executableCells: ["Graveyard"] as DuelFieldCellType[],
+    },
+    {
+      name: "ジェネクス・サーチャー",
+      filter: (card: DuelEntity) => (card.status.nameTags ?? []).includes("ジェネクス") && (card.atk ?? 9999) <= 1500,
+      qtyList: [1],
+      posList: ["Attack"] as TBattlePosition[],
+      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      executableCells: ["Graveyard"] as DuelFieldCellType[],
+    },
+    {
+      name: "紫炎の足軽",
+      filter: (card: DuelEntity) => (card.status.nameTags ?? []).includes("六武衆") && (card.lvl ?? 12) <= 3,
+      qtyList: [1],
+      posList: ["Attack", "Defense"] as TBattlePosition[],
+      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      executableCells: ["Graveyard"] as DuelFieldCellType[],
+    },
+    {
+      name: "スレイブ・エイプ",
+      filter: (card: DuelEntity) => (card.status.nameTags ?? []).includes("剣闘獣") && (card.lvl ?? 12) <= 4,
+      qtyList: [1],
+      posList: ["Attack", "Defense"] as TBattlePosition[],
+      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      executableCells: ["Graveyard"] as DuelFieldCellType[],
+    },
+    {
+      name: "ゼンマイハニー",
+      filter: (card: DuelEntity) => (card.status.nameTags ?? []).includes("ゼンマイ") && (card.lvl ?? 12) <= 4,
+      qtyList: [1],
+      posList: ["Attack", "Defense"] as TBattlePosition[],
+      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      executableCells: ["Graveyard"] as DuelFieldCellType[],
+    },
+    {
+      name: "ＸＸ－セイバー エマーズブレイド",
+      filter: (card: DuelEntity) => (card.status.nameTags ?? []).includes("Ｘ－セイバー") && (card.lvl ?? 12) <= 4,
+      qtyList: [1],
+      posList: ["Attack", "Defense"] as TBattlePosition[],
+      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      executableCells: ["Graveyard"] as DuelFieldCellType[],
+    },
+    {
+      name: "軍隊竜",
+      filter: (card: DuelEntity) => card.nm === "軍隊竜",
+      qtyList: [1],
+      posList: ["Attack", "Defense"] as TBattlePosition[],
+      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      executableCells: ["Graveyard"] as DuelFieldCellType[],
+    },
+    {
+      name: "アサルト・ガンドッグ",
+      filter: (card: DuelEntity) => card.nm === "アサルト・ガンドッグ",
+      qtyList: [1, 2, 3, 4, 5],
+      posList: ["Attack", "Defense"] as TBattlePosition[],
+      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      executableCells: ["Graveyard"] as DuelFieldCellType[],
+    },
+    {
+      name: "ハイエナ",
+      filter: (card: DuelEntity) => card.nm === "ハイエナ",
+      qtyList: [1, 2, 3, 4, 5],
+      posList: ["Attack", "Defense"] as TBattlePosition[],
+      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      executableCells: ["Graveyard"] as DuelFieldCellType[],
+    },
+  ].forEach((item) => {
+    result.push({
+      name: item.name,
+      actions: [
+        getDefalutRecruiterAction(item.filter, item.qtyList, item.posList, item.destoryTypes, item.executableCells),
+        defaultAttackAction,
+        defaultBattlePotisionChangeAction,
+        defaultNormalSummonAction,
+      ] as CardActionBase<unknown>[],
+    });
+  });
   return result;
 };

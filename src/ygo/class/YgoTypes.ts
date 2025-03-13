@@ -157,8 +157,6 @@ export type TEntityStatus = TEntityStatusBase & {
   canDirectAttack: boolean;
   canBeSyncroMaterial: boolean;
   allowHandSyncro: boolean;
-  attackCount: number;
-  battlePotisionChangeCount: number;
   isEffective: boolean;
   isSelectableForAttack: boolean /** falseのモンスターしかいない場合、ダイレクトアタックになる。《伝説のフィッシャーマン》など。 */;
 };

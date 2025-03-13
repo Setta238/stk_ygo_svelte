@@ -9,7 +9,7 @@ import {
   type TNonBattlePosition,
 } from "@ygo/class/YgoTypes";
 import { SystemError } from "./Duel";
-import type { DuelFieldCell, TDuelEntityMovePos } from "./DuelFieldCell";
+import { playFieldCellTypes, type DuelFieldCell, type TDuelEntityMovePos } from "./DuelFieldCell";
 import type Duelist from "./Duelist";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
@@ -18,6 +18,7 @@ import type { IDuelClock } from "./DuelClock";
 import { defaultAttackAction, defaultBattlePotisionChangeAction, defaultNormalSummonAction } from "@ygo_duel/functions/DefaultCardAction";
 import { cardDefinitions, cardInfoDic } from "@ygo/class/CardInfo";
 import { CardAction, type CardActionBase, type ICardAction } from "./DuelCardAction";
+
 export type TDuelEntity = "Card" | "Token";
 export type TDuelEntityFace = "FaceUp" | "FaceDown";
 export type TDuelEntityOrientation = "Horizontal" | "Vertical";
@@ -31,12 +32,15 @@ export const duelSummonRuleCauseReason = [
   "LinkSummon",
   "SpecialSummon",
 ] as const;
-export const duelSummonPosCauseReason = ["AttackSummon", "SetSummon", "DefenseSummon"] as const;
-export type TDuelSummonRuleCauseReason = (typeof duelSummonRuleCauseReason)[number];
-export type TDuelSummonPosCauseReason = (typeof duelSummonPosCauseReason)[number];
+export const destoryCauseReasons = ["BattleDestroy", "EffectDestroy", "RuleDestroy"] as const;
+export type TDestoryCauseReason = (typeof destoryCauseReasons)[number];
+export const summonPosCauseReasons = ["AttackSummon", "SetSummon", "DefenseSummon"] as const;
+export type TSummonRuleCauseReason = (typeof duelSummonRuleCauseReason)[number];
+export type TSummonPosCauseReason = (typeof summonPosCauseReasons)[number];
 export type TDuelCauseReason =
-  | TDuelSummonRuleCauseReason
-  | TDuelSummonPosCauseReason
+  | TSummonRuleCauseReason
+  | TSummonPosCauseReason
+  | TDestoryCauseReason
   | "Draw"
   | "Destroy"
   | "Effect"
@@ -49,9 +53,6 @@ export type TDuelCauseReason =
   | "RitualMaterial"
   | "Cost"
   | "Discard"
-  | "BattleDestroy"
-  | "EffectDestroy"
-  | "RuleDestroy"
   | "Rule"
   | "SpellTrapSet"
   | "SpellTrapActivate";
@@ -122,9 +123,12 @@ export type DuelEntityInfomation = {
   isDying: boolean;
   isVanished: boolean;
   isRebornable: boolean;
+  isSettingSickness: boolean;
   materials: DuelEntity[];
   willBeBanished: boolean;
   willReturnToDeck: boolean;
+  attackCount: number;
+  battlePotisionChangeCount: number;
 };
 
 export class DuelEntity {
@@ -152,6 +156,9 @@ export class DuelEntity {
 
   private _status: TEntityStatus;
   private _info: DuelEntityInfomation;
+
+  public readonly actions: CardAction<unknown>[] = [];
+
   public get status() {
     return this._status;
   }
@@ -186,8 +193,9 @@ export class DuelEntity {
   public get psR() {
     return [this.status.pendulumScaleR];
   }
-
-  public readonly actions: CardAction<unknown>[] = [];
+  public get isMoveAtPreviousChain() {
+    return this.field.duel.clock.isPreviousChain(this.wasMovedAt);
+  }
 
   public get battlePotion() {
     return this._battlePosition;
@@ -221,7 +229,17 @@ export class DuelEntity {
     this.origin = cardInfo;
     this._status = JSON.parse(JSON.stringify(cardInfo));
     this.resetStatus();
-    this._info = { isDying: false, isVanished: false, isRebornable: true, materials: [], willBeBanished: false, willReturnToDeck: false };
+    this._info = {
+      attackCount: 0,
+      battlePotisionChangeCount: 0,
+      isDying: false,
+      isVanished: false,
+      isRebornable: true,
+      isSettingSickness: false,
+      materials: [],
+      willBeBanished: false,
+      willReturnToDeck: false,
+    };
     this.resetInfo();
     this.face = face;
     this.isUnderControl = isVisibleForController;
@@ -291,6 +309,9 @@ export class DuelEntity {
       hasToTargetCards: false,
       isOnlyNTimesPerDuel: 0,
       isOnlyNTimesPerTurn: 0,
+      getClone: function () {
+        return this;
+      },
       validate: () => cells,
       prepare: async () => {},
       execute: async () => false,
@@ -325,7 +346,7 @@ export class DuelEntity {
   public readonly summon = async (
     to: DuelFieldCell,
     pos: TBattlePosition,
-    summonType: TDuelSummonRuleCauseReason,
+    summonType: TSummonRuleCauseReason,
     moveAs: TDuelCauseReason[],
     movedBy: DuelEntity | undefined,
     movedByWhom: Duelist | undefined
@@ -340,7 +361,9 @@ export class DuelEntity {
     }
     this.setBattlePosition(pos);
     await this._moveTo(to, "Top", [summonType, moveAsDic[pos], ...moveAs], movedBy, movedByWhom);
-    this.status.battlePotisionChangeCount = 1;
+
+    // 召喚ターンには表示形式の変更ができない
+    this.info.battlePotisionChangeCount = 1;
   };
   public readonly setAsSpellTrap = async (
     to: DuelFieldCell,
@@ -375,7 +398,7 @@ export class DuelEntity {
     await this.sendToGraveyard([...moveAs, "Release"], movedBy, movedByWhom);
   };
   public readonly destroy = async (
-    by: "BattleDestroy" | "EffectDestroy" | "RuleDestroy",
+    by: TDestoryCauseReason,
     moveAs: TDuelCauseReason[],
     movedBy: DuelEntity | undefined,
     movedByWhom: Duelist | undefined
@@ -416,6 +439,9 @@ export class DuelEntity {
     if (this.info.willReturnToDeck) {
       return await this.banish(moveAs, movedBy, movedByWhom);
     }
+
+    this.initForTurn();
+
     throw new Error("not implemented");
   };
   public readonly returnToDeck = async (
@@ -452,18 +478,30 @@ export class DuelEntity {
       await this.field.duel.view.waitAnimation({ entity: this, to: to, index: pos, count: 0 });
     }
     this.fieldCell.releaseEntities([this]);
-    this.wasMovedAs.splice(0);
-    this.wasMovedAs.push(...new Set(movedAs));
-    this.wasMovedAt = this.field.duel.clock.getClone();
-    this.wasMovedBy = movedBy;
-    this.wasMovedFrom = this.fieldCell;
-    this.wasMovedByWhom = movedByWhom;
-    if (this.entityType === "Token" && this.fieldCell.cellType !== "MonsterZone") {
+
+    // 同じ種類のセルを移動したとき、情報を再セットしない
+    if (this.fieldCell.cellType !== to.cellType || (this.fieldCell.cellType === "ExtraMonsterZone" && to.cellType === "MonsterZone")) {
+      this.wasMovedAs.reset(...new Set(movedAs));
+      this.wasMovedAt = this.field.duel.clock.getClone();
+      this.wasMovedBy = movedBy;
+      this.wasMovedFrom = this.fieldCell;
+      this.wasMovedByWhom = movedByWhom;
+    }
+    if (this.entityType === "Token" && playFieldCellTypes.every((t) => t !== this.fieldCell.cellType)) {
       this.field.duel.log.info(`${this.nm}は消滅した。`, this.controller);
       return;
     }
 
+    if (to.owner) {
+      this.controller = to.owner;
+    }
     to.acceptEntities([this], pos);
+  };
+
+  public readonly initForTurn = () => {
+    this.info.isSettingSickness = false;
+    this.info.attackCount = 0;
+    this.info.battlePotisionChangeCount = 0;
   };
 
   private readonly resetInfo = () => {
@@ -471,9 +509,12 @@ export class DuelEntity {
       isDying: false,
       isVanished: false,
       isRebornable: this.origin.monsterCategories?.union(specialMonsterCategories).length === 0 || (this.origin.canReborn ?? false),
+      isSettingSickness: false,
       materials: [],
       willBeBanished: false,
       willReturnToDeck: false,
+      attackCount: 0,
+      battlePotisionChangeCount: 0,
     };
   };
 

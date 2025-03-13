@@ -4,6 +4,7 @@
   import DuelActionSelector from "@ygo_duel_view/components/DuelActionSelector.svelte";
   import { DuelModalController } from "@ygo_duel_view/class/DuelModalController";
   import type { ICardAction } from "@ygo_duel/class/DuelCardAction";
+  import DuelTextSelector from "./DuelTextSelector.svelte";
   export let modalController: DuelModalController;
 
   const onModalControllerUpdate = () => {
@@ -35,6 +36,15 @@
       resolve={(action: ICardAction<unknown> | undefined) => {
         console.info(action);
         modalController.cardActionSelectorResolve(action);
+      }}
+    />
+  {/if}
+  {#if modalController.states.DuelTextSelector === "Shown"}
+    <DuelTextSelector
+      arg={modalController.duelTextSelectorArg}
+      resolve={(action: number | undefined) => {
+        console.info(action);
+        modalController.duelTextSelectorResolve(action);
       }}
     />
   {/if}

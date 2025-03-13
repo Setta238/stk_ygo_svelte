@@ -4,8 +4,9 @@ import type { CardActionSelectorArg } from "@ygo_duel_view/components/DuelAction
 import type { DuelEntitiesSelectorArg } from "@ygo_duel_view/components/DuelEntitiesSelector.svelte";
 import type { DuelViewController } from "./DuelViewController";
 import type { ICardAction } from "@ygo_duel/class/DuelCardAction";
+import type { DuelTextSelectorArg } from "@ygo_duel_view/components/DuelTextSelector.svelte";
 
-const modalNames = ["DuelEntitiesSelector", "DuelActionSelector"] as const;
+const modalNames = ["DuelEntitiesSelector", "DuelActionSelector", "DuelTextSelector"] as const;
 export type TModalName = (typeof modalNames)[number];
 export type TModalState = "Disable" | "Shown";
 
@@ -71,6 +72,30 @@ export class DuelModalController {
       this.cardActionSelectorResolve = (value: ICardAction<unknown> | undefined) => {
         console.log(value);
         this.states.DuelActionSelector = "Disable";
+        view.onWaitEnd.remove(this.cancelAll);
+        this.onUpdateEvent.trigger();
+        resolve(value);
+      };
+    });
+  };
+  public duelTextSelectorArg: DuelTextSelectorArg = {
+    title: "カード操作を選択。",
+    choises: [],
+    cancelable: false,
+  };
+  public duelTextSelectorResolve: (seq: number | undefined) => void = () => {};
+  public duelTextSelectorValue: number | undefined;
+
+  public readonly selectText = async (view: DuelViewController, arg: DuelTextSelectorArg): Promise<number | undefined> => {
+    this.duelTextSelectorArg = arg;
+    this.states.DuelTextSelector = "Shown";
+
+    view.onWaitEnd.append(this.cancelAll);
+    this.onUpdateEvent.trigger();
+    return new Promise((resolve) => {
+      this.duelTextSelectorResolve = (value: number | undefined) => {
+        console.log(value);
+        this.states.DuelTextSelector = "Disable";
         view.onWaitEnd.remove(this.cancelAll);
         this.onUpdateEvent.trigger();
         resolve(value);

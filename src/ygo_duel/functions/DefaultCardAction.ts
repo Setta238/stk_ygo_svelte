@@ -1,6 +1,8 @@
-import type { CardActionBase } from "@ygo_duel/class/DuelCardAction";
-import { DuelEntity, type TDuelCauseReason } from "@ygo_duel/class/DuelEntity";
-import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
+import type { TBattlePosition } from "@ygo/class/YgoTypes";
+import { SystemError } from "@ygo_duel/class/Duel";
+import type { CardAction, CardActionBase } from "@ygo_duel/class/DuelCardAction";
+import { DuelEntity, type TDestoryCauseReason, type TDuelCauseReason } from "@ygo_duel/class/DuelEntity";
+import type { DuelFieldCell, DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
 import type Duelist from "@ygo_duel/class/Duelist";
 export const defaultNormalSummonValidate = (entity: DuelEntity): DuelFieldCell[] | undefined => {
   // 召喚権を使い切っていたら通常召喚不可。
@@ -95,7 +97,7 @@ export const defaultNormalSummonExecute = async (entity: DuelEntity, cell?: Duel
 };
 
 export const defaultAttackValidate = (entity: DuelEntity): DuelFieldCell[] | undefined => {
-  if (entity.status.attackCount > 0 || entity.battlePotion !== "Attack" || !entity.controller.isTurnPlayer) {
+  if (entity.info.attackCount > 0 || entity.battlePotion !== "Attack" || !entity.controller.isTurnPlayer) {
     return undefined;
   }
 
@@ -108,7 +110,7 @@ export const defaultAttackValidate = (entity: DuelEntity): DuelFieldCell[] | und
   return [entity.controller.getOpponentPlayer().getHandCell()];
 };
 export const defaultAttackExecute = async (entity: DuelEntity, cell?: DuelFieldCell): Promise<boolean> => {
-  if (entity.status.attackCount > 0 || entity.battlePotion !== "Attack") {
+  if (entity.info.attackCount > 0 || entity.battlePotion !== "Attack") {
     return false;
   }
   if (cell?.targetForAttack) {
@@ -138,19 +140,19 @@ export const defaultAttackExecute = async (entity: DuelEntity, cell?: DuelFieldC
   return true;
 };
 export const defaultBattlePotisionChangeValidate = (entity: DuelEntity): DuelFieldCell[] | undefined => {
-  if (entity.status.battlePotisionChangeCount > 0 || entity.status.attackCount > 0 || !entity.controller.isTurnPlayer) {
+  if (entity.info.battlePotisionChangeCount > 0 || entity.info.attackCount > 0 || !entity.controller.isTurnPlayer) {
     return undefined;
   }
   return [];
 };
 
 export const defaultBattlePotisionChangeExecute = async (entity: DuelEntity): Promise<boolean> => {
-  if (entity.status.battlePotisionChangeCount > 0 || !entity.controller.isTurnPlayer) {
+  if (entity.info.battlePotisionChangeCount > 0 || !entity.controller.isTurnPlayer) {
     return false;
   }
 
   entity.setBattlePosition(entity.battlePotion === "Attack" ? "Defense" : "Attack");
-  entity.status.battlePotisionChangeCount++;
+  entity.info.battlePotisionChangeCount++;
   return true;
 };
 
@@ -162,18 +164,71 @@ export const defaultSpellTrapSetValidate = (entity: DuelEntity): DuelFieldCell[]
   const availableCells = entity.controller.getAvailableSpellTrapZones();
   return availableCells.length > 0 ? availableCells : undefined;
 };
-export const defaultSpellTrapSetExecute = async (entity: DuelEntity, cell?: DuelFieldCell): Promise<boolean> => {
-  const availableCells = entity.controller.getAvailableSpellTrapZones();
-  if (availableCells.length === 0) {
-    return false;
+export const defaultSpellTrapSetPrepare = async (entity: DuelEntity, cell?: DuelFieldCell, cancelable?: boolean): Promise<DuelFieldCell | undefined> => {
+  if (cell) {
+    return cell;
   }
 
-  await entity.field.setSpellTrap(entity, cell ? [cell] : availableCells, undefined, entity.controller, true);
+  const availableCells = entity.controller.getAvailableSpellTrapZones();
+  if (availableCells.length === 0) {
+    return;
+  }
+  let targetCell = availableCells[0];
+
+  if (availableCells.length > 1) {
+    if (entity.controller.duelistType !== "NPC") {
+      const dammyActions = [DuelEntity.createDammyAction(entity, "セット", availableCells)];
+      const actionPromise = entity.field.duel.view.modalController.selectAction(entity.field.duel.view, {
+        title: "カードをセット先へドラッグ",
+        actions: dammyActions as CardAction<unknown>[],
+        cancelable: cancelable ?? false,
+      });
+      const responsePromise = entity.field.duel.view.waitSubAction(
+        entity.controller,
+        dammyActions as CardAction<unknown>[],
+        "カードをセット先へドラッグ",
+        cancelable
+      );
+
+      const action = await Promise.any([actionPromise, responsePromise.then((res) => res.action)]);
+
+      if (!action && !cancelable) {
+        throw new SystemError("想定されない返却値", action);
+      }
+      if (!action) {
+        return;
+      }
+      targetCell = action.cell || targetCell;
+    }
+  }
+  return targetCell;
+};
+export const defaultSpellTrapSetExecute = async (entity: DuelEntity, activater: Duelist, cell?: DuelFieldCell, prepared?: DuelFieldCell): Promise<boolean> => {
+  const dest = cell ?? prepared;
+
+  if (!dest) {
+    throw new SystemError("想定されない引数", cell, prepared);
+  }
+
+  await entity.setAsSpellTrap(dest, ["Rule", "SpellTrapSet"], entity, activater);
+
+  activater.duel.log.info(`${entity.status.name}をセット（${"SpellTrapSet"}）。`, activater);
+
+  entity.info.isSettingSickness = entity.status.kind === "Trap" || entity.status.spellCategory === "QuickPlay";
   return true;
 };
 export const defaultSpellTrapValidate = (entity: DuelEntity): DuelFieldCell[] | undefined => {
+  if (entity.info.isDying) {
+    return;
+  }
+  if (entity.info.isSettingSickness) {
+    return;
+  }
   if (entity.fieldCell.cellType === "FieldSpellZone" && entity.face === "FaceDown") {
     return [];
+  }
+  if (entity.field.duel.getTurnPlayer() !== entity.controller) {
+    return undefined;
   }
 
   const availableCells = entity.controller.getAvailableSpellTrapZones();
@@ -358,14 +413,69 @@ export const defaultBattlePotisionChangeAction: CardActionBase<boolean> = {
   execute: (entity) => defaultBattlePotisionChangeExecute(entity),
 };
 
-export const defaultSpellTrapSetAction: CardActionBase<boolean> = {
+export const defaultSpellTrapSetAction: CardActionBase<DuelFieldCell> = {
   title: "セット",
   playType: "SpellTrapSet",
   spellSpeed: "Normal",
   executableCells: ["Hand"],
   validate: defaultSpellTrapSetValidate,
-  prepare: async () => true,
-  execute: (entity, activater, cell) => defaultSpellTrapSetExecute(entity, cell),
+  prepare: defaultSpellTrapSetPrepare,
+  execute: defaultSpellTrapSetExecute,
+};
+
+export const getDefalutRecruiterAction = (
+  monsterFilter: (monsters: DuelEntity) => boolean,
+  qtyList: number[],
+  posList: TBattlePosition[],
+  destoryTypes: TDestoryCauseReason[],
+  executableCells: DuelFieldCellType[]
+): CardActionBase<boolean> => {
+  return {
+    title: "①リクルート",
+    playType: "TriggerEffect",
+    spellSpeed: "Normal",
+    executableCells: executableCells,
+    canExecuteOnDamageStep: true,
+    validate: (entity: DuelEntity): DuelFieldCell[] | undefined => {
+      if (entity.wasMovedAs.union(destoryTypes).length === 0) {
+        return;
+      }
+      if (!entity.isMoveAtPreviousChain) {
+        return;
+      }
+      if (entity.controller.getDeckCell().cardEntities.filter(monsterFilter).length === 0) {
+        return;
+      }
+      return [];
+    },
+    prepare: async () => true,
+    execute: async (entity: DuelEntity, activater: Duelist): Promise<boolean> => {
+      const monsters = entity.controller.getDeckCell().cardEntities.filter(monsterFilter);
+      if (monsters.length === 0) {
+        return false;
+      }
+      const selectedList = await entity.field.duel.view.waitSelectEntities(
+        activater,
+        monsters,
+        qtyList.length === 1 ? qtyList[0] : -1,
+        (list) => qtyList.includes(list.length),
+        "特殊召喚するモンスターを選択",
+        false
+      );
+
+      if (!selectedList) {
+        throw new Error("illegal state");
+      }
+
+      for (const monster of selectedList) {
+        await entity.field.summon(monster, posList, activater.getAvailableMonsterZones(), "SpecialSummon", ["Effect"], entity, activater, false);
+      }
+
+      activater.shuffleDeck();
+
+      return true;
+    },
+  };
 };
 
 export const getDefaultSyncroSummonAction = (

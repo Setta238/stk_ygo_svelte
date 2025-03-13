@@ -25,6 +25,7 @@ export type CardActionBase<T> = {
   isOnlyNTimesPerTurn?: number;
   isOnlyNTimesPerDuel?: number;
   actionGroupNamePerTurn?: string;
+  canExecuteOnDamageStep?: boolean;
   /**
    * 発動可能かどうかの検証
    * @param entity
@@ -58,8 +59,9 @@ export interface ICardAction<T> {
   hasToTargetCards: boolean;
   isOnlyNTimesPerTurn: number;
   isOnlyNTimesPerDuel: number;
-
   executableCells: DuelFieldCellType[];
+
+  getClone: () => ICardAction<T>;
   /**
    *
    * @returns 発動時にドラッグ・アンド・ドロップ可能である場合、選択肢のcellが返る。
@@ -119,12 +121,19 @@ export class CardAction<T> implements ICardAction<T> {
   public get actionGroupNamePerTurn() {
     return this.cardActionBase.actionGroupNamePerTurn;
   }
+  public get canExecuteOnDamageStep() {
+    return this.cardActionBase.canExecuteOnDamageStep ?? false;
+  }
 
   constructor(seq: number, entity: DuelEntity, cardActionBase: CardActionBase<T>) {
     this.seq = seq;
     this.entity = entity;
     this.cardActionBase = cardActionBase;
   }
+
+  public readonly getClone = () => {
+    return new CardAction<T>(this.seq, this.entity, this.cardActionBase);
+  };
 
   public readonly validate = () => {
     if (this.isOnlyNTimesPerDuel > 0) {

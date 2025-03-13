@@ -6,7 +6,11 @@ import type Duelist from "./Duelist";
 export const stackCellTypes = ["Deck", "ExtraDeck", "Graveyard", "Banished"] as const;
 export const monsterZoneCellTypes = ["MonsterZone", "ExtraMonsterZone"] as const;
 export const spellTrapZoneCellTypes = ["SpellAndTrapZone", "FieldSpellZone"] as const;
-export const duelFieldCellTypes = [...stackCellTypes, ...monsterZoneCellTypes, ...spellTrapZoneCellTypes, "Hand", "Disable"] as const;
+/**
+ * fieldCellTypesとしたいが、フィールドゾーンと誤解する可能性が高いので一旦playとつけておく
+ */
+export const playFieldCellTypes = [...monsterZoneCellTypes, ...spellTrapZoneCellTypes] as const;
+export const duelFieldCellTypes = [...stackCellTypes, ...playFieldCellTypes, "Hand", "Disable"] as const;
 export type DuelFieldCellType = (typeof duelFieldCellTypes)[number];
 export type TDuelEntityMovePos = "Top" | "Bottom";
 

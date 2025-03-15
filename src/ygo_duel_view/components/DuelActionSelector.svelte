@@ -43,7 +43,7 @@
   view.onDragStart.append(onDragStart);
   view.onDragEnd.append(onDragEnd);
   const validateActions = (action: ICardAction<unknown>): TCardState => {
-    const tmp = action.validate();
+    const tmp = action.validate(view.duel.chainBlockInfos);
     return tmp && tmp.length > 0 ? "Draggable" : "Clickable";
   };
 </script>

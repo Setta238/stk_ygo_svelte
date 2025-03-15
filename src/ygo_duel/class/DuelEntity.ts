@@ -313,8 +313,9 @@ export class DuelEntity {
         return this;
       },
       validate: () => cells,
-      prepare: async () => {},
+      prepare: async () => undefined,
       execute: async () => false,
+      settle: async () => false,
       pos: pos,
       cell: cells[0],
       dragAndDropOnly: cells.length > 1,
@@ -360,6 +361,11 @@ export class DuelEntity {
       return;
     }
     this.setBattlePosition(pos);
+
+    if (summonType === "SyncroSummon") {
+      this.field.duel.log.info(`${this.nm}をシンクロ召喚！`, this.controller);
+    }
+
     await this._moveTo(to, "Top", [summonType, moveAsDic[pos], ...moveAs], movedBy, movedByWhom);
 
     // 召喚ターンには表示形式の変更ができない

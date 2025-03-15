@@ -1,9 +1,13 @@
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
-import { SystemError } from "@ygo_duel/class/Duel";
-import type { CardAction, CardActionBase } from "@ygo_duel/class/DuelCardAction";
+import type { CardAction, CardActionBase, ChainBlockInfo, ChainBlockInfoBase, TChainBlockType } from "@ygo_duel/class/DuelCardAction";
 import { DuelEntity, type TDestoryCauseReason, type TDuelCauseReason } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCell, DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
 import type Duelist from "@ygo_duel/class/Duelist";
+export type SummonPrepared = { dest: DuelFieldCell; pos: TBattlePosition; materials: DuelEntity[] };
+export const defaultPrepare = async () => {
+  return { selectedEntities: [], chainBlockTags: [], prepared: undefined };
+};
+
 export const defaultNormalSummonValidate = (entity: DuelEntity): DuelFieldCell[] | undefined => {
   // 召喚権を使い切っていたら通常召喚不可。
   if (entity.controller.normalSummonCount >= entity.controller.maxNormalSummonCount) {
@@ -34,69 +38,132 @@ export const defaultNormalSummonValidate = (entity: DuelEntity): DuelFieldCell[]
   // }
 };
 
-export const defaultNormalSummonPrepare = async (entity: DuelEntity, cell?: DuelFieldCell, cancelable?: boolean): Promise<DuelEntity[] | undefined> => {
+export const defaultNormalSummonPrepare = async (
+  entity: DuelEntity,
+  cell: DuelFieldCell | undefined,
+  chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
+  cancelable: boolean
+): Promise<ChainBlockInfoBase<SummonPrepared> | undefined> => {
   if (!entity.status.level) {
-    return [];
-  }
-  if (entity.status.level < 5) {
-    return [];
-  }
-
-  let _cancelable = cancelable;
-  const releasableMonsters = entity.controller.getReleasableMonsters();
-  const exZoneMonsters = entity.controller.getExtraMonsterZones();
-  const qty = entity.status.level < 7 ? 1 : 2;
-
-  if (exZoneMonsters.length >= qty) {
-    releasableMonsters.filter((monster) => monster.fieldCell.cellType !== "ExtraMonsterZone");
-  }
-  const materials = await entity.field.release(
-    entity.controller,
-    entity.controller.getReleasableMonsters(),
-    qty,
-    "Cost",
-    ["AdvanceSummonRelease", "Rule"],
-    entity,
-    _cancelable
-  );
-
-  //リリースしなければキャンセル。
-  if (!materials) {
     return;
   }
-  // リリース後はキャンセル不可
-  _cancelable = false;
+  let availableCells = cell ? [cell] : entity.controller.getAvailableMonsterZones();
+  if (availableCells.length === 0) {
+    return;
+  }
+  let _cancelable = cancelable;
+  let materials: DuelEntity[] = [];
+  if (entity.status.level > 4) {
+    const releasableMonsters = entity.controller.getReleasableMonsters();
+    const exZoneMonsters = entity.controller.getExtraMonsterZones();
+    const qty = entity.status.level < 7 ? 1 : 2;
 
-  return materials;
+    if (exZoneMonsters.length >= qty) {
+      releasableMonsters.filter((monster) => monster.fieldCell.cellType !== "ExtraMonsterZone");
+    }
+    const _materials = await entity.field.release(
+      entity.controller,
+      entity.controller.getReleasableMonsters(),
+      qty,
+      "Cost",
+      ["AdvanceSummonRelease", "Rule"],
+      entity,
+      _cancelable
+    );
+
+    //リリースしなければキャンセル。
+    if (!_materials) {
+      return;
+    }
+
+    materials = _materials;
+
+    // リリース後はキャンセル不可
+    _cancelable = false;
+    availableCells = entity.controller.getAvailableMonsterZones();
+  }
+  let pos: TBattlePosition = (entity.atk ?? 0) > 0 && (entity.atk ?? 0) >= (entity.def ?? 0) ? "Attack" : "Set";
+  let dest: DuelFieldCell = availableCells.randomPick(1)[0];
+
+  if (entity.controller.duelistType !== "NPC") {
+    const res = await entity.field.duel.view.waitSelectSummonDest(entity, availableCells, ["Attack", "Set"], _cancelable);
+    if (!res) {
+      return;
+    }
+
+    dest = res.dest;
+    pos = res.pos;
+  }
+  return { selectedEntities: [], chainBlockTags: [], prepared: { dest, pos, materials } };
 };
 
-export const defaultNormalSummonExecute = async (entity: DuelEntity, cell?: DuelFieldCell, prepared?: DuelEntity[]): Promise<boolean> => {
-  if (!entity.status.level) {
-    return false;
-  }
-  const causedBy: TDuelCauseReason[] = ["Rule", "NormalSummon"];
+export const defaultNormalSummonExecute = async (entity: DuelEntity, activater: Duelist, myInfo: ChainBlockInfo<SummonPrepared>): Promise<boolean> => {
+  const movedAs: TDuelCauseReason[] = ["Rule", "NormalSummon"];
 
-  if (prepared && prepared.length > 0) {
-    entity.info.materials.reset(...prepared);
-    causedBy.push("AdvanceSummon");
+  if (myInfo.prepared.materials.length > 0) {
+    entity.info.materials.reset(...myInfo.prepared.materials);
+    movedAs.push("AdvanceSummon");
   }
 
-  const availableCells = entity.controller.getAvailableMonsterZones();
-  await entity.field.summon(
-    entity,
-    ["Attack", "Set"],
-    cell ? [cell] : availableCells,
-    "NormalSummon",
-    causedBy,
-    entity,
-    undefined,
-    prepared && prepared.length === 0
-  );
+  await entity.summon(myInfo.prepared.dest, myInfo.prepared.pos, "NormalSummon", movedAs, entity, activater);
+
   entity.controller.normalSummonCount++;
   return true;
 };
 
-export const defaultAttackValidate = (entity: DuelEntity): DuelFieldCell[] | undefined => {
+export const defaultRuleSpecialSummonPrepare = async (
+  entity: DuelEntity,
+  cell: DuelFieldCell | undefined,
+  posList: TBattlePosition[],
+  materials: DuelEntity[],
+  cancelable: boolean
+): Promise<ChainBlockInfoBase<SummonPrepared> | undefined> => {
+  const availableCells = cell ? [cell] : entity.controller.getAvailableMonsterZones();
+  if (availableCells.length === 0) {
+    return;
+  }
+  let pos: TBattlePosition = posList.randomPick(1)[0];
+  let dest: DuelFieldCell = availableCells.randomPick(1)[0];
+
+  if (posList.length) {
+    if (posList.includes("Attack")) {
+      pos = (entity.atk ?? 0) > 0 && (entity.atk ?? 0) >= (entity.def ?? 0) ? "Attack" : posList.filter((p) => p !== "Attack").randomPick(1)[0];
+    }
+  }
+
+  if (entity.controller.duelistType !== "NPC") {
+    const res = await entity.field.duel.view.waitSelectSummonDest(entity, availableCells, posList, cancelable);
+    if (!res) {
+      return;
+    }
+
+    dest = res.dest;
+    pos = res.pos;
+  }
+  return { selectedEntities: [], chainBlockTags: [], prepared: { dest, pos, materials } };
+};
+
+export const defaultRuleSpecialSummonExecute = async (entity: DuelEntity, activater: Duelist, myInfo: ChainBlockInfo<SummonPrepared>): Promise<boolean> => {
+  const movedAs: TDuelCauseReason[] = ["Rule", "SpecialSummon"];
+
+  await entity.summon(myInfo.prepared.dest, myInfo.prepared.pos, "SpecialSummon", movedAs, entity, activater);
+  entity.info.materials = myInfo.prepared.materials;
+  entity.controller.specialSummonCount++;
+  return true;
+};
+
+export const defaultNormalSummonAction: CardActionBase<SummonPrepared> = {
+  title: "通常召喚",
+  playType: "NormalSummon",
+  spellSpeed: "Normal",
+  executableCells: ["Hand"],
+  validate: defaultNormalSummonValidate,
+  prepare: defaultNormalSummonPrepare,
+  execute: defaultNormalSummonExecute,
+  settle: async () => true,
+};
+
+export const defaultDeclareAttackValidate = (entity: DuelEntity): DuelFieldCell[] | undefined => {
   if (entity.info.attackCount > 0 || entity.battlePotion !== "Attack" || !entity.controller.isTurnPlayer) {
     return undefined;
   }
@@ -109,36 +176,52 @@ export const defaultAttackValidate = (entity: DuelEntity): DuelFieldCell[] | und
 
   return [entity.controller.getOpponentPlayer().getHandCell()];
 };
-export const defaultAttackExecute = async (entity: DuelEntity, cell?: DuelFieldCell): Promise<boolean> => {
+export const defaultDeclareAttackPrepare = async (
+  entity: DuelEntity,
+  cell: DuelFieldCell | undefined
+): Promise<ChainBlockInfoBase<{ target: DuelEntity }> | undefined> => {
   if (entity.info.attackCount > 0 || entity.battlePotion !== "Attack") {
-    return false;
+    return;
   }
   if (cell?.targetForAttack) {
-    entity.field.duel.declareAnAttack(entity, cell?.targetForAttack);
-    return true;
+    return { selectedEntities: [], chainBlockTags: [], prepared: { target: cell.targetForAttack } };
   }
 
-  const targets = entity.controller.getAttackTargetMonsters();
+  const choices = entity.controller.getAttackTargetMonsters();
   const opponent = entity.controller.getOpponentPlayer().entity;
-  if (targets.length === 0) {
-    entity.field.duel.declareAnAttack(entity, opponent);
-    return true;
-  }
-  if (targets.length === 1) {
-    entity.field.duel.declareAnAttack(entity, targets[0]);
-    return true;
-  }
 
-  const target = await entity.field.duel.view.waitSelectEntities(entity.controller, targets, 1, (list) => list.length === 1, "攻撃対象を選択。", true);
-
-  if (!target) {
-    return false;
+  if (choices.length === 0) {
+    return { selectedEntities: [], chainBlockTags: [], prepared: { target: opponent } };
+  }
+  if (choices.length === 1) {
+    return { selectedEntities: [], chainBlockTags: [], prepared: { target: choices[0] } };
   }
 
-  entity.field.duel.declareAnAttack(entity, target[0]);
+  const targets = await entity.field.duel.view.waitSelectEntities(entity.controller, choices, 1, (list) => list.length === 1, "攻撃対象を選択。", true);
+
+  if (!targets) {
+    return;
+  }
+
+  return { selectedEntities: [], chainBlockTags: [], prepared: { target: targets[0] } };
+};
+export const defaultDeclareAttackExecute = async (entity: DuelEntity, activater: Duelist, myInfo: ChainBlockInfo<{ target: DuelEntity }>): Promise<boolean> => {
+  entity.field.duel.declareAnAttack(entity, myInfo.prepared.target);
 
   return true;
 };
+
+export const defaultAttackAction: CardActionBase<{ target: DuelEntity }> = {
+  title: "攻撃宣言",
+  playType: "Battle",
+  spellSpeed: "Normal",
+  executableCells: ["MonsterZone", "ExtraMonsterZone"],
+  validate: defaultDeclareAttackValidate,
+  prepare: defaultDeclareAttackPrepare,
+  execute: defaultDeclareAttackExecute,
+  settle: async () => true,
+};
+
 export const defaultBattlePotisionChangeValidate = (entity: DuelEntity): DuelFieldCell[] | undefined => {
   if (entity.info.battlePotisionChangeCount > 0 || entity.info.attackCount > 0 || !entity.controller.isTurnPlayer) {
     return undefined;
@@ -156,6 +239,22 @@ export const defaultBattlePotisionChangeExecute = async (entity: DuelEntity): Pr
   return true;
 };
 
+export const defaultBattlePotisionChangeAction: CardActionBase<undefined> = {
+  title: "表示形式変更",
+  playType: "ChangeBattlePosition",
+  spellSpeed: "Normal",
+  executableCells: ["MonsterZone", "ExtraMonsterZone"],
+  validate: defaultBattlePotisionChangeValidate,
+  prepare: defaultPrepare,
+  execute: defaultBattlePotisionChangeExecute,
+  settle: async () => true,
+};
+
+/**
+ * 発動とまとめた方が操作しやすいが、チェーン可不可が異なるので別のままにする。
+ * @param entity
+ * @returns
+ */
 export const defaultSpellTrapSetValidate = (entity: DuelEntity): DuelFieldCell[] | undefined => {
   if (entity.status.spellCategory === "Field") {
     const fieldZone = entity.controller.getFieldZone();
@@ -164,15 +263,20 @@ export const defaultSpellTrapSetValidate = (entity: DuelEntity): DuelFieldCell[]
   const availableCells = entity.controller.getAvailableSpellTrapZones();
   return availableCells.length > 0 ? availableCells : undefined;
 };
-export const defaultSpellTrapSetPrepare = async (entity: DuelEntity, cell?: DuelFieldCell, cancelable?: boolean): Promise<DuelFieldCell | undefined> => {
+export const defaultSpellTrapSetPrepare = async (
+  entity: DuelEntity,
+  cell: DuelFieldCell | undefined
+): Promise<ChainBlockInfoBase<{ dest: DuelFieldCell }> | undefined> => {
   if (cell) {
-    return cell;
+    return { selectedEntities: [], chainBlockTags: [], prepared: { dest: cell } };
   }
 
   const availableCells = entity.controller.getAvailableSpellTrapZones();
+
   if (availableCells.length === 0) {
     return;
   }
+
   let targetCell = availableCells[0];
 
   if (availableCells.length > 1) {
@@ -181,42 +285,46 @@ export const defaultSpellTrapSetPrepare = async (entity: DuelEntity, cell?: Duel
       const actionPromise = entity.field.duel.view.modalController.selectAction(entity.field.duel.view, {
         title: "カードをセット先へドラッグ",
         actions: dammyActions as CardAction<unknown>[],
-        cancelable: cancelable ?? false,
+        cancelable: true,
       });
       const responsePromise = entity.field.duel.view.waitSubAction(
         entity.controller,
         dammyActions as CardAction<unknown>[],
         "カードをセット先へドラッグ",
-        cancelable
+        true
       );
 
       const action = await Promise.any([actionPromise, responsePromise.then((res) => res.action)]);
 
-      if (!action && !cancelable) {
-        throw new SystemError("想定されない返却値", action);
-      }
       if (!action) {
         return;
       }
       targetCell = action.cell || targetCell;
     }
   }
-  return targetCell;
+  return { selectedEntities: [], chainBlockTags: [], prepared: { dest: targetCell } };
 };
-export const defaultSpellTrapSetExecute = async (entity: DuelEntity, activater: Duelist, cell?: DuelFieldCell, prepared?: DuelFieldCell): Promise<boolean> => {
-  const dest = cell ?? prepared;
 
-  if (!dest) {
-    throw new SystemError("想定されない引数", cell, prepared);
-  }
-
-  await entity.setAsSpellTrap(dest, ["Rule", "SpellTrapSet"], entity, activater);
+export const defaultSpellTrapSetExecute = async (entity: DuelEntity, activater: Duelist, myInfo: ChainBlockInfo<{ dest: DuelFieldCell }>): Promise<boolean> => {
+  await entity.setAsSpellTrap(myInfo.prepared.dest, ["Rule", "SpellTrapSet"], entity, activater);
 
   activater.duel.log.info(`${entity.status.name}をセット（${"SpellTrapSet"}）。`, activater);
 
   entity.info.isSettingSickness = entity.status.kind === "Trap" || entity.status.spellCategory === "QuickPlay";
   return true;
 };
+
+export const defaultSpellTrapSetAction: CardActionBase<{ dest: DuelFieldCell }> = {
+  title: "セット",
+  playType: "SpellTrapSet",
+  spellSpeed: "Normal",
+  executableCells: ["Hand"],
+  validate: defaultSpellTrapSetValidate,
+  prepare: defaultSpellTrapSetPrepare,
+  execute: defaultSpellTrapSetExecute,
+  settle: async () => true,
+};
+
 export const defaultSpellTrapValidate = (entity: DuelEntity): DuelFieldCell[] | undefined => {
   if (entity.info.isDying) {
     return;
@@ -234,19 +342,27 @@ export const defaultSpellTrapValidate = (entity: DuelEntity): DuelFieldCell[] | 
   const availableCells = entity.controller.getAvailableSpellTrapZones();
   return availableCells.length > 0 ? availableCells : undefined;
 };
-export const defaultSpellTrapPrepare = async (entity: DuelEntity, cell?: DuelFieldCell): Promise<boolean> => {
+export const defaultSpellTrapPrepare = async <T>(
+  entity: DuelEntity,
+  cell: DuelFieldCell | undefined,
+  chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
+  cancelable: boolean,
+  chainBlockTags: TChainBlockType[],
+  selectedEntities: DuelEntity[],
+  prepared: T
+): Promise<ChainBlockInfoBase<T> | undefined> => {
   entity.info.isDying = true;
   if (entity.fieldCell.cellType === "FieldSpellZone" && entity.face === "FaceDown") {
     entity.setNonFieldPosition("FaceUp", true);
-    return true;
+    return { chainBlockTags, selectedEntities, prepared };
   }
   if (entity.fieldCell.cellType === "Hand") {
     const causedBy: TDuelCauseReason[] = ["SpellTrapActivate"];
     const availableCells = cell ? [cell] : entity.controller.getAvailableSpellTrapZones();
     await entity.field.activateSpellTrapFromHand(entity, availableCells, causedBy, entity, entity.controller, true);
-    return true;
+    return { chainBlockTags, selectedEntities, prepared };
   }
-  return false;
+  return;
 };
 
 export const defaultSyncroMaterialsValidator = (
@@ -330,97 +446,62 @@ export const defaultSyncroSummonPrepare = async (
   cancelable?: boolean,
   tunersValidator: (tuners: DuelEntity[]) => boolean = (tuners) => tuners.length === 1,
   nonTunersValidator: (nonTuners: DuelEntity[]) => boolean = (nonTuners) => nonTuners.length > 0
-): Promise<DuelEntity[] | undefined> => {
+): Promise<ChainBlockInfoBase<SummonPrepared> | undefined> => {
   const patterns = getEnableSyncroSummonPattern(entity, tunersValidator, nonTunersValidator);
+
+  let materials: DuelEntity[];
 
   if (patterns.length === 1) {
     for (const material of patterns[0]) {
       await material.sendToGraveyard(["SyncroMaterial", "Rule", "SpecialSummonMaterial"], entity, entity.controller);
     }
-    return patterns[0];
+    materials = patterns[0];
+    entity.field.duel.log.info(`シンクロ素材として、${materials.map((m) => "《" + m.nm + "》").join("、")}を墓地に送り――`, entity.controller);
+  } else {
+    const choices = patterns.flatMap((p) => p).getDistinct();
+    const _materials = await entity.field.sendToGraveyard(
+      "シンクロ素材とするモンスターを選択",
+      entity.controller,
+      choices,
+      -1,
+      (selected) => defaultSyncroMaterialsValidator(entity, selected, tunersValidator, nonTunersValidator),
+      ["SyncroMaterial", "Rule", "SpecialSummonMaterial"],
+      entity,
+      cancelable
+    );
+    //墓地へ送らなければキャンセル。
+    if (!_materials) {
+      return;
+    }
+    materials = _materials;
+    entity.field.duel.log.info(`シンクロ素材として、${materials.map((m) => "《" + m.nm + "》").join("")}を墓地に送り――`);
   }
-
-  const choices = patterns.flatMap((p) => p).getDistinct();
-
-  const materials = await entity.field.sendToGraveyard(
-    "シンクロ素材とするモンスターを選択",
-    entity.controller,
-    choices,
-    -1,
-    (selected) => defaultSyncroMaterialsValidator(entity, selected, tunersValidator, nonTunersValidator),
-    ["SyncroMaterial", "Rule", "SpecialSummonMaterial"],
-    entity,
-    cancelable
-  );
 
   console.log(materials);
 
-  //墓地へ送らなければキャンセル。
-  if (!materials) {
-    return;
-  }
+  const availableCells = [...entity.controller.getAvailableMonsterZones(), ...entity.controller.getAvailableExtraZones()];
+  let pos: TBattlePosition = (entity.atk ?? 0) > 0 && (entity.atk ?? 0) >= (entity.def ?? 0) ? "Attack" : "Defense";
+  let dest: DuelFieldCell = availableCells.randomPick(1)[0];
 
-  return materials;
+  if (entity.controller.duelistType !== "NPC") {
+    const res = await entity.field.duel.view.waitSelectSummonDest(entity, availableCells, ["Attack", "Defense"], false);
+    if (!res) {
+      return;
+    }
+
+    dest = res.dest;
+    pos = res.pos;
+  }
+  return { selectedEntities: [], chainBlockTags: [], prepared: { dest, pos, materials } };
 };
-export const defaultSyncroSummonExecute = async (entity: DuelEntity, activater: Duelist, cell?: DuelFieldCell, prepared?: DuelEntity[]): Promise<boolean> => {
-  if (prepared && prepared.length > 0) {
-    entity.info.materials.reset(...prepared);
-  }
+export const defaultSyncroSummonExecute = async (entity: DuelEntity, activater: Duelist, myInfo: ChainBlockInfo<SummonPrepared>): Promise<boolean> => {
+  const movedAs: TDuelCauseReason[] = ["Rule", "SpecialSummon", "SyncroSummon"];
 
-  const availableCells = [...activater.getAvailableMonsterZones(), ...activater.getAvailableExtraZones()];
-  await entity.field.summon(
-    entity,
-    ["Attack", "Defense"],
-    cell ? [cell] : availableCells,
-    "SyncroSummon",
-    ["Rule", "SpecialSummon"],
-    entity,
-    undefined,
-    prepared && prepared.length === 0
-  );
+  await entity.summon(myInfo.prepared.dest, myInfo.prepared.pos, "SyncroSummon", movedAs, undefined, activater);
 
   activater.specialSummonCount++;
   entity.info.isRebornable = true;
   return true;
-};
-
-export const defaultNormalSummonAction: CardActionBase<DuelEntity[]> = {
-  title: "通常召喚",
-  playType: "NormalSummon",
-  spellSpeed: "Normal",
-  executableCells: ["Hand"],
-  validate: defaultNormalSummonValidate,
-  prepare: (entity, cell, cancelable) => defaultNormalSummonPrepare(entity, cell, cancelable),
-  execute: (entity, activater, cell, prepared) => defaultNormalSummonExecute(entity, cell, prepared),
-};
-export const defaultAttackAction: CardActionBase<boolean> = {
-  title: "攻撃宣言",
-  playType: "Battle",
-  spellSpeed: "Normal",
-  executableCells: ["MonsterZone", "ExtraMonsterZone"],
-  validate: defaultAttackValidate,
-  prepare: async () => true,
-  execute: (entity, activater, cell) => defaultAttackExecute(entity, cell),
-};
-
-export const defaultBattlePotisionChangeAction: CardActionBase<boolean> = {
-  title: "表示形式変更",
-  playType: "ChangeBattlePosition",
-  spellSpeed: "Normal",
-  executableCells: ["MonsterZone", "ExtraMonsterZone"],
-  validate: defaultBattlePotisionChangeValidate,
-  prepare: async () => true,
-  execute: (entity) => defaultBattlePotisionChangeExecute(entity),
-};
-
-export const defaultSpellTrapSetAction: CardActionBase<DuelFieldCell> = {
-  title: "セット",
-  playType: "SpellTrapSet",
-  spellSpeed: "Normal",
-  executableCells: ["Hand"],
-  validate: defaultSpellTrapSetValidate,
-  prepare: defaultSpellTrapSetPrepare,
-  execute: defaultSpellTrapSetExecute,
 };
 
 export const getDefalutRecruiterAction = (
@@ -429,7 +510,7 @@ export const getDefalutRecruiterAction = (
   posList: TBattlePosition[],
   destoryTypes: TDestoryCauseReason[],
   executableCells: DuelFieldCellType[]
-): CardActionBase<boolean> => {
+): CardActionBase<undefined> => {
   return {
     title: "①リクルート",
     playType: "TriggerEffect",
@@ -448,7 +529,7 @@ export const getDefalutRecruiterAction = (
       }
       return [];
     },
-    prepare: async () => true,
+    prepare: defaultPrepare,
     execute: async (entity: DuelEntity, activater: Duelist): Promise<boolean> => {
       const monsters = entity.controller.getDeckCell().cardEntities.filter(monsterFilter);
       if (monsters.length === 0) {
@@ -475,27 +556,28 @@ export const getDefalutRecruiterAction = (
 
       return true;
     },
+    settle: async () => true,
   };
 };
 
 export const getDefaultSyncroSummonAction = (
   tunersValidator: (tuners: DuelEntity[]) => boolean = (tuners) => tuners.length === 1,
   nonTunersValidator: (nonTuners: DuelEntity[]) => boolean = (nonTuners) => nonTuners.length > 0
-): CardActionBase<DuelEntity[]> => {
+): CardActionBase<SummonPrepared> => {
   return {
     title: "シンクロ召喚",
     playType: "SpecialSummon",
     spellSpeed: "Normal",
     executableCells: ["ExtraDeck"],
     validate: (entity: DuelEntity) => defaultSyncroSummonValidate(entity, tunersValidator, nonTunersValidator),
-    prepare: (entity: DuelEntity, cell?: DuelFieldCell, cancelable?: boolean) =>
+    prepare: (entity: DuelEntity, cell: DuelFieldCell | undefined, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, cancelable: boolean) =>
       defaultSyncroSummonPrepare(entity, cell, cancelable, tunersValidator, nonTunersValidator),
-    execute: (entity: DuelEntity, activater: Duelist, cell?: DuelFieldCell, prepared?: DuelEntity[]): Promise<boolean> =>
-      defaultSyncroSummonExecute(entity, activater, cell, prepared),
+    execute: defaultSyncroSummonExecute,
+    settle: async () => true,
   };
 };
 
-export const getDefaultSearchSpellAction = (filter: (card: DuelEntity) => boolean): CardActionBase<boolean> => {
+export const getDefaultSearchSpellAction = (filter: (card: DuelEntity) => boolean): CardActionBase<undefined> => {
   return {
     title: "発動",
     playType: "CardActivation",
@@ -508,7 +590,8 @@ export const getDefaultSearchSpellAction = (filter: (card: DuelEntity) => boolea
       }
       return defaultSpellTrapValidate(entity);
     },
-    prepare: defaultSpellTrapPrepare,
+    prepare: (entity: DuelEntity, cell: DuelFieldCell | undefined, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, cancelable: boolean) =>
+      defaultSpellTrapPrepare(entity, cell, chainBlockInfos, cancelable, ["AddToHandFromDeck"], [], undefined),
     execute: async (entity: DuelEntity, activater: Duelist) => {
       const monsters = activater.getDeckCell().cardEntities.filter(filter);
       if (monsters.length === 0) {
@@ -521,10 +604,11 @@ export const getDefaultSearchSpellAction = (filter: (card: DuelEntity) => boolea
       activater.shuffleDeck();
       return true;
     },
+    settle: async () => true,
   };
 };
 
-export const getDefaultSalvageSpellAction = (filter: (card: DuelEntity) => boolean, qty: number): CardActionBase<boolean> => {
+export const getDefaultSalvageSpellAction = (filter: (card: DuelEntity) => boolean, qty: number): CardActionBase<undefined> => {
   return {
     title: "発動",
     playType: "CardActivation",
@@ -538,7 +622,8 @@ export const getDefaultSalvageSpellAction = (filter: (card: DuelEntity) => boole
       }
       return defaultSpellTrapValidate(entity);
     },
-    prepare: defaultSpellTrapPrepare,
+    prepare: (entity: DuelEntity, cell: DuelFieldCell | undefined, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, cancelable: boolean) =>
+      defaultSpellTrapPrepare(entity, cell, chainBlockInfos, cancelable, ["AddToHandFromGraveyard"], [], undefined),
     execute: async (entity: DuelEntity, activater: Duelist) => {
       const monsters = activater.getGraveyard().cardEntities.filter(filter);
       if (monsters.length === 0) {
@@ -557,9 +642,10 @@ export const getDefaultSalvageSpellAction = (filter: (card: DuelEntity) => boole
       }
       return true;
     },
+    settle: async () => true,
   };
 };
-export const getLikeTradeInAction = (filter: (card: DuelEntity) => boolean): CardActionBase<boolean> => {
+export const getLikeTradeInAction = (filter: (card: DuelEntity) => boolean): CardActionBase<undefined> => {
   return {
     title: "発動",
     playType: "CardActivation",
@@ -575,25 +661,28 @@ export const getLikeTradeInAction = (filter: (card: DuelEntity) => boolean): Car
       }
       return defaultSpellTrapValidate(entity);
     },
-    prepare: async (entity: DuelEntity, cell?: DuelFieldCell) => {
+    prepare: async (entity: DuelEntity, cell: DuelFieldCell | undefined, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, cancelable: boolean) => {
       await entity.controller.discard(1, ["Discard", "Cost"], entity, entity.controller, filter);
-      return await defaultSpellTrapPrepare(entity, cell);
+
+      return defaultSpellTrapPrepare(entity, cell, chainBlockInfos, cancelable, ["AddToHandFromDeck"], [], undefined);
     },
     execute: async (entity: DuelEntity, activater: Duelist) => {
       await activater.draw(2, entity, activater);
       return true;
     },
+    settle: async () => true,
   };
 };
 
-export const getDefaultHealBurnSpellAction = (calcDamage: (entity: DuelEntity) => [number, number]): CardActionBase<boolean> => {
+export const getDefaultHealBurnSpellAction = (calcDamage: (entity: DuelEntity) => [number, number]): CardActionBase<undefined> => {
   return {
     title: "発動",
     playType: "CardActivation",
     spellSpeed: "Normal",
     executableCells: ["Hand", "SpellAndTrapZone"],
     validate: defaultSpellTrapValidate,
-    prepare: defaultSpellTrapPrepare,
+    prepare: (entity: DuelEntity, cell: DuelFieldCell | undefined, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, cancelable: boolean) =>
+      defaultSpellTrapPrepare(entity, cell, chainBlockInfos, cancelable, ["AddToHandFromGraveyard"], [], undefined),
     execute: async (entity: DuelEntity, activater: Duelist) => {
       const [toSelf, toOpponent] = calcDamage(entity);
       if (toOpponent > 0) {
@@ -608,5 +697,6 @@ export const getDefaultHealBurnSpellAction = (calcDamage: (entity: DuelEntity) =
       }
       return true;
     },
+    settle: async () => true,
   };
 };

@@ -1,12 +1,13 @@
 import StkEvent from "@stk_utils/class/StkEvent";
 import { Duel, DuelEnd, SystemError, type DuelistResponse } from "@ygo_duel/class/Duel";
-import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
+import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCell, TDuelEntityMovePos } from "@ygo_duel/class/DuelFieldCell";
 import type Duelist from "@ygo_duel/class/Duelist";
 import { DuelModalController } from "./DuelModalController";
 import type { CardActionSelectorArg } from "@ygo_duel_view/components/DuelActionSelector.svelte";
 import type { DuelEntitiesSelectorArg } from "@ygo_duel_view/components/DuelEntitiesSelector.svelte";
 import type { ICardAction } from "@ygo_duel/class/DuelCardAction";
+import type { TBattlePosition } from "@ygo/class/YgoTypes";
 export type TDuelWaitMode = "None" | "SelectFieldAction" | "SelectAction" | "SelectFieldEntities" | "SelectEntities";
 export type WaitStartEventArg = {
   resolve: (action: DuelistResponse) => void;
@@ -263,6 +264,38 @@ export class DuelViewController {
       throw new SystemError("キャンセル不可のアクションがキャンセルされた。", userAction, enableActions, waitMode, selectableEntities);
     }
     return userAction;
+  };
+
+  public readonly waitSelectSummonDest = async (
+    entity: DuelEntity,
+    availableCells: DuelFieldCell[],
+    posList: TBattlePosition[],
+    cancelable: boolean
+  ): Promise<{ dest: DuelFieldCell; pos: TBattlePosition } | undefined> => {
+    const msg = availableCells.length > 1 ? "カードを召喚先へドラッグ。" : "表示形式を選択。";
+    const dammyActions = (posList as TBattlePosition[]).map((pos) => DuelEntity.createDammyAction(entity, pos, availableCells, pos));
+    const p1 = this.modalController.selectAction(entity.field.duel.view, {
+      title: msg,
+      actions: dammyActions as ICardAction<unknown>[],
+      cancelable: false,
+    });
+    const p2 = this.waitSubAction(entity.controller, dammyActions as ICardAction<unknown>[], msg, cancelable).then((res) => res.action);
+
+    const action = await Promise.any([p1, p2]);
+
+    if (!action && !cancelable) {
+      throw new SystemError("キャンセル不可のアクションがキャンセルされた。", action);
+    }
+    if (!action) {
+      return;
+    }
+    if (!action.cell) {
+      throw new SystemError("召喚先のセルが指定されなかった。", action);
+    }
+    if (!action.pos) {
+      throw new SystemError("表示形式が指定されなかった。", action);
+    }
+    return { dest: action.cell, pos: action.pos };
   };
 
   public readonly waitSelectText = async (choises: { seq: number; text: string }[], msg: string, cancelable: boolean = false): Promise<number | undefined> => {

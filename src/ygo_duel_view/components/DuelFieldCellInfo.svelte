@@ -2,7 +2,6 @@
   import type { DuelViewController } from "@ygo_duel_view/class/DuelViewController";
   import DuelCard from "./DuelCard.svelte";
   import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
-  import Duelist from "@ygo_duel/class/Duelist";
   import { CardEntitySorter, type TDuelEntityFace } from "@ygo_duel/class/DuelEntity";
   export let cell: DuelFieldCell;
 

@@ -1,16 +1,13 @@
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
-import type Duelist from "@ygo_duel/class/Duelist";
-import { defaultSpellTrapPrepare, defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/functions/DefaultCardAction";
+import { type Duelist } from "@ygo_duel/class/Duelist";
+import { defaultSpellTrapPrepare, defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/functions/DefaultCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
-import type { CardActionBase, ChainBlockInfo, TChainBlockType } from "@ygo_duel/class/DuelCardAction";
+import type { CardActionBase, ChainBlockInfo, TEffectTag } from "@ygo_duel/class/DuelCardAction";
 import { IllegalCancelError } from "@ygo_duel/class/Duel";
 import { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 
-export type CardDefinition = {
-  name: string;
-  actions: CardActionBase<unknown>[];
-};
+import type { CardDefinition } from "./CardDefinitions";
 
 export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
   const result: CardDefinition[] = [];
@@ -39,7 +36,7 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
             throw new IllegalCancelError(entity);
           }
 
-          const tags: TChainBlockType[] = [];
+          const tags: TEffectTag[] = [];
 
           if (selected === 1) {
             tags.push("DamageToOpponent");

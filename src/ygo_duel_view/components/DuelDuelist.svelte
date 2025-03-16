@@ -1,6 +1,6 @@
 <script lang="ts">
   import { delay } from "@stk_utils/funcs/StkPromiseUtil";
-  import type Duelist from "@ygo_duel/class/Duelist";
+  import { type Duelist } from "@ygo_duel/class/Duelist";
 
   export let duelist: Duelist;
   let lifepoint = 0;

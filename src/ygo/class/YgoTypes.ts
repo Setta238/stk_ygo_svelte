@@ -120,6 +120,11 @@ export const trapCategoryDic: { [key in TTrapCategory]: string } = {
   Counter: "カウンター",
 };
 export type TBattlePosition = "Attack" | "Defense" | "Set";
+export const battlePositionDic: { [key in TBattlePosition]: string } = {
+  Attack: "攻撃表示",
+  Defense: "守備表示",
+  Set: "裏側守備表示",
+};
 export type TNonBattlePosition = "FaceUp" | "Set" | "XysMaterial";
 
 export type TCardInfoWiki = {

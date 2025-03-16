@@ -44,7 +44,7 @@
   let canAcceptDrop = false;
   const onDragStart = (actions: ICardAction<unknown>[]) => {
     draggingActions = actions;
-    canAcceptDrop = actions.some((action) => action.validate()?.includes(cell)) || false;
+    canAcceptDrop = actions.some((action) => action.validate(view.duel.chainBlockInfos)?.includes(cell)) || false;
     onCellUpdate();
   };
   const onDragEnd = () => {
@@ -178,7 +178,7 @@
     if (actions[0].entity !== entities[0]) {
       return "Clickable";
     }
-    const tmp = actions[0].validate();
+    const tmp = actions[0].validate(view.duel.chainBlockInfos);
     return tmp && tmp.length > 0 ? "Draggable" : "Clickable";
   };
 </script>

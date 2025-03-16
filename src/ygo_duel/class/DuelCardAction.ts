@@ -1,6 +1,6 @@
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
 import type { DuelFieldCell, DuelFieldCellType } from "./DuelFieldCell";
-import type Duelist from "./Duelist";
+import { type Duelist } from "./Duelist";
 import type { DuelEntity } from "./DuelEntity";
 
 export const cardActionChainBlockTypes = [
@@ -16,9 +16,13 @@ export const cardActionNonChainBlockTypes = ["NormalSummon", "SpecialSummon", "C
 export type TCardActionNonChainBlockType = (typeof cardActionNonChainBlockTypes)[number];
 export type TCardActionType = TCardActionChainBlockType | TCardActionNonChainBlockType | "Dammy" | "RuleDraw";
 export type TSpellSpeed = "Normal" | "Quick" | "Counter" | "Dammy";
-export const chainBlockTypes = [
+export const effectTags = [
+  "NormalSummon",
+  "AdvanceSummon",
+  "SpecialSummon",
   "SpecialSummonFromDeck", //うらら
   "SendToGraveyardFromDeck", //うらら
+  "Draw", //うらら
   "AddToHandFromDeck", //うらら
   "BanishFromGraveyard", //わらし
   "AddToHandFromGraveyard", //わらし
@@ -39,14 +43,16 @@ export const chainBlockTypes = [
   "DamageToOpponent", //地獄の扉越し銃
   "DamageToSelf", //地獄の扉越し銃（セルフチェーン）
   "PayLifePoint", //キャッシュバック
+  "DiscordAsCost",
+  "DiscordAsEffect",
   "RollDice", //ダイスインパクト
   "BounceToHand", //リ・バウンド
   "NegateCardEffect",
   "NegateCardActivation",
 ] as const;
-export type TChainBlockType = (typeof chainBlockTypes)[number];
+export type TEffectTag = (typeof effectTags)[number];
 export type ChainBlockInfoBase<T> = {
-  chainBlockTags: TChainBlockType[];
+  chainBlockTags: TEffectTag[];
   selectedEntities: DuelEntity[];
   prepared: T;
 };
@@ -143,6 +149,40 @@ export const convertCardActionToString = (action: ICardAction<unknown>) =>
   action.playType === "CardActivation" ? action.entity.nm : `${action.entity.nm}«${action.title}»`;
 
 export class CardAction<T> implements ICardAction<T> {
+  private static nextActionSeq = 0;
+  public static readonly createNew = <T>(entity: DuelEntity, cardActionBase: CardActionBase<T>) => {
+    return new CardAction<T>(CardAction.nextActionSeq++, entity, cardActionBase);
+  };
+  /**
+   * @param entity
+   * @param title
+   * @param cells
+   * @param pos
+   * @returns
+   */
+  public static readonly createDammyAction = (entity: DuelEntity, title: string, cells: DuelFieldCell[], pos?: TBattlePosition): ICardAction<void> => {
+    return {
+      seq: CardAction.nextActionSeq++,
+      title: title,
+      entity: entity,
+      playType: "Dammy",
+      spellSpeed: "Dammy",
+      executableCells: [entity.fieldCell.cellType],
+      hasToTargetCards: false,
+      isOnlyNTimesPerDuel: 0,
+      isOnlyNTimesPerTurn: 0,
+      getClone: function () {
+        return this;
+      },
+      validate: () => cells,
+      prepare: async () => undefined,
+      execute: async () => false,
+      settle: async () => false,
+      pos: pos,
+      cell: cells[0],
+      dragAndDropOnly: cells.length > 1,
+    };
+  };
   public readonly seq: number;
   public readonly entity: DuelEntity;
   private readonly cardActionBase: CardActionBase<T>;
@@ -180,7 +220,7 @@ export class CardAction<T> implements ICardAction<T> {
     return this.cardActionBase.canExecuteOnDamageStep ?? false;
   }
 
-  constructor(seq: number, entity: DuelEntity, cardActionBase: CardActionBase<T>) {
+  private constructor(seq: number, entity: DuelEntity, cardActionBase: CardActionBase<T>) {
     this.seq = seq;
     this.entity = entity;
     this.cardActionBase = cardActionBase;

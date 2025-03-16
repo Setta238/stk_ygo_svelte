@@ -2,12 +2,13 @@ import StkEvent from "@stk_utils/class/StkEvent";
 import { Duel, DuelEnd, SystemError, type DuelistResponse } from "@ygo_duel/class/Duel";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCell, TDuelEntityMovePos } from "@ygo_duel/class/DuelFieldCell";
-import type Duelist from "@ygo_duel/class/Duelist";
+import { type Duelist } from "@ygo_duel/class/Duelist";
 import { DuelModalController } from "./DuelModalController";
 import type { CardActionSelectorArg } from "@ygo_duel_view/components/DuelActionSelector.svelte";
 import type { DuelEntitiesSelectorArg } from "@ygo_duel_view/components/DuelEntitiesSelector.svelte";
-import type { ICardAction } from "@ygo_duel/class/DuelCardAction";
+import { CardAction, type ICardAction } from "@ygo_duel/class/DuelCardAction";
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
+import { createPromiseSweet } from "@stk_utils/funcs/StkPromiseUtil";
 export type TDuelWaitMode = "None" | "SelectFieldAction" | "SelectAction" | "SelectFieldEntities" | "SelectEntities";
 export type WaitStartEventArg = {
   resolve: (action: DuelistResponse) => void;
@@ -231,29 +232,34 @@ export class DuelViewController {
 
     this.onDuelUpdateEvent.trigger();
 
-    const userAction: DuelistResponse = await new Promise<DuelistResponse>((resolve) => {
-      const args: WaitStartEventArg = {
-        resolve,
-        enableActions,
-        qty: qty,
-        entitiesValidator: entitiesValidator || (() => false),
-        selectableEntities: selectableEntities || [],
+    // Promise一式作成
+    const promiseSweet = createPromiseSweet<DuelistResponse>();
+
+    // 待機のための引数作成。解決のためのresolveを渡す
+    const args: WaitStartEventArg = {
+      resolve: promiseSweet.resolve,
+      enableActions,
+      qty: qty,
+      entitiesValidator: entitiesValidator || (() => false),
+      selectableEntities: selectableEntities || [],
+    };
+
+    // エンティティ選択の場合引数追加
+    if (selectableEntities && entitiesValidator && this.waitMode === "SelectEntities") {
+      args.duelEntitiesSelectorArg = {
+        title: message,
+        entities: selectableEntities,
+        validator: entitiesValidator,
+        qty: qty ?? -1,
+        cancelable: false,
       };
-      console.log(selectableEntities);
-      console.log(entitiesValidator);
-      console.log(this.waitMode);
-      console.log(this.waitMode === "SelectEntities");
-      if (selectableEntities && entitiesValidator && this.waitMode === "SelectEntities")
-        args.duelEntitiesSelectorArg = {
-          title: message,
-          entities: selectableEntities,
-          validator: entitiesValidator,
-          qty: qty ?? -1,
-          cancelable: false,
-        };
-      console.log(args);
-      this.onWaitStartEvent.trigger(args);
-    });
+    }
+
+    // 待機開始を通知
+    this.onWaitStartEvent.trigger(args);
+
+    // 待機開始
+    const userAction: DuelistResponse = await promiseSweet.promise;
 
     this.waitMode = "None";
     this.onWaitEndEvent.trigger();
@@ -273,7 +279,7 @@ export class DuelViewController {
     cancelable: boolean
   ): Promise<{ dest: DuelFieldCell; pos: TBattlePosition } | undefined> => {
     const msg = availableCells.length > 1 ? "カードを召喚先へドラッグ。" : "表示形式を選択。";
-    const dammyActions = (posList as TBattlePosition[]).map((pos) => DuelEntity.createDammyAction(entity, pos, availableCells, pos));
+    const dammyActions = (posList as TBattlePosition[]).map((pos) => CardAction.createDammyAction(entity, pos, availableCells, pos));
     const p1 = this.modalController.selectAction(entity.field.duel.view, {
       title: msg,
       actions: dammyActions as ICardAction<unknown>[],

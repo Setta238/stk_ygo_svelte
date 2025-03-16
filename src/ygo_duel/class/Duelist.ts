@@ -1,10 +1,13 @@
 import { type IDuelistProfile } from "@ygo/class/DuelistProfile";
 import { type IDeckInfo } from "@ygo/class/DeckInfo";
-import { Duel, DuelEnd, type TSeat } from "./Duel";
-import { DuelEntity, type TDuelCauseReason } from "./DuelEntity";
+import { Duel, DuelEnd, SystemError, type TSeat } from "./Duel";
+import { DuelEntity, type TDuelCauseReason, type TSummonPosCauseReason, type TSummonRuleCauseReason } from "./DuelEntity";
 import type { DuelClock } from "./DuelClock";
 import type { DuelFieldCell } from "./DuelFieldCell";
 import { cardInfoDic } from "@ygo/class/CardInfo";
+import {} from "@stk_utils/funcs/StkArrayUtils";
+import type { TBattlePosition } from "@ygo/class/YgoTypes";
+import { CardAction, type ICardAction } from "./DuelCardAction";
 
 type TLifeLogReason = "BattleDamage" | "EffectDamage" | "Heal" | "Lost" | "Pay" | "Set";
 export type TDuelistType = "NPC" | "Player";
@@ -17,7 +20,25 @@ type LifeLogRecord = {
   entity: DuelEntity | undefined;
 };
 
-export default class Duelist {
+export type DuelistInfo = {
+  maxRuleNormalSummonCount: number; //サモンチェーン、時を裂く魔瞳
+  ruleNormalSummonCount: number;
+  ruleNormalSummonCountQty: number;
+  effectNormalSummonCount: number;
+  effectNormalSummonCountQty: number;
+  specialSummonCount: number;
+  specialSummonCountQty: number;
+};
+
+export type DuelistStatus = {
+  maxSpecialSummonCount: number; //ミドラーシュ
+  canDrawByEffect: boolean; //ドロバ
+  canSearchFromDeck: boolean; //ドロバ、手違い
+  canDiscardAsCost: boolean; //強欲ゴブリン
+  canDiscardAsEffect: boolean;
+};
+
+export class Duelist {
   public readonly duel: Duel;
   public readonly seat: TSeat;
   public get entity() {
@@ -30,11 +51,12 @@ export default class Duelist {
   public _entity: DuelEntity | undefined;
   public readonly profile: IDuelistProfile;
   public readonly deckInfo: IDeckInfo;
+  public info: DuelistInfo;
+  public readonly infoOrigin: DuelistInfo;
+  public status: DuelistStatus;
+  public readonly statusOrigin: DuelistStatus;
   public readonly duelistType: TDuelistType;
   public readonly lifeLog: LifeLogRecord[];
-  public normalSummonCount: number;
-  public specialSummonCount: number;
-  public readonly maxNormalSummonCount: number;
   private _lp: number;
   public constructor(duel: Duel, seat: TSeat, profile: IDuelistProfile, duelistType: TDuelistType, deckInfo: IDeckInfo) {
     this.duel = duel;
@@ -43,11 +65,58 @@ export default class Duelist {
     this.duelistType = duelistType;
     this.deckInfo = deckInfo;
     this.lifeLog = [];
-    this.normalSummonCount = 0;
-    this.specialSummonCount = 0;
-    this.maxNormalSummonCount = 1;
+    this.infoOrigin = {
+      maxRuleNormalSummonCount: 1,
+      ruleNormalSummonCount: 0,
+      ruleNormalSummonCountQty: 0,
+      effectNormalSummonCount: 0,
+      effectNormalSummonCountQty: 0,
+      specialSummonCount: 0,
+      specialSummonCountQty: 0,
+    };
+    this.info = { ...this.infoOrigin };
+    this.statusOrigin = {
+      maxSpecialSummonCount: Number.MAX_VALUE,
+      canDrawByEffect: true,
+      canSearchFromDeck: true,
+      canDiscardAsCost: true,
+      canDiscardAsEffect: true,
+    };
+    this.status = { ...this.statusOrigin };
+
     this._lp = 8000;
   }
+  public get lp() {
+    return this._lp;
+  }
+  public get isTurnPlayer() {
+    return this.duel.getTurnPlayer() === this;
+  }
+  public get canDraw() {
+    // TODO
+    return true;
+  }
+  public get canAddToHandFromDeck() {
+    // TODO
+    return true;
+  }
+  public readonly initForDrawPhase = () => {
+    this.info = { ...this.infoOrigin };
+  };
+
+  public readonly canSummon = (
+    activator: Duelist,
+    entity: DuelEntity,
+    summonTypes: TSummonRuleCauseReason[],
+    summonPosList: TSummonPosCauseReason[],
+    entities: DuelEntity[]
+  ): boolean => {
+    if (!this.entity.procFilters.filter((pf) => summonTypes.find((st) => st === pf.procType)).every((pf) => pf.filter(activator, entity, entities))) {
+      return false;
+    }
+    return summonPosList.some((pos) => this.entity.procFilters.filter((pf) => pos === pf.procType).every((pf) => pf.filter(activator, entity, entities)));
+  };
+
   public readonly battleDamage = (point: number, entity: DuelEntity): LifeLogRecord => {
     return this.setLp(this._lp - point, entity, "BattleDamage");
   };
@@ -78,12 +147,6 @@ export default class Duelist {
 
     return log;
   };
-  public get lp() {
-    return this._lp;
-  }
-  public get isTurnPlayer() {
-    return this.duel.getTurnPlayer() === this;
-  }
   public readonly getOpponentPlayer = (): Duelist => {
     return this.duel.firstPlayer === this ? this.duel.secondPlayer : this.duel.firstPlayer;
   };
@@ -215,5 +278,45 @@ export default class Duelist {
     this.duel.log.info(`手札からカードを${selectedList.length}枚捨てた。${selectedList.map((e) => e.origin?.name)}。`, this);
 
     return selectedList;
+  };
+  public readonly summon = async (
+    entity: DuelEntity,
+    selectablePosList: TBattlePosition[],
+    selectableCells: DuelFieldCell[],
+    summonType: TSummonRuleCauseReason,
+    moveAs: TDuelCauseReason[],
+    causedBy: DuelEntity,
+    cancelable: boolean = false
+  ): Promise<DuelEntity | undefined> => {
+    let pos: TBattlePosition = selectablePosList.randomPick(1)[0];
+    let cell: DuelFieldCell = selectableCells.randomPick(1)[0];
+
+    if (selectableCells.length > 1 || selectablePosList.length > 1) {
+      if (this.duelistType !== "NPC") {
+        const msg = selectableCells.length > 1 ? "カードを召喚先へドラッグ。" : "表示形式を選択。";
+        const dammyActions = selectablePosList.map((pos) => CardAction.createDammyAction(entity, pos, selectableCells, pos));
+        const p1 = this.duel.view.modalController.selectAction(this.duel.view, {
+          title: msg,
+          actions: dammyActions as ICardAction<unknown>[],
+          cancelable: false,
+        });
+        const p2 = this.duel.view.waitSubAction(this, dammyActions as ICardAction<unknown>[], msg, cancelable).then((res) => res.action);
+
+        const action = await Promise.any([p1, p2]);
+
+        if (!action && !cancelable) {
+          throw new SystemError("", action);
+        }
+        if (!action) {
+          return;
+        }
+        cell = action.cell || cell;
+        pos = action.pos || pos;
+      }
+    }
+    console.log(cell, pos, summonType, moveAs, causedBy);
+    await entity.summon(cell, pos, summonType, moveAs, causedBy, this);
+
+    return entity;
   };
 }

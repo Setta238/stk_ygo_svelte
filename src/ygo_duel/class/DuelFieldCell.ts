@@ -2,7 +2,7 @@ import StkEvent from "../../stk_utils/class/StkEvent";
 import { duelEntityCardTypes } from "./DuelEntity";
 import type { DuelEntity } from "./DuelEntity";
 import type { DuelField } from "./DuelField";
-import type Duelist from "./Duelist";
+import { type Duelist } from "./Duelist";
 export const stackCellTypes = ["Deck", "ExtraDeck", "Graveyard", "Banished"] as const;
 export const monsterZoneCellTypes = ["MonsterZone", "ExtraMonsterZone"] as const;
 export const spellTrapZoneCellTypes = ["SpellAndTrapZone", "FieldSpellZone"] as const;

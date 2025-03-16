@@ -1,5 +1,5 @@
 import { type IDeckInfo } from "@ygo/class/DeckInfo";
-import Duelist, { type TDuelistType } from "@ygo_duel/class/Duelist";
+import { Duelist, type TDuelistType } from "@ygo_duel/class/Duelist";
 import { type IDuelistProfile } from "@ygo/class/DuelistProfile";
 import { DuelField } from "./DuelField";
 import DuelLog from "@ygo_duel/class/DuelLog";
@@ -195,10 +195,7 @@ export class Duel {
   };
 
   private readonly procDrawPhase = async () => {
-    Object.values(this.duelists).forEach((duelist) => {
-      duelist.normalSummonCount = 0;
-      duelist.specialSummonCount = 0;
-    });
+    Object.values(this.duelists).forEach((duelist) => duelist.initForDrawPhase());
     this.log.info("ドローフェイズ開始。", this.getTurnPlayer());
     if (this.clock.turn === 1) {
       this.log.info("先攻プレイヤーはドローできない。", this.getTurnPlayer());

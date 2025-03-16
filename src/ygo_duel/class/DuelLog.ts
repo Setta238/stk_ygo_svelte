@@ -1,7 +1,7 @@
 import StkEvent from "@stk_utils/class/StkEvent";
 import { SystemError, type TDuelPhase, type TDuelPhaseStep } from "./Duel";
 import { Duel } from "./Duel";
-import type Duelist from "./Duelist";
+import { type Duelist } from "./Duelist";
 import type { DuelClock } from "./DuelClock";
 
 type DuelLogRecord = {

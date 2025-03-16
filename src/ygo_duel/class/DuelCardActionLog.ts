@@ -1,6 +1,6 @@
 import { Duel } from "./Duel";
 import type { CardAction } from "./DuelCardAction";
-import type Duelist from "./Duelist";
+import { type Duelist } from "./Duelist";
 
 type CardActionLogRecord = {
   seq: number;

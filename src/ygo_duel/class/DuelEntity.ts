@@ -4,10 +4,12 @@ import {
   exMonsterCategories,
   specialMonsterCategories,
   type TBattlePosition,
-  type TCardInfoBase,
-  type TCardInfoJson,
-  type TEntityStatus,
+  type CardInfoDescription,
+  type CardInfoJson,
+  type EntityStatus,
   type TNonBattlePosition,
+  type EntityStatusBase,
+  getSubsetAsEntityStatusBase,
 } from "@ygo/class/YgoTypes";
 import { SystemError } from "./Duel";
 import { playFieldCellTypes, type DuelFieldCell, type TDuelEntityMovePos } from "./DuelFieldCell";
@@ -70,8 +72,8 @@ export type TDuelEntityInfoDetail = {
   entityType: TDuelEntityType;
   cardPlayList: Array<CardAction<unknown>>;
 };
-export type TDuelEntityInfo = TCardInfoBase & TDuelEntityInfoDetail;
-export const CardSorter = (left: TCardInfoJson, right: TCardInfoJson): number => {
+export type TDuelEntityInfo = CardInfoDescription & TDuelEntityInfoDetail;
+export const CardSorter = (left: EntityStatusBase, right: EntityStatusBase): number => {
   // エクストラデッキのモンスターは、魔法罠よりも下
   const leftCatList = left.monsterCategories ?? [];
   const rightCatList = right.monsterCategories ?? [];
@@ -146,10 +148,11 @@ export class DuelEntity {
     const hand = duelist.getHandCell();
     return new DuelEntity(duelist, hand, "Duelist", { name: duelist.profile.name, kind: "Monster" }, "FaceUp", true, "Vertical");
   };
-  public static readonly createCardEntity = (owner: Duelist, cardInfo: TCardInfoJson): DuelEntity => {
+  public static readonly createCardEntity = (owner: Duelist, cardInfo: CardInfoJson): DuelEntity => {
     // cardはデッキまたはEXデッキに生成
     const fieldCell = cardInfo.monsterCategories && cardInfo.monsterCategories.union(exMonsterCategories).length ? owner.getExtraDeck() : owner.getDeckCell();
-    const newCard = new DuelEntity(owner, fieldCell, "Card", cardInfo, "FaceDown", false, "Vertical");
+
+    const newCard = new DuelEntity(owner, fieldCell, "Card", getSubsetAsEntityStatusBase(cardInfo), "FaceDown", false, "Vertical");
     if (!Object.hasOwn(cardInfoDic, newCard.origin.name)) {
       owner.duel.log.info(`未実装カード${cardInfo.name}がデッキに投入された。`, owner);
     }
@@ -172,7 +175,7 @@ export class DuelEntity {
   };
 
   public readonly seq: number;
-  public readonly origin: TCardInfoJson;
+  public readonly origin: EntityStatusBase;
   public readonly entityType: TDuelEntityType;
   public readonly procFilters: ProcFilter[];
   public face: TDuelEntityFace;
@@ -186,6 +189,9 @@ export class DuelEntity {
   public get field() {
     return this.owner.duel.field;
   }
+  public get duel() {
+    return this.owner.duel.field.duel;
+  }
   public fieldCell: DuelFieldCell;
   public wasMovedBy: DuelEntity | undefined;
   public wasMovedByWhom: Duelist | undefined;
@@ -193,7 +199,7 @@ export class DuelEntity {
   public wasMovedFrom: DuelFieldCell | undefined;
   public wasMovedAt: IDuelClock;
 
-  private _status: TEntityStatus;
+  private _status: EntityStatus;
   private _info: DuelEntityInfomation;
 
   public readonly actions: CardAction<unknown>[] = [];
@@ -264,7 +270,7 @@ export class DuelEntity {
     owner: Duelist,
     fieldCell: DuelFieldCell,
     entityType: TDuelEntityType,
-    cardInfo: TCardInfoJson,
+    cardInfo: EntityStatusBase,
     face: TDuelEntityFace,
     isVisibleForController: boolean,
     orientation: TDuelEntityOrientation
@@ -309,6 +315,21 @@ export class DuelEntity {
     this.getAllProcFilter()
       .filter((pf) => pf.procType === "BattleTarget")
       .every((pf) => pf.filter(activator, entity, [this]));
+
+  public readonly tryDestoryByBattle = (activator: Duelist, entity: DuelEntity) => {
+    this.info.isDying = this.getAllProcFilter()
+      .filter((pf) => pf.procType === "BattleDestory")
+      .every((pf) => pf.filter(activator, entity, [this]));
+    if (this.info.isDying) {
+      this.duel.log.info(`${this.toString()}を戦闘破壊`, this.controller.getOpponentPlayer());
+    }
+  };
+
+  public readonly canBeSyncroMaterials = (syncroMonster: DuelEntity, materials: DuelEntity[]) => {
+    return (this.info.isDying = this.getAllProcFilter()
+      .filter((pf) => pf.procType === "BattleDestory")
+      .every((pf) => pf.filter(syncroMonster.controller, syncroMonster, materials)));
+  };
 
   public readonly getIndexInCell = (): number => {
     const index = this.fieldCell.cardEntities.indexOf(this);

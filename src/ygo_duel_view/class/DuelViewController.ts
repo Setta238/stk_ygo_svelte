@@ -9,6 +9,7 @@ import type { DuelEntitiesSelectorArg } from "@ygo_duel_view/components/DuelEnti
 import { CardAction, type ICardAction } from "@ygo_duel/class/DuelCardAction";
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
 import { createPromiseSweet } from "@stk_utils/funcs/StkPromiseUtil";
+import type { TCardDetailMode } from "@ygo_duel_view/components/DuelCardDetail.svelte";
 export type TDuelWaitMode = "None" | "SelectFieldAction" | "SelectAction" | "SelectFieldEntities" | "SelectEntities";
 export type WaitStartEventArg = {
   resolve: (action: DuelistResponse) => void;
@@ -57,7 +58,7 @@ export class DuelViewController {
   public get onAnimation() {
     return this.onAnimationStartEvent.expose();
   }
-  private onShowCardEntityEvent = new StkEvent<DuelEntity | undefined>();
+  private onShowCardEntityEvent = new StkEvent<{ card: DuelEntity; mode: TCardDetailMode }>();
   public get onShowCardEntity() {
     return this.onShowCardEntityEvent.expose();
   }
@@ -81,8 +82,8 @@ export class DuelViewController {
     return this.duel.field.cells[row][column];
   };
 
-  public readonly showCardInfo = (card?: DuelEntity) => {
-    this.onShowCardEntityEvent.trigger(card);
+  public readonly showCardInfo = (card: DuelEntity, mode: TCardDetailMode) => {
+    this.onShowCardEntityEvent.trigger({ card, mode });
   };
 
   public readonly dispose = () => {
@@ -139,6 +140,7 @@ export class DuelViewController {
 
     promiseList.push(
       this._waitDuelistAction(enableActions, "SelectAction", this.message).then((result) => {
+        this.infoBoardState = "Log";
         return result.action;
       })
     );
@@ -269,6 +271,7 @@ export class DuelViewController {
     if (!cancelable && userAction.cancel) {
       throw new SystemError("キャンセル不可のアクションがキャンセルされた。", userAction, enableActions, waitMode, selectableEntities);
     }
+    this.infoBoardState = "Log";
     return userAction;
   };
 

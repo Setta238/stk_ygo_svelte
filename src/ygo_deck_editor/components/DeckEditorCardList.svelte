@@ -11,16 +11,16 @@
     monsterTypeEmojiDic,
     spellCategoryDic,
     trapCategoryDic,
-    type TCardInfoJson,
+    type CardInfoJson,
     type TCardKind,
     type TDeckTypes,
   } from "@ygo/class/YgoTypes";
   import { CardEntitySorter, CardSorter, type TDuelEntityFace } from "@ygo_duel/class/DuelEntity";
 
-  export let allCardInfos: TCardInfoJson[];
-  export let deckCardInfos: TCardInfoJson[];
+  export let allCardInfos: CardInfoJson[];
+  export let deckCardInfos: CardInfoJson[];
   export let mode: "List" | "Deck";
-  export let onAttention: (cardInfo: TCardInfoJson) => void;
+  export let onAttention: (cardInfo: CardInfoJson) => void;
   const listGroup: { [key in TDeckTypes]: TCardKind[] } = {
     Deck: ["Monster", "Spell", "Trap"],
     ExtraDeck: ["Monster"],
@@ -36,7 +36,7 @@
           (deckType === "ExtraDeck" && cardInfo?.monsterCategories?.union(exMonsterCategories).length)
       )
       .toSorted(CardSorter);
-  const onPlusButtonClick = (ev: MouseEvent, cardInfo: TCardInfoJson) => {
+  const onPlusButtonClick = (ev: MouseEvent, cardInfo: CardInfoJson) => {
     const currentQty = deckCardInfos.filter((_cardInfo) => _cardInfo.name === cardInfo.name).length;
     if (currentQty > 2) {
       return;
@@ -50,7 +50,7 @@
     deckCardInfos.sort(CardSorter);
     deckCardInfos = deckCardInfos;
   };
-  const onMinusButtonClick = (ev: MouseEvent, cardInfo: TCardInfoJson) => {
+  const onMinusButtonClick = (ev: MouseEvent, cardInfo: CardInfoJson) => {
     let count = 0;
     deckCardInfos = deckCardInfos.filter((_cardInfo) => {
       if (_cardInfo.name !== cardInfo.name) {

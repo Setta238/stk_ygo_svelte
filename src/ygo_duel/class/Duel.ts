@@ -335,6 +335,9 @@ export class Duel {
     if (!attacker || !attacker.atk) {
       throw new SystemError("想定されない状態", this.attackingMonster, this.targetForAttack);
     }
+    if (!defender) {
+      throw new SystemError("想定されない状態", this.attackingMonster, this.targetForAttack);
+    }
 
     //ダメージステップ開始時
     this.log.info("ダメージステップ開始時", this.getTurnPlayer());
@@ -353,23 +356,25 @@ export class Duel {
 
     //ダメージ計算
     const atkPoint = attacker.atk;
-    const defPoint = (defender?.battlePotion === "Attack" ? defender.atk : defender?.def) || 0;
-    if (!defender || defender.entityType === "Duelist") {
+    const defPoint = (defender.battlePotion === "Attack" ? defender.atk : defender.def) ?? 0;
+    if (defender.entityType === "Duelist") {
       attacker.controller.getOpponentPlayer().battleDamage(atkPoint - defPoint, attacker);
-    } else if (atkPoint > 0 && atkPoint > defPoint) {
-      if (defender.battlePotion === "Attack") {
+    } else {
+      // 戦闘ダメージ計算
+      if (atkPoint > 0 && atkPoint > defPoint && defender.battlePotion === "Attack") {
         attacker.controller.getOpponentPlayer().battleDamage(atkPoint - defPoint, attacker);
+      } else if (atkPoint < defPoint) {
+        // 絶対防御将軍が守備表示で攻撃しても反射ダメージが発生するとのこと。
+        attacker.controller.battleDamage(defPoint - atkPoint, defender);
       }
-      defender.info.isDying = true;
-    } else if (atkPoint < defPoint) {
-      // 絶対防御将軍が守備表示で攻撃しても反射ダメージが発生するとのこと。
-      attacker.controller.battleDamage(defPoint - atkPoint, defender);
-      if (defender.battlePotion === "Attack") {
-        attacker.info.isDying = true;
+
+      // 戦闘破壊計算
+      if (atkPoint > 0 && atkPoint >= defPoint) {
+        defender.tryDestoryByBattle(attacker.controller, attacker);
       }
-    } else if (atkPoint === defPoint && defender.battlePotion === "Attack") {
-      attacker.info.isDying = true;
-      defender.info.isDying = true;
+      if (defender.battlePotion === "Attack" && atkPoint <= defPoint) {
+        attacker.tryDestoryByBattle(attacker.controller, defender);
+      }
     }
 
     const losers = Object.values(this.duelists).filter((duelist) => duelist.lp <= 0);
@@ -462,7 +467,11 @@ export class Duel {
       triggerEffects ??
       Object.values(this.duelists).flatMap((duelist) => {
         this.priorityHolder = duelist;
-        return this.getEnableActions(["TriggerMandatoryEffect", "TriggerEffect"], ["Normal"], []);
+        let actions = this.getEnableActions(["TriggerMandatoryEffect", "TriggerEffect"], ["Normal"], []);
+        if (this.phaseStep === "damage") {
+          actions = actions.filter((action) => action.canExecuteOnDamageStep);
+        }
+        return actions;
       });
 
     // 返却値 チェーンが発生したかどうか

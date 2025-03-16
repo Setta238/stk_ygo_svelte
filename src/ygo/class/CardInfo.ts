@@ -1,5 +1,5 @@
 import json from "@ygo/json/cardInfo.json";
-import type { TCardInfoJson } from "@ygo/class/YgoTypes";
+import type { CardInfoJson } from "@ygo/class/YgoTypes";
 import { createCardDefinitions, type CardDefinition } from "@ygo_duel/cards/CardDefinitions";
 
 const _cardDefinitions: Map<string, CardDefinition> = new Map();
@@ -7,11 +7,11 @@ createCardDefinitions().forEach((obj) => {
   _cardDefinitions.set(obj.name, obj);
 });
 export const cardDefinitionDic = _cardDefinitions as Readonly<Map<string, CardDefinition>>;
-const fuga = json as unknown as { [name: string]: TCardInfoJson };
+const fuga = json as unknown as { [name: string]: CardInfoJson };
 export const cardInfoDic = Object.values(fuga).reduce(
   (dic, info) => {
     dic[info.name] = info;
     return dic;
   },
-  {} as { [name: string]: TCardInfoJson }
+  {} as { [name: string]: CardInfoJson }
 );

@@ -82,6 +82,9 @@ export const defaultSpellTrapValidate = (entity: DuelEntity): DuelFieldCell[] | 
   if (entity.fieldCell.cellType === "FieldSpellZone" && entity.face === "FaceDown") {
     return [];
   }
+  if (!entity.controller.isTurnPlayer) {
+    return;
+  }
 
   const availableCells = entity.controller.getAvailableSpellTrapZones();
   return availableCells.length > 0 ? availableCells : undefined;
@@ -126,7 +129,7 @@ export const getDefaultSearchSpellAction = (filter: (card: DuelEntity) => boolea
       return defaultSpellTrapValidate(entity);
     },
     prepare: (entity: DuelEntity, cell: DuelFieldCell | undefined, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, cancelable: boolean) =>
-      defaultSpellTrapPrepare(entity, cell, chainBlockInfos, cancelable, ["AddToHandFromDeck"], [], undefined),
+      defaultSpellTrapPrepare(entity, cell, chainBlockInfos, cancelable, ["SearchFromDeck"], [], undefined),
     execute: async (entity: DuelEntity, activater: Duelist) => {
       const monsters = activater.getDeckCell().cardEntities.filter(filter);
       if (monsters.length === 0) {
@@ -198,7 +201,7 @@ export const getLikeTradeInAction = (filter: (card: DuelEntity) => boolean): Car
     prepare: async (entity: DuelEntity, cell: DuelFieldCell | undefined, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, cancelable: boolean) => {
       await entity.controller.discard(1, ["Discard", "Cost"], entity, entity.controller, filter);
 
-      return defaultSpellTrapPrepare(entity, cell, chainBlockInfos, cancelable, ["AddToHandFromDeck"], [], undefined);
+      return defaultSpellTrapPrepare(entity, cell, chainBlockInfos, cancelable, ["SearchFromDeck"], [], undefined);
     },
     execute: async (entity: DuelEntity, activater: Duelist) => {
       await activater.draw(2, entity, activater);

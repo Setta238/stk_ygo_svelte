@@ -127,14 +127,13 @@ export const battlePositionDic: { [key in TBattlePosition]: string } = {
 };
 export type TNonBattlePosition = "FaceUp" | "Set" | "XysMaterial";
 
-export type TCardInfoWiki = {
-  name: string;
-  wikiName?: string;
-  wikiHref?: string;
-  wikiTextAll?: string;
+export type CardInfoWiki = {
+  wikiName: string;
+  wikiHref: string;
+  wikiTextAll: string;
 };
 
-export type TEntityStatusBase = {
+export type EntityStatusBase = {
   name: string;
   kind: TCardKind;
   monsterCategories?: Array<TMonsterCategory>;
@@ -155,25 +154,44 @@ export type TEntityStatusBase = {
   cardId?: number;
 };
 
-export type TEntityStatus = TEntityStatusBase & {
+export type EntityStatus = EntityStatusBase & {
   originAttack: number;
   originDefence: number;
   canAttack: boolean;
   canDirectAttack: boolean;
-  canBeSyncroMaterial: boolean;
   allowHandSyncro: boolean;
   isEffective: boolean;
   isSelectableForAttack: boolean /** falseのモンスターしかいない場合、ダイレクトアタックになる。《伝説のフィッシャーマン》など。 */;
 };
 
-export type TCardInfoBase = {
+export type CardInfoDescription = {
   nameKana?: string;
   description?: string;
   pendulumDescription?: string;
 };
 
-export type TCardInfoJson = TCardInfoWiki & TEntityStatusBase & TCardInfoBase;
-export type TCardInfoDeckEdit = TCardInfoJson & {
+export type CardInfoJson = CardInfoWiki & EntityStatusBase & CardInfoDescription;
+
+const _getSubsetAsEntityStatusBase = ({
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  wikiName,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  wikiHref,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  wikiTextAll,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  nameKana,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  description,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  pendulumDescription,
+  ...rest
+}: CardInfoJson): EntityStatusBase => {
+  return rest;
+};
+export const getSubsetAsEntityStatusBase = (json: CardInfoJson): EntityStatusBase => _getSubsetAsEntityStatusBase(json);
+
+export type CardInfoDeckEdit = CardInfoJson & {
   isImplemented: true;
 };
 export const monsterTypeDic = {

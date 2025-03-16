@@ -23,7 +23,7 @@ export const effectTags = [
   "SpecialSummonFromDeck", //うらら
   "SendToGraveyardFromDeck", //うらら
   "Draw", //うらら
-  "AddToHandFromDeck", //うらら
+  "SearchFromDeck", //うらら
   "BanishFromGraveyard", //わらし
   "AddToHandFromGraveyard", //わらし
   "ReturnToDeckFromGraveyard", //わらし

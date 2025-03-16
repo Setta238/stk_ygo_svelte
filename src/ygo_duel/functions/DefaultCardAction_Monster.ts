@@ -258,21 +258,7 @@ export const defaultSyncroMaterialsValidator = (
   tunersValidator: (tuners: DuelEntity[]) => boolean,
   nonTunersValidator: (nonTuners: DuelEntity[]) => boolean
 ): boolean => {
-  // シンクロ素材にできないモンスターが存在する場合、不可
-  if (materials.some((material) => !material.status.canBeSyncroMaterial)) {
-    return false;
-  }
-  // シンクロ素材に手札またはフィールド以外のモンスターが存在する場合、不可
-  if (
-    materials.some(
-      (material) =>
-        material.fieldCell.cellType !== "Hand" && material.fieldCell.cellType !== "MonsterZone" && material.fieldCell.cellType !== "ExtraMonsterZone"
-    )
-  ) {
-    return false;
-  }
-  // 手札シンクロを許可するシンクロ素材がいない場合、手札をシンクロ素材とすることは不可
-  if (materials.some((material) => material.fieldCell.cellType === "Hand") && materials.every((material) => !material.status.allowHandSyncro)) {
+  if (!entity.origin.level) {
     return false;
   }
   // レベルを持たないモンスターが存在する場合、不可
@@ -282,18 +268,23 @@ export const defaultSyncroMaterialsValidator = (
 
   //レベルが合わない場合、不可
   //TODO https://yugioh-wiki.net/index.php?%A1%D4%A5%C1%A5%E5%A1%BC%A5%CB%A5%F3%A5%B0%A1%A6%A5%B5%A5%DD%A1%BC%A5%BF%A1%BC%A1%D5#list
-  if (materials.map((material) => material.lvl ?? 0).reduce((sum, lvl) => sum + lvl, 0) !== (entity.origin.level ?? -1)) {
+  if (materials.map((material) => material.lvl ?? 0).reduce((sum, lvl) => sum + lvl, 0) !== entity.origin.level) {
     return false;
   }
 
-  // チューナー側の条件チェック
+  // シンクロモンスター側から見たチューナー側の条件チェック
   // TODO https://yugioh-wiki.net/index.php?%A1%D4%B8%B8%B1%C6%B2%A6%20%A5%CF%A5%A4%A5%C9%A1%A6%A5%E9%A5%A4%A5%C9%A1%D5#list
   if (!tunersValidator(materials.filter((cost) => cost.status.monsterCategories?.some((cat) => cat === "Tuner")))) {
     return false;
   }
 
-  // 非チューナー側の条件チェック
+  // シンクロモンスター側から見た非チューナー側の条件チェック
   if (!nonTunersValidator(materials.filter((cost) => cost.status.monsterCategories?.every((cat) => cat !== "Tuner")))) {
+    return false;
+  }
+
+  // 素材側から見た全体の条件チェック（デブリ・ドラゴンなど）
+  if (!materials.every((m) => m.canBeSyncroMaterials(entity, materials))) {
     return false;
   }
 
@@ -305,24 +296,28 @@ export const defaultSyncroMaterialsValidator = (
   return true;
 };
 
-const getEnableSyncroSummonPattern = (
+const getEnableSyncroSummonPatterns = (
   entity: DuelEntity,
   tunersValidator: (tuners: DuelEntity[]) => boolean = (tuners) => tuners.length === 1,
   nonTunersValidator: (nonTuners: DuelEntity[]) => boolean = (nonTuners) => nonTuners.length > 0
 ): DuelEntity[][] => {
+  // 手札と場から全てのシンクロ素材にできるモンスターを収集する。
   let materials = [
     ...entity.controller.getMonstersOnField().filter((card) => card.battlePotion !== "Set"),
     ...entity.controller.getHandCell().entities.filter((card) => card.origin.kind === "Monster"),
-  ].filter((m) => m.status.canBeSyncroMaterial);
+  ];
 
+  // 手札シンクロを許容するカードがない場合、手札のカードを排除する。
   if (materials.every((m) => !m.status.allowHandSyncro)) {
-    materials = entity.controller.getMonstersOnField();
+    materials = materials.filter((m) => m.fieldCell.isPlayFieldCell);
   }
 
+  // 二枚以下はシンクロ召喚不可
   if (materials.length < 2) {
     return [];
   }
 
+  //全パターンを試し、シンクロ召喚可能なパターンを全て列挙する。
   return materials.getAllOnOffPattern().filter((pattern) => defaultSyncroMaterialsValidator(entity, pattern, tunersValidator, nonTunersValidator));
 };
 export const defaultSyncroSummonValidate = (
@@ -330,7 +325,7 @@ export const defaultSyncroSummonValidate = (
   tunersValidator: (tuners: DuelEntity[]) => boolean = (tuners) => tuners.length === 1,
   nonTunersValidator: (nonTuners: DuelEntity[]) => boolean = (nonTuners) => nonTuners.length > 0
 ): DuelFieldCell[] | undefined => {
-  return getEnableSyncroSummonPattern(entity, tunersValidator, nonTunersValidator).length > 0 ? [] : undefined;
+  return getEnableSyncroSummonPatterns(entity, tunersValidator, nonTunersValidator).length > 0 ? [] : undefined;
 };
 export const defaultSyncroSummonPrepare = async (
   entity: DuelEntity,
@@ -339,7 +334,7 @@ export const defaultSyncroSummonPrepare = async (
   tunersValidator: (tuners: DuelEntity[]) => boolean = (tuners) => tuners.length === 1,
   nonTunersValidator: (nonTuners: DuelEntity[]) => boolean = (nonTuners) => nonTuners.length > 0
 ): Promise<ChainBlockInfoBase<SummonPrepared> | undefined> => {
-  const patterns = getEnableSyncroSummonPattern(entity, tunersValidator, nonTunersValidator);
+  const patterns = getEnableSyncroSummonPatterns(entity, tunersValidator, nonTunersValidator);
 
   let materials: DuelEntity[];
 

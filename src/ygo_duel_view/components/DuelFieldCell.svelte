@@ -83,14 +83,14 @@
 
   const canAction = () => {
     return (
-      (cell.cellType === "Deck" || cell.cellType === "ExtraDeck" || cell.cellType === "Graveyard" || cell.cellType === "Banished") &&
-      cell.entities.flatMap((e) => e.actions).filter((act) => enableActions.map((a) => a.seq).some((seq) => seq === act.seq)).length > 0
+      cell.isStackCell && cell.entities.flatMap((e) => e.actions).filter((act) => enableActions.map((a) => a.seq).some((seq) => seq === act.seq)).length > 0
     );
   };
 
   const onCellClick = () => {
     cell.field.duel.view.infoBoardState = "Log";
-    if (cell.cellType === "Deck" || cell.cellType === "ExtraDeck" || cell.cellType === "Graveyard" || cell.cellType === "Banished") {
+
+    if (cell.isStackCell) {
       cell.field.duel.view.infoBoardState = "CellInfo";
       cell.field.duel.view.infoBoardCell = cell;
       cell.field.duel.view.requireUpdate();
@@ -172,7 +172,7 @@
     if (enableActions[0].playType === "RuleDraw") {
       return "Draggable";
     }
-    if (["Deck", "ExtraDeck", "Graveyard", "Banished"].includes(cell.cellType)) {
+    if (cell.isStackCell) {
       return "Clickable";
     }
     if (actions[0].entity !== entities[0]) {
@@ -249,7 +249,7 @@
             <div style="position: absolute; display:flex;justify-content: center;" out:send={{ key: entity.seq }}>
               <DuelCard
                 {entity}
-                state={index === 0 && stackCellTypes.every((t) => t !== cell.cellType) ? validateActions(...cell.cardEntities) : undefined}
+                state={index === 0 && !cell.isStackCell ? validateActions(...cell.cardEntities) : undefined}
                 actions={index === 0 ? enableActions.filter((action) => cell.cardEntities.includes(action.entity)) : undefined}
                 cardActionResolve={undefined}
                 bind:selectedList
@@ -263,7 +263,7 @@
           </div>
         {/if}
       {/if}
-      {#if stackCellTypes.find((t) => t === cell.cellType)}
+      {#if cell.isStackCell}
         <div class="badge">{cell.cardEntities.length}</div>
       {/if}
       {#if animationArg && animationArg.entity && animationArg.to === cell && animationArg.index === "Top"}

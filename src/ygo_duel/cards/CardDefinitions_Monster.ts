@@ -14,6 +14,8 @@ import {
 import {} from "@stk_utils/funcs/StkArrayUtils";
 
 import type { CardDefinition } from "./CardDefinitions";
+import { createSelfProcFilterContinuousEffect, type ContinuousEffectBase } from "@ygo_duel/class/ContinuousEffect";
+import { ProcFilter } from "@ygo_duel/class/DuelProcFilter";
 
 export const createCardDefinitions_Monster = (): CardDefinition[] => {
   const result: CardDefinition[] = [];
@@ -309,7 +311,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
           return [];
         },
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["AddToHandFromDeck"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"], prepared: undefined };
         },
         execute: async (entity: DuelEntity, activater: Duelist): Promise<boolean> => {
           await activater.draw(1, entity, activater);
@@ -390,7 +392,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
           return entity.controller.getDeckCell().cardEntities.find((card) => card.nm === "青眼の白龍") ? [] : undefined;
         },
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["AddToHandFromDeck"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"], prepared: undefined };
         },
         execute: async (entity: DuelEntity, activater: Duelist): Promise<boolean> => {
           // 青眼の白龍固定なので、一枚見つけたらそれでよい。
@@ -411,7 +413,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
   const def_うららわらし = [
     {
       name: "灰流うらら",
-      chainBlockTags: ["Draw", "AddToHandFromDeck", "SendToGraveyardFromDeck", "SpecialSummonFromDeck"],
+      chainBlockTags: ["Draw", "SearchFromDeck", "SendToGraveyardFromDeck", "SpecialSummonFromDeck"],
     },
     {
       name: "屋敷わらし",
@@ -462,5 +464,39 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
       ] as CardActionBase<unknown>[],
     });
   });
+
+  ["翻弄するエルフの剣士", "ロードランナー", "氷結界の修験者"].forEach((name) => {
+    result.push({
+      name: name,
+      actions: [defaultAttackAction, defaultBattlePotisionChangeAction, defaultNormalSummonAction] as CardActionBase<unknown>[],
+      continuousEffects: [
+        createSelfProcFilterContinuousEffect(
+          "①戦闘破壊耐性",
+          "Monster",
+          () => true,
+          (entity: DuelEntity) => {
+            return new ProcFilter(
+              "①戦闘破壊耐性",
+              "BattleDestory",
+              (activator: Duelist, enemy: DuelEntity) => {
+                if (!enemy.status.isEffective) {
+                  return true;
+                }
+                if ((enemy.atk ?? 0) < 1900) {
+                  return true;
+                }
+                entity.duel.log.info(`${entity.toString()}は攻撃力1900以上のモンスターとの先頭では破壊されない。`, entity.controller);
+                return false;
+              },
+              () => true,
+              ["LeavesTheField", "Set"],
+              entity
+            );
+          }
+        ),
+      ] as ContinuousEffectBase<unknown>[],
+    });
+  });
+
   return result;
 };

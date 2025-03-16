@@ -89,6 +89,14 @@ export class DuelFieldCell {
   public get isAvailable() {
     return this._entities.length === 0;
   }
+
+  public get isStackCell() {
+    return stackCellTypes.some((t) => t === this.cellType);
+  }
+
+  public get isPlayFieldCell() {
+    return playFieldCellTypes.some((t) => t === this.cellType);
+  }
   private _entities: DuelEntity[];
   public constructor(duelField: DuelField, row: number, column: number, owner?: Duelist) {
     this.field = duelField;

@@ -11,6 +11,7 @@
   import { DuelEntity } from "@ygo_duel/class/DuelEntity";
   import { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
   import type { WaitStartEventArg } from "@ygo_duel_view/class/DuelViewController";
+  import type { TCardDetailMode } from "./DuelCardDetail.svelte";
   export let entity: DuelEntity;
   export let state: TCardState = "Disabled";
   export let selectedList = [] as DuelEntity[];
@@ -45,13 +46,13 @@
     }
   };
 
-  const showCardInfo = () => {
+  const showCardInfo = (mode?: TCardDetailMode) => {
     if (entity.face === "FaceUp" || (entity.owner === entity.field.duel.duelists.Below && (entity.isUnderControl || isVisibleForcibly))) {
-      entity.field.duel.view.showCardInfo(entity);
+      entity.field.duel.view.showCardInfo(entity, mode ?? "Normal");
     }
   };
 
-  const click = () => {
+  const onClick = () => {
     console.log(entity, state);
     showCardInfo();
     if (state === "Disabled") {
@@ -114,6 +115,11 @@
       isDragging = false;
     }
   };
+
+  const onRightClick = () => {
+    showCardInfo("Debug");
+    return false;
+  };
 </script>
 
 {#if entity.face === "FaceUp" || isVisibleForcibly || (entity.controller.seat === "Below" && entity.isUnderControl)}
@@ -124,9 +130,10 @@
     draggable={state === "Draggable"}
     on:dragstart={dragStart}
     on:dragend={dragEnd}
-    on:click={click}
+    on:click={onClick}
     on:dblclick={dblclick}
-    on:mouseenter={showCardInfo}
+    on:mouseenter={() => showCardInfo()}
+    on:contextmenu={onRightClick}
     title={entity.nm}
   >
     <div class="duel_card duel_card_face_up">

@@ -18,7 +18,7 @@
   import type { WaitStartEventArg } from "@ygo_duel_view/class/DuelViewController";
   import {} from "@stk_utils/funcs/StkArrayUtils";
   import ModalContainer from "@ygo_duel_view/components/DuelModalContainer.svelte";
-  import DuelCardDetail from "./DuelCardDetail.svelte";
+  import DuelCardDetail, { type TCardDetailMode } from "./DuelCardDetail.svelte";
   import DuelFieldCellInfo from "./DuelFieldCellInfo.svelte";
 
   export let duel: Duel;
@@ -42,8 +42,10 @@
   duel.view.onWaitStart.append(onWaitStart);
 
   let focusedCard: DuelEntity | undefined = undefined;
-  const onShowCardEntity = (card?: DuelEntity) => {
+  let focusedCardMode: TCardDetailMode = "Normal";
+  const onShowCardEntity = ({ card, mode }: { card: DuelEntity; mode: TCardDetailMode }) => {
     focusedCard = card;
+    focusedCardMode = mode;
   };
   duel.view.onShowCardEntity.append(onShowCardEntity);
 
@@ -79,7 +81,7 @@
 <div class="flex duel_desk">
   <div class="duel_desk_left v_flex">
     <DuelDuelist duelist={duel.duelists.Above}></DuelDuelist>
-    <DuelCardDetail entity={focusedCard}></DuelCardDetail>
+    <DuelCardDetail entity={focusedCard} mode={focusedCardMode}></DuelCardDetail>
     <DuelDuelist duelist={duel.duelists.Below}></DuelDuelist>
   </div>
   <div class=" duel_desk_center v_flex">

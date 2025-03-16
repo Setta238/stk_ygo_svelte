@@ -15425,5 +15425,59 @@
 		"wikiName": "《強欲ゴブリン》",
 		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%B6%AF%CD%DF%A5%B4%A5%D6%A5%EA%A5%F3%A1%D5",
 		"wikiTextAll": "効果モンスター\n星４/地属性/悪魔族/攻1000/守1800\nこのカードが表側表示で自分フィールド上に存在する限り、\nお互いは「手札のカードを捨てる事によって発動する効果」を発動できない。"
+	},
+	"翻弄するエルフの剣士": {
+		"name": "翻弄するエルフの剣士",
+		"nameKana": "",
+		"description": "(1)：このカードは攻撃力１９００以上のモンスターとの戦闘では破壊されない。",
+		"pendulumDescription": "",
+		"kind": "Monster",
+		"monsterCategories": [
+			"Effect"
+		],
+		"level": 4,
+		"attack": 1400,
+		"defense": 1200,
+		"attribute": "Earth",
+		"type": "Warrior",
+		"wikiName": "《翻弄するエルフの剣士》",
+		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%CB%DD%CF%AE%A4%B9%A4%EB%A5%A8%A5%EB%A5%D5%A4%CE%B7%F5%BB%CE%A1%D5",
+		"wikiTextAll": "効果モンスター\n星４/地属性/戦士族/攻1400/守1200\n(1)：このカードは攻撃力１９００以上のモンスターとの戦闘では破壊されない。"
+	},
+	"ロードランナー": {
+		"name": "ロードランナー",
+		"nameKana": "",
+		"description": "(1)：このカードは攻撃力１９００以上のモンスターとの戦闘では破壊されない。",
+		"pendulumDescription": "",
+		"kind": "Monster",
+		"monsterCategories": [
+			"Effect"
+		],
+		"level": 1,
+		"attack": 300,
+		"defense": 300,
+		"attribute": "Earth",
+		"type": "WingedBeast",
+		"wikiName": "《ロードランナー》",
+		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%A5%ED%A1%BC%A5%C9%A5%E9%A5%F3%A5%CA%A1%BC%A1%D5",
+		"wikiTextAll": "効果モンスター\n星１/地属性/鳥獣族/攻 300/守 300\n(1)：このカードは攻撃力１９００以上のモンスターとの戦闘では破壊されない。"
+	},
+	"氷結界の修験者": {
+		"name": "氷結界の修験者",
+		"nameKana": "",
+		"description": "(1)：このカードは攻撃力１９００以上のモンスターとの戦闘では破壊されない。",
+		"pendulumDescription": "",
+		"kind": "Monster",
+		"monsterCategories": [
+			"Effect"
+		],
+		"level": 4,
+		"attack": 1500,
+		"defense": 1000,
+		"attribute": "Water",
+		"type": "Warrior",
+		"wikiName": "《氷結界の修験者》",
+		"wikiHref": "https://yugioh-wiki.net/index.php?%A1%D4%C9%B9%B7%EB%B3%A6%A4%CE%BD%A4%B8%B3%BC%D4%A1%D5",
+		"wikiTextAll": "効果モンスター\n星４/水属性/戦士族/攻1500/守1000\n(1)：このカードは攻撃力１９００以上のモンスターとの戦闘では破壊されない。"
 	}
 }

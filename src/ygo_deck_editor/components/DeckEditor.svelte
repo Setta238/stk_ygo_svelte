@@ -20,7 +20,7 @@
     spellCategoryDic,
     trapCategories,
     trapCategoryDic,
-    type TCardInfoJson,
+    type CardInfoJson,
     type TCardKind,
     type TMonsterCategory,
     type TSpellCategory,
@@ -60,10 +60,10 @@
     name: "",
     description: "",
     lastUsedAt: new Date(),
-    cardInfos: [] as TCardInfoJson[],
+    cardInfos: [] as CardInfoJson[],
   };
 
-  let cardInfo: TCardInfoJson = cardInfoDic["ゾンビーノ"];
+  let cardInfo: CardInfoJson = cardInfoDic["ゾンビーノ"];
 
   const seachCondition = {
     name: "" as string,
@@ -101,7 +101,7 @@
     });
   };
 
-  const onAttention = (_cardInfo: TCardInfoJson) => {
+  const onAttention = (_cardInfo: CardInfoJson) => {
     cardInfo = _cardInfo;
   };
 

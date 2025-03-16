@@ -33,7 +33,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           return defaultSpellTrapValidate(entity);
         },
         prepare: (entity: DuelEntity, cell: DuelFieldCell | undefined, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, cancelable: boolean) =>
-          defaultSpellTrapPrepare(entity, cell, chainBlockInfos, cancelable, ["Draw", "AddToHandFromDeck"], [], undefined),
+          defaultSpellTrapPrepare(entity, cell, chainBlockInfos, cancelable, ["Draw", "SearchFromDeck"], [], undefined),
         execute: async (entity: DuelEntity, activater: Duelist) => {
           await activater.draw(2, entity, activater);
           return true;
@@ -86,15 +86,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
             return;
           }
 
-          return defaultSpellTrapPrepare(
-            entity,
-            cell,
-            chainBlockInfos,
-            cancelable,
-            ["Draw", "AddToHandFromDeck", "ReturnToDeckFromGraveyard"],
-            target,
-            undefined
-          );
+          return defaultSpellTrapPrepare(entity, cell, chainBlockInfos, cancelable, ["Draw", "SearchFromDeck", "ReturnToDeckFromGraveyard"], target, undefined);
         },
         execute: async (entity: DuelEntity, activater: Duelist, myInfo: ChainBlockInfo<DuelEntity[]>) => {
           // 同一チェーン中に墓地を離れていたら不可
@@ -141,7 +133,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           return defaultSpellTrapValidate(entity);
         },
         prepare: (entity: DuelEntity, cell: DuelFieldCell, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) =>
-          defaultSpellTrapPrepare(entity, cell, chainBlockInfos, false, ["Draw", "AddToHandFromDeck", "DiscordAsEffect"], [], undefined),
+          defaultSpellTrapPrepare(entity, cell, chainBlockInfos, false, ["Draw", "SearchFromDeck", "DiscordAsEffect"], [], undefined),
         execute: async (entity: DuelEntity, activater: Duelist) => {
           await activater.draw(3, entity, activater);
           await activater.discard(2, ["Effect", "Discard"], entity, activater);
@@ -169,7 +161,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           return defaultSpellTrapValidate(entity);
         },
         prepare: (entity: DuelEntity, cell: DuelFieldCell, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) =>
-          defaultSpellTrapPrepare(entity, cell, chainBlockInfos, false, ["Draw", "AddToHandFromDeck"], [], undefined),
+          defaultSpellTrapPrepare(entity, cell, chainBlockInfos, false, ["Draw", "SearchFromDeck"], [], undefined),
 
         execute: async (entity: DuelEntity, activater: Duelist) => {
           await activater.draw(1, entity, activater);
@@ -353,7 +345,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           return defaultSpellTrapValidate(entity);
         },
         prepare: (entity: DuelEntity, cell: DuelFieldCell, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) =>
-          defaultSpellTrapPrepare(entity, cell, chainBlockInfos, false, ["AddToHandFromDeck"], [], undefined),
+          defaultSpellTrapPrepare(entity, cell, chainBlockInfos, false, ["SearchFromDeck"], [], undefined),
         execute: async (entity: DuelEntity, activater: Duelist) => {
           const h1 = activater.getHandCell().cardEntities.length;
           const h2 = activater.getOpponentPlayer().getHandCell().cardEntities.length;
@@ -407,7 +399,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
 
           Array(3).forEach(() => deck.cardEntities[0].sendToGraveyard(["Cost"], entity, entity.controller));
 
-          return await defaultSpellTrapPrepare(entity, cell, chainBlockInfos, false, ["AddToHandFromDeck", "SendToGraveyardFromDeck"], [], undefined);
+          return await defaultSpellTrapPrepare(entity, cell, chainBlockInfos, false, ["SearchFromDeck", "SendToGraveyardFromDeck"], [], undefined);
         },
         execute: async (entity: DuelEntity, activater: Duelist) => {
           const monsters = activater
@@ -461,7 +453,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           return defaultSpellTrapValidate(entity);
         },
         prepare: (entity: DuelEntity, cell: DuelFieldCell, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) =>
-          defaultSpellTrapPrepare(entity, cell, chainBlockInfos, false, ["AddToHandFromDeck", "SendToGraveyardFromDeck"], [], undefined),
+          defaultSpellTrapPrepare(entity, cell, chainBlockInfos, false, ["SearchFromDeck", "SendToGraveyardFromDeck"], [], undefined),
         execute: async (entity: DuelEntity, activater: Duelist) => {
           const cards = activater.getDeckCell().cardEntities;
           if (cards.length < 2) {

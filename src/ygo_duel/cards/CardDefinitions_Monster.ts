@@ -477,6 +477,9 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
           (entity: DuelEntity) => {
             return new ProcFilter(
               "①戦闘破壊耐性",
+              () => true,
+              true,
+              entity,
               "BattleDestory",
               (activator: Duelist, enemy: DuelEntity) => {
                 if (!enemy.status.isEffective) {
@@ -487,10 +490,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
                 }
                 entity.duel.log.info(`${entity.toString()}は攻撃力1900以上のモンスターとの先頭では破壊されない。`, entity.controller);
                 return false;
-              },
-              () => true,
-              ["LeavesTheField", "Set"],
-              entity
+              }
             );
           }
         ),

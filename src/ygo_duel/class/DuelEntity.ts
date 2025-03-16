@@ -21,8 +21,9 @@ import type { IDuelClock } from "./DuelClock";
 import { defaultAttackAction, defaultBattlePotisionChangeAction, defaultNormalSummonAction } from "@ygo_duel/functions/DefaultCardAction_Monster";
 import { cardDefinitionDic, cardInfoDic } from "@ygo/class/CardInfo";
 import { CardAction, type CardActionBase } from "./DuelCardAction";
-import type { ProcFilter } from "./DuelProcFilter";
+import { ProcFilterBundle } from "./DuelProcFilter";
 import { ContinuousEffect, type ContinuousEffectBase } from "./DuelContinuousEffect";
+import { NumericStateOperatorBundle } from "./DuelNumericStateOperator";
 
 export type TDuelEntityFace = "FaceUp" | "FaceDown";
 export type TDuelEntityOrientation = "Horizontal" | "Vertical";
@@ -177,7 +178,8 @@ export class DuelEntity {
   public readonly seq: number;
   public readonly origin: EntityStatusBase;
   public readonly entityType: TDuelEntityType;
-  public readonly procFilters: ProcFilter[];
+  public readonly procFilterBundle: ProcFilterBundle;
+  public readonly numericOprsBundle: NumericStateOperatorBundle;
   public face: TDuelEntityFace;
   public isUnderControl: boolean;
   private _battlePosition: TBattlePosition | undefined;
@@ -250,13 +252,6 @@ export class DuelEntity {
     return playFieldCellTypes.some((t) => t === this.fieldCell.cellType);
   }
   /**
-   * わざわざ別配列を作るのもどうかと思いgeneratorにしてみたが、意味はあるのだろうか
-   */
-  public *getAllProcFilter() {
-    yield* this.procFilters;
-    yield* this.field.procFilters.filter((pf) => pf.isApplicableTo(this));
-  }
-  /**
    *
    * @param owner
    * @param fieldCell
@@ -300,24 +295,28 @@ export class DuelEntity {
     this.wasMovedAs = ["Rule"];
     this.wasMovedAt = this.field.duel.clock;
     this.wasMovedByWhom = owner;
-    this.procFilters = [];
+    this.procFilterBundle = new ProcFilterBundle(this);
+    this.numericOprsBundle = new NumericStateOperatorBundle(this);
     fieldCell.acceptEntities([this], "Top");
   }
 
   public readonly toString = () => `《${this.nm}》`;
 
   public readonly canBeTargetOfEffect = (activator: Duelist, entity: DuelEntity, action: CardAction<unknown>): boolean =>
-    this.getAllProcFilter()
+    this.procFilterBundle
+      .getAllOperators()
       .filter((pf) => pf.procType === "EffectTarget")
       .every((pf) => pf.filter(activator, entity, action, [this]));
 
   public readonly canBeTargetOfBattle = (activator: Duelist, entity: DuelEntity, action: CardAction<unknown>): boolean =>
-    this.getAllProcFilter()
+    this.procFilterBundle
+      .getAllOperators()
       .filter((pf) => pf.procType === "BattleTarget")
       .every((pf) => pf.filter(activator, entity, action, [this]));
 
   public readonly tryDestoryByBattle = (activator: Duelist, entity: DuelEntity, action: CardAction<unknown>): boolean => {
-    this.info.isDying = this.getAllProcFilter()
+    this.procFilterBundle
+      .getAllOperators()
       .filter((pf) => pf.procType === "BattleDestory")
       .every((pf) => pf.filter(activator, entity, action, [this]));
     if (this.info.isDying) {
@@ -327,9 +326,10 @@ export class DuelEntity {
   };
 
   public readonly canBeSyncroMaterials = (action: CardAction<unknown>, materials: DuelEntity[]) => {
-    return (this.info.isDying = this.getAllProcFilter()
+    this.procFilterBundle
+      .getAllOperators()
       .filter((pf) => pf.procType === "BattleDestory")
-      .every((pf) => pf.filter(action.entity.controller, action.entity, action, materials)));
+      .every((pf) => pf.filter(action.entity.controller, action.entity, action, materials));
   };
 
   public readonly getIndexInCell = (): number => {

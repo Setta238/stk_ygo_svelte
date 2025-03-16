@@ -1,7 +1,7 @@
 import type { TCardKind } from "@ygo/class/YgoTypes";
 import type { DuelEntity, TDuelEntityFace } from "./DuelEntity";
 import { playFieldCellTypes, DuelFieldCell, type DuelFieldCellType } from "./DuelFieldCell";
-import type { BroadProcFilter, ProcFilter } from "./DuelProcFilter";
+import { ProcFilter, ProcFilterBundle, type BroadProcFilter } from "./DuelProcFilter";
 import { SystemError } from "./Duel";
 
 export type ContinuousEffectBase<T> = {
@@ -83,11 +83,11 @@ export const createBroadProcFilterContinuousEffect = (
     canStart: validate,
     start: async (entity: DuelEntity): Promise<string> => {
       const pf = filterCreater(entity);
-      entity.field.procFilters.push(pf);
+      ProcFilterBundle.broadOperators.push(pf);
       return pf.title;
     },
     finish: async (entity: DuelEntity, info: string): Promise<void> => {
-      entity.field.removeProcFilter(entity, info);
+      ProcFilterBundle.removeItem(entity, info);
     },
   };
 };
@@ -107,12 +107,12 @@ export const createProcFilterContinuousEffect = (
     start: async (entity: DuelEntity): Promise<string> => {
       const pf = filterCreater(entity);
       entitySelector(entity).forEach((target) => {
-        target.procFilters.push(pf);
+        target.procFilterBundle.localOperators.push(pf);
       });
       return pf.title;
     },
     finish: async (entity: DuelEntity, info: string): Promise<void> => {
-      entity.field.removeProcFilter(entity, info);
+      ProcFilterBundle.removeItem(entity, info);
     },
   };
 };

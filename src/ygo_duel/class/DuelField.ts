@@ -5,15 +5,9 @@ import { type Duelist } from "./Duelist";
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import { cellTypeMaster, DuelFieldCell, monsterZoneCellTypes, playFieldCellTypes, type DuelFieldCellType } from "./DuelFieldCell";
 import { CardAction } from "./DuelCardAction";
-import type { BroadProcFilter } from "./DuelProcFilter";
-
 export class DuelField {
   public readonly cells: DuelFieldCell[][];
   public readonly duel: Duel;
-  private _procFilters: BroadProcFilter[];
-  public get procFilters() {
-    return this._procFilters;
-  }
   public constructor(duel: Duel) {
     this.duel = duel;
     this.cells = [...Array(7)].map(() => []) as DuelFieldCell[][];
@@ -27,11 +21,7 @@ export class DuelField {
         );
       }
     }
-    this._procFilters = [];
   }
-  public readonly removeProcFilter = (isSpawnedBy: DuelEntity, title: string): void => {
-    this._procFilters = this._procFilters.filter((pf) => pf.isSpawnedBy !== isSpawnedBy && pf.title !== title);
-  };
 
   public readonly getAllCells = (): DuelFieldCell[] => {
     return this.cells.flat();

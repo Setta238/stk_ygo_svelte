@@ -1,9 +1,7 @@
-import { DuelEntity } from "@ygo_duel/class/DuelEntity";
-import { type Duelist } from "@ygo_duel/class/Duelist";
 import { defaultSpellTrapPrepare, defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/functions/DefaultCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
-import type { CardActionBase, ChainBlockInfo, TEffectTag } from "@ygo_duel/class/DuelCardAction";
+import type { CardAction, CardActionBase, ChainBlockInfo, TEffectTag } from "@ygo_duel/class/DuelCardAction";
 import { IllegalCancelError } from "@ygo_duel/class/Duel";
 import { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 
@@ -21,10 +19,15 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
         spellSpeed: "Quick",
         executableCells: ["Hand", "SpellAndTrapZone"],
         validate: defaultSpellTrapValidate,
-        prepare: async (entity: DuelEntity, cell: DuelFieldCell | undefined, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, cancelable: boolean) => {
-          entity.info.isDying = true;
+        prepare: async (
+          action: CardAction<number>,
+          cell: DuelFieldCell | undefined,
+          chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
+          cancelable: boolean
+        ) => {
+          action.entity.info.isDying = true;
 
-          const selected = await entity.field.duel.view.waitSelectText(
+          const selected = await action.entity.field.duel.view.waitSelectText(
             [
               { seq: 0, text: "●自分は１２００ＬＰ回復する。" },
               { seq: 1, text: "●相手に８００ダメージを与える。" },
@@ -33,7 +36,7 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
             false
           );
           if (selected === undefined && !cancelable) {
-            throw new IllegalCancelError(entity);
+            throw new IllegalCancelError(action);
           }
 
           const tags: TEffectTag[] = [];
@@ -42,14 +45,14 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
             tags.push("DamageToOpponent");
           }
 
-          return defaultSpellTrapPrepare(entity, cell, chainBlockInfos, cancelable, tags, [], selected);
+          return defaultSpellTrapPrepare(action, cell, chainBlockInfos, cancelable, tags, [], selected ?? 0);
         },
-        execute: async (entity: DuelEntity, activater: Duelist, myInfo: ChainBlockInfo<number>) => {
+        execute: async (myInfo: ChainBlockInfo<number>) => {
           if (myInfo.prepared === 1) {
-            activater.getOpponentPlayer().effectDamage(800, entity);
+            myInfo.activator.getOpponentPlayer().effectDamage(800, myInfo.action.entity);
             return true;
           }
-          activater.heal(1200, entity);
+          myInfo.activator.heal(1200, myInfo.action.entity);
           return true;
         },
         settle: async () => true,

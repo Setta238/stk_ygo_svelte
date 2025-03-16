@@ -14,7 +14,7 @@ import {
 import {} from "@stk_utils/funcs/StkArrayUtils";
 
 import type { CardDefinition } from "./CardDefinitions";
-import { createSelfProcFilterContinuousEffect, type ContinuousEffectBase } from "@ygo_duel/class/ContinuousEffect";
+import { createSelfProcFilterContinuousEffect, type ContinuousEffectBase } from "@ygo_duel/class/DuelContinuousEffect";
 import { ProcFilter } from "@ygo_duel/class/DuelProcFilter";
 
 export const createCardDefinitions_Monster = (): CardDefinition[] => {
@@ -98,16 +98,16 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
           await entity.banish(["Cost"], entity, entity.controller);
           return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromDeck"], prepared: undefined };
         },
-        execute: async (entity: DuelEntity, activater: Duelist): Promise<boolean> => {
-          const availableCells = activater.getAvailableMonsterZones();
+        execute: async (entity: DuelEntity, activator: Duelist): Promise<boolean> => {
+          const availableCells = activator.getAvailableMonsterZones();
           if (!availableCells.length) {
             return false;
           }
-          const newOne = activater.getDeckCell().cardEntities.find((card) => card.nm === "Ｄ－ＨＥＲＯ ディアボリックガイ");
+          const newOne = activator.getDeckCell().cardEntities.find((card) => card.nm === "Ｄ－ＨＥＲＯ ディアボリックガイ");
           if (!newOne) {
             return false;
           }
-          await activater.summon(newOne, ["Attack", "Defense"], availableCells, "SpecialSummon", ["Effect"], entity, false);
+          await activator.summon(newOne, ["Attack", "Defense"], availableCells, "SpecialSummon", ["Effect"], entity, false);
           return true;
         },
         settle: async () => true,
@@ -151,16 +151,16 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
           await cost[0].returnToDeck("Top", ["Cost"], entity, entity.controller);
           return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromGraveyard"], prepared: undefined };
         },
-        execute: async (entity: DuelEntity, activater: Duelist): Promise<boolean> => {
+        execute: async (entity: DuelEntity, activator: Duelist): Promise<boolean> => {
           // 同一チェーン中に墓地を離れていたら不可
-          if (activater.duel.clock.isSameChain(entity.wasMovedAt)) {
+          if (activator.duel.clock.isSameChain(entity.wasMovedAt)) {
             return false;
           }
           const availableCells = entity.controller.getAvailableMonsterZones();
           if (availableCells.length === 0) {
             return false;
           }
-          await activater.summon(entity, ["Attack", "Defense"], availableCells, "SpecialSummon", ["Effect"], entity, false);
+          await activator.summon(entity, ["Attack", "Defense"], availableCells, "SpecialSummon", ["Effect"], entity, false);
           entity.info.willBeBanished = true;
           return true;
         },
@@ -195,16 +195,16 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
           await entity.controller.getDeckCell().cardEntities[0].sendToGraveyard(["Cost"], entity, entity.controller);
           return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromGraveyard"], prepared: undefined };
         },
-        execute: async (entity: DuelEntity, activater: Duelist): Promise<boolean> => {
+        execute: async (entity: DuelEntity, activator: Duelist): Promise<boolean> => {
           // 同一チェーン中に墓地を離れていたら不可
-          if (activater.duel.clock.isSameChain(entity.wasMovedAt)) {
+          if (activator.duel.clock.isSameChain(entity.wasMovedAt)) {
             return false;
           }
           const availableCells = entity.controller.getAvailableMonsterZones();
           if (availableCells.length === 0) {
             return false;
           }
-          await activater.summon(entity, ["Attack", "Defense"], availableCells, "SpecialSummon", ["Effect"], entity);
+          await activator.summon(entity, ["Attack", "Defense"], availableCells, "SpecialSummon", ["Effect"], entity);
           return true;
         },
         settle: async () => true,
@@ -240,13 +240,13 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["SendToGraveyardFromDeck"], prepared: undefined };
         },
-        execute: async (entity: DuelEntity, activater: Duelist): Promise<boolean> => {
+        execute: async (entity: DuelEntity, activator: Duelist): Promise<boolean> => {
           const choices = entity.controller.getDeckCell().cardEntities.filter((card) => card.attr.includes("Dark"));
           if (choices.length === 0) {
             return false;
           }
-          await entity.field.sendToGraveyard("墓地に送るモンスターを選択", activater, choices, 1, (list) => list.length === 1, ["Effect"], entity, false);
-          activater.shuffleDeck();
+          await entity.field.sendToGraveyard("墓地に送るモンスターを選択", activator, choices, 1, (list) => list.length === 1, ["Effect"], entity, false);
+          activator.shuffleDeck();
           return true;
         },
         settle: async () => true,
@@ -281,13 +281,13 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["SendToGraveyardFromDeck"], prepared: undefined };
         },
-        execute: async (entity: DuelEntity, activater: Duelist): Promise<boolean> => {
+        execute: async (entity: DuelEntity, activator: Duelist): Promise<boolean> => {
           const choices = entity.controller.getDeckCell().cardEntities.filter((card) => (card.lvl ?? 5) < 5);
           if (choices.length === 0) {
             return false;
           }
-          await entity.field.sendToGraveyard("墓地に送るモンスターを選択", activater, choices, 1, (list) => list.length === 1, ["Effect"], entity, false);
-          activater.shuffleDeck();
+          await entity.field.sendToGraveyard("墓地に送るモンスターを選択", activator, choices, 1, (list) => list.length === 1, ["Effect"], entity, false);
+          activator.shuffleDeck();
           return true;
         },
         settle: async () => true,
@@ -313,8 +313,8 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"], prepared: undefined };
         },
-        execute: async (entity: DuelEntity, activater: Duelist): Promise<boolean> => {
-          await activater.draw(1, entity, activater);
+        execute: async (entity: DuelEntity, activator: Duelist): Promise<boolean> => {
+          await activator.draw(1, entity, activator);
 
           return true;
         },
@@ -347,9 +347,9 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromGraveyard"], prepared: undefined };
         },
-        execute: async (entity: DuelEntity, activater: Duelist): Promise<boolean> => {
+        execute: async (entity: DuelEntity, activator: Duelist): Promise<boolean> => {
           // 同一チェーン中に墓地を離れていたら不可
-          if (activater.duel.clock.isSameChain(entity.wasMovedAt)) {
+          if (activator.duel.clock.isSameChain(entity.wasMovedAt)) {
             return false;
           }
           const availableCells = entity.controller.getAvailableMonsterZones();
@@ -362,7 +362,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
           if (entity.face === "FaceDown") {
             return false;
           }
-          await activater.summon(entity, ["Attack", "Defense"], availableCells, "SpecialSummon", ["Effect"], entity);
+          await activator.summon(entity, ["Attack", "Defense"], availableCells, "SpecialSummon", ["Effect"], entity);
           return true;
         },
         settle: async () => true,
@@ -394,14 +394,14 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"], prepared: undefined };
         },
-        execute: async (entity: DuelEntity, activater: Duelist): Promise<boolean> => {
+        execute: async (entity: DuelEntity, activator: Duelist): Promise<boolean> => {
           // 青眼の白龍固定なので、一枚見つけたらそれでよい。
-          const monster = activater.getDeckCell().cardEntities.find((card) => card.nm === "青眼の白龍");
+          const monster = activator.getDeckCell().cardEntities.find((card) => card.nm === "青眼の白龍");
           if (!monster) {
             return false;
           }
-          await monster.addToHand(["Effect"], entity, activater);
-          activater.shuffleDeck();
+          await monster.addToHand(["Effect"], entity, activator);
+          activator.shuffleDeck();
           return true;
         },
         settle: async () => true,
@@ -451,7 +451,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
           },
           execute: async (
             entity: DuelEntity,
-            activater: Duelist,
+            activator: Duelist,
             myInfo: ChainBlockInfo<number>,
             chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>
           ): Promise<boolean> => {

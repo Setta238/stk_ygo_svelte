@@ -245,7 +245,7 @@ export class Duel {
             continue;
           }
 
-          await response.action.execute(this.priorityHolder, chainBlockInfo, this.chainBlockInfos);
+          await response.action.execute(chainBlockInfo, this.chainBlockInfos);
 
           this.clock.incrementChainSeq();
         } else {
@@ -312,7 +312,7 @@ export class Duel {
           continue;
         }
         //チェーンに乗らない処理を実行し、処理番号をインクリメント
-        await response.action.execute(this.priorityHolder, info, []);
+        await response.action.execute(info, []);
         this.clock.incrementChainSeq();
 
         //フリーチェーン処理へ
@@ -322,12 +322,12 @@ export class Duel {
 
         //ダメージステップ処理へ
         this.clock.incrementStepSeq();
-        await this.procBattlePhaseDamageStep();
+        await this.procBattlePhaseDamageStep(info);
       }
     }
     this.clock.incrementStepSeq();
   };
-  private readonly procBattlePhaseDamageStep = async () => {
+  private readonly procBattlePhaseDamageStep = async (chainBlockInfo: ChainBlockInfo<unknown>) => {
     this.phaseStep = "damage";
     const attacker = this.attackingMonster;
     const defender = this.targetForAttack;
@@ -370,10 +370,10 @@ export class Duel {
 
       // 戦闘破壊計算
       if (atkPoint > 0 && atkPoint >= defPoint) {
-        defender.tryDestoryByBattle(attacker.controller, attacker);
+        defender.tryDestoryByBattle(attacker.controller, attacker, chainBlockInfo.action);
       }
       if (defender.battlePotion === "Attack" && atkPoint <= defPoint) {
-        attacker.tryDestoryByBattle(attacker.controller, defender);
+        attacker.tryDestoryByBattle(attacker.controller, defender, chainBlockInfo.action);
       }
     }
 
@@ -521,11 +521,11 @@ export class Duel {
 
     if (chainBlock) {
       // この時点のコントローラーが効果処理を行う
-      const activater = chainBlock.entity.controller;
+      const activator = chainBlock.entity.controller;
 
       const chainCount = this.clock.chainBlockSeq + 1;
 
-      this.log.info(`チェーン${chainCount}: ${convertCardActionToString(chainBlock)}を発動`, activater);
+      this.log.info(`チェーン${chainCount}: ${convertCardActionToString(chainBlock)}を発動`, activator);
 
       // コスト処理
       const chainBlockInfo = await chainBlock.prepare(chainBlock.cell, this.chainBlockInfos, false);
@@ -546,7 +546,7 @@ export class Duel {
         _triggerEffets.filter((e) => e.seq !== chainBlock?.seq)
       );
 
-      this.log.info(`チェーン${chainCount}: ${convertCardActionToString(chainBlock)}の効果処理。`, activater);
+      this.log.info(`チェーン${chainCount}: ${convertCardActionToString(chainBlock)}の効果処理。`, activator);
       console.log(chainBlockInfo);
       if (chainBlockInfo.isNegatedActivationBy) {
         this.log.info(
@@ -559,7 +559,7 @@ export class Duel {
           chainBlockInfo.activator
         );
       } else {
-        await chainBlock.execute(activater, chainBlockInfo, this.chainBlockInfos);
+        await chainBlock.execute(chainBlockInfo, this.chainBlockInfos);
       }
 
       this.clock.incrementProcSeq();

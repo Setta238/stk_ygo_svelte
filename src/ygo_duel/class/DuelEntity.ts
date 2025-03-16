@@ -22,7 +22,7 @@ import { defaultAttackAction, defaultBattlePotisionChangeAction, defaultNormalSu
 import { cardDefinitionDic, cardInfoDic } from "@ygo/class/CardInfo";
 import { CardAction, type CardActionBase } from "./DuelCardAction";
 import type { ProcFilter } from "./DuelProcFilter";
-import { ContinuousEffect, type ContinuousEffectBase } from "./ContinuousEffect";
+import { ContinuousEffect, type ContinuousEffectBase } from "./DuelContinuousEffect";
 
 export type TDuelEntityFace = "FaceUp" | "FaceDown";
 export type TDuelEntityOrientation = "Horizontal" | "Vertical";
@@ -306,29 +306,30 @@ export class DuelEntity {
 
   public readonly toString = () => `《${this.nm}》`;
 
-  public readonly canBeTargetOfEffect = (activator: Duelist, entity: DuelEntity): boolean =>
+  public readonly canBeTargetOfEffect = (activator: Duelist, entity: DuelEntity, action: CardAction<unknown>): boolean =>
     this.getAllProcFilter()
       .filter((pf) => pf.procType === "EffectTarget")
-      .every((pf) => pf.filter(activator, entity, [this]));
+      .every((pf) => pf.filter(activator, entity, action, [this]));
 
-  public readonly canBeTargetOfBattle = (activator: Duelist, entity: DuelEntity): boolean =>
+  public readonly canBeTargetOfBattle = (activator: Duelist, entity: DuelEntity, action: CardAction<unknown>): boolean =>
     this.getAllProcFilter()
       .filter((pf) => pf.procType === "BattleTarget")
-      .every((pf) => pf.filter(activator, entity, [this]));
+      .every((pf) => pf.filter(activator, entity, action, [this]));
 
-  public readonly tryDestoryByBattle = (activator: Duelist, entity: DuelEntity) => {
+  public readonly tryDestoryByBattle = (activator: Duelist, entity: DuelEntity, action: CardAction<unknown>): boolean => {
     this.info.isDying = this.getAllProcFilter()
       .filter((pf) => pf.procType === "BattleDestory")
-      .every((pf) => pf.filter(activator, entity, [this]));
+      .every((pf) => pf.filter(activator, entity, action, [this]));
     if (this.info.isDying) {
       this.duel.log.info(`${this.toString()}を戦闘破壊`, this.controller.getOpponentPlayer());
     }
+    return this.info.isDying;
   };
 
-  public readonly canBeSyncroMaterials = (syncroMonster: DuelEntity, materials: DuelEntity[]) => {
+  public readonly canBeSyncroMaterials = (action: CardAction<unknown>, materials: DuelEntity[]) => {
     return (this.info.isDying = this.getAllProcFilter()
       .filter((pf) => pf.procType === "BattleDestory")
-      .every((pf) => pf.filter(syncroMonster.controller, syncroMonster, materials)));
+      .every((pf) => pf.filter(action.entity.controller, action.entity, action, materials)));
   };
 
   public readonly getIndexInCell = (): number => {

@@ -78,7 +78,7 @@ export type CardActionBase<T> = {
    * @param entity
    * @returns 発動時にドラッグ・アンド・ドロップ可能である場合、選択肢のcellが返る。
    */
-  validate: (entity: DuelEntity, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => DuelFieldCell[] | undefined;
+  validate: (action: CardAction<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => DuelFieldCell[] | undefined;
   /**
    * コストの支払い、対象に取るなど
    * フィールドに残らない魔法罠の場合、isDyingの設定が必要
@@ -87,7 +87,7 @@ export type CardActionBase<T> = {
    * @returns
    */
   prepare: (
-    entity: DuelEntity,
+    action: CardAction<T>,
     cell: DuelFieldCell | undefined,
     chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
     cancelable: boolean
@@ -95,13 +95,13 @@ export type CardActionBase<T> = {
   /**
    * 実際の処理部分
    * @param entity
-   * @param activater
+   * @param activator
    * @param cell
    * @param prepared
    * @returns
    */
-  execute: (entity: DuelEntity, activater: Duelist, myInfo: ChainBlockInfo<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => Promise<boolean>;
-  settle: (entity: DuelEntity, activater: Duelist, myInfo: ChainBlockInfo<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => Promise<boolean>;
+  execute: (myInfo: ChainBlockInfo<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => Promise<boolean>;
+  settle: (myInfo: ChainBlockInfo<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => Promise<boolean>;
 };
 export interface ICardAction<T> {
   title: string;
@@ -132,13 +132,13 @@ export interface ICardAction<T> {
   ) => Promise<ChainBlockInfo<T> | undefined>;
   /**
    *
-   * @param activater 効果発動時のコントローラー
+   * @param activator 効果発動時のコントローラー
    * @param cell 効果発動時にドラッグ・アンド・ドロップなどで指定されたセルがある場合、値が入る。
    * @param prepared 実行時に必要な任意の情報
    * @returns 不発の場合、false
    */
-  execute: (activater: Duelist, myInfo: ChainBlockInfo<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => Promise<boolean>;
-  settle: (activater: Duelist, myInfo: ChainBlockInfo<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => Promise<boolean>;
+  execute: (myInfo: ChainBlockInfo<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => Promise<boolean>;
+  settle: (myInfo: ChainBlockInfo<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => Promise<boolean>;
   autoWord?: string;
   cell?: DuelFieldCell;
   pos?: TBattlePosition;
@@ -233,7 +233,7 @@ export class CardAction<T> implements ICardAction<T> {
   public readonly validate = (chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => {
     if (this.isOnlyNTimesPerDuel > 0) {
       if (
-        this.entity.field.duel.cardActionLog.records.filter((rec) => this.isSame(rec.cardAction)).filter((rec) => rec.activater).length >=
+        this.entity.field.duel.cardActionLog.records.filter((rec) => this.isSame(rec.cardAction)).filter((rec) => rec.activator).length >=
         this.isOnlyNTimesPerDuel
       ) {
         return;
@@ -244,15 +244,15 @@ export class CardAction<T> implements ICardAction<T> {
         this.entity.field.duel.cardActionLog.records
           .filter((rec) => this.isSameGroupPerTurn(rec.cardAction))
           .filter((rec) => rec.turn === this.entity.field.duel.clock.turn)
-          .filter((rec) => rec.activater).length >= this.isOnlyNTimesPerTurn
+          .filter((rec) => rec.activator).length >= this.isOnlyNTimesPerTurn
       ) {
         return;
       }
     }
-    return this.cardActionBase.validate(this.entity, chainBlockInfos);
+    return this.cardActionBase.validate(this, chainBlockInfos);
   };
   public readonly prepare = async (cell: DuelFieldCell | undefined, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, cancelable: boolean) => {
-    const prepared = await this.cardActionBase.prepare(this.entity, cell, chainBlockInfos, cancelable);
+    const prepared = await this.cardActionBase.prepare(this, cell, chainBlockInfos, cancelable);
     if (prepared === undefined) {
       return;
     }
@@ -262,10 +262,10 @@ export class CardAction<T> implements ICardAction<T> {
     return { ...prepared, action: this, activator: this.entity.controller };
   };
 
-  public readonly execute = (activater: Duelist, myInfo: ChainBlockInfo<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) =>
-    this.cardActionBase.execute(this.entity, activater, myInfo, chainBlockInfos);
-  public readonly settle = (activater: Duelist, myInfo: ChainBlockInfo<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) =>
-    this.cardActionBase.settle(this.entity, activater, myInfo, chainBlockInfos);
+  public readonly execute = (myInfo: ChainBlockInfo<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) =>
+    this.cardActionBase.execute(myInfo, chainBlockInfos);
+  public readonly settle = (myInfo: ChainBlockInfo<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) =>
+    this.cardActionBase.settle(myInfo, chainBlockInfos);
 
   public readonly isSame = (other: CardAction<unknown>) => this.entity.origin.name === other.entity.origin.name && this.title === other.title;
   public readonly isSameGroupPerTurn = (other: CardAction<unknown>) =>

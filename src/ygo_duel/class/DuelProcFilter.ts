@@ -1,3 +1,4 @@
+import type { CardAction } from "./DuelCardAction";
 import type { DuelEntity, TSummonPosCauseReason, TSummonRuleCauseReason } from "./DuelEntity";
 import { type Duelist } from "./Duelist";
 
@@ -19,14 +20,14 @@ export type TRemoveTrigger = (typeof removeTriggers)[number];
 export class ProcFilter {
   public readonly title: string;
   public readonly procType: TProcType;
-  public readonly filter: (activator: Duelist, entity: DuelEntity, effectedEntites: DuelEntity[]) => boolean;
+  public readonly filter: (activator: Duelist, entity: DuelEntity, action: CardAction<unknown>, effectedEntites: DuelEntity[]) => boolean;
   public readonly validateAlive: () => boolean;
   public readonly removeTriggers: TRemoveTrigger[];
   public readonly isSpawnedBy: DuelEntity;
   public constructor(
     title: string,
     procType: TProcType,
-    filter: (activator: Duelist, entity: DuelEntity, effectedEntites: DuelEntity[]) => boolean,
+    filter: (activator: Duelist, entity: DuelEntity, action: CardAction<unknown>, effectedEntites: DuelEntity[]) => boolean,
     validateAlive: () => boolean,
     removeTriggers: TRemoveTrigger[],
     isSpawnedBy: DuelEntity
@@ -44,7 +45,7 @@ export class BroadProcFilter extends ProcFilter {
   public constructor(
     title: string,
     procType: TProcType,
-    filter: (activator: Duelist, entity: DuelEntity, effectedEntites: DuelEntity[]) => boolean,
+    filter: (activator: Duelist, entity: DuelEntity, action: CardAction<unknown>, effectedEntites: DuelEntity[]) => boolean,
     validateAlive: () => boolean,
     removeTriggers: TRemoveTrigger[],
     isSpawnedBy: DuelEntity,

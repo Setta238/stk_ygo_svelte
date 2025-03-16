@@ -5,7 +5,7 @@ import { type Duelist } from "./Duelist";
 type CardActionLogRecord = {
   seq: number;
   turn: number;
-  activater: Duelist | undefined;
+  activator: Duelist | undefined;
   cardAction: CardAction<unknown>;
 };
 export default class DuelCardActionLog {
@@ -16,11 +16,11 @@ export default class DuelCardActionLog {
     this.nextSeq = 0;
     this.duel = duel;
   }
-  public readonly push = (activater: Duelist, action: CardAction<unknown>): void => {
+  public readonly push = (activator: Duelist, action: CardAction<unknown>): void => {
     this.records.push({
       seq: this.nextSeq++,
       turn: this.duel.clock.turn,
-      activater: activater,
+      activator: activator,
       cardAction: action,
     });
   };

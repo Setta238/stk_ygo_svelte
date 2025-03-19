@@ -2,7 +2,6 @@ import type { TBattlePosition } from "@ygo/class/YgoTypes";
 import { CardAction, type CardActionBase, type ChainBlockInfo, type ChainBlockInfoBase } from "@ygo_duel/class/DuelCardAction";
 import { DuelEntity, posToSummonPos, type TDestoryCauseReason, type TDuelCauseReason } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCell, DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
-import { type Duelist } from "@ygo_duel/class/Duelist";
 export type SummonPrepared = { dest: DuelFieldCell; pos: TBattlePosition; materials: DuelEntity[] };
 export const defaultPrepare = async () => {
   return { selectedEntities: [], chainBlockTags: [], prepared: undefined };
@@ -15,14 +14,14 @@ export const defaultNormalSummonValidate = (action: CardAction<SummonPrepared>):
   }
 
   // レベルがないモンスターは通常召喚不可
-  if (!action.entity.status.level) {
+  if (!action.entity.lvl) {
     return;
   }
 
   const availableCells = action.entity.controller.getAvailableMonsterZones();
 
   // 4以下は空きセルが必要
-  if (action.entity.status.level < 5) {
+  if (action.entity.lvl < 5) {
     return availableCells.length > 0 ? availableCells : undefined;
   }
 
@@ -30,7 +29,7 @@ export const defaultNormalSummonValidate = (action: CardAction<SummonPrepared>):
 
   // リリース可能なモンスターが不足する場合、アドバンス召喚不可
   // リリース処理が先にくるので、選択可能なセルはなし
-  return releasableMonsters.length < (action.entity.status.level < 7 ? 1 : 2) ? undefined : [];
+  return releasableMonsters.length < (action.entity.lvl < 7 ? 1 : 2) ? undefined : [];
 
   // TODO : クロス・ソウルの「しなければならない」の制限の考慮。エクストラモンスターゾーンまたは相手モンスターゾーンにしかリリース可能なモンスターがいない場合、空きが必要。
   // if (emptyCells.length > 0 || releasableMonsters.filter((m) => m.controller === entity.controller && m.fieldCell.cellType === "MonsterZone")) {
@@ -44,7 +43,7 @@ export const defaultNormalSummonPrepare = async (
   chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
   cancelable: boolean
 ): Promise<ChainBlockInfoBase<SummonPrepared> | undefined> => {
-  if (!action.entity.status.level) {
+  if (!action.entity.lvl) {
     return;
   }
   let availableCells = cell ? [cell] : action.entity.controller.getAvailableMonsterZones();
@@ -53,10 +52,10 @@ export const defaultNormalSummonPrepare = async (
   }
   let _cancelable = cancelable;
   let materials: DuelEntity[] = [];
-  if (action.entity.status.level > 4) {
+  if (action.entity.lvl > 4) {
     const releasableMonsters = action.entity.controller.getReleasableMonsters();
     const exZoneMonsters = action.entity.controller.getExtraMonsterZones();
-    const qty = action.entity.status.level < 7 ? 1 : 2;
+    const qty = action.entity.lvl < 7 ? 1 : 2;
 
     if (exZoneMonsters.length >= qty) {
       releasableMonsters.filter((monster) => monster.fieldCell.cellType !== "ExtraMonsterZone");
@@ -113,13 +112,13 @@ export const defaultNormalSummonExecute = async (myInfo: ChainBlockInfo<SummonPr
 };
 
 export const defaultRuleSpecialSummonPrepare = async (
-  entity: DuelEntity,
+  action: CardAction<SummonPrepared>,
   cell: DuelFieldCell | undefined,
   posList: TBattlePosition[],
   materials: DuelEntity[],
   cancelable: boolean
 ): Promise<ChainBlockInfoBase<SummonPrepared> | undefined> => {
-  const availableCells = cell ? [cell] : entity.controller.getAvailableMonsterZones();
+  const availableCells = cell ? [cell] : action.entity.controller.getAvailableMonsterZones();
   if (availableCells.length === 0) {
     return;
   }
@@ -128,12 +127,15 @@ export const defaultRuleSpecialSummonPrepare = async (
 
   if (posList.length) {
     if (posList.includes("Attack")) {
-      pos = (entity.atk ?? 0) > 0 && (entity.atk ?? 0) >= (entity.def ?? 0) ? "Attack" : posList.filter((p) => p !== "Attack").randomPick(1)[0];
+      pos =
+        (action.entity.atk ?? 0) > 0 && (action.entity.atk ?? 0) >= (action.entity.def ?? 0)
+          ? "Attack"
+          : posList.filter((p) => p !== "Attack").randomPick(1)[0];
     }
   }
 
-  if (entity.controller.duelistType !== "NPC") {
-    const res = await entity.field.duel.view.waitSelectSummonDest(entity, availableCells, posList, cancelable);
+  if (action.entity.controller.duelistType !== "NPC") {
+    const res = await action.entity.field.duel.view.waitSelectSummonDest(action.entity, availableCells, posList, cancelable);
     if (!res) {
       return;
     }
@@ -144,13 +146,13 @@ export const defaultRuleSpecialSummonPrepare = async (
   return { selectedEntities: [], chainBlockTags: [], prepared: { dest, pos, materials } };
 };
 
-export const defaultRuleSpecialSummonExecute = async (entity: DuelEntity, activator: Duelist, myInfo: ChainBlockInfo<SummonPrepared>): Promise<boolean> => {
+export const defaultRuleSpecialSummonExecute = async (myInfo: ChainBlockInfo<SummonPrepared>): Promise<boolean> => {
   const movedAs: TDuelCauseReason[] = ["Rule", "SpecialSummon"];
 
-  await entity.summon(myInfo.prepared.dest, myInfo.prepared.pos, "SpecialSummon", movedAs, entity, activator);
-  entity.info.materials = myInfo.prepared.materials;
-  activator.info.specialSummonCount++;
-  activator.info.specialSummonCountQty++;
+  await myInfo.action.entity.summon(myInfo.prepared.dest, myInfo.prepared.pos, "SpecialSummon", movedAs, myInfo.action.entity, myInfo.activator);
+  myInfo.action.entity.info.materials = myInfo.prepared.materials;
+  myInfo.activator.info.specialSummonCount++;
+  myInfo.activator.info.specialSummonCountQty++;
   return true;
 };
 
@@ -279,7 +281,6 @@ export const defaultSyncroMaterialsValidator = (
     return false;
   }
 
-  // シンクロモンスター側から見たチューナー側の条件チェック
   // TODO https://yugioh-wiki.net/index.php?%A1%D4%B8%B8%B1%C6%B2%A6%20%A5%CF%A5%A4%A5%C9%A1%A6%A5%E9%A5%A4%A5%C9%A1%D5#list
   if (!tunersValidator(materials.filter((cost) => cost.status.monsterCategories?.some((cat) => cat === "Tuner")))) {
     return false;
@@ -287,11 +288,13 @@ export const defaultSyncroMaterialsValidator = (
 
   // シンクロモンスター側から見た非チューナー側の条件チェック
   if (!nonTunersValidator(materials.filter((cost) => cost.status.monsterCategories?.every((cat) => cat !== "Tuner")))) {
+    console.log("hoge");
     return false;
   }
 
   // 素材側から見た全体の条件チェック（デブリ・ドラゴンなど）
   if (!materials.every((m) => m.canBeSyncroMaterials(action as CardAction<unknown>, materials))) {
+    console.log("fuga");
     return false;
   }
 
@@ -306,6 +309,7 @@ export const defaultSyncroMaterialsValidator = (
       materials
     )
   ) {
+    console.log("piyo");
     return false;
   }
 

@@ -36,8 +36,8 @@
         <div>{entity.nm}</div>
       </div>
       <div class="duel_card_info_row" style="position:sticky; top:0;">
-        <div>{"★".repeat(entity.status.level || 0)}</div>
-        <div>{"☆".repeat(entity.status.rank || 0)}</div>
+        <div>{"★".repeat(entity.lvl || 0)}</div>
+        <div>{"☆".repeat(entity.rank || 0)}</div>
       </div>
       {#if mode === "Normal"}
         {#if entity.status.monsterCategories?.includes("Pendulum")}
@@ -94,7 +94,12 @@
             {/each}
             <div>{"],"}</div>
             <div>"procFilters" :{"["}</div>
-            {#each entity.getAllProcFilter() as pf}
+            {#each entity.procFilterBundle.operators as pf}
+              <div>"{pf.isSpawnedBy.toString()} {pf.title}",</div>
+            {/each}
+            <div>{"],"}</div>
+            <div>"numericStateOperators" :{"["}</div>
+            {#each entity.numericOprsBundle.operators as pf}
               <div>"{pf.isSpawnedBy.toString()} {pf.title}",</div>
             {/each}
             <div>{"],"}</div>

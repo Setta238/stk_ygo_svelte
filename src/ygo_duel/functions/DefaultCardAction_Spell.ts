@@ -1,6 +1,6 @@
 import { CardAction, type CardActionBase, type ChainBlockInfo, type ChainBlockInfoBase, type TEffectTag } from "@ygo_duel/class/DuelCardAction";
 import { DuelEntity, type TDuelCauseReason } from "@ygo_duel/class/DuelEntity";
-import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
+import { spellTrapZoneCellTypes, type DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 export const defaultSpellTrapSetValidate = (action: CardAction<{ dest: DuelFieldCell }>): DuelFieldCell[] | undefined => {
   if (action.entity.status.spellCategory === "Field") {
     const fieldZone = action.entity.controller.getFieldZone();
@@ -17,6 +17,18 @@ export const defaultSpellTrapSetPrepare = async (
     return { selectedEntities: [], chainBlockTags: [], prepared: { dest: cell } };
   }
 
+  if (action.entity.status.spellCategory === "Field") {
+    const fieldZone = action.entity.controller.getFieldZone();
+    if (!fieldZone.isAvailable) {
+      return;
+    }
+    for (const oldOne of fieldZone.cardEntities) {
+      await oldOne.sendToGraveyard(["Rule"], action.entity, action.entity.controller);
+      action.entity.field.duel.log.info(`フィールド魔法の上書きにより、${oldOne.toString()}は墓地に送られた。`, action.entity.controller);
+    }
+
+    return { selectedEntities: [], chainBlockTags: [], prepared: { dest: fieldZone } };
+  }
   const availableCells = action.entity.controller.getAvailableSpellTrapZones();
 
   if (availableCells.length === 0) {
@@ -78,13 +90,15 @@ export const defaultSpellTrapValidate = <T>(action: CardAction<T>): DuelFieldCel
   if (action.entity.info.isSettingSickness) {
     return;
   }
-  if (action.entity.fieldCell.cellType === "FieldSpellZone" && action.entity.face === "FaceDown") {
-    return [];
+  if (spellTrapZoneCellTypes.some((ct) => ct === action.entity.fieldCell.cellType)) {
+    return action.entity.face === "FaceDown" ? [] : undefined;
   }
   if (!action.entity.controller.isTurnPlayer) {
     return;
   }
-
+  if (action.entity.status.spellCategory === "Field") {
+    return [action.entity.controller.getFieldZone()];
+  }
   const availableCells = action.entity.controller.getAvailableSpellTrapZones();
   return availableCells.length > 0 ? availableCells : undefined;
 };
@@ -93,24 +107,47 @@ export const defaultSpellTrapPrepare = async <T>(
   cell: DuelFieldCell | undefined,
   chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
   cancelable: boolean,
-  chainBlockTags: TEffectTag[],
-  selectedEntities: DuelEntity[],
+  chainBlockTags: TEffectTag[] | undefined,
+  selectedEntities: DuelEntity[] | undefined,
   prepared: T
 ): Promise<ChainBlockInfoBase<T> | undefined> => {
-  action.entity.info.isDying = true;
-  if (action.entity.fieldCell.cellType === "FieldSpellZone" && action.entity.face === "FaceDown") {
-    action.entity.setNonFieldPosition("FaceUp", true);
-    return { chainBlockTags, selectedEntities, prepared };
+  if (!action.entity.isLikeContinuousSpell) {
+    action.entity.info.isDying = true;
   }
+  if (spellTrapZoneCellTypes.some((ct) => ct === action.entity.fieldCell.cellType) && action.entity.face === "FaceDown") {
+    action.entity.setNonFieldPosition("FaceUp", true);
+    return { chainBlockTags: chainBlockTags ?? [], selectedEntities: selectedEntities ?? [], prepared };
+  }
+  if (action.entity.status.spellCategory === "Field") {
+    if (action.entity.controller.getFieldZone().cardEntities.length) {
+      const oldOne = action.entity.controller.getFieldZone().cardEntities[0];
+      await oldOne.sendToGraveyard(["Rule"], action.entity, action.entity.controller);
+      action.entity.controller.duel.log.info(`フィールド魔法の上書きにより、${oldOne.toString()}は墓地に送られた。`, action.entity.controller);
+    }
+  }
+
   if (action.entity.fieldCell.cellType === "Hand") {
     const causedBy: TDuelCauseReason[] = ["SpellTrapActivate"];
-    const availableCells = cell ? [cell] : action.entity.controller.getAvailableSpellTrapZones();
+    const availableCells = cell
+      ? [cell]
+      : action.entity.status.spellCategory === "Field"
+        ? [action.entity.controller.getFieldZone()]
+        : action.entity.controller.getAvailableSpellTrapZones();
     await action.entity.field.activateSpellTrapFromHand(action.entity, availableCells, causedBy, action.entity, action.entity.controller, true);
-    return { chainBlockTags, selectedEntities, prepared };
+    return { chainBlockTags: chainBlockTags ?? [], selectedEntities: selectedEntities ?? [], prepared };
   }
   return;
 };
-
+export const defaultContinuousSpellTrapExecute = async (myInfo: ChainBlockInfo<unknown>): Promise<boolean> => {
+  // 永続魔法的なものの場合、この時点で効果適用開始
+  if (myInfo.action.playType === "CardActivation" && myInfo.action.entity.isOnField && myInfo.action.entity.isLikeContinuousSpell) {
+    // 永続効果の適用
+    for (const ce of myInfo.action.entity.continuousEffects.filter((ce) => ce.canStart(myInfo.action.entity.fieldCell, myInfo.action.entity.face))) {
+      await ce.start();
+    }
+  }
+  return true;
+};
 export const getDefaultSearchSpellAction = (filter: (card: DuelEntity) => boolean): CardActionBase<undefined> => {
   return {
     title: "発動",

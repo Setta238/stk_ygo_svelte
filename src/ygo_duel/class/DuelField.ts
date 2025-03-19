@@ -5,9 +5,13 @@ import { type Duelist } from "./Duelist";
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import { cellTypeMaster, DuelFieldCell, monsterZoneCellTypes, playFieldCellTypes, type DuelFieldCellType } from "./DuelFieldCell";
 import { CardAction } from "./DuelCardAction";
+import { ProcFilterPool } from "./DuelProcFilter";
+import { NumericStateOperatorPool } from "./DuelNumericStateOperator";
 export class DuelField {
   public readonly cells: DuelFieldCell[][];
   public readonly duel: Duel;
+  public readonly procFilterPool: ProcFilterPool;
+  public readonly numericStateOperatorPool: NumericStateOperatorPool;
   public constructor(duel: Duel) {
     this.duel = duel;
     this.cells = [...Array(7)].map(() => []) as DuelFieldCell[][];
@@ -21,6 +25,8 @@ export class DuelField {
         );
       }
     }
+    this.procFilterPool = new ProcFilterPool();
+    this.numericStateOperatorPool = new NumericStateOperatorPool();
   }
 
   public readonly getAllCells = (): DuelFieldCell[] => {

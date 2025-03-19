@@ -10,6 +10,8 @@ import {
   type TNonBattlePosition,
   type EntityStatusBase,
   getSubsetAsEntityStatusBase,
+  entityFlexibleStatusKeys,
+  type TEntityFlexibleStatusKey,
 } from "@ygo/class/YgoTypes";
 import { SystemError } from "./Duel";
 import { playFieldCellTypes, type DuelFieldCell, type TDuelEntityMovePos } from "./DuelFieldCell";
@@ -206,6 +208,7 @@ export class DuelEntity {
 
   public readonly actions: CardAction<unknown>[] = [];
   public readonly continuousEffects: ContinuousEffect<unknown>[] = [];
+  private _hasDisappeared = false;
   public get status() {
     return this._status;
   }
@@ -217,16 +220,16 @@ export class DuelEntity {
     return this.status.name;
   }
   public get atk() {
-    return this.status.attack;
+    return this.status.calculated.attack;
   }
   public get def() {
-    return this.status.defense;
+    return this.status.calculated.defense;
   }
   public get lvl() {
-    return this.status.level;
+    return this.status.calculated.level;
   }
   public get rank() {
-    return this.status.rank;
+    return this.status.calculated.rank;
   }
   public get attr() {
     return this.status.attribute ? [this.status.attribute] : [];
@@ -235,10 +238,10 @@ export class DuelEntity {
     return this.status.type ? [this.status.type] : [];
   }
   public get psL() {
-    return [this.status.pendulumScaleL];
+    return this.status.calculated.pendulumScaleL;
   }
   public get psR() {
-    return [this.status.pendulumScaleR];
+    return this.status.calculated.pendulumScaleR;
   }
   public get isMoveAtPreviousChain() {
     return this.field.duel.clock.isPreviousChain(this.wasMovedAt);
@@ -250,6 +253,18 @@ export class DuelEntity {
 
   public get isOnField() {
     return playFieldCellTypes.some((t) => t === this.fieldCell.cellType);
+  }
+  public get isLikeContinuousSpell() {
+    return (
+      this.status.spellCategory === "Continuous" ||
+      this.status.spellCategory === "Field" ||
+      this.status.spellCategory === "Equip" ||
+      this.status.trapCategory === "Continuous"
+    );
+  }
+
+  public get hasDisappeared() {
+    return this._hasDisappeared;
   }
   /**
    *
@@ -295,28 +310,21 @@ export class DuelEntity {
     this.wasMovedAs = ["Rule"];
     this.wasMovedAt = this.field.duel.clock;
     this.wasMovedByWhom = owner;
-    this.procFilterBundle = new ProcFilterBundle(this);
-    this.numericOprsBundle = new NumericStateOperatorBundle(this);
+    this.procFilterBundle = new ProcFilterBundle(fieldCell.field.procFilterPool, this);
+    this.numericOprsBundle = new NumericStateOperatorBundle(fieldCell.field.numericStateOperatorPool, this);
     fieldCell.acceptEntities([this], "Top");
   }
 
   public readonly toString = () => `《${this.nm}》`;
 
   public readonly canBeTargetOfEffect = (activator: Duelist, entity: DuelEntity, action: CardAction<unknown>): boolean =>
-    this.procFilterBundle
-      .getAllOperators()
-      .filter((pf) => pf.procType === "EffectTarget")
-      .every((pf) => pf.filter(activator, entity, action, [this]));
+    this.procFilterBundle.operators.filter((pf) => pf.procType === "EffectTarget").every((pf) => pf.filter(activator, entity, action, [this]));
 
   public readonly canBeTargetOfBattle = (activator: Duelist, entity: DuelEntity, action: CardAction<unknown>): boolean =>
-    this.procFilterBundle
-      .getAllOperators()
-      .filter((pf) => pf.procType === "BattleTarget")
-      .every((pf) => pf.filter(activator, entity, action, [this]));
+    this.procFilterBundle.operators.filter((pf) => pf.procType === "BattleTarget").every((pf) => pf.filter(activator, entity, action, [this]));
 
   public readonly tryDestoryByBattle = (activator: Duelist, entity: DuelEntity, action: CardAction<unknown>): boolean => {
-    this.procFilterBundle
-      .getAllOperators()
+    this.info.isDying = this.procFilterBundle.operators
       .filter((pf) => pf.procType === "BattleDestory")
       .every((pf) => pf.filter(activator, entity, action, [this]));
     if (this.info.isDying) {
@@ -326,9 +334,8 @@ export class DuelEntity {
   };
 
   public readonly canBeSyncroMaterials = (action: CardAction<unknown>, materials: DuelEntity[]) => {
-    this.procFilterBundle
-      .getAllOperators()
-      .filter((pf) => pf.procType === "BattleDestory")
+    return this.procFilterBundle.operators
+      .filter((pf) => pf.procType === "SyncroSummon")
       .every((pf) => pf.filter(action.entity.controller, action.entity, action, materials));
   };
 
@@ -521,15 +528,15 @@ export class DuelEntity {
       this.wasMovedBy = movedBy;
       this.wasMovedFrom = this.fieldCell;
       this.wasMovedByWhom = movedByWhom;
-      for (const ce of this.continuousEffects.filter((ce) => ce.canStart(to, this.face))) {
-        await ce.start();
-      }
     }
     if (this.entityType === "Token" && playFieldCellTypes.every((t) => t !== this.fieldCell.cellType)) {
+      this._hasDisappeared = true;
       this.field.duel.log.info(`${this.nm}は消滅した。`, this.controller);
       return;
     }
     to.acceptEntities([this], pos);
+
+    return to;
   };
 
   public readonly initForTurn = () => {
@@ -553,8 +560,19 @@ export class DuelEntity {
   };
 
   private readonly resetStatus = () => {
+    const master = entityFlexibleStatusKeys.reduce(
+      (wip, key) => {
+        wip[key] = this.origin[key] ?? 0;
+        return wip;
+      },
+      {} as { [key in TEntityFlexibleStatusKey]: number }
+    );
+
     this._status = {
       ...JSON.parse(JSON.stringify(this.origin)),
+      origin: { ...master },
+      current: { ...master },
+      calculated: { ...master },
       canAttack: true,
       isEffective: true,
       canDirectAttack: false,

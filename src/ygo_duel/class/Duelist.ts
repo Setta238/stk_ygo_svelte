@@ -113,12 +113,14 @@ export class Duelist {
     entities: DuelEntity[]
   ): boolean => {
     if (
-      !this.entity.procFilterBundle.filter((pf) => summonTypes.find((st) => st === pf.procType)).every((pf) => pf.filter(activator, entity, action, entities))
+      !this.entity.procFilterBundle.operators
+        .filter((pf) => summonTypes.find((st) => st === pf.procType))
+        .every((pf) => pf.filter(activator, entity, action, entities))
     ) {
       return false;
     }
     return summonPosList.some((pos) =>
-      this.entity.procFilterBundle.filter((pf) => pos === pf.procType).every((pf) => pf.filter(activator, entity, action, entities))
+      this.entity.procFilterBundle.operators.filter((pf) => pos === pf.procType).every((pf) => pf.filter(activator, entity, action, entities))
     );
   };
 

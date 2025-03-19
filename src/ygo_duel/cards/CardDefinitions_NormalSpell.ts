@@ -1,6 +1,5 @@
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
-import { type Duelist } from "@ygo_duel/class/Duelist";
 import { defaultSpellTrapPrepare, defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/functions/DefaultCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
@@ -315,12 +314,12 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           }
           return await defaultSpellTrapPrepare(action, cell, chainBlockInfos, false, ["SpecialSummonFromGraveyard"], target, undefined);
         },
-        execute: async (entity: DuelEntity, activator: Duelist, myInfo: ChainBlockInfo<undefined>) => {
-          const emptyCells = activator.getEmptyMonsterZones();
+        execute: async (myInfo: ChainBlockInfo<undefined>) => {
+          const emptyCells = myInfo.activator.getEmptyMonsterZones();
           const target = myInfo.selectedEntities[0];
-          await activator.summon(target, ["Attack", "Defense"], emptyCells, "SpecialSummon", ["Effect"], entity, false);
-          activator.info.specialSummonCount++;
-          activator.info.specialSummonCountQty++;
+          await myInfo.activator.summon(target, ["Attack", "Defense"], emptyCells, "SpecialSummon", ["Effect"], myInfo.action.entity, false);
+          myInfo.activator.info.specialSummonCount++;
+          myInfo.activator.info.specialSummonCountQty++;
           return true;
         },
         settle: async () => true,

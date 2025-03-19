@@ -262,8 +262,14 @@ export class CardAction<T> implements ICardAction<T> {
     return { ...prepared, action: this, activator: this.entity.controller };
   };
 
-  public readonly execute = (myInfo: ChainBlockInfo<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) =>
-    this.cardActionBase.execute(myInfo, chainBlockInfos);
+  public readonly execute = async (myInfo: ChainBlockInfo<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => {
+    if (myInfo.action.playType === "CardActivation" && myInfo.action.entity.isLikeContinuousSpell && myInfo.action.entity.isOnField) {
+      for (const ce of myInfo.action.entity.continuousEffects.filter((ce) => ce.canStart(myInfo.action.entity.fieldCell, myInfo.action.entity.face))) {
+        await ce.start();
+      }
+    }
+    return await this.cardActionBase.execute(myInfo, chainBlockInfos);
+  };
   public readonly settle = (myInfo: ChainBlockInfo<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) =>
     this.cardActionBase.settle(myInfo, chainBlockInfos);
 

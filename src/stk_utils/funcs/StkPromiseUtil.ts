@@ -22,37 +22,41 @@ export const createPromiseSweet = <T>() => {
   return { promise, resolve, reject };
 };
 
-const example = async () => {
-  //カレーを注文
-  const curryPromiseSweet = createPromiseSweet<string>();
+// const example = async () => {
+//   //カレーを注文
+//   const curryPromiseSweet = createPromiseSweet<string>();
 
-  // 料理開始
-  setTimeout(() => {
-    const score = Math.random();
-    if (score > 0.8) {
-      curryPromiseSweet.resolve("サーロインステーキカレー");
-    }
-    if (score > 0.6) {
-      curryPromiseSweet.resolve("エビクリームカレー");
-    }
-    if (score > 0.4) {
-      curryPromiseSweet.resolve("シンプル野菜カレー");
-    }
-    if (score > 0.2) {
-      curryPromiseSweet.resolve("フィッシュヘッドカレー");
-    }
+//   // 料理開始
+//   setTimeout(() => {
+//     const score = Math.random();
+//     if (score > 0.8) {
+//       curryPromiseSweet.resolve("サーロインステーキカレー");
+//       return
+//     }
+//     if (score > 0.6) {
+//       curryPromiseSweet.resolve("エビクリームカレー");
+//       return;
+//     }
+//     if (score > 0.4) {
+//       curryPromiseSweet.resolve("シンプル野菜カレー");
+//       return;
+//     }
+//     if (score > 0.2) {
+//       curryPromiseSweet.resolve("フィッシュヘッドカレー");
+//       return;
+//     }
 
-    curryPromiseSweet.reject("怪しい色のカレー");
-  }, 1234);
+//     curryPromiseSweet.reject("怪しい色のカレー");
+//   }, 1234);
 
-  try {
-    // 料理完了を待機
-    const curry = await curryPromiseSweet.promise;
-    //カレーを入手
-    console.log("おいしいカレー。", curry);
-  } catch (error) {
-    //失敗しちゃった……
-    console.log("これは食べられない。", error);
-  }
-};
-example();
+//   try {
+//     // 料理完了を待機
+//     const curry = await curryPromiseSweet.promise;
+//     //カレーを入手
+//     console.log("おいしいカレー。", curry);
+//   } catch (error) {
+//     //失敗しちゃった……
+//     console.log("これは食べられない。", error);
+//   }
+// };
+// example();

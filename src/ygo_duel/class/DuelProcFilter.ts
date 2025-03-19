@@ -1,5 +1,5 @@
 import type { CardAction } from "./DuelCardAction";
-import { StickyEffectOperatorBase, getStickyEffectOperatorBundleClass, type IBroadOperator } from "./DuelStickyEffectOperatorBase";
+import { StickyEffectOperatorBase, StickyEffectOperatorBundle, StickyEffectOperatorPool } from "./DuelStickyEffectOperatorBase";
 import type { DuelEntity, TSummonPosCauseReason, TSummonRuleCauseReason } from "./DuelEntity";
 import { type Duelist } from "./Duelist";
 
@@ -18,7 +18,11 @@ export type TProcType = (typeof procTypes)[number] | TSummonRuleCauseReason | TS
 export const removeTriggers = ["Set", "LeavesTheField", "Clock"] as const;
 export type TRemoveTrigger = (typeof removeTriggers)[number];
 
-export class ProcFilterBundle extends getStickyEffectOperatorBundleClass<ProcFilter, BroadProcFilter>() {}
+export class ProcFilterPool extends StickyEffectOperatorPool<ProcFilter, ProcFilterBundle> {}
+
+export class ProcFilterBundle extends StickyEffectOperatorBundle<ProcFilter> {
+  protected readonly beforePush: (ope: ProcFilter) => void = () => {};
+}
 export class ProcFilter extends StickyEffectOperatorBase {
   public readonly procType: TProcType;
   public readonly filter: (activator: Duelist, entity: DuelEntity, action: CardAction<unknown>, effectedEntites: DuelEntity[]) => boolean;
@@ -27,26 +31,12 @@ export class ProcFilter extends StickyEffectOperatorBase {
     validateAlive: () => boolean,
     isContinuous: boolean,
     isSpawnedBy: DuelEntity,
+    isApplicableTo: (entity: DuelEntity) => boolean,
     procType: TProcType,
     filter: (activator: Duelist, entity: DuelEntity, action: CardAction<unknown>, effectedEntites: DuelEntity[]) => boolean
   ) {
-    super(title, validateAlive, isContinuous, isSpawnedBy);
+    super(title, validateAlive, isContinuous, isSpawnedBy, isApplicableTo);
     this.procType = procType;
     this.filter = filter;
-  }
-}
-export class BroadProcFilter extends ProcFilter implements IBroadOperator {
-  public readonly isApplicableTo: (entity: DuelEntity) => boolean;
-  public constructor(
-    title: string,
-    validateAlive: () => boolean,
-    isContinuous: boolean,
-    isSpawnedBy: DuelEntity,
-    procType: TProcType,
-    filter: (activator: Duelist, entity: DuelEntity, action: CardAction<unknown>, effectedEntites: DuelEntity[]) => boolean,
-    isApplicableTo: (entity: DuelEntity) => boolean
-  ) {
-    super(title, validateAlive, isContinuous, isSpawnedBy, procType, filter);
-    this.isApplicableTo = isApplicableTo;
   }
 }

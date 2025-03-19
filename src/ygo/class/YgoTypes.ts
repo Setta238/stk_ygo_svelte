@@ -1,3 +1,5 @@
+import {} from "@stk_utils/funcs/StkDateUtils";
+
 export const deckTypes = ["Deck", "ExtraDeck"] as const;
 export type TDeckTypes = (typeof deckTypes)[number];
 export const deckTypeDic: { [key in TDeckTypes]: string } = {
@@ -112,7 +114,7 @@ export const spellCategoryDic: { [key in TSpellCategory]: string } = {
   Equip: "装備",
   Ritual: "儀式",
 };
-export const trapCategories = ["Normal", "Continuous", "Counter"];
+export const trapCategories = ["Normal", "Continuous", "Counter"] as const;
 export type TTrapCategory = (typeof trapCategories)[number];
 export const trapCategoryDic: { [key in TTrapCategory]: string } = {
   Normal: "通常",
@@ -133,6 +135,11 @@ export type CardInfoWiki = {
   wikiTextAll: string;
 };
 
+export const entityFlexibleStatusKeys = ["level", "rank", "attack", "defense", "pendulumScaleR", "pendulumScaleL"] as const;
+export type TEntityFlexibleStatusKey = (typeof entityFlexibleStatusKeys)[number];
+export type TEntityFlexibleStatusGen = "origin" | "current" | "calculated";
+export type FlexibleStatus = { [key in TEntityFlexibleStatusKey]: number | undefined };
+
 export type EntityStatusBase = {
   name: string;
   kind: TCardKind;
@@ -141,28 +148,20 @@ export type EntityStatusBase = {
   trapCategory?: TTrapCategory;
   nameTags?: Array<string>;
   textTags?: Array<string>;
-  level?: number;
-  rank?: number;
   link?: number;
-  attack?: number;
-  defense?: number;
   attribute?: TMonsterAttribute;
   type?: TMonsterType;
-  pendulumScaleR?: number;
-  pendulumScaleL?: number;
   canReborn?: boolean;
   cardId?: number;
-};
-
-export type EntityStatus = EntityStatusBase & {
-  originAttack: number;
-  originDefence: number;
+} & Partial<FlexibleStatus>;
+export type EntityStatus = Omit<EntityStatusBase, TEntityFlexibleStatusKey> & {
   canAttack: boolean;
   canDirectAttack: boolean;
   allowHandSyncro: boolean;
   isEffective: boolean;
   isSelectableForAttack: boolean /** falseのモンスターしかいない場合、ダイレクトアタックになる。《伝説のフィッシャーマン》など。 */;
-};
+  needsRecalculate: boolean;
+} & { [key in TEntityFlexibleStatusGen]: FlexibleStatus };
 
 export type CardInfoDescription = {
   nameKana?: string;

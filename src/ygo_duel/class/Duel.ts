@@ -97,6 +97,9 @@ export class Duel {
     this.priorityHolder = this.firstPlayer;
     this._chainBlockInfos = [];
     this.field = new DuelField(this);
+    this.clock.onTotalProcSeqChange.append(this.field.procFilterPool.distributeAll);
+    this.clock.onTotalProcSeqChange.append(this.field.numericStateOperatorPool.distributeAll);
+    this.clock.onTotalProcSeqChange.append(this.field.numericStateOperatorPool.calcStateAll);
 
     this.view = new DuelViewController(this);
     this.log = new DuelLog(this);
@@ -549,17 +552,22 @@ export class Duel {
       this.log.info(`チェーン${chainCount}: ${convertCardActionToString(chainBlock)}の効果処理。`, activator);
       console.log(chainBlockInfo);
       if (chainBlockInfo.isNegatedActivationBy) {
+        // 発動無効時は全ての処理を行わない
         this.log.info(
           `チェーン${chainCount}: ${convertCardActionToString(chainBlock)}を${convertCardActionToString(chainBlockInfo.isNegatedActivationBy)}によって発動を無効にした。`,
           chainBlockInfo.activator
         );
-      } else if (chainBlockInfo.isNegatedEffectBy) {
-        this.log.info(
-          `チェーン${chainCount}: ${convertCardActionToString(chainBlock)}を${convertCardActionToString(chainBlockInfo.isNegatedEffectBy)}によって効果を無効にした。`,
-          chainBlockInfo.activator
-        );
       } else {
-        await chainBlock.execute(chainBlockInfo, this.chainBlockInfos);
+        // 効果無効時は後処理のみ行う
+        if (chainBlockInfo.isNegatedEffectBy) {
+          this.log.info(
+            `チェーン${chainCount}: ${convertCardActionToString(chainBlock)}を${convertCardActionToString(chainBlockInfo.isNegatedEffectBy)}によって効果を無効にした。`,
+            chainBlockInfo.activator
+          );
+        } else {
+          await chainBlock.execute(chainBlockInfo, this.chainBlockInfos);
+        }
+        await chainBlock.settle(chainBlockInfo, this.chainBlockInfos);
       }
 
       this.clock.incrementProcSeq();

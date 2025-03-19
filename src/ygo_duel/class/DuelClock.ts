@@ -1,3 +1,5 @@
+import StkEvent from "@stk_utils/class/StkEvent";
+
 export interface IDuelClock {
   turn: number;
   phaseSeq: number;
@@ -8,6 +10,10 @@ export interface IDuelClock {
   procTotalSeq: number;
 }
 export class DuelClock implements IDuelClock {
+  private onTotalProcSeqChangeEvent = new StkEvent<number>();
+  public get onTotalProcSeqChange() {
+    return this.onTotalProcSeqChangeEvent.expose();
+  }
   private _turn: number = 0;
   private _phaseSeq: number = 0;
   private _stepSeq: number = 0;
@@ -43,6 +49,7 @@ export class DuelClock implements IDuelClock {
     this._chainSeq = 0;
     this._chainBlockSeq = 0;
     this._procSeq = 0;
+    this.incrementTotalProcSeq();
   };
   public readonly incrementPhaseSeq = () => {
     this._phaseSeq++;
@@ -50,25 +57,33 @@ export class DuelClock implements IDuelClock {
     this._chainSeq = 0;
     this._chainBlockSeq = 0;
     this._procSeq = 0;
+    this.incrementTotalProcSeq();
   };
   public readonly incrementStepSeq = () => {
     this._stepSeq++;
     this._chainSeq = 0;
     this._chainBlockSeq = 0;
     this._procSeq = 0;
+    this.incrementTotalProcSeq();
   };
   public readonly incrementChainSeq = () => {
     this._chainSeq++;
     this._chainBlockSeq = 0;
     this._procSeq = 0;
+    this.incrementTotalProcSeq();
   };
   public readonly incrementChainBlockSeq = () => {
     this._chainBlockSeq++;
     this._procSeq = 0;
+    this.incrementTotalProcSeq();
   };
   public readonly incrementProcSeq = () => {
     this._procSeq++;
+    this.incrementTotalProcSeq();
+  };
+  public readonly incrementTotalProcSeq = () => {
     this._procTotalSeq++;
+    this.onTotalProcSeqChangeEvent.trigger(this.procTotalSeq);
   };
   public readonly toString = () => {
     return `${this.procTotalSeq}(t${this.turn}-p${this.phaseSeq}-ps${this.stepSeq}-c${this.chainSeq}-cb${this.chainBlockSeq}-p${this.procSeq})`;

@@ -7,6 +7,8 @@ import { createCardDefinitions_NormalSpell_Preset } from "./CardDefinitions_Norm
 import { createCardDefinitions_SyncroMonster } from "./CardDefinitions_SyncroMonster";
 import type { ContinuousEffectBase } from "@ygo_duel/class/DuelContinuousEffect";
 import { SystemError } from "@ygo_duel/class/Duel";
+import { createCardDefinitions_FieldSpell_Preset } from "./CardDefinitions_FieldSpell_Preset";
+import { createCardDefinitions_ContinuousSpell_Preset } from "./CardDefinitions_ContinuousSpell";
 
 export type CardDefinition = {
   name: string;
@@ -22,6 +24,8 @@ export const createCardDefinitions = (): CardDefinition[] => {
     ...createCardDefinitions_NormalSpell(),
     ...createCardDefinitions_NormalSpell_Preset(),
     ...createCardDefinitions_QuickPlaySpell(),
+    ...createCardDefinitions_FieldSpell_Preset(),
+    ...createCardDefinitions_ContinuousSpell_Preset(),
   ];
   const names = hoge.map((def) => def.name);
   console.info(names);

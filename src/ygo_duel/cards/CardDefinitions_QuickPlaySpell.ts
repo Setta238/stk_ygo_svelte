@@ -25,8 +25,6 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
           chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
           cancelable: boolean
         ) => {
-          action.entity.info.isDying = true;
-
           const selected = await action.entity.field.duel.view.waitSelectText(
             [
               { seq: 0, text: "●自分は１２００ＬＰ回復する。" },

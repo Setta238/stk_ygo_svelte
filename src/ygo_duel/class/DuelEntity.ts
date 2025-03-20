@@ -149,7 +149,15 @@ export class DuelEntity {
    */
   public static readonly createPlayerEntity = (duelist: Duelist): DuelEntity => {
     const hand = duelist.getHandCell();
-    return new DuelEntity(duelist, hand, "Duelist", { name: duelist.profile.name, kind: "Monster" }, "FaceUp", true, "Vertical");
+    return new DuelEntity(
+      duelist,
+      hand,
+      "Duelist",
+      { name: duelist.profile.name, kind: "Monster", wikiEncodedName: "%A5%D7%A5%EC%A5%A4%A5%E4%A1%BC" },
+      "FaceUp",
+      true,
+      "Vertical"
+    );
   };
   public static readonly createCardEntity = (owner: Duelist, cardInfo: CardInfoJson): DuelEntity => {
     // cardはデッキまたはEXデッキに生成
@@ -289,9 +297,17 @@ export class DuelEntity {
     this.owner = owner;
     this.fieldCell = fieldCell;
     this.entityType = entityType;
+
     this.origin = cardInfo;
     this._status = JSON.parse(JSON.stringify(cardInfo));
+
     this.resetStatus();
+    if (cardInfo.name === "増援") {
+      console.log(cardInfo);
+      console.log(this.origin);
+      console.log(this._status);
+    }
+
     this._info = {
       attackCount: 0,
       battlePotisionChangeCount: 0,
@@ -562,10 +578,10 @@ export class DuelEntity {
   private readonly resetStatus = () => {
     const master = entityFlexibleStatusKeys.reduce(
       (wip, key) => {
-        wip[key] = this.origin[key] ?? 0;
+        wip[key] = this.origin[key];
         return wip;
       },
-      {} as { [key in TEntityFlexibleStatusKey]: number }
+      {} as { [key in TEntityFlexibleStatusKey]: number | undefined }
     );
 
     this._status = {

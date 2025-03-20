@@ -132,6 +132,7 @@ export type TNonBattlePosition = "FaceUp" | "Set" | "XysMaterial";
 export type CardInfoWiki = {
   wikiName: string;
   wikiHref: string;
+  wikiEncodedName: string;
   wikiTextAll: string;
 };
 
@@ -153,15 +154,15 @@ export type EntityStatusBase = {
   type?: TMonsterType;
   canReborn?: boolean;
   cardId?: number;
-} & Partial<FlexibleStatus>;
-export type EntityStatus = Omit<EntityStatusBase, TEntityFlexibleStatusKey> & {
+} & Partial<FlexibleStatus> & { wikiEncodedName: string };
+export type EntityStatus = {
   canAttack: boolean;
   canDirectAttack: boolean;
   allowHandSyncro: boolean;
   isEffective: boolean;
   isSelectableForAttack: boolean /** falseのモンスターしかいない場合、ダイレクトアタックになる。《伝説のフィッシャーマン》など。 */;
   needsRecalculate: boolean;
-} & { [key in TEntityFlexibleStatusGen]: FlexibleStatus };
+} & EntityStatusBase & { [key in TEntityFlexibleStatusGen]: FlexibleStatus };
 
 export type CardInfoDescription = {
   nameKana?: string;

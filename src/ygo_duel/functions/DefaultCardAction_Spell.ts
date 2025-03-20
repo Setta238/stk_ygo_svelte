@@ -4,7 +4,8 @@ import { spellTrapZoneCellTypes, type DuelFieldCell } from "@ygo_duel/class/Duel
 export const defaultSpellTrapSetValidate = (action: CardAction<{ dest: DuelFieldCell }>): DuelFieldCell[] | undefined => {
   if (action.entity.status.spellCategory === "Field") {
     const fieldZone = action.entity.controller.getFieldZone();
-    return fieldZone.isAvailable ? [fieldZone] : undefined;
+    // TODO 盆回しなど
+    return [fieldZone];
   }
   const availableCells = action.entity.controller.getAvailableSpellTrapZones();
   return availableCells.length > 0 ? availableCells : undefined;
@@ -13,15 +14,9 @@ export const defaultSpellTrapSetPrepare = async (
   action: CardAction<{ dest: DuelFieldCell }>,
   cell: DuelFieldCell | undefined
 ): Promise<ChainBlockInfoBase<{ dest: DuelFieldCell }> | undefined> => {
-  if (cell) {
-    return { selectedEntities: [], chainBlockTags: [], prepared: { dest: cell } };
-  }
-
   if (action.entity.status.spellCategory === "Field") {
     const fieldZone = action.entity.controller.getFieldZone();
-    if (!fieldZone.isAvailable) {
-      return;
-    }
+    // TODO 盆回しなど
     for (const oldOne of fieldZone.cardEntities) {
       await oldOne.sendToGraveyard(["Rule"], action.entity, action.entity.controller);
       action.entity.field.duel.log.info(`フィールド魔法の上書きにより、${oldOne.toString()}は墓地に送られた。`, action.entity.controller);
@@ -29,6 +24,10 @@ export const defaultSpellTrapSetPrepare = async (
 
     return { selectedEntities: [], chainBlockTags: [], prepared: { dest: fieldZone } };
   }
+  if (cell) {
+    return { selectedEntities: [], chainBlockTags: [], prepared: { dest: cell } };
+  }
+
   const availableCells = action.entity.controller.getAvailableSpellTrapZones();
 
   if (availableCells.length === 0) {
@@ -119,8 +118,7 @@ export const defaultSpellTrapPrepare = async <T>(
     return { chainBlockTags: chainBlockTags ?? [], selectedEntities: selectedEntities ?? [], prepared };
   }
   if (action.entity.status.spellCategory === "Field") {
-    if (action.entity.controller.getFieldZone().cardEntities.length) {
-      const oldOne = action.entity.controller.getFieldZone().cardEntities[0];
+    for (const oldOne of action.entity.controller.getFieldZone().cardEntities) {
       await oldOne.sendToGraveyard(["Rule"], action.entity, action.entity.controller);
       action.entity.controller.duel.log.info(`フィールド魔法の上書きにより、${oldOne.toString()}は墓地に送られた。`, action.entity.controller);
     }

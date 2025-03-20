@@ -42,13 +42,13 @@ export const createCardDefinitions_ContinuousSpell_Preset = (): CardDefinition[]
               "current",
               "Addition",
               (monster: DuelEntity, current: number) => {
-                console.log(monster);
                 if (!entity.status.isEffective) {
-                  return 0;
+                  return current;
                 }
-
-                const qty = entity.controller.getMonstersOnField().filter((m) => m.type.includes("Warrior") || m.type.includes("Spellcaster")).length;
-                console.log(qty);
+                const qty = entity.controller
+                  .getMonstersOnField()
+                  .filter((m) => m.face === "FaceUp")
+                  .filter((m) => m.type.includes("Warrior") || m.type.includes("Spellcaster")).length;
                 return current + qty * 200;
               }
             ),

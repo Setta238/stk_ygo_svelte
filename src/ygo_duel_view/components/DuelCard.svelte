@@ -100,14 +100,6 @@
     entity.field.duel.view.setDraggingActions(actions);
     isDragging = true;
   };
-
-  const dragover = (ev: DragEvent) => {
-    ev.preventDefault();
-    showCardInfo();
-    if (ev.dataTransfer) {
-      ev.dataTransfer.dropEffect = "move";
-    }
-  };
   const dragEnd = (ev: DragEvent) => {
     console.info("drag end", ev, actions);
     entity.field.duel.view.removeDraggingActions();
@@ -139,14 +131,16 @@
     <div class="duel_card duel_card_face_up">
       <div class="duel_card_row" style="position:relative">
         <div>{entity.nm}</div>
+        <div></div>
+
         {#each entity.attr as attr}
           <div class="monster_attr {attr}"></div>
         {/each}
       </div>
       {#if entity.status.kind === "Monster"}
         <div class="duel_card_row">
-          <div>{"★".repeat(entity.status.level || 0)}</div>
-          <div>{"☆".repeat(entity.status.rank || 0)}</div>
+          <div class={entity.lvl !== entity.origin.level ? "different_from_its_origin" : ""}>{"★".repeat(entity.lvl || 0)}</div>
+          <div class={entity.rank !== entity.origin.rank ? "different_from_its_origin" : ""}>{"☆".repeat(entity.rank || 0)}</div>
         </div>
       {:else if entity.status.kind === "Spell" && entity.status.spellCategory}
         <div class="duel_card_row">
@@ -161,21 +155,24 @@
       {/if}
       {#if entity.status.monsterCategories?.includes("Pendulum")}
         <div class="duel_card_row">
-          <div>◀ {entity.psL}</div>
-          <div>{entity.psR} ▶</div>
+          <div class={entity.psL !== entity.origin.pendulumScaleL ? "different_from_its_origin" : ""}>◀ {entity.psL}</div>
+          <div class={entity.psR !== entity.origin.pendulumScaleR ? "different_from_its_origin" : ""}>{entity.psR} ▶</div>
         </div>
       {/if}
       {#if entity.status.kind === "Monster"}
-        <div class="duel_card_row">
-          <div title={entity.status.monsterCategories?.join(" ")}>
+        <div class="duel_card_row duel_card_detail">
+          <div>
+            {entity.type.map((t) => monsterTypeEmojiDic[t] + (isWideMode ? monsterTypeDic[t] : "")).join()}
             {entity.status.monsterCategories?.map((cat) => monsterCategoryEmojiDic[cat] + (isWideMode ? monsterCategoryDic[cat] : "")).join()}
           </div>
         </div>
-        <div class="duel_card_row duel_card_row_wide">
+        <div class="duel_card_row duel_card_detail">
+          <div></div>
           <div>
-            {entity.type.map((t) => monsterTypeEmojiDic[t] + (isWideMode ? monsterTypeDic[t] : "")).join()}
+            <span class={entity.atk !== entity.origin.attack ? "different_from_its_origin" : ""}> {entity.atk ?? "?"}</span>
+            /
+            <span class={entity.def !== entity.origin.defense ? "different_from_its_origin" : ""}>{entity.def ?? "?"}</span>
           </div>
-          <div>{entity.atk ?? "?"} / {entity.def ?? "?"}</div>
         </div>
       {/if}
     </div>
@@ -204,7 +201,7 @@
     flex-direction: column;
     height: 4.3rem;
     margin: 0.1rem 0.3rem;
-    padding: 0.1rem;
+    padding: 0.1rem 0.3rem;
     border: solid 1px #778ca3;
     min-width: 5rem;
     max-width: 8rem;
@@ -215,12 +212,6 @@
 
   .duel_card_row:first-child {
     border: solid 0.01rem darkslategray;
-    display: flex;
-    padding: 0;
-  }
-  .duel_card_row:first-child > div:first-child {
-    width: 1rem;
-    flex-grow: 1;
   }
   .duel_card .monster_attr {
     padding: 0;
@@ -246,6 +237,10 @@
   }
   .duel_card_row > div {
     margin: 0 0.3rem;
+  }
+  .different_from_its_origin {
+    color: red;
+    font-weight: bold;
   }
 
   .duel_card.Disabled,

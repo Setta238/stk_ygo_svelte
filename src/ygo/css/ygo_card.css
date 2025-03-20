@@ -1,12 +1,15 @@
 .duel_card.Normal {
   background-color: cornsilk;
-  content: "●";
 }
-
+.duel_card.duel_card_detail.Normal {
+  background-color: cornsilk;
+}
 .duel_card.Effect {
   background-color: chocolate;
 }
-
+.duel_card.Effect .duel_card_detail{
+  background-color: moccasin;
+}
 .duel_card.Syncro {
   background-color: snow;
 }

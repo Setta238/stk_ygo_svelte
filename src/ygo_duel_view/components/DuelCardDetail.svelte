@@ -15,6 +15,7 @@
   } from "@ygo/class/YgoTypes";
   import { DuelEntity } from "@ygo_duel/class/DuelEntity";
   export let entity: DuelEntity | undefined = undefined;
+
   const getInfo = () => (entity ? cardInfoDic[entity.origin.name] : undefined);
 
   const getKonamiUrl = () => {
@@ -27,6 +28,7 @@
     mode = mode === "Normal" ? "Debug" : "Normal";
     return true;
   };
+  const encoding = "EUC-JP"; // 文字コード
 </script>
 
 {#if entity}
@@ -109,7 +111,9 @@
     </div>
     <div class="duel_card_info_footer">
       <div class="duel_card_info_links">
-        <a href={getInfo()?.wikiHref} target="_blank" rel="noopener noreferrer" title="遊戯王カードWiki">⇒遊戯王カードWiki</a>
+        <a href={`https://yugioh-wiki.net/index.php?${entity.origin.wikiEncodedName}`} target="_blank" rel="noopener noreferrer" title="遊戯王カードWiki"
+          >⇒遊戯王カードWiki</a
+        >
         <a href={getKonamiUrl()} target="_blank" rel="noopener noreferrer" title="コナミカードデータベース">
           ⇒{entity?.origin.cardId ? "公式カードページ" : "公式で検索"}
         </a>
@@ -135,6 +139,7 @@
     overflow-y: auto;
     display: flex;
     flex-direction: column;
+    max-width: 100%;
   }
   .button_style_reset {
     display: block;

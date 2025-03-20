@@ -15,8 +15,8 @@ import {
 import {} from "@stk_utils/funcs/StkArrayUtils";
 
 import type { CardDefinition } from "./CardDefinitions";
-import { createRegularProcFilters, type ContinuousEffectBase } from "@ygo_duel/class/DuelContinuousEffect";
-import { ProcFilter } from "@ygo_duel/class/DuelProcFilter";
+import { createRegularProcFilters, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
+import { ProcFilter } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
 
 export const createCardDefinitions_Monster = (): CardDefinition[] => {
   const result: CardDefinition[] = [];

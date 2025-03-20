@@ -1,5 +1,5 @@
-import { SystemError } from "./Duel";
-import type { DuelEntity } from "./DuelEntity";
+import { SystemError } from "../class/Duel";
+import type { DuelEntity } from "../class/DuelEntity";
 export interface IOperatorPool<OPE extends StickyEffectOperatorBase> {
   push: (ope: OPE) => void;
   append(bundle: StickyEffectOperatorBundle<OPE>): void; // NOTE error回避のため、bivariantになるメソッド記法で定義
@@ -16,9 +16,7 @@ export abstract class StickyEffectOperatorPool<OPE extends StickyEffectOperatorB
     this.pooledOperators = this.pooledOperators.filter((ope) => ope.validateAlive());
   };
 
-  public readonly append = (bundle: Bundle) => {
-    this.bundles.push(bundle);
-  };
+  public readonly append = this.bundles.push;
 
   /**
    * 配布開始以後も適用対象が増える可能性のある永続効果はstatic側で受け取る。

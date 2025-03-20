@@ -1,8 +1,8 @@
 import type { TCardKind } from "@ygo/class/YgoTypes";
-import type { DuelEntity, TDuelEntityFace } from "./DuelEntity";
-import { playFieldCellTypes, DuelFieldCell, type DuelFieldCellType } from "./DuelFieldCell";
-import { SystemError } from "./Duel";
-import { type NumericStateOperator } from "./DuelNumericStateOperator";
+import type { DuelEntity, TDuelEntityFace } from "../class/DuelEntity";
+import { playFieldCellTypes, DuelFieldCell, type DuelFieldCellType } from "../class/DuelFieldCell";
+import { SystemError } from "../class/Duel";
+import { type NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import type { IOperatorPool, StickyEffectOperatorBase, StickyEffectOperatorBundle } from "./DuelStickyEffectOperatorBase";
 import type { ProcFilter } from "./DuelProcFilter";
 

@@ -1,6 +1,6 @@
-import type { DuelEntity } from "./DuelEntity";
-import { StickyEffectOperatorBase, StickyEffectOperatorBundle, StickyEffectOperatorPool } from "./DuelStickyEffectOperatorBase";
-import { SystemError } from "./Duel";
+import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
+import { StickyEffectOperatorBase, StickyEffectOperatorBundle, StickyEffectOperatorPool } from "@ygo_duel/class_continuous_effect/DuelStickyEffectOperatorBase";
+import { SystemError } from "@ygo_duel/class/Duel";
 import { entityFlexibleStatusKeys, type TEntityFlexibleStatusGen, type TEntityFlexibleStatusKey } from "@ygo/class/YgoTypes";
 
 export const stateOperationTypes = ["Addition", "Fixation", "THE_DEVILS_DREAD-ROOT", "THE_DEVILS_AVATAR", "Gradius'_Option"] as const;

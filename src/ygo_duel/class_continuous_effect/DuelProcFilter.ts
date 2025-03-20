@@ -1,7 +1,7 @@
-import type { CardAction } from "./DuelCardAction";
+import type { CardAction } from "../class/DuelCardAction";
 import { StickyEffectOperatorBase, StickyEffectOperatorBundle, StickyEffectOperatorPool } from "./DuelStickyEffectOperatorBase";
-import type { DuelEntity, TSummonPosCauseReason, TSummonRuleCauseReason } from "./DuelEntity";
-import { type Duelist } from "./Duelist";
+import type { DuelEntity, TSummonPosCauseReason, TSummonRuleCauseReason } from "../class/DuelEntity";
+import { type Duelist } from "../class/Duelist";
 
 export const procTypes = [
   "BattleDestory",

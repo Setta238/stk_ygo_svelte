@@ -5,7 +5,7 @@ import { createCardDefinitions_QuickPlaySpell } from "./CardDefinitions_QuickPla
 import { createCardDefinitions_Monster_Preset_Recruiter } from "./CardDefinitions_Monster_Preset_Recruiter";
 import { createCardDefinitions_NormalSpell_Preset } from "./CardDefinitions_NormalSpell_Preset";
 import { createCardDefinitions_SyncroMonster } from "./CardDefinitions_SyncroMonster";
-import type { ContinuousEffectBase } from "@ygo_duel/class/DuelContinuousEffect";
+import type { ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { SystemError } from "@ygo_duel/class/Duel";
 import { createCardDefinitions_FieldSpell_Preset } from "./CardDefinitions_FieldSpell_Preset";
 import { createCardDefinitions_ContinuousSpell_Preset } from "./CardDefinitions_ContinuousSpell";

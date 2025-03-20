@@ -23,9 +23,9 @@ import type { IDuelClock } from "./DuelClock";
 import { defaultAttackAction, defaultBattlePotisionChangeAction, defaultNormalSummonAction } from "@ygo_duel/functions/DefaultCardAction_Monster";
 import { cardDefinitionDic, cardInfoDic } from "@ygo/class/CardInfo";
 import { CardAction, type CardActionBase } from "./DuelCardAction";
-import { ProcFilterBundle } from "./DuelProcFilter";
-import { ContinuousEffect, type ContinuousEffectBase } from "./DuelContinuousEffect";
-import { NumericStateOperatorBundle } from "./DuelNumericStateOperator";
+import { ProcFilterBundle } from "../class_continuous_effect/DuelProcFilter";
+import { ContinuousEffect, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
+import { NumericStateOperatorBundle } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 
 export type TDuelEntityFace = "FaceUp" | "FaceDown";
 export type TDuelEntityOrientation = "Horizontal" | "Vertical";

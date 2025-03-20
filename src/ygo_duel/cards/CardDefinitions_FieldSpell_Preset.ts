@@ -7,7 +7,7 @@ import type { CardActionBase } from "@ygo_duel/class/DuelCardAction";
 import type { CardDefinition } from "./CardDefinitions";
 import type { TEntityFlexibleStatusKey, TMonsterType } from "@ygo/class/YgoTypes";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
-import { createBroadNumericStateOperators, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
+import { createBroadNumericStateOperatorHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 
 export const createCardDefinitions_FieldSpell_Preset = (): CardDefinition[] => {
   const result: CardDefinition[] = [];
@@ -60,24 +60,27 @@ export const createCardDefinitions_FieldSpell_Preset = (): CardDefinition[] => {
         defaultSpellTrapSetAction,
       ] as CardActionBase<unknown>[],
       continuousEffects: [
-        createBroadNumericStateOperators(
+        createBroadNumericStateOperatorHandler(
           "発動",
           "Spell",
-          (entity: DuelEntity) => entity.isOnField && entity.face === "FaceUp",
-          (entity: DuelEntity) => {
+          (source: DuelEntity) => source.isOnField && source.face === "FaceUp",
+          (source: DuelEntity) => {
             return (["attack", "defense"] as TEntityFlexibleStatusKey[]).flatMap((state) => {
               return (["up", "down"] as const).map((updown) => {
                 return NumericStateOperator.createContinuous(
                   "発動",
-                  () => entity.isOnField && entity.face === "FaceUp",
-                  entity,
-                  (monster: DuelEntity) =>
+                  (spawner: DuelEntity) => spawner.isOnField && spawner.face === "FaceUp",
+                  source,
+                  (spawner: DuelEntity, monster: DuelEntity) =>
                     monster.isOnField && (monster.status.monsterCategories ?? false) && item[updown].some((t) => t === monster.status.type),
                   state,
                   "current",
                   "Addition",
-                  (monster: DuelEntity, current: number) => {
-                    if (!entity.status.isEffective) {
+                  (spawner: DuelEntity, monster: DuelEntity, current: number) => {
+                    if (!spawner.status.isEffective) {
+                      return current;
+                    }
+                    if (monster.face === "FaceDown") {
                       return current;
                     }
                     return current + (updown === "up" ? 200 : -200);

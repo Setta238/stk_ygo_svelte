@@ -28,10 +28,10 @@ export class ProcFilter extends StickyEffectOperatorBase {
   public readonly filter: (activator: Duelist, entity: DuelEntity, action: CardAction<unknown>, effectedEntites: DuelEntity[]) => boolean;
   public constructor(
     title: string,
-    validateAlive: () => boolean,
+    validateAlive: (spawner: DuelEntity) => boolean,
     isContinuous: boolean,
     isSpawnedBy: DuelEntity,
-    isApplicableTo: (entity: DuelEntity) => boolean,
+    isApplicableTo: (spawner: DuelEntity, target: DuelEntity) => boolean,
     procType: TProcType,
     filter: (activator: Duelist, entity: DuelEntity, action: CardAction<unknown>, effectedEntites: DuelEntity[]) => boolean
   ) {

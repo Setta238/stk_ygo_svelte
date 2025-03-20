@@ -389,22 +389,8 @@ export class Duel {
           .pop()
       );
     }
-
-    // 破壊が確定していたモンスターは墓地に送られる。
-    if (defender && attacker.info.isDying && defender.info.isDying && attacker.owner !== defender.owner) {
-      // 行先が異なることが確定しているなら、同時にアニメーションさせる。
-      await Promise.all([
-        attacker.destroy("BattleDestroy", [], defender, defender?.controller),
-        defender.destroy("BattleDestroy", [], attacker, attacker.controller),
-      ]);
-    } else {
-      if (attacker.info.isDying) {
-        await attacker.destroy("BattleDestroy", [], defender, defender?.controller);
-      }
-      if (defender?.info.isDying) {
-        await defender.destroy("BattleDestroy", [], attacker, attacker.controller);
-      }
-    }
+    //戦闘破壊墓地送り実施
+    await this.field.waitCorpseDisposal();
 
     // チェーン番号を加算
     this.clock.incrementChainSeq();

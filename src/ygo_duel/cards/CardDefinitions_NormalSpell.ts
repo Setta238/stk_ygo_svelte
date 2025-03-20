@@ -363,10 +363,17 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           const h2 = myInfo.activator.getOpponentPlayer().getHandCell().cardEntities.length;
 
           await myInfo.action.entity.field.sendGraveyardAtSameTime(
-            myInfo.action.entity.field.getCells("Hand").flatMap((hand) => hand.cardEntities),
-            ["Effect", "Discard"],
-            myInfo.action.entity,
-            myInfo.activator
+            myInfo.action.entity.field
+              .getCells("Hand")
+              .flatMap((hand) => hand.cardEntities)
+              .map((card) => {
+                return {
+                  entity: card,
+                  cousedAs: ["Effect", "Discard"],
+                  causedBy: myInfo.action.entity,
+                  activator: myInfo.activator,
+                };
+              })
           );
 
           myInfo.activator.duel.clock.incrementProcSeq();

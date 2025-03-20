@@ -62,7 +62,7 @@ export class NumericStateOperatorBundle extends StickyEffectOperatorBundle<Numer
 
     // 邪神ドレッド・ルートの場合、現在値を半分にして終了
     if (ope.stateOperationType === "THE_DEVILS_DREAD-ROOT") {
-      this.entity.status["calculated"][ope.targetState] = ope.calcValue(this.entity, currentState);
+      this.entity.status["calculated"][ope.targetState] = ope.calcValue(ope.isSpawnedBy, this.entity, currentState);
       return;
     }
 
@@ -75,16 +75,16 @@ export class NumericStateOperatorBundle extends StickyEffectOperatorBundle<Numer
       // その場で加算
       if (!ope.isContinuous) {
         // L-A
-        this.entity.status["current"][ope.targetState] = ope.calcValue(this.entity, currentStateWIP);
+        this.entity.status["current"][ope.targetState] = ope.calcValue(ope.isSpawnedBy, this.entity, currentStateWIP);
       }
 
-      this.entity.status["calculated"][ope.targetState] = ope.calcValue(this.entity, currentStateWIP);
+      this.entity.status["calculated"][ope.targetState] = ope.calcValue(ope.isSpawnedBy, this.entity, currentStateWIP);
       return;
     }
 
     if (ope.targetStateGen === "origin") {
       // 元々の値を書き換えるタイプ(O-C-F or O-L-F)
-      const tmp = ope.calcValue(this.entity, originState);
+      const tmp = ope.calcValue(ope.isSpawnedBy, this.entity, originState);
 
       // 例外１ or 例外２ の判定
       //    ※支配的な効果がL-Fの場合、情報が破壊されているためリセットの必要があるのだと思われる
@@ -100,7 +100,7 @@ export class NumericStateOperatorBundle extends StickyEffectOperatorBundle<Numer
     } else if (ope.isContinuous) {
       // 永続型の固定値タイプのうち、現在値を書き換え(C-F)
       //   ※下と違い、常に再計算の可能性があるため、永続的な加算減算と共存でき、固定にならなず例外３が発生するのだと思われる。
-      this.entity.status["current"][ope.targetState] = ope.calcValue(this.entity, originStateWIP);
+      this.entity.status["current"][ope.targetState] = ope.calcValue(ope.isSpawnedBy, this.entity, originStateWIP);
 
       // 支配的な効果を更新
       this.dominantOperators[ope.targetState] = ope;
@@ -108,7 +108,7 @@ export class NumericStateOperatorBundle extends StickyEffectOperatorBundle<Numer
       // 発動型の固定値タイプのうち、現在値を書き換え(L-F)
       //   ※ゲイル、ブラックガーデンなどのタイプ。色々計算したあとの現在の値を書き換えるため、値が固定になる。
       //   ※多分この際に情報が破壊され、これが例外１と例外２の原因となったと思われる。
-      this.entity.status["current"][ope.targetState] = ope.calcValue(this.entity, currentState);
+      this.entity.status["current"][ope.targetState] = ope.calcValue(ope.isSpawnedBy, this.entity, currentState);
       // 支配的な効果を更新
       this.dominantOperators[ope.targetState] = ope;
     }
@@ -149,7 +149,7 @@ export class NumericStateOperatorBundle extends StickyEffectOperatorBundle<Numer
         // 例外３のため、C-Fの場合は少し戻る
         startIndex = opeList.findLastIndex((ope) => ope.stateOperationType === "Fixation" && ope !== domiOpe);
         // 再計算
-        currentValue = domiOpe.calcValue(this.entity, originStateWIP);
+        currentValue = domiOpe.calcValue(domiOpe.isSpawnedBy, this.entity, originStateWIP);
       } else {
         startIndex = opeList.findIndex((ope) => ope === domiOpe);
       }
@@ -165,7 +165,7 @@ export class NumericStateOperatorBundle extends StickyEffectOperatorBundle<Numer
         if (ope.isContinuous) {
           if (ope.targetStateGen === "current") {
             if (ope.stateOperationType === "Addition") {
-              wip = ope.calcValue(this.entity, wip);
+              wip = ope.calcValue(ope.isSpawnedBy, this.entity, wip);
             }
           }
         }
@@ -175,7 +175,7 @@ export class NumericStateOperatorBundle extends StickyEffectOperatorBundle<Numer
     opeList
       .filter((ope) => ope.stateOperationType === "THE_DEVILS_DREAD-ROOT")
       .forEach((ope) => {
-        wip = ope.calcValue(this.entity, wip);
+        wip = ope.calcValue(ope.isSpawnedBy, this.entity, wip);
       });
     //結果を投入
     this.entity.status.calculated[targetState] = wip;
@@ -184,21 +184,21 @@ export class NumericStateOperatorBundle extends StickyEffectOperatorBundle<Numer
 export class NumericStateOperator extends StickyEffectOperatorBase {
   public static readonly createContinuous = (
     title: string,
-    validateAlive: () => boolean,
+    validateAlive: (spawner: DuelEntity) => boolean,
     isSpawnedBy: DuelEntity,
-    isApplicableTo: (entity: DuelEntity) => boolean,
+    isApplicableTo: (spawner: DuelEntity, target: DuelEntity) => boolean,
     targetState: TEntityFlexibleStatusKey,
     targetStateGen: TEntityFlexibleStatusGen,
     stateOperationType: TStateOperationType,
-    calcValue: (entity: DuelEntity, source: number) => number
+    calcValue: (spawner: DuelEntity, target: DuelEntity, source: number) => number
   ) => {
     return new NumericStateOperator(title, validateAlive, true, isSpawnedBy, isApplicableTo, targetState, targetStateGen, stateOperationType, calcValue);
   };
   public static readonly createLingering = (
     title: string,
-    validateAlive: () => boolean,
+    validateAlive: (spawner: DuelEntity) => boolean,
     isSpawnedBy: DuelEntity,
-    isApplicableTo: (entity: DuelEntity) => boolean,
+    isApplicableTo: (spawner: DuelEntity, target: DuelEntity) => boolean,
     targetState: TEntityFlexibleStatusKey,
     targetStateGen: TEntityFlexibleStatusGen,
     stateOperationType: TStateOperationType,
@@ -210,18 +210,18 @@ export class NumericStateOperator extends StickyEffectOperatorBase {
   public readonly targetState: TEntityFlexibleStatusKey;
   public readonly targetStateGen: TEntityFlexibleStatusGen;
   public readonly stateOperationType: TStateOperationType;
-  public readonly calcValue: (entity: DuelEntity, source: number) => number;
+  public readonly calcValue: (spawner: DuelEntity, entity: DuelEntity, source: number) => number;
 
   protected constructor(
     title: string,
-    validateAlive: () => boolean,
+    validateAlive: (spawner: DuelEntity) => boolean,
     isContinuous: boolean,
     isSpawnedBy: DuelEntity,
-    isApplicableTo: (entity: DuelEntity) => boolean,
+    isApplicableTo: (spawner: DuelEntity, target: DuelEntity) => boolean,
     targetState: TEntityFlexibleStatusKey,
     targetStateGen: TEntityFlexibleStatusGen,
     stateOperationType: TStateOperationType,
-    calcValue: (entity: DuelEntity, source: number) => number
+    calcValue: (spawner: DuelEntity, target: DuelEntity, source: number) => number
   ) {
     super(title, validateAlive, isContinuous, isSpawnedBy, isApplicableTo);
     this.targetState = targetState;

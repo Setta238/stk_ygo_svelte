@@ -6,7 +6,7 @@ import type { CardActionBase } from "@ygo_duel/class/DuelCardAction";
 
 import type { CardDefinition } from "./CardDefinitions";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
-import { createBroadNumericStateOperators, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
+import { createBroadNumericStateOperatorHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 
 export const createCardDefinitions_ContinuousSpell_Preset = (): CardDefinition[] => {
   const result: CardDefinition[] = [];
@@ -27,7 +27,7 @@ export const createCardDefinitions_ContinuousSpell_Preset = (): CardDefinition[]
       defaultSpellTrapSetAction,
     ] as CardActionBase<unknown>[],
     continuousEffects: [
-      createBroadNumericStateOperators(
+      createBroadNumericStateOperatorHandler(
         "発動",
         "Spell",
         (entity: DuelEntity) => entity.isOnField && entity.face === "FaceUp",
@@ -35,17 +35,20 @@ export const createCardDefinitions_ContinuousSpell_Preset = (): CardDefinition[]
           return [
             NumericStateOperator.createContinuous(
               "発動",
-              () => entity.isOnField && entity.face === "FaceUp",
+              (spawner: DuelEntity) => spawner.isOnField && spawner.face === "FaceUp",
               entity,
-              (monster: DuelEntity) => monster.controller === entity.controller && monster.type.includes("Warrior"),
+              (spawner: DuelEntity, target: DuelEntity) => target.controller === spawner.controller && target.type.includes("Warrior"),
               "attack",
               "current",
               "Addition",
-              (monster: DuelEntity, current: number) => {
-                if (!entity.status.isEffective) {
+              (spawner: DuelEntity, monster: DuelEntity, current: number) => {
+                if (!spawner.status.isEffective) {
                   return current;
                 }
-                const qty = entity.controller
+                if (monster.face === "FaceDown") {
+                  return current;
+                }
+                const qty = spawner.controller
                   .getMonstersOnField()
                   .filter((m) => m.face === "FaceUp")
                   .filter((m) => m.type.includes("Warrior") || m.type.includes("Spellcaster")).length;

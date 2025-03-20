@@ -59,7 +59,6 @@
   let animationArg: AnimationStartEventArg | undefined = undefined;
   const onCrossFade = (args: AnimationStartEventArg) => {
     if (cell === args.to || cell.entities.includes(args.entity)) {
-      console.log(args);
       animationArg = args;
       const resolve = args.resolve;
       cell = cell;
@@ -75,7 +74,6 @@
   view.onAnimation.append(onCrossFade);
 
   const onPhaseButtonClick = (phase: TDuelPhase) => {
-    console.info(phase);
     responseResolve({
       phaseChange: phase,
     });

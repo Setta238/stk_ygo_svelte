@@ -1,4 +1,4 @@
-import { Duel, DuelEnd, SystemError, type TSeat } from "./Duel";
+import { Duel, DuelEnd, SystemError } from "./Duel";
 import { type TDuelCauseReason, DuelEntity } from "@ygo_duel/class/DuelEntity";
 
 import { type Duelist } from "./Duelist";
@@ -62,40 +62,72 @@ export class DuelField {
     return this.getAllEntities().filter((entity) => entity.controller === duelist);
   };
 
+  /**
+   *
+   * @param items
+   * @param excludedList 再帰処理時のみ指定する想定
+   */
   public readonly sendGraveyardAtSameTime = async (
-    entites: DuelEntity[],
-    cousedAs: TDuelCauseReason[],
-    causedBy: DuelEntity,
-    activator: Duelist
+    items: {
+      entity: DuelEntity;
+      cousedAs: TDuelCauseReason[];
+      causedBy: DuelEntity | undefined;
+      activator: Duelist | undefined;
+    }[],
+    excludedList: DuelEntity[] = []
   ): Promise<void> => {
-    // 持ち主で仕分ける
-    const grouped: { [seat in TSeat]: DuelEntity[] } = entites.reduce(
-      (wip, entity) => {
-        wip[entity.owner.seat].push(entity);
-        return wip;
-      },
-      {
-        Above: [] as DuelEntity[],
-        Below: [] as DuelEntity[],
+    // 対象を配列にしておく
+    const targets = items.map((item) => item.entity).filter((entity) => !excludedList.includes(entity));
+    const _excludedList = [...targets, ...this.duel.field.getEntiteisOnField().filter((entity) => entity.info.isDying)];
+    console.log(targets);
+    // 目的地ごとに仕分ける
+    const destMap: Map<DuelFieldCell, DuelEntity[]> = new Map<DuelFieldCell, DuelEntity[]>();
+    targets.forEach((target) => {
+      let dest = target.owner.getGraveyard();
+      if (target.info.willBeBanished) {
+        dest = target.owner.getBanished();
       }
-    );
+      if (target.info.willReturnToDeck) {
+        dest = target.isBelongTo;
+      }
+      destMap.set(dest, [target, ...(destMap.get(dest) ?? [])]);
+    });
 
-    // それぞれ墓地送りを連鎖させる
-    const promises = Object.values(grouped).map(
-      (entites) =>
-        new Promise<void>((resolve) => {
-          // 起点となるダミーのPromise
-          let promise = new Promise<void>((r) => r());
-          for (const entity of entites) {
-            // thenでつなぐ
-            promise = promise.then(() => entity.sendToGraveyard(cousedAs, causedBy, activator));
-          }
-          // すべて終わったら、大元のPromiseを終了させる
-          promise.then(() => resolve());
-        })
-    );
-    // 両方完了するのを待つ
-    await Promise.all(promises);
+    // 取り出せなくなるまでループ
+    while (true) {
+      // 一つずつ取り出す
+      const promises = Array.from(destMap.values())
+        .map((array) => array.pop())
+        .filter((e) => e !== undefined)
+        .map((target) => target.sendToGraveyard(target.info.causeOfDeath, target.info.isKilledBy, target.info.isKilledByWhom));
+
+      // 取り出せなくなったら終了
+      if (!promises.length) {
+        break;
+      }
+
+      // 取り出せたらアニメーションを全て待機
+      await Promise.all(promises);
+
+      // 新しく発生したものを検知（※ここまでのどこかで対象だったものを除く）
+      const newTargets = this.duel.field
+        .getEntiteisOnField()
+        .filter((entity) => entity.info.isDying)
+        .filter((newOne) => !_excludedList.includes(newOne))
+        .map((newOne) => {
+          return {
+            entity: newOne,
+            cousedAs: newOne.info.causeOfDeath ?? [],
+            causedBy: newOne.info.isKilledBy,
+            activator: newOne.info.isKilledByWhom,
+          };
+        });
+
+      // 新しく発生したものがあれば、再帰実行
+      if (newTargets.length) {
+        await this.sendGraveyardAtSameTime(newTargets, _excludedList);
+      }
+    }
   };
 
   public readonly drawAtSameTime = async (
@@ -138,6 +170,21 @@ export class DuelField {
     throw new DuelEnd();
   };
 
+  public readonly waitCorpseDisposal = () => {
+    return this.duel.field.sendGraveyardAtSameTime(
+      this.duel.field
+        .getEntiteisOnField()
+        .filter((entity) => entity.info.isDying)
+        .map((entity) => {
+          return {
+            entity: entity,
+            cousedAs: entity.info.causeOfDeath ?? [],
+            causedBy: entity.info.isKilledBy,
+            activator: entity.info.isKilledByWhom,
+          };
+        })
+    );
+  };
   public readonly sendToGraveyard = async (
     msg: string,
     chooser: Duelist,

@@ -1,7 +1,7 @@
 import StkEvent from "@stk_utils/class/StkEvent";
 import { Duel, DuelEnd, SystemError, type DuelistResponse } from "@ygo_duel/class/Duel";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
-import type { DuelFieldCell, TDuelEntityMovePos } from "@ygo_duel/class/DuelFieldCell";
+import { DuelFieldCell, type TDuelEntityMovePos } from "@ygo_duel/class/DuelFieldCell";
 import { type Duelist } from "@ygo_duel/class/Duelist";
 import { DuelModalController } from "./DuelModalController";
 import type { CardActionSelectorArg } from "@ygo_duel_view/components/DuelActionSelector.svelte";

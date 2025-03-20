@@ -12,7 +12,7 @@ export const spellTrapZoneCellTypes = ["SpellAndTrapZone", "FieldSpellZone"] as 
 export const playFieldCellTypes = [...monsterZoneCellTypes, ...spellTrapZoneCellTypes] as const;
 export const duelFieldCellTypes = [...stackCellTypes, ...playFieldCellTypes, "Hand", "Disable"] as const;
 export type DuelFieldCellType = (typeof duelFieldCellTypes)[number];
-export type TDuelEntityMovePos = "Top" | "Bottom";
+export type TDuelEntityMovePos = "Top" | "Bottom" | "Random";
 
 export const cellTypeMaster = {
   0: {

@@ -245,7 +245,7 @@ export const defaultBattlePotisionChangeExecute = async (myInfo: ChainBlockInfo<
     return false;
   }
 
-  myInfo.action.entity.setBattlePosition(myInfo.action.entity.battlePotion === "Attack" ? "Defense" : "Attack");
+  await myInfo.action.entity.setBattlePosition(myInfo.action.entity.battlePotion === "Attack" ? "Defense" : "Attack");
   myInfo.action.entity.info.battlePotisionChangeCount++;
   return true;
 };
@@ -356,34 +356,28 @@ export const defaultSyncroSummonPrepare = async (
 ): Promise<ChainBlockInfoBase<SummonPrepared> | undefined> => {
   const patterns = getEnableSyncroSummonPatterns(action, tunersValidator, nonTunersValidator);
 
-  let materials: DuelEntity[];
+  let materials = patterns[0];
 
-  if (patterns.length === 1) {
-    for (const material of patterns[0]) {
-      await material.sendToGraveyard(["SyncroMaterial", "Rule", "SpecialSummonMaterial"], action.entity, action.entity.controller);
-    }
-    materials = patterns[0];
-    action.entity.field.duel.log.info(`シンクロ素材として、${materials.map((m) => "《" + m.nm + "》").join("、")}を墓地に送り――`, action.entity.controller);
-  } else {
+  if (patterns.length > 1) {
     const choices = patterns.flatMap((p) => p).getDistinct();
-    const _materials = await action.entity.field.sendToGraveyard(
-      "シンクロ素材とするモンスターを選択",
+    const _materials = await action.entity.duel.view.waitSelectEntities(
       action.entity.controller,
       choices,
-      -1,
+      undefined,
       (selected) => defaultSyncroMaterialsValidator(action, selected, tunersValidator, nonTunersValidator),
-      ["SyncroMaterial", "Rule", "SpecialSummonMaterial"],
-      action.entity,
-      cancelable
+      "シンクロ素材とするモンスターを選択",
+      true
     );
     //墓地へ送らなければキャンセル。
     if (!_materials) {
       return;
     }
     materials = _materials;
-    action.entity.field.duel.log.info(`シンクロ素材として、${materials.map((m) => "《" + m.nm + "》").join("")}を墓地に送り――`, action.entity.controller);
   }
 
+  await DuelEntity.sendGraveyardManyForTheSameReason(materials, ["SyncroMaterial", "Rule", "SpecialSummonMaterial"], action.entity, action.entity.controller);
+
+  action.entity.field.duel.log.info(`シンクロ素材として、${materials.map((m) => "《" + m.nm + "》").join("")}を墓地に送り――`, action.entity.controller);
   console.log(materials);
 
   const availableCells = [...action.entity.controller.getAvailableMonsterZones(), ...action.entity.controller.getAvailableExtraZones()];

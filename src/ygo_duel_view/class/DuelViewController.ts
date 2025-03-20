@@ -262,7 +262,7 @@ export class DuelViewController {
 
     // 待機開始
     const userAction: DuelistResponse = await promiseSweet.promise;
-
+    console.log(userAction);
     this.waitMode = "None";
     this.onWaitEndEvent.trigger();
     if (userAction.surrender) {

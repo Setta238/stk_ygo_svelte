@@ -212,9 +212,10 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
             "墓地に送るモンスターを選択",
             false
           );
-          for (const monster of target ?? []) {
-            await monster.sendToGraveyard(["Effect"], myInfo.action.entity, myInfo.activator);
+          if (!target) {
+            throw new IllegalCancelError(myInfo);
           }
+          await DuelEntity.sendGraveyardManyForTheSameReason(target, ["Effect"], myInfo.action.entity, myInfo.activator);
           await myInfo.activator.shuffleDeck();
           return true;
         },
@@ -256,9 +257,10 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
             "墓地に送る魔法罠を選択",
             false
           );
-          for (const monster of target ?? []) {
-            await monster.sendToGraveyard(["Effect"], myInfo.action.entity, myInfo.activator);
+          if (!target) {
+            throw new IllegalCancelError(myInfo);
           }
+          await DuelEntity.sendGraveyardManyForTheSameReason(target, ["Effect"], myInfo.action.entity, myInfo.activator);
           await myInfo.activator.shuffleDeck();
           return true;
         },
@@ -362,18 +364,11 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           const h1 = myInfo.activator.getHandCell().cardEntities.length;
           const h2 = myInfo.activator.getOpponentPlayer().getHandCell().cardEntities.length;
 
-          await myInfo.action.entity.field.sendGraveyardAtSameTime(
-            myInfo.action.entity.field
-              .getCells("Hand")
-              .flatMap((hand) => hand.cardEntities)
-              .map((card) => {
-                return {
-                  entity: card,
-                  cousedAs: ["Effect", "Discard"],
-                  causedBy: myInfo.action.entity,
-                  activator: myInfo.activator,
-                };
-              })
+          await DuelEntity.sendGraveyardManyForTheSameReason(
+            myInfo.action.entity.field.getCells("Hand").flatMap((hand) => hand.cardEntities),
+            ["Effect", "Discard"],
+            myInfo.action.entity,
+            myInfo.activator
           );
 
           myInfo.activator.duel.clock.incrementProcSeq();
@@ -423,7 +418,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         prepare: async (action: CardAction<undefined>, cell: DuelFieldCell, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => {
           const deck = action.entity.controller.getDeckCell();
 
-          Array(3).forEach(() => deck.cardEntities[0].sendToGraveyard(["Cost"], action.entity, action.entity.controller));
+          await DuelEntity.sendGraveyardManyForTheSameReason(deck.cardEntities.slice(0, 3), ["Cost"], action.entity, action.entity.controller);
 
           return await defaultSpellTrapPrepare(action, cell, chainBlockInfos, false, ["SearchFromDeck", "SendToGraveyardFromDeck"], [], undefined);
         },
@@ -505,7 +500,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           myInfo.activator.duel.clock.incrementProcSeq();
           myInfo.activator.getDeckCell().shuffle();
 
-          await myInfo.activator.getDeckCell().cardEntities[0].sendToGraveyard(["Effect"], myInfo.action.entity, myInfo.activator);
+          await DuelEntity.sendGraveyard(myInfo.activator.getDeckCell().cardEntities[0], ["Effect"], myInfo.action.entity, myInfo.activator);
 
           return true;
         },

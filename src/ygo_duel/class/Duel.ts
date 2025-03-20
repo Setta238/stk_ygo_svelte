@@ -98,6 +98,7 @@ export class Duel {
     this._chainBlockInfos = [];
     this.field = new DuelField(this);
     this.clock.onTotalProcSeqChange.append(this.field.procFilterPool.distributeAll);
+    this.clock.onTotalProcSeqChange.append(this.field.cardRelationPool.distributeAll);
     this.clock.onTotalProcSeqChange.append(this.field.numericStateOperatorPool.distributeAll);
     this.clock.onTotalProcSeqChange.append(this.field.numericStateOperatorPool.calcStateAll);
 
@@ -335,7 +336,7 @@ export class Duel {
     const attacker = this.attackingMonster;
     const defender = this.targetForAttack;
 
-    if (!attacker || !attacker.atk) {
+    if (!attacker || attacker.atk === undefined) {
       throw new SystemError("想定されない状態", this.attackingMonster, this.targetForAttack);
     }
     if (!defender) {
@@ -349,7 +350,7 @@ export class Duel {
     //ダメージ計算前
     this.log.info("ダメージ計算前", this.getTurnPlayer());
     if (defender?.battlePotion === "Set") {
-      defender.setBattlePosition("Defense");
+      await defender.setBattlePosition("Defense");
     }
     //TODO エフェクト処理
 
@@ -372,7 +373,7 @@ export class Duel {
       }
 
       // 戦闘破壊計算
-      if (atkPoint > 0 && atkPoint >= defPoint) {
+      if (atkPoint > 0 && (atkPoint > defPoint || (atkPoint === defPoint && defender.battlePotion === "Attack"))) {
         defender.tryDestoryByBattle(attacker.controller, attacker, chainBlockInfo.action);
       }
       if (defender.battlePotion === "Attack" && atkPoint <= defPoint) {
@@ -456,11 +457,7 @@ export class Duel {
       triggerEffects ??
       Object.values(this.duelists).flatMap((duelist) => {
         this.priorityHolder = duelist;
-        let actions = this.getEnableActions(["TriggerMandatoryEffect", "TriggerEffect"], ["Normal"], []);
-        if (this.phaseStep === "damage") {
-          actions = actions.filter((action) => action.canExecuteOnDamageStep);
-        }
-        return actions;
+        return this.getEnableActions(["TriggerMandatoryEffect", "TriggerEffect"], ["Normal"], []);
       });
 
     // 返却値 チェーンが発生したかどうか
@@ -560,14 +557,8 @@ export class Duel {
 
       if (isStartPoint) {
         // 効果を発動した魔法罠は墓地送り（光の護封剣などを除く）
-        await Promise.all(
-          this.field
-            .getAllCells()
-            .filter((c) => c.cellType === "SpellAndTrapZone")
-            .flatMap((c) => c.entities)
-            .filter((e) => e.info.isDying)
-            .map((e) => e.sendToGraveyard(["Rule"], undefined, undefined))
-        );
+        await this.field.waitCorpseDisposal();
+        // チェーン情報を破棄
         this._chainBlockInfos.reset();
         // チェーン番号を加算。
         this.clock.incrementChainSeq();
@@ -611,13 +602,16 @@ export class Duel {
     enableSpellSpeeds: TSpellSpeed[],
     chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>
   ): CardAction<unknown>[] => {
-    return this.field
+    let actions = this.field
       .getAllCardEntities()
       .filter((entity) => entity.controller === this.priorityHolder)
       .flatMap((entity) => entity.actions)
       .filter((action) => action.executableCells.includes(action.entity.fieldCell.cellType))
       .filter((action) => enableCardPlayTypes.includes(action.playType))
-      .filter((action) => enableSpellSpeeds.includes(action.spellSpeed))
-      .filter((action) => action.validate(chainBlockInfos));
+      .filter((action) => enableSpellSpeeds.includes(action.spellSpeed));
+    if (this.phaseStep === "damage") {
+      actions = actions.filter((action) => action.canExecuteOnDamageStep);
+    }
+    return actions.filter((action) => action.validate(chainBlockInfos));
   };
 }

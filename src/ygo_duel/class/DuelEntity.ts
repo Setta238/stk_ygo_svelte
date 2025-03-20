@@ -26,6 +26,7 @@ import { CardAction, type CardActionBase } from "./DuelCardAction";
 import { ProcFilterBundle } from "../class_continuous_effect/DuelProcFilter";
 import { ContinuousEffect, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { NumericStateOperatorBundle } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
+import { CardRelationBundle } from "@ygo_duel/class_continuous_effect/DuelCardRelation";
 
 export type TDuelEntityFace = "FaceUp" | "FaceDown";
 export type TDuelEntityOrientation = "Horizontal" | "Vertical";
@@ -136,8 +137,9 @@ export type DuelEntityInfomation = {
   isRebornable: boolean;
   isSettingSickness: boolean;
   materials: DuelEntity[];
+  effectTargets: { [effectKey: string]: DuelEntity[] };
   willBeBanished: boolean;
-  willReturnToDeck: boolean;
+  willReturnToDeck: TDuelEntityMovePos | undefined;
   attackCount: number;
   battlePotisionChangeCount: number;
 };
@@ -188,11 +190,122 @@ export class DuelEntity {
     return newCard;
   };
 
+  public static readonly sendGraveyard = (
+    entity: DuelEntity,
+    causedAs: TDuelCauseReason[],
+    causedBy: DuelEntity | undefined,
+    activator: Duelist | undefined
+  ): Promise<void> => {
+    return DuelEntity.sendGraveyardMany([
+      {
+        entity: entity,
+        causedAs: causedAs,
+        causedBy: causedBy,
+        activator: activator,
+      },
+    ]);
+  };
+
+  public static readonly sendGraveyardManyForTheSameReason = (
+    entities: DuelEntity[],
+    causedAs: TDuelCauseReason[],
+    causedBy: DuelEntity | undefined,
+    activator: Duelist | undefined
+  ): Promise<void> => {
+    return DuelEntity.sendGraveyardMany(
+      entities.map((newOne) => {
+        return {
+          entity: newOne,
+          causedAs: causedAs,
+          causedBy: causedBy,
+          activator: activator,
+        };
+      })
+    );
+  };
+  /**
+   *
+   * @param items
+   * @param excludedList 再帰処理時のみ指定する想定
+   */
+  public static readonly sendGraveyardMany = async (
+    items: {
+      entity: DuelEntity;
+      causedAs: TDuelCauseReason[];
+      causedBy: DuelEntity | undefined;
+      activator: Duelist | undefined;
+    }[],
+    excludedList?: DuelEntity[]
+  ): Promise<void> => {
+    if (!items.length) {
+      return;
+    }
+
+    const duel = items[0].entity.duel;
+
+    // 対象を配列にしておく
+    const targets = items.map((item) => item.entity).filter((entity) => !(excludedList ?? []).includes(entity));
+    const _excludedList = [...targets, ...duel.field.getEntiteisOnField().filter((entity) => entity.info.isDying)];
+    console.log(targets);
+    // 目的地ごとに仕分ける
+    const destMap: Map<DuelFieldCell, DuelEntity[]> = new Map<DuelFieldCell, DuelEntity[]>();
+    targets.forEach((target) => {
+      let dest = target.owner.getGraveyard();
+      if (target.info.willBeBanished) {
+        dest = target.owner.getBanished();
+      }
+      if (target.info.willReturnToDeck) {
+        dest = target.isBelongTo;
+      }
+      destMap.set(dest, [target, ...(destMap.get(dest) ?? [])]);
+    });
+
+    // 取り出せなくなるまでループ
+    while (true) {
+      // 一つずつ取り出す
+      const promises = Array.from(destMap.values())
+        .map((array) => array.pop())
+        .filter((e) => e !== undefined)
+        .map((target) => target.sendToGraveyard(target.info.causeOfDeath, target.info.isKilledBy, target.info.isKilledByWhom));
+
+      // 取り出せなくなったら終了
+      if (!promises.length) {
+        break;
+      }
+
+      // 取り出せたらアニメーションを全て待機
+      await Promise.all(promises);
+
+      // 装備対象不在で破壊されるものを更新
+      duel.field.cardRelationPool.excludesExpired();
+
+      // 新しく発生したものを検知（※ここまでのどこかで対象だったものを除く）
+      const newTargets = duel.field
+        .getEntiteisOnField()
+        .filter((entity) => entity.info.isDying)
+        .filter((newOne) => !_excludedList.includes(newOne))
+        .map((newOne) => {
+          return {
+            entity: newOne,
+            causedAs: newOne.info.causeOfDeath ?? [],
+            causedBy: newOne.info.isKilledBy,
+            activator: newOne.info.isKilledByWhom,
+          };
+        });
+
+      // 新しく発生したものがあれば、再帰実行
+      if (newTargets.length) {
+        await this.sendGraveyardMany(newTargets, _excludedList);
+      }
+    }
+  };
+
   public readonly seq: number;
   public readonly origin: EntityStatusBase;
   public readonly entityType: TDuelEntityType;
   public readonly procFilterBundle: ProcFilterBundle;
   public readonly numericOprsBundle: NumericStateOperatorBundle;
+  public readonly cardRelationBundle: CardRelationBundle;
   public face: TDuelEntityFace;
   public isUnderControl: boolean;
   private _battlePosition: TBattlePosition | undefined;
@@ -321,8 +434,9 @@ export class DuelEntity {
       isRebornable: true,
       isSettingSickness: false,
       materials: [],
+      effectTargets: {},
       willBeBanished: false,
-      willReturnToDeck: false,
+      willReturnToDeck: undefined,
     };
     this.resetInfo();
     this.face = face;
@@ -333,6 +447,7 @@ export class DuelEntity {
     this.wasMovedByWhom = owner;
     this.procFilterBundle = new ProcFilterBundle(fieldCell.field.procFilterPool, this);
     this.numericOprsBundle = new NumericStateOperatorBundle(fieldCell.field.numericStateOperatorPool, this);
+    this.cardRelationBundle = new CardRelationBundle(fieldCell.field.cardRelationPool, this);
     fieldCell.acceptEntities([this], "Top");
   }
 
@@ -373,17 +488,23 @@ export class DuelEntity {
     return index;
   };
 
-  public readonly setBattlePosition = (pos: TBattlePosition): void => {
+  public readonly setBattlePosition = async (pos: TBattlePosition): Promise<void> => {
     this._battlePosition = pos;
     this.orientation = pos === "Attack" ? "Vertical" : "Horizontal";
     this.face = pos === "Set" ? "FaceDown" : "FaceUp";
     this.isUnderControl = true;
+    for (const ce of this.continuousEffects) {
+      await ce.updateState();
+    }
   };
-  public readonly setNonFieldPosition = (pos: TNonBattlePosition, isUnderControl: boolean): void => {
+  public readonly setNonFieldMonsterPosition = async (pos: TNonBattlePosition, isUnderControl: boolean): Promise<void> => {
     this._battlePosition = undefined;
     this.orientation = pos === "XysMaterial" ? "Horizontal" : "Vertical";
     this.face = pos === "FaceUp" ? "FaceUp" : "FaceDown";
     this.isUnderControl = isUnderControl;
+    for (const ce of this.continuousEffects) {
+      await ce.updateState();
+    }
   };
   public readonly summon = async (
     to: DuelFieldCell,
@@ -401,7 +522,7 @@ export class DuelEntity {
     if (!to.isAvailable) {
       return;
     }
-    this.setBattlePosition(pos);
+    await this.setBattlePosition(pos);
     if (summonType === "NormalSummon" || summonType === "AdvanceSummon") {
       const advance = summonType === "AdvanceSummon" ? "アドバンス" : "";
       if (pos === "Attack") {
@@ -438,7 +559,7 @@ export class DuelEntity {
     movedByWhom: Duelist | undefined
   ): Promise<void> => {
     await this._moveTo(to, "Top", [...moveAs, "SpellTrapSet"], movedBy, movedByWhom);
-    this.setNonFieldPosition("Set", true);
+    await this.setNonFieldMonsterPosition("Set", true);
   };
   public readonly activateSpellTrapFromHand = async (
     to: DuelFieldCell,
@@ -446,11 +567,11 @@ export class DuelEntity {
     movedBy: DuelEntity | undefined,
     movedByWhom: Duelist | undefined
   ): Promise<void> => {
-    this.setNonFieldPosition("FaceUp", true);
+    await this.setNonFieldMonsterPosition("FaceUp", true);
     await this._moveTo(to, "Top", [...moveAs, "SpellTrapActivate"], movedBy, movedByWhom);
   };
   public readonly activateSpellTrapOnField = async (): Promise<void> => {
-    this.setNonFieldPosition("FaceUp", true);
+    this.setNonFieldMonsterPosition("FaceUp", true);
   };
   public readonly draw = async (
     moveAs: TDuelCauseReason[],
@@ -465,7 +586,7 @@ export class DuelEntity {
     movedByWhom: Duelist | undefined
   ): Promise<DuelFieldCell | undefined> => {
     const dest = await this._moveTo(this.owner.getHandCell(), "Bottom", moveAs, movedBy, movedByWhom);
-    this.setNonFieldPosition("Set", true);
+    await this.setNonFieldMonsterPosition("Set", true);
     return dest;
   };
   public readonly release = async (
@@ -483,7 +604,7 @@ export class DuelEntity {
   ): Promise<DuelFieldCell | undefined> => {
     return await this.sendToGraveyard([...moveAs, by, "Destroy"], movedBy, movedByWhom);
   };
-  public readonly sendToGraveyard = async (
+  private readonly sendToGraveyard = async (
     moveAs: TDuelCauseReason[],
     movedBy: DuelEntity | undefined,
     movedByWhom: Duelist | undefined
@@ -492,11 +613,11 @@ export class DuelEntity {
       return await this.banish(moveAs, movedBy, movedByWhom);
     }
     if (this.info.willReturnToDeck) {
-      return await this.returnToDeck("Top", moveAs, movedBy, movedByWhom);
+      return await this.returnToDeck(this.info.willReturnToDeck, moveAs, movedBy, movedByWhom);
     }
 
     this.resetCauseOfDeath();
-    this.setNonFieldPosition("FaceUp", true);
+    await this.setNonFieldMonsterPosition("FaceUp", true);
     const graveyard = this.owner.getGraveyard();
 
     await this._moveTo(graveyard, "Top", moveAs, movedBy, movedByWhom);
@@ -511,7 +632,7 @@ export class DuelEntity {
     }
 
     this.resetCauseOfDeath();
-    this.setNonFieldPosition("FaceUp", true);
+    await this.setNonFieldMonsterPosition("FaceUp", true);
 
     const banished = this.owner.getBanished();
     this.info.willBeBanished = false;
@@ -545,7 +666,7 @@ export class DuelEntity {
     }
 
     const dest = this.isBelongTo;
-    this.setNonFieldPosition("Set", false);
+    await this.setNonFieldMonsterPosition("Set", false);
     this.resetInfo();
     this.resetStatus();
     return await this._moveTo(dest, pos, moveAs, movedBy, movedByWhom);
@@ -582,6 +703,10 @@ export class DuelEntity {
     }
     to.acceptEntities([this], pos);
 
+    for (const ce of this.continuousEffects) {
+      await ce.updateState();
+    }
+
     return to;
   };
 
@@ -601,8 +726,9 @@ export class DuelEntity {
       isRebornable: this.origin.monsterCategories?.union(specialMonsterCategories).length === 0 || (this.origin.canReborn ?? false),
       isSettingSickness: false,
       materials: [],
+      effectTargets: {},
       willBeBanished: false,
-      willReturnToDeck: false,
+      willReturnToDeck: undefined,
       attackCount: 0,
       battlePotisionChangeCount: 0,
     };

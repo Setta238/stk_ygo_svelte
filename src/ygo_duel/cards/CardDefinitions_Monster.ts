@@ -201,7 +201,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
           return availableCells.length > 0 ? [] : undefined;
         },
         prepare: async (action: CardAction<undefined>) => {
-          await action.entity.controller.getDeckCell().cardEntities[0].sendToGraveyard(["Cost"], action.entity, action.entity.controller);
+          await DuelEntity.sendGraveyard(action.entity.controller.getDeckCell().cardEntities[0], ["Cost"], action.entity, action.entity.controller);
           return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromGraveyard"], prepared: undefined };
         },
         execute: async (myInfo: ChainBlockInfo<undefined>): Promise<boolean> => {
@@ -473,7 +473,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
             return info.chainBlockTags.union(item.chainBlockTags).length > 0 ? [] : undefined;
           },
           prepare: async (action: CardAction<number>, cell: DuelFieldCell | undefined, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => {
-            await action.entity.sendToGraveyard(["Discard", "Cost"], action.entity, action.entity.controller);
+            await DuelEntity.sendGraveyard(action.entity, ["Discard", "Cost"], action.entity, action.entity.controller);
             return { selectedEntities: [], chainBlockTags: ["NegateCardEffect"], prepared: chainBlockInfos.length };
           },
           execute: async (myInfo: ChainBlockInfo<number>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>): Promise<boolean> => {
@@ -495,15 +495,15 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
         createRegularProcFilterHandler(
           "①戦闘破壊耐性",
           "Monster",
-          (entity: DuelEntity) => [entity],
+          (source: DuelEntity) => [source],
           () => true,
-          (entity: DuelEntity) => {
+          (source: DuelEntity) => {
             return [
               new ProcFilter(
                 "①戦闘破壊耐性",
                 () => true,
                 true,
-                entity,
+                source,
                 () => true,
                 "BattleDestory",
                 (activator: Duelist, enemy: DuelEntity) => {
@@ -513,7 +513,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
                   if ((enemy.atk ?? 0) < 1900) {
                     return true;
                   }
-                  entity.duel.log.info(`${entity.toString()}は攻撃力1900以上のモンスターとの先頭では破壊されない。`, entity.controller);
+                  source.duel.log.info(`${source.toString()}は攻撃力1900以上のモンスターとの先頭では破壊されない。`, source.controller);
                   return false;
                 }
               ),

@@ -7,7 +7,7 @@ import type { CardActionBase } from "@ygo_duel/class/DuelCardAction";
 import type { CardDefinition } from "./CardDefinitions";
 import type { TEntityFlexibleStatusKey, TMonsterType } from "@ygo/class/YgoTypes";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
-import { createBroadNumericStateOperatorHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
+import { createBroadRegularNumericStateOperatorHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 
 export const createCardDefinitions_FieldSpell_Preset = (): CardDefinition[] => {
   const result: CardDefinition[] = [];
@@ -60,7 +60,7 @@ export const createCardDefinitions_FieldSpell_Preset = (): CardDefinition[] => {
         defaultSpellTrapSetAction,
       ] as CardActionBase<unknown>[],
       continuousEffects: [
-        createBroadNumericStateOperatorHandler(
+        createBroadRegularNumericStateOperatorHandler(
           "発動",
           "Spell",
           (source: DuelEntity) => source.isOnField && source.face === "FaceUp",

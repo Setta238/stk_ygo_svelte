@@ -6,7 +6,7 @@ import type { CardActionBase } from "@ygo_duel/class/DuelCardAction";
 
 import type { CardDefinition } from "./CardDefinitions";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
-import { createBroadNumericStateOperatorHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
+import { createBroadRegularNumericStateOperatorHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 
 export const createCardDefinitions_ContinuousSpell_Preset = (): CardDefinition[] => {
   const result: CardDefinition[] = [];
@@ -27,7 +27,7 @@ export const createCardDefinitions_ContinuousSpell_Preset = (): CardDefinition[]
       defaultSpellTrapSetAction,
     ] as CardActionBase<unknown>[],
     continuousEffects: [
-      createBroadNumericStateOperatorHandler(
+      createBroadRegularNumericStateOperatorHandler(
         "発動",
         "Spell",
         (entity: DuelEntity) => entity.isOnField && entity.face === "FaceUp",
@@ -37,7 +37,8 @@ export const createCardDefinitions_ContinuousSpell_Preset = (): CardDefinition[]
               "発動",
               (spawner: DuelEntity) => spawner.isOnField && spawner.face === "FaceUp",
               entity,
-              (spawner: DuelEntity, target: DuelEntity) => target.controller === spawner.controller && target.type.includes("Warrior"),
+              (spawner: DuelEntity, target: DuelEntity) =>
+                target.controller === spawner.controller && target.type.includes("Warrior") && target.isOnField && target.face === "FaceUp",
               "attack",
               "current",
               "Addition",

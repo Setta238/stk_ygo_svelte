@@ -95,6 +95,11 @@
               <div>"{action.playType} {action.title}",</div>
             {/each}
             <div>{"],"}</div>
+            <div>"continuousEffects" :{"["}</div>
+            {#each entity.continuousEffects as continuousEffect}
+              <div>"{continuousEffect.isStarted}",</div>
+            {/each}
+            <div>{"],"}</div>
             <div>"procFilters" :{"["}</div>
             {#each entity.procFilterBundle.operators as pf}
               <div>"{pf.isSpawnedBy.toString()} {pf.title}",</div>
@@ -102,6 +107,11 @@
             <div>{"],"}</div>
             <div>"numericStateOperators" :{"["}</div>
             {#each entity.numericOprsBundle.operators as pf}
+              <div>"{pf.isSpawnedBy.toString()} {pf.title}",</div>
+            {/each}
+            <div>{"],"}</div>
+            <div>"cardRelations" :{"["}</div>
+            {#each entity.cardRelationBundle.operators as pf}
               <div>"{pf.isSpawnedBy.toString()} {pf.title}",</div>
             {/each}
             <div>{"],"}</div>

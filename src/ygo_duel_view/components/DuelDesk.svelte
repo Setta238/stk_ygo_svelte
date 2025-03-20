@@ -55,7 +55,9 @@
   };
   duel.view.onDuelUpdate.append(onDuelUpdate);
   const onOkClick = () => {
+    console.log(selectedList);
     if (selectedEntitiesValidator(selectedList)) {
+      console.log(selectedList);
       response({ selectedEntities: selectedList });
     }
   };

@@ -205,8 +205,10 @@ export class Duelist {
     return this.getMonstersOnField();
   };
   public readonly getMonstersOnField = (): DuelEntity[] => {
-    // TODO : クロス・ソウルと帝王の烈旋の考慮
     return this.duel.field.getMonstersOnField().filter((monster) => monster.controller === this);
+  };
+  public readonly getEntiteisOnField = (): DuelEntity[] => {
+    return this.duel.field.getEntiteisOnField().filter((card) => card.controller === this);
   };
 
   public readonly getAttackTargetMonsters = (): DuelEntity[] => {
@@ -278,9 +280,7 @@ export class Duelist {
         (await this.duel.view.waitSelectEntities(chooser || this, choices, qty, (list) => list.length === qty, `${qty}枚カードを捨てる。`, false)) || [];
     }
 
-    for (const card of selectedList) {
-      await card.sendToGraveyard(["Discard", ...moveAs], causedBy, causedByWhome);
-    }
+    await DuelEntity.sendGraveyardManyForTheSameReason(selectedList, ["Discard", ...moveAs], causedBy, causedByWhome);
 
     this.duel.log.info(`手札からカードを${selectedList.length}枚捨てた。${selectedList.map((e) => e.origin?.name)}。`, this);
 

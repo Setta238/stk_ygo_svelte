@@ -13,6 +13,7 @@ export abstract class StickyEffectOperatorPool<OPE extends StickyEffectOperatorB
 
   public readonly excludesExpired = () => {
     this.bundles = this.bundles.filter((bundle) => !bundle.entity.hasDisappeared);
+    this.bundles.forEach((bundle) => bundle.excludesExpired());
     this.pooledOperators = this.pooledOperators.filter((ope) => ope.validateAlive(ope.isSpawnedBy));
   };
 
@@ -83,7 +84,16 @@ export abstract class StickyEffectOperatorBundle<OPE extends StickyEffectOperato
     // 広域オペレータを配布してもらうために、static側の配列に投入する。
     this.pool.append(this);
   }
-  public readonly excludesExpired = () => (this._operators = this._operators.filter((ope) => ope.validateAlive(ope.isSpawnedBy)));
+  public readonly excludesExpired = () => {
+    this._operators = this._operators.filter((ope) => {
+      const isAlive = ope.validateAlive(ope.isSpawnedBy) && ope.isApplicableTo(ope.isSpawnedBy, this.entity);
+      if (!isAlive) {
+        console.log(this);
+        ope.beforeRemove();
+      }
+      return isAlive;
+    });
+  };
   protected abstract readonly beforePush: (ope: OPE) => void;
 
   public readonly push = (ope: OPE) => {
@@ -105,6 +115,7 @@ export abstract class StickyEffectOperatorBase {
   public readonly isContinuous: boolean;
   public readonly isSpawnedBy: DuelEntity;
   public readonly isApplicableTo: (spawner: DuelEntity, target: DuelEntity) => boolean;
+  public abstract readonly beforeRemove: () => void;
 
   protected constructor(
     title: string,

@@ -182,6 +182,7 @@ export class NumericStateOperatorBundle extends StickyEffectOperatorBundle<Numer
   };
 }
 export class NumericStateOperator extends StickyEffectOperatorBase {
+  public beforeRemove: () => void = () => {};
   public static readonly createContinuous = (
     title: string,
     validateAlive: (spawner: DuelEntity) => boolean,

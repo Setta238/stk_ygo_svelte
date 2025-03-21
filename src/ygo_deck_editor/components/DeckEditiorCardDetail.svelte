@@ -11,7 +11,6 @@
     type CardInfoJson,
     type EntityStatus,
   } from "@ygo/class/YgoTypes";
-  import { DuelEntity, type CardAction } from "@ygo_duel/class/DuelEntity";
   import { writable } from "svelte/store";
   export let cardInfo: CardInfoJson | undefined = undefined;
   const getInfo = () => (cardInfo ? cardInfoDic[cardInfo.name] : undefined);

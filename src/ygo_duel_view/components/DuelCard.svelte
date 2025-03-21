@@ -118,7 +118,9 @@
   <button
     class="duel_card button_style_reset {entity.status.kind} {entity.status.monsterCategories?.join(' ') || ''} {isSelected
       ? 'duel_card_selected'
-      : ''} {state} duel_card_{entity.orientation} {isDragging ? 'isDragging' : ''} {isWideMode ? 'duel_card_wide' : ''}"
+      : ''} {state} duel_card_{entity.orientation} {isDragging ? 'isDragging' : ''} {isWideMode
+      ? 'duel_card_wide'
+      : ''} duel_card_{entity.face} {entity.isOnField ? 'duel_card_is_on_field' : ''}"
     draggable={state === "Draggable"}
     on:dragstart={dragStart}
     on:dragend={dragEnd}
@@ -128,7 +130,7 @@
     on:contextmenu={onRightClick}
     title={entity.nm}
   >
-    <div class="duel_card duel_card_face_up">
+    <div class="duel_card duel_card_visible">
       <div class="duel_card_row" style="position:relative">
         <div>{entity.nm}</div>
         <div></div>
@@ -196,7 +198,7 @@
   .duel_card_wide {
     width: 100%;
   }
-  .duel_card_face_up {
+  .duel_card_visible {
     display: flex;
     flex-direction: column;
     height: 4.3rem;
@@ -206,7 +208,10 @@
     min-width: 5rem;
     max-width: 8rem;
   }
-  .duel_card_wide .duel_card_face_up {
+  .duel_card.duel_card_FaceDown.duel_card_is_on_field {
+    filter: grayscale(0.5);
+  }
+  .duel_card_wide .duel_card_visible {
     max-width: initial;
   }
 

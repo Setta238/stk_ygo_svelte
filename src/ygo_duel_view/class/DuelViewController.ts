@@ -78,6 +78,15 @@ export class DuelViewController {
     this.modalController = new DuelModalController(this);
   }
 
+  private readonly removeSvelteInfo = (response: DuelistResponse) => {
+    const _response = { ...response };
+
+    if (_response.selectedEntities) {
+      _response.selectedEntities = DuelEntity.recreateArray(this.duel.field, _response.selectedEntities);
+    }
+    return _response;
+  };
+
   public readonly getCell = (row: number, column: number): DuelFieldCell => {
     return this.duel.field.cells[row][column];
   };
@@ -272,7 +281,8 @@ export class DuelViewController {
       throw new SystemError("キャンセル不可のアクションがキャンセルされた。", userAction, enableActions, waitMode, selectableEntities);
     }
     this.infoBoardState = "Log";
-    return userAction;
+
+    return this.removeSvelteInfo(userAction);
   };
 
   public readonly waitSelectSummonDest = async (

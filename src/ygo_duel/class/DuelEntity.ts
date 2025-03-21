@@ -27,6 +27,7 @@ import { ProcFilterBundle } from "../class_continuous_effect/DuelProcFilter";
 import { ContinuousEffect, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { NumericStateOperatorBundle } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import { CardRelationBundle } from "@ygo_duel/class_continuous_effect/DuelCardRelation";
+import type { DuelField } from "./DuelField";
 
 export type TDuelEntityFace = "FaceUp" | "FaceDown";
 export type TDuelEntityOrientation = "Horizontal" | "Vertical";
@@ -146,6 +147,18 @@ export type DuelEntityInfomation = {
 
 export class DuelEntity {
   private static nextEntitySeq = 0;
+
+  public static readonly recreateArray = (field: DuelField, entites: DuelEntity[]): DuelEntity[] => {
+    if (!entites.length) {
+      return [];
+    }
+    const allEntites = field.getAllCells().flatMap((cell) => cell.entities);
+
+    return entites
+      .map((entity) => entity.seq)
+      .map((seq) => allEntites.find((entity) => entity.seq === seq))
+      .filter((entity) => entity !== undefined);
+  };
   /**
    * 直接攻撃のときに面倒なので、プレイヤーをエンティティ扱いで手札においておく
    * @param field

@@ -100,7 +100,7 @@ export class Duel {
     this.clock.onTotalProcSeqChange.append(this.field.procFilterPool.distributeAll);
     this.clock.onTotalProcSeqChange.append(this.field.cardRelationPool.distributeAll);
     this.clock.onTotalProcSeqChange.append(this.field.numericStateOperatorPool.distributeAll);
-    this.clock.onTotalProcSeqChange.append(this.field.numericStateOperatorPool.calcStateAll);
+    this.clock.onTotalProcSeqChange.append(() => this.field.numericStateOperatorPool.calcStateAll(this));
 
     this.view = new DuelViewController(this);
     this.log = new DuelLog(this);
@@ -114,10 +114,10 @@ export class Duel {
     return this.clock.turn % 2 === 0 ? this.firstPlayer : this.secondPlayer;
   };
 
-  public readonly main = async () => {
+  public readonly main = async (coin: boolean = Math.random() > 0.5, hand1: string[] = [], hand2: string[] = []) => {
     console.info("main start!");
 
-    this.coin = Math.random() > 0.5;
+    this.coin = coin;
 
     this.priorityHolder = this.firstPlayer;
     this.log.info("【デュエル開始】");
@@ -126,7 +126,28 @@ export class Duel {
     // 下の三行はまとめても良いが、ログ的に交互にやったほうがそれっぽいのでこのままにする。
     Object.values(this.duelists).forEach((duelist) => duelist.pushDeck());
     Object.values(this.duelists).forEach((duelist) => duelist.shuffleDeck());
-    await Promise.all(Object.values(this.duelists).map((duelist) => duelist.draw(5, undefined, undefined)));
+
+    // 初手操作
+    const initHandProp: { hand: string[]; duelist: Duelist }[] = [
+      { hand: hand1, duelist: this.duelists.Below },
+      { hand: hand2, duelist: this.duelists.Above },
+    ];
+
+    initHandProp.forEach((prop) => {
+      if (prop.hand.length) {
+        prop.hand.forEach((name) => {
+          const card = prop.duelist.getDeckCell().cardEntities.find((card) => card.origin.name === name);
+          if (!card) {
+            this.log.info(`初手操作により${name}を手札に加えようとしたが、デッキに存在しない。`);
+            return;
+          }
+          card.addToHand(["System"], undefined, undefined);
+          this.log.info(`初手操作により${card.toString()}を手札に加えた`, prop.duelist);
+        });
+      }
+    });
+
+    await Promise.all(Object.values(this.duelists).map((duelist) => duelist.draw(5 - duelist.getHandCell().cardEntities.length, undefined, undefined)));
 
     this.moveNextPhase("draw");
     this.view.requireUpdate();

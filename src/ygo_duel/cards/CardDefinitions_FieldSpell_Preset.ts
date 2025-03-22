@@ -5,13 +5,14 @@ import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardActionBase } from "@ygo_duel/class/DuelCardAction";
 
 import type { CardDefinition } from "./CardDefinitions";
-import type { TEntityFlexibleStatusKey, TMonsterType } from "@ygo/class/YgoTypes";
+import type { TEntityFlexibleStatusKey, TMonsterAttribute, TMonsterType } from "@ygo/class/YgoTypes";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import { createBroadRegularNumericStateOperatorHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 
 export const createCardDefinitions_FieldSpell_Preset = (): CardDefinition[] => {
   const result: CardDefinition[] = [];
 
+  // 初期種族サポートフィールド魔法
   [
     {
       name: "草原",
@@ -72,7 +73,10 @@ export const createCardDefinitions_FieldSpell_Preset = (): CardDefinition[] => {
                   (spawner: DuelEntity) => spawner.isOnField && spawner.face === "FaceUp",
                   source,
                   (spawner: DuelEntity, monster: DuelEntity) =>
-                    monster.isOnField && (monster.status.monsterCategories ?? false) && item[updown].some((t) => t === monster.status.type),
+                    monster.isOnField &&
+                    monster.face === "FaceUp" &&
+                    (monster.status.monsterCategories ?? false) &&
+                    item[updown].some((t) => t === monster.status.type),
                   state,
                   "current",
                   "Addition",
@@ -87,6 +91,80 @@ export const createCardDefinitions_FieldSpell_Preset = (): CardDefinition[] => {
                   }
                 );
               });
+            });
+          }
+        ),
+      ] as ContinuousEffectBase<unknown>[],
+    });
+  });
+
+  // 初期属性サポートフィールド魔法
+  [
+    {
+      name: "バーニングブラッド",
+      attr: "Fire" as TMonsterAttribute,
+    },
+    {
+      name: "ウォーターワールド",
+      attr: "Water" as TMonsterAttribute,
+    },
+    {
+      name: "ガイアパワー",
+      attr: "Earth" as TMonsterAttribute,
+    },
+    {
+      name: "シャインスパーク",
+      attr: "Light" as TMonsterAttribute,
+    },
+    {
+      name: "ダークゾーン",
+      attr: "Dark" as TMonsterAttribute,
+    },
+    {
+      name: "デザートストーム",
+      attr: "Wind" as TMonsterAttribute,
+    },
+  ].forEach((item) => {
+    result.push({
+      name: item.name,
+      actions: [
+        {
+          title: "発動",
+          playType: "CardActivation",
+          spellSpeed: "Normal",
+          executableCells: ["Hand", "FieldSpellZone"],
+          validate: defaultSpellTrapValidate,
+          prepare: defaultSpellTrapPrepare,
+          execute: async () => true,
+          settle: async () => true,
+        },
+        defaultSpellTrapSetAction,
+      ] as CardActionBase<unknown>[],
+      continuousEffects: [
+        createBroadRegularNumericStateOperatorHandler(
+          "発動",
+          "Spell",
+          (source: DuelEntity) => source.isOnField && source.face === "FaceUp",
+          (source: DuelEntity) => {
+            return (["attack", "defense"] as TEntityFlexibleStatusKey[]).flatMap((state) => {
+              return NumericStateOperator.createContinuous(
+                "発動",
+                (spawner: DuelEntity) => spawner.isOnField && spawner.face === "FaceUp",
+                source,
+                (spawner: DuelEntity, monster: DuelEntity) => monster.isOnField && monster.face === "FaceUp" && monster.attr.includes(item.attr),
+                state,
+                "current",
+                "Addition",
+                (spawner: DuelEntity, monster: DuelEntity, current: number) => {
+                  if (!spawner.status.isEffective) {
+                    return current;
+                  }
+                  if (monster.face === "FaceDown") {
+                    return current;
+                  }
+                  return current + (state === "attack" ? 500 : -400);
+                }
+              );
             });
           }
         ),

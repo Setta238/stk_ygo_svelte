@@ -69,7 +69,8 @@ export type TDuelCauseReason =
   | "SpellTrapActivate"
   | "Flip"
   | "FlipByBattle"
-  | "FlipSummon";
+  | "FlipSummon"
+  | "System";
 
 export const duelEntityCardTypes = ["Card", "Token", "Avatar"] as const;
 export type TDuelEntityCardType = (typeof duelEntityCardTypes)[number];

@@ -1,10 +1,19 @@
-import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
+import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { StickyEffectOperatorBase, StickyEffectOperatorBundle, StickyEffectOperatorPool } from "@ygo_duel/class_continuous_effect/DuelStickyEffectOperatorBase";
-import { SystemError } from "@ygo_duel/class/Duel";
+import { Duel, SystemError } from "@ygo_duel/class/Duel";
 import { entityFlexibleStatusKeys, type TEntityFlexibleStatusGen, type TEntityFlexibleStatusKey } from "@ygo/class/YgoTypes";
 
 export const stateOperationTypes = ["Addition", "Fixation", "THE_DEVILS_DREAD-ROOT", "THE_DEVILS_AVATAR", "Gradius'_Option"] as const;
 type TStateOperationType = (typeof stateOperationTypes)[number];
+
+const minValueDic: { [key in TEntityFlexibleStatusKey]: number } = {
+  level: 1,
+  rank: 1,
+  attack: 0,
+  defense: 0,
+  pendulumScaleR: 0,
+  pendulumScaleL: 0,
+};
 
 // https://yugioh-wiki.net/index.php?%A5%B9%A5%C6%A1%BC%A5%BF%A5%B9#change
 // 基本的には以下の処理となる。
@@ -26,7 +35,42 @@ type TStateOperationType = (typeof stateOperationTypes)[number];
 //    邪神アバター、邪神ドレッド・ルート、オプション、オプション・トークン                             枠外
 
 export class NumericStateOperatorPool extends StickyEffectOperatorPool<NumericStateOperator, NumericStateOperatorBundle> {
-  public readonly calcStateAll = (): void => this.bundles.forEach((bundle) => bundle.calcStateAll());
+  public readonly calcStateAll = (duel: Duel): void =>
+    this.bundles.forEach((bundle) => {
+      // 全てのステータスを再計算
+      bundle.calcStateAll();
+      // 邪神アバター類のみ最後に計算（※少なくとも攻撃力はマイナスになるようマーキング済）
+      const needsRecalc = duel.field.getMonstersOnField().filter((monster) => (monster.atk ?? 0) < 0);
+      if (needsRecalc.length) {
+        const otherMonsters = duel.field.getMonstersOnField().filter((monster) => (monster.atk ?? 0) >= 0);
+        const maxAtk = otherMonsters.map((monster) => monster.atk ?? 0).reduce((wip, current) => (wip > current ? wip : current), 0);
+        needsRecalc.forEach((monster) => {
+          let gradius: DuelEntity | undefined = undefined;
+          if (monster.info.effectTargets["Gradius'_Option"]) {
+            gradius = monster.info.effectTargets["Gradius'_Option"][0];
+          }
+          monster.numericOprsBundle.operators.forEach((ope) => {
+            // リンクモンスターが効果コピーしていた場合
+            if (monster.status.monsterCategories?.includes("Link") && ope.targetState === "defense") {
+              return;
+            }
+
+            if (ope.stateOperationType === "Gradius'_Option") {
+              monster.status.calculated[ope.targetState] = gradius?.status.calculated[ope.targetState] ?? 0;
+              return;
+            }
+            if (ope.stateOperationType === "THE_DEVILS_AVATAR") {
+              monster.status.calculated[ope.targetState] = maxAtk + 100;
+              return;
+            }
+            if (ope.stateOperationType === "THE_DEVILS_DREAD-ROOT") {
+              monster.status.calculated[ope.targetState] = Math.round((monster.status.calculated[ope.targetState] ?? 0) / 2);
+              return;
+            }
+          });
+        });
+      }
+    });
 }
 export class NumericStateOperatorBundle extends StickyEffectOperatorBundle<NumericStateOperator> {
   public dominantOperators: { [key in TEntityFlexibleStatusKey]: NumericStateOperator | undefined } = {
@@ -118,9 +162,41 @@ export class NumericStateOperatorBundle extends StickyEffectOperatorBundle<Numer
 
   public readonly calcState = (targetState: TEntityFlexibleStatusKey): void => {
     if (this.entity.status.kind !== "Monster") {
+      this.entity.status.calculated[targetState] = undefined;
       return;
     }
 
+    if (!this.entity.status.monsterCategories) {
+      this.entity.status.calculated[targetState] = undefined;
+      return;
+    }
+
+    // TODO 検討⇒連想配列で定義したほうがいいかも？
+    // リンクモンスターは攻撃力以外持たない
+    if (this.entity.status.monsterCategories.includes("Link") && targetState !== "attack") {
+      this.entity.status.calculated[targetState] = undefined;
+      return;
+    }
+
+    // エクシーズモンスターはレベルを持たない
+    if (this.entity.status.monsterCategories.includes("Xyz") && targetState === "level") {
+      this.entity.status.calculated[targetState] = undefined;
+      return;
+    }
+
+    // エクシーズモンスター以外はランクを持たない
+    if (!this.entity.status.monsterCategories.includes("Xyz") && targetState === "rank") {
+      this.entity.status.calculated[targetState] = undefined;
+      return;
+    }
+
+    // ペンデュラムモンスター以外はペンデュラムスケールを持たない
+    if (!this.entity.status.monsterCategories.includes("Pendulum") && (targetState === "pendulumScaleL" || targetState === "pendulumScaleR")) {
+      this.entity.status.calculated[targetState] = undefined;
+      return;
+    }
+
+    // レベル以外のステータスは、フィールドでのみ計算する。
     if (targetState !== "level" && !this.entity.isOnField) {
       this.entity.status.origin[targetState] = this.entity.origin[targetState];
       this.entity.status.current[targetState] = this.entity.origin[targetState];
@@ -131,7 +207,10 @@ export class NumericStateOperatorBundle extends StickyEffectOperatorBundle<Numer
     // 対象ステータスのオペレータを抽出
     const opeList = this._operators.filter((ope) => ope.targetState === targetState);
     // 邪神アバター、オプション類の場合、計算を一度スキップする
-    if (opeList.some((ope) => ope.stateOperationType === "THE_DEVILS_AVATAR" || ope.stateOperationType === "Gradius'_Option")) {
+    if (
+      opeList.some((ope) => ope.stateOperationType === "THE_DEVILS_AVATAR" || ope.stateOperationType === "Gradius'_Option") &&
+      this.entity.status.isEffective
+    ) {
       this.entity.status.calculated[targetState] = Number.MIN_VALUE;
       return;
     }
@@ -177,6 +256,12 @@ export class NumericStateOperatorBundle extends StickyEffectOperatorBundle<Numer
       .forEach((ope) => {
         wip = ope.calcValue(ope.isSpawnedBy, this.entity, wip);
       });
+
+    // 最低値を割っている場合、上書き
+    if (wip < minValueDic[targetState]) {
+      wip = minValueDic[targetState];
+    }
+
     //結果を投入
     this.entity.status.calculated[targetState] = wip;
   };

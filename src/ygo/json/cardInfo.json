@@ -13870,5 +13870,495 @@
     "kind": "Spell",
     "spellCategory": "Equip",
     "wikiEncodedName": "%A1%D4%CB%E2%C6%B3%BB%D5%A4%CE%CE%CF%A1%D5"
+  },
+  "ウォーターワールド": {
+    "name": "ウォーターワールド",
+    "nameKana": "",
+    "description": "フィールド上に表側表示で存在する水属性モンスターの攻撃力は５００ポイントアップし、\n守備力は４００ポイントダウンする。",
+    "kind": "Spell",
+    "spellCategory": "Field",
+    "wikiEncodedName": "%A1%D4%A5%A6%A5%A9%A1%BC%A5%BF%A1%BC%A5%EF%A1%BC%A5%EB%A5%C9%A1%D5"
+  },
+  "ガイアパワー": {
+    "name": "ガイアパワー",
+    "nameKana": "",
+    "description": "フィールド上に表側表示で存在する地属性モンスターの攻撃力は５００ポイントアップし、\n守備力は４００ポイントダウンする。",
+    "kind": "Spell",
+    "spellCategory": "Field",
+    "wikiEncodedName": "%A1%D4%A5%AC%A5%A4%A5%A2%A5%D1%A5%EF%A1%BC%A1%D5"
+  },
+  "シャインスパーク": {
+    "name": "シャインスパーク",
+    "nameKana": "",
+    "description": "フィールド上に表側表示で存在する光属性モンスターの攻撃力は５００ポイントアップし、\n守備力は４００ポイントダウンする。",
+    "kind": "Spell",
+    "spellCategory": "Field",
+    "wikiEncodedName": "%A1%D4%A5%B7%A5%E3%A5%A4%A5%F3%A5%B9%A5%D1%A1%BC%A5%AF%A1%D5"
+  },
+  "ダークゾーン": {
+    "name": "ダークゾーン",
+    "nameKana": "",
+    "description": "フィールド上に表側表示で存在する闇属性モンスターの攻撃力は５００ポイントアップし、\n守備力は４００ポイントダウンする。",
+    "kind": "Spell",
+    "spellCategory": "Field",
+    "wikiEncodedName": "%A1%D4%A5%C0%A1%BC%A5%AF%A5%BE%A1%BC%A5%F3%A1%D5"
+  },
+  "デザートストーム": {
+    "name": "デザートストーム",
+    "nameKana": "",
+    "description": "フィールド上に表側表示で存在する風属性モンスターの攻撃力は５００ポイントアップし、\n守備力は４００ポイントダウンする。",
+    "kind": "Spell",
+    "spellCategory": "Field",
+    "wikiEncodedName": "%A1%D4%A5%C7%A5%B6%A1%BC%A5%C8%A5%B9%A5%C8%A1%BC%A5%E0%A1%D5"
+  },
+  "バーニングブラッド": {
+    "name": "バーニングブラッド",
+    "nameKana": "",
+    "description": "フィールド上に表側表示で存在する炎属性モンスターの攻撃力は５００ポイントアップし、\n守備力は４００ポイントダウンする。",
+    "kind": "Spell",
+    "spellCategory": "Field",
+    "wikiEncodedName": "%A1%D4%A5%D0%A1%BC%A5%CB%A5%F3%A5%B0%A5%D6%A5%E9%A5%C3%A5%C9%A1%D5"
+  },
+  "覚醒の勇士 ガガギゴ": {
+    "name": "覚醒の勇士 ガガギゴ",
+    "nameKana": "",
+    "description": "レベル４モンスター×３",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Xyz",
+      "SpecialSummon"
+    ],
+    "rank": 4,
+    "attack": 2950,
+    "defense": 2800,
+    "attribute": "Water",
+    "type": "Reptile",
+    "wikiEncodedName": "%A1%D4%B3%D0%C0%C3%A4%CE%CD%A6%BB%CE+%A5%AC%A5%AC%A5%AE%A5%B4%A1%D5"
+  },
+  "覚醒の魔導剣士": {
+    "name": "覚醒の魔導剣士",
+    "nameKana": "",
+    "description": "チューナー＋チューナー以外のモンスター１体以上\n「覚醒の魔導剣士」の(1)の効果は１ターンに１度しか使用できない。\n(1)：「魔術師」Ｐモンスターを素材としてこのカードがＳ召喚に成功した場合、\n自分の墓地の魔法カード１枚を対象として発動できる。\nそのカードを手札に加える。\n(2)：このカードが戦闘で相手モンスターを破壊した時に発動できる。\nそのモンスターの元々の攻撃力分のダメージを相手に与える。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "SpecialSummon",
+      "Effect"
+    ],
+    "level": 8,
+    "attack": 2500,
+    "defense": 2000,
+    "attribute": "Dark",
+    "type": "Spellcaster",
+    "wikiEncodedName": "%A1%D4%B3%D0%C0%C3%A4%CE%CB%E2%C6%B3%B7%F5%BB%CE%A1%D5"
+  },
+  "ヴェルズ・サラマンドラ": {
+    "name": "ヴェルズ・サラマンドラ",
+    "nameKana": "",
+    "description": "(1)：自分の墓地からモンスター１体を除外して発動できる。\nこのカードの攻撃力は相手ターン終了時まで３００アップする。\nこの効果は１ターンに２度まで使用できる。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "level": 4,
+    "attack": 1850,
+    "defense": 950,
+    "attribute": "Dark",
+    "type": "Dinosaur",
+    "wikiEncodedName": "%A1%D4%A5%F4%A5%A7%A5%EB%A5%BA%A1%A6%A5%B5%A5%E9%A5%DE%A5%F3%A5%C9%A5%E9%A1%D5"
+  },
+  "覚醒の暗黒騎士ガイア": {
+    "name": "覚醒の暗黒騎士ガイア",
+    "nameKana": "",
+    "description": "「覚醒の暗黒騎士ガイア」の(2)の効果は１ターンに１度しか使用できない。\n(1)：相手フィールドのモンスターの数が自分フィールドのモンスターより多い場合、\nこのカードはリリースなしで召喚できる。\n(2)：このカードがリリースされた場合に発動できる。\n自分の手札・墓地から「カオス・ソルジャー」モンスター１体を選んで特殊召喚する。\n(3)：「カオス・ソルジャー」モンスターの儀式召喚を行う場合、\n必要なレベル分のモンスターの内の１体として、墓地のこのカードを除外できる。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "level": 7,
+    "attack": 2300,
+    "defense": 2100,
+    "attribute": "Dark",
+    "type": "Warrior",
+    "wikiEncodedName": "%A1%D4%B3%D0%C0%C3%A4%CE%B0%C5%B9%F5%B5%B3%BB%CE%A5%AC%A5%A4%A5%A2%A1%D5"
+  },
+  "覚醒戦士 クーフーリン": {
+    "name": "覚醒戦士 クーフーリン",
+    "nameKana": "",
+    "description": "「覚醒の証」により降臨。\n１ターンに１度、自分の墓地に存在する通常モンスター１体を選択して発動する事ができる。\n選択したモンスターをゲームから除外し、除外したその通常モンスターの攻撃力分だけ、\n次の自分のターンのスタンバイフェイズ時までこのカードの攻撃力をアップする。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "level": 4,
+    "attack": 500,
+    "defense": 1000,
+    "attribute": "Light",
+    "type": "Warrior",
+    "wikiEncodedName": "%A1%D4%B3%D0%C0%C3%C0%EF%BB%CE+%A5%AF%A1%BC%A5%D5%A1%BC%A5%EA%A5%F3%A1%D5"
+  },
+  "伝説の剣闘士 カオス・ソルジャー": {
+    "name": "伝説の剣闘士 カオス・ソルジャー",
+    "nameKana": "",
+    "description": "「カオス・フォーム」「超戦士の儀式」により降臨\nこのカードは儀式召喚でしか特殊召喚できない。\n(1)：自分ドローフェイズのドローの前に、手札のこのカードを相手に見せて発動できる。\nこのターン通常のドローを行う代わりに、デッキから儀式魔法カード１枚を手札に加える。\n(2)：このカードがモンスターゾーンに存在する限り、自分バトルフェイズ中に相手は効果を発動できない。\n(3)：通常モンスターを使用して儀式召喚したこのカードの攻撃で相手モンスターを破壊した時に発動できる。\n相手フィールドのカードを全てデッキに戻す。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "level": 8,
+    "attack": 3000,
+    "defense": 2500,
+    "attribute": "Earth",
+    "type": "Warrior",
+    "wikiEncodedName": "%A1%D4%C5%C1%C0%E2%A4%CE%B7%F5%C6%AE%BB%CE+%A5%AB%A5%AA%A5%B9%A1%A6%A5%BD%A5%EB%A5%B8%A5%E3%A1%BC%A1%D5"
+  },
+  "飛龍炎サラマンドラ": {
+    "name": "飛龍炎サラマンドラ",
+    "nameKana": "",
+    "description": "このカード名の(1)(3)の効果はそれぞれ１ターンに１度しか使用できない。\n(1)：このカードが手札・墓地に存在する場合、\n自分フィールドの戦士族モンスター１体を対象として発動できる。\nこのカードを装備魔法カード扱いでその自分のモンスターに装備する。\n(2)：このカードが「炎の剣士」またはそのカード名が記されたモンスターに装備されている限り、\n装備モンスターの攻撃力は７００アップする。\n(3)：このカードが墓地へ送られた場合に発動できる。\nデッキから「サラマンドラ」魔法・罠カード１枚を手札に加える。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "level": 2,
+    "attack": 700,
+    "defense": 1600,
+    "attribute": "Fire",
+    "type": "Dragon",
+    "wikiEncodedName": "%A1%D4%C8%F4%CE%B6%B1%EA%A5%B5%A5%E9%A5%DE%A5%F3%A5%C9%A5%E9%A1%D5"
+  },
+  "憑依覚醒－ガギゴバイト": {
+    "name": "憑依覚醒－ガギゴバイト",
+    "nameKana": "",
+    "description": "このカード名の(2)(3)の効果はそれぞれ１ターンに１度しか使用できない。\n(1)：このカードは自分フィールドの表側表示の、\n魔法使い族モンスター１体とレベル４以下の水属性モンスター１体を墓地へ送り、\n手札・デッキから特殊召喚できる。\n(2)：このカードの(1)の方法で特殊召喚に成功した時に発動できる。\n相手の手札をランダムに１枚選んで墓地へ送る。\nその後、お互いにデッキから１枚ドローする。\n(3)：このカードがフィールドから墓地へ送られた場合に発動できる。\nデッキから「水霊術」カードまたは「憑依」魔法・罠カード１枚を手札に加える。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "level": 5,
+    "attack": 2000,
+    "defense": 200,
+    "attribute": "Water",
+    "type": "Reptile",
+    "wikiEncodedName": "%A1%D4%D8%E1%B0%CD%B3%D0%C0%C3%A1%DD%A5%AC%A5%AE%A5%B4%A5%D0%A5%A4%A5%C8%A1%D5"
+  },
+  "憑依覚醒－デーモン・リーパー": {
+    "name": "憑依覚醒－デーモン・リーパー",
+    "nameKana": "",
+    "description": "このカード名の(2)(3)の効果はそれぞれ１ターンに１度しか使用できない。\n(1)：このカードは自分フィールドの表側表示の、\n魔法使い族モンスター１体とレベル４以下の地属性モンスター１体を墓地へ送り、\n手札・デッキから特殊召喚できる。\n(2)：このカードの(1)の方法で特殊召喚した時に発動できる。\n自分の墓地からレベル４以下のモンスター１体を効果を無効にして特殊召喚する。\n(3)：このカードがフィールドから墓地へ送られた場合に発動できる。\nデッキから「地霊術」カードか「憑依」魔法・罠カード１枚を手札に加える。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "level": 5,
+    "attack": 2000,
+    "defense": 200,
+    "attribute": "Earth",
+    "type": "Beast",
+    "wikiEncodedName": "%A1%D4%D8%E1%B0%CD%B3%D0%C0%C3%A1%DD%A5%C7%A1%BC%A5%E2%A5%F3%A1%A6%A5%EA%A1%BC%A5%D1%A1%BC%A1%D5"
+  },
+  "憑依覚醒－ラセンリュウ": {
+    "name": "憑依覚醒－ラセンリュウ",
+    "nameKana": "",
+    "description": "このカード名の(2)(3)の効果はそれぞれ１ターンに１度しか使用できない。\n(1)：このカードは自分フィールドの表側表示の、\n魔法使い族モンスター１体とレベル４以下の風属性モンスター１体を墓地へ送り、\n手札・デッキから特殊召喚できる。\n(2)：このカードの(1)の方法で特殊召喚に成功した時に発動できる。\n相手フィールドのカード１枚を選んで持ち主の手札に戻す。\n(3)：このカードがフィールドから墓地へ送られた場合に発動できる。\nデッキから「風霊術」カードまたは「憑依」魔法・罠カード１枚を手札に加える。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "level": 5,
+    "attack": 2000,
+    "defense": 200,
+    "attribute": "Wind",
+    "type": "Dragon",
+    "wikiEncodedName": "%A1%D4%D8%E1%B0%CD%B3%D0%C0%C3%A1%DD%A5%E9%A5%BB%A5%F3%A5%EA%A5%E5%A5%A6%A1%D5"
+  },
+  "憑依覚醒－大稲荷火": {
+    "name": "憑依覚醒－大稲荷火",
+    "nameKana": "",
+    "description": "このカード名の(2)(3)の効果はそれぞれ１ターンに１度しか使用できない。\n(1)：このカードは自分フィールドの表側表示の、\n魔法使い族モンスター１体とレベル４以下の炎属性モンスター１体を墓地へ送り、\n手札・デッキから特殊召喚できる。\n(2)：このカードの(1)の方法で特殊召喚した時に発動できる。\n相手フィールドのモンスター１体の元々の攻撃力分のダメージを相手に与える。\n(3)：このカードがフィールドから墓地へ送られた場合に発動できる。\nデッキから「火霊術」カードか「憑依」魔法・罠カード１枚を手札に加える。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "level": 5,
+    "attack": 2000,
+    "defense": 200,
+    "attribute": "Fire",
+    "type": "Pyro",
+    "wikiEncodedName": "%A1%D4%D8%E1%B0%CD%B3%D0%C0%C3%A1%DD%C2%E7%B0%F0%B2%D9%B2%D0%A1%D5"
+  },
+  "黒き覚醒のエルドリクシル": {
+    "name": "黒き覚醒のエルドリクシル",
+    "nameKana": "",
+    "description": "このカード名の(1)(2)の効果は１ターンに１度、いずれか１つしか使用できない。\n(1)：手札・デッキからアンデット族モンスター１体を守備表示で特殊召喚する。\n自分フィールドに「エルドリッチ」モンスターが存在しない場合には、\nこの効果で「エルドリッチ」モンスターしか特殊召喚できない。\nこのカードの発動後、ターン終了時まで自分はアンデット族モンスターしか特殊召喚できない。\n(2)：墓地のこのカードを除外して発動できる。\nデッキから「黄金郷」魔法・罠カード１枚を自分フィールドにセットする。",
+    "kind": "Spell",
+    "spellCategory": "Normal",
+    "wikiEncodedName": "%A1%D4%B9%F5%A4%AD%B3%D0%C0%C3%A4%CE%A5%A8%A5%EB%A5%C9%A5%EA%A5%AF%A5%B7%A5%EB%A1%D5"
+  },
+  "憑依覚醒": {
+    "name": "憑依覚醒",
+    "nameKana": "",
+    "description": "このカード名の(3)の効果は１ターンに１度しか使用できない。\n(1)：自分フィールドのモンスターの攻撃力は、自分フィールドのモンスターの属性の種類×３００アップする。\n(2)：自分フィールドの「霊使い」モンスター及び「憑依装着」モンスターは効果では破壊されない。\n(3)：自分フィールドに元々の攻撃力が１８５０の魔法使い族モンスターが召喚・特殊召喚された場合に発動する。\n自分は１枚ドローする。",
+    "kind": "Spell",
+    "spellCategory": "Continuous",
+    "wikiEncodedName": "%A1%D4%D8%E1%B0%CD%B3%D0%C0%C3%A1%D5"
+  },
+  "七皇覚醒": {
+    "name": "七皇覚醒",
+    "nameKana": "",
+    "description": "(1)：バトルフェイズに、モンスターが戦闘・効果で破壊された場合、\n自分の墓地の「Ｎｏ.」Ｘモンスター１体を対象として発動できる。\n種族がそのモンスターと同じでランクが１つ高い「ＣＮｏ.」モンスター１体をＥＸデッキから特殊召喚し、\n対象のモンスターをそのＸ素材とする。\nこの効果で「ＣＮｏ.１０１」～「ＣＮｏ.１０７」モンスターのいずれかを特殊召喚した場合、\nさらに「七皇覚醒」を除く「セブンス」魔法・罠カード、「バリアンズ」魔法・罠カード、\n「ＲＵＭ」速攻魔法カードのいずれか１枚をデッキから手札に加える事ができる。",
+    "kind": "Spell",
+    "spellCategory": "QuickPlay",
+    "wikiEncodedName": "%A1%D4%BC%B7%B9%C4%B3%D0%C0%C3%A1%D5"
+  },
+  "宝玉神覚醒": {
+    "name": "宝玉神覚醒",
+    "nameKana": "",
+    "description": "このカード名のカードは１ターンに１枚しか発動できない。\n(1)：手札の「究極宝玉神」モンスター１体を相手に見せ、以下の効果から１つを選択して発動できる。\nまたは自分フィールドに「究極宝玉神」モンスターが存在する場合、\n以下の効果から１つ、または両方を選択して発動できる。\n●デッキから「架け橋」カードまたは「オーバー・ザ・レインボー」１枚を選び、\n手札に加えるか墓地へ送る。\n●自分の手札・デッキ・墓地の「宝玉獣」モンスター１体または\n自分の魔法＆罠ゾーンの「宝玉獣」モンスターカード１枚を選んで特殊召喚する。",
+    "kind": "Spell",
+    "spellCategory": "QuickPlay",
+    "wikiEncodedName": "%A1%D4%CA%F5%B6%CC%BF%C0%B3%D0%C0%C3%A1%D5"
+  },
+  "はがねの甲羅": {
+    "name": "はがねの甲羅",
+    "nameKana": "",
+    "description": "水属性モンスターにのみ装備可能。\n装備モンスターの攻撃力は４００ポイントアップし、\n守備力は２００ポイントダウンする。",
+    "kind": "Spell",
+    "spellCategory": "Equip",
+    "wikiEncodedName": "%A1%D4%A4%CF%A4%AC%A4%CD%A4%CE%B9%C3%CD%E5%A1%D5"
+  },
+  "エルフの光": {
+    "name": "エルフの光",
+    "nameKana": "",
+    "description": "光属性モンスターにのみ装備可能。\n装備モンスターの攻撃力は４００ポイントアップし、\n守備力は２００ポイントダウンする。",
+    "kind": "Spell",
+    "spellCategory": "Equip",
+    "wikiEncodedName": "%A1%D4%A5%A8%A5%EB%A5%D5%A4%CE%B8%F7%A1%D5"
+  },
+  "サイバー・ボンテージ": {
+    "name": "サイバー・ボンテージ",
+    "nameKana": "",
+    "description": "「ハーピィ・レディ」または「ハーピィ・レディ三姉妹」にのみ装備可能。\n(1)：装備モンスターの攻撃力は５００アップする。",
+    "kind": "Spell",
+    "spellCategory": "Equip",
+    "wikiEncodedName": "%A1%D4%A5%B5%A5%A4%A5%D0%A1%BC%A1%A6%A5%DC%A5%F3%A5%C6%A1%BC%A5%B8%A1%D5"
+  },
+  "サラマンドラ・フュージョン": {
+    "name": "サラマンドラ・フュージョン",
+    "nameKana": "",
+    "description": "戦士族・炎属性モンスターにのみ装備可能。\nこのカード名の(3)の効果は１ターンに１度しか使用できない。\n(1)：装備モンスターの攻撃力は７００アップする。\n(2)：装備モンスターが戦闘・効果で破壊される場合、代わりにこのカードを破壊できる。\n(3)：このカードが自分フィールドの融合モンスターに装備されている場合に発動できる。\n装備モンスターとこのカードを墓地へ送り、\n「炎の剣士」またはそのカード名が記された融合モンスター１体を融合召喚扱いでＥＸデッキから特殊召喚する。",
+    "kind": "Spell",
+    "spellCategory": "Equip",
+    "wikiEncodedName": "%A1%D4%A5%B5%A5%E9%A5%DE%A5%F3%A5%C9%A5%E9%A1%A6%A5%D5%A5%E5%A1%BC%A5%B8%A5%E7%A5%F3%A1%D5"
+  },
+  "サラマンドラ": {
+    "name": "サラマンドラ",
+    "nameKana": "",
+    "description": "炎属性モンスターにのみ装備可能。\n(1)：装備モンスターの攻撃力は７００アップする。",
+    "kind": "Spell",
+    "spellCategory": "Equip",
+    "wikiEncodedName": "%A1%D4%A5%B5%A5%E9%A5%DE%A5%F3%A5%C9%A5%E9%A1%D5"
+  },
+  "シャイン・キャッスル": {
+    "name": "シャイン・キャッスル",
+    "nameKana": "",
+    "description": "光属性モンスターにのみ装備可能。\n(1)：装備モンスターの攻撃力は７００アップする。",
+    "kind": "Spell",
+    "spellCategory": "Equip",
+    "wikiEncodedName": "%A1%D4%A5%B7%A5%E3%A5%A4%A5%F3%A1%A6%A5%AD%A5%E3%A5%C3%A5%B9%A5%EB%A1%D5"
+  },
+  "ドラゴンの秘宝": {
+    "name": "ドラゴンの秘宝",
+    "nameKana": "",
+    "description": "ドラゴン族のみ装備可能。\n装備モンスター１体の攻撃力と守備力は３００ポイントアップする。",
+    "kind": "Spell",
+    "spellCategory": "Equip",
+    "wikiEncodedName": "%A1%D4%A5%C9%A5%E9%A5%B4%A5%F3%A4%CE%C8%EB%CA%F5%A1%D5"
+  },
+  "フォロー・ウィンド": {
+    "name": "フォロー・ウィンド",
+    "nameKana": "",
+    "description": "鳥獣族のみ装備可能。\n装備モンスター１体の攻撃力と守備力は３００ポイントアップする。",
+    "kind": "Spell",
+    "spellCategory": "Equip",
+    "wikiEncodedName": "%A1%D4%A5%D5%A5%A9%A5%ED%A1%BC%A1%A6%A5%A6%A5%A3%A5%F3%A5%C9%A1%D5"
+  },
+  "ポセイドンの力": {
+    "name": "ポセイドンの力",
+    "nameKana": "",
+    "description": "水族のみ装備可能。\n装備モンスター１体の攻撃力と守備力は３００ポイントアップする。",
+    "kind": "Spell",
+    "spellCategory": "Equip",
+    "wikiEncodedName": "%A1%D4%A5%DD%A5%BB%A5%A4%A5%C9%A5%F3%A4%CE%CE%CF%A1%D5"
+  },
+  "レーザー砲機甲鎧": {
+    "name": "レーザー砲機甲鎧",
+    "nameKana": "",
+    "description": "昆虫族モンスターにのみ装備可能。\n装備モンスターの攻撃力・守備力は３００ポイントアップする。",
+    "kind": "Spell",
+    "spellCategory": "Equip",
+    "wikiEncodedName": "%A1%D4%A5%EC%A1%BC%A5%B6%A1%BC%CB%A4%B5%A1%B9%C3%B3%BB%A1%D5"
+  },
+  "闇・エネルギー": {
+    "name": "闇・エネルギー",
+    "nameKana": "",
+    "description": "悪魔族モンスターにのみ装備可能。\n(1)：装備モンスターの攻撃力・守備力は３００アップする。",
+    "kind": "Spell",
+    "spellCategory": "Equip",
+    "wikiEncodedName": "%A1%D4%B0%C7%A1%A6%A5%A8%A5%CD%A5%EB%A5%AE%A1%BC%A1%D5"
+  },
+  "闇の破神剣": {
+    "name": "闇の破神剣",
+    "nameKana": "",
+    "description": "闇属性モンスター１体の攻撃力４００ポイントアップ！守備力２００ポイントダウン！",
+    "kind": "Spell",
+    "spellCategory": "Equip",
+    "wikiEncodedName": "%A1%D4%B0%C7%A4%CE%C7%CB%BF%C0%B7%F5%A1%D5"
+  },
+  "火器付機甲鎧": {
+    "name": "火器付機甲鎧",
+    "nameKana": "",
+    "description": "昆虫族モンスターにのみ装備可能。\n(1)：装備モンスターの攻撃力は７００アップする。",
+    "kind": "Spell",
+    "spellCategory": "Equip",
+    "wikiEncodedName": "%A1%D4%B2%D0%B4%EF%C9%D5%B5%A1%B9%C3%B3%BB%A1%D5"
+  },
+  "覚醒": {
+    "name": "覚醒",
+    "nameKana": "",
+    "description": "地属性モンスター１体の攻撃力４００ポイントアップ！守備力２００ポイントダウン！",
+    "kind": "Spell",
+    "spellCategory": "Equip",
+    "wikiEncodedName": "%A1%D4%B3%D0%C0%C3%A1%D5"
+  },
+  "機械改造工場": {
+    "name": "機械改造工場",
+    "nameKana": "",
+    "description": "機械族のみ装備可能。\n装備モンスター１体の攻撃力と守備力は３００ポイントアップする。",
+    "kind": "Spell",
+    "spellCategory": "Equip",
+    "wikiEncodedName": "%A1%D4%B5%A1%B3%A3%B2%FE%C2%A4%B9%A9%BE%EC%A1%D5"
+  },
+  "銀の弓矢": {
+    "name": "銀の弓矢",
+    "nameKana": "",
+    "description": "天使族モンスターにのみ装備可能。\n装備モンスターの攻撃力・守備力は３００ポイントアップする。",
+    "kind": "Spell",
+    "spellCategory": "Equip",
+    "wikiEncodedName": "%A1%D4%B6%E4%A4%CE%B5%DD%CC%F0%A1%D5"
+  },
+  "紫水晶": {
+    "name": "紫水晶",
+    "nameKana": "",
+    "description": "アンデット族のみ装備可能。\n装備モンスター１体の攻撃力と守備力は３００ポイントアップする。",
+    "kind": "Spell",
+    "spellCategory": "Equip",
+    "wikiEncodedName": "%A1%D4%BB%E7%BF%E5%BE%BD%A1%D5"
+  },
+  "灼熱の槍": {
+    "name": "灼熱の槍",
+    "nameKana": "",
+    "description": "炎属性モンスターにのみ装備可能。\n装備モンスターの攻撃力は４００ポイントアップし、守備力は２００ポイントダウンする。",
+    "kind": "Spell",
+    "spellCategory": "Equip",
+    "wikiEncodedName": "%A1%D4%BC%DE%C7%AE%A4%CE%C1%E4%A1%D5"
+  },
+  "体温の上昇": {
+    "name": "体温の上昇",
+    "nameKana": "",
+    "description": "恐竜族のみ装備可能。\n装備モンスター１体の攻撃力と守備力は３００ポイントアップする。",
+    "kind": "Spell",
+    "spellCategory": "Equip",
+    "wikiEncodedName": "%A1%D4%C2%CE%B2%B9%A4%CE%BE%E5%BE%BA%A1%D5"
+  },
+  "伝説の剣": {
+    "name": "伝説の剣",
+    "nameKana": "",
+    "description": "戦士族のみ装備可能。\n装備モンスター１体の攻撃力と守備力は３００ポイントアップする。",
+    "kind": "Spell",
+    "spellCategory": "Equip",
+    "wikiEncodedName": "%A1%D4%C5%C1%C0%E2%A4%CE%B7%F5%A1%D5"
+  },
+  "電撃鞭": {
+    "name": "電撃鞭",
+    "nameKana": "",
+    "description": "雷族のみ装備可能。\n装備モンスター１体の攻撃力と守備力は３００ポイントアップする。",
+    "kind": "Spell",
+    "spellCategory": "Equip",
+    "wikiEncodedName": "%A1%D4%C5%C5%B7%E2%CA%DC%A1%D5"
+  },
+  "突風の扇": {
+    "name": "突風の扇",
+    "nameKana": "",
+    "description": "風属性モンスターのみ装備可能。\n装備モンスター１体の攻撃力は４００ポイントアップする。\n守備力は２００ポイントダウンする。",
+    "kind": "Spell",
+    "spellCategory": "Equip",
+    "wikiEncodedName": "%A1%D4%C6%CD%C9%F7%A4%CE%C0%F0%A1%D5"
+  },
+  "秘術の書": {
+    "name": "秘術の書",
+    "nameKana": "",
+    "description": "魔法使い族モンスターにのみ装備可能。\n装備モンスターの攻撃力・守備力は３００ポイントアップする。",
+    "kind": "Spell",
+    "spellCategory": "Equip",
+    "wikiEncodedName": "%A1%D4%C8%EB%BD%D1%A4%CE%BD%F1%A1%D5"
+  },
+  "魔菌": {
+    "name": "魔菌",
+    "nameKana": "",
+    "description": "植物族のみ装備可能。\n装備モンスター１体の攻撃力と守備力は３００ポイントアップする。",
+    "kind": "Spell",
+    "spellCategory": "Equip",
+    "wikiEncodedName": "%A1%D4%CB%E2%B6%DD%A1%D5"
+  },
+  "魔性の月": {
+    "name": "魔性の月",
+    "nameKana": "",
+    "description": "獣戦士族モンスターにのみ装備可能。\n装備モンスターの攻撃力・守備力は３００ポイントアップする。",
+    "kind": "Spell",
+    "spellCategory": "Equip",
+    "wikiEncodedName": "%A1%D4%CB%E2%C0%AD%A4%CE%B7%EE%A1%D5"
+  },
+  "猛獣の歯": {
+    "name": "猛獣の歯",
+    "nameKana": "",
+    "description": "獣族のみ装備可能。\n装備モンスター１体の攻撃力と守備力は３００ポイントアップする。",
+    "kind": "Spell",
+    "spellCategory": "Equip",
+    "wikiEncodedName": "%A1%D4%CC%D4%BD%C3%A4%CE%BB%F5%A1%D5"
+  },
+  "覚醒の証": {
+    "name": "覚醒の証",
+    "nameKana": "",
+    "description": "「覚醒戦士 クーフーリン」の降臨に必要。\n手札・自分フィールド上から、レベルの合計が４以上になるようにモンスターをリリースしなければならない。",
+    "kind": "Spell",
+    "spellCategory": "Ritual",
+    "wikiEncodedName": "%A1%D4%B3%D0%C0%C3%A4%CE%BE%DA%A1%D5"
+  },
+  "ネフティスの覚醒": {
+    "name": "ネフティスの覚醒",
+    "nameKana": "",
+    "description": "このカード名の(2)の効果は１ターンに１度しか使用できない。\n(1)：このカードが魔法＆罠ゾーンに存在する限り、自分フィールドの「ネフティス」モンスターの攻撃力は３００アップする。\n(2)：魔法＆罠ゾーンの表側表示のこのカードが効果で破壊され墓地へ送られた場合に発動できる。\n自分の手札・デッキ・墓地から「ネフティス」モンスター１体を選んで特殊召喚する。\nこの効果で特殊召喚したモンスターはエンドフェイズに破壊される。",
+    "kind": "Trap",
+    "trapCategory": "Continuous",
+    "wikiEncodedName": "%A1%D4%A5%CD%A5%D5%A5%C6%A5%A3%A5%B9%A4%CE%B3%D0%C0%C3%A1%D5"
+  },
+  "覚醒の三幻魔": {
+    "name": "覚醒の三幻魔",
+    "nameKana": "",
+    "description": "(1)：自分フィールドの「神炎皇ウリア」「降雷皇ハモン」「幻魔皇ラビエル」の種類の数によって以下の効果を得る。\n●１種類以上：相手がモンスターの召喚・特殊召喚に成功する度に、\n自分はそのモンスターの攻撃力分だけＬＰを回復する。\n●２種類以上：相手フィールドのモンスターが発動した効果は無効化される。\n●３種類：相手の墓地へ送られるモンスターは墓地へは行かず除外される。\n(2)：自分ターンに１度、自分フィールドにレベル１０モンスターが存在する場合に発動できる。\n自分の墓地から永続罠カード１枚を選んで手札に加える。",
+    "kind": "Trap",
+    "trapCategory": "Continuous",
+    "wikiEncodedName": "%A1%D4%B3%D0%C0%C3%A4%CE%BB%B0%B8%B8%CB%E2%A1%D5"
   }
 }

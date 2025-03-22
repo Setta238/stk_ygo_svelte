@@ -14381,6 +14381,111 @@
     "type": "Fiend",
     "wikiEncodedName": "%A1%D4%BC%D9%BF%C0%A5%A2%A5%D0%A5%BF%A1%BC%A1%D5"
   },
+  "早すぎた埋葬": {
+    "name": "早すぎた埋葬",
+    "nameKana": "",
+    "description": "(1)：８００ＬＰを払い、自分の墓地のモンスター１体を対象としてこのカードを発動できる。\nそのモンスターを攻撃表示で特殊召喚し、このカードを装備する。\nこのカードが破壊された時にそのモンスターは破壊される。",
+    "kind": "Spell",
+    "spellCategory": "Equip",
+    "wikiEncodedName": "%A1%D4%C1%E1%A4%B9%A4%AE%A4%BF%CB%E4%C1%F2%A1%D5"
+  },
+  "ハーピィの羽根帚": {
+    "name": "ハーピィの羽根帚",
+    "nameKana": "",
+    "description": "(1)：相手フィールドの魔法・罠カードを全て破壊する。",
+    "kind": "Spell",
+    "spellCategory": "Normal",
+    "wikiEncodedName": "%A1%D4%A5%CF%A1%BC%A5%D4%A5%A3%A4%CE%B1%A9%BA%AC%D6%E4%A1%D5"
+  },
+  "大嵐": {
+    "name": "大嵐",
+    "nameKana": "",
+    "description": "(1)：フィールドの魔法・罠カードを全て破壊する。",
+    "kind": "Spell",
+    "spellCategory": "Normal",
+    "wikiEncodedName": "%A1%D4%C2%E7%CD%F2%A1%D5"
+  },
+  "砂塵の大嵐": {
+    "name": "砂塵の大嵐",
+    "nameKana": "",
+    "description": "このカードを発動するターン、自分はバトルフェイズを行えない。\n(1)：フィールドの魔法・罠カードを２枚まで対象として発動できる。\nそのカードを破壊する。",
+    "kind": "Trap",
+    "trapCategory": "Normal",
+    "wikiEncodedName": "%A1%D4%BA%BD%BF%D0%A4%CE%C2%E7%CD%F2%A1%D5"
+  },
+  "ＢＦ－竜巻のハリケーン": {
+    "name": "ＢＦ－竜巻のハリケーン",
+    "nameKana": "",
+    "description": "(1)：１ターンに１度、フィールドのＳモンスター１体を対象として発動できる。\nこのカードの攻撃力はターン終了時まで、対象のモンスターの攻撃力と同じになる。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Tuner",
+      "Effect"
+    ],
+    "level": 1,
+    "attack": 0,
+    "defense": 0,
+    "attribute": "Dark",
+    "type": "WingedBeast",
+    "wikiEncodedName": "%A1%D4%A3%C2%A3%C6%A1%DD%CE%B5%B4%AC%A4%CE%A5%CF%A5%EA%A5%B1%A1%BC%A5%F3%A1%D5"
+  },
+  "おジャマ・デルタハリケーン！！": {
+    "name": "おジャマ・デルタハリケーン！！",
+    "nameKana": "",
+    "description": "自分フィールド上に「おジャマ・グリーン」「おジャマ・イエロー」\n「おジャマ・ブラック」が表側表示で存在する場合に発動する事ができる。\n相手フィールド上に存在するカードを全て破壊する。",
+    "kind": "Spell",
+    "spellCategory": "Normal",
+    "wikiEncodedName": "%A1%D4%A4%AA%A5%B8%A5%E3%A5%DE%A1%A6%A5%C7%A5%EB%A5%BF%A5%CF%A5%EA%A5%B1%A1%BC%A5%F3%A1%AA%A1%AA%A1%D5"
+  },
+  "エンタメ・バンド・ハリケーン": {
+    "name": "エンタメ・バンド・ハリケーン",
+    "nameKana": "",
+    "description": "「エンタメ・バンド・ハリケーン」は１ターンに１枚しか発動できない。\n(1)：自分フィールドの「ＥＭ」モンスターの数まで\n相手フィールドのカードを対象として発動できる。\nそのカードを持ち主の手札に戻す。",
+    "kind": "Spell",
+    "spellCategory": "Normal",
+    "wikiEncodedName": "%A1%D4%A5%A8%A5%F3%A5%BF%A5%E1%A1%A6%A5%D0%A5%F3%A5%C9%A1%A6%A5%CF%A5%EA%A5%B1%A1%BC%A5%F3%A1%D5"
+  },
+  "スペシャルハリケーン": {
+    "name": "スペシャルハリケーン",
+    "nameKana": "",
+    "description": "自分の手札を１枚捨てる。\nフィールド上に存在する、特殊召喚されたモンスターを全て破壊する。",
+    "kind": "Spell",
+    "spellCategory": "Normal",
+    "wikiEncodedName": "%A1%D4%A5%B9%A5%DA%A5%B7%A5%E3%A5%EB%A5%CF%A5%EA%A5%B1%A1%BC%A5%F3%A1%D5"
+  },
+  "ハリケーン": {
+    "name": "ハリケーン",
+    "nameKana": "",
+    "description": "フィールド上の魔法・罠カードを全て持ち主の手札に戻す。",
+    "kind": "Spell",
+    "spellCategory": "Normal",
+    "wikiEncodedName": "%A1%D4%A5%CF%A5%EA%A5%B1%A1%BC%A5%F3%A1%D5"
+  },
+  "局所的ハリケーン": {
+    "name": "局所的ハリケーン",
+    "nameKana": "",
+    "description": "(1)：フィールドにセットされている魔法・罠カードを全て持ち主の手札に戻す。",
+    "kind": "Spell",
+    "spellCategory": "Normal",
+    "wikiEncodedName": "%A1%D4%B6%C9%BD%EA%C5%AA%A5%CF%A5%EA%A5%B1%A1%BC%A5%F3%A1%D5"
+  },
+  "局地的大ハリケーン": {
+    "name": "局地的大ハリケーン",
+    "nameKana": "",
+    "description": "自分の手札・墓地に存在するカードを全て持ち主のデッキに戻してシャッフルする。",
+    "kind": "Trap",
+    "trapCategory": "Normal",
+    "wikiEncodedName": "%A1%D4%B6%C9%C3%CF%C5%AA%C2%E7%A5%CF%A5%EA%A5%B1%A1%BC%A5%F3%A1%D5"
+  },
+  "砂塵の大ハリケーン": {
+    "name": "砂塵の大ハリケーン",
+    "nameKana": "",
+    "description": "このカード名のカードは１ターンに１枚しか発動できない。\n(1)：自分の魔法＆罠ゾーンにセットされたカードを任意の数だけ対象として発動できる。\nセットされたそのカードと、このカードを持ち主の手札に戻す。\nその後、自分はこの効果で手札に戻ったカードの数だけ、手札から魔法・罠カードをセットできる。",
+    "kind": "Trap",
+    "trapCategory": "Normal",
+    "wikiEncodedName": "%A1%D4%BA%BD%BF%D0%A4%CE%C2%E7%A5%CF%A5%EA%A5%B1%A1%BC%A5%F3%A1%D5"
+  },
   "にせアバター": {
     "name": "にせアバター",
     "nameKana": "",
@@ -14388,15 +14493,15 @@
     "pendulumDescription": "",
     "kind": "Monster",
     "monsterCategories": [
-      "Effect",
-      "Test"
+      "Effect"
     ],
     "level": 1,
     "attack": null,
     "defense": null,
     "attribute": "Dark",
     "type": "Fiend",
-    "wikiEncodedName": "%A1%D4%BC%D9%BF%C0%A5%A2%A5%D0%A5%BF%A1%BC%A1%D5"
+    "isForTest": true,
+    "wikiEncodedName": ""
   },
   "にせドレッド・ルート": {
     "name": "にせドレッド・ルート",
@@ -14405,14 +14510,46 @@
     "pendulumDescription": "",
     "kind": "Monster",
     "monsterCategories": [
-      "Effect",
-      "Test"
+      "Effect"
     ],
     "level": 1,
     "attack": 4000,
     "defense": 4000,
     "attribute": "Dark",
     "type": "Fiend",
-    "wikiEncodedName": "%A1%D4%BC%D9%BF%C0%A5%A2%A5%D0%A5%BF%A1%BC%A1%D5"
+    "isForTest": true,
+    "wikiEncodedName": ""
+  },
+  "ブラック・ホール・ドラゴン": {
+    "name": "ブラック・ホール・ドラゴン",
+    "nameKana": "",
+    "description": "このカード名の(1)(2)の効果はそれぞれ１ターンに１度しか使用できない。\n(1)：このカードが手札・墓地に存在し、\nフィールドのモンスターが自身を対象としないカードの効果で破壊された場合に発動できる。\nこのカードを特殊召喚する。\n(2)：このカードが特殊召喚した場合に発動できる。\nこのターンのエンドフェイズに、デッキから「ブラック・ホール」１枚を手札に加える。\n(3)：フィールドのこのカードは効果では破壊されない。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "level": 8,
+    "attack": 3000,
+    "defense": 2000,
+    "attribute": "Dark",
+    "type": "Dragon",
+    "wikiEncodedName": "%A1%D4%A5%D6%A5%E9%A5%C3%A5%AF%A1%A6%A5%DB%A1%BC%A5%EB%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5"
+  },
+  "サンダー・ボルト": {
+    "name": "サンダー・ボルト",
+    "nameKana": "",
+    "description": "(1)：相手フィールドのモンスターを全て破壊する。",
+    "kind": "Spell",
+    "spellCategory": "Normal",
+    "wikiEncodedName": "%A1%D4%A5%B5%A5%F3%A5%C0%A1%BC%A1%A6%A5%DC%A5%EB%A5%C8%A1%D5"
+  },
+  "ブラック・ホール": {
+    "name": "ブラック・ホール",
+    "nameKana": "",
+    "description": "(1)：フィールドのモンスターを全て破壊する。",
+    "kind": "Spell",
+    "spellCategory": "Normal",
+    "wikiEncodedName": "%A1%D4%A5%D6%A5%E9%A5%C3%A5%AF%A1%A6%A5%DB%A1%BC%A5%EB%A1%D5"
   }
 }

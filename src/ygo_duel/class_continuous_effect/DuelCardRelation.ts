@@ -16,7 +16,8 @@ export class CardRelation extends StickyEffectOperatorBase {
     title: string,
     validateAlive: (spawner: DuelEntity) => boolean,
     isSpawnedBy: DuelEntity,
-    isApplicableTo: (spawner: DuelEntity, target: DuelEntity) => boolean
+    isApplicableTo: (spawner: DuelEntity, target: DuelEntity) => boolean,
+    beforeRemove: (relation: CardRelation) => boolean = () => true
   ) => {
     return new CardRelation(
       title,
@@ -29,15 +30,23 @@ export class CardRelation extends StickyEffectOperatorBase {
       },
       "Equip",
       isSpawnedBy.info.effectTargets[title][0],
-      (spawner: DuelEntity, target: DuelEntity) => {
-        console.log("beforeRemove", spawner, target);
-        // 装備できない状態でフィールドに残っている場合、ルールにより破壊される。
-        if (spawner.isOnField && !spawner.info.isDying) {
-          spawner.info.isDying = true;
-          spawner.info.causeOfDeath = ["RuleDestroy"];
-          spawner.duel.log.info(`装備対象${target.toString()}不在により${spawner.toString()}は破壊された。`);
+      (relation: CardRelation) => {
+        console.log("beforeRemove", relation.isSpawnedBy, relation.target);
+        if (!beforeRemove(relation)) {
+          return;
         }
-        spawner.info.effectTargets[title] = [];
+
+        // 装備できない状態でフィールドに残っている場合、ルールにより破壊される。
+        if (relation.isSpawnedBy.isOnField && !relation.isSpawnedBy.info.isDying) {
+          relation.isSpawnedBy.info.isDying = true;
+          relation.isSpawnedBy.info.causeOfDeath = ["RuleDestroy"];
+          relation.isSpawnedBy.duel.log.info(
+            `装備対象${relation.target.toString()}不在により${relation.isSpawnedBy.toString()}は破壊された。`,
+            relation.effectOwner
+          );
+        }
+
+        relation.isSpawnedBy.info.effectTargets[title] = [];
       }
     );
   };
@@ -52,12 +61,12 @@ export class CardRelation extends StickyEffectOperatorBase {
     isApplicableTo: (spawner: DuelEntity, entity: DuelEntity) => boolean,
     relationType: TRelationType,
     target: DuelEntity,
-    beforeRemove: (spawner: DuelEntity, target: DuelEntity) => void
+    beforeRemove: (relation: CardRelation) => void
   ) {
     super(title, validateAlive, isContinuous, isSpawnedBy, isApplicableTo);
     this.relationType = relationType;
     this.target = target;
 
-    this.beforeRemove = () => beforeRemove(this.isSpawnedBy, this.target);
+    this.beforeRemove = () => beforeRemove(this);
   }
 }

@@ -24,19 +24,20 @@ export class ProcFilterBundle extends StickyEffectOperatorBundle<ProcFilter> {
   protected readonly beforePush: (ope: ProcFilter) => void = () => {};
 }
 export class ProcFilter extends StickyEffectOperatorBase {
-  public readonly procType: TProcType;
-  public readonly filter: (activator: Duelist, entity: DuelEntity, action: CardAction<unknown>, effectedEntites: DuelEntity[]) => boolean;
+  public beforeRemove: () => void = () => {};
+  public readonly procTypes: TProcType[];
+  public readonly filter: (activator: Duelist, entity: DuelEntity, action: CardAction<unknown> | undefined, effectedEntites: DuelEntity[]) => boolean;
   public constructor(
     title: string,
     validateAlive: (spawner: DuelEntity) => boolean,
     isContinuous: boolean,
     isSpawnedBy: DuelEntity,
     isApplicableTo: (spawner: DuelEntity, target: DuelEntity) => boolean,
-    procType: TProcType,
-    filter: (activator: Duelist, entity: DuelEntity, action: CardAction<unknown>, effectedEntites: DuelEntity[]) => boolean
+    procTypes: TProcType[],
+    filter: (activator: Duelist, entity: DuelEntity, action: CardAction<unknown> | undefined, effectedEntites: DuelEntity[]) => boolean
   ) {
     super(title, validateAlive, isContinuous, isSpawnedBy, isApplicableTo);
-    this.procType = procType;
+    this.procTypes = procTypes;
     this.filter = filter;
   }
 }

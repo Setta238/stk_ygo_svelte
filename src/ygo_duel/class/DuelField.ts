@@ -105,21 +105,6 @@ export class DuelField {
     throw new DuelEnd();
   };
 
-  public readonly waitCorpseDisposal = () => {
-    return DuelEntity.sendManyToGraveyard(
-      this.duel.field
-        .getEntiteisOnField()
-        .filter((entity) => entity.info.isDying)
-        .map((entity) => {
-          return {
-            entity: entity,
-            causedAs: entity.info.causeOfDeath ?? [],
-            causedBy: entity.info.isKilledBy,
-            activator: entity.info.isKilledByWhom,
-          };
-        })
-    );
-  };
   public readonly sendToGraveyard = async (
     msg: string,
     chooser: Duelist,

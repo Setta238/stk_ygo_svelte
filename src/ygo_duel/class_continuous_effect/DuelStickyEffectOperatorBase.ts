@@ -1,3 +1,4 @@
+import type { Duelist } from "@ygo_duel/class/Duelist";
 import { SystemError } from "../class/Duel";
 import type { DuelEntity } from "../class/DuelEntity";
 export interface IOperatorPool<OPE extends StickyEffectOperatorBase> {
@@ -102,7 +103,12 @@ export abstract class StickyEffectOperatorBundle<OPE extends StickyEffectOperato
   };
 
   public readonly removeItem = (spawner: DuelEntity, title: string): void => {
-    this._operators = this._operators.filter((ope) => ope.isSpawnedBy !== spawner && ope.title !== title);
+    this._operators = this._operators.filter((ope) => {
+      const flg = ope.isSpawnedBy !== spawner && ope.title !== title;
+      ope.beforeRemove();
+
+      return flg;
+    });
   };
 }
 
@@ -115,6 +121,7 @@ export abstract class StickyEffectOperatorBase {
   public readonly isContinuous: boolean;
   public readonly isSpawnedBy: DuelEntity;
   public readonly isApplicableTo: (spawner: DuelEntity, target: DuelEntity) => boolean;
+  public readonly effectOwner: Duelist;
   public abstract readonly beforeRemove: () => void;
 
   protected constructor(
@@ -130,5 +137,6 @@ export abstract class StickyEffectOperatorBase {
     this.isContinuous = isContinuous;
     this.isSpawnedBy = isSpawnedBy;
     this.isApplicableTo = isApplicableTo;
+    this.effectOwner = this.isSpawnedBy.controller;
   }
 }

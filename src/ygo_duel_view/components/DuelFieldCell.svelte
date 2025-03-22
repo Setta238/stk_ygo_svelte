@@ -255,9 +255,13 @@
             </div>
           {/if}
         {/each}
-        {#if cell.cardEntities[0].battlePotion}
+        {#if cell.cardEntities[0].battlePosition}
           <div style="position: absolute; bottom:0rem">
-            【{cell.cardEntities[0].battlePotion === "Attack" ? "攻撃表示" : cell.cardEntities[0].battlePotion === "Defense" ? "表守備表示" : "裏守備表示"}】
+            【{cell.cardEntities[0].battlePosition === "Attack"
+              ? "攻撃表示"
+              : cell.cardEntities[0].battlePosition === "Defense"
+                ? "表守備表示"
+                : "裏守備表示"}】
           </div>
         {/if}
       {/if}

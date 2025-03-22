@@ -63,6 +63,10 @@ export class ContinuousEffect<T> {
   };
 
   private get hasToStart() {
+    if (this.entity.nm === "早すぎた埋葬") {
+      console.log("早すぎた埋葬", this, this.entity, this.entity.info, this.entity.info.isPending, this._isStarted);
+    }
+
     if (this.entity.info.isPending) {
       return false;
     }

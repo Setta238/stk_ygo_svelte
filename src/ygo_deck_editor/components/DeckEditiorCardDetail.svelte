@@ -67,9 +67,15 @@
       <div class="duel_card_info_row description">
         <div><pre class="description">{getInfo()?.description}</pre></div>
       </div>
-      <div class="duel_card_info_links">
-        <a href={getInfo()?.wikiHref} target="_blank" rel="noopener noreferrer" title="遊戯王カードWiki">⇒遊戯王カードWiki</a>
-      </div>
+      {#if cardInfo.isForTest}
+        <div class="duel_card_info_row">
+          <div>※テスト用カードです</div>
+        </div>
+      {:else}
+        <div class="duel_card_info_links">
+          <a href={getInfo()?.wikiHref} target="_blank" rel="noopener noreferrer" title="遊戯王カードWiki">⇒遊戯王カードWiki</a>
+        </div>
+      {/if}
     </div>
   </div>
 {/if}

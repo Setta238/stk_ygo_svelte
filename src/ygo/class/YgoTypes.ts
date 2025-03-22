@@ -19,7 +19,7 @@ export const monsterEffectCategories = ["Toon", "Spirit", "Union", "Gemini", "Fl
 export type TMonsterEffectCategory = (typeof monsterEffectCategories)[number];
 export const monsterOtherCategories = ["Tuner", "Effect", "Normal", "Pendulum", "Token", "NormalSummonOnly"] as const;
 export type TMonsterOtherCategory = (typeof monsterOtherCategories)[number];
-export const monsterCategories = [...specialMonsterCategories, ...monsterEffectCategories, ...monsterOtherCategories, "Test"] as const;
+export const monsterCategories = [...specialMonsterCategories, ...monsterEffectCategories, ...monsterOtherCategories] as const;
 export type TMonsterCategory = (typeof monsterCategories)[number];
 export const monsterCategoryDic: { [key in TMonsterCategory]: string } = {
   Syncro: "シンクロ",
@@ -38,7 +38,6 @@ export const monsterCategoryDic: { [key in TMonsterCategory]: string } = {
   Pendulum: "ペンデュラム",
   Token: "トークン",
   NormalSummonOnly: "特殊召喚不可",
-  Test: "テスト",
 };
 export const monsterCategoryEmojiDic: { [key in TMonsterCategory]: string } = {
   Syncro: "🎵",
@@ -57,7 +56,6 @@ export const monsterCategoryEmojiDic: { [key in TMonsterCategory]: string } = {
   Pendulum: "💠",
   Token: "🐏",
   NormalSummonOnly: "🔲",
-  Test: "⚠",
 };
 export const monsterAttributes = ["Light", "Dark", "Earth", "Water", "Fire", "Wind", "Divine"] as const;
 export type TMonsterAttribute = (typeof monsterAttributes)[number];
@@ -156,6 +154,7 @@ export type EntityStatusBase = {
   type?: TMonsterType;
   canReborn?: boolean;
   cardId?: number;
+  isForTest?: boolean;
 } & Partial<FlexibleStatus> & { wikiEncodedName: string };
 export type EntityStatus = {
   canAttack: boolean;

@@ -44,6 +44,11 @@ export const summonRuleCauseReasons = [...namedSummonRuleCauseReasons, "AdvanceS
 export type TSummonRuleCauseReason = (typeof summonRuleCauseReasons)[number];
 export const destoryCauseReasons = ["BattleDestroy", "EffectDestroy", "RuleDestroy"] as const;
 export type TDestoryCauseReason = (typeof destoryCauseReasons)[number];
+export const destoryCauseReasonDic: { [key in TDestoryCauseReason]: string } = {
+  BattleDestroy: "戦闘破壊",
+  EffectDestroy: "効果破壊",
+  RuleDestroy: "ルール破壊",
+};
 export const summonPosCauseReasons = ["AttackSummon", "SetSummon", "DefenseSummon"] as const;
 export const posToSummonPos = (pos: TBattlePosition) => (pos + "Summon") as TSummonPosCauseReason;
 export type TSummonPosCauseReason = (typeof summonPosCauseReasons)[number];
@@ -212,6 +217,21 @@ export class DuelEntity {
     return newCard;
   };
 
+  public static readonly waitCorpseDisposal = (duel: Duel) => {
+    return DuelEntity.sendManyToGraveyard(
+      duel.field
+        .getEntiteisOnField()
+        .filter((entity) => entity.info.isDying)
+        .map((entity) => {
+          return {
+            entity: entity,
+            causedAs: entity.info.causeOfDeath ?? [],
+            causedBy: entity.info.isKilledBy,
+            activator: entity.info.isKilledByWhom,
+          };
+        })
+    );
+  };
   public static readonly sendManyToGraveyardForTheSameReason = (
     entities: DuelEntity[],
     movedAs: TDuelCauseReason[],
@@ -236,6 +256,15 @@ export class DuelEntity {
     activator: Duelist | undefined
   ): Promise<void> => {
     return DuelEntity.bringManyToSameCellForTheSameReason("Deck", pos, entities, "FaceDown", "Vertical", movedAs, movedBy, activator);
+  };
+
+  public static readonly returnManyToHandForTheSameReason = (
+    entities: DuelEntity[],
+    movedAs: TDuelCauseReason[],
+    movedBy: DuelEntity | undefined,
+    activator: Duelist | undefined
+  ): Promise<void> => {
+    return DuelEntity.bringManyToSameCellForTheSameReason("Hand", "Bottom", entities, "FaceDown", "Vertical", movedAs, movedBy, activator);
   };
 
   /**
@@ -361,20 +390,32 @@ export class DuelEntity {
     console.log(targets);
     // 目的地ごとに仕分ける
     const destMap = new Map<DuelFieldCell, [entity: DuelEntity, ...Parameters<typeof DuelEntity.prototype._move>][]>();
-    items.forEach(([entity, to, ...rest]) => {
-      let dest = to;
+    items.forEach(([entity, to, face, orientation, pos, ...rest]) => {
+      // 状態によって、行き先や表裏の情報を書き換える。
+      let _to = to;
+      let _face = face;
+      let _pos = pos;
+      let _orientation = orientation;
       if (entity.info.willBeBanished) {
-        dest = entity.owner.getBanished();
+        console.log(entity);
+        _to = entity.owner.getBanished();
+        _face = "FaceUp";
+        _orientation = "Vertical";
       }
       if (entity.info.willReturnToDeck) {
-        dest = entity.isBelongTo;
+        _to = entity.isBelongTo;
+        _face = "FaceDown";
+        _pos = entity.info.willReturnToDeck;
+        _orientation = "Vertical";
       }
       if (entity.isBelongTo.cellType === "ExtraDeck") {
-        if (dest.cellType === "Hand" || dest.cellType === "Deck") {
-          dest = entity.isBelongTo;
+        if (_to.cellType === "Hand" || _to.cellType === "Deck") {
+          _to = entity.isBelongTo;
+          _face = "FaceDown";
+          _orientation = "Vertical";
         }
       }
-      destMap.set(dest, [[entity, to, ...rest], ...(destMap.get(dest) ?? [])]);
+      destMap.set(_to, [[entity, _to, _face, _orientation, _pos, ...rest], ...(destMap.get(_to) ?? [])]);
     });
 
     // 取り出せなくなるまでループ
@@ -674,9 +715,14 @@ export class DuelEntity {
   public readonly toString = () => `《${this.nm}》`;
 
   public readonly canBeTargetOfEffect = (activator: Duelist, entity: DuelEntity, action: CardAction<unknown>): boolean =>
-    this.procFilterBundle.operators.filter((pf) => pf.procType === "EffectTarget").every((pf) => pf.filter(activator, entity, action, [this]));
+    this.procFilterBundle.operators.filter((pf) => pf.procTypes.some((t) => t === "EffectTarget")).every((pf) => pf.filter(activator, entity, action, [this]));
 
-  public readonly canBeSpecialSummoned = (activator: Duelist, entity: DuelEntity, action: CardAction<unknown>): boolean => {
+  public readonly canBeSpecialSummoned = (
+    summmonRule: TSummonRuleCauseReason,
+    activator: Duelist,
+    entity: DuelEntity,
+    action: CardAction<unknown>
+  ): boolean => {
     // 特殊召喚できないモンスター（※神、スピリットなど）
     if (this.origin.monsterCategories?.includes("NormalSummonOnly")) {
       return false;
@@ -686,32 +732,35 @@ export class DuelEntity {
     if (
       this.origin.monsterCategories?.includes("SpecialSummon") &&
       !this.status.canReborn &&
+      !this.info.isRebornable &&
       (this.fieldCell.cellType === "Graveyard" || this.fieldCell.cellType === "Banished")
     ) {
       return false;
     }
 
-    return this.procFilterBundle.operators.filter((pf) => pf.procType === "EffectTarget").every((pf) => pf.filter(activator, entity, action, [this]));
+    return this.procFilterBundle.operators
+      .filter((pf) => pf.procTypes.some((t) => t === "SpecialSummon" || t === summmonRule))
+      .every((pf) => pf.filter(activator, entity, action, [this]));
   };
   public readonly canBeTargetOfBattle = (activator: Duelist, entity: DuelEntity, action: CardAction<unknown>): boolean =>
-    this.procFilterBundle.operators.filter((pf) => pf.procType === "BattleTarget").every((pf) => pf.filter(activator, entity, action, [this]));
+    this.procFilterBundle.operators.filter((pf) => pf.procTypes.some((t) => t === "BattleTarget")).every((pf) => pf.filter(activator, entity, action, [this]));
 
-  public readonly tryDestoryByBattle = (activator: Duelist, entity: DuelEntity, action: CardAction<unknown>): boolean => {
+  public readonly tryDestory = (destroyType: TDestoryCauseReason, activator: Duelist, entity: DuelEntity, action: CardAction<unknown> | undefined): boolean => {
     this.info.isDying = this.procFilterBundle.operators
-      .filter((pf) => pf.procType === "BattleDestory")
+      .filter((pf) => pf.procTypes.some((t) => t === destroyType))
       .every((pf) => pf.filter(activator, entity, action, [this]));
     if (this.info.isDying) {
-      this.duel.log.info(`${this.toString()}を戦闘破壊`, entity.controller);
-      this.info.causeOfDeath = ["BattleDestroy"];
+      this.duel.log.info(`${this.toString()}を${destoryCauseReasonDic[destroyType]}`, entity.controller);
+      this.info.causeOfDeath = [destroyType];
       this.info.isKilledBy = entity;
       this.info.isKilledByWhom = entity.controller;
     }
     return this.info.isDying;
   };
 
-  public readonly canBeSyncroMaterials = (action: CardAction<unknown>, materials: DuelEntity[]) => {
+  public readonly canBeMaterials = (summmonRule: TSummonRuleCauseReason, action: CardAction<unknown>, materials: DuelEntity[]) => {
     return this.procFilterBundle.operators
-      .filter((pf) => pf.procType === "SyncroSummon")
+      .filter((pf) => pf.procTypes.some((t) => t === summmonRule))
       .every((pf) => pf.filter(action.entity.controller, action.entity, action, materials));
   };
 

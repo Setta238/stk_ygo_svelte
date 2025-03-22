@@ -68,11 +68,12 @@
   const seachCondition = {
     name: "" as string,
     cardKinds: [...cardKinds] as TCardKind[],
-    monsterCategories: [...monsterCategories].filter((cat) => cat !== "Normal" && cat !== "Token" && cat !== "Test") as TMonsterCategory[],
+    monsterCategories: [...monsterCategories].filter((cat) => cat !== "Normal" && cat !== "Token") as TMonsterCategory[],
     monsterAttributes: [...monsterAttributes],
     monsterTypes: [...monsterTypes],
     spellCategories: [...spellCategories] as TSpellCategory[],
     trapCategories: [...trapCategories] as TTrapCategory[],
+    isForTest: false,
   };
 
   const getCardList = () => {
@@ -83,6 +84,11 @@
       if (seachCondition.name.trim().length && !cardInfo.name.includes(seachCondition.name)) {
         return false;
       }
+
+      if (cardInfo.isForTest && !seachCondition.isForTest) {
+        return false;
+      }
+
       if (cardInfo.kind === "Monster") {
         if (cardInfo.attribute && !seachCondition.monsterAttributes.includes(cardInfo.attribute)) {
           return false;
@@ -94,16 +100,6 @@
         if (!cardInfo.monsterCategories) {
           return false;
         }
-
-        // テスト用だけ別扱い
-        if (cardInfo.monsterCategories.includes("Test") && !seachCondition.monsterCategories.includes("Test")) {
-          return false;
-        }
-
-        if (cardInfo.monsterCategories.includes("Test")) {
-          console.log(cardInfo.monsterCategories, seachCondition.monsterCategories, cardInfo.monsterCategories.union(seachCondition.monsterCategories));
-        }
-
         return cardInfo.monsterCategories.union(seachCondition.monsterCategories).length;
       }
       if (cardInfo.kind === "Spell") {
@@ -236,6 +232,15 @@
                 {trapCategoryDic[key]}
               </label>
             {/each}
+          </div>
+        </div>
+        <div class="deck_editor_search_box_row">
+          <div>テスト用</div>
+          <div>
+            <label>
+              <input type="checkbox" bind:checked={seachCondition.isForTest} />
+              テスト用カードを表示する
+            </label>
           </div>
         </div>
       </div>

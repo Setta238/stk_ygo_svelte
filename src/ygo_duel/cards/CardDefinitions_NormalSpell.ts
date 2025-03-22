@@ -1,9 +1,9 @@
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
-import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
+import { monsterZoneCellTypes, spellTrapZoneCellTypes, type DuelFieldCell, type DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
 import { defaultSpellTrapPrepare, defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/functions/DefaultCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
-import type { CardAction, CardActionBase, ChainBlockInfo } from "@ygo_duel/class/DuelCardAction";
+import { type CardAction, type CardActionBase, type ChainBlockInfo } from "@ygo_duel/class/DuelCardAction";
 import { IllegalCancelError } from "@ygo_duel/class/Duel";
 
 import type { CardDefinition } from "./CardDefinitions";
@@ -222,6 +222,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
   };
 
   result.push(def_おろかな埋葬);
+
   const def_おろかな副葬 = {
     name: "おろかな副葬",
     actions: [
@@ -267,6 +268,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
   };
 
   result.push(def_おろかな副葬);
+
   const def_死者蘇生 = {
     name: "死者蘇生",
     actions: [
@@ -285,7 +287,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
               .filter((card) => card.status.kind === "Monster")
               .filter((card) => card.info.isRebornable)
               .filter((card) => card.canBeTargetOfEffect(action.entity.controller, action.entity, action as CardAction<unknown>))
-              .filter((card) => card.canBeSpecialSummoned(action.entity.controller, action.entity, action as CardAction<unknown>)).length === 0
+              .filter((card) => card.canBeSpecialSummoned("SpecialSummon", action.entity.controller, action.entity, action as CardAction<unknown>)).length === 0
           ) {
             return;
           }
@@ -303,7 +305,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
               .filter((card) => card.status.kind === "Monster")
               .filter((card) => card.info.isRebornable)
               .filter((card) => card.canBeTargetOfEffect(action.entity.controller, action.entity, action as CardAction<unknown>))
-              .filter((card) => card.canBeSpecialSummoned(action.entity.controller, action.entity, action as CardAction<unknown>)),
+              .filter((card) => card.canBeSpecialSummoned("SpecialSummon", action.entity.controller, action.entity, action as CardAction<unknown>)),
             1,
             (list) => list.length === 1,
             "蘇生対象とするモンスターを選択",
@@ -318,8 +320,6 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           const emptyCells = myInfo.activator.getEmptyMonsterZones();
           const target = myInfo.selectedEntities[0];
           await myInfo.activator.summon(target, ["Attack", "Defense"], emptyCells, "SpecialSummon", ["Effect"], myInfo.action.entity, false);
-          myInfo.activator.info.specialSummonCount++;
-          myInfo.activator.info.specialSummonCountQty++;
           return true;
         },
         settle: async () => true,
@@ -329,6 +329,119 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
   };
 
   result.push(def_死者蘇生);
+  (
+    [
+      { name: "大嵐", cellTypes: spellTrapZoneCellTypes, isOnlyEnemies: false },
+      { name: "ハーピィの羽根帚", cellTypes: spellTrapZoneCellTypes, isOnlyEnemies: true },
+      { name: "ブラック・ホール", cellTypes: monsterZoneCellTypes, isOnlyEnemies: false },
+      { name: "サンダー・ボルト", cellTypes: monsterZoneCellTypes, isOnlyEnemies: true },
+    ] as { name: string; cellTypes: Readonly<DuelFieldCellType[]>; isOnlyEnemies: boolean }[]
+  ).forEach((item) => {
+    result.push({
+      name: item.name,
+      actions: [
+        {
+          title: "発動",
+          playType: "CardActivation",
+          spellSpeed: "Normal",
+          executableCells: ["Hand", "SpellAndTrapZone"],
+          hasToTargetCards: true,
+          validate: (action: CardAction<undefined>) => {
+            let cards = action.entity.field
+              .getCells(...item.cellTypes)
+              .flatMap((cell) => cell.cardEntities)
+              .filter((card) => card !== action.entity);
+            if (item.isOnlyEnemies) {
+              cards = cards.filter((card) => card.controller !== action.entity.controller);
+            }
+            if (!cards.length) {
+              return;
+            }
+
+            return defaultSpellTrapValidate(action);
+          },
+          prepare: async (action: CardAction<undefined>, cell: DuelFieldCell, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => {
+            let cards = action.entity.field
+              .getCells(...item.cellTypes)
+              .flatMap((cell) => cell.cardEntities)
+              .filter((card) => card !== action.entity);
+            if (item.isOnlyEnemies) {
+              cards = cards.filter((card) => card.controller !== action.entity.controller);
+            }
+
+            return await defaultSpellTrapPrepare(action, cell, chainBlockInfos, false, action.calcChainBlockTagsForDestroy(cards), [], undefined);
+          },
+          execute: async (myInfo: ChainBlockInfo<undefined>) => {
+            let cards = myInfo.action.entity.field
+              .getCells(...item.cellTypes)
+              .flatMap((cell) => cell.cardEntities)
+              .filter((card) => card !== myInfo.action.entity);
+            if (item.isOnlyEnemies) {
+              cards = cards.filter((card) => card.controller !== myInfo.action.entity.controller);
+            }
+
+            cards.forEach((card) => card.tryDestory("EffectDestroy", myInfo.activator, myInfo.action.entity, myInfo.action as CardAction<unknown>));
+
+            await DuelEntity.waitCorpseDisposal(myInfo.activator.duel);
+
+            return true;
+          },
+          settle: async () => true,
+        },
+        defaultSpellTrapSetAction,
+      ] as CardActionBase<unknown>[],
+    });
+  });
+
+  const def_ハリケーン = {
+    name: "ハリケーン",
+    actions: [
+      {
+        title: "発動",
+        playType: "CardActivation",
+        spellSpeed: "Normal",
+        executableCells: ["Hand", "SpellAndTrapZone"],
+        hasToTargetCards: true,
+        validate: (action: CardAction<undefined>) => {
+          const cards = action.entity.field
+            .getCells("SpellAndTrapZone", "FieldSpellZone")
+            .flatMap((cell) => cell.cardEntities)
+            .filter((card) => card !== action.entity);
+
+          if (!cards.length) {
+            return;
+          }
+
+          return defaultSpellTrapValidate(action);
+        },
+        prepare: async (action: CardAction<undefined>, cell: DuelFieldCell, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => {
+          return await defaultSpellTrapPrepare(action, cell, chainBlockInfos, false, ["BounceToHand"], [], undefined);
+        },
+        execute: async (myInfo: ChainBlockInfo<undefined>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => {
+          // 発動済の魔法罠はバウンスできない
+          const activatedCards = chainBlockInfos
+            .map((info) => info.action)
+            .filter((action) => action.playType === "CardActivation")
+            .map((action) => action.entity)
+            .filter((entity) => entity.isOnField)
+            .filter((card) => card.face === "FaceUp")
+            .filter((card) => !card.isLikeContinuousSpell);
+
+          // ※自分自身も上のリストに含まれているはず
+          const cards = myInfo.action.entity.field
+            .getCells("SpellAndTrapZone", "FieldSpellZone")
+            .flatMap((cell) => cell.cardEntities)
+            .filter((card) => !activatedCards.includes(card));
+
+          await DuelEntity.returnManyToHandForTheSameReason(cards, ["Effect"], myInfo.action.entity, myInfo.activator);
+          return true;
+        },
+        settle: async () => true,
+      },
+      defaultSpellTrapSetAction,
+    ] as CardActionBase<unknown>[],
+  };
+  result.push(def_ハリケーン);
 
   const def_手札抹殺 = {
     name: "手札抹殺",

@@ -9,6 +9,7 @@ import {
   defaultNormalSummonAction,
   defaultRuleSpecialSummonExecute,
   defaultRuleSpecialSummonPrepare,
+  defaultRuleSpecialSummonValidate,
   type SummonPrepared,
 } from "@ygo_duel/functions/DefaultCardAction_Monster";
 
@@ -39,8 +40,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
               return undefined;
             }
 
-            const emptyCells = action.entity.controller.getAvailableMonsterZones();
-            return emptyCells.length > 0 ? emptyCells : undefined;
+            return defaultRuleSpecialSummonValidate(action, ["Attack", "Defense"], []);
           },
           prepare: (
             action: CardAction<SummonPrepared>,
@@ -68,7 +68,11 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
         executableCells: ["Hand"],
         validate: (action: CardAction<SummonPrepared>): DuelFieldCell[] | undefined => {
           const emptyCells = action.entity.controller.getAvailableMonsterZones();
-          return emptyCells.length > 0 ? emptyCells : undefined;
+          if (!emptyCells.length) {
+            return;
+          }
+
+          return defaultRuleSpecialSummonValidate(action, ["Attack", "Defense"], []);
         },
         prepare: (
           action: CardAction<SummonPrepared>,
@@ -519,7 +523,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
                 true,
                 source,
                 () => true,
-                "BattleDestory",
+                ["BattleDestory"],
                 (activator: Duelist, enemy: DuelEntity) => {
                   if (!enemy.status.isEffective) {
                     return true;

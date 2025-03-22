@@ -1,6 +1,6 @@
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
 import { CardAction, type CardActionBase, type ChainBlockInfo, type ChainBlockInfoBase } from "@ygo_duel/class/DuelCardAction";
-import { DuelEntity, posToSummonPos, type TDestoryCauseReason, type TDuelCauseReason } from "@ygo_duel/class/DuelEntity";
+import { DuelEntity, type TDestoryCauseReason, type TDuelCauseReason } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCell, DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
 export type SummonPrepared = { dest: DuelFieldCell; pos: TBattlePosition; materials: DuelEntity[] };
 export const defaultPrepare = async () => {
@@ -110,6 +110,40 @@ export const defaultNormalSummonExecute = async (myInfo: ChainBlockInfo<SummonPr
   myInfo.activator.info.ruleNormalSummonCountQty++;
   return true;
 };
+export const defaultRuleSpecialSummonValidate = (
+  action: CardAction<SummonPrepared>,
+  posList: TBattlePosition[],
+  materials: DuelEntity[]
+): DuelFieldCell[] | undefined => {
+  // 空セルを取得
+  const emptyCells = action.entity.controller.getAvailableMonsterZones();
+
+  // エクストラデッキにいる場合、エクストラモンスターゾーンも使用可能
+  if (action.entity.fieldCell.cellType === "ExtraDeck") {
+    emptyCells.push(...action.entity.controller.getAvailableExtraZones());
+  }
+
+  // 使用可能なセルがなければ不可
+  if (!emptyCells.length) {
+    if (!materials.length) {
+      return;
+    }
+    if (materials.every((m) => m.fieldCell.cellType !== "MonsterZone")) {
+      if (action.entity.fieldCell.cellType !== "ExtraDeck") {
+        return;
+      }
+
+      // TODO エクストラリンクの考慮
+    }
+  }
+
+  // コントローラー側の制約チェック
+  if (!action.entity.controller.canSummon(action.entity.controller, action.entity, action as CardAction<unknown>, "SpecialSummon", posList, materials).length) {
+    return;
+  }
+
+  return materials.length === 0 ? emptyCells : [];
+};
 
 export const defaultRuleSpecialSummonPrepare = async (
   action: CardAction<SummonPrepared>,
@@ -122,20 +156,32 @@ export const defaultRuleSpecialSummonPrepare = async (
   if (availableCells.length === 0) {
     return;
   }
-  let pos: TBattlePosition = posList.randomPick(1)[0];
+
+  const _posList = action.entity.controller.canSummon(
+    action.entity.controller,
+    action.entity,
+    action as CardAction<unknown>,
+    "SpecialSummon",
+    posList,
+    materials
+  );
+  if (_posList.length === 0) {
+    return;
+  }
+
+  let pos: TBattlePosition = _posList.randomPick(1)[0];
   let dest: DuelFieldCell = availableCells.randomPick(1)[0];
 
-  if (posList.length) {
-    if (posList.includes("Attack")) {
+  if (_posList.length) {
+    if (_posList.includes("Attack")) {
       pos =
         (action.entity.atk ?? 0) > 0 && (action.entity.atk ?? 0) >= (action.entity.def ?? 0)
           ? "Attack"
-          : posList.filter((p) => p !== "Attack").randomPick(1)[0];
+          : _posList.filter((p) => p !== "Attack").randomPick(1)[0];
     }
   }
-
   if (action.entity.controller.duelistType !== "NPC") {
-    const res = await action.entity.field.duel.view.waitSelectSummonDest(action.entity, availableCells, posList, cancelable);
+    const res = await action.entity.field.duel.view.waitSelectSummonDest(action.entity, availableCells, _posList, cancelable);
     if (!res) {
       return;
     }
@@ -151,8 +197,6 @@ export const defaultRuleSpecialSummonExecute = async (myInfo: ChainBlockInfo<Sum
 
   await myInfo.action.entity.summon(myInfo.prepared.dest, myInfo.prepared.pos, "SpecialSummon", movedAs, myInfo.action.entity, myInfo.activator);
   myInfo.action.entity.info.materials = myInfo.prepared.materials;
-  myInfo.activator.info.specialSummonCount++;
-  myInfo.activator.info.specialSummonCountQty++;
   return true;
 };
 
@@ -293,21 +337,14 @@ export const defaultSyncroMaterialsValidator = (
   }
 
   // 素材側から見た全体の条件チェック（デブリ・ドラゴンなど）
-  if (!materials.every((m) => m.canBeSyncroMaterials(action as CardAction<unknown>, materials))) {
+  if (!materials.every((m) => m.canBeMaterials("SyncroSummon", action as CardAction<unknown>, materials))) {
     console.log("fuga");
     return false;
   }
 
   // プレイヤーの特殊召喚可能チェック
   if (
-    !action.entity.owner.canSummon(
-      action.entity.owner,
-      action.entity,
-      action as CardAction<unknown>,
-      ["SpecialSummon", "SyncroSummon"],
-      ["AttackSummon", "DefenseSummon"],
-      materials
-    )
+    !action.entity.owner.canSummon(action.entity.owner, action.entity, action as CardAction<unknown>, "SyncroSummon", ["Attack", "Defense"], materials).length
   ) {
     console.log("piyo");
     return false;
@@ -375,10 +412,8 @@ export const defaultSyncroSummonPrepare = async (
     materials = _materials;
   }
 
-  await DuelEntity.sendManyToGraveyardForTheSameReason(materials, ["SyncroMaterial", "Rule", "SpecialSummonMaterial"], action.entity, action.entity.controller);
-
   action.entity.field.duel.log.info(`シンクロ素材として、${materials.map((m) => "《" + m.nm + "》").join("")}を墓地に送り――`, action.entity.controller);
-  console.log(materials);
+  await DuelEntity.sendManyToGraveyardForTheSameReason(materials, ["SyncroMaterial", "Rule", "SpecialSummonMaterial"], action.entity, action.entity.controller);
 
   const availableCells = [...action.entity.controller.getAvailableMonsterZones(), ...action.entity.controller.getAvailableExtraZones()];
   let pos: TBattlePosition = (action.entity.atk ?? 0) > 0 && (action.entity.atk ?? 0) >= (action.entity.def ?? 0) ? "Attack" : "Defense";
@@ -449,14 +484,8 @@ export const getDefalutRecruiterAction = (
       if (
         monsters.every(
           (monster) =>
-            !action.entity.controller.canSummon(
-              action.entity.controller,
-              action.entity,
-              action as CardAction<unknown>,
-              ["SpecialSummon"],
-              posList.map(posToSummonPos),
-              [monster]
-            )
+            !action.entity.controller.canSummon(action.entity.controller, action.entity, action as CardAction<unknown>, "SpecialSummon", posList, [monster])
+              .length
         )
       ) {
         return;

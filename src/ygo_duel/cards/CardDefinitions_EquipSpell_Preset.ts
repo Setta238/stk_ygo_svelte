@@ -54,6 +54,7 @@ export const createCardDefinitions_EquipSpell_Preset = (): CardDefinition[] => {
           playType: "CardActivation",
           spellSpeed: "Normal",
           executableCells: ["Hand", "SpellAndTrapZone"],
+          isLikeContinuousSpell: true,
           validate: (action: CardAction<undefined>): DuelFieldCell[] | undefined => {
             const monsters = action.entity.field
               .getMonstersOnField()

@@ -19,6 +19,7 @@ export const createCardDefinitions_ContinuousSpell_Preset = (): CardDefinition[]
         playType: "CardActivation",
         spellSpeed: "Normal",
         executableCells: ["Hand", "SpellAndTrapZone"],
+        isLikeContinuousSpell: true,
         validate: defaultSpellTrapValidate,
         prepare: defaultSpellTrapPrepare,
         execute: async () => true,

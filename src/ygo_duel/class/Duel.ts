@@ -404,10 +404,10 @@ export class Duel {
 
       // 戦闘破壊計算
       if (atkPoint > 0 && (atkPoint > defPoint || (atkPoint === defPoint && defender.battlePosition === "Attack"))) {
-        defender.tryDestoryByBattle(attacker.controller, attacker, chainBlockInfo.action);
+        defender.tryDestory("BattleDestroy", attacker.controller, attacker, chainBlockInfo.action);
       }
       if (defender.battlePosition === "Attack" && atkPoint <= defPoint) {
-        attacker.tryDestoryByBattle(attacker.controller, defender, chainBlockInfo.action);
+        attacker.tryDestory("BattleDestroy", attacker.controller, defender, chainBlockInfo.action);
       }
     }
 
@@ -421,7 +421,7 @@ export class Duel {
       );
     }
     //戦闘破壊墓地送り実施
-    await this.field.waitCorpseDisposal();
+    await DuelEntity.waitCorpseDisposal(this);
 
     // チェーン番号を加算
     this.clock.incrementChainSeq();
@@ -596,6 +596,7 @@ export class Duel {
         await DuelEntity.sendManyToGraveyardForTheSameReason(
           this._chainBlockInfos
             .filter((info) => info.action.playType === "CardActivation")
+            .filter((info) => !info.action.isLikeContinuousSpell)
             .map((info) => info.action.entity)
             .filter((card) => card.isOnField)
             .filter((card) => card.face === "FaceUp")

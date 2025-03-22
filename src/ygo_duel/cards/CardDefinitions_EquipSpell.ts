@@ -14,6 +14,7 @@ import {
 import { CardRelation } from "@ygo_duel/class_continuous_effect/DuelCardRelation";
 import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
+import { IllegalCancelError } from "@ygo_duel/class/Duel";
 
 export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
   const result: CardDefinition[] = [];
@@ -32,6 +33,7 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
           playType: "CardActivation",
           spellSpeed: "Normal",
           executableCells: ["Hand", "SpellAndTrapZone"],
+          isLikeContinuousSpell: true,
           validate: (action: CardAction<undefined>): DuelFieldCell[] | undefined => {
             const monsters = action.entity.field
               .getMonstersOnField()
@@ -115,6 +117,101 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
       ] as ContinuousEffectBase<unknown>[],
     });
   });
+  const def_早すぎた埋葬 = {
+    name: "早すぎた埋葬",
+    actions: [
+      {
+        title: "発動",
+        playType: "CardActivation",
+        spellSpeed: "Normal",
+        executableCells: ["Hand", "SpellAndTrapZone"],
+        hasToTargetCards: true,
+        isLikeContinuousSpell: true,
+        // 墓地に蘇生可能モンスター、場に空きが必要。
+        validate: (action: CardAction<undefined>) => {
+          if (
+            action.entity.controller
+              .getGraveyard()
+              .cardEntities.filter((card) => card.status.kind === "Monster")
+              .filter((card) => card.info.isRebornable)
+              .filter((card) => card.canBeTargetOfEffect(action.entity.controller, action.entity, action as CardAction<unknown>))
+              .filter((card) => card.canBeSpecialSummoned("SpecialSummon", action.entity.controller, action.entity, action as CardAction<unknown>)).length === 0
+          ) {
+            return;
+          }
+          if (action.entity.controller.getAvailableMonsterZones().length === 0) {
+            return;
+          }
 
+          if (action.entity.controller.lp < 800) {
+            return;
+          }
+          return defaultSpellTrapValidate(action);
+        },
+        prepare: async (action: CardAction<undefined>, cell: DuelFieldCell, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => {
+          const targets = await action.entity.field.duel.view.waitSelectEntities(
+            action.entity.controller,
+            action.entity.controller
+              .getGraveyard()
+              .cardEntities.filter((card) => card.status.kind === "Monster")
+              .filter((card) => card.info.isRebornable)
+              .filter((card) => card.canBeTargetOfEffect(action.entity.controller, action.entity, action as CardAction<unknown>))
+              .filter((card) => card.canBeSpecialSummoned("SpecialSummon", action.entity.controller, action.entity, action as CardAction<unknown>)),
+            1,
+            (list) => list.length === 1,
+            "蘇生対象とするモンスターを選択",
+            false
+          );
+          if (!targets) {
+            throw new IllegalCancelError(action);
+          }
+
+          // 800ポイント支払う
+          action.entity.controller.payLp(800, action.entity);
+          action.entity.info.effectTargets["EquipTarget"] = targets;
+
+          return await defaultSpellTrapPrepare(action, cell, chainBlockInfos, false, ["SpecialSummonFromGraveyard", "PayLifePoint"], targets, undefined);
+        },
+        execute: async (myInfo: ChainBlockInfo<undefined>) => {
+          console.log("早すぎた埋葬 execute");
+          const emptyCells = myInfo.activator.getEmptyMonsterZones();
+          const target = myInfo.selectedEntities[0];
+          await myInfo.activator.summon(target, ["Attack"], emptyCells, "SpecialSummon", ["Effect"], myInfo.action.entity, false);
+          return true;
+        },
+        settle: async () => true,
+      },
+      defaultSpellTrapSetAction,
+    ] as CardActionBase<unknown>[],
+    continuousEffects: [
+      createRegularEquipRelationHandler(
+        "EquipTarget",
+        "Spell",
+        () => true,
+        (source) => [
+          CardRelation.createRegularEquipRelation(
+            "EquipTarget",
+            () => true,
+            source,
+            () => true,
+            (relation) => {
+              if (!relation.target.isOnField) {
+                return true;
+              }
+              if (relation.target.face === "FaceDown") {
+                return true;
+              }
+              if (relation.isSpawnedBy.moveLog.currentProcRecords.flatMap((rec) => rec.movedAs).find((reason) => reason === "Destroy")) {
+                relation.target.tryDestory("EffectDestroy", relation.effectOwner, relation.isSpawnedBy, undefined);
+              }
+
+              return true;
+            }
+          ),
+        ]
+      ),
+    ] as ContinuousEffectBase<unknown>[],
+  };
+  result.push(def_早すぎた埋葬);
   return result;
 };

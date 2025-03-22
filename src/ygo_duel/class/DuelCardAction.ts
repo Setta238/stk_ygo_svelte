@@ -36,8 +36,8 @@ export const effectTags = [
   "DestroyMultipleOnOpponentField", //スタロ
   "DestroyMonsterOnField", //悲劇の引き金（要対象確認）
   "DestroyMonstersOnField", //我が身を盾に
-  "DestroySpellTrap", //アヌビスの裁き
-  "DestroySpellTraps", //アヌビスの裁き
+  "DestroySpellTrapOnField", //アヌビスの裁き
+  "DestroySpellTrapsOnField", //アヌビスの裁き
   "IfNormarlSummonSucceed", //畳返し
   "IfSpecialSummonSucceed", //ツバメ返し
   "DamageToOpponent", //地獄の扉越し銃
@@ -73,6 +73,8 @@ export type CardActionBase<T> = {
   isOnlyNTimesPerDuel?: number;
   actionGroupNamePerTurn?: string;
   canExecuteOnDamageStep?: boolean;
+  isLikeContinuousSpell?: boolean;
+  willRemainInField?: boolean;
   /**
    * 発動可能かどうかの検証
    * @param entity
@@ -112,6 +114,7 @@ export interface ICardAction<T> {
   hasToTargetCards: boolean;
   isOnlyNTimesPerTurn: number;
   isOnlyNTimesPerDuel: number;
+  isLikeContinuousSpell: boolean;
   executableCells: DuelFieldCellType[];
 
   getClone: () => ICardAction<T>;
@@ -171,6 +174,7 @@ export class CardAction<T> implements ICardAction<T> {
       hasToTargetCards: false,
       isOnlyNTimesPerDuel: 0,
       isOnlyNTimesPerTurn: 0,
+      isLikeContinuousSpell: false,
       getClone: function () {
         return this;
       },
@@ -213,6 +217,10 @@ export class CardAction<T> implements ICardAction<T> {
   public get isOnlyNTimesPerTurn() {
     return this.cardActionBase.isOnlyNTimesPerTurn ?? 0;
   }
+  public get isLikeContinuousSpell() {
+    return this.cardActionBase.isLikeContinuousSpell || (this.entity.isLikeContinuousSpell && this.playType === "CardActivation");
+  }
+
   public get actionGroupNamePerTurn() {
     return this.cardActionBase.actionGroupNamePerTurn;
   }
@@ -252,7 +260,7 @@ export class CardAction<T> implements ICardAction<T> {
     return this.cardActionBase.validate(this, chainBlockInfos);
   };
   public readonly prepare = async (cell: DuelFieldCell | undefined, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, cancelable: boolean) => {
-    if (this.playType === "CardActivation" && this.entity.status.kind !== "Monster" && !this.entity.isLikeContinuousSpell) {
+    if (this.isLikeContinuousSpell) {
       this.entity.info.isPending = true;
     }
     const prepared = await this.cardActionBase.prepare(this, cell, chainBlockInfos, cancelable);
@@ -266,13 +274,18 @@ export class CardAction<T> implements ICardAction<T> {
   };
 
   public readonly execute = async (myInfo: ChainBlockInfo<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => {
+    if (myInfo.action.isLikeContinuousSpell && !myInfo.action.entity.isOnField) {
+      this.entity.info.isPending = false;
+      return false;
+    }
+
     const result = await this.cardActionBase.execute(myInfo, chainBlockInfos);
 
     // TODO 確認：永続魔法類の発動時の効果処理と適用開始はどちらが先か？
     // 一旦、早すぎた埋葬に便利なので、効果処理を先に行う。
-    if (this.playType === "CardActivation" && this.entity.status.kind !== "Monster" && !this.entity.isLikeContinuousSpell) {
-      this.entity.info.isPending = false;
+    if (myInfo.action.isLikeContinuousSpell) {
       for (const ce of this.entity.continuousEffects) {
+        this.entity.info.isPending = false;
         await ce.updateState();
       }
     }
@@ -286,4 +299,49 @@ export class CardAction<T> implements ICardAction<T> {
     this.actionGroupNamePerTurn
       ? this.entity.origin.name === other.entity.origin.name && this.actionGroupNamePerTurn === other.actionGroupNamePerTurn
       : this.isSame(other);
+
+  public readonly calcChainBlockTagsForDestroy = (entites: DuelEntity[]): TEffectTag[] => {
+    if (!effectTags.length) {
+      return [];
+    }
+    const tags: TEffectTag[] = ["Destroy"];
+
+    if (effectTags.length > 1) {
+      tags.push("DestroyMultiple");
+    }
+
+    const cardsOnFields = entites.filter((card) => card.isOnField);
+
+    if (cardsOnFields.length) {
+      tags.push("DestroyOnField");
+      if (cardsOnFields.length > 1) {
+        tags.push("DestroyMultipleOnField");
+      }
+    }
+    const monstersOnField = cardsOnFields.filter((card) => card.status.kind === "Monster");
+
+    if (monstersOnField.length) {
+      tags.push("DestroyMonsterOnField");
+      if (monstersOnField.length > 1) {
+        tags.push("DestroyMonstersOnField");
+      }
+    }
+
+    const spellTraps = cardsOnFields.filter((card) => card.status.kind !== "Monster");
+    if (spellTraps.length) {
+      tags.push("DestroySpellTrapOnField");
+      if (monstersOnField.length > 1) {
+        tags.push("DestroySpellTrapsOnField");
+      }
+    }
+    const cardsOnOpponentField = cardsOnFields.filter((card) => card.controller !== this.entity.controller);
+    if (cardsOnOpponentField.length) {
+      tags.push("DestroyOnOpponentField");
+      if (cardsOnOpponentField.length > 1) {
+        tags.push("DestroyMultipleOnOpponentField");
+      }
+    }
+
+    return tags;
+  };
 }

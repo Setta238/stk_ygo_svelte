@@ -1,7 +1,7 @@
 import { type IDuelistProfile } from "@ygo/class/DuelistProfile";
 import { type IDeckInfo } from "@ygo/class/DeckInfo";
 import { Duel, DuelEnd, SystemError, type TSeat } from "./Duel";
-import { DuelEntity, type TDuelCauseReason, type TSummonPosCauseReason, type TSummonRuleCauseReason } from "./DuelEntity";
+import { DuelEntity, posToSummonPos, type TDuelCauseReason, type TSummonRuleCauseReason } from "./DuelEntity";
 import type { DuelClock } from "./DuelClock";
 import type { DuelFieldCell } from "./DuelFieldCell";
 import { cardInfoDic } from "@ygo/class/CardInfo";
@@ -108,19 +108,21 @@ export class Duelist {
     activator: Duelist,
     entity: DuelEntity,
     action: CardAction<unknown>,
-    summonTypes: TSummonRuleCauseReason[],
-    summonPosList: TSummonPosCauseReason[],
+    summonType: TSummonRuleCauseReason,
+    posList: TBattlePosition[],
     entities: DuelEntity[]
-  ): boolean => {
+  ): TBattlePosition[] => {
     if (
       !this.entity.procFilterBundle.operators
-        .filter((pf) => summonTypes.find((st) => st === pf.procType))
+        .filter((pf) => pf.procTypes.some((st) => st === summonType))
         .every((pf) => pf.filter(activator, entity, action, entities))
     ) {
-      return false;
+      return [];
     }
-    return summonPosList.some((pos) =>
-      this.entity.procFilterBundle.operators.filter((pf) => pos === pf.procType).every((pf) => pf.filter(activator, entity, action, entities))
+    return posList.filter((pos) =>
+      this.entity.procFilterBundle.operators
+        .filter((pf) => pf.procTypes.some((pt) => pt === posToSummonPos(pos)))
+        .every((pf) => pf.filter(activator, entity, action, entities))
     );
   };
 

@@ -422,7 +422,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
       defaultNormalSummonAction,
       {
         title: "①サーチ",
-        playType: "TriggerEffect",
+        playType: "TriggerMandatoryEffect",
         spellSpeed: "Normal",
         executableCells: ["Graveyard"],
         validate: (action: CardAction<undefined>): DuelFieldCell[] | undefined => {

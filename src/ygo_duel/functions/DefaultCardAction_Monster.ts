@@ -168,7 +168,7 @@ export const defaultNormalSummonAction: CardActionBase<SummonPrepared> = {
 };
 
 export const defaultDeclareAttackValidate = (action: CardAction<{ target: DuelEntity }>): DuelFieldCell[] | undefined => {
-  if (action.entity.info.attackCount > 0 || action.entity.battlePotion !== "Attack" || !action.entity.controller.isTurnPlayer) {
+  if (action.entity.info.attackCount > 0 || action.entity.battlePosition !== "Attack" || !action.entity.controller.isTurnPlayer) {
     return undefined;
   }
 
@@ -184,7 +184,7 @@ export const defaultDeclareAttackPrepare = async (
   action: CardAction<{ target: DuelEntity }>,
   cell: DuelFieldCell | undefined
 ): Promise<ChainBlockInfoBase<{ target: DuelEntity }> | undefined> => {
-  if (action.entity.info.attackCount > 0 || action.entity.battlePotion !== "Attack") {
+  if (action.entity.info.attackCount > 0 || action.entity.battlePosition !== "Attack") {
     return;
   }
   if (cell?.targetForAttack) {
@@ -245,7 +245,7 @@ export const defaultBattlePotisionChangeExecute = async (myInfo: ChainBlockInfo<
     return false;
   }
 
-  await myInfo.action.entity.setBattlePosition(myInfo.action.entity.battlePotion === "Attack" ? "Defense" : "Attack");
+  await myInfo.action.entity.setBattlePosition(myInfo.action.entity.battlePosition === "Attack" ? "Defense" : "Attack", ["Rule"]);
   myInfo.action.entity.info.battlePotisionChangeCount++;
   return true;
 };
@@ -323,7 +323,7 @@ const getEnableSyncroSummonPatterns = (
 ): DuelEntity[][] => {
   // 手札と場から全てのシンクロ素材にできるモンスターを収集する。
   let materials = [
-    ...action.entity.controller.getMonstersOnField().filter((card) => card.battlePotion !== "Set"),
+    ...action.entity.controller.getMonstersOnField().filter((card) => card.battlePosition !== "Set"),
     ...action.entity.controller.getHandCell().entities.filter((card) => card.origin.kind === "Monster"),
   ];
 
@@ -375,7 +375,7 @@ export const defaultSyncroSummonPrepare = async (
     materials = _materials;
   }
 
-  await DuelEntity.sendGraveyardManyForTheSameReason(materials, ["SyncroMaterial", "Rule", "SpecialSummonMaterial"], action.entity, action.entity.controller);
+  await DuelEntity.sendManyToGraveyardForTheSameReason(materials, ["SyncroMaterial", "Rule", "SpecialSummonMaterial"], action.entity, action.entity.controller);
 
   action.entity.field.duel.log.info(`シンクロ素材として、${materials.map((m) => "《" + m.nm + "》").join("")}を墓地に送り――`, action.entity.controller);
   console.log(materials);
@@ -435,10 +435,10 @@ export const getDefalutRecruiterAction = (
     executableCells: executableCells,
     canExecuteOnDamageStep: true,
     validate: (action: CardAction<undefined>): DuelFieldCell[] | undefined => {
-      if (action.entity.wasMovedAs.union(destoryTypes).length === 0) {
+      if (!action.entity.wasMovedAtPreviousChain) {
         return;
       }
-      if (!action.entity.isMoveAtPreviousChain) {
+      if (!action.entity.moveLog.latestRecord.movedAs.includes("BattleDestroy")) {
         return;
       }
       const monsters = action.entity.controller.getDeckCell().cardEntities.filter(monsterFilter);

@@ -114,7 +114,7 @@
   };
 </script>
 
-{#if entity.face === "FaceUp" || isVisibleForcibly || (entity.controller.seat === "Below" && entity.isUnderControl)}
+{#if entity.face === "FaceUp" || isVisibleForcibly || (entity.controller.duelistType === "Player" && entity.isUnderControl)}
   <button
     class="duel_card button_style_reset {entity.status.kind} {entity.status.monsterCategories?.join(' ') || ''} {isSelected
       ? 'duel_card_selected'
@@ -179,7 +179,7 @@
       {/if}
     </div>
   </button>
-{:else if entity.battlePotion === "Set"}
+{:else if entity.battlePosition === "Set"}
   <div class="duel_card duel_card_face_down duel_card_face_down_defense"><div></div></div>
 {:else}
   <div class="duel_card duel_card_face_down"><div></div></div>

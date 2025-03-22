@@ -106,7 +106,7 @@ export class DuelField {
   };
 
   public readonly waitCorpseDisposal = () => {
-    return DuelEntity.sendGraveyardMany(
+    return DuelEntity.sendManyToGraveyard(
       this.duel.field
         .getEntiteisOnField()
         .filter((entity) => entity.info.isDying)
@@ -139,7 +139,7 @@ export class DuelField {
       return;
     }
 
-    await DuelEntity.sendGraveyardMany(
+    await DuelEntity.sendManyToGraveyard(
       targets.map((target) => {
         return {
           entity: target,

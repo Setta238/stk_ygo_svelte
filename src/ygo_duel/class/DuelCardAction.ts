@@ -243,7 +243,7 @@ export class CardAction<T> implements ICardAction<T> {
       if (
         this.entity.field.duel.cardActionLog.records
           .filter((rec) => this.isSameGroupPerTurn(rec.cardAction))
-          .filter((rec) => rec.turn === this.entity.field.duel.clock.turn)
+          .filter((rec) => rec.clock.turn === this.entity.field.duel.clock.turn)
           .filter((rec) => rec.activator).length >= this.isOnlyNTimesPerTurn
       ) {
         return;
@@ -252,6 +252,9 @@ export class CardAction<T> implements ICardAction<T> {
     return this.cardActionBase.validate(this, chainBlockInfos);
   };
   public readonly prepare = async (cell: DuelFieldCell | undefined, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, cancelable: boolean) => {
+    if (this.playType === "CardActivation" && this.entity.status.kind !== "Monster" && !this.entity.isLikeContinuousSpell) {
+      this.entity.info.isPending = true;
+    }
     const prepared = await this.cardActionBase.prepare(this, cell, chainBlockInfos, cancelable);
     if (prepared === undefined) {
       return;
@@ -263,7 +266,17 @@ export class CardAction<T> implements ICardAction<T> {
   };
 
   public readonly execute = async (myInfo: ChainBlockInfo<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => {
-    return await this.cardActionBase.execute(myInfo, chainBlockInfos);
+    const result = await this.cardActionBase.execute(myInfo, chainBlockInfos);
+
+    // TODO 確認：永続魔法類の発動時の効果処理と適用開始はどちらが先か？
+    // 一旦、早すぎた埋葬に便利なので、効果処理を先に行う。
+    if (this.playType === "CardActivation" && this.entity.status.kind !== "Monster" && !this.entity.isLikeContinuousSpell) {
+      this.entity.info.isPending = false;
+      for (const ce of this.entity.continuousEffects) {
+        await ce.updateState();
+      }
+    }
+    return result;
   };
   public readonly settle = (myInfo: ChainBlockInfo<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) =>
     this.cardActionBase.settle(myInfo, chainBlockInfos);

@@ -63,6 +63,10 @@ export class ContinuousEffect<T> {
   };
 
   private get hasToStart() {
+    if (this.entity.info.isPending) {
+      return false;
+    }
+
     if (!this.executableCellTypes.includes(this.entity.fieldCell.cellType)) {
       return false;
     }

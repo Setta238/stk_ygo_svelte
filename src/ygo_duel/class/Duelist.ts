@@ -245,6 +245,7 @@ export class Duelist {
       }
       const card = deckCell.cardEntities[0];
       await card.draw(causedBy ? ["Effect"] : ["Rule"], causedBy, causedByWhome);
+      console.log(card);
       cardNames.push(card.origin?.name || "!名称取得失敗!");
     }
     this.duel.log.info(`デッキからカードを${cardNames.length}枚ドロー。${cardNames}。`, this);
@@ -280,7 +281,7 @@ export class Duelist {
         (await this.duel.view.waitSelectEntities(chooser || this, choices, qty, (list) => list.length === qty, `${qty}枚カードを捨てる。`, false)) || [];
     }
 
-    await DuelEntity.sendGraveyardManyForTheSameReason(selectedList, ["Discard", ...moveAs], causedBy, causedByWhome);
+    await DuelEntity.sendManyToGraveyardForTheSameReason(selectedList, ["Discard", ...moveAs], causedBy, causedByWhome);
 
     this.duel.log.info(`手札からカードを${selectedList.length}枚捨てた。${selectedList.map((e) => e.origin?.name)}。`, this);
 

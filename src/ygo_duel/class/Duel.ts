@@ -349,8 +349,8 @@ export class Duel {
 
     //ダメージ計算前
     this.log.info("ダメージ計算前", this.getTurnPlayer());
-    if (defender?.battlePotion === "Set") {
-      await defender.setBattlePosition("Defense");
+    if (defender?.battlePosition === "Set") {
+      defender.setBattlePosition("Defense", ["Flip", "FlipByBattle"], attacker, attacker.controller);
     }
     //TODO エフェクト処理
 
@@ -360,12 +360,12 @@ export class Duel {
 
     //ダメージ計算
     const atkPoint = attacker.atk;
-    const defPoint = (defender.battlePotion === "Attack" ? defender.atk : defender.def) ?? 0;
+    const defPoint = (defender.battlePosition === "Attack" ? defender.atk : defender.def) ?? 0;
     if (defender.entityType === "Duelist") {
       attacker.controller.getOpponentPlayer().battleDamage(atkPoint - defPoint, attacker);
     } else {
       // 戦闘ダメージ計算
-      if (atkPoint > 0 && atkPoint > defPoint && defender.battlePotion === "Attack") {
+      if (atkPoint > 0 && atkPoint > defPoint && defender.battlePosition === "Attack") {
         attacker.controller.getOpponentPlayer().battleDamage(atkPoint - defPoint, attacker);
       } else if (atkPoint < defPoint) {
         // 絶対防御将軍が守備表示で攻撃しても反射ダメージが発生するとのこと。
@@ -373,10 +373,10 @@ export class Duel {
       }
 
       // 戦闘破壊計算
-      if (atkPoint > 0 && (atkPoint > defPoint || (atkPoint === defPoint && defender.battlePotion === "Attack"))) {
+      if (atkPoint > 0 && (atkPoint > defPoint || (atkPoint === defPoint && defender.battlePosition === "Attack"))) {
         defender.tryDestoryByBattle(attacker.controller, attacker, chainBlockInfo.action);
       }
-      if (defender.battlePotion === "Attack" && atkPoint <= defPoint) {
+      if (defender.battlePosition === "Attack" && atkPoint <= defPoint) {
         attacker.tryDestoryByBattle(attacker.controller, defender, chainBlockInfo.action);
       }
     }
@@ -520,6 +520,11 @@ export class Duel {
         throw new IllegalCancelError(chainBlock);
       }
 
+      // 対象に取っていた場合、ログを出力
+      if (chainBlockInfo.selectedEntities) {
+        this.log.info(`対象⇒${chainBlockInfo.selectedEntities.map((e) => e.toString()).join(" ")}`);
+      }
+
       this._chainBlockInfos.push(chainBlockInfo);
 
       console.log(this.chainBlockInfos);
@@ -527,6 +532,7 @@ export class Duel {
       this.clock.incrementProcSeq();
       this.clock.incrementChainBlockSeq();
 
+      // 再帰実行
       await this.procChainBlock(
         undefined,
         _triggerEffets.filter((e) => e.seq !== chainBlock?.seq)
@@ -556,8 +562,17 @@ export class Duel {
       this.clock.incrementProcSeq();
 
       if (isStartPoint) {
-        // 効果を発動した魔法罠は墓地送り（光の護封剣などを除く）
-        await this.field.waitCorpseDisposal();
+        await DuelEntity.sendManyToGraveyardForTheSameReason(
+          this._chainBlockInfos
+            .filter((info) => info.action.playType === "CardActivation")
+            .map((info) => info.action.entity)
+            .filter((card) => card.isOnField)
+            .filter((card) => card.face === "FaceUp")
+            .filter((card) => !card.isLikeContinuousSpell),
+          ["Rule"],
+          undefined,
+          undefined
+        );
         // チェーン情報を破棄
         this._chainBlockInfos.reset();
         // チェーン番号を加算。

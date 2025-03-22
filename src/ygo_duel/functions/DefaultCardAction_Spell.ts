@@ -18,7 +18,7 @@ export const defaultSpellTrapSetPrepare = async (
     const fieldZone = action.entity.controller.getFieldZone();
     const oldOne = fieldZone.cardEntities[0];
     // TODO 盆回しなど
-    await DuelEntity.sendGraveyardManyForTheSameReason(fieldZone.cardEntities, ["Rule"], action.entity, action.entity.controller);
+    await DuelEntity.sendManyToGraveyardForTheSameReason(fieldZone.cardEntities, ["Rule"], action.entity, action.entity.controller);
     action.entity.field.duel.log.info(`フィールド魔法の上書きにより、${oldOne.toString()}は墓地に送られた。`, action.entity.controller);
 
     return { selectedEntities: [], chainBlockTags: [], prepared: { dest: fieldZone } };
@@ -82,6 +82,9 @@ export const defaultSpellTrapSetAction: CardActionBase<{ dest: DuelFieldCell }> 
 };
 
 export const defaultSpellTrapValidate = <T>(action: CardAction<T>): DuelFieldCell[] | undefined => {
+  if (action.entity.info.isPending) {
+    return;
+  }
   if (action.entity.info.isDying) {
     return;
   }
@@ -109,18 +112,15 @@ export const defaultSpellTrapPrepare = async <T>(
   selectedEntities: DuelEntity[] | undefined,
   prepared: T
 ): Promise<ChainBlockInfoBase<T> | undefined> => {
-  if (!action.entity.isLikeContinuousSpell) {
-    action.entity.info.isDying = true;
-  }
   if (spellTrapZoneCellTypes.some((ct) => ct === action.entity.fieldCell.cellType) && action.entity.face === "FaceDown") {
-    await action.entity.setNonFieldMonsterPosition("FaceUp", true);
+    await action.entity.setNonFieldMonsterPosition("FaceUp", ["Rule"]);
     return { chainBlockTags: chainBlockTags ?? [], selectedEntities: selectedEntities ?? [], prepared };
   }
   if (action.entity.status.spellCategory === "Field") {
     const olds = action.entity.controller.getFieldZone().cardEntities;
     if (olds.length) {
       const oldOne = olds[0];
-      await DuelEntity.sendGraveyardManyForTheSameReason(
+      await DuelEntity.sendManyToGraveyardForTheSameReason(
         action.entity.controller.getFieldZone().cardEntities,
         ["Rule"],
         action.entity,
@@ -137,7 +137,7 @@ export const defaultSpellTrapPrepare = async <T>(
       : action.entity.status.spellCategory === "Field"
         ? [action.entity.controller.getFieldZone()]
         : action.entity.controller.getAvailableSpellTrapZones();
-    await action.entity.field.activateSpellTrapFromHand(action.entity, availableCells, causedBy, action.entity, action.entity.controller, true);
+    await action.entity.field.activateSpellTrapFromHand(action.entity, availableCells, causedBy, action.entity, action.entity.controller, cancelable);
     return { chainBlockTags: chainBlockTags ?? [], selectedEntities: selectedEntities ?? [], prepared };
   }
   return;

@@ -3,14 +3,17 @@ import { duelEntityCardTypes } from "./DuelEntity";
 import type { DuelEntity } from "./DuelEntity";
 import type { DuelField } from "./DuelField";
 import { type Duelist } from "./Duelist";
-export const stackCellTypes = ["Deck", "ExtraDeck", "Graveyard", "Banished"] as const;
+export const deckCellTypes = ["Deck", "ExtraDeck"] as const;
+export const stackCellTypes = [...deckCellTypes, "Graveyard", "Banished"] as const;
+export const bundleCellTypes = [...stackCellTypes, "Hand"] as const;
+export type TBundleCellType = (typeof bundleCellTypes)[number];
 export const monsterZoneCellTypes = ["MonsterZone", "ExtraMonsterZone"] as const;
 export const spellTrapZoneCellTypes = ["SpellAndTrapZone", "FieldSpellZone"] as const;
 /**
  * fieldCellTypesとしたいが、フィールドゾーンと誤解する可能性が高いので一旦playとつけておく
  */
 export const playFieldCellTypes = [...monsterZoneCellTypes, ...spellTrapZoneCellTypes] as const;
-export const duelFieldCellTypes = [...stackCellTypes, ...playFieldCellTypes, "Hand", "Disable"] as const;
+export const duelFieldCellTypes = [...bundleCellTypes, ...playFieldCellTypes, "Disable"] as const;
 export type DuelFieldCellType = (typeof duelFieldCellTypes)[number];
 export type TDuelEntityMovePos = "Top" | "Bottom" | "Random";
 
@@ -77,6 +80,10 @@ export class DuelFieldCell {
   public readonly column: number;
   public readonly cellType: DuelFieldCellType;
   public readonly owner: Duelist | undefined;
+  public get needsShuffle() {
+    return this._needsShuffle;
+  }
+  private _needsShuffle = false;
   public get entities() {
     return this._entities;
   }
@@ -112,10 +119,14 @@ export class DuelFieldCell {
     return entities;
   };
   public readonly acceptEntities = (entities: DuelEntity[], pos: TDuelEntityMovePos) => {
-    if (pos === "Bottom") {
-      this._entities.push(...entities);
-    } else if (pos === "Top") {
+    if (pos === "Top") {
       this._entities.unshift(...entities);
+    } else {
+      this._entities.push(...entities);
+    }
+
+    if (pos === "Random") {
+      this._needsShuffle = true;
     }
     this._entities.forEach((entity) => {
       entity.fieldCell = this;
@@ -124,5 +135,6 @@ export class DuelFieldCell {
   };
   public readonly shuffle = (): void => {
     this._entities = this.entities.shuffle();
+    this._needsShuffle = false;
   };
 }

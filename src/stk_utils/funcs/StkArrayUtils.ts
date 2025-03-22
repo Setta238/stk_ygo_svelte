@@ -31,7 +31,7 @@ Array.prototype.reset = function <T>(...newArray: T[]): void {
   (this as T[]).push(...newArray);
 };
 Array.prototype.union = function <T>(another: T[]): T[] {
-  return (this as T[]).filter(another.includes, another);
+  return (this as T[]).filter((t) => another.find((a) => t === a));
 };
 
 Array.prototype.getAllOnOffPattern = function <T>(): T[][] {

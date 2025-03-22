@@ -13,7 +13,7 @@ import {
   entityFlexibleStatusKeys,
   type TEntityFlexibleStatusKey,
 } from "@ygo/class/YgoTypes";
-import { SystemError } from "./Duel";
+import { Duel, SystemError } from "./Duel";
 import { deckCellTypes, playFieldCellTypes, type DuelFieldCell, type TBundleCellType, type TDuelEntityMovePos } from "./DuelFieldCell";
 import { type Duelist } from "./Duelist";
 
@@ -218,7 +218,7 @@ export class DuelEntity {
     movedBy: DuelEntity | undefined,
     activator: Duelist | undefined
   ): Promise<void> => {
-    return DuelEntity.bringManyToSameCellForTheSameReason("Graveyard", "Top", entities, movedAs, movedBy, activator);
+    return DuelEntity.bringManyToSameCellForTheSameReason("Graveyard", "Top", entities, "FaceUp", "Vertical", movedAs, movedBy, activator);
   };
   public static readonly banishManyForTheSameReason = (
     entities: DuelEntity[],
@@ -226,7 +226,7 @@ export class DuelEntity {
     movedBy: DuelEntity | undefined,
     activator: Duelist | undefined
   ): Promise<void> => {
-    return DuelEntity.bringManyToSameCellForTheSameReason("Banished", "Top", entities, movedAs, movedBy, activator);
+    return DuelEntity.bringManyToSameCellForTheSameReason("Banished", "Top", entities, "FaceDown", "Vertical", movedAs, movedBy, activator);
   };
   public static readonly returnManyToDeckForTheSameReason = (
     pos: TDuelEntityMovePos,
@@ -235,7 +235,7 @@ export class DuelEntity {
     movedBy: DuelEntity | undefined,
     activator: Duelist | undefined
   ): Promise<void> => {
-    return DuelEntity.bringManyToSameCellForTheSameReason("Deck", pos, entities, movedAs, movedBy, activator);
+    return DuelEntity.bringManyToSameCellForTheSameReason("Deck", pos, entities, "FaceDown", "Vertical", movedAs, movedBy, activator);
   };
 
   /**
@@ -252,7 +252,14 @@ export class DuelEntity {
     }[],
     excludedList?: DuelEntity[]
   ): Promise<void> => {
-    return DuelEntity.bringManyToSameCell("Graveyard", "Top", items, excludedList);
+    return DuelEntity.bringManyToSameCell(
+      "Graveyard",
+      "Top",
+      items.map((item) => {
+        return { ...item, face: "FaceUp", orientation: "Vertical" };
+      }),
+      excludedList
+    );
   };
 
   /**
@@ -269,13 +276,22 @@ export class DuelEntity {
     }[],
     excludedList?: DuelEntity[]
   ): Promise<void> => {
-    return DuelEntity.bringManyToSameCell("Banished", "Top", items, excludedList);
+    return DuelEntity.bringManyToSameCell(
+      "Banished",
+      "Top",
+      items.map((item) => {
+        return { ...item, face: "FaceUp", orientation: "Vertical" };
+      }),
+      excludedList
+    );
   };
 
   public static readonly bringManyToSameCellForTheSameReason = (
     to: TBundleCellType,
     pos: TDuelEntityMovePos,
     entities: DuelEntity[],
+    face: TDuelEntityFace,
+    orientation: TDuelEntityOrientation,
     movedAs: TDuelCauseReason[],
     movedBy: DuelEntity | undefined,
     activator: Duelist | undefined
@@ -286,6 +302,8 @@ export class DuelEntity {
       entities.map((newOne) => {
         return {
           entity: newOne,
+          face: face,
+          orientation: orientation,
           causedAs: movedAs,
           causedBy: movedBy,
           activator: activator,
@@ -298,6 +316,8 @@ export class DuelEntity {
     pos: TDuelEntityMovePos,
     items: {
       entity: DuelEntity;
+      face: TDuelEntityFace;
+      orientation: TDuelEntityOrientation;
       causedAs: TDuelCauseReason[];
       causedBy: DuelEntity | undefined;
       activator: Duelist | undefined;
@@ -308,8 +328,8 @@ export class DuelEntity {
       items.map((item) => [
         item.entity,
         item.entity.field.getCells(to).filter((cell) => cell.owner === item.entity.owner)[0],
-        "FaceUp",
-        "Vertical",
+        item.face,
+        item.orientation,
         pos,
         item.causedAs,
         item.causedBy,
@@ -326,7 +346,7 @@ export class DuelEntity {
    * @param excludedList 再帰処理時のみ指定する想定
    */
   public static readonly moveMany = async (
-    items: [entity: DuelEntity, ...Parameters<typeof DuelEntity.prototype.move>][],
+    items: [entity: DuelEntity, ...Parameters<typeof DuelEntity.prototype._move>][],
     excludedList?: DuelEntity[]
   ): Promise<void> => {
     if (!items.length) {
@@ -340,7 +360,7 @@ export class DuelEntity {
     const _excludedList = [...targets, ...duel.field.getEntiteisOnField().filter((entity) => entity.info.isDying)];
     console.log(targets);
     // 目的地ごとに仕分ける
-    const destMap = new Map<DuelFieldCell, [entity: DuelEntity, ...Parameters<typeof DuelEntity.prototype.move>][]>();
+    const destMap = new Map<DuelFieldCell, [entity: DuelEntity, ...Parameters<typeof DuelEntity.prototype._move>][]>();
     items.forEach(([entity, to, ...rest]) => {
       let dest = to;
       if (entity.info.willBeBanished) {
@@ -363,7 +383,7 @@ export class DuelEntity {
       const promises = Array.from(destMap.values())
         .map((array) => array.pop())
         .filter((e) => e !== undefined)
-        .map(([entity, ...rest]) => entity.move(...rest));
+        .map(([entity, ...rest]) => entity._move(...rest));
 
       // 取り出せなくなったら終了
       if (!promises.length) {
@@ -395,6 +415,8 @@ export class DuelEntity {
         await this.sendManyToGraveyard(newTargets, _excludedList);
       }
     }
+    // 色々更新処理
+    DuelEntity.settleEntityMove(duel);
   };
 
   public static readonly summonMany = async (
@@ -409,6 +431,10 @@ export class DuelEntity {
     movedBy: DuelEntity,
     actionOwner: Duelist
   ): Promise<void> => {
+    if (!items.length) {
+      return;
+    }
+
     const moveAsDic: { [pos in TBattlePosition]: TDuelCauseReason } = {
       Attack: "AttackSummon",
       Defense: "DefenseSummon",
@@ -442,7 +468,7 @@ export class DuelEntity {
 
         // 移動処理
         const { face, orientation } = DuelEntity.splitBattlePos(pos);
-        await entity.move(to, face, orientation, "Top", [summonType, moveAsDic[pos], ...moveAs], movedBy, actionOwner, chooser);
+        await entity._move(to, face, orientation, "Top", [summonType, moveAsDic[pos], ...moveAs], movedBy, actionOwner, chooser);
       })
     );
 
@@ -460,6 +486,14 @@ export class DuelEntity {
           duelist.info.specialSummonCount++;
         }
       });
+    // 色々更新処理
+    DuelEntity.settleEntityMove(items[0].entity.duel);
+  };
+  private static readonly settleEntityMove = (duel: Duel) => {
+    duel.distributeOperators();
+    const entities = duel.field.getAllEntities().filter((entity) => entity.wasMovedAtCurrentProc);
+    entities.filter((entity) => !entity.isOnField).forEach((entity) => entity.resetInfo());
+    entities.flatMap((entity) => entity.continuousEffects).forEach((ce) => ce.updateState());
   };
 
   public readonly seq: number;
@@ -538,6 +572,18 @@ export class DuelEntity {
       return "Attack";
     }
     return this.face === "FaceUp" ? "Defense" : "Set";
+  }
+  public get wasMovedAtCurrentProc() {
+    return (
+      this.field.duel.clock.procTotalSeq === this.moveLog.latestRecord.movedAt.procTotalSeq &&
+      this.moveLog.records.slice(-2)[0].cell.cellType !== this.fieldCell.cellType
+    );
+  }
+  public get wasMovedAtPreviousProc() {
+    return (
+      this.field.duel.clock.procTotalSeq === this.moveLog.latestRecord.movedAt.procTotalSeq + 1 &&
+      this.moveLog.records.slice(-2)[0].cell.cellType !== this.fieldCell.cellType
+    );
   }
   public get wasMovedAtCurrentChain() {
     return this.field.duel.clock.isSameChain(this.moveLog.latestRecord.movedAt) && this.moveLog.records.slice(-2)[0].cell.cellType !== this.fieldCell.cellType;
@@ -630,6 +676,23 @@ export class DuelEntity {
   public readonly canBeTargetOfEffect = (activator: Duelist, entity: DuelEntity, action: CardAction<unknown>): boolean =>
     this.procFilterBundle.operators.filter((pf) => pf.procType === "EffectTarget").every((pf) => pf.filter(activator, entity, action, [this]));
 
+  public readonly canBeSpecialSummoned = (activator: Duelist, entity: DuelEntity, action: CardAction<unknown>): boolean => {
+    // 特殊召喚できないモンスター（※神、スピリットなど）
+    if (this.origin.monsterCategories?.includes("NormalSummonOnly")) {
+      return false;
+    }
+
+    // 特殊召喚モンスターかつ蘇生制限を満たしていないモンスター
+    if (
+      this.origin.monsterCategories?.includes("SpecialSummon") &&
+      !this.status.canReborn &&
+      (this.fieldCell.cellType === "Graveyard" || this.fieldCell.cellType === "Banished")
+    ) {
+      return false;
+    }
+
+    return this.procFilterBundle.operators.filter((pf) => pf.procType === "EffectTarget").every((pf) => pf.filter(activator, entity, action, [this]));
+  };
   public readonly canBeTargetOfBattle = (activator: Duelist, entity: DuelEntity, action: CardAction<unknown>): boolean =>
     this.procFilterBundle.operators.filter((pf) => pf.procType === "BattleTarget").every((pf) => pf.filter(activator, entity, action, [this]));
 
@@ -667,7 +730,7 @@ export class DuelEntity {
   };
 
   public readonly setBattlePosition = async (pos: TBattlePosition, movedAs: TDuelCauseReason[], movedBy?: DuelEntity, actionOwner?: Duelist): Promise<void> => {
-    this.move(
+    this.moveAlone(
       this.fieldCell,
       pos === "Set" ? "FaceDown" : "FaceUp",
       pos === "Attack" ? "Vertical" : "Horizontal",
@@ -685,7 +748,7 @@ export class DuelEntity {
     movedBy?: DuelEntity,
     actionOwner?: Duelist
   ): Promise<void> => {
-    this.move(
+    this.moveAlone(
       this.fieldCell,
       pos === "FaceUp" ? "FaceUp" : "FaceDown",
       pos === "XysMaterial" ? "Horizontal" : "Vertical",
@@ -703,7 +766,7 @@ export class DuelEntity {
     movedBy: DuelEntity | undefined,
     actionOwner: Duelist | undefined
   ): Promise<void> => {
-    await this.move(to, "FaceDown", "Vertical", "Top", [...movedAs, "SpellTrapSet"], movedBy, actionOwner, actionOwner);
+    await this.moveAlone(to, "FaceDown", "Vertical", "Top", [...movedAs, "SpellTrapSet"], movedBy, actionOwner, actionOwner);
   };
   public readonly activateSpellTrapFromHand = async (
     to: DuelFieldCell,
@@ -711,7 +774,7 @@ export class DuelEntity {
     movedBy: DuelEntity | undefined,
     actionOwner: Duelist | undefined
   ): Promise<void> => {
-    await this.move(to, "FaceUp", "Vertical", "Top", [...movedAs, "SpellTrapActivate"], movedBy, actionOwner, actionOwner);
+    await this.moveAlone(to, "FaceUp", "Vertical", "Top", [...movedAs, "SpellTrapActivate"], movedBy, actionOwner, actionOwner);
   };
 
   public readonly activateSpellTrapOnField = async (
@@ -719,7 +782,7 @@ export class DuelEntity {
     movedBy: DuelEntity | undefined,
     actionOwner: Duelist | undefined
   ): Promise<void> => {
-    await this.move(this.fieldCell, "FaceUp", "Vertical", "Top", [...movedAs, "SpellTrapActivate"], movedBy, actionOwner, actionOwner);
+    await this.moveAlone(this.fieldCell, "FaceUp", "Vertical", "Top", [...movedAs, "SpellTrapActivate"], movedBy, actionOwner, actionOwner);
   };
   public readonly draw = async (
     moveAs: TDuelCauseReason[],
@@ -733,7 +796,7 @@ export class DuelEntity {
     movedBy: DuelEntity | undefined,
     actionOwner: Duelist | undefined
   ): Promise<DuelFieldCell | undefined> => {
-    return await this.move(this.owner.getHandCell(), "FaceDown", "Vertical", "Bottom", [...movedAs], movedBy, actionOwner, actionOwner);
+    return await this.moveAlone(this.owner.getHandCell(), "FaceDown", "Vertical", "Bottom", [...movedAs], movedBy, actionOwner, actionOwner);
   };
   public readonly release = async (
     moveAs: TDuelCauseReason[],
@@ -770,7 +833,21 @@ export class DuelEntity {
     return DuelEntity.summonMany([{ entity: this, to, chooser: chooser ?? actionOwner, pos }], summonType, moveAs, movedBy, actionOwner);
   };
 
-  private readonly move = async (
+  private readonly moveAlone = async (
+    to: DuelFieldCell,
+    face: TDuelEntityFace,
+    orientation: TDuelEntityOrientation,
+    pos: TDuelEntityMovePos,
+    movedAs: TDuelCauseReason[],
+    movedBy: DuelEntity | undefined,
+    actionOwner: Duelist | undefined,
+    chooser: Duelist | undefined
+  ): Promise<DuelFieldCell | undefined> => {
+    await DuelEntity.moveMany([[this, to, face, orientation, pos, movedAs, movedBy, actionOwner, chooser]], undefined);
+    return this.fieldCell;
+  };
+
+  private readonly _move = async (
     to: DuelFieldCell,
     face: TDuelEntityFace,
     orientation: TDuelEntityOrientation,
@@ -808,10 +885,6 @@ export class DuelEntity {
       }
     }
     this.moveLog.push(movedAs, movedBy, actionOwner, chooser);
-
-    for (const ce of this.continuousEffects) {
-      await ce.updateState();
-    }
 
     return to;
   };

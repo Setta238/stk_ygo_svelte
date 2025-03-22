@@ -56,7 +56,7 @@
   };
 
   let tmpDeck = {
-    id: Number.MIN_VALUE,
+    id: -Number.MAX_VALUE,
     name: "",
     description: "",
     lastUsedAt: new Date(),
@@ -68,7 +68,7 @@
   const seachCondition = {
     name: "" as string,
     cardKinds: [...cardKinds] as TCardKind[],
-    monsterCategories: [...monsterCategories].filter((cat) => cat !== "Normal" && cat !== "Token") as TMonsterCategory[],
+    monsterCategories: [...monsterCategories].filter((cat) => cat !== "Normal" && cat !== "Token" && cat !== "Test") as TMonsterCategory[],
     monsterAttributes: [...monsterAttributes],
     monsterTypes: [...monsterTypes],
     spellCategories: [...spellCategories] as TSpellCategory[],
@@ -90,7 +90,21 @@
         if (cardInfo.type && !seachCondition.monsterTypes.includes(cardInfo.type)) {
           return false;
         }
-        return cardInfo.monsterCategories?.union(seachCondition.monsterCategories).length;
+
+        if (!cardInfo.monsterCategories) {
+          return false;
+        }
+
+        // テスト用だけ別扱い
+        if (cardInfo.monsterCategories.includes("Test") && !seachCondition.monsterCategories.includes("Test")) {
+          return false;
+        }
+
+        if (cardInfo.monsterCategories.includes("Test")) {
+          console.log(cardInfo.monsterCategories, seachCondition.monsterCategories, cardInfo.monsterCategories.union(seachCondition.monsterCategories));
+        }
+
+        return cardInfo.monsterCategories.union(seachCondition.monsterCategories).length;
       }
       if (cardInfo.kind === "Spell") {
         return cardInfo.spellCategory && seachCondition.spellCategories.includes(cardInfo.spellCategory);

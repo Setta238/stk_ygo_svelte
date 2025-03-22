@@ -284,7 +284,8 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
               .flatMap((cell) => cell.cardEntities)
               .filter((card) => card.status.kind === "Monster")
               .filter((card) => card.info.isRebornable)
-              .filter((card) => card.canBeTargetOfEffect(action.entity.controller, action.entity, action as CardAction<unknown>)).length === 0
+              .filter((card) => card.canBeTargetOfEffect(action.entity.controller, action.entity, action as CardAction<unknown>))
+              .filter((card) => card.canBeSpecialSummoned(action.entity.controller, action.entity, action as CardAction<unknown>)).length === 0
           ) {
             return;
           }
@@ -301,7 +302,8 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
               .flatMap((gy) => gy.cardEntities)
               .filter((card) => card.status.kind === "Monster")
               .filter((card) => card.info.isRebornable)
-              .filter((card) => card.canBeTargetOfEffect(action.entity.controller, action.entity, action as CardAction<unknown>)),
+              .filter((card) => card.canBeTargetOfEffect(action.entity.controller, action.entity, action as CardAction<unknown>))
+              .filter((card) => card.canBeSpecialSummoned(action.entity.controller, action.entity, action as CardAction<unknown>)),
             1,
             (list) => list.length === 1,
             "蘇生対象とするモンスターを選択",

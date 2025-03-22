@@ -35,42 +35,58 @@ const minValueDic: { [key in TEntityFlexibleStatusKey]: number } = {
 //    邪神アバター、邪神ドレッド・ルート、オプション、オプション・トークン                             枠外
 
 export class NumericStateOperatorPool extends StickyEffectOperatorPool<NumericStateOperator, NumericStateOperatorBundle> {
-  public readonly calcStateAll = (duel: Duel): void =>
-    this.bundles.forEach((bundle) => {
-      // 全てのステータスを再計算
-      bundle.calcStateAll();
-      // 邪神アバター類のみ最後に計算（※少なくとも攻撃力はマイナスになるようマーキング済）
-      const needsRecalc = duel.field.getMonstersOnField().filter((monster) => (monster.atk ?? 0) < 0);
-      if (needsRecalc.length) {
-        const otherMonsters = duel.field.getMonstersOnField().filter((monster) => (monster.atk ?? 0) >= 0);
-        const maxAtk = otherMonsters.map((monster) => monster.atk ?? 0).reduce((wip, current) => (wip > current ? wip : current), 0);
-        needsRecalc.forEach((monster) => {
-          let gradius: DuelEntity | undefined = undefined;
-          if (monster.info.effectTargets["Gradius'_Option"]) {
-            gradius = monster.info.effectTargets["Gradius'_Option"][0];
-          }
-          monster.numericOprsBundle.operators.forEach((ope) => {
-            // リンクモンスターが効果コピーしていた場合
-            if (monster.status.monsterCategories?.includes("Link") && ope.targetState === "defense") {
-              return;
-            }
+  public readonly calcStateAll = (duel: Duel): void => {
+    // 全てのステータスを再計算
+    this.bundles.forEach((bundle) => bundle.calcStateAll());
 
-            if (ope.stateOperationType === "Gradius'_Option") {
-              monster.status.calculated[ope.targetState] = gradius?.status.calculated[ope.targetState] ?? 0;
-              return;
-            }
-            if (ope.stateOperationType === "THE_DEVILS_AVATAR") {
-              monster.status.calculated[ope.targetState] = maxAtk + 100;
-              return;
-            }
-            if (ope.stateOperationType === "THE_DEVILS_DREAD-ROOT") {
-              monster.status.calculated[ope.targetState] = Math.round((monster.status.calculated[ope.targetState] ?? 0) / 2);
-              return;
-            }
-          });
+    // 邪神アバター類のみ最後に計算
+    //    ※邪神ドレッド・ルートがいると全体再計算が必要
+    const needsRecalc = duel.field
+      .getMonstersOnField()
+      .flatMap((monster) => monster.numericOprsBundle)
+      .flatMap((bundle) => bundle.operators)
+      .some(
+        (ope) =>
+          ope.stateOperationType === "THE_DEVILS_AVATAR" || ope.stateOperationType === "THE_DEVILS_DREAD-ROOT" || ope.stateOperationType === "Gradius'_Option"
+      );
+
+    if (needsRecalc) {
+      // アバター類を一旦取り除いて最大値を出す。
+      // ※少なくとも攻撃力はマイナスになるようマーキング済
+      const otherMonsters = duel.field.getMonstersOnField().filter((monster) => (monster.atk ?? 0) >= 0);
+      const maxAtk = otherMonsters.map((monster) => monster.atk ?? 0).reduce((wip, current) => (wip > current ? wip : current), 0);
+
+      // フィールド上のモンスターのステータスを再計算
+      duel.field.getMonstersOnField().forEach((monster) => {
+        // オプション類の場合、対象に取っているはずなので取得
+        let gradius: DuelEntity | undefined = undefined;
+        if (monster.info.effectTargets["Gradius'_Option"]) {
+          gradius = monster.info.effectTargets["Gradius'_Option"][0];
+        }
+
+        // オペレータのうち、例外三種を順番に適用
+        monster.numericOprsBundle.operators.forEach((ope) => {
+          // リンクモンスターが効果コピーしていた場合
+          if (monster.status.monsterCategories?.includes("Link") && ope.targetState === "defense") {
+            return;
+          }
+
+          if (ope.stateOperationType === "Gradius'_Option") {
+            monster.status.calculated[ope.targetState] = gradius?.status.calculated[ope.targetState] ?? 0;
+            return;
+          }
+          if (ope.stateOperationType === "THE_DEVILS_AVATAR") {
+            monster.status.calculated[ope.targetState] = maxAtk + 100;
+            return;
+          }
+          if (ope.stateOperationType === "THE_DEVILS_DREAD-ROOT") {
+            monster.status.calculated[ope.targetState] = ope.calcValue(ope.isSpawnedBy, monster, monster.status.calculated[ope.targetState] ?? 0);
+            return;
+          }
         });
-      }
-    });
+      });
+    }
+  };
 }
 export class NumericStateOperatorBundle extends StickyEffectOperatorBundle<NumericStateOperator> {
   public dominantOperators: { [key in TEntityFlexibleStatusKey]: NumericStateOperator | undefined } = {
@@ -211,7 +227,7 @@ export class NumericStateOperatorBundle extends StickyEffectOperatorBundle<Numer
       opeList.some((ope) => ope.stateOperationType === "THE_DEVILS_AVATAR" || ope.stateOperationType === "Gradius'_Option") &&
       this.entity.status.isEffective
     ) {
-      this.entity.status.calculated[targetState] = Number.MIN_VALUE;
+      this.entity.status.calculated[targetState] = -Number.MAX_VALUE;
       return;
     }
 
@@ -250,12 +266,6 @@ export class NumericStateOperatorBundle extends StickyEffectOperatorBundle<Numer
         }
       }
     }
-    // 邪神ドレッド・ルートのみ別計算
-    opeList
-      .filter((ope) => ope.stateOperationType === "THE_DEVILS_DREAD-ROOT")
-      .forEach((ope) => {
-        wip = ope.calcValue(ope.isSpawnedBy, this.entity, wip);
-      });
 
     // 最低値を割っている場合、上書き
     if (wip < minValueDic[targetState]) {

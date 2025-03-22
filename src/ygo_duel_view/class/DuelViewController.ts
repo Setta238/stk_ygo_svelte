@@ -125,12 +125,17 @@ export class DuelViewController {
    * @returns
    */
   public readonly waitQuickEffect = async (
+    duelist: Duelist,
     enableActions: ICardAction<unknown>[],
     message: string,
     cancelable: boolean
   ): Promise<ICardAction<unknown> | undefined> => {
     if (enableActions.length === 0) {
       return;
+    }
+
+    if (duelist.duelistType === "NPC") {
+      return enableActions.randomPick(1)[0];
     }
 
     const promiseList: Promise<ICardAction<unknown> | undefined>[] = [];

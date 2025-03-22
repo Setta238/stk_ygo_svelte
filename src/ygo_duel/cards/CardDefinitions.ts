@@ -11,6 +11,7 @@ import { createCardDefinitions_FieldSpell_Preset } from "./CardDefinitions_Field
 import { createCardDefinitions_ContinuousSpell_Preset } from "./CardDefinitions_ContinuousSpell";
 import { createCardDefinitions_EquipSpell } from "./CardDefinitions_EquipSpell";
 import { createCardDefinitions_EquipSpell_Preset } from "./CardDefinitions_EquipSpell_Preset";
+import { createCardDefinitions_TestMonster } from "./CardDefinitions_TestMonster";
 
 export type CardDefinition = {
   name: string;
@@ -30,6 +31,7 @@ export const createCardDefinitions = (): CardDefinition[] => {
     ...createCardDefinitions_ContinuousSpell_Preset(),
     ...createCardDefinitions_EquipSpell(),
     ...createCardDefinitions_EquipSpell_Preset(),
+    ...createCardDefinitions_TestMonster(),
   ];
   const names = hoge.map((def) => def.name);
   console.info(names);

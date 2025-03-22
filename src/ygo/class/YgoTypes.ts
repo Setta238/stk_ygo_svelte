@@ -1,5 +1,3 @@
-import {} from "@stk_utils/funcs/StkDateUtils";
-
 export const deckTypes = ["Deck", "ExtraDeck"] as const;
 export type TDeckTypes = (typeof deckTypes)[number];
 export const deckTypeDic: { [key in TDeckTypes]: string } = {
@@ -19,9 +17,9 @@ export const specialMonsterCategories = [...exMonsterCategories, "SpecialSummon"
 export type TMonsterSpecialSummonCategory = (typeof specialMonsterCategories)[number];
 export const monsterEffectCategories = ["Toon", "Spirit", "Union", "Gemini", "FlipEffect"] as const;
 export type TMonsterEffectCategory = (typeof monsterEffectCategories)[number];
-export const monsterOtherCategories = ["Tuner", "Effect", "Normal", "Pendulum", "Token"] as const;
+export const monsterOtherCategories = ["Tuner", "Effect", "Normal", "Pendulum", "Token", "NormalSummonOnly"] as const;
 export type TMonsterOtherCategory = (typeof monsterOtherCategories)[number];
-export const monsterCategories = [...specialMonsterCategories, ...monsterEffectCategories, ...monsterOtherCategories] as const;
+export const monsterCategories = [...specialMonsterCategories, ...monsterEffectCategories, ...monsterOtherCategories, "Test"] as const;
 export type TMonsterCategory = (typeof monsterCategories)[number];
 export const monsterCategoryDic: { [key in TMonsterCategory]: string } = {
   Syncro: "シンクロ",
@@ -39,6 +37,8 @@ export const monsterCategoryDic: { [key in TMonsterCategory]: string } = {
   Normal: "通常",
   Pendulum: "ペンデュラム",
   Token: "トークン",
+  NormalSummonOnly: "特殊召喚不可",
+  Test: "テスト",
 };
 export const monsterCategoryEmojiDic: { [key in TMonsterCategory]: string } = {
   Syncro: "🎵",
@@ -56,6 +56,8 @@ export const monsterCategoryEmojiDic: { [key in TMonsterCategory]: string } = {
   Normal: "🔘",
   Pendulum: "💠",
   Token: "🐏",
+  NormalSummonOnly: "🔲",
+  Test: "⚠",
 };
 export const monsterAttributes = ["Light", "Dark", "Earth", "Water", "Fire", "Wind", "Divine"] as const;
 export type TMonsterAttribute = (typeof monsterAttributes)[number];

@@ -97,15 +97,19 @@ export class Duel {
     this.priorityHolder = this.firstPlayer;
     this._chainBlockInfos = [];
     this.field = new DuelField(this);
-    this.clock.onTotalProcSeqChange.append(this.field.procFilterPool.distributeAll);
-    this.clock.onTotalProcSeqChange.append(this.field.cardRelationPool.distributeAll);
-    this.clock.onTotalProcSeqChange.append(this.field.numericStateOperatorPool.distributeAll);
-    this.clock.onTotalProcSeqChange.append(() => this.field.numericStateOperatorPool.calcStateAll(this));
+    this.clock.onTotalProcSeqChange.append(this.distributeOperators);
 
     this.view = new DuelViewController(this);
     this.log = new DuelLog(this);
     this.cardActionLog = new DuelCardActionLog(this);
   }
+
+  public readonly distributeOperators = () => {
+    this.field.procFilterPool.distributeAll();
+    this.field.cardRelationPool.distributeAll();
+    this.field.numericStateOperatorPool.distributeAll();
+    this.field.numericStateOperatorPool.calcStateAll(this);
+  };
 
   public readonly getTurnPlayer = (): Duelist => {
     return this.clock.turn % 2 === 0 ? this.secondPlayer : this.firstPlayer;
@@ -289,7 +293,12 @@ export class Duel {
       // フェイズ移行前に、相手に優先権が移る。
       if (nextPhase) {
         this.priorityHolder = this.getNonTurnPlayer();
-        const action = await this.view.waitQuickEffect(this.getEnableActions(["QuickEffect", "TriggerEffect"], ["Quick", "Counter"], []), "", true);
+        const action = await this.view.waitQuickEffect(
+          this.priorityHolder,
+          this.getEnableActions(["QuickEffect", "TriggerEffect"], ["Quick", "Counter"], []),
+          "",
+          true
+        );
 
         // 相手が行動した場合、フェイズ移行はキャンセル。
         if (action) {
@@ -509,6 +518,7 @@ export class Duel {
       while (skipCount < 2) {
         this.priorityHolder = this.priorityHolder.getOpponentPlayer();
         const action = await this.view.waitQuickEffect(
+          this.priorityHolder,
           this.getEnableActions(["QuickEffect", "CardActivation"], ["Quick", "Counter"], this.chainBlockInfos),
           "クイックエフェクト発動タイミング。効果を発動しますか？",
           true
@@ -542,7 +552,7 @@ export class Duel {
       }
 
       // 対象に取っていた場合、ログを出力
-      if (chainBlockInfo.selectedEntities) {
+      if (chainBlockInfo.selectedEntities.length) {
         this.log.info(`対象⇒${chainBlockInfo.selectedEntities.map((e) => e.toString()).join(" ")}`);
       }
 
@@ -624,7 +634,7 @@ export class Duel {
           }
 
           // 任意効果の場合、スキップ可能
-          const _action = await this.view.waitQuickEffect(effects, "効果を選択。", triggerType === "TriggerEffect");
+          const _action = await this.view.waitQuickEffect(this.priorityHolder, effects, "効果を選択。", triggerType === "TriggerEffect");
 
           if (_action) {
             return _action;

@@ -187,7 +187,10 @@ export class DuelField {
     }
 
     this.duel.log.info(
-      `${entities.map((e) => e.status.name).join(", ")}をリリース（${[...new Set(entities.flatMap((e) => e.wasMovedAs))].join(", ")}）。`,
+      `${entities.map((e) => e.status.name).join(", ")}をリリース（${entities
+        .flatMap((e) => e.moveLog.latestRecord.movedAs)
+        .getDistinct()
+        .join(", ")}）。`,
       chooser
     );
     return entities;

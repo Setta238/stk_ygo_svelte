@@ -109,9 +109,9 @@
                       </div>
                       <div style="flex-grow: 1; width:0.1rem"></div>
                       <div>
-                        {#if cardInfo.attack !== undefined}
-                          <span> {cardInfo.attack}</span> /
-                          <span style="display: inline-block;width:2rem;text-align: right;">{cardInfo.defense ?? "-"}</span>
+                        {#if cardInfo.kind === "Monster"}
+                          <span> {cardInfo.attack ?? "?"}</span> /
+                          <span style="display: inline-block;width:2rem;text-align: right;">{cardInfo.defense ?? "?"}</span>
                         {/if}
                       </div>
                     </div>

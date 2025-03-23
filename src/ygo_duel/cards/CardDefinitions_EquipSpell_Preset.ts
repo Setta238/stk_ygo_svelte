@@ -59,7 +59,7 @@ export const createCardDefinitions_EquipSpell_Preset = (): CardDefinition[] => {
               .filter((monster) => monster.face === "FaceUp")
               .filter((monster) => monster.canBeTargetOfEffect(action.entity.controller, action.entity, action as CardAction<unknown>))
               .filter((monster) => !item.attr || monster.attr.includes(item.attr))
-              .filter((monster) => !item.monType || monster.type.includes(item.monType));
+              .filter((monster) => !item.monType || monster.types.includes(item.monType));
 
             return monsters.length ? defaultSpellTrapValidate(action) : undefined;
           },
@@ -69,7 +69,7 @@ export const createCardDefinitions_EquipSpell_Preset = (): CardDefinition[] => {
               .filter((monster) => monster.face === "FaceUp")
               .filter((monster) => monster.canBeTargetOfEffect(action.entity.controller, action.entity, action as CardAction<unknown>))
               .filter((monster) => !item.attr || monster.attr.includes(item.attr))
-              .filter((monster) => !item.monType || monster.type.includes(item.monType));
+              .filter((monster) => !item.monType || monster.types.includes(item.monType));
 
             const targets = await action.entity.duel.view.waitSelectEntities(
               action.entity.controller,
@@ -103,6 +103,7 @@ export const createCardDefinitions_EquipSpell_Preset = (): CardDefinition[] => {
               "EquipTarget",
               () => true,
               source,
+              {},
               () => true
             ),
           ]
@@ -128,13 +129,13 @@ export const createCardDefinitions_EquipSpell_Preset = (): CardDefinition[] => {
                 (spawner, target) =>
                   target.isOnField &&
                   target.face === "FaceUp" &&
-                  (!item.monType || target.type.includes(item.monType)) &&
+                  (!item.monType || target.types.includes(item.monType)) &&
                   (!item.attr || target.attr.includes(item.attr)),
                 targetState,
                 "current",
                 "Addition",
                 (spawner, monster, current) => {
-                  if (!spawner.status.isEffective) {
+                  if (!spawner.isEffective) {
                     return current;
                   }
                   return current + point;

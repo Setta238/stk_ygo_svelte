@@ -76,12 +76,12 @@ export const createCardDefinitions_FieldSpell_Preset = (): CardDefinition[] => {
                     monster.isOnField &&
                     monster.face === "FaceUp" &&
                     (monster.status.monsterCategories ?? false) &&
-                    item[updown].some((t) => t === monster.status.type),
+                    item[updown].union(monster.types).length > 0,
                   state,
                   "current",
                   "Addition",
                   (spawner, monster, current) => {
-                    if (!spawner.status.isEffective) {
+                    if (!spawner.isEffective) {
                       return current;
                     }
                     if (monster.face === "FaceDown") {
@@ -157,7 +157,7 @@ export const createCardDefinitions_FieldSpell_Preset = (): CardDefinition[] => {
                 "current",
                 "Addition",
                 (spawner, monster, current) => {
-                  if (!spawner.status.isEffective) {
+                  if (!spawner.isEffective) {
                     return current;
                   }
                   if (monster.face === "FaceDown") {

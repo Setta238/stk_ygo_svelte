@@ -37,12 +37,12 @@ export const createCardDefinitions_ContinuousSpell_Preset = (): CardDefinition[]
               "発動",
               (spawner) => spawner.isOnField && spawner.face === "FaceUp",
               entity,
-              (spawner, target) => target.controller === spawner.controller && target.type.includes("Warrior") && target.isOnField && target.face === "FaceUp",
+              (spawner, target) => target.controller === spawner.controller && target.types.includes("Warrior") && target.isOnField && target.face === "FaceUp",
               "attack",
               "current",
               "Addition",
               (spawner, monster, current) => {
-                if (!spawner.status.isEffective) {
+                if (!spawner.isEffective) {
                   return current;
                 }
                 if (monster.face === "FaceDown") {
@@ -51,7 +51,7 @@ export const createCardDefinitions_ContinuousSpell_Preset = (): CardDefinition[]
                 const qty = spawner.controller
                   .getMonstersOnField()
                   .filter((m) => m.face === "FaceUp")
-                  .filter((m) => m.type.includes("Warrior") || m.type.includes("Spellcaster")).length;
+                  .filter((m) => m.types.includes("Warrior") || m.types.includes("Spellcaster")).length;
                 return current + qty * 200;
               }
             ),

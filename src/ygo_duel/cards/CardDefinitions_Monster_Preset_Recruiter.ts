@@ -138,7 +138,7 @@ export const createCardDefinitions_Monster_Preset_Recruiter = (): CardDefinition
     },
     {
       name: "荒野の女戦士",
-      filter: (card: DuelEntity) => card.attr.includes("Earth") && card.type.includes("Warrior") && (card.atk ?? 9999) <= 1500,
+      filter: (card: DuelEntity) => card.attr.includes("Earth") && card.types.includes("Warrior") && (card.atk ?? 9999) <= 1500,
       qtyList: [1],
       posList: ["Attack"] as TBattlePosition[],
       destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
@@ -146,7 +146,7 @@ export const createCardDefinitions_Monster_Preset_Recruiter = (): CardDefinition
     },
     {
       name: "リトル・トルーパー",
-      filter: (card: DuelEntity) => card.type.includes("Warrior") && (card.lvl ?? 9999) < 3,
+      filter: (card: DuelEntity) => card.types.includes("Warrior") && (card.lvl ?? 9999) < 3,
       qtyList: [1],
       posList: ["Set"] as TBattlePosition[],
       destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
@@ -154,7 +154,7 @@ export const createCardDefinitions_Monster_Preset_Recruiter = (): CardDefinition
     },
     {
       name: "破面竜",
-      filter: (card: DuelEntity) => card.type.includes("Warrior") && (card.def ?? 9999) <= 1500,
+      filter: (card: DuelEntity) => card.types.includes("Warrior") && (card.def ?? 9999) <= 1500,
       qtyList: [1],
       posList: ["Attack", "Defense"] as TBattlePosition[],
       destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
@@ -162,7 +162,7 @@ export const createCardDefinitions_Monster_Preset_Recruiter = (): CardDefinition
     },
     {
       name: "共鳴虫",
-      filter: (card: DuelEntity) => card.type.includes("Insect") && (card.atk ?? 9999) <= 1500,
+      filter: (card: DuelEntity) => card.types.includes("Insect") && (card.atk ?? 9999) <= 1500,
       qtyList: [1],
       posList: ["Attack", "Defense"] as TBattlePosition[],
       destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
@@ -170,7 +170,7 @@ export const createCardDefinitions_Monster_Preset_Recruiter = (): CardDefinition
     },
     {
       name: "ピラミッド・タートル",
-      filter: (card: DuelEntity) => card.type.includes("Zombie") && (card.def ?? 9999) <= 2000,
+      filter: (card: DuelEntity) => card.types.includes("Zombie") && (card.def ?? 9999) <= 2000,
       qtyList: [1],
       posList: ["Attack", "Defense"] as TBattlePosition[],
       destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
@@ -178,7 +178,7 @@ export const createCardDefinitions_Monster_Preset_Recruiter = (): CardDefinition
     },
     {
       name: "ユーフォロイド",
-      filter: (card: DuelEntity) => card.type.includes("Machine") && (card.atk ?? 9999) <= 1500,
+      filter: (card: DuelEntity) => card.types.includes("Machine") && (card.atk ?? 9999) <= 1500,
       qtyList: [1],
       posList: ["Attack"] as TBattlePosition[],
       destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
@@ -186,7 +186,7 @@ export const createCardDefinitions_Monster_Preset_Recruiter = (): CardDefinition
     },
     {
       name: "ヘル・セキュリティ",
-      filter: (card: DuelEntity) => card.type.includes("Fiend") && (card.lvl ?? 9999) === 1,
+      filter: (card: DuelEntity) => card.types.includes("Fiend") && (card.lvl ?? 9999) === 1,
       qtyList: [1],
       posList: ["Attack", "Defense"] as TBattlePosition[],
       destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],

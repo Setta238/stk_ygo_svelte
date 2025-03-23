@@ -2,6 +2,7 @@ import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { StickyEffectOperatorBase, StickyEffectOperatorBundle, StickyEffectOperatorPool } from "@ygo_duel/class_continuous_effect/DuelStickyEffectOperatorBase";
 import { Duel, SystemError } from "@ygo_duel/class/Duel";
 import { entityFlexibleStatusKeys, type TEntityFlexibleStatusGen, type TEntityFlexibleStatusKey } from "@ygo/class/YgoTypes";
+import type { CardActionBaseAttr, TEffectActiovationType } from "@ygo_duel/class/DuelCardAction";
 
 export const stateOperationTypes = ["Addition", "Fixation", "THE_DEVILS_DREAD-ROOT", "THE_DEVILS_AVATAR", "Gradius'_Option"] as const;
 type TStateOperationType = (typeof stateOperationTypes)[number];
@@ -35,7 +36,7 @@ const minValueDic: { [key in TEntityFlexibleStatusKey]: number } = {
 //    邪神アバター、邪神ドレッド・ルート、オプション、オプション・トークン                             枠外
 
 export class NumericStateOperatorPool extends StickyEffectOperatorPool<NumericStateOperator, NumericStateOperatorBundle> {
-  public readonly calcStateAll = (duel: Duel): void => {
+  public readonly afterDistributeAll = (duel: Duel) => {
     // 全てのステータスを再計算
     this.bundles.forEach((bundle) => bundle.calcStateAll());
 
@@ -72,20 +73,22 @@ export class NumericStateOperatorPool extends StickyEffectOperatorPool<NumericSt
           }
 
           if (ope.stateOperationType === "Gradius'_Option") {
-            monster.status.calculated[ope.targetState] = gradius?.status.calculated[ope.targetState] ?? 0;
+            monster.numericStatus.calculated[ope.targetState] = gradius?.numericStatus.calculated[ope.targetState] ?? 0;
             return;
           }
           if (ope.stateOperationType === "THE_DEVILS_AVATAR") {
-            monster.status.calculated[ope.targetState] = maxAtk + 100;
+            monster.numericStatus.calculated[ope.targetState] = maxAtk + 100;
             return;
           }
           if (ope.stateOperationType === "THE_DEVILS_DREAD-ROOT") {
-            monster.status.calculated[ope.targetState] = ope.calcValue(ope.isSpawnedBy, monster, monster.status.calculated[ope.targetState] ?? 0);
+            monster.numericStatus.calculated[ope.targetState] = ope.calcValue(ope.isSpawnedBy, monster, monster.numericStatus.calculated[ope.targetState] ?? 0);
             return;
           }
         });
       });
     }
+
+    return true;
   };
 }
 export class NumericStateOperatorBundle extends StickyEffectOperatorBundle<NumericStateOperator> {
@@ -112,17 +115,17 @@ export class NumericStateOperatorBundle extends StickyEffectOperatorBundle<Numer
     // カード記載の攻撃力
     const originState = (this.entity.origin[ope.targetState] as number) ?? 0;
     // 元々の攻撃力
-    const originStateWIP = this.entity.status["origin"][ope.targetState] ?? 0;
+    const originStateWIP = this.entity.numericStatus["origin"][ope.targetState] ?? 0;
     // 永続効果適用前の攻撃力
-    const currentStateWIP = this.entity.status["current"][ope.targetState] ?? 0;
+    const currentStateWIP = this.entity.numericStatus["current"][ope.targetState] ?? 0;
     // 永続効果適用後の攻撃力（※前回計算時）
-    const currentState = this.entity.status["calculated"][ope.targetState] ?? 0;
+    const currentState = this.entity.numericStatus["calculated"][ope.targetState] ?? 0;
     // 現在支配的なオペレータ
     const domiOpe = this.dominantOperators[ope.targetState];
 
     // 邪神ドレッド・ルートの場合、現在値を半分にして終了
     if (ope.stateOperationType === "THE_DEVILS_DREAD-ROOT") {
-      this.entity.status["calculated"][ope.targetState] = ope.calcValue(ope.isSpawnedBy, this.entity, currentState);
+      this.entity.numericStatus["calculated"][ope.targetState] = ope.calcValue(ope.isSpawnedBy, this.entity, currentState);
       return;
     }
 
@@ -135,10 +138,10 @@ export class NumericStateOperatorBundle extends StickyEffectOperatorBundle<Numer
       // その場で加算
       if (!ope.isContinuous) {
         // L-A
-        this.entity.status["current"][ope.targetState] = ope.calcValue(ope.isSpawnedBy, this.entity, currentStateWIP);
+        this.entity.numericStatus["current"][ope.targetState] = ope.calcValue(ope.isSpawnedBy, this.entity, currentStateWIP);
       }
 
-      this.entity.status["calculated"][ope.targetState] = ope.calcValue(ope.isSpawnedBy, this.entity, currentStateWIP);
+      this.entity.numericStatus["calculated"][ope.targetState] = ope.calcValue(ope.isSpawnedBy, this.entity, currentStateWIP);
       return;
     }
 
@@ -150,17 +153,17 @@ export class NumericStateOperatorBundle extends StickyEffectOperatorBundle<Numer
       //    ※支配的な効果がL-Fの場合、情報が破壊されているためリセットの必要があるのだと思われる
       if (domiOpe && !domiOpe.isContinuous && domiOpe.targetStateGen !== "current") {
         // 例外１ or 例外２の場合、現在値も書き換え。
-        this.entity.status["current"][ope.targetState] = tmp;
+        this.entity.numericStatus["current"][ope.targetState] = tmp;
         // 支配的な効果を一旦undefinedに
         this.dominantOperators[ope.targetState] = undefined;
       }
-      this.entity.status["origin"][ope.targetState] = tmp;
+      this.entity.numericStatus["origin"][ope.targetState] = tmp;
       // 支配的な効果がundefinedにであれば、支配的な効果を更新
       this.dominantOperators[ope.targetState] = domiOpe ?? ope;
     } else if (ope.isContinuous) {
       // 永続型の固定値タイプのうち、現在値を書き換え(C-F)
       //   ※下と違い、常に再計算の可能性があるため、永続的な加算減算と共存でき、固定にならなず例外３が発生するのだと思われる。
-      this.entity.status["current"][ope.targetState] = ope.calcValue(ope.isSpawnedBy, this.entity, originStateWIP);
+      this.entity.numericStatus["current"][ope.targetState] = ope.calcValue(ope.isSpawnedBy, this.entity, originStateWIP);
 
       // 支配的な効果を更新
       this.dominantOperators[ope.targetState] = ope;
@@ -168,7 +171,7 @@ export class NumericStateOperatorBundle extends StickyEffectOperatorBundle<Numer
       // 発動型の固定値タイプのうち、現在値を書き換え(L-F)
       //   ※ゲイル、ブラックガーデンなどのタイプ。色々計算したあとの現在の値を書き換えるため、値が固定になる。
       //   ※多分この際に情報が破壊され、これが例外１と例外２の原因となったと思われる。
-      this.entity.status["current"][ope.targetState] = ope.calcValue(ope.isSpawnedBy, this.entity, currentState);
+      this.entity.numericStatus["current"][ope.targetState] = ope.calcValue(ope.isSpawnedBy, this.entity, currentState);
       // 支配的な効果を更新
       this.dominantOperators[ope.targetState] = ope;
     }
@@ -178,65 +181,62 @@ export class NumericStateOperatorBundle extends StickyEffectOperatorBundle<Numer
 
   public readonly calcState = (targetState: TEntityFlexibleStatusKey): void => {
     if (this.entity.status.kind !== "Monster") {
-      this.entity.status.calculated[targetState] = undefined;
+      this.entity.numericStatus.calculated[targetState] = undefined;
       return;
     }
 
     if (!this.entity.status.monsterCategories) {
-      this.entity.status.calculated[targetState] = undefined;
+      this.entity.numericStatus.calculated[targetState] = undefined;
       return;
     }
 
     // TODO 検討⇒連想配列で定義したほうがいいかも？
     // リンクモンスターは攻撃力以外持たない
     if (this.entity.status.monsterCategories.includes("Link") && targetState !== "attack") {
-      this.entity.status.calculated[targetState] = undefined;
+      this.entity.numericStatus.calculated[targetState] = undefined;
       return;
     }
 
     // エクシーズモンスターはレベルを持たない
     if (this.entity.status.monsterCategories.includes("Xyz") && targetState === "level") {
-      this.entity.status.calculated[targetState] = undefined;
+      this.entity.numericStatus.calculated[targetState] = undefined;
       return;
     }
 
     // エクシーズモンスター以外はランクを持たない
     if (!this.entity.status.monsterCategories.includes("Xyz") && targetState === "rank") {
-      this.entity.status.calculated[targetState] = undefined;
+      this.entity.numericStatus.calculated[targetState] = undefined;
       return;
     }
 
     // ペンデュラムモンスター以外はペンデュラムスケールを持たない
     if (!this.entity.status.monsterCategories.includes("Pendulum") && (targetState === "pendulumScaleL" || targetState === "pendulumScaleR")) {
-      this.entity.status.calculated[targetState] = undefined;
+      this.entity.numericStatus.calculated[targetState] = undefined;
       return;
     }
 
     // レベル以外のステータスは、フィールドでのみ計算する。
     if (targetState !== "level" && !this.entity.isOnField) {
-      this.entity.status.origin[targetState] = this.entity.origin[targetState];
-      this.entity.status.current[targetState] = this.entity.origin[targetState];
-      this.entity.status.calculated[targetState] = this.entity.origin[targetState];
+      this.entity.numericStatus.origin[targetState] = this.entity.origin[targetState];
+      this.entity.numericStatus.current[targetState] = this.entity.origin[targetState];
+      this.entity.numericStatus.calculated[targetState] = this.entity.origin[targetState];
       return;
     }
 
     // 対象ステータスのオペレータを抽出
     const opeList = this._operators.filter((ope) => ope.targetState === targetState);
     // 邪神アバター、オプション類の場合、計算を一度スキップする
-    if (
-      opeList.some((ope) => ope.stateOperationType === "THE_DEVILS_AVATAR" || ope.stateOperationType === "Gradius'_Option") &&
-      this.entity.status.isEffective
-    ) {
-      this.entity.status.calculated[targetState] = -Number.MAX_VALUE;
+    if (opeList.some((ope) => ope.stateOperationType === "THE_DEVILS_AVATAR" || ope.stateOperationType === "Gradius'_Option") && this.entity.isEffective) {
+      this.entity.numericStatus.calculated[targetState] = -Number.MAX_VALUE;
       return;
     }
 
     // 現在支配的なオペレータ
     const domiOpe = this.dominantOperators[targetState];
     // 現在の元々の値
-    const originStateWIP = this.entity.status.origin[targetState] ?? 0;
+    const originStateWIP = this.entity.numericStatus.origin[targetState] ?? 0;
     // 現在値（永続適用前）
-    let currentValue = this.entity.status.current[targetState] ?? 0;
+    let currentValue = this.entity.numericStatus.current[targetState] ?? 0;
     // 再計算の起点
     let startIndex = -1;
     if (domiOpe) {
@@ -273,7 +273,7 @@ export class NumericStateOperatorBundle extends StickyEffectOperatorBundle<Numer
     }
 
     //結果を投入
-    this.entity.status.calculated[targetState] = wip;
+    this.entity.numericStatus.calculated[targetState] = wip;
   };
 }
 export class NumericStateOperator extends StickyEffectOperatorBase {
@@ -288,19 +288,33 @@ export class NumericStateOperator extends StickyEffectOperatorBase {
     stateOperationType: TStateOperationType,
     calcValue: (spawner: DuelEntity, target: DuelEntity, current: number) => number
   ) => {
-    return new NumericStateOperator(title, validateAlive, true, isSpawnedBy, isApplicableTo, targetState, targetStateGen, stateOperationType, calcValue);
+    return new NumericStateOperator(title, validateAlive, true, isSpawnedBy, {}, isApplicableTo, targetState, targetStateGen, stateOperationType, calcValue);
   };
   public static readonly createLingering = (
     title: string,
     validateAlive: (spawner: DuelEntity) => boolean,
     isSpawnedBy: DuelEntity,
+    activateType: TEffectActiovationType,
+    actionAttr: Partial<CardActionBaseAttr>,
+
     isApplicableTo: (spawner: DuelEntity, target: DuelEntity) => boolean,
     targetState: TEntityFlexibleStatusKey,
     targetStateGen: TEntityFlexibleStatusGen,
     stateOperationType: TStateOperationType,
     value: number
   ) => {
-    return new NumericStateOperator(title, validateAlive, false, isSpawnedBy, isApplicableTo, targetState, targetStateGen, stateOperationType, () => value);
+    return new NumericStateOperator(
+      title,
+      validateAlive,
+      false,
+      isSpawnedBy,
+      actionAttr,
+      isApplicableTo,
+      targetState,
+      targetStateGen,
+      stateOperationType,
+      () => value
+    );
   };
 
   public readonly targetState: TEntityFlexibleStatusKey;
@@ -313,13 +327,15 @@ export class NumericStateOperator extends StickyEffectOperatorBase {
     validateAlive: (spawner: DuelEntity) => boolean,
     isContinuous: boolean,
     isSpawnedBy: DuelEntity,
+    actionAttr: Partial<CardActionBaseAttr>,
+
     isApplicableTo: (spawner: DuelEntity, target: DuelEntity) => boolean,
     targetState: TEntityFlexibleStatusKey,
     targetStateGen: TEntityFlexibleStatusGen,
     stateOperationType: TStateOperationType,
     calcValue: (spawner: DuelEntity, target: DuelEntity, current: number) => number
   ) {
-    super(title, validateAlive, isContinuous, isSpawnedBy, isApplicableTo);
+    super(title, validateAlive, isContinuous, isSpawnedBy, actionAttr, isApplicableTo);
     this.targetState = targetState;
     this.targetStateGen = targetStateGen;
     this.stateOperationType = stateOperationType;

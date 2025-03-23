@@ -28,7 +28,7 @@ export class DuelEntityLog {
     return this._records.findLast((rec) => rec.cell.cellType !== this.entity.fieldCell.cellType) ?? this._records[0];
   }
   public get currentProcRecords() {
-    return this._records.filter((rec) => rec.movedAt.procTotalSeq === this.entity.duel.clock.procTotalSeq);
+    return this._records.filter((rec) => rec.movedAt.totalProcSeq === this.entity.duel.clock.totalProcSeq);
   }
 
   public constructor(entity: DuelEntity) {

@@ -1,10 +1,11 @@
 import type { Duelist } from "@ygo_duel/class/Duelist";
-import { SystemError } from "../class/Duel";
+import { Duel, SystemError } from "../class/Duel";
 import type { DuelEntity } from "../class/DuelEntity";
+import type { CardActionBaseAttr, TEffectActiovationType } from "@ygo_duel/class/DuelCardAction";
 export interface IOperatorPool<OPE extends StickyEffectOperatorBase> {
   push: (ope: OPE) => void;
   append(bundle: StickyEffectOperatorBundle<OPE>): void; // NOTE error回避のため、bivariantになるメソッド記法で定義
-  removeItem: (isSpawnedBy: DuelEntity, title: string) => void;
+  removeItem: (seq: number) => void;
   excludesExpired: () => void;
 }
 export abstract class StickyEffectOperatorPool<OPE extends StickyEffectOperatorBase, Bundle extends StickyEffectOperatorBundle<OPE>> {
@@ -13,7 +14,9 @@ export abstract class StickyEffectOperatorPool<OPE extends StickyEffectOperatorB
   protected bundles: Bundle[] = [];
 
   public readonly excludesExpired = () => {
+    // 消滅済のエンティティのバンドルを除去
     this.bundles = this.bundles.filter((bundle) => !bundle.entity.hasDisappeared);
+
     this.bundles.forEach((bundle) => bundle.excludesExpired());
     this.pooledOperators = this.pooledOperators.filter((ope) => ope.validateAlive(ope.isSpawnedBy));
   };
@@ -41,7 +44,7 @@ export abstract class StickyEffectOperatorPool<OPE extends StickyEffectOperatorB
     this.pooledOperators.push(ope);
   };
 
-  public readonly distributeAll = () => {
+  public readonly distributeAll = (duel: Duel): boolean => {
     // 追加の前に、期限切れを削除
     this.excludesExpired();
 
@@ -50,7 +53,12 @@ export abstract class StickyEffectOperatorPool<OPE extends StickyEffectOperatorB
     // ソートは不要？
     //       .getDistinct();
     //        .forEach((bundle) => bundle._operators.sort((left, right) => left.seq - right.seq));
+
+    return this.afterDistributeAll(duel);
   };
+
+  protected abstract readonly afterDistributeAll: (duel: Duel) => boolean;
+
   public readonly distribute = (ope: OPE) => {
     console.log(this, ope);
 
@@ -64,8 +72,8 @@ export abstract class StickyEffectOperatorPool<OPE extends StickyEffectOperatorB
       });
   };
 
-  public readonly removeItem = (spawner: DuelEntity, title: string): void => {
-    this.pooledOperators = this.pooledOperators.filter((ope) => ope.isSpawnedBy !== spawner && ope.title !== title);
+  public readonly removeItem = (seq: number): void => {
+    this.pooledOperators = this.pooledOperators.filter((ope) => ope.seq !== seq);
   };
 }
 export abstract class StickyEffectOperatorBundle<OPE extends StickyEffectOperatorBase> {
@@ -74,6 +82,7 @@ export abstract class StickyEffectOperatorBundle<OPE extends StickyEffectOperato
 
   // 各エンティティに適用されたオペレータ
   protected _operators: OPE[];
+
   public get operators() {
     return this._operators;
   }
@@ -89,7 +98,7 @@ export abstract class StickyEffectOperatorBundle<OPE extends StickyEffectOperato
     this._operators = this._operators.filter((ope) => {
       const isAlive = ope.validateAlive(ope.isSpawnedBy) && ope.isApplicableTo(ope.isSpawnedBy, this.entity);
       if (!isAlive) {
-        console.log(this);
+        console.info(`before remove ${this.entity.toString} ${ope.title}`);
         ope.beforeRemove();
       }
       return isAlive;
@@ -98,16 +107,39 @@ export abstract class StickyEffectOperatorBundle<OPE extends StickyEffectOperato
   protected abstract readonly beforePush: (ope: OPE) => void;
 
   public readonly push = (ope: OPE) => {
+    // ProcFilterで弾かれる場合は追加しない。
+    console.log("push");
+    console.log(this.entity.procFilterBundle.operators);
+    console.log(this.entity.procFilterBundle.operators.filter((ope) => ope.procTypes.includes("Effect")));
+    console.log(
+      this.entity.procFilterBundle.operators
+        .filter((ope) => ope.procTypes.includes("Effect"))
+        .some((ope) => !ope.filter(ope.effectOwner, ope.isSpawnedBy, ope.actionAttr, []))
+    );
+
+    if (
+      this.entity.procFilterBundle.operators
+        .filter((ope) => ope.procTypes.includes("Effect"))
+        .some((ope) => !ope.filter(ope.effectOwner, ope.isSpawnedBy, ope.actionAttr, []))
+    ) {
+      return;
+    }
+    console.log("push");
+
     this.beforePush(ope);
+
+    console.log("push");
     this._operators.push(ope);
   };
 
-  public readonly removeItem = (spawner: DuelEntity, title: string): void => {
+  public readonly removeItem = (seq: number): void => {
     this._operators = this._operators.filter((ope) => {
-      const flg = ope.isSpawnedBy !== spawner && ope.title !== title;
+      if (ope.seq !== seq) {
+        return true;
+      }
       ope.beforeRemove();
 
-      return flg;
+      return false;
     });
   };
 }
@@ -120,6 +152,8 @@ export abstract class StickyEffectOperatorBase {
   public readonly validateAlive: (spawner: DuelEntity) => boolean;
   public readonly isContinuous: boolean;
   public readonly isSpawnedBy: DuelEntity;
+  public readonly activateType: TEffectActiovationType;
+  public readonly actionAttr: Partial<CardActionBaseAttr>;
   public readonly isApplicableTo: (spawner: DuelEntity, target: DuelEntity) => boolean;
   public readonly effectOwner: Duelist;
   public abstract readonly beforeRemove: () => void;
@@ -129,6 +163,7 @@ export abstract class StickyEffectOperatorBase {
     validateAlive: (spawner: DuelEntity) => boolean,
     isContinuous: boolean,
     isSpawnedBy: DuelEntity,
+    actionAttr: Partial<CardActionBaseAttr>,
     isApplicableTo: (spawner: DuelEntity, target: DuelEntity) => boolean
   ) {
     this.seq = StickyEffectOperatorBase.nextSeq++;
@@ -137,6 +172,15 @@ export abstract class StickyEffectOperatorBase {
     this.isContinuous = isContinuous;
     this.isSpawnedBy = isSpawnedBy;
     this.isApplicableTo = isApplicableTo;
+    this.actionAttr = actionAttr;
+    this.activateType = "NonActivate";
+    if (this.actionAttr.playType) {
+      if (this.actionAttr.playType === "CardActivation") {
+        this.activateType = "CardActivation";
+      } else {
+        this.activateType = "EffectActivation";
+      }
+    }
     this.effectOwner = this.isSpawnedBy.controller;
   }
 }

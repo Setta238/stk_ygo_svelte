@@ -77,6 +77,7 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
               "EquipTarget",
               () => true,
               source,
+              {},
               () => true
             ),
           ]
@@ -97,7 +98,7 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
                 "current",
                 "Addition",
                 (spawner, monster, current) => {
-                  if (!spawner.status.isEffective) {
+                  if (!spawner.isEffective) {
                     return current;
                   }
                   const qty = spawner.controller.getEntiteisOnField().filter((card) => item.kind.includes(card.status.kind)).length;
@@ -186,6 +187,7 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
             "EquipTarget",
             () => true,
             source,
+            {},
             () => true,
             (relation) => {
               if (!relation.target.isOnField) {
@@ -195,7 +197,7 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
                 return true;
               }
               if (relation.isSpawnedBy.moveLog.currentProcRecords.flatMap((rec) => rec.movedAs).find((reason) => reason === "Destroy")) {
-                relation.target.tryDestory("EffectDestroy", relation.effectOwner, relation.isSpawnedBy, undefined);
+                relation.target.tryDestory("EffectDestroy", relation.effectOwner, relation.isSpawnedBy, {});
               }
 
               return true;

@@ -1,18 +1,18 @@
-import {} from "@stk_utils/funcs/StkArrayUtils";
-import { type TBattlePosition } from "@ygo/class/YgoTypes";
-import { destoryCauseReasonDic, DuelEntity, posToSummonPos, type TDestoryCauseReason, type TSummonRuleCauseReason } from "./DuelEntity";
-import type { Duelist } from "./Duelist";
-import type { CardAction } from "./DuelCardAction";
+import type { TBattlePosition } from "@ygo/class/YgoTypes";
 import { SystemError } from "./Duel";
+import type { CardActionBaseAttr, CardAction } from "./DuelCardAction";
+import { DuelEntity, type TSummonRuleCauseReason, posToSummonPos, type TDestoryCauseReason, destoryCauseReasonDic } from "./DuelEntity";
+import type { Duelist } from "./Duelist";
 
 declare module "./DuelEntity" {
   interface DuelEntity {
     hasBeenSummonedNow(summonRules: TSummonRuleCauseReason[], posList?: TBattlePosition[]): boolean;
-    canBeTargetOfEffect(activator: Duelist, causedBy: DuelEntity, action: CardAction<unknown>): boolean;
-    canBeSpecialSummoned(summmonRule: TSummonRuleCauseReason, activator: Duelist, causedBy: DuelEntity, action: CardAction<unknown>): boolean;
-    canBeTargetOfBattle(activator: Duelist, entity: DuelEntity, action: CardAction<unknown>): boolean;
-    tryDestory(destroyType: TDestoryCauseReason, activator: Duelist, entity: DuelEntity, action: CardAction<unknown> | undefined): boolean;
-    canBeMaterials(summmonRule: TSummonRuleCauseReason, action: CardAction<unknown>, materials: DuelEntity[]): boolean;
+    canBeEffected(activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionBaseAttr>): boolean;
+    canBeTargetOfEffect(activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionBaseAttr>): boolean;
+    canBeSpecialSummoned(summmonRule: TSummonRuleCauseReason, activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionBaseAttr>): boolean;
+    canBeTargetOfBattle(activator: Duelist, entity: DuelEntity): boolean;
+    tryDestory(destroyType: TDestoryCauseReason, activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionBaseAttr>): boolean;
+    canBeMaterials(summmonRule: TSummonRuleCauseReason, action: Partial<CardActionBaseAttr>, materials: DuelEntity[]): boolean;
     getIndexInCell(): number;
   }
   interface DuelEntityConstructor {
@@ -34,6 +34,13 @@ DuelEntity.prototype.hasBeenSummonedNow = function (summonRules: TSummonRuleCaus
     return false;
   }
   return true;
+};
+
+DuelEntity.prototype.canBeEffected = function (activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionBaseAttr>): boolean {
+  const entity = this as DuelEntity;
+  return entity.procFilterBundle.operators
+    .filter((pf) => pf.procTypes.some((t) => t === "Effect"))
+    .every((pf) => pf.filter(activator, causedBy, action, [this]));
 };
 
 DuelEntity.prototype.canBeTargetOfEffect = function (activator: Duelist, causedBy: DuelEntity, action: CardAction<unknown>): boolean {
@@ -70,22 +77,24 @@ DuelEntity.prototype.canBeSpecialSummoned = function (
     .every((pf) => pf.filter(activator, causedBy, action, [entity]));
 };
 
-DuelEntity.prototype.canBeTargetOfBattle = function (activator: Duelist, causedBy: DuelEntity, action: CardAction<unknown>): boolean {
+DuelEntity.prototype.canBeTargetOfBattle = function (activator: Duelist, causedBy: DuelEntity): boolean {
   const entity = this as DuelEntity;
   return entity.procFilterBundle.operators
     .filter((pf) => pf.procTypes.some((t) => t === "BattleTarget"))
-    .every((pf) => pf.filter(activator, causedBy, action, [entity]));
+    .every((pf) => pf.filter(activator, causedBy, {}, [entity]));
 };
+
 DuelEntity.prototype.tryDestory = function (
-  destroyType: TDestoryCauseReason,
+  destroyType: "BattleDestroy" | "EffectDestroy",
   activator: Duelist,
   causedBy: DuelEntity,
-  action: CardAction<unknown> | undefined
+  action: Partial<CardActionBaseAttr>
 ): boolean {
   const entity = this as DuelEntity;
+  console.log(entity);
   entity.info.isDying = entity.procFilterBundle.operators
-    .filter((pf) => pf.procTypes.some((t) => t === destroyType))
-    .every((pf) => pf.filter(activator, causedBy, action, [entity]));
+    .filter((pf) => pf.procTypes.includes(destroyType))
+    .every((pf) => pf.filter(activator, causedBy, action ?? {}, [entity]));
   if (entity.info.isDying) {
     entity.duel.log.info(`${entity.toString()}を${destoryCauseReasonDic[destroyType]}`, causedBy.controller);
     entity.info.causeOfDeath = [destroyType];

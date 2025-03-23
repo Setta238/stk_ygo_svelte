@@ -164,7 +164,7 @@
       {#if entity.status.kind === "Monster"}
         <div class="duel_card_row duel_card_detail">
           <div>
-            {entity.type.map((t) => monsterTypeEmojiDic[t] + (isWideMode ? monsterTypeDic[t] : "")).join()}
+            {entity.types.map((t) => monsterTypeEmojiDic[t] + (isWideMode ? monsterTypeDic[t] : "")).join()}
             {entity.status.monsterCategories?.map((cat) => monsterCategoryEmojiDic[cat] + (isWideMode ? monsterCategoryDic[cat] : "")).join()}
           </div>
         </div>

@@ -57,9 +57,9 @@
               <div class="monster_attr {attr}"></div>
               <div>{monsterAttributeDic[attr]}属性</div>
             {/each}
-            {#if entity.status.type}
-              <div class="monster_cat {entity.status.type}">{monsterTypeEmojiDic[entity.status.type]}{monsterTypeDic[entity.status.type]}族</div>
-            {/if}
+            {#each entity.types as type}
+              <div class="monster_cat {type}">{monsterTypeEmojiDic[type]}{monsterTypeDic[type]}族</div>
+            {/each}
           </div>
           <div class="duel_card_info_row">
             {#each entity.status.monsterCategories ?? [] as cat}

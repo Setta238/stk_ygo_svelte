@@ -150,8 +150,8 @@ export type EntityStatusBase = {
   nameTags?: Array<string>;
   textTags?: Array<string>;
   link?: number;
-  attribute?: TMonsterAttribute;
-  type?: TMonsterType;
+  attributes?: TMonsterAttribute[];
+  types?: TMonsterType[];
   canReborn?: boolean;
   cardId?: number;
   isForTest?: boolean;
@@ -162,9 +162,9 @@ export type EntityStatus = {
   allowHandSyncro: boolean;
   isEffective: boolean;
   isSelectableForAttack: boolean /** falseのモンスターしかいない場合、ダイレクトアタックになる。《伝説のフィッシャーマン》など。 */;
-  needsRecalculate: boolean;
-} & EntityStatusBase & { [key in TEntityFlexibleStatusGen]: FlexibleStatus };
-
+  maxCounterQty: { [key: string]: number };
+} & EntityStatusBase;
+export type EntityNumericStatus = { [key in TEntityFlexibleStatusGen]: FlexibleStatus };
 export type CardInfoDescription = {
   nameKana?: string;
   description?: string;

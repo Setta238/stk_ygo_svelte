@@ -372,7 +372,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
               cards = cards.filter((card) => card.controller !== myInfo.action.entity.controller);
             }
 
-            cards.forEach((card) => card.tryDestory("EffectDestroy", myInfo.activator, myInfo.action.entity, myInfo.action as CardAction<unknown>));
+            cards.forEach((card) => card.tryDestory("EffectDestroy", myInfo.activator, myInfo.action.entity, myInfo.action));
 
             await DuelEntity.waitCorpseDisposal(myInfo.activator.duel);
 

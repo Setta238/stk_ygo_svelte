@@ -4,6 +4,7 @@ import type { CardActionBase } from "@ygo_duel/class/DuelCardAction";
 import { createRegularNumericStateOperatorHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import { spellTrapZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
+import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 
 export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] => {
   const result: CardDefinition[] = [];
@@ -84,9 +85,14 @@ export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] =
           return { selectedEntities: [target], chainBlockTags: action.calcChainBlockTagsForDestroy([target]), prepared: undefined };
         },
         execute: async (myInfo) => {
-          // ブレイカーは最大一個なので、1で上書きする。
-          // 無効になっている場合乗せられないが、そもそもこの処理に入らない
-          myInfo.action.entity.counterHolder.setQty("SpellCounter", 1);
+          if (!myInfo.action.entity.counterHolder.getQty("SpellCounter")) {
+            return;
+          }
+          myInfo.action.entity.counterHolder.remove("SpellCounter", 1);
+
+          myInfo.selectedEntities.forEach((card) => card.tryDestory("EffectDestroy", myInfo.activator, myInfo.action.entity, myInfo.action));
+          await DuelEntity.waitCorpseDisposal(myInfo.activator.duel);
+
           return true;
         },
         settle: async () => true,
@@ -109,7 +115,7 @@ export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] =
               "current",
               "Addition",
               (spawner, target, source) => {
-                if (!spawner.status.isEffective) {
+                if (!spawner.isEffective) {
                   return source;
                 }
                 return source + spawner.counterHolder.getQty("SpellCounter") * 300;

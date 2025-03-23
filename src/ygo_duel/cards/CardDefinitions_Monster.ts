@@ -232,9 +232,11 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
         canExecuteOnDamageStep: true,
         validate: (action: CardAction<undefined>): DuelFieldCell[] | undefined => {
           if (!action.entity.hasBeenSummonedNow(["NormalSummon", "SpecialSummon"])) {
+            console.log("piyo");
             return;
           }
           if (action.entity.controller.getDeckCell().cardEntities.filter((card) => card.attr.includes("Dark")).length === 0) {
+            console.log("piyo");
             return;
           }
           return [];
@@ -508,15 +510,21 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
                 () => true,
                 true,
                 source,
+                {},
                 () => true,
-                ["BattleDestory"],
+                ["BattleDestroy"],
                 (activator, enemy) => {
-                  if (!enemy.status.isEffective) {
+                  console.log("hoge");
+                  if (!source.isEffective) {
+                    console.log("hoge");
                     return true;
                   }
+                  console.log("hoge");
                   if ((enemy.atk ?? 0) < 1900) {
+                    console.log("hoge");
                     return true;
                   }
+                  console.log("hoge");
                   source.duel.log.info(`${source.toString()}は攻撃力1900以上のモンスターとの先頭では破壊されない。`, source.controller);
                   return false;
                 }

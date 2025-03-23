@@ -12,6 +12,7 @@ import {
   getSubsetAsEntityStatusBase,
   entityFlexibleStatusKeys,
   type TEntityFlexibleStatusKey,
+  type EntityNumericStatus,
 } from "@ygo/class/YgoTypes";
 import { Duel } from "./Duel";
 import { deckCellTypes, playFieldCellTypes, type DuelFieldCell, type TBundleCellType, type TDuelEntityMovePos } from "./DuelFieldCell";
@@ -29,6 +30,7 @@ import { CardRelationBundle } from "@ygo_duel/class_continuous_effect/DuelCardRe
 import type { DuelField } from "./DuelField";
 import { DuelEntityLog } from "./DuelEntityLog";
 import { CounterHolder } from "./DuelCounter";
+import { StatusOperatorBundle } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 
 export type TDuelEntityFace = "FaceUp" | "FaceDown";
 export type TDuelEntityOrientation = "Horizontal" | "Vertical";
@@ -141,6 +143,7 @@ export const CardEntitySorter = (left: DuelEntity, right: DuelEntity): number =>
 };
 
 export type DuelEntityInfomation = {
+  isEffective: boolean;
   isPending: boolean;
   isDying: boolean;
   causeOfDeath: (TDestoryCauseReason | "SpellTrapActivate")[];
@@ -532,7 +535,7 @@ export class DuelEntity {
     DuelEntity.settleEntityMove(items[0].entity.duel);
   };
   private static readonly settleEntityMove = (duel: Duel) => {
-    duel.distributeOperators();
+    duel.distributeOperators(duel.clock.totalProcSeq);
     const entities = duel.field.getAllEntities().filter((entity) => entity.wasMovedAtCurrentProc);
     entities.filter((entity) => !entity.isOnField).forEach((entity) => entity.resetInfo());
     entities.flatMap((entity) => entity.continuousEffects).forEach((ce) => ce.updateState());
@@ -544,6 +547,7 @@ export class DuelEntity {
   public readonly procFilterBundle: ProcFilterBundle;
   public readonly numericOprsBundle: NumericStateOperatorBundle;
   public readonly cardRelationBundle: CardRelationBundle;
+  public readonly statusOperatorBundle: StatusOperatorBundle;
   public readonly moveLog: DuelEntityLog;
   public readonly counterHolder: CounterHolder;
   public face: TDuelEntityFace;
@@ -565,6 +569,7 @@ export class DuelEntity {
   public fieldCell: DuelFieldCell;
 
   private _status: EntityStatus;
+  private _numericStatus: EntityNumericStatus;
   private _info: DuelEntityInfomation;
 
   public readonly actions: CardAction<unknown>[] = [];
@@ -572,6 +577,13 @@ export class DuelEntity {
   private _hasDisappeared = false;
   public get status() {
     return this._status;
+  }
+  public set status(newStatus) {
+    console.log(newStatus);
+    this._status = { ...newStatus };
+  }
+  public get numericStatus() {
+    return this._numericStatus;
   }
   public get info() {
     return this._info;
@@ -581,28 +593,37 @@ export class DuelEntity {
     return this.status.name;
   }
   public get atk() {
-    return this.status.calculated.attack;
+    return this._numericStatus.calculated.attack;
   }
   public get def() {
-    return this.status.calculated.defense;
+    return this._numericStatus.calculated.defense;
   }
   public get lvl() {
-    return this.status.calculated.level;
+    return this._numericStatus.calculated.level;
   }
   public get rank() {
-    return this.status.calculated.rank;
+    return this._numericStatus.calculated.rank;
   }
   public get attr() {
-    return this.status.attribute ? [this.status.attribute] : [];
+    return this.status.attributes ?? [];
   }
-  public get type() {
-    return this.status.type ? [this.status.type] : [];
+  public get types() {
+    return this.status.types ?? [];
   }
   public get psL() {
-    return this.status.calculated.pendulumScaleL;
+    return this._numericStatus.calculated.pendulumScaleL;
   }
   public get psR() {
-    return this.status.calculated.pendulumScaleR;
+    return this._numericStatus.calculated.pendulumScaleR;
+  }
+  public get isEffective() {
+    return this.status.isEffective && this.info.isEffective;
+  }
+  /**
+   * エフェクト・ヴェーラーなどによる強い無効
+   */
+  public get isNagatedStrongly() {
+    return !this.info.isEffective;
   }
   public get battlePosition() {
     if (!this.isOnField) {
@@ -625,13 +646,13 @@ export class DuelEntity {
   }
   public get wasMovedAtCurrentProc() {
     return (
-      this.field.duel.clock.procTotalSeq === this.moveLog.latestRecord.movedAt.procTotalSeq &&
+      this.field.duel.clock.totalProcSeq === this.moveLog.latestRecord.movedAt.totalProcSeq &&
       this.moveLog.records.slice(-2)[0].cell.cellType !== this.fieldCell.cellType
     );
   }
   public get wasMovedAtPreviousProc() {
     return (
-      this.field.duel.clock.procTotalSeq === this.moveLog.latestRecord.movedAt.procTotalSeq + 1 &&
+      this.field.duel.clock.totalProcSeq === this.moveLog.latestRecord.movedAt.totalProcSeq + 1 &&
       this.moveLog.records.slice(-2)[0].cell.cellType !== this.fieldCell.cellType
     );
   }
@@ -667,6 +688,10 @@ export class DuelEntity {
   public get hasDisappeared() {
     return this._hasDisappeared;
   }
+
+  public get allStickyEffectOperators() {
+    return [...this.procFilterBundle.operators, ...this.numericOprsBundle.operators, ...this.cardRelationBundle.operators];
+  }
   /**
    *
    * @param owner
@@ -694,9 +719,11 @@ export class DuelEntity {
 
     this.origin = cardInfo;
     this._status = JSON.parse(JSON.stringify(cardInfo));
+    this._numericStatus = JSON.parse(JSON.stringify(cardInfo));
 
     this.resetStatus();
     this._info = {
+      isEffective: true,
       attackCount: 0,
       battlePotisionChangeCount: 0,
       isDying: false,
@@ -718,6 +745,8 @@ export class DuelEntity {
     this.procFilterBundle = new ProcFilterBundle(fieldCell.field.procFilterPool, this);
     this.numericOprsBundle = new NumericStateOperatorBundle(fieldCell.field.numericStateOperatorPool, this);
     this.cardRelationBundle = new CardRelationBundle(fieldCell.field.cardRelationPool, this);
+    this.statusOperatorBundle = new StatusOperatorBundle(fieldCell.field.statusOperatorPool, this);
+
     fieldCell.acceptEntities([this], "Top");
     this.moveLog = new DuelEntityLog(this);
     this.moveLog.pushForRuleAction(["Spawn"]);
@@ -936,6 +965,7 @@ export class DuelEntity {
     this._info = {
       isDying: false,
       isPending: false,
+      isEffective: true,
       causeOfDeath: [],
       isKilledBy: undefined,
       isKilledByWhom: undefined,
@@ -962,18 +992,19 @@ export class DuelEntity {
       {} as { [key in TEntityFlexibleStatusKey]: number | undefined }
     );
 
-    this._status = {
-      ...JSON.parse(JSON.stringify(this.origin)),
+    this._numericStatus = {
       origin: { ...master },
       current: { ...master },
       calculated: { ...master },
+    };
+    this._status = {
+      ...this.origin,
       canAttack: true,
       isEffective: true,
       canDirectAttack: false,
-      attackCount: 0,
       isSelectableForAttack: true,
-      canBeSyncroMaterial: true,
-      willBeBanished: false,
+      allowHandSyncro: false,
+      maxCounterQty: {},
     };
   };
   private readonly resetCauseOfDeath = () => {

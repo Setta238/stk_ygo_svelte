@@ -1,12 +1,15 @@
 import { StickyEffectOperatorBase, StickyEffectOperatorBundle, StickyEffectOperatorPool } from "./DuelStickyEffectOperatorBase";
 import type { DuelEntity, TSummonPosCauseReason, TSummonRuleCauseReason } from "../class/DuelEntity";
+import type { CardActionBaseAttr } from "@ygo_duel/class/DuelCardAction";
 
 export const relationTypes = ["Equip", "XyzMaterial"] as const;
 export type TRelationType = (typeof relationTypes)[number] | TSummonRuleCauseReason | TSummonPosCauseReason;
 export const removeTriggers = ["Set", "LeavesTheField", "Clock"] as const;
 export type TRemoveTrigger = (typeof removeTriggers)[number];
 
-export class CardRelationPool extends StickyEffectOperatorPool<CardRelation, CardRelationBundle> {}
+export class CardRelationPool extends StickyEffectOperatorPool<CardRelation, CardRelationBundle> {
+  protected afterDistributeAll = () => true;
+}
 
 export class CardRelationBundle extends StickyEffectOperatorBundle<CardRelation> {
   protected readonly beforePush: (ope: CardRelation) => void = () => {};
@@ -16,6 +19,7 @@ export class CardRelation extends StickyEffectOperatorBase {
     title: string,
     validateAlive: (spawner: DuelEntity) => boolean,
     isSpawnedBy: DuelEntity,
+    actionAttr: Partial<CardActionBaseAttr>,
     isApplicableTo: (spawner: DuelEntity, target: DuelEntity) => boolean,
     beforeRemove: (relation: CardRelation) => boolean = () => true
   ) => {
@@ -24,6 +28,7 @@ export class CardRelation extends StickyEffectOperatorBase {
       validateAlive,
       true,
       isSpawnedBy,
+      actionAttr,
       (spawner: DuelEntity, target: DuelEntity) => {
         console.log(target);
         return target.isOnField && target.face === "FaceUp" && isApplicableTo(spawner, target);
@@ -58,12 +63,13 @@ export class CardRelation extends StickyEffectOperatorBase {
     validateAlive: (spawner: DuelEntity) => boolean,
     isContinuous: boolean,
     isSpawnedBy: DuelEntity,
+    actionAttr: Partial<CardActionBaseAttr>,
     isApplicableTo: (spawner: DuelEntity, entity: DuelEntity) => boolean,
     relationType: TRelationType,
     target: DuelEntity,
     beforeRemove: (relation: CardRelation) => void
   ) {
-    super(title, validateAlive, isContinuous, isSpawnedBy, isApplicableTo);
+    super(title, validateAlive, isContinuous, isSpawnedBy, actionAttr, isApplicableTo);
     this.relationType = relationType;
     this.target = target;
 

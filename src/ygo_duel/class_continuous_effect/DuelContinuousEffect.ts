@@ -6,6 +6,7 @@ import { type NumericStateOperator } from "@ygo_duel/class_continuous_effect/Due
 import type { IOperatorPool, StickyEffectOperatorBase, StickyEffectOperatorBundle } from "./DuelStickyEffectOperatorBase";
 import type { ProcFilter } from "./DuelProcFilter";
 import type { CardRelation } from "./DuelCardRelation";
+import type { StatusOperator } from "./DuelStatusOperator";
 
 export type ContinuousEffectBase<T> = {
   title: string;
@@ -63,10 +64,6 @@ export class ContinuousEffect<T> {
   };
 
   private get hasToStart() {
-    if (this.entity.nm === "早すぎた埋葬") {
-      console.log("早すぎた埋葬", this, this.entity, this.entity.info, this.entity.info.isPending, this._isStarted);
-    }
-
     if (this.entity.info.isPending) {
       return false;
     }
@@ -89,19 +86,19 @@ export const createBroadRegularOperatorHandler = <OPE extends StickyEffectOperat
   validate: (source: DuelEntity) => boolean,
   opeListCreater: (source: DuelEntity) => OPE[],
   getPool: (source: DuelEntity) => IOperatorPool<OPE>
-): ContinuousEffectBase<string[]> => {
+): ContinuousEffectBase<number[]> => {
   return {
     title: title,
     executableCellTypes: kind === "Monster" ? ["MonsterZone", "ExtraMonsterZone"] : ["FieldSpellZone", "SpellAndTrapZone"],
     faceList: ["FaceUp"],
     canStart: validate,
-    start: async (entity: DuelEntity): Promise<string[]> => {
+    start: async (entity: DuelEntity): Promise<number[]> => {
       const list = opeListCreater(entity);
       list.forEach(getPool(entity).push);
-      return list.map((item) => item.title).getDistinct();
+      return list.map((item) => item.seq);
     },
-    finish: async (entity: DuelEntity, info: string[]): Promise<void> => {
-      info.forEach((title) => getPool(entity).removeItem(entity, title));
+    finish: async (entity: DuelEntity, info: number[]): Promise<void> => {
+      info.forEach((seq) => getPool(entity).removeItem(seq));
     },
   };
 };
@@ -113,24 +110,25 @@ export const createRegularOperatorHandler = <OPE extends StickyEffectOperatorBas
   validate: (source: DuelEntity) => boolean,
   opeListCreater: (source: DuelEntity) => OPE[],
   getBundle: (source: DuelEntity) => StickyEffectOperatorBundle<OPE>
-): ContinuousEffectBase<{ targets: DuelEntity[]; titles: string[] }> => {
+): ContinuousEffectBase<{ targets: DuelEntity[]; seqList: number[] }> => {
   console.log(title, kind, getTargets, validate, opeListCreater, getBundle);
   return {
     title: title,
     executableCellTypes: kind === "Monster" ? ["MonsterZone", "ExtraMonsterZone"] : ["FieldSpellZone", "SpellAndTrapZone"],
     faceList: ["FaceUp"],
     canStart: validate,
-    start: async (entity: DuelEntity): Promise<{ targets: DuelEntity[]; titles: string[] }> => {
-      console.log(entity);
-      const list = opeListCreater(entity);
-      console.log(list);
-      const entities = getTargets(entity);
-      console.log(getTargets, entities);
-      entities.map(getBundle).forEach((bundle) => list.forEach(bundle.push));
-      return { targets: entities, titles: list.map((item) => item.title).getDistinct() };
+    start: async (target: DuelEntity): Promise<{ targets: DuelEntity[]; seqList: number[] }> => {
+      const list = opeListCreater(target);
+      const entities = getTargets(target);
+      console.info(`start : ${target.toString()} ⇒ ${entities.map((e) => e.toString()).join(" ")} (${list.map((item) => item.title).join(" ")})`);
+      entities.map(getBundle).forEach((bundle) => {
+        console.log(bundle);
+        list.forEach(bundle.push);
+      });
+      return { targets: entities, seqList: list.map((item) => item.seq) };
     },
-    finish: async (entity: DuelEntity, info: { targets: DuelEntity[]; titles: string[] }): Promise<void> => {
-      info.targets.map(getBundle).forEach((bundle) => info.titles.forEach((title) => bundle.removeItem(entity, title)));
+    finish: async (entity: DuelEntity, info: { targets: DuelEntity[]; seqList: number[] }): Promise<void> => {
+      info.targets.map(getBundle).forEach((bundle) => info.seqList.forEach((seq) => bundle.removeItem(seq)));
     },
   };
 };
@@ -140,7 +138,7 @@ export const createBroadRegularProcFilterHandler = (
   kind: TCardKind,
   validate: (source: DuelEntity) => boolean,
   opeListCreater: (source: DuelEntity) => ProcFilter[]
-): ContinuousEffectBase<string[]> => {
+) => {
   return createBroadRegularOperatorHandler(title, kind, validate, opeListCreater, (entity: DuelEntity) => entity.field.procFilterPool);
 };
 export const createRegularProcFilterHandler = (
@@ -149,7 +147,7 @@ export const createRegularProcFilterHandler = (
   getTargets: (source: DuelEntity) => DuelEntity[],
   validate: (source: DuelEntity) => boolean,
   opeListCreater: (source: DuelEntity) => ProcFilter[]
-): ContinuousEffectBase<{ targets: DuelEntity[]; titles: string[] }> => {
+) => {
   return createRegularOperatorHandler(title, kind, getTargets, validate, opeListCreater, (entity: DuelEntity) => entity.procFilterBundle);
 };
 export const createBroadRegularNumericStateOperatorHandler = (
@@ -157,7 +155,7 @@ export const createBroadRegularNumericStateOperatorHandler = (
   kind: TCardKind,
   validate: (source: DuelEntity) => boolean,
   opeListCreater: (source: DuelEntity) => NumericStateOperator[]
-): ContinuousEffectBase<string[]> => {
+) => {
   return createBroadRegularOperatorHandler(title, kind, validate, opeListCreater, (entity: DuelEntity) => entity.field.numericStateOperatorPool);
 };
 export const createRegularNumericStateOperatorHandler = (
@@ -166,7 +164,7 @@ export const createRegularNumericStateOperatorHandler = (
   getTargets: (source: DuelEntity) => DuelEntity[],
   validate: (source: DuelEntity) => boolean,
   opeListCreater: (source: DuelEntity) => NumericStateOperator[]
-): ContinuousEffectBase<{ targets: DuelEntity[]; titles: string[] }> => {
+) => {
   return createRegularOperatorHandler(title, kind, getTargets, validate, opeListCreater, (entity: DuelEntity) => entity.numericOprsBundle);
 };
 export const createRegularEquipRelationHandler = (
@@ -174,7 +172,7 @@ export const createRegularEquipRelationHandler = (
   kind: TCardKind,
   validate: (source: DuelEntity) => boolean,
   relartionsCreater: (source: DuelEntity) => CardRelation[]
-): ContinuousEffectBase<{ targets: DuelEntity[]; titles: string[] }> => {
+) => {
   return createRegularOperatorHandler(
     title,
     kind,
@@ -185,5 +183,24 @@ export const createRegularEquipRelationHandler = (
     validate,
     relartionsCreater,
     (entity: DuelEntity) => entity.cardRelationBundle
+  );
+};
+
+export const createRegularStatusOperatorHandler = (
+  title: string,
+  kind: TCardKind,
+  validate: (source: DuelEntity) => boolean,
+  statusOperatorCreator: (source: DuelEntity) => StatusOperator[]
+) => {
+  return createRegularOperatorHandler(
+    title,
+    kind,
+    (source: DuelEntity) => {
+      console.log(title, source, source.info, source.info.effectTargets);
+      return source.info.effectTargets[title];
+    },
+    validate,
+    statusOperatorCreator,
+    (entity: DuelEntity) => entity.statusOperatorBundle
   );
 };

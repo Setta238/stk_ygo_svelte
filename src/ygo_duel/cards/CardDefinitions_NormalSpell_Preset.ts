@@ -156,11 +156,11 @@ export const createCardDefinitions_NormalSpell_Preset = (): CardDefinition[] => 
   [
     {
       name: "増援",
-      filter: (card: DuelEntity) => card.origin.kind === "Monster" && card.origin.type === "Warrior" && (card.origin.level ?? 5) < 5,
+      filter: (card: DuelEntity) => card.origin.kind === "Monster" && card.types.includes("Warrior") && (card.origin.level ?? 5) < 5,
     },
     {
       name: "化石調査",
-      filter: (card: DuelEntity) => card.origin.kind === "Monster" && card.origin.type === "Dinosaur" && (card.origin.level ?? 6) < 6,
+      filter: (card: DuelEntity) => card.origin.kind === "Monster" && card.types.includes("Dinosaur") && (card.origin.level ?? 6) < 6,
     },
     {
       name: "Ｅ－エマージェンシーコール",
@@ -208,7 +208,7 @@ export const createCardDefinitions_NormalSpell_Preset = (): CardDefinition[] => 
   [
     {
       name: "戦士の生還",
-      filter: (card: DuelEntity) => card.status.kind === "Monster" && card.type.includes("Warrior"),
+      filter: (card: DuelEntity) => card.status.kind === "Monster" && card.types.includes("Warrior"),
       qty: 1,
     },
     {
@@ -228,7 +228,7 @@ export const createCardDefinitions_NormalSpell_Preset = (): CardDefinition[] => 
     },
     {
       name: "バッテリーリサイクル",
-      filter: (card: DuelEntity) => card.status.kind === "Monster" && card.type.includes("Thunder") && (card.atk ?? 9999) <= 1500,
+      filter: (card: DuelEntity) => card.status.kind === "Monster" && card.types.includes("Thunder") && (card.atk ?? 9999) <= 1500,
       qty: 2,
     },
     {
@@ -250,7 +250,10 @@ export const createCardDefinitions_NormalSpell_Preset = (): CardDefinition[] => 
     {
       name: "調和の宝札",
       filter: (card: DuelEntity) =>
-        card.status.kind === "Monster" && (card.origin.monsterCategories ?? []).includes("Tuner") && card.type.includes("Dragon") && (card.atk ?? 9999) <= 1000,
+        card.status.kind === "Monster" &&
+        (card.origin.monsterCategories ?? []).includes("Tuner") &&
+        card.types.includes("Dragon") &&
+        (card.atk ?? 9999) <= 1000,
     },
     {
       name: "デステニー・ドロー",

@@ -16,6 +16,7 @@ import {
   type TCardActionType,
   type TSpellSpeed,
 } from "./DuelCardAction";
+import { playFieldCellTypes } from "./DuelFieldCell";
 export type TDuelPhase = "draw" | "standby" | "main1" | "battle" | "main2" | "end";
 export type TDuelPhaseStep = "start" | "battle" | "damage" | "end" | undefined;
 export const seats = ["Above", "Below"] as const;
@@ -104,11 +105,37 @@ export class Duel {
     this.cardActionLog = new DuelCardActionLog(this);
   }
 
-  public readonly distributeOperators = () => {
-    this.field.procFilterPool.distributeAll();
-    this.field.cardRelationPool.distributeAll();
-    this.field.numericStateOperatorPool.distributeAll();
-    this.field.numericStateOperatorPool.calcStateAll(this);
+  public readonly distributeOperators = (totalProcSeq: number) => {
+    console.info(`[totalProcSeq]:${totalProcSeq}`);
+    let loopCount = 0;
+
+    while (true) {
+      loopCount++;
+
+      if (loopCount > 10) {
+        throw new SystemError("無限ループ発生");
+      }
+
+      // フィルター最優先
+      if (!this.field.procFilterPool.distributeAll(this)) {
+        continue;
+      }
+
+      // TODO これより先の順番
+      if (!this.field.statusOperatorPool.distributeAll(this)) {
+        continue;
+      }
+
+      if (!this.field.cardRelationPool.distributeAll(this)) {
+        continue;
+      }
+
+      if (!this.field.numericStateOperatorPool.distributeAll(this)) {
+        continue;
+      }
+
+      return;
+    }
   };
 
   public readonly getTurnPlayer = (): Duelist => {
@@ -551,6 +578,9 @@ export class Duel {
         throw new IllegalCancelError(chainBlock);
       }
 
+      // エフェクト・ヴェーラーなどによる強い無効
+      const isNagatedStrongly = chainBlockInfo.action.entity.isNagatedStrongly && playFieldCellTypes.find((ct) => ct === chainBlockInfo.isActivatedIn.cellType);
+
       // 対象に取っていた場合、ログを出力
       if (chainBlockInfo.selectedEntities.length) {
         this.log.info(`対象⇒${chainBlockInfo.selectedEntities.map((e) => e.toString()).join(" ")}`);
@@ -571,6 +601,8 @@ export class Duel {
 
       this.log.info(`チェーン${chainCount}: ${convertCardActionToString(chainBlock)}の効果処理。`, activator);
       console.log(chainBlockInfo);
+
+      // 有効無効判定
       if (chainBlockInfo.isNegatedActivationBy) {
         // 発動無効時は全ての処理を行わない
         this.log.info(
@@ -579,14 +611,32 @@ export class Duel {
         );
       } else {
         // 効果無効時は後処理のみ行う
-        if (chainBlockInfo.isNegatedEffectBy) {
-          this.log.info(
-            `チェーン${chainCount}: ${convertCardActionToString(chainBlock)}を${convertCardActionToString(chainBlockInfo.isNegatedEffectBy)}によって効果を無効にした。`,
-            chainBlockInfo.activator
-          );
-        } else {
-          await chainBlock.execute(chainBlockInfo, this.chainBlockInfos);
+
+        // カードの効果が有効かどうか
+        let isEffective = chainBlockInfo.action.entity.isEffective;
+        let nagationText = `チェーン${chainCount}: カードの効果が無効となっているため${convertCardActionToString(chainBlock)}の効果処理を行えない。`;
+
+        if (isEffective) {
+          if (chainBlockInfo.isNegatedEffectBy) {
+            // うららなどの効果処理のみ無効にするタイプ
+            nagationText = `チェーン${chainCount}: ${convertCardActionToString(chainBlock)}を${convertCardActionToString(chainBlockInfo.isNegatedEffectBy)}によって効果を無効にした。`;
+            isEffective = false;
+          } else if (isNagatedStrongly) {
+            // 発動時にエフェクト・ヴェーラーなどによる強い無効が適用されていた場合、移動ログを検索する。
+            const moveLogRecord = chainBlockInfo.action.entity.moveLog.records.findLast((rec) => rec.face === "FaceDown" && rec.orientation === "Horizontal");
+
+            // 同じチェーン中に、一度以上裏守備を経由していればいいはず
+            // TODO 要検討
+            isEffective = (moveLogRecord && this.clock.isSameChain(moveLogRecord.movedAt)) ?? false;
+          }
         }
+
+        if (isEffective) {
+          await chainBlock.execute(chainBlockInfo, this.chainBlockInfos);
+        } else {
+          this.log.info(nagationText, chainBlockInfo.activator);
+        }
+
         await chainBlock.settle(chainBlockInfo, this.chainBlockInfos);
       }
 

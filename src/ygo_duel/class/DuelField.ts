@@ -8,12 +8,14 @@ import { CardAction } from "./DuelCardAction";
 import { ProcFilterPool } from "../class_continuous_effect/DuelProcFilter";
 import { NumericStateOperatorPool } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import { CardRelationPool } from "@ygo_duel/class_continuous_effect/DuelCardRelation";
+import { StatusOperatorPool } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 export class DuelField {
   public readonly cells: DuelFieldCell[][];
   public readonly duel: Duel;
   public readonly procFilterPool: ProcFilterPool;
   public readonly numericStateOperatorPool: NumericStateOperatorPool;
   public readonly cardRelationPool: CardRelationPool;
+  public readonly statusOperatorPool: StatusOperatorPool;
   public constructor(duel: Duel) {
     this.duel = duel;
     this.cells = [...Array(7)].map(() => []) as DuelFieldCell[][];
@@ -30,6 +32,7 @@ export class DuelField {
     this.procFilterPool = new ProcFilterPool();
     this.numericStateOperatorPool = new NumericStateOperatorPool();
     this.cardRelationPool = new CardRelationPool();
+    this.statusOperatorPool = new StatusOperatorPool();
   }
 
   public readonly getAllCells = (): DuelFieldCell[] => {

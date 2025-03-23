@@ -7,7 +7,7 @@ export interface IDuelClock {
   chainSeq: number;
   chainBlockSeq: number;
   procSeq: number;
-  procTotalSeq: number;
+  totalProcSeq: number;
 }
 export class DuelClock implements IDuelClock {
   private onTotalProcSeqChangeEvent = new StkEvent<number>();
@@ -39,7 +39,7 @@ export class DuelClock implements IDuelClock {
   public get procSeq() {
     return this._procSeq;
   }
-  public get procTotalSeq() {
+  public get totalProcSeq() {
     return this._procTotalSeq;
   }
   public readonly incrementTurn = () => {
@@ -83,10 +83,10 @@ export class DuelClock implements IDuelClock {
   };
   public readonly incrementTotalProcSeq = () => {
     this._procTotalSeq++;
-    this.onTotalProcSeqChangeEvent.trigger(this.procTotalSeq);
+    this.onTotalProcSeqChangeEvent.trigger(this.totalProcSeq);
   };
   public readonly toString = () => {
-    return `${this.procTotalSeq}(t${this.turn}-p${this.phaseSeq}-ps${this.stepSeq}-c${this.chainSeq}-cb${this.chainBlockSeq}-p${this.procSeq})`;
+    return `${this.totalProcSeq}(t${this.turn}-p${this.phaseSeq}-ps${this.stepSeq}-c${this.chainSeq}-cb${this.chainBlockSeq}-p${this.procSeq})`;
   };
   public readonly getClone = (): IDuelClock => {
     return {
@@ -96,7 +96,7 @@ export class DuelClock implements IDuelClock {
       chainSeq: this.chainSeq,
       chainBlockSeq: this.chainBlockSeq,
       procSeq: this.procSeq,
-      procTotalSeq: this.procTotalSeq,
+      totalProcSeq: this.totalProcSeq,
     };
   };
   public readonly isSameChain = (other: IDuelClock): boolean => {
@@ -106,6 +106,6 @@ export class DuelClock implements IDuelClock {
     return this.turn === other.turn && this.phaseSeq === other.phaseSeq && this.stepSeq === other.stepSeq && this.chainSeq === other.chainSeq + 1;
   };
   public readonly isPreviousProc = (other: IDuelClock): boolean => {
-    return this.procTotalSeq === other.procTotalSeq + 1;
+    return this.totalProcSeq === other.totalProcSeq + 1;
   };
 }

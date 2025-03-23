@@ -2,7 +2,8 @@ import type { TBattlePosition } from "@ygo/class/YgoTypes";
 import type { DuelFieldCell, DuelFieldCellType } from "./DuelFieldCell";
 import { type Duelist } from "./Duelist";
 import type { DuelEntity } from "./DuelEntity";
-
+export const effectActiovationTypes = ["CardActivation", "EffectActivation", "NonActivate"] as const;
+export type TEffectActiovationType = (typeof effectActiovationTypes)[number];
 export const cardActionChainBlockTypes = [
   "TriggerEffect",
   "TriggerMandatoryEffect",
@@ -59,11 +60,12 @@ export type ChainBlockInfoBase<T> = {
 export type ChainBlockInfo<T> = ChainBlockInfoBase<T> & {
   action: CardAction<T>;
   activator: Duelist;
+  isActivatedIn: DuelFieldCell;
   isNegatedActivationBy?: CardAction<unknown>;
   isNegatedEffectBy?: CardAction<unknown>;
 };
 
-export type CardActionBase<T> = {
+export type CardActionBaseAttr = {
   title: string;
   playType: TCardActionType;
   spellSpeed: TSpellSpeed;
@@ -75,6 +77,8 @@ export type CardActionBase<T> = {
   canExecuteOnDamageStep?: boolean;
   isLikeContinuousSpell?: boolean;
   willRemainInField?: boolean;
+};
+export type CardActionBase<T> = CardActionBaseAttr & {
   /**
    * 発動可能かどうかの検証
    * @param entity
@@ -263,6 +267,9 @@ export class CardAction<T> implements ICardAction<T> {
     if (this.isLikeContinuousSpell) {
       this.entity.info.isPending = true;
     }
+
+    const isActivatedIn = this.entity.fieldCell;
+
     const prepared = await this.cardActionBase.prepare(this, cell, chainBlockInfos, cancelable);
     if (prepared === undefined) {
       return;
@@ -270,7 +277,7 @@ export class CardAction<T> implements ICardAction<T> {
 
     this.entity.field.duel.cardActionLog.push(this.entity.controller, this as CardAction<unknown>);
 
-    return { ...prepared, action: this, activator: this.entity.controller };
+    return { ...prepared, action: this, activator: this.entity.controller, isActivatedIn };
   };
 
   public readonly execute = async (myInfo: ChainBlockInfo<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => {

@@ -28,6 +28,7 @@ import { NumericStateOperatorBundle } from "@ygo_duel/class_continuous_effect/Du
 import { CardRelationBundle } from "@ygo_duel/class_continuous_effect/DuelCardRelation";
 import type { DuelField } from "./DuelField";
 import { DuelEntityLog } from "./DuelEntityLog";
+import { CounterHolder } from "./DuelCounter";
 
 export type TDuelEntityFace = "FaceUp" | "FaceDown";
 export type TDuelEntityOrientation = "Horizontal" | "Vertical";
@@ -544,6 +545,7 @@ export class DuelEntity {
   public readonly numericOprsBundle: NumericStateOperatorBundle;
   public readonly cardRelationBundle: CardRelationBundle;
   public readonly moveLog: DuelEntityLog;
+  public readonly counterHolder: CounterHolder;
   public face: TDuelEntityFace;
   public get isUnderControl() {
     return this.face === "FaceUp" || deckCellTypes.every((t) => t !== this.fieldCell.cellType);
@@ -613,6 +615,13 @@ export class DuelEntity {
       return "Attack";
     }
     return this.face === "FaceUp" ? "Defense" : "Set";
+  }
+  public get battlePositionName() {
+    const bp = this.battlePosition;
+    if (!bp) {
+      return undefined;
+    }
+    return battlePositionDic[bp];
   }
   public get wasMovedAtCurrentProc() {
     return (
@@ -708,6 +717,7 @@ export class DuelEntity {
     this.numericOprsBundle = new NumericStateOperatorBundle(fieldCell.field.numericStateOperatorPool, this);
     this.cardRelationBundle = new CardRelationBundle(fieldCell.field.cardRelationPool, this);
     fieldCell.acceptEntities([this], "Top");
+    this.counterHolder = new CounterHolder();
     this.moveLog = new DuelEntityLog(this);
     this.moveLog.pushForRuleAction(["Spawn"]);
   }
@@ -779,16 +789,29 @@ export class DuelEntity {
   };
 
   public readonly setBattlePosition = async (pos: TBattlePosition, movedAs: TDuelCauseReason[], movedBy?: DuelEntity, actionOwner?: Duelist): Promise<void> => {
+    // ログテキストを準備
+    let logText = `表示形式の変更：${this.toString()}（${this.battlePositionName}⇒${battlePositionDic[pos]}）`;
+    const _movedAs = [...movedAs];
+
+    // 反転召喚の判定
+    if (this.battlePosition === "Set") {
+      _movedAs.push("Flip");
+      if (movedAs.includes("Rule")) {
+        logText = `${this.toString()}を反転召喚`;
+        _movedAs.push("FlipSummon");
+      }
+    }
     this.moveAlone(
       this.fieldCell,
       pos === "Set" ? "FaceDown" : "FaceUp",
       pos === "Attack" ? "Vertical" : "Horizontal",
       "Top",
-      movedAs,
+      _movedAs,
       movedBy,
       actionOwner,
       actionOwner
     );
+    this.duel.log.info(logText, actionOwner);
   };
 
   public readonly setNonFieldMonsterPosition = async (
@@ -896,6 +919,18 @@ export class DuelEntity {
     return this.fieldCell;
   };
 
+  /**
+   * 移動の処理のみのため、直接呼び出す場合は後処理を忘れないこと
+   * @param to
+   * @param face
+   * @param orientation
+   * @param pos
+   * @param movedAs
+   * @param movedBy
+   * @param actionOwner
+   * @param chooser
+   * @returns
+   */
   private readonly _move = async (
     to: DuelFieldCell,
     face: TDuelEntityFace,
@@ -919,20 +954,35 @@ export class DuelEntity {
     }
 
     if (to !== this.fieldCell) {
+      // セルから自分自身を取り除く
       this.fieldCell.releaseEntities([this]);
 
-      if (this.entityType === "Token" && playFieldCellTypes.every((t) => t !== this.fieldCell.cellType)) {
-        this._hasDisappeared = true;
-        this.field.duel.log.info(`${this.nm}は消滅した。`, this.controller);
-        return;
+      // 場を離れる場合の処理
+      if (this.fieldCell.isPlayFieldCell && !to.isPlayFieldCell) {
+        // カウンター類を全て除去
+        this.counterHolder.clear();
+
+        // 墓地送り予定情報を削除
+        this.resetCauseOfDeath();
+
+        // トークンが場を離れる場合、消滅
+        if (this.entityType === "Token") {
+          this._hasDisappeared = true;
+          this.field.duel.log.info(`${this.nm}は消滅した。`, this.controller);
+          return;
+        }
       }
 
+      // セルに自分を所属させる
       to.acceptEntities([this], pos);
 
-      if (to === this.isBelongTo || to.cellType === "Hand" || to.cellType === "Banished" || this.face === "FaceDown") {
+      // 非公開情報になった場合、全ての情報をリセット
+      if (to === this.isBelongTo || to.cellType === "Hand" || (to.cellType === "Banished" && this.face === "FaceDown")) {
         this.resetInfo();
+        this.resetStatus();
       }
     }
+
     this.moveLog.push(movedAs, movedBy, actionOwner, chooser);
 
     return to;
@@ -941,6 +991,8 @@ export class DuelEntity {
     this.info.isSettingSickness = false;
     this.info.attackCount = 0;
     this.info.battlePotisionChangeCount = 0;
+
+    this.counterHolder.corpseDisposal();
   };
 
   private readonly resetInfo = () => {
@@ -960,14 +1012,10 @@ export class DuelEntity {
       attackCount: 0,
       battlePotisionChangeCount: 0,
     };
+
+    this.counterHolder.clear();
   };
 
-  private readonly resetCauseOfDeath = () => {
-    this.info.isDying = false;
-    this.info.causeOfDeath = [];
-    this.info.isKilledBy = undefined;
-    this.info.isKilledByWhom = undefined;
-  };
   private readonly resetStatus = () => {
     const master = entityFlexibleStatusKeys.reduce(
       (wip, key) => {
@@ -990,5 +1038,11 @@ export class DuelEntity {
       canBeSyncroMaterial: true,
       willBeBanished: false,
     };
+  };
+  private readonly resetCauseOfDeath = () => {
+    this.info.isDying = false;
+    this.info.causeOfDeath = [];
+    this.info.isKilledBy = undefined;
+    this.info.isKilledByWhom = undefined;
   };
 }

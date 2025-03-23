@@ -52,7 +52,7 @@ export class DuelEntityLog {
       face: this.entity.face,
       orientation: this.entity.orientation,
       movedAt: this.entity.duel.clock.getClone(),
-      movedAs: movedAs,
+      movedAs: movedAs.getDistinct(),
       movedBy: movedBy,
       actionOwner: actionOwner,
       chooser: chooser ?? actionOwner,

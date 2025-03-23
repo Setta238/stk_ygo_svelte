@@ -160,7 +160,7 @@ export const createBroadRegularNumericStateOperatorHandler = (
 ): ContinuousEffectBase<string[]> => {
   return createBroadRegularOperatorHandler(title, kind, validate, opeListCreater, (entity: DuelEntity) => entity.field.numericStateOperatorPool);
 };
-export const createNumericStateOperatorHandler = (
+export const createRegularNumericStateOperatorHandler = (
   title: string,
   kind: TCardKind,
   getTargets: (source: DuelEntity) => DuelEntity[],

@@ -1,9 +1,8 @@
 import { defaultSpellTrapPrepare, defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/functions/DefaultCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
-import type { CardAction, CardActionBase, ChainBlockInfo, TEffectTag } from "@ygo_duel/class/DuelCardAction";
+import type { CardActionBase, TEffectTag } from "@ygo_duel/class/DuelCardAction";
 import { IllegalCancelError } from "@ygo_duel/class/Duel";
-import { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 
 import type { CardDefinition } from "./CardDefinitions";
 
@@ -13,18 +12,14 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
   const def_ご隠居の猛毒薬 = {
     name: "ご隠居の猛毒薬",
     actions: [
+      defaultSpellTrapSetAction,
       {
         title: "発動",
         playType: "CardActivation",
         spellSpeed: "Quick",
         executableCells: ["Hand", "SpellAndTrapZone"],
         validate: defaultSpellTrapValidate,
-        prepare: async (
-          action: CardAction<number>,
-          cell: DuelFieldCell | undefined,
-          chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
-          cancelable: boolean
-        ) => {
+        prepare: async (action, cell, chainBlockInfos, cancelable) => {
           const selected = await action.entity.field.duel.view.waitSelectText(
             [
               { seq: 0, text: "●自分は１２００ＬＰ回復する。" },
@@ -45,7 +40,7 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
 
           return defaultSpellTrapPrepare(action, cell, chainBlockInfos, cancelable, tags, [], selected ?? 0);
         },
-        execute: async (myInfo: ChainBlockInfo<number>) => {
+        execute: async (myInfo) => {
           if (myInfo.prepared === 1) {
             myInfo.activator.getOpponentPlayer().effectDamage(800, myInfo.action.entity);
             return true;
@@ -54,8 +49,7 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
           return true;
         },
         settle: async () => true,
-      },
-      defaultSpellTrapSetAction,
+      } as CardActionBase<number>,
     ] as CardActionBase<unknown>[],
   };
 

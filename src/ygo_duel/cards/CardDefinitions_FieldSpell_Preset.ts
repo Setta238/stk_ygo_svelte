@@ -1,4 +1,3 @@
-import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { defaultSpellTrapPrepare, defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/functions/DefaultCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
@@ -65,15 +64,15 @@ export const createCardDefinitions_FieldSpell_Preset = (): CardDefinition[] => {
         createBroadRegularNumericStateOperatorHandler(
           "発動",
           "Spell",
-          (source: DuelEntity) => source.isOnField && source.face === "FaceUp",
-          (source: DuelEntity) => {
+          (source) => source.isOnField && source.face === "FaceUp",
+          (source) => {
             return (["attack", "defense"] as TEntityFlexibleStatusKey[]).flatMap((state) => {
               return (["up", "down"] as const).map((updown) => {
                 return NumericStateOperator.createContinuous(
                   "発動",
-                  (spawner: DuelEntity) => spawner.isOnField && spawner.face === "FaceUp",
+                  (spawner) => spawner.isOnField && spawner.face === "FaceUp",
                   source,
-                  (spawner: DuelEntity, monster: DuelEntity) =>
+                  (spawner, monster) =>
                     monster.isOnField &&
                     monster.face === "FaceUp" &&
                     (monster.status.monsterCategories ?? false) &&
@@ -81,7 +80,7 @@ export const createCardDefinitions_FieldSpell_Preset = (): CardDefinition[] => {
                   state,
                   "current",
                   "Addition",
-                  (spawner: DuelEntity, monster: DuelEntity, current: number) => {
+                  (spawner, monster, current) => {
                     if (!spawner.status.isEffective) {
                       return current;
                     }
@@ -146,18 +145,18 @@ export const createCardDefinitions_FieldSpell_Preset = (): CardDefinition[] => {
         createBroadRegularNumericStateOperatorHandler(
           "発動",
           "Spell",
-          (source: DuelEntity) => source.isOnField && source.face === "FaceUp",
-          (source: DuelEntity) => {
+          (source) => source.isOnField && source.face === "FaceUp",
+          (source) => {
             return (["attack", "defense"] as TEntityFlexibleStatusKey[]).flatMap((state) => {
               return NumericStateOperator.createContinuous(
                 "発動",
-                (spawner: DuelEntity) => spawner.isOnField && spawner.face === "FaceUp",
+                (spawner) => spawner.isOnField && spawner.face === "FaceUp",
                 source,
-                (spawner: DuelEntity, monster: DuelEntity) => monster.isOnField && monster.face === "FaceUp" && monster.attr.includes(item.attr),
+                (spawner, monster) => monster.isOnField && monster.face === "FaceUp" && monster.attr.includes(item.attr),
                 state,
                 "current",
                 "Addition",
-                (spawner: DuelEntity, monster: DuelEntity, current: number) => {
+                (spawner, monster, current) => {
                   if (!spawner.status.isEffective) {
                     return current;
                   }

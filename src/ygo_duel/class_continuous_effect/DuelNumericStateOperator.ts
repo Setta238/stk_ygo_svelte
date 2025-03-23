@@ -286,7 +286,7 @@ export class NumericStateOperator extends StickyEffectOperatorBase {
     targetState: TEntityFlexibleStatusKey,
     targetStateGen: TEntityFlexibleStatusGen,
     stateOperationType: TStateOperationType,
-    calcValue: (spawner: DuelEntity, target: DuelEntity, source: number) => number
+    calcValue: (spawner: DuelEntity, target: DuelEntity, current: number) => number
   ) => {
     return new NumericStateOperator(title, validateAlive, true, isSpawnedBy, isApplicableTo, targetState, targetStateGen, stateOperationType, calcValue);
   };
@@ -317,7 +317,7 @@ export class NumericStateOperator extends StickyEffectOperatorBase {
     targetState: TEntityFlexibleStatusKey,
     targetStateGen: TEntityFlexibleStatusGen,
     stateOperationType: TStateOperationType,
-    calcValue: (spawner: DuelEntity, target: DuelEntity, source: number) => number
+    calcValue: (spawner: DuelEntity, target: DuelEntity, current: number) => number
   ) {
     super(title, validateAlive, isContinuous, isSpawnedBy, isApplicableTo);
     this.targetState = targetState;

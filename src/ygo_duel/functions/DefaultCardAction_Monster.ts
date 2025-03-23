@@ -1,7 +1,7 @@
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
 import { CardAction, type CardActionBase, type ChainBlockInfo, type ChainBlockInfoBase } from "@ygo_duel/class/DuelCardAction";
-import { DuelEntity, type TDestoryCauseReason, type TDuelCauseReason } from "@ygo_duel/class/DuelEntity";
-import type { DuelFieldCell, DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
+import { type TDuelCauseReason, DuelEntity } from "@ygo_duel/class/DuelEntity";
+import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 export type SummonPrepared = { dest: DuelFieldCell; pos: TBattlePosition; materials: DuelEntity[] };
 export const defaultPrepare = async () => {
   return { selectedEntities: [], chainBlockTags: [], prepared: undefined };
@@ -82,7 +82,7 @@ export const defaultNormalSummonPrepare = async (
     availableCells = action.entity.controller.getAvailableMonsterZones();
   }
   let pos: TBattlePosition = (action.entity.atk ?? 0) > 0 && (action.entity.atk ?? 0) >= (action.entity.def ?? 0) ? "Attack" : "Set";
-  let dest: DuelFieldCell = availableCells.randomPick(1)[0];
+  let dest: DuelFieldCell = availableCells.randomPick();
 
   if (action.entity.controller.duelistType !== "NPC") {
     const res = await action.entity.field.duel.view.waitSelectSummonDest(action.entity, availableCells, ["Attack", "Set"], _cancelable);
@@ -169,15 +169,13 @@ export const defaultRuleSpecialSummonPrepare = async (
     return;
   }
 
-  let pos: TBattlePosition = _posList.randomPick(1)[0];
-  let dest: DuelFieldCell = availableCells.randomPick(1)[0];
+  let pos: TBattlePosition = _posList.randomPick();
+  let dest: DuelFieldCell = availableCells.randomPick();
 
   if (_posList.length) {
     if (_posList.includes("Attack")) {
       pos =
-        (action.entity.atk ?? 0) > 0 && (action.entity.atk ?? 0) >= (action.entity.def ?? 0)
-          ? "Attack"
-          : _posList.filter((p) => p !== "Attack").randomPick(1)[0];
+        (action.entity.atk ?? 0) > 0 && (action.entity.atk ?? 0) >= (action.entity.def ?? 0) ? "Attack" : _posList.filter((p) => p !== "Attack").randomPick();
     }
   }
   if (action.entity.controller.duelistType !== "NPC") {
@@ -417,7 +415,7 @@ export const defaultSyncroSummonPrepare = async (
 
   const availableCells = [...action.entity.controller.getAvailableMonsterZones(), ...action.entity.controller.getAvailableExtraZones()];
   let pos: TBattlePosition = (action.entity.atk ?? 0) > 0 && (action.entity.atk ?? 0) >= (action.entity.def ?? 0) ? "Attack" : "Defense";
-  let dest: DuelFieldCell = availableCells.randomPick(1)[0];
+  let dest: DuelFieldCell = availableCells.randomPick();
 
   if (action.entity.controller.duelistType !== "NPC") {
     const res = await action.entity.field.duel.view.waitSelectSummonDest(action.entity, availableCells, ["Attack", "Defense"], false);
@@ -452,83 +450,6 @@ export const getDefaultSyncroSummonAction = (
     prepare: (action: CardAction<SummonPrepared>, cell: DuelFieldCell | undefined, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, cancelable: boolean) =>
       defaultSyncroSummonPrepare(action, cell, cancelable, tunersValidator, nonTunersValidator),
     execute: defaultSyncroSummonExecute,
-    settle: async () => true,
-  };
-};
-
-export const getDefalutRecruiterAction = (
-  monsterFilter: (monsters: DuelEntity) => boolean,
-  qtyList: number[],
-  posList: TBattlePosition[],
-  destoryTypes: TDestoryCauseReason[],
-  executableCells: DuelFieldCellType[]
-): CardActionBase<undefined> => {
-  return {
-    title: "①リクルート",
-    playType: "TriggerEffect",
-    spellSpeed: "Normal",
-    executableCells: executableCells,
-    canExecuteOnDamageStep: true,
-    validate: (action: CardAction<undefined>): DuelFieldCell[] | undefined => {
-      if (!action.entity.wasMovedAtPreviousChain) {
-        return;
-      }
-      if (!action.entity.moveLog.latestRecord.movedAs.includes("BattleDestroy")) {
-        return;
-      }
-      const monsters = action.entity.controller.getDeckCell().cardEntities.filter(monsterFilter);
-      if (monsters.length === 0) {
-        return;
-      }
-
-      if (
-        monsters.every(
-          (monster) =>
-            !action.entity.controller.canSummon(action.entity.controller, action.entity, action as CardAction<unknown>, "SpecialSummon", posList, [monster])
-              .length
-        )
-      ) {
-        return;
-      }
-      return [];
-    },
-    prepare: async () => {
-      return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromDeck"], prepared: undefined };
-    },
-    execute: async (chainBlockInfo: ChainBlockInfo<undefined>): Promise<boolean> => {
-      const monsters = chainBlockInfo.action.entity.controller.getDeckCell().cardEntities.filter(monsterFilter);
-      if (monsters.length === 0) {
-        return false;
-      }
-      const selectedList = await chainBlockInfo.action.entity.field.duel.view.waitSelectEntities(
-        chainBlockInfo.activator,
-        monsters,
-        qtyList.length === 1 ? qtyList[0] : -1,
-        (list) => qtyList.includes(list.length),
-        "特殊召喚するモンスターを選択",
-        false
-      );
-
-      if (!selectedList) {
-        throw new Error("illegal state");
-      }
-
-      for (const monster of selectedList) {
-        await chainBlockInfo.activator.summon(
-          monster,
-          posList,
-          chainBlockInfo.activator.getAvailableMonsterZones(),
-          "SpecialSummon",
-          ["Effect"],
-          chainBlockInfo.action.entity,
-          false
-        );
-      }
-
-      chainBlockInfo.activator.shuffleDeck();
-
-      return true;
-    },
     settle: async () => true,
   };
 };

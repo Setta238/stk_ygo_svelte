@@ -277,7 +277,7 @@ export class Duelist {
     let selectedList = [] as DuelEntity[];
     if ((chooser || this).duelistType === "NPC") {
       // NPCに選択権がある場合、ランダムに手札を捨てる。
-      selectedList = choices.randomPick(qty);
+      selectedList = choices.randomPickMany(qty);
     } else {
       selectedList =
         (await this.duel.view.waitSelectEntities(chooser || this, choices, qty, (list) => list.length === qty, `${qty}枚カードを捨てる。`, false)) || [];
@@ -298,8 +298,8 @@ export class Duelist {
     causedBy: DuelEntity,
     cancelable: boolean = false
   ): Promise<DuelEntity | undefined> => {
-    let pos: TBattlePosition = selectablePosList.randomPick(1)[0];
-    let cell: DuelFieldCell = selectableCells.randomPick(1)[0];
+    let pos: TBattlePosition = selectablePosList.randomPick();
+    let cell: DuelFieldCell = selectableCells.randomPick();
 
     if (selectableCells.length > 1 || selectablePosList.length > 1) {
       if (this.duelistType !== "NPC") {
@@ -328,5 +328,24 @@ export class Duelist {
     await entity.summon(cell, pos, summonType, moveAs, causedBy, this);
 
     return entity;
+  };
+
+  public readonly selectActionForNPC = (enableActions: ICardAction<unknown>[]): ICardAction<unknown> | undefined => {
+    let result = enableActions.filter((action) => action.entity.status.kind === "Spell").randomPick();
+    if (result) {
+      return result;
+    }
+
+    // TODO NPCのロジック
+
+    if (this.duel.phase === "main2" && this.getAvailableSpellTrapZones.length > 1) {
+      result = enableActions
+        .filter((action) => action.playType === "SpellTrapSet")
+        .filter((action) => action.entity.status.kind !== "Spell" || action.entity.status.spellCategory === "QuickPlay")
+        .randomPick();
+      if (result) {
+        return result;
+      }
+    }
   };
 }

@@ -1,4 +1,3 @@
-import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { defaultSpellTrapPrepare, defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/functions/DefaultCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
@@ -31,19 +30,18 @@ export const createCardDefinitions_ContinuousSpell_Preset = (): CardDefinition[]
       createBroadRegularNumericStateOperatorHandler(
         "発動",
         "Spell",
-        (entity: DuelEntity) => entity.isOnField && entity.face === "FaceUp",
-        (entity: DuelEntity) => {
+        (entity) => entity.isOnField && entity.face === "FaceUp",
+        (entity) => {
           return [
             NumericStateOperator.createContinuous(
               "発動",
-              (spawner: DuelEntity) => spawner.isOnField && spawner.face === "FaceUp",
+              (spawner) => spawner.isOnField && spawner.face === "FaceUp",
               entity,
-              (spawner: DuelEntity, target: DuelEntity) =>
-                target.controller === spawner.controller && target.type.includes("Warrior") && target.isOnField && target.face === "FaceUp",
+              (spawner, target) => target.controller === spawner.controller && target.type.includes("Warrior") && target.isOnField && target.face === "FaceUp",
               "attack",
               "current",
               "Addition",
-              (spawner: DuelEntity, monster: DuelEntity, current: number) => {
+              (spawner, monster, current) => {
                 if (!spawner.status.isEffective) {
                   return current;
                 }

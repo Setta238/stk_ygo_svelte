@@ -7,7 +7,7 @@ import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardDefinition } from "./CardDefinitions";
 import {
   createBroadRegularNumericStateOperatorHandler,
-  createNumericStateOperatorHandler,
+  createRegularNumericStateOperatorHandler,
   type ContinuousEffectBase,
 } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import type { TEntityFlexibleStatusKey } from "@ygo/class/YgoTypes";
@@ -20,7 +20,7 @@ export const createCardDefinitions_TestMonster = (): CardDefinition[] => {
     name: "にせアバター",
     actions: [defaultNormalSummonAction, defaultAttackAction, defaultBattlePotisionChangeAction] as CardActionBase<unknown>[],
     continuousEffects: [
-      createNumericStateOperatorHandler(
+      createRegularNumericStateOperatorHandler(
         "THE_DEVILS_AVATAR",
         "Monster",
         (source: DuelEntity) => [source],

@@ -3,7 +3,8 @@ export {};
 // 拡張メソッドの定義
 declare global {
   interface Array<T> {
-    randomPick(num: number): T[];
+    randomPick(): T;
+    randomPickMany(num: number): T[];
     shuffle(): T[];
     reset(...newArray: T[]): void;
     union(another: Readonly<T[]>): T[];
@@ -22,8 +23,11 @@ Array.prototype.shuffle = function <T>(): T[] {
     .toSorted((left, right) => left.seq - right.seq)
     .map((item) => item.item);
 };
-Array.prototype.randomPick = function <T>(num: number): T[] {
+Array.prototype.randomPickMany = function <T>(num: number): T[] {
   return (this as T[]).shuffle().slice(0, num);
+};
+Array.prototype.randomPick = function <T>(): T {
+  return (this as T[]).shuffle().slice(0, 1)[0];
 };
 
 Array.prototype.reset = function <T>(...newArray: T[]): void {

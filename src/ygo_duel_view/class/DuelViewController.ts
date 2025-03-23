@@ -135,7 +135,7 @@ export class DuelViewController {
     }
 
     if (duelist.duelistType === "NPC") {
-      return enableActions.randomPick(1)[0];
+      return duelist.selectActionForNPC(enableActions);
     }
 
     const promiseList: Promise<ICardAction<unknown> | undefined>[] = [];
@@ -212,7 +212,7 @@ export class DuelViewController {
       while (!validator(selected)) {
         // 一個も選択しないパターンは最初にチェックするので、それ以外をランダムに試行する。
         const _qty = qty && qty > 0 ? qty : Math.floor(Math.random() * choises.length) + 1;
-        selected = choises.randomPick(_qty);
+        selected = choises.randomPickMany(_qty);
       }
       return selected;
     }

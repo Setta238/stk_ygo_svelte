@@ -16,6 +16,9 @@ export class CounterHolder {
   public readonly put = (name: TCounterName, qty: number = 1) => {
     this.dic[name] = (this.dic[name] ?? 0) + qty;
   };
+  public readonly setQty = (name: TCounterName, qty: number = 1) => {
+    this.dic[name] = qty;
+  };
   public readonly remove = (name: TCounterName, qty: number = 1) => {
     this.dic[name] = (this.dic[name] ?? 0) - qty;
   };

@@ -1,16 +1,80 @@
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
-import type { CardActionBase } from "@ygo_duel/class/DuelCardAction";
+import type { CardAction, CardActionBase } from "@ygo_duel/class/DuelCardAction";
 import { DuelEntity, type TDestoryCauseReason } from "@ygo_duel/class/DuelEntity";
-import type { DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
-import {
-  defaultAttackAction,
-  defaultBattlePotisionChangeAction,
-  defaultNormalSummonAction,
-  getDefalutRecruiterAction,
-} from "@ygo_duel/functions/DefaultCardAction_Monster";
+import type { DuelFieldCell, DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
+import { defaultAttackAction, defaultBattlePotisionChangeAction, defaultNormalSummonAction } from "@ygo_duel/functions/DefaultCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardDefinition } from "./CardDefinitions";
+
+const getDefalutRecruiterAction = (
+  monsterFilter: (monsters: DuelEntity) => boolean,
+  qtyList: number[],
+  posList: TBattlePosition[],
+  destoryTypes: TDestoryCauseReason[],
+  executableCells: DuelFieldCellType[]
+): CardActionBase<undefined> => {
+  return {
+    title: "①リクルート",
+    playType: "TriggerEffect",
+    spellSpeed: "Normal",
+    executableCells: executableCells,
+    canExecuteOnDamageStep: true,
+    validate: (action): DuelFieldCell[] | undefined => {
+      if (!action.entity.wasMovedAtPreviousChain) {
+        return;
+      }
+      if (!action.entity.moveLog.latestRecord.movedAs.includes("BattleDestroy")) {
+        return;
+      }
+      const monsters = action.entity.controller.getDeckCell().cardEntities.filter(monsterFilter);
+      if (monsters.length === 0) {
+        return;
+      }
+
+      if (
+        monsters.every(
+          (monster) =>
+            !action.entity.controller.canSummon(action.entity.controller, action.entity, action as CardAction<unknown>, "SpecialSummon", posList, [monster])
+              .length
+        )
+      ) {
+        return;
+      }
+      return [];
+    },
+    prepare: async () => {
+      return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromDeck"], prepared: undefined };
+    },
+    execute: async (myInfo) => {
+      const monsters = myInfo.action.entity.controller.getDeckCell().cardEntities.filter(monsterFilter);
+      if (monsters.length === 0) {
+        return false;
+      }
+      const selectedList = await myInfo.action.entity.field.duel.view.waitSelectEntities(
+        myInfo.activator,
+        monsters,
+        qtyList.length === 1 ? qtyList[0] : -1,
+        (list) => qtyList.includes(list.length),
+        "特殊召喚するモンスターを選択",
+        false
+      );
+
+      if (!selectedList) {
+        throw new Error("illegal state");
+      }
+
+      for (const monster of selectedList) {
+        await myInfo.activator.summon(monster, posList, myInfo.activator.getAvailableMonsterZones(), "SpecialSummon", ["Effect"], myInfo.action.entity, false);
+      }
+
+      myInfo.activator.shuffleDeck();
+
+      return true;
+    },
+    settle: async () => true,
+  };
+};
 
 export const createCardDefinitions_Monster_Preset_Recruiter = (): CardDefinition[] => {
   const result: CardDefinition[] = [];

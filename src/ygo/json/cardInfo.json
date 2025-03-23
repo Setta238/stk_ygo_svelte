@@ -14567,7 +14567,10 @@
     "defense": 400,
     "attribute": "Wind",
     "type": "WingedBeast",
-    "wikiEncodedName": "%A1%D4%A5%AC%A5%B9%A5%BF%A1%A6%A5%A4%A5%B0%A5%EB%A1%D5"
+    "wikiEncodedName": "%A1%D4%A5%AC%A5%B9%A5%BF%A1%A6%A5%A4%A5%B0%A5%EB%A1%D5",
+    "nameTags": [
+      "ガスタ"
+    ]
   },
   "ヘル・セキュリティ": {
     "name": "ヘル・セキュリティ",
@@ -14616,7 +14619,10 @@
     "defense": 400,
     "attribute": "Earth",
     "type": "Machine",
-    "wikiEncodedName": "%A1%D4%A5%B8%A5%A7%A5%CD%A5%AF%A5%B9%A1%A6%A5%B5%A1%BC%A5%C1%A5%E3%A1%BC%A1%D5"
+    "wikiEncodedName": "%A1%D4%A5%B8%A5%A7%A5%CD%A5%AF%A5%B9%A1%A6%A5%B5%A1%BC%A5%C1%A5%E3%A1%BC%A1%D5",
+    "nameTags": [
+      "ジェネクス"
+    ]
   },
   "スレイブ・エイプ": {
     "name": "スレイブ・エイプ",
@@ -14648,7 +14654,10 @@
     "defense": 1800,
     "attribute": "Wind",
     "type": "Psychic",
-    "wikiEncodedName": "%A1%D4%A5%C0%A5%A4%A5%AC%A5%B9%A5%BF%A1%A6%A5%A4%A5%B0%A5%EB%A5%B9%A1%D5"
+    "wikiEncodedName": "%A1%D4%A5%C0%A5%A4%A5%AC%A5%B9%A5%BF%A1%A6%A5%A4%A5%B0%A5%EB%A5%B9%A1%D5",
+    "nameTags": [
+      "ガスタ"
+    ]
   },
   "ハイエナ": {
     "name": "ハイエナ",
@@ -14681,5 +14690,70 @@
     "attribute": "Earth",
     "type": "Zombie",
     "wikiEncodedName": "%A1%D4%A5%D4%A5%E9%A5%DF%A5%C3%A5%C9%A1%A6%A5%BF%A1%BC%A5%C8%A5%EB%A1%D5"
+  },
+  "超魔導戦士－マスター・オブ・カオス": {
+    "name": "超魔導戦士－マスター・オブ・カオス",
+    "nameKana": "",
+    "description": "「ブラック・マジシャン」＋「カオス」儀式モンスター\nこのカード名の(1)(2)(3)の効果はそれぞれ１ターンに１度しか使用できない。\n(1)：このカードが融合召喚した場合、自分の墓地の光・闇属性モンスター１体を対象として発動できる。\nそのモンスターを特殊召喚する。\n(2)：自分フィールドの光・闇属性モンスターを１体ずつリリースして発動できる。\n相手フィールドのモンスターを全て除外する。\n(3)：融合召喚したこのカードが戦闘・効果で破壊された場合、自分の墓地の魔法カード１枚を対象として発動できる。\nそのカードを手札に加える。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "Effect"
+    ],
+    "level": 8,
+    "attack": 3000,
+    "defense": 2500,
+    "attribute": "Dark",
+    "type": "Spellcaster",
+    "wikiEncodedName": "%A1%D4%C4%B6%CB%E2%C6%B3%C0%EF%BB%CE%A1%DD%A5%DE%A5%B9%A5%BF%A1%BC%A1%A6%A5%AA%A5%D6%A1%A6%A5%AB%A5%AA%A5%B9%A1%D5"
+  },
+  "黒魔導戦士 ブレイカー": {
+    "name": "黒魔導戦士 ブレイカー",
+    "nameKana": "",
+    "description": "「黒魔導戦士 ブレイカー」の(4)の効果は１ターンに１度しか使用できない。\n(1)：このカードが召喚に成功した場合に発動する。\nこのカードに魔力カウンターを２つ置く。\n(2)：このカードがＰ召喚に成功した場合に発動する。\nこのカードに魔力カウンターを３つ置く。\n(3)：このカードの攻撃力は、このカードの魔力カウンターの数×４００アップする。\n(4)：このカードの魔力カウンターを１つ取り除き、\nフィールドの魔法・罠カード１枚を対象として発動できる。\nそのカードを破壊する。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "level": 6,
+    "attack": 1600,
+    "defense": 1000,
+    "attribute": "Dark",
+    "type": "Spellcaster",
+    "wikiEncodedName": "%A1%D4%B9%F5%CB%E2%C6%B3%C0%EF%BB%CE+%A5%D6%A5%EC%A5%A4%A5%AB%A1%BC%A1%D5"
+  },
+  "魔導戦士 フォルス": {
+    "name": "魔導戦士 フォルス",
+    "nameKana": "",
+    "description": "１ターンに１度、自分の墓地の\n「魔導書」と名のついた魔法カード１枚をデッキに戻し、\nフィールド上の魔法使い族モンスター１体を選択して発動できる。\n選択したモンスターのレベルを１つ上げ、\n攻撃力を５００ポイントアップする。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "level": 4,
+    "attack": 1500,
+    "defense": 1400,
+    "attribute": "Fire",
+    "type": "Spellcaster",
+    "wikiEncodedName": "%A1%D4%CB%E2%C6%B3%C0%EF%BB%CE+%A5%D5%A5%A9%A5%EB%A5%B9%A1%D5"
+  },
+  "魔導戦士 ブレイカー": {
+    "name": "魔導戦士 ブレイカー",
+    "nameKana": "",
+    "description": "(1)：このカードが召喚した場合に発動する。このカードに魔力カウンターを１つ置く（最大１つまで）。\n(2)：このカードの攻撃力は、このカードの魔力カウンターの数×３００アップする。\n(3)：このカードの魔力カウンターを１つ取り除き、フィールドの魔法・罠カード１枚を対象として発動できる。\nそのカードを破壊する。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "level": 4,
+    "attack": 1600,
+    "defense": 1000,
+    "attribute": "Dark",
+    "type": "Spellcaster",
+    "wikiEncodedName": "%A1%D4%CB%E2%C6%B3%C0%EF%BB%CE+%A5%D6%A5%EC%A5%A4%A5%AB%A1%BC%A1%D5"
   }
 }

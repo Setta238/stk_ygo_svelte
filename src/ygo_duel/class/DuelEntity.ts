@@ -13,7 +13,7 @@ import {
   entityFlexibleStatusKeys,
   type TEntityFlexibleStatusKey,
 } from "@ygo/class/YgoTypes";
-import { Duel, SystemError } from "./Duel";
+import { Duel } from "./Duel";
 import { deckCellTypes, playFieldCellTypes, type DuelFieldCell, type TBundleCellType, type TDuelEntityMovePos } from "./DuelFieldCell";
 import { type Duelist } from "./Duelist";
 
@@ -686,6 +686,8 @@ export class DuelEntity {
     orientation: TDuelEntityOrientation
   ) {
     this.seq = DuelEntity.nextEntitySeq++;
+    this.counterHolder = new CounterHolder();
+
     this.owner = owner;
     this.fieldCell = fieldCell;
     this.entityType = entityType;
@@ -717,76 +719,11 @@ export class DuelEntity {
     this.numericOprsBundle = new NumericStateOperatorBundle(fieldCell.field.numericStateOperatorPool, this);
     this.cardRelationBundle = new CardRelationBundle(fieldCell.field.cardRelationPool, this);
     fieldCell.acceptEntities([this], "Top");
-    this.counterHolder = new CounterHolder();
     this.moveLog = new DuelEntityLog(this);
     this.moveLog.pushForRuleAction(["Spawn"]);
   }
 
   public readonly toString = () => `《${this.nm}》`;
-
-  public readonly canBeTargetOfEffect = (activator: Duelist, entity: DuelEntity, action: CardAction<unknown>): boolean =>
-    this.procFilterBundle.operators.filter((pf) => pf.procTypes.some((t) => t === "EffectTarget")).every((pf) => pf.filter(activator, entity, action, [this]));
-
-  public readonly canBeSpecialSummoned = (
-    summmonRule: TSummonRuleCauseReason,
-    activator: Duelist,
-    entity: DuelEntity,
-    action: CardAction<unknown>
-  ): boolean => {
-    // 特殊召喚できないモンスター（※神、スピリットなど）
-    if (this.origin.monsterCategories?.includes("NormalSummonOnly")) {
-      return false;
-    }
-
-    // 特殊召喚モンスターかつ蘇生制限を満たしていないモンスター
-    if (
-      this.origin.monsterCategories?.includes("SpecialSummon") &&
-      !this.status.canReborn &&
-      !this.info.isRebornable &&
-      (this.fieldCell.cellType === "Graveyard" || this.fieldCell.cellType === "Banished")
-    ) {
-      return false;
-    }
-
-    return this.procFilterBundle.operators
-      .filter((pf) => pf.procTypes.some((t) => t === "SpecialSummon" || t === summmonRule))
-      .every((pf) => pf.filter(activator, entity, action, [this]));
-  };
-  public readonly canBeTargetOfBattle = (activator: Duelist, entity: DuelEntity, action: CardAction<unknown>): boolean =>
-    this.procFilterBundle.operators.filter((pf) => pf.procTypes.some((t) => t === "BattleTarget")).every((pf) => pf.filter(activator, entity, action, [this]));
-
-  public readonly tryDestory = (destroyType: TDestoryCauseReason, activator: Duelist, entity: DuelEntity, action: CardAction<unknown> | undefined): boolean => {
-    this.info.isDying = this.procFilterBundle.operators
-      .filter((pf) => pf.procTypes.some((t) => t === destroyType))
-      .every((pf) => pf.filter(activator, entity, action, [this]));
-    if (this.info.isDying) {
-      this.duel.log.info(`${this.toString()}を${destoryCauseReasonDic[destroyType]}`, entity.controller);
-      this.info.causeOfDeath = [destroyType];
-      this.info.isKilledBy = entity;
-      this.info.isKilledByWhom = entity.controller;
-    }
-    return this.info.isDying;
-  };
-
-  public readonly canBeMaterials = (summmonRule: TSummonRuleCauseReason, action: CardAction<unknown>, materials: DuelEntity[]) => {
-    return this.procFilterBundle.operators
-      .filter((pf) => pf.procTypes.some((t) => t === summmonRule))
-      .every((pf) => pf.filter(action.entity.controller, action.entity, action, materials));
-  };
-
-  public readonly getIndexInCell = (): number => {
-    if (this.info.isVanished) {
-      return -1;
-    }
-
-    const index = this.fieldCell.cardEntities.indexOf(this);
-
-    if (index < 0) {
-      throw new SystemError("エンティティとセルの状態が矛盾している。", [this, this.fieldCell]);
-    }
-
-    return index;
-  };
 
   public readonly setBattlePosition = async (pos: TBattlePosition, movedAs: TDuelCauseReason[], movedBy?: DuelEntity, actionOwner?: Duelist): Promise<void> => {
     // ログテキストを準備

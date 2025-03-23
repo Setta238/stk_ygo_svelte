@@ -1146,15 +1146,37 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 このターンのエンドフェイズに、デッキから「ブラック・ホール」１枚を手札に加える。
 (3)：フィールドのこのカードは効果では破壊されない。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:8,attack:3e3,defense:2e3,attribute:"Dark",type:"Dragon",wikiEncodedName:"%A1%D4%A5%D6%A5%E9%A5%C3%A5%AF%A1%A6%A5%DB%A1%BC%A5%EB%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5"},"サンダー・ボルト":{name:"サンダー・ボルト",nameKana:"",description:"(1)：相手フィールドのモンスターを全て破壊する。",kind:"Spell",spellCategory:"Normal",wikiEncodedName:"%A1%D4%A5%B5%A5%F3%A5%C0%A1%BC%A1%A6%A5%DC%A5%EB%A5%C8%A1%D5"},"ブラック・ホール":{name:"ブラック・ホール",nameKana:"",description:"(1)：フィールドのモンスターを全て破壊する。",kind:"Spell",spellCategory:"Normal",wikiEncodedName:"%A1%D4%A5%D6%A5%E9%A5%C3%A5%AF%A1%A6%A5%DB%A1%BC%A5%EB%A1%D5"},"ガスタ・イグル":{name:"ガスタ・イグル",nameKana:"",description:`このカードが戦闘によって破壊され墓地へ送られた時、
 デッキからチューナー以外のレベル４以下の
-「ガスタ」と名のついたモンスター１体を特殊召喚できる。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Tuner","Effect"],level:1,attack:200,defense:400,attribute:"Wind",type:"WingedBeast",wikiEncodedName:"%A1%D4%A5%AC%A5%B9%A5%BF%A1%A6%A5%A4%A5%B0%A5%EB%A1%D5"},"ヘル・セキュリティ":{name:"ヘル・セキュリティ",nameKana:"",description:`(1)：このカードが戦闘で破壊され墓地へ送られた場合に発動する。
+「ガスタ」と名のついたモンスター１体を特殊召喚できる。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Tuner","Effect"],level:1,attack:200,defense:400,attribute:"Wind",type:"WingedBeast",wikiEncodedName:"%A1%D4%A5%AC%A5%B9%A5%BF%A1%A6%A5%A4%A5%B0%A5%EB%A1%D5",nameTags:["ガスタ"]},"ヘル・セキュリティ":{name:"ヘル・セキュリティ",nameKana:"",description:`(1)：このカードが戦闘で破壊され墓地へ送られた場合に発動する。
 デッキから悪魔族・レベル１モンスター１体を特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Tuner","Effect"],level:1,attack:100,defense:600,attribute:"Dark",type:"Fiend",wikiEncodedName:"%A1%D4%A5%D8%A5%EB%A1%A6%A5%BB%A5%AD%A5%E5%A5%EA%A5%C6%A5%A3%A1%D5"},"アサルト・ガンドッグ":{name:"アサルト・ガンドッグ",nameKana:"",description:`(1)：このカードが戦闘で破壊され墓地へ送られた時に発動できる。
 デッキから「アサルト・ガンドッグ」を任意の数だけ特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:4,attack:1200,defense:800,attribute:"Earth",type:"Beast",wikiEncodedName:"%A1%D4%A5%A2%A5%B5%A5%EB%A5%C8%A1%A6%A5%AC%A5%F3%A5%C9%A5%C3%A5%B0%A1%D5"},"ジェネクス・サーチャー":{name:"ジェネクス・サーチャー",nameKana:"",description:`(1)：このカードが戦闘で破壊され墓地へ送られた時に発動できる。
-デッキから攻撃力１５００以下の「ジェネクス」モンスター１体を攻撃表示で特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:4,attack:1600,defense:400,attribute:"Earth",type:"Machine",wikiEncodedName:"%A1%D4%A5%B8%A5%A7%A5%CD%A5%AF%A5%B9%A1%A6%A5%B5%A1%BC%A5%C1%A5%E3%A1%BC%A1%D5"},"スレイブ・エイプ":{name:"スレイブ・エイプ",nameKana:"",description:`このカードが戦闘によって破壊され墓地へ送られた時、
+デッキから攻撃力１５００以下の「ジェネクス」モンスター１体を攻撃表示で特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:4,attack:1600,defense:400,attribute:"Earth",type:"Machine",wikiEncodedName:"%A1%D4%A5%B8%A5%A7%A5%CD%A5%AF%A5%B9%A1%A6%A5%B5%A1%BC%A5%C1%A5%E3%A1%BC%A1%D5",nameTags:["ジェネクス"]},"スレイブ・エイプ":{name:"スレイブ・エイプ",nameKana:"",description:`このカードが戦闘によって破壊され墓地へ送られた時、
 デッキから「剣闘獣」と名のついたレベル４以下のモンスター１体を
 自分フィールド上に特殊召喚する事ができる。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:2,attack:700,defense:300,attribute:"Earth",type:"Beast",wikiEncodedName:"%A1%D4%A5%B9%A5%EC%A5%A4%A5%D6%A1%A6%A5%A8%A5%A4%A5%D7%A1%D5"},"ダイガスタ・イグルス":{name:"ダイガスタ・イグルス",nameKana:"",description:`チューナー＋チューナー以外の「ガスタ」と名のついたモンスター１体以上
 １ターンに１度、自分のエンドフェイズ時に
 自分の墓地の風属性モンスター１体をゲームから除外して発動できる。
-相手フィールド上にセットされたカード１枚を選択して破壊する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:7,attack:2600,defense:1800,attribute:"Wind",type:"Psychic",wikiEncodedName:"%A1%D4%A5%C0%A5%A4%A5%AC%A5%B9%A5%BF%A1%A6%A5%A4%A5%B0%A5%EB%A5%B9%A1%D5"},ハイエナ:{name:"ハイエナ",nameKana:"",description:`このカードが戦闘によって墓地へ送られた時、
+相手フィールド上にセットされたカード１枚を選択して破壊する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:7,attack:2600,defense:1800,attribute:"Wind",type:"Psychic",wikiEncodedName:"%A1%D4%A5%C0%A5%A4%A5%AC%A5%B9%A5%BF%A1%A6%A5%A4%A5%B0%A5%EB%A5%B9%A1%D5",nameTags:["ガスタ"]},ハイエナ:{name:"ハイエナ",nameKana:"",description:`このカードが戦闘によって墓地へ送られた時、
 デッキから「ハイエナ」をフィールド上に特殊召喚する事ができる。
 その後デッキをシャッフルする。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:3,attack:1e3,defense:300,attribute:"Earth",type:"Beast",wikiEncodedName:"%A1%D4%A5%CF%A5%A4%A5%A8%A5%CA%A1%D5"},"ピラミッド・タートル":{name:"ピラミッド・タートル",nameKana:"",description:`(1)：このカードが戦闘で破壊され墓地へ送られた時に発動できる。
-デッキから守備力２０００以下のアンデット族モンスター１体を特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:4,attack:1200,defense:1400,attribute:"Earth",type:"Zombie",wikiEncodedName:"%A1%D4%A5%D4%A5%E9%A5%DF%A5%C3%A5%C9%A1%A6%A5%BF%A1%BC%A5%C8%A5%EB%A1%D5"}};export{e as j};
+デッキから守備力２０００以下のアンデット族モンスター１体を特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:4,attack:1200,defense:1400,attribute:"Earth",type:"Zombie",wikiEncodedName:"%A1%D4%A5%D4%A5%E9%A5%DF%A5%C3%A5%C9%A1%A6%A5%BF%A1%BC%A5%C8%A5%EB%A1%D5"},"超魔導戦士－マスター・オブ・カオス":{name:"超魔導戦士－マスター・オブ・カオス",nameKana:"",description:`「ブラック・マジシャン」＋「カオス」儀式モンスター
+このカード名の(1)(2)(3)の効果はそれぞれ１ターンに１度しか使用できない。
+(1)：このカードが融合召喚した場合、自分の墓地の光・闇属性モンスター１体を対象として発動できる。
+そのモンスターを特殊召喚する。
+(2)：自分フィールドの光・闇属性モンスターを１体ずつリリースして発動できる。
+相手フィールドのモンスターを全て除外する。
+(3)：融合召喚したこのカードが戦闘・効果で破壊された場合、自分の墓地の魔法カード１枚を対象として発動できる。
+そのカードを手札に加える。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Fusion","Effect"],level:8,attack:3e3,defense:2500,attribute:"Dark",type:"Spellcaster",wikiEncodedName:"%A1%D4%C4%B6%CB%E2%C6%B3%C0%EF%BB%CE%A1%DD%A5%DE%A5%B9%A5%BF%A1%BC%A1%A6%A5%AA%A5%D6%A1%A6%A5%AB%A5%AA%A5%B9%A1%D5"},"黒魔導戦士 ブレイカー":{name:"黒魔導戦士 ブレイカー",nameKana:"",description:`「黒魔導戦士 ブレイカー」の(4)の効果は１ターンに１度しか使用できない。
+(1)：このカードが召喚に成功した場合に発動する。
+このカードに魔力カウンターを２つ置く。
+(2)：このカードがＰ召喚に成功した場合に発動する。
+このカードに魔力カウンターを３つ置く。
+(3)：このカードの攻撃力は、このカードの魔力カウンターの数×４００アップする。
+(4)：このカードの魔力カウンターを１つ取り除き、
+フィールドの魔法・罠カード１枚を対象として発動できる。
+そのカードを破壊する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:6,attack:1600,defense:1e3,attribute:"Dark",type:"Spellcaster",wikiEncodedName:"%A1%D4%B9%F5%CB%E2%C6%B3%C0%EF%BB%CE+%A5%D6%A5%EC%A5%A4%A5%AB%A1%BC%A1%D5"},"魔導戦士 フォルス":{name:"魔導戦士 フォルス",nameKana:"",description:`１ターンに１度、自分の墓地の
+「魔導書」と名のついた魔法カード１枚をデッキに戻し、
+フィールド上の魔法使い族モンスター１体を選択して発動できる。
+選択したモンスターのレベルを１つ上げ、
+攻撃力を５００ポイントアップする。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:4,attack:1500,defense:1400,attribute:"Fire",type:"Spellcaster",wikiEncodedName:"%A1%D4%CB%E2%C6%B3%C0%EF%BB%CE+%A5%D5%A5%A9%A5%EB%A5%B9%A1%D5"},"魔導戦士 ブレイカー":{name:"魔導戦士 ブレイカー",nameKana:"",description:`(1)：このカードが召喚した場合に発動する。このカードに魔力カウンターを１つ置く（最大１つまで）。
+(2)：このカードの攻撃力は、このカードの魔力カウンターの数×３００アップする。
+(3)：このカードの魔力カウンターを１つ取り除き、フィールドの魔法・罠カード１枚を対象として発動できる。
+そのカードを破壊する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:4,attack:1600,defense:1e3,attribute:"Dark",type:"Spellcaster",wikiEncodedName:"%A1%D4%CB%E2%C6%B3%C0%EF%BB%CE+%A5%D6%A5%EC%A5%A4%A5%AB%A1%BC%A1%D5"}};export{e as j};

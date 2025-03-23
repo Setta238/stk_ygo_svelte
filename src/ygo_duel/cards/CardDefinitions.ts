@@ -1,7 +1,6 @@
 import type { CardActionBase } from "@ygo_duel/class/DuelCardAction";
 import { createCardDefinitions_Monster } from "./CardDefinitions_Monster";
 import { createCardDefinitions_NormalSpell } from "./CardDefinitions_NormalSpell";
-import { createCardDefinitions_QuickPlaySpell } from "./CardDefinitions_QuickPlaySpell";
 import { createCardDefinitions_Monster_Preset_Recruiter } from "./CardDefinitions_Monster_Preset_Recruiter";
 import { createCardDefinitions_NormalSpell_Preset } from "./CardDefinitions_NormalSpell_Preset";
 import { createCardDefinitions_SyncroMonster } from "./CardDefinitions_SyncroMonster";
@@ -12,6 +11,8 @@ import { createCardDefinitions_ContinuousSpell_Preset } from "./CardDefinitions_
 import { createCardDefinitions_EquipSpell } from "./CardDefinitions_EquipSpell";
 import { createCardDefinitions_EquipSpell_Preset } from "./CardDefinitions_EquipSpell_Preset";
 import { createCardDefinitions_TestMonster } from "./CardDefinitions_TestMonster";
+import { createCardDefinitions_QuickPlaySpell } from "./CardDefinitions_QuickPlaySpell";
+import { createCardDefinitions_SpellCounter_Monster } from "./CardDefinitions_SpellCounter_Monster";
 
 export type CardDefinition = {
   name: string;
@@ -32,6 +33,7 @@ export const createCardDefinitions = (): CardDefinition[] => {
     ...createCardDefinitions_EquipSpell(),
     ...createCardDefinitions_EquipSpell_Preset(),
     ...createCardDefinitions_TestMonster(),
+    ...createCardDefinitions_SpellCounter_Monster(),
   ];
   const names = hoge.map((def) => def.name);
   console.info(names);

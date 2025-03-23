@@ -190,7 +190,7 @@ export class DuelField {
     cancelable: boolean = false
   ): Promise<DuelEntity | undefined> => {
     const _chooser = chooser ?? causedBy?.controller ?? entity.controller;
-    let cell: DuelFieldCell = selectableCells.randomPick(1)[0];
+    let cell: DuelFieldCell = selectableCells.randomPick();
     if (selectableCells.length > 1) {
       if (_chooser.duelistType !== "NPC") {
         const dammyActions = [CardAction.createDammyAction(entity, "カードの発動", selectableCells, undefined)];

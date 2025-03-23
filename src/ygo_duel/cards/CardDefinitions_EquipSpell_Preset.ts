@@ -1,18 +1,16 @@
 import { defaultSpellTrapPrepare, defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/functions/DefaultCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
-import type { CardAction, CardActionBase, ChainBlockInfo, ChainBlockInfoBase } from "@ygo_duel/class/DuelCardAction";
+import type { CardAction, CardActionBase } from "@ygo_duel/class/DuelCardAction";
 
 import type { CardDefinition } from "./CardDefinitions";
 import type { TEntityFlexibleStatusKey, TMonsterAttribute, TMonsterType } from "@ygo/class/YgoTypes";
-import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 import {
   createRegularEquipRelationHandler,
-  createNumericStateOperatorHandler as createRegularNumericStateOperatorHandler,
+  createRegularNumericStateOperatorHandler as createRegularNumericStateOperatorHandler,
   type ContinuousEffectBase,
 } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { CardRelation } from "@ygo_duel/class_continuous_effect/DuelCardRelation";
-import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 
 export const createCardDefinitions_EquipSpell_Preset = (): CardDefinition[] => {
@@ -55,7 +53,7 @@ export const createCardDefinitions_EquipSpell_Preset = (): CardDefinition[] => {
           spellSpeed: "Normal",
           executableCells: ["Hand", "SpellAndTrapZone"],
           isLikeContinuousSpell: true,
-          validate: (action: CardAction<undefined>): DuelFieldCell[] | undefined => {
+          validate: (action) => {
             const monsters = action.entity.field
               .getMonstersOnField()
               .filter((monster) => monster.face === "FaceUp")
@@ -65,12 +63,7 @@ export const createCardDefinitions_EquipSpell_Preset = (): CardDefinition[] => {
 
             return monsters.length ? defaultSpellTrapValidate(action) : undefined;
           },
-          prepare: async (
-            action: CardAction<undefined>,
-            cell: DuelFieldCell | undefined,
-            chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
-            cancelable: boolean
-          ): Promise<ChainBlockInfoBase<undefined> | undefined> => {
+          prepare: async (action, cell, chainBlockInfos, cancelable) => {
             const monsters = action.entity.field
               .getMonstersOnField()
               .filter((monster) => monster.face === "FaceUp")
@@ -117,9 +110,9 @@ export const createCardDefinitions_EquipSpell_Preset = (): CardDefinition[] => {
         createRegularNumericStateOperatorHandler(
           item.name,
           "Spell",
-          (source: DuelEntity) => source.info.effectTargets["EquipTarget"],
-          (source: DuelEntity) => source.isOnField && source.face === "FaceUp",
-          (entity: DuelEntity) => {
+          (source) => source.info.effectTargets["EquipTarget"],
+          (source) => source.isOnField && source.face === "FaceUp",
+          (entity) => {
             const targetStatus: [targetState: TEntityFlexibleStatusKey, point: number][] = [];
             if (item.atk !== 0) {
               targetStatus.push(["attack", item.atk]);
@@ -130,9 +123,9 @@ export const createCardDefinitions_EquipSpell_Preset = (): CardDefinition[] => {
             return targetStatus.map(([targetState, point]) =>
               NumericStateOperator.createContinuous(
                 "発動",
-                (spawner: DuelEntity) => spawner.isOnField && spawner.face === "FaceUp",
+                (spawner) => spawner.isOnField && spawner.face === "FaceUp",
                 entity,
-                (spawner: DuelEntity, target: DuelEntity) =>
+                (spawner, target) =>
                   target.isOnField &&
                   target.face === "FaceUp" &&
                   (!item.monType || target.type.includes(item.monType)) &&
@@ -140,7 +133,7 @@ export const createCardDefinitions_EquipSpell_Preset = (): CardDefinition[] => {
                 targetState,
                 "current",
                 "Addition",
-                (spawner: DuelEntity, monster: DuelEntity, current: number) => {
+                (spawner, monster, current) => {
                   if (!spawner.status.isEffective) {
                     return current;
                   }

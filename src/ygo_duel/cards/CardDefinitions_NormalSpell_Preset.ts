@@ -1,16 +1,154 @@
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
-import {
-  defaultSpellTrapSetAction,
-  getDefaultHealBurnSpellAction as getDefaultHealOrBurnSpellAction,
-  getDefaultSalvageSpellAction,
-  getDefaultSearchSpellAction,
-  getLikeTradeInAction,
-} from "@ygo_duel/functions/DefaultCardAction_Spell";
+import { defaultSpellTrapPrepare, defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/functions/DefaultCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
-import type { CardActionBase } from "@ygo_duel/class/DuelCardAction";
+import type { CardActionBase, ChainBlockInfo, TEffectTag } from "@ygo_duel/class/DuelCardAction";
 
 import type { CardDefinition } from "./CardDefinitions";
+
+const getDefaultSearchSpellAction = (filter: (card: DuelEntity) => boolean): CardActionBase<undefined> => {
+  return {
+    title: "発動",
+    playType: "CardActivation",
+    spellSpeed: "Normal",
+    executableCells: ["Hand", "SpellAndTrapZone"],
+    // デッキに対象カードが一枚以上必要。
+    validate: (action) => {
+      if (action.entity.controller.getDeckCell().cardEntities.filter(filter).length === 0) {
+        return;
+      }
+      if (!action.entity.controller.canDraw) {
+        return;
+      }
+      return defaultSpellTrapValidate(action);
+    },
+    prepare: (action, cell, chainBlockInfos, cancelable) =>
+      defaultSpellTrapPrepare(action, cell, chainBlockInfos, cancelable, ["SearchFromDeck"], [], undefined),
+    execute: async (myInfo) => {
+      const monsters = myInfo.activator.getDeckCell().cardEntities.filter(filter);
+      if (monsters.length === 0) {
+        return false;
+      }
+      const target = await myInfo.action.entity.field.duel.view.waitSelectEntities(
+        myInfo.activator,
+        monsters,
+        1,
+        (list) => list.length === 1,
+        "手札に加えるカードを選択",
+        false
+      );
+      for (const monster of target ?? []) {
+        await monster.addToHand(["Effect"], myInfo.action.entity, myInfo.activator);
+      }
+      myInfo.activator.shuffleDeck();
+      return true;
+    },
+    settle: async () => true,
+  };
+};
+const getDefaultSalvageSpellAction = (filter: (card: DuelEntity) => boolean, qty: number): CardActionBase<undefined> => {
+  return {
+    title: "発動",
+    playType: "CardActivation",
+    spellSpeed: "Normal",
+    executableCells: ["Hand", "SpellAndTrapZone"],
+    hasToTargetCards: true,
+    // 墓地にに対象カードが一枚以上必要。
+    validate: (action) => {
+      if (action.entity.controller.getGraveyard().cardEntities.filter(filter).length < qty) {
+        return;
+      }
+      return defaultSpellTrapValidate(action);
+    },
+    prepare: (action, cell, chainBlockInfos, cancelable) =>
+      defaultSpellTrapPrepare(action, cell, chainBlockInfos, cancelable, ["AddToHandFromGraveyard"], [], undefined),
+    execute: async (myInfo) => {
+      const monsters = myInfo.activator.getGraveyard().cardEntities.filter(filter);
+      if (monsters.length === 0) {
+        return false;
+      }
+      const target = await myInfo.action.entity.field.duel.view.waitSelectEntities(
+        myInfo.activator,
+        monsters,
+        qty,
+        (list) => list.length === qty,
+        "手札に加えるカードを選択",
+        false
+      );
+      for (const monster of target ?? []) {
+        await monster.addToHand(["Effect"], myInfo.action.entity, myInfo.activator);
+      }
+      return true;
+    },
+    settle: async () => true,
+  };
+};
+const getLikeTradeInAction = (filter: (card: DuelEntity) => boolean): CardActionBase<undefined> => {
+  return {
+    title: "発動",
+    playType: "CardActivation",
+    spellSpeed: "Normal",
+    executableCells: ["Hand", "SpellAndTrapZone"],
+    // 手札に対象カードが一枚以上必要。
+    validate: (action) => {
+      if (action.entity.controller.getHandCell().cardEntities.filter(filter).length === 0) {
+        return;
+      }
+      if (action.entity.controller.getDeckCell().cardEntities.length < 2) {
+        return;
+      }
+      return defaultSpellTrapValidate(action);
+    },
+    prepare: async (action, cell, chainBlockInfos, cancelable) => {
+      await action.entity.controller.discard(1, ["Discard", "Cost"], action.entity, action.entity.controller, filter);
+
+      return defaultSpellTrapPrepare(action, cell, chainBlockInfos, cancelable, ["SearchFromDeck"], [], undefined);
+    },
+    execute: async (myInfo) => {
+      await myInfo.activator.draw(2, myInfo.action.entity, myInfo.activator);
+      return true;
+    },
+    settle: async () => true,
+  };
+};
+
+const getDefaultHealBurnSpellAction = (calcDamage: (entity: DuelEntity) => [number, number]): CardActionBase<undefined> => {
+  return {
+    title: "発動",
+    playType: "CardActivation",
+    spellSpeed: "Normal",
+    executableCells: ["Hand", "SpellAndTrapZone"],
+    validate: defaultSpellTrapValidate,
+    prepare: (action, cell, chainBlockInfos, cancelable) => {
+      const [toSelf, toOpponent] = calcDamage(action.entity);
+
+      const tags: TEffectTag[] = [];
+      if (toSelf < 0) {
+        tags.push("DamageToSelf");
+      }
+      if (toOpponent < 0) {
+        tags.push("DamageToOpponent");
+      }
+
+      return defaultSpellTrapPrepare(action, cell, chainBlockInfos, cancelable, tags, [], undefined);
+    },
+    execute: async (myInfo: ChainBlockInfo<undefined>) => {
+      const [toSelf, toOpponent] = calcDamage(myInfo.action.entity);
+      if (toOpponent > 0) {
+        myInfo.activator.getOpponentPlayer().heal(toOpponent, myInfo.action.entity);
+      } else if (toOpponent < 0) {
+        myInfo.activator.getOpponentPlayer().effectDamage(Math.abs(toOpponent), myInfo.action.entity);
+      }
+      if (toSelf > 0) {
+        myInfo.activator.heal(toSelf, myInfo.action.entity);
+      } else if (toSelf < 0) {
+        myInfo.activator.effectDamage(Math.abs(toSelf), myInfo.action.entity);
+      }
+      return true;
+    },
+    settle: async () => true,
+  };
+};
 
 export const createCardDefinitions_NormalSpell_Preset = (): CardDefinition[] => {
   const result: CardDefinition[] = [];
@@ -180,7 +318,7 @@ export const createCardDefinitions_NormalSpell_Preset = (): CardDefinition[] => 
   ].forEach((item) => {
     result.push({
       name: item.name,
-      actions: [getDefaultHealOrBurnSpellAction(item.calcHeal), defaultSpellTrapSetAction] as CardActionBase<unknown>[],
+      actions: [getDefaultHealBurnSpellAction(item.calcHeal), defaultSpellTrapSetAction] as CardActionBase<unknown>[],
     });
   });
   return result;

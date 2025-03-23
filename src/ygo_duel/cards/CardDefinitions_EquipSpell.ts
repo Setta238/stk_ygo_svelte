@@ -1,18 +1,16 @@
 import { defaultSpellTrapPrepare, defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/functions/DefaultCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
-import type { CardAction, CardActionBase, ChainBlockInfo, ChainBlockInfoBase } from "@ygo_duel/class/DuelCardAction";
+import type { CardAction, CardActionBase } from "@ygo_duel/class/DuelCardAction";
 
 import type { CardDefinition } from "./CardDefinitions";
 import type { TCardKind, TEntityFlexibleStatusKey } from "@ygo/class/YgoTypes";
-import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 import {
   createRegularEquipRelationHandler,
-  createNumericStateOperatorHandler as createRegularNumericStateOperatorHandler,
+  createRegularNumericStateOperatorHandler as createRegularNumericStateOperatorHandler,
   type ContinuousEffectBase,
 } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { CardRelation } from "@ygo_duel/class_continuous_effect/DuelCardRelation";
-import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import { IllegalCancelError } from "@ygo_duel/class/Duel";
 
@@ -34,7 +32,7 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
           spellSpeed: "Normal",
           executableCells: ["Hand", "SpellAndTrapZone"],
           isLikeContinuousSpell: true,
-          validate: (action: CardAction<undefined>): DuelFieldCell[] | undefined => {
+          validate: (action) => {
             const monsters = action.entity.field
               .getMonstersOnField()
               .filter((monster) => monster.face === "FaceUp")
@@ -42,12 +40,7 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
 
             return monsters.length ? defaultSpellTrapValidate(action) : undefined;
           },
-          prepare: async (
-            action: CardAction<undefined>,
-            cell: DuelFieldCell | undefined,
-            chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
-            cancelable: boolean
-          ): Promise<ChainBlockInfoBase<undefined> | undefined> => {
+          prepare: async (action, cell, chainBlockInfos, cancelable) => {
             const monsters = action.entity.field
               .getMonstersOnField()
               .filter((monster) => monster.face === "FaceUp")
@@ -91,19 +84,19 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
         createRegularNumericStateOperatorHandler(
           item.name,
           "Spell",
-          (source: DuelEntity) => source.info.effectTargets["EquipTarget"],
-          (source: DuelEntity) => source.isOnField && source.face === "FaceUp",
-          (entity: DuelEntity) => {
-            return (["attack", "defense"] as TEntityFlexibleStatusKey[]).map((targetState: TEntityFlexibleStatusKey) =>
+          (source) => source.info.effectTargets["EquipTarget"],
+          (source) => source.isOnField && source.face === "FaceUp",
+          (entity) => {
+            return (["attack", "defense"] as TEntityFlexibleStatusKey[]).map((targetState) =>
               NumericStateOperator.createContinuous(
                 "発動",
-                (spawner: DuelEntity) => spawner.isOnField && spawner.face === "FaceUp",
+                (spawner) => spawner.isOnField && spawner.face === "FaceUp",
                 entity,
-                (spawner: DuelEntity, target: DuelEntity) => target.isOnField && target.face === "FaceUp",
+                (spawner, target) => target.isOnField && target.face === "FaceUp",
                 targetState,
                 "current",
                 "Addition",
-                (spawner: DuelEntity, monster: DuelEntity, current: number) => {
+                (spawner, monster, current) => {
                   if (!spawner.status.isEffective) {
                     return current;
                   }
@@ -128,7 +121,7 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
         hasToTargetCards: true,
         isLikeContinuousSpell: true,
         // 墓地に蘇生可能モンスター、場に空きが必要。
-        validate: (action: CardAction<undefined>) => {
+        validate: (action) => {
           if (
             action.entity.controller
               .getGraveyard()
@@ -148,7 +141,7 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
           }
           return defaultSpellTrapValidate(action);
         },
-        prepare: async (action: CardAction<undefined>, cell: DuelFieldCell, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => {
+        prepare: async (action, cell, chainBlockInfos) => {
           const targets = await action.entity.field.duel.view.waitSelectEntities(
             action.entity.controller,
             action.entity.controller
@@ -172,7 +165,7 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
 
           return await defaultSpellTrapPrepare(action, cell, chainBlockInfos, false, ["SpecialSummonFromGraveyard", "PayLifePoint"], targets, undefined);
         },
-        execute: async (myInfo: ChainBlockInfo<undefined>) => {
+        execute: async (myInfo) => {
           console.log("早すぎた埋葬 execute");
           const emptyCells = myInfo.activator.getEmptyMonsterZones();
           const target = myInfo.selectedEntities[0];

@@ -91,12 +91,12 @@
                         {#if cardInfo.rank}
                           ☆{cardInfo.rank}
                         {/if}
-                        {#if cardInfo.attribute !== undefined}
-                          <div class="monster_attr {cardInfo.attribute}"></div>
-                        {/if}
-                        {#if cardInfo.type !== undefined}
-                          {monsterTypeEmojiDic[cardInfo.type]}
-                        {/if}
+                        {#each cardInfo.attributes ?? [] as attr}
+                          <div class="monster_attr {attr}"></div>
+                        {/each}
+                        {#each cardInfo.types ?? [] as type}
+                          {monsterTypeEmojiDic[type]}
+                        {/each}
                         {#each cardInfo.monsterCategories ?? [] as cat}
                           {monsterCategoryEmojiDic[cat]}
                         {/each}

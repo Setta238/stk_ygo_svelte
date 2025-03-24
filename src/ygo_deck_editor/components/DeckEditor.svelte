@@ -90,10 +90,10 @@
       }
 
       if (cardInfo.kind === "Monster") {
-        if (cardInfo.attribute && !seachCondition.monsterAttributes.includes(cardInfo.attribute)) {
+        if (cardInfo.attributes && !seachCondition.monsterAttributes.union(cardInfo.attributes).length) {
           return false;
         }
-        if (cardInfo.type && !seachCondition.monsterTypes.includes(cardInfo.type)) {
+        if (cardInfo.types && !seachCondition.monsterTypes.union(cardInfo.types).length) {
           return false;
         }
 
@@ -194,7 +194,7 @@
             {#each monsterAttributes as key}
               <label>
                 <input type="checkbox" value={key} bind:group={seachCondition.monsterAttributes} />
-                <div style="display: inline-block;" class="monster_attr {cardInfo.attribute}"></div>
+                <div style="display: inline-block;" class="monster_attr {key}"></div>
                 {monsterAttributeDic[key]}
               </label>
             {/each}

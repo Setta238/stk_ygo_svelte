@@ -1,15 +1,15 @@
 import { StickyEffectOperatorBase, StickyEffectOperatorBundle, StickyEffectOperatorPool } from "./DuelStickyEffectOperatorBase";
-import type { DuelEntity } from "../class/DuelEntity";
-import type { EntityStatus } from "@ygo/class/YgoTypes";
+import type { DuelEntity, EntityStatus } from "../class/DuelEntity";
 import type { CardActionBaseAttr } from "@ygo_duel/class/DuelCardAction";
 import type { Duel } from "@ygo_duel/class/Duel";
 
 export class StatusOperatorPool extends StickyEffectOperatorPool<StatusOperator, StatusOperatorBundle> {
-  protected readonly afterDistributeAll = (duel: Duel) =>
-    duel.field
+  protected readonly afterDistributeAll = (duel: Duel) => {
+    return duel.field
       .getAllEntities()
       .map((entity) => entity.statusOperatorBundle)
-      .every((bundle) => bundle.calcStatus);
+      .every((bundle) => bundle.calcStatus());
+  };
 }
 
 export class StatusOperatorBundle extends StickyEffectOperatorBundle<StatusOperator> {

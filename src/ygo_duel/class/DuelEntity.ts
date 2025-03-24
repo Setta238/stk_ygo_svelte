@@ -6,7 +6,6 @@ import {
   type TBattlePosition,
   type CardInfoDescription,
   type CardInfoJson,
-  type EntityStatus,
   type TNonBattlePosition,
   type EntityStatusBase,
   getSubsetAsEntityStatusBase,
@@ -29,9 +28,16 @@ import { NumericStateOperatorBundle } from "@ygo_duel/class_continuous_effect/Du
 import { CardRelationBundle } from "@ygo_duel/class_continuous_effect/DuelCardRelation";
 import type { DuelField } from "./DuelField";
 import { DuelEntityLog } from "./DuelEntityLog";
-import { CounterHolder } from "./DuelCounter";
+import { CounterHolder, type TCounterName } from "./DuelCounter";
 import { StatusOperatorBundle } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
-
+export type EntityStatus = {
+  canAttack: boolean;
+  canDirectAttack: boolean;
+  allowHandSyncro: boolean;
+  isEffective: boolean;
+  isSelectableForAttack: boolean /** falseのモンスターしかいない場合、ダイレクトアタックになる。《伝説のフィッシャーマン》など。 */;
+  maxCounterQty: { [key in TCounterName]?: number };
+} & EntityStatusBase;
 export type TDuelEntityFace = "FaceUp" | "FaceDown";
 export type TDuelEntityOrientation = "Horizontal" | "Vertical";
 export const namedSummonRuleCauseReasons = ["FusionSummon", "SyncroSummon", "XyzSummon", "PendulumSummon", "LinkSummon"] as const;

@@ -9,6 +9,7 @@
   import {} from "@stk_utils/funcs/StkArrayUtils";
   import { cardCrossFade } from "@ygo_duel_view/components/DuelDesk.svelte";
   import { CardAction, type ICardAction } from "@ygo_duel/class/DuelCardAction";
+  import { actualCounterEmojiDic, type TActualCounterName } from "@ygo_duel/class/DuelCounter";
   export let view: DuelViewController;
 
   export let row: number;
@@ -258,6 +259,14 @@
         {#if cell.cardEntities[0].battlePosition}
           <div style="position: absolute; bottom:0rem">
             【{cell.cardEntities[0].battlePositionName}】
+            {#each Object.keys(cell.cardEntities[0].status.maxCounterQty) as TActualCounterName[] as counter}
+              【
+              {actualCounterEmojiDic[counter]}{cell.cardEntities[0].counterHolder.getQty(counter)}
+              {#if cell.cardEntities[0].status.maxCounterQty[counter] ?? 9999 < 100}
+                /{cell.cardEntities[0].status.maxCounterQty[counter]}
+              {/if}
+              】
+            {/each}
           </div>
         {/if}
       {/if}

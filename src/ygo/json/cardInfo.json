@@ -85,8 +85,8 @@
     "description": "Ａ・Ｏ・Ｊの思考回路を強化するために開発された高性能ユニット。\nワーム星雲より飛来した隕石から採取された物質が埋め込まれており、\n高いチューニング能力を誇る。\nその未知なるパワーの謎は未だ解明されていない。",
     "cardType": "Monster",
     "monsterCategories": [
-      "Normal",
-      "Tuner"
+      "Tuner",
+      "Normal"
     ],
     "level": 5,
     "attack": 1800,
@@ -1442,8 +1442,8 @@
     "description": "古代南極大陸の永久凍土にて生命が宿ったと言われる氷水の精霊。\n様々な物質に浸透する事ができる。",
     "cardType": "Monster",
     "monsterCategories": [
-      "Normal",
-      "Tuner"
+      "Tuner",
+      "Normal"
     ],
     "level": 1,
     "attack": 400,
@@ -1683,8 +1683,8 @@
     "description": "天使の様な美しい花。\n絶えず侵入者を惑わす霧を生み出し、\n聖なる獣たちが住まう森の最深部へ立ち入ることを許さない。",
     "cardType": "Monster",
     "monsterCategories": [
-      "Normal",
-      "Tuner"
+      "Tuner",
+      "Normal"
     ],
     "level": 4,
     "attack": 1900,
@@ -2008,8 +2008,8 @@
     "description": "炎を自在に操る事ができる、フレムベルの護衛戦士。\n灼熱のバリアを作り出して敵の攻撃を跳ね返す。",
     "cardType": "Monster",
     "monsterCategories": [
-      "Normal",
-      "Tuner"
+      "Tuner",
+      "Normal"
     ],
     "level": 1,
     "attack": 100,
@@ -2329,6 +2329,7 @@
     "description": "常に太い竹を一本持っており、性格は非常に凶暴である。",
     "cardType": "Monster",
     "monsterCategories": [
+      "Effect",
       "Normal"
     ],
     "level": 4,
@@ -2449,8 +2450,8 @@
     "description": "宵闇に紛れて姿を現わすと言われるドラゴン。\n星の海を泳ぐように飛ぶ神秘的な姿からその名が付けられた。\nその姿を見た者は数えるほどしかないと伝えられるが、見た者は新たな力を得られるという。",
     "cardType": "Monster",
     "monsterCategories": [
-      "Normal",
-      "Tuner"
+      "Tuner",
+      "Normal"
     ],
     "level": 2,
     "attack": 1000,
@@ -3062,6 +3063,7 @@
     "description": "この世の成仏できない霊が集まってできた怨霊。",
     "cardType": "Monster",
     "monsterCategories": [
+      "Effect",
       "Normal"
     ],
     "level": 2,
@@ -3582,8 +3584,8 @@
     "description": "仲間達と心を通わせる事ができる、数少ないジェネクスのひとり。\n様々なエレメントの力をコントロールできるぞ。",
     "cardType": "Monster",
     "monsterCategories": [
-      "Normal",
-      "Tuner"
+      "Tuner",
+      "Normal"
     ],
     "level": 3,
     "attack": 1400,
@@ -4146,8 +4148,8 @@
     "description": "天より降り立った謎の来訪者。\n痛覚を信号に変換して宇宙へ送っているが、その目的は未だ不明。\n――いたいのいたいのとんでけとんでけ。",
     "cardType": "Monster",
     "monsterCategories": [
-      "Normal",
-      "Tuner"
+      "Tuner",
+      "Normal"
     ],
     "level": 1,
     "defense": 1500,
@@ -4827,8 +4829,8 @@
     "description": "あらゆるものをチューニングしてしまう電波系戦士。\n常にアンテナを張ってはいるものの、感度はそう高くない。",
     "cardType": "Monster",
     "monsterCategories": [
-      "Normal",
-      "Tuner"
+      "Tuner",
+      "Normal"
     ],
     "level": 3,
     "attack": 1600,
@@ -5963,8 +5965,8 @@
     "description": "ハロハロはあまいおかしにメロメロ。\nおかしをさがしてあっちへウロウロ、こっちをキョロキョロ。\nおかしをくれないとイロイロないたずらでヘロヘロにしちゃうぞ。\n \nオロオロしたってもうおそいよ。\nなにがでるかはおたのしみ。",
     "cardType": "Monster",
     "monsterCategories": [
-      "Normal",
       "Tuner",
+      "Normal",
       "Pendulum"
     ],
     "level": 3,
@@ -8464,8 +8466,8 @@
     "description": "意思を持った天秤。\n世の中の均衡を保っているが、しばしば間違った方に錘星を乗せてしまう。",
     "cardType": "Monster",
     "monsterCategories": [
-      "Normal",
       "Tuner",
+      "Normal",
       "Pendulum"
     ],
     "level": 4,
@@ -8509,8 +8511,8 @@
     "description": "ラブラドレッセンスと呼ばれる特有の美しい輝きを放つウロコを持ったドラゴン。\nそのウロコから生まれる眩い輝きは、見た者の魂を導き、感情を解放させる力を持つ。\n――その光は前世の記憶を辿り、人々を巡り合わせると伝えられる。",
     "cardType": "Monster",
     "monsterCategories": [
-      "Normal",
-      "Tuner"
+      "Tuner",
+      "Normal"
     ],
     "level": 6,
     "defense": 2400,
@@ -11619,8 +11621,8 @@
     "description": "星鍵は流れぬ涙を流し、天命は果たされる。\n神の門は嘶き崩れ、蛇は守人の夢幻を喰らう。\n其の魂は始まりの地に、彼の魂は終極の地に。\n――此処に神獄たる星は闢かれん。",
     "cardType": "Monster",
     "monsterCategories": [
-      "Normal",
-      "Tuner"
+      "Tuner",
+      "Normal"
     ],
     "level": 2,
     "defense": 2100,
@@ -14279,8 +14281,8 @@
     "description": "永きに渡って狩り続けたドラゴンの返り血により、常人ならざる力を宿した女戦士。\nその魂は斃されたドラゴンの怨嗟に染まり、疫病を撒き散らす邪悪な竜核へと成り果てた。\nもはや帰る故郷もなく、本能のままに刃を血に染めたその目的は、彼女自身にも思い出せない・・・。",
     "cardType": "Monster",
     "monsterCategories": [
-      "Normal",
-      "Tuner"
+      "Tuner",
+      "Normal"
     ],
     "level": 8,
     "attack": 2300,
@@ -14460,8 +14462,9 @@
     "description": "(1)：「麗の魔妖－妲姫」は自分フィールドに１体しか表側表示で存在できない。\n(2)：このカードが墓地に存在し、\n「魔妖」モンスターがＥＸデッキから自分フィールドに特殊召喚された時に発動できる。\nこのカードを特殊召喚する。\nこの効果を発動するターン、自分は「魔妖」モンスターしかＥＸデッキから特殊召喚できない。",
     "cardType": "Monster",
     "monsterCategories": [
+      "Tuner",
       "Effect",
-      "Tuner"
+      "Normal"
     ],
     "level": 2,
     "attack": 1000,
@@ -15115,6 +15118,7 @@
     "pendulumDescription": "",
     "kind": "Monster",
     "monsterCategories": [
+      "Syncro",
       "SpecialSummon",
       "Effect"
     ],
@@ -15402,6 +15406,7 @@
     "pendulumDescription": "",
     "kind": "Monster",
     "monsterCategories": [
+      "Syncro",
       "Effect"
     ],
     "level": 8,
@@ -17183,6 +17188,7 @@
     "pendulumDescription": "",
     "kind": "Monster",
     "monsterCategories": [
+      "Syncro",
       "SpecialSummon",
       "Effect"
     ],
@@ -17967,6 +17973,7 @@
     "pendulumDescription": "",
     "kind": "Monster",
     "monsterCategories": [
+      "Syncro",
       "Effect"
     ],
     "level": 7,
@@ -18123,5 +18130,26 @@
       "Spellcaster"
     ],
     "wikiEncodedName": "%A1%D4%B2%A6%CE%A9%CB%E2%CB%A1%BF%DE%BD%F1%B4%DB%A1%D5"
+  },
+  "マジカル・アンドロイド": {
+    "name": "マジカル・アンドロイド",
+    "nameKana": "",
+    "description": "チューナー＋チューナー以外のモンスター１体以上\n自分のエンドフェイズ時、\n自分フィールド上のサイキック族モンスター１体につき、自分は６００ライフポイント回復する。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Syncro",
+      "Effect"
+    ],
+    "level": 5,
+    "attack": 2400,
+    "defense": 1700,
+    "attributes": [
+      "Light"
+    ],
+    "types": [
+      "Psychic"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%DE%A5%B8%A5%AB%A5%EB%A1%A6%A5%A2%A5%F3%A5%C9%A5%ED%A5%A4%A5%C9%A1%D5"
   }
 }

@@ -447,22 +447,21 @@ export class Duel {
           .pop()
       );
     }
+    //ダメージ計算後
+    this.log.info("ダメージ計算後", this.getTurnPlayer());
+    //TODO エフェクト処理
+
     //戦闘破壊墓地送り実施
     await DuelEntity.waitCorpseDisposal(this);
 
     // チェーン番号を加算
     this.clock.incrementChainSeq();
 
-    //ダメージ計算後
-    this.log.info("ダメージ計算後", this.getTurnPlayer());
+    //ダメージステップ終了時
+    this.log.info("ダメージステップ終了時", this.getTurnPlayer());
     while (await this.procChainBlock(undefined, undefined)) {
       //
     }
-
-    //ダメージステップ終了時
-    this.log.info("ダメージステップ終了時", this.getTurnPlayer());
-
-    //TODO エフェクト処理
 
     this.clock.incrementStepSeq();
   };
@@ -470,14 +469,14 @@ export class Duel {
     this.phaseStep = "end";
     this.priorityHolder = this.getTurnPlayer();
 
-    // TODO ステップ強制処理
+    //  ステップ強制処理
     while (await this.procChainBlock(undefined, undefined)) {
       //
     }
     this.moveNextPhase("main2");
   };
   private readonly procEndPhase = async () => {
-    // TODO フェイズ強制処理
+    // フェイズ強制処理
     while (await this.procChainBlock(undefined, undefined)) {
       //
     }

@@ -1,7 +1,7 @@
 .duel_card.Normal {
   background-color: cornsilk;
 }
-.duel_card.duel_card_detail.Normal {
+.duel_card.Normal .duel_card_detail {
   background-color: cornsilk;
 }
 .duel_card.Effect {
@@ -13,7 +13,9 @@
 .duel_card.Syncro {
   background-color: snow;
 }
-
+.duel_card.Syncro .duel_card_detail {
+  background-color: snow;
+}
 .duel_card.Spell {
   background-color: forestgreen;
   color: white;

@@ -156,14 +156,6 @@ export type EntityStatusBase = {
   cardId?: number;
   isForTest?: boolean;
 } & Partial<FlexibleStatus> & { wikiEncodedName: string };
-export type EntityStatus = {
-  canAttack: boolean;
-  canDirectAttack: boolean;
-  allowHandSyncro: boolean;
-  isEffective: boolean;
-  isSelectableForAttack: boolean /** falseのモンスターしかいない場合、ダイレクトアタックになる。《伝説のフィッシャーマン》など。 */;
-  maxCounterQty: { [key: string]: number };
-} & EntityStatusBase;
 export type EntityNumericStatus = { [key in TEntityFlexibleStatusGen]: FlexibleStatus };
 export type CardInfoDescription = {
   nameKana?: string;

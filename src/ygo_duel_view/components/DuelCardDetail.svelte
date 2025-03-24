@@ -105,13 +105,18 @@
               <div>"{pf.isSpawnedBy.toString()} {pf.title}",</div>
             {/each}
             <div>{"],"}</div>
+            <div>"cardRelations" :{"["}</div>
+            {#each entity.cardRelationBundle.operators as pf}
+              <div>"{pf.isSpawnedBy.toString()} {pf.title}",</div>
+            {/each}
+            <div>{"],"}</div>
             <div>"numericStateOperators" :{"["}</div>
             {#each entity.numericOprsBundle.operators as pf}
               <div>"{pf.isSpawnedBy.toString()} {pf.title}",</div>
             {/each}
             <div>{"],"}</div>
-            <div>"cardRelations" :{"["}</div>
-            {#each entity.cardRelationBundle.operators as pf}
+            <div>"stateOperators" :{"["}</div>
+            {#each entity.statusOperatorBundle.operators as pf}
               <div>"{pf.isSpawnedBy.toString()} {pf.title}",</div>
             {/each}
             <div>{"],"}</div>

@@ -6,7 +6,6 @@ export type SummonPrepared = { dest: DuelFieldCell; pos: TBattlePosition; materi
 export const defaultPrepare = async () => {
   return { selectedEntities: [], chainBlockTags: [], prepared: undefined };
 };
-
 export const defaultNormalSummonValidate = (action: CardAction<SummonPrepared>): DuelFieldCell[] | undefined => {
   // 召喚権を使い切っていたら通常召喚不可。
   if (action.entity.controller.info.ruleNormalSummonCount >= action.entity.controller.info.maxRuleNormalSummonCount) {

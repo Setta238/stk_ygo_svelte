@@ -100,6 +100,8 @@ DuelEntity.prototype.tryDestory = function (
     entity.info.causeOfDeath = [destroyType];
     entity.info.isKilledBy = causedBy;
     entity.info.isKilledByWhom = causedBy.controller;
+
+    entity.continuousEffects.forEach((ce) => ce.updateState());
   }
   return entity.info.isDying;
 };

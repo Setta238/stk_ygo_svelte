@@ -7,13 +7,25 @@ export type TStickyTemporaryCounterName = (typeof stickyTemporaryCounterNames)[n
 export const counterNames = [...actualCounterNames, ...temporaryCounterNames, ...stickyTemporaryCounterNames] as const;
 export type TCounterName = (typeof counterNames)[number];
 
+export const actualCounterDic: { [key in TActualCounterName]: string } = {
+  SpellCounter: "魔力カウンター",
+  KaijuCounter: "壊獣カウンター",
+  NamelessCounter: "カウンター",
+};
+
+export const actualCounterEmojiDic: { [key in TActualCounterName]: string } = {
+  SpellCounter: "🔮",
+  KaijuCounter: "☢",
+  NamelessCounter: "💠",
+};
+
 export class CounterHolder {
   private readonly dic: { [name: string]: number };
   constructor() {
     this.dic = {};
   }
 
-  public readonly put = (name: TCounterName, qty: number = 1) => {
+  public readonly add = (name: TCounterName, qty: number = 1) => {
     this.dic[name] = (this.dic[name] ?? 0) + qty;
   };
   public readonly setQty = (name: TCounterName, qty: number = 1) => {

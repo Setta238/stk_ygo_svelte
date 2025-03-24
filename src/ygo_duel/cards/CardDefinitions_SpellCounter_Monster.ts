@@ -1,11 +1,44 @@
 import { defaultAttackAction, defaultBattlePotisionChangeAction, defaultNormalSummonAction } from "@ygo_duel/functions/DefaultCardAction_Monster";
 import type { CardDefinition } from "./CardDefinitions";
 import type { CardActionBase } from "@ygo_duel/class/DuelCardAction";
-import { createRegularNumericStateOperatorHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
+import {
+  createRegularNumericStateOperatorHandler,
+  createRegularStatusOperatorHandler,
+  type ContinuousEffectBase,
+} from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import { spellTrapZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
+import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
+import type { TCardKind } from "@ygo/class/YgoTypes";
 
+const createSpellCounterCommonEffect = (kind: TCardKind, maxQty?: number) => {
+  const title = maxQty ? `魔力充填可能(${maxQty})` : "魔力充填可能";
+
+  return createRegularStatusOperatorHandler(
+    title,
+    kind,
+    (source) => [source],
+    () => true,
+    (source) => {
+      return [
+        new StatusOperator(
+          title,
+          () => true,
+          true,
+          source,
+          {},
+          (spawner, target) => spawner === target,
+          (ope, wip) => {
+            console.log(ope, wip);
+            wip.maxCounterQty.SpellCounter = maxQty ?? Number.MAX_VALUE;
+            return wip;
+          }
+        ),
+      ];
+    }
+  );
+};
 export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] => {
   const result: CardDefinition[] = [];
 
@@ -16,7 +49,7 @@ export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] =
       defaultBattlePotisionChangeAction,
       defaultNormalSummonAction,
       {
-        title: "①魔力カウンター装填",
+        title: "①魔力充填",
         playType: "TriggerMandatoryEffect",
         spellSpeed: "Normal",
         executableCells: ["MonsterZone"],
@@ -99,6 +132,7 @@ export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] =
       },
     ] as CardActionBase<unknown>[],
     continuousEffects: [
+      createSpellCounterCommonEffect("Monster", 1),
       createRegularNumericStateOperatorHandler(
         "②攻撃力上昇",
         "Monster",

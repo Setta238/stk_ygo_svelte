@@ -9,7 +9,6 @@
     spellCategoryDic,
     trapCategoryDic,
     type CardInfoJson,
-    type EntityStatus,
   } from "@ygo/class/YgoTypes";
   import { writable } from "svelte/store";
   export let cardInfo: CardInfoJson | undefined = undefined;
@@ -39,12 +38,12 @@
       {/if}
       {#if cardInfo.kind === "Monster"}
         <div class="duel_card_info_row">
-          {#if cardInfo.attribute}
-            <div class="monster_attr {cardInfo.attribute}"></div>
-            <div>{monsterAttributeDic[cardInfo.attribute]}属性</div>
+          {#if cardInfo.attributes}
+            <div class="monster_attr {cardInfo.attributes[0]}"></div>
+            <div>{monsterAttributeDic[cardInfo.attributes[0]]}属性</div>
           {/if}
-          {#if cardInfo.type}
-            <div class="monster_cat {cardInfo.type}">{monsterTypeEmojiDic[cardInfo.type]}{monsterTypeDic[cardInfo.type]}族</div>
+          {#if cardInfo.types}
+            <div class="monster_cat {cardInfo.types[0]}">{monsterTypeEmojiDic[cardInfo.types[0]]}{monsterTypeDic[cardInfo.types[0]]}族</div>
           {/if}
         </div>
         <div class="duel_card_info_row">

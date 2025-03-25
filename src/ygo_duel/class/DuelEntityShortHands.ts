@@ -6,7 +6,7 @@ import type { Duelist } from "./Duelist";
 
 declare module "./DuelEntity" {
   interface DuelEntity {
-    hasBeenSummonedNow(summonRules: TSummonRuleCauseReason[], posList?: TBattlePosition[]): boolean;
+    hasBeenSummonedNow(summonRules: (TSummonRuleCauseReason | "FlipSummon")[], posList?: TBattlePosition[]): boolean;
     canBeEffected(activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionBaseAttr>): boolean;
     canBeTargetOfEffect(activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionBaseAttr>): boolean;
     canBeSpecialSummoned(summmonRule: TSummonRuleCauseReason, activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionBaseAttr>): boolean;
@@ -20,19 +20,26 @@ declare module "./DuelEntity" {
   }
 }
 
-DuelEntity.prototype.hasBeenSummonedNow = function (summonRules: TSummonRuleCauseReason[], posList: TBattlePosition[] = ["Attack", "Defense"]): boolean {
+DuelEntity.prototype.hasBeenSummonedNow = function (
+  summonRules: (TSummonRuleCauseReason | "FlipSummon")[],
+  posList: TBattlePosition[] = ["Attack", "Defense"]
+): boolean {
   const entity = this as DuelEntity;
   const _posList = posList.map(posToSummonPos);
   const movedAs = entity.moveLog.latestRecord.movedAs;
+  console.log(entity);
   if (!entity.wasMovedAtPreviousChain) {
     return false;
   }
+  console.log(entity);
   if (!movedAs.union(summonRules).length) {
     return false;
   }
+  console.log(entity);
   if (!movedAs.union(_posList).length) {
     return false;
   }
+  console.log(entity);
   return true;
 };
 
@@ -91,7 +98,7 @@ DuelEntity.prototype.tryDestory = async function (
   action: Partial<CardActionBaseAttr>
 ): Promise<boolean> {
   const entity = this as DuelEntity;
-  console.log(entity);
+
   entity.info.isDying = entity.procFilterBundle.operators
     .filter((pf) => pf.procTypes.includes(destroyType))
     .every((pf) => pf.filter(activator, causedBy, action ?? {}, [entity]));
@@ -142,23 +149,41 @@ export class DuelEntityShortHands {
   private constructor() {}
 }
 
-// const hogeUnknown: ChainBlockInfo<unknown> = undefined!;
-// const hogeNever: ChainBlockInfo<unknown> = undefined!;
-// const hogeString: ChainBlockInfo<string> = undefined!;
+// class Piyo<T> {
+//   private static nextSeq: 0;
+//   public readonly seq: number;
+//   public readonly t: T;
+//   constructor(t: T) {
+//     this.seq = Piyo.nextSeq++;
+//     this.t = t;
+//   }
+// }
 
-// const fugaUnknown = (chainBlockInfo: Readonly<ChainBlockInfo<unknown>>) => {
-//   console.log(chainBlockInfo);
+// type Hoge = {
+//   text: string;
+//   piyos: Piyo<unknown>[];
 // };
-// const fugaNever = (chainBlockInfo: Readonly<ChainBlockInfo<unknown>>) => {
-//   console.log(chainBlockInfo);
+
+// const piyoUnknown = new Piyo(undefined as unknown);
+// const piyoNever = new Piyo(undefined as never);
+// const piyoString = new Piyo("piyo");
+// const piyoNumber = new Piyo(123);
+
+// const hoge: Hoge = {
+//   text: "hoge",
+//   piyos: [piyoUnknown, piyoNever, piyoString, piyoNumber],
 // };
-// fugaUnknown(hogeUnknown);
-// fugaUnknown(hogeNever);
-// fugaUnknown(hogeString);
-// fugaNever(hogeUnknown);
-// fugaNever(hogeNever);
-// fugaNever(hogeString);
 
-// const piyo = [hogeUnknown, hogeNever, hogeString];
+// const getPiyoSeqArray_1 = (piyos: Piyo<unknown>[]) => {
+//   return piyos.map((piyo) => piyo.seq);
+// };
+// const getPiyoSeqArray_2 = (piyos: Piyo<never>[]) => {
+//   return piyos.map((piyo) => piyo.seq);
+// };
+// const getPiyoSeqArray_3 = <T>(piyos: Piyo<T>[]) => {
+//   return piyos.map((piyo) => piyo.seq);
+// };
 
-// piyo.push;
+// getPiyoSeqArray_1([piyoUnknown, piyoNever, piyoString, piyoNumber]);
+// getPiyoSeqArray_2([piyoUnknown, piyoNever, piyoString, piyoNumber]);
+// getPiyoSeqArray_3([piyoUnknown, piyoNever, piyoString, piyoNumber]);

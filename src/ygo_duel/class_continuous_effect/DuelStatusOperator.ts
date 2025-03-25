@@ -15,7 +15,7 @@ export class StatusOperatorPool extends StickyEffectOperatorPool<StatusOperator,
 export class StatusOperatorBundle extends StickyEffectOperatorBundle<StatusOperator> {
   public readonly calcStatus = (): boolean => {
     const wasEffective = this.entity.isEffective;
-
+    //    this.entity.resetStatus();
     // 対象ステータスのオペレータを抽出
     const oldStatus = { ...this.entity.status };
     const newStatus = this._operators.reduce((wip, ope) => {

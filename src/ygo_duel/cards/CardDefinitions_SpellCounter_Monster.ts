@@ -30,7 +30,6 @@ const createSpellCounterCommonEffect = (kind: TCardKind, maxQty?: number) => {
           {},
           (spawner, target) => spawner === target,
           (ope, wip) => {
-            console.log(ope, wip);
             wip.maxCounterQty.SpellCounter = maxQty ?? Number.MAX_VALUE;
             return wip;
           }
@@ -39,6 +38,7 @@ const createSpellCounterCommonEffect = (kind: TCardKind, maxQty?: number) => {
     }
   );
 };
+
 export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] => {
   const result: CardDefinition[] = [];
 
@@ -63,13 +63,16 @@ export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] =
           return { selectedEntities: [], chainBlockTags: ["IfNormarlSummonSucceed"], prepared: undefined };
         },
         execute: async (myInfo) => {
+          if (myInfo.action.entity.face === "FaceDown") {
+            return false;
+          }
           // ブレイカーは最大一個なので、1で上書きする。
           // 無効になっている場合乗せられないが、そもそもこの処理に入らない
           myInfo.action.entity.counterHolder.setQty("SpellCounter", 1);
           return true;
         },
         settle: async () => true,
-      },
+      } as CardActionBase<undefined>,
       {
         title: "③魔法罠破壊",
         playType: "IgnitionEffect",
@@ -128,7 +131,7 @@ export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] =
           return true;
         },
         settle: async () => true,
-      },
+      } as CardActionBase<unknown>,
     ] as CardActionBase<unknown>[],
     continuousEffects: [
       createSpellCounterCommonEffect("Monster", 1),

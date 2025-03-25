@@ -287,13 +287,9 @@ export class Duel {
         "あなたの手番です。"
       );
 
-      console.log(response);
-
       // ユーザー入力がカードアクションだった場合、チェーンブロックを作るか作らないかで処理を分ける
       if (response && response.action) {
         if (([...cardActionNonChainBlockTypes] as string[]).includes(response.action.playType)) {
-          console.log("is not chainable", response);
-
           //チェーンに乗らない処理を実行し、処理番号をインクリメント
           const chainBlockInfo = await response.action.prepare(response.action.cell, [], true);
 
@@ -305,8 +301,6 @@ export class Duel {
 
           this.clock.incrementChainSeq();
         } else {
-          console.log("is chainable", response);
-
           //チェーンに積んで、チェーン処理へ
           await this.procChainBlock(response.action, undefined);
         }
@@ -591,8 +585,6 @@ export class Duel {
 
       this._chainBlockInfos.push(chainBlockInfo);
 
-      console.log(this.chainBlockInfos);
-
       this.clock.incrementProcSeq();
       this.clock.incrementChainBlockSeq();
 
@@ -603,7 +595,6 @@ export class Duel {
       );
 
       this.log.info(`チェーン${chainCount}: ${convertCardActionToString(chainBlock)}の効果処理。`, activator);
-      console.log(chainBlockInfo);
 
       // 有効無効判定
       if (chainBlockInfo.isNegatedActivationBy) {
@@ -683,7 +674,6 @@ export class Duel {
 
           // 強制効果が残り１の場合、選択をスキップ
           if (effects.length === 1 && triggerType === "TriggerMandatoryEffect") {
-            console.log(effects[0]);
             return effects[0] as CardAction<unknown>;
           }
 

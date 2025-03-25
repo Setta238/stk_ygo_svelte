@@ -231,12 +231,10 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
         executableCells: ["MonsterZone"],
         canExecuteOnDamageStep: true,
         validate: (action: CardAction<undefined>): DuelFieldCell[] | undefined => {
-          if (!action.entity.hasBeenSummonedNow(["NormalSummon", "SpecialSummon"])) {
-            console.log("piyo");
+          if (!action.entity.hasBeenSummonedNow(["NormalSummon", "SpecialSummon", "FlipSummon"])) {
             return;
           }
           if (action.entity.controller.getDeckCell().cardEntities.filter((card) => card.attr.includes("Dark")).length === 0) {
-            console.log("piyo");
             return;
           }
           return [];
@@ -474,8 +472,6 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
 
             const info = chainBlockInfos.slice(-1)[0];
 
-            console.log(info);
-
             return info.chainBlockTags.union(item.chainBlockTags).length > 0 ? [] : undefined;
           },
           prepare: async (action, cell, chainBlockInfos) => {
@@ -514,17 +510,14 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
                 () => true,
                 ["BattleDestroy"],
                 (activator, enemy) => {
-                  console.log("hoge");
                   if (!source.isEffective) {
-                    console.log("hoge");
                     return true;
                   }
-                  console.log("hoge");
+
                   if ((enemy.atk ?? 0) < 1900) {
-                    console.log("hoge");
                     return true;
                   }
-                  console.log("hoge");
+
                   source.duel.log.info(`${source.toString()}は攻撃力1900以上のモンスターとの先頭では破壊されない。`, source.controller);
                   return false;
                 }

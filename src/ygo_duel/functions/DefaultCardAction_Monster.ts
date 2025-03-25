@@ -286,7 +286,12 @@ export const defaultBattlePotisionChangeExecute = async (myInfo: ChainBlockInfo<
     return false;
   }
 
-  await myInfo.action.entity.setBattlePosition(myInfo.action.entity.battlePosition === "Attack" ? "Defense" : "Attack", ["Rule"]);
+  await myInfo.action.entity.setBattlePosition(
+    myInfo.action.entity.battlePosition === "Attack" ? "Defense" : "Attack",
+    ["Rule"],
+    myInfo.action.entity,
+    myInfo.activator
+  );
   myInfo.action.entity.info.battlePotisionChangeCount++;
   return true;
 };
@@ -329,13 +334,11 @@ export const defaultSyncroMaterialsValidator = (
 
   // シンクロモンスター側から見た非チューナー側の条件チェック
   if (!nonTunersValidator(materials.filter((cost) => cost.status.monsterCategories?.every((cat) => cat !== "Tuner")))) {
-    console.log("hoge");
     return false;
   }
 
   // 素材側から見た全体の条件チェック（デブリ・ドラゴンなど）
   if (!materials.every((m) => m.canBeMaterials("SyncroSummon", action as CardAction<unknown>, materials))) {
-    console.log("fuga");
     return false;
   }
 
@@ -343,7 +346,6 @@ export const defaultSyncroMaterialsValidator = (
   if (
     !action.entity.owner.canSummon(action.entity.owner, action.entity, action as CardAction<unknown>, "SyncroSummon", ["Attack", "Defense"], materials).length
   ) {
-    console.log("piyo");
     return false;
   }
 

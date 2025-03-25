@@ -243,6 +243,10 @@ export class CardAction<T> implements ICardAction<T> {
   };
 
   public readonly validate = (chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => {
+    // カードの発動はフィールド表側表示ではできない
+    if (this.playType === "CardActivation" && this.entity.isOnField && this.entity.face === "FaceUp") {
+      return;
+    }
     if (this.isOnlyNTimesPerDuel > 0) {
       if (
         this.entity.field.duel.cardActionLog.records.filter((rec) => this.isSame(rec.cardAction)).filter((rec) => rec.activator).length >=

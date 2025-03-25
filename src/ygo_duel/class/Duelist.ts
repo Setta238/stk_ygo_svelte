@@ -247,7 +247,7 @@ export class Duelist {
       }
       const card = deckCell.cardEntities[0];
       await card.draw(causedBy ? ["Effect"] : ["Rule"], causedBy, causedByWhome);
-      console.log(card);
+
       cardNames.push(card.origin?.name || "!名称取得失敗!");
     }
     this.duel.log.info(`デッキからカードを${cardNames.length}枚ドロー。${cardNames}。`, this);
@@ -324,7 +324,7 @@ export class Duelist {
         pos = action.pos || pos;
       }
     }
-    console.log(cell, pos, summonType, moveAs, causedBy);
+
     await entity.summon(cell, pos, summonType, moveAs, causedBy, this);
 
     return entity;

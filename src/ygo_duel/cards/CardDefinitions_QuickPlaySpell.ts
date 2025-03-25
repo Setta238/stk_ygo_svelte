@@ -58,13 +58,12 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
   const def_月の書 = {
     name: "月の書",
     actions: [
-      defaultSpellTrapSetAction,
       {
         title: "発動",
         playType: "CardActivation",
         spellSpeed: "Quick",
         executableCells: ["Hand", "SpellAndTrapZone"],
-        validate: async (action) => {
+        validate: (action) => {
           const monsters = action.entity.field.getMonstersOnField().filter((monster) => monster.canBeEffected(action.entity.controller, action.entity, action));
           if (!monsters.length) {
             return;
@@ -112,6 +111,7 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
         },
         settle: async () => true,
       },
+      defaultSpellTrapSetAction,
     ] as CardActionBase<unknown>[],
   };
 

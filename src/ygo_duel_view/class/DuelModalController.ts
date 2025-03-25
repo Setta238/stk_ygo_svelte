@@ -70,7 +70,6 @@ export class DuelModalController {
     this.onUpdateEvent.trigger();
     return new Promise((resolve) => {
       this.cardActionSelectorResolve = (value: ICardAction<unknown> | undefined) => {
-        console.log(value);
         this.states.DuelActionSelector = "Disable";
         view.onWaitEnd.remove(this.cancelAll);
         this.onUpdateEvent.trigger();
@@ -94,7 +93,6 @@ export class DuelModalController {
     this.onUpdateEvent.trigger();
     return new Promise((resolve) => {
       this.duelTextSelectorResolve = (value: number | undefined) => {
-        console.log(value);
         this.states.DuelTextSelector = "Disable";
         view.onWaitEnd.remove(this.cancelAll);
         this.onUpdateEvent.trigger();

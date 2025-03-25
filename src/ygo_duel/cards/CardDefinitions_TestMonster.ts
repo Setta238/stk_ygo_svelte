@@ -4,7 +4,7 @@ import { defaultAttackAction, defaultBattlePotisionChangeAction, defaultNormalSu
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 
-import type { CardDefinition } from "./CardDefinitions";
+import { type CardDefinition } from "./CardDefinitions";
 import {
   createBroadRegularNumericStateOperatorHandler,
   createRegularNumericStateOperatorHandler,

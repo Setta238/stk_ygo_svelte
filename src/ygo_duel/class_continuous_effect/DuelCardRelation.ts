@@ -30,13 +30,11 @@ export class CardRelation extends StickyEffectOperatorBase {
       isSpawnedBy,
       actionAttr,
       (spawner: DuelEntity, target: DuelEntity) => {
-        console.log(target);
         return target.isOnField && target.face === "FaceUp" && isApplicableTo(spawner, target);
       },
       "Equip",
       isSpawnedBy.info.effectTargets[title][0],
       (relation: CardRelation) => {
-        console.log("beforeRemove", relation.isSpawnedBy, relation.target);
         if (!beforeRemove(relation)) {
           return;
         }

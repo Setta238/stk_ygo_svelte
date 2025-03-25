@@ -56,10 +56,9 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
             if (!targets) {
               return undefined;
             }
-            console.log(targets);
+
             action.entity.info.effectTargets["EquipTarget"] = targets;
 
-            console.log(action.entity, action.entity.info.effectTargets["EquipTarget"]);
             return await defaultSpellTrapPrepare(action, cell, chainBlockInfos, false, [], targets, undefined);
           },
           execute: async () => true,
@@ -167,7 +166,6 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
           return await defaultSpellTrapPrepare(action, cell, chainBlockInfos, false, ["SpecialSummonFromGraveyard", "PayLifePoint"], targets, undefined);
         },
         execute: async (myInfo) => {
-          console.log("早すぎた埋葬 execute");
           const emptyCells = myInfo.activator.getEmptyMonsterZones();
           const target = myInfo.selectedEntities[0];
           await myInfo.activator.summon(target, ["Attack"], emptyCells, "SpecialSummon", ["Effect"], myInfo.action.entity, false);

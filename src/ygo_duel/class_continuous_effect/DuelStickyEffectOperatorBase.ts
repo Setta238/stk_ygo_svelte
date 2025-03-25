@@ -60,7 +60,7 @@ export abstract class StickyEffectOperatorPool<OPE extends StickyEffectOperatorB
   protected abstract readonly afterDistributeAll: (duel: Duel) => boolean;
 
   public readonly distribute = (ope: OPE) => {
-    console.log(this, ope);
+    
 
     // まだ配布されていないオペレータを配布する。
     return this.bundles
@@ -108,14 +108,9 @@ export abstract class StickyEffectOperatorBundle<OPE extends StickyEffectOperato
 
   public readonly push = (ope: OPE) => {
     // ProcFilterで弾かれる場合は追加しない。
-    console.log("push");
-    console.log(this.entity.procFilterBundle.operators);
-    console.log(this.entity.procFilterBundle.operators.filter((ope) => ope.procTypes.includes("Effect")));
-    console.log(
-      this.entity.procFilterBundle.operators
-        .filter((ope) => ope.procTypes.includes("Effect"))
-        .some((ope) => !ope.filter(ope.effectOwner, ope.isSpawnedBy, ope.actionAttr, []))
-    );
+    
+    
+    
 
     if (
       this.entity.procFilterBundle.operators
@@ -124,11 +119,11 @@ export abstract class StickyEffectOperatorBundle<OPE extends StickyEffectOperato
     ) {
       return;
     }
-    console.log("push");
+    
 
     this.beforePush(ope);
 
-    console.log("push");
+    
     this._operators.push(ope);
   };
 

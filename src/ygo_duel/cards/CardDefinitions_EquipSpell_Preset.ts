@@ -82,10 +82,9 @@ export const createCardDefinitions_EquipSpell_Preset = (): CardDefinition[] => {
             if (!targets) {
               return undefined;
             }
-            console.log(targets);
+
             action.entity.info.effectTargets["EquipTarget"] = targets;
 
-            console.log(action.entity, action.entity.info.effectTargets["EquipTarget"]);
             return await defaultSpellTrapPrepare(action, cell, chainBlockInfos, false, [], targets, undefined);
           },
           execute: async () => true,

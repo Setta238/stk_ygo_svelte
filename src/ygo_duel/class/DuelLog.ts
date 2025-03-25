@@ -21,6 +21,9 @@ export default class DuelLog {
   private nextSeq: number;
   public readonly records: DuelLogRecord[] = [];
   public readonly duel: Duel;
+  public get lastRecord() {
+    return this.records.slice(-1)[0];
+  }
   public constructor(duel: Duel) {
     this.nextSeq = 0;
     this.duel = duel;

@@ -34,7 +34,7 @@
     if (state === "Disabled") {
       return;
     }
-    console.log(qty);
+
     if (state === "Selectable" && qty && qty === 1) {
       if (selectedList.some((card) => card.seq !== entity.seq)) {
         selectedList = [entity];
@@ -53,7 +53,6 @@
   };
 
   const onClick = () => {
-    console.log(entity, state);
     showCardInfo();
     if (state === "Disabled") {
       return;
@@ -74,7 +73,7 @@
         cardActionResolve(actions[0]);
         return;
       }
-      console.log(actions[0], duelistResponseResolve);
+
       duelistResponseResolve({
         action: actions[0],
       });

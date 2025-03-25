@@ -397,7 +397,7 @@ export class DuelEntity {
     // 対象を配列にしておく
     const targets = items.map(([entity]) => entity).filter((entity) => !(excludedList ?? []).includes(entity));
     const _excludedList = [...targets, ...duel.field.getEntiteisOnField().filter((entity) => entity.info.isDying)];
-    console.log(targets);
+
     // 目的地ごとに仕分ける
     const destMap = new Map<DuelFieldCell, [entity: DuelEntity, ...Parameters<typeof DuelEntity.prototype._move>][]>();
     items.forEach(([entity, to, face, orientation, pos, ...rest]) => {
@@ -407,7 +407,6 @@ export class DuelEntity {
       let _pos = pos;
       let _orientation = orientation;
       if (entity.info.willBeBanished) {
-        console.log(entity);
         _to = entity.owner.getBanished();
         _face = "FaceUp";
         _orientation = "Vertical";
@@ -585,7 +584,6 @@ export class DuelEntity {
     return this._status as Readonly<EntityStatus>;
   }
   public set status(newStatus) {
-    console.log(newStatus);
     this._status = { ...newStatus };
   }
   public get numericStatus() {
@@ -651,24 +649,16 @@ export class DuelEntity {
     return battlePositionDic[bp];
   }
   public get wasMovedAtCurrentProc() {
-    return (
-      this.field.duel.clock.totalProcSeq === this.moveLog.latestRecord.movedAt.totalProcSeq &&
-      this.moveLog.records.slice(-2)[0].cell.cellType !== this.fieldCell.cellType
-    );
+    return this.field.duel.clock.totalProcSeq === this.moveLog.latestRecord.movedAt.totalProcSeq;
   }
   public get wasMovedAtPreviousProc() {
-    return (
-      this.field.duel.clock.totalProcSeq === this.moveLog.latestRecord.movedAt.totalProcSeq + 1 &&
-      this.moveLog.records.slice(-2)[0].cell.cellType !== this.fieldCell.cellType
-    );
+    return this.field.duel.clock.totalProcSeq === this.moveLog.latestRecord.movedAt.totalProcSeq + 1;
   }
   public get wasMovedAtCurrentChain() {
-    return this.field.duel.clock.isSameChain(this.moveLog.latestRecord.movedAt) && this.moveLog.records.slice(-2)[0].cell.cellType !== this.fieldCell.cellType;
+    return this.field.duel.clock.isSameChain(this.moveLog.latestRecord.movedAt);
   }
   public get wasMovedAtPreviousChain() {
-    return (
-      this.field.duel.clock.isPreviousChain(this.moveLog.latestRecord.movedAt) && this.moveLog.records.slice(-2)[0].cell.cellType !== this.fieldCell.cellType
-    );
+    return this.field.duel.clock.isPreviousChain(this.moveLog.latestRecord.movedAt);
   }
   public get wasMovedFrom() {
     return this.moveLog.previousPlaceRecord.cell;
@@ -921,11 +911,11 @@ export class DuelEntity {
     this.face = face;
     this.orientation = orientation;
 
-    if (this.field.duel.clock.turn > 0) {
-      await this.field.duel.view.waitAnimation({ entity: this, to: to, index: pos, count: 0 });
-    }
-
+    // 異なるセルに移動する場合
     if (to !== this.fieldCell) {
+      if (this.field.duel.clock.turn > 0) {
+        await this.field.duel.view.waitAnimation({ entity: this, to: to, index: pos, count: 0 });
+      }
       // セルから自分自身を取り除く
       this.fieldCell.releaseEntities([this]);
 
@@ -955,30 +945,34 @@ export class DuelEntity {
         this.counterHolder.clear();
         this.resetInfo();
         this.resetStatusAll();
-      } else if (this.isOnField && this.face === "FaceDown") {
-        // セット状態になった場合
-
-        // カウンター類を除去
-        this.counterHolder.removeAllWhenfaceDown();
-        // 素材情報を削除
-        this.info.materials = [];
-
-        // 無効化状態を解除
-        this._status.isEffective = true;
-        this.info.isEffective = true;
-
-        // フィールドから離れたとき除外される系のリセット
-        this.info.willBeBanished = false;
-        this.info.willReturnToDeck = undefined;
-
-        //ステータスをリセット
-        this.resetNumericStatus();
-
-        // セットしたターンに発動できない制約を付与
-        this.info.isSettingSickness = this.status.kind === "Trap" || this.status.spellCategory === "QuickPlay";
       }
     }
+    console.log(this.toString(), this);
 
+    if (this.isOnField && this.face === "FaceDown") {
+      console.log(this.toString(), this);
+
+      // セット状態になった場合
+
+      // カウンター類を除去
+      this.counterHolder.removeAllWhenfaceDown();
+      // 素材情報を削除
+      this.info.materials = [];
+
+      // 無効化状態を解除
+      this._status.isEffective = true;
+      this.info.isEffective = true;
+
+      // フィールドから離れたとき除外される系のリセット
+      this.info.willBeBanished = false;
+      this.info.willReturnToDeck = undefined;
+
+      //ステータスをリセット
+      this.resetNumericStatus();
+
+      // セットしたターンに発動できない制約を付与
+      this.info.isSettingSickness = this.status.kind === "Trap" || this.status.spellCategory === "QuickPlay";
+    }
     // 移動ログ追加
     this.moveLog.push(movedAs, movedBy, actionOwner, chooser);
 
@@ -1030,8 +1024,7 @@ export class DuelEntity {
     };
   };
 
-  private readonly resetStatusAll = () => {
-    this.resetNumericStatus();
+  public readonly resetStatus = () => {
     this._status = {
       ...this.origin,
       canAttack: true,
@@ -1041,6 +1034,10 @@ export class DuelEntity {
       allowHandSyncro: false,
       maxCounterQty: {},
     };
+  };
+  private readonly resetStatusAll = () => {
+    this.resetNumericStatus();
+    this.resetStatus();
   };
   private readonly resetCauseOfDeath = () => {
     this.info.isDying = false;

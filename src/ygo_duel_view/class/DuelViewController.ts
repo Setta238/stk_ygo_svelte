@@ -10,7 +10,7 @@ import { CardAction, type ICardAction } from "@ygo_duel/class/DuelCardAction";
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
 import { createPromiseSweet } from "@stk_utils/funcs/StkPromiseUtil";
 import type { TCardDetailMode } from "@ygo_duel_view/components/DuelCardDetail.svelte";
-export type TDuelWaitMode = "None" | "SelectFieldAction" | "SelectAction" | "SelectFieldEntities" | "SelectEntities";
+export type TDuelWaitMode = "None" | "SelectFieldAction" | "SelectAction" | "SelectFieldEntities" | "SelectEntities" | "Animation";
 export type WaitStartEventArg = {
   resolve: (action: DuelistResponse) => void;
   enableActions: ICardAction<unknown>[];
@@ -109,7 +109,6 @@ export class DuelViewController {
    * @returns
    */
   public readonly waitFieldAction = async (enableActions: ICardAction<unknown>[], message: string): Promise<DuelistResponse> => {
-    console.log(enableActions);
     if (this.duel.getTurnPlayer().duelistType === "NPC") {
       const action = enableActions
         .toSorted((left, right) => (right.entity.atk || 0) - (left.entity.atk || 0))
@@ -225,11 +224,7 @@ export class DuelViewController {
       ? "SelectFieldEntities"
       : "SelectEntities";
 
-    console.log(this.waitMode);
-
     const actions = await this._waitDuelistAction([], this.waitMode, message, choises, qty, validator, cancelable);
-
-    console.log(actions);
 
     return actions.selectedEntities;
   };
@@ -276,7 +271,7 @@ export class DuelViewController {
 
     // 待機開始
     const userAction: DuelistResponse = await promiseSweet.promise;
-    console.log(userAction);
+
     this.waitMode = "None";
     this.onWaitEndEvent.trigger();
     if (userAction.surrender) {
@@ -331,6 +326,8 @@ export class DuelViewController {
   };
 
   public readonly waitAnimation = async (args: Omit<AnimationStartEventArg, "resolve">): Promise<void> => {
+    this.message = this.duel.log.lastRecord.text;
+    this.waitMode = "Animation";
     this.onDuelUpdateEvent.trigger();
     return new Promise<void>((resolve) => this.onAnimationStartEvent.trigger({ ...args, resolve }));
   };

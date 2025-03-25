@@ -72,7 +72,6 @@
     duel = new Duel(await userProfilePromise, "Player", await getSelectedDeckInfo(), nonPlayerCharacters[0], "NPC", sampleDecks[0]);
   };
   const onEditClick = async () => {
-    console.log("hoge");
     await Promise.all([saveUserProfile(), prepareSampleDeck()]);
     mode = "DeckEdit";
   };

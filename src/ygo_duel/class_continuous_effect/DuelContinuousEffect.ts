@@ -126,7 +126,6 @@ export const createRegularOperatorHandler = <OPE extends StickyEffectOperatorBas
   opeListCreater: (source: DuelEntity) => OPE[],
   getBundle: (source: DuelEntity) => StickyEffectOperatorBundle<OPE>
 ): ContinuousEffectBase<{ targets: DuelEntity[]; seqList: number[] }> => {
-  console.log(title, kind, getTargets, canStart, opeListCreater, getBundle);
   return {
     title: title,
     executableCellTypes: kind === "Monster" ? ["MonsterZone", "ExtraMonsterZone"] : ["FieldSpellZone", "SpellAndTrapZone"],
@@ -189,7 +188,6 @@ export const createRegularEquipRelationHandler = (
     title,
     kind,
     (source: DuelEntity) => {
-      console.log(title, source, source.info, source.info.effectTargets);
       return source.info.effectTargets[title];
     },
     canStart,

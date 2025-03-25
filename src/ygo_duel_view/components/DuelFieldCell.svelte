@@ -94,8 +94,7 @@
       cell.field.duel.view.infoBoardCell = cell;
       cell.field.duel.view.requireUpdate();
       const actions = cell.entities.flatMap((e) => e.actions).filter((act) => enableActions.map((a) => a.seq).some((seq) => seq === act.seq));
-      console.log(enableActions);
-      console.log(actions);
+
       if (actions.length) {
         const view = cell.field.duel.view;
         view.modalController
@@ -149,6 +148,9 @@
     }
   };
   const validateActions = (...entities: DuelEntity[]): TCardState => {
+    if (view.waitMode === "Animation") {
+      return "Disabled";
+    }
     if (selectableEntities && selectableEntities.find((e1) => entities.find((e2) => e1 === e2))) {
       return "Selectable";
     }

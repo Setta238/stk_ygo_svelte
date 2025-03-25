@@ -15,7 +15,7 @@
   import DuelLog from "./DuelLog.svelte";
   import DuelDuelist from "./DuelDuelist.svelte";
   import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
-  import type { WaitStartEventArg } from "@ygo_duel_view/class/DuelViewController";
+  import type { AnimationStartEventArg, WaitStartEventArg } from "@ygo_duel_view/class/DuelViewController";
   import {} from "@stk_utils/funcs/StkArrayUtils";
   import ModalContainer from "@ygo_duel_view/components/DuelModalContainer.svelte";
   import DuelCardDetail, { type TCardDetailMode } from "./DuelCardDetail.svelte";
@@ -27,6 +27,7 @@
   let response: (Action: DuelistResponse) => void = () => {};
   let selectedEntitiesValidator: (selectedEntities: DuelEntity[]) => boolean = () => true;
   let selectableEntities: DuelEntity[];
+
   const onWaitStart: (args: WaitStartEventArg) => void = (args) => {
     response = args.resolve;
     selectedEntitiesValidator = args.entitiesValidator;
@@ -54,10 +55,9 @@
     duel = duel;
   };
   duel.view.onDuelUpdate.append(onDuelUpdate);
+
   const onOkClick = () => {
-    console.log(selectedList);
     if (selectedEntitiesValidator(selectedList)) {
-      console.log(selectedList);
       response({ selectedEntities: selectedList });
     }
   };

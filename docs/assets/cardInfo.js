@@ -1187,4 +1187,17 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 (2)：このカードの魔力カウンターを３つ取り除いて発動できる。
 自分はデッキから１枚ドローする。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:4,attack:0,defense:2e3,attributes:["Light"],types:["Spellcaster"],wikiEncodedName:"%A1%D4%B2%A6%CE%A9%CB%E2%CB%A1%BF%DE%BD%F1%B4%DB%A1%D5"},"マジカル・アンドロイド":{name:"マジカル・アンドロイド",nameKana:"",description:`チューナー＋チューナー以外のモンスター１体以上
 自分のエンドフェイズ時、
-自分フィールド上のサイキック族モンスター１体につき、自分は６００ライフポイント回復する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","Effect"],level:5,attack:2400,defense:1700,attributes:["Light"],types:["Psychic"],wikiEncodedName:"%A1%D4%A5%DE%A5%B8%A5%AB%A5%EB%A1%A6%A5%A2%A5%F3%A5%C9%A5%ED%A5%A4%A5%C9%A1%D5"}};export{e as j};
+自分フィールド上のサイキック族モンスター１体につき、自分は６００ライフポイント回復する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","Effect"],level:5,attack:2400,defense:1700,attributes:["Light"],types:["Psychic"],wikiEncodedName:"%A1%D4%A5%DE%A5%B8%A5%AB%A5%EB%A1%A6%A5%A2%A5%F3%A5%C9%A5%ED%A5%A4%A5%C9%A1%D5"},月の書:{name:"月の書",nameKana:"",description:`(1)：フィールドの表側表示モンスター１体を対象として発動できる。
+そのモンスターを裏側守備表示にする。`,kind:"Spell",spellCategory:"QuickPlay",wikiEncodedName:"%A1%D4%B7%EE%A4%CE%BD%F1%A1%D5"},"生者の書－禁断の呪術－":{name:"生者の書－禁断の呪術－",nameKana:"",description:`(1)：自分の墓地のアンデット族モンスター１体と相手の墓地のモンスター１体を対象として発動できる。
+その自分のアンデット族モンスターを特殊召喚する。
+その相手のモンスターを除外する。`,kind:"Spell",spellCategory:"Normal",wikiEncodedName:"%A1%D4%C0%B8%BC%D4%A4%CE%BD%F1%A1%DD%B6%D8%C3%C7%A4%CE%BC%F6%BD%D1%A1%DD%A1%D5"},太陽の書:{name:"太陽の書",nameKana:"",description:"フィールド上に裏側表示で存在するモンスター１体を選択し、表側攻撃表示にする。",kind:"Spell",spellCategory:"Normal",wikiEncodedName:"%A1%D4%C2%C0%CD%DB%A4%CE%BD%F1%A1%D5"},暗黒界の書物:{name:"暗黒界の書物",nameKana:"",description:`自分のエンドフェイズ時に手札枚数制限によって手札を墓地に捨てた場合、
+その中にモンスターカードが含まれていれば１体のみ自分フィールド上に特殊召喚する事ができる。`,kind:"Spell",spellCategory:"Continuous",wikiEncodedName:"%A1%D4%B0%C5%B9%F5%B3%A6%A4%CE%BD%F1%CA%AA%A1%D5"},三賢者の書:{name:"三賢者の書",nameKana:"",description:`このカード名の(2)(3)の効果は１ターンに１度、いずれか１つしか使用できない。
+(1)：このカードが魔法＆罠ゾーンに存在する限り、
+装備カードを装備した「マギストス」モンスターはそれぞれ１ターンに１度だけ戦闘では破壊されない。
+(2)：自分メインフェイズに発動できる。
+手札からレベル４の魔法使い族モンスター１体を特殊召喚する。
+(3)：魔法＆罠ゾーンの表側表示のこのカードを墓地へ送って発動できる。
+手札から「マギストス」モンスターを任意の数だけ特殊召喚する（同名カードは１枚まで）。`,kind:"Spell",spellCategory:"Continuous",wikiEncodedName:"%A1%D4%BB%B0%B8%AD%BC%D4%A4%CE%BD%F1%A1%D5"},皆既月蝕の書:{name:"皆既月蝕の書",nameKana:"",description:`(1)：手札を１枚捨て、フィールドの表側表示モンスター２体を対象として発動できる。
+そのモンスターを裏側守備表示にする。`,kind:"Spell",spellCategory:"QuickPlay",wikiEncodedName:"%A1%D4%B3%A7%B4%FB%B7%EE%BF%AA%A4%CE%BD%F1%A1%D5"},皆既日蝕の書:{name:"皆既日蝕の書",nameKana:"",description:`(1)：フィールドの表側表示モンスターを全て裏側守備表示にする。
+このターンのエンドフェイズに、相手フィールドの裏側守備表示モンスターを全て表側守備表示にし、
+その後、この効果で表側守備表示にしたモンスターの数だけ相手はドローする。`,kind:"Spell",spellCategory:"QuickPlay",wikiEncodedName:"%A1%D4%B3%A7%B4%FB%C6%FC%BF%AA%A4%CE%BD%F1%A1%D5"},儀式降臨封印の書:{name:"儀式降臨封印の書",nameKana:"",description:"フィールド上に表側表示で存在する儀式モンスター１体を破壊する。",kind:"Trap",trapCategory:"Normal",wikiEncodedName:"%A1%D4%B5%B7%BC%B0%B9%DF%CE%D7%C9%F5%B0%F5%A4%CE%BD%F1%A1%D5"}};export{e as j};

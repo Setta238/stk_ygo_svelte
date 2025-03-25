@@ -54,5 +54,67 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
   };
 
   result.push(def_ご隠居の猛毒薬);
+
+  const def_月の書 = {
+    name: "月の書",
+    actions: [
+      defaultSpellTrapSetAction,
+      {
+        title: "発動",
+        playType: "CardActivation",
+        spellSpeed: "Quick",
+        executableCells: ["Hand", "SpellAndTrapZone"],
+        validate: async (action) => {
+          const monsters = action.entity.field.getMonstersOnField().filter((monster) => monster.canBeEffected(action.entity.controller, action.entity, action));
+          if (!monsters.length) {
+            return;
+          }
+          return defaultSpellTrapValidate(action);
+        },
+        prepare: async (action, cell, chainBlockInfos, cancelable) => {
+          const monsters = action.entity.field.getMonstersOnField().filter((monster) => monster.canBeEffected(action.entity.controller, action.entity, action));
+          const selected = await action.entity.duel.view.waitSelectEntities(
+            action.entity.controller,
+            monsters,
+            1,
+            (selected) => selected.length === 1,
+            "対象とするモンスターを選択",
+            cancelable
+          );
+          if (!selected) {
+            return;
+          }
+
+          return defaultSpellTrapPrepare(action, cell, chainBlockInfos, cancelable, [], [...selected], undefined);
+        },
+        execute: async (myInfo) => {
+          const target = myInfo.selectedEntities[0];
+          // フィールドにいなければ効果なし
+          if (!target.isOnField) {
+            return false;
+          }
+
+          //すでにセット状態であれば効果なし
+          if (target.battlePosition === "Set") {
+            return false;
+          }
+
+          //効果を受けない状態であれば効果なし
+          if (!target.canBeEffected(myInfo.activator, myInfo.action.entity, myInfo.action)) {
+            myInfo.activator.duel.log.info(`${target.toString()}は${myInfo.action.entity.toString()}の効果を受けない。`);
+            return;
+          }
+
+          // セット状態にする。
+          await target.setBattlePosition("Set", ["Effect"], myInfo.action.entity, myInfo.activator);
+
+          return true;
+        },
+        settle: async () => true,
+      },
+    ] as CardActionBase<unknown>[],
+  };
+
+  result.push(def_月の書);
   return result;
 };

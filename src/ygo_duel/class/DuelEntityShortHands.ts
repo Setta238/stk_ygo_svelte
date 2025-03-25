@@ -1,6 +1,6 @@
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
 import { SystemError } from "./Duel";
-import type { CardActionBaseAttr, CardAction } from "./DuelCardAction";
+import type { CardActionBaseAttr, CardAction, ChainBlockInfo } from "./DuelCardAction";
 import { DuelEntity, type TSummonRuleCauseReason, posToSummonPos, type TDestoryCauseReason, destoryCauseReasonDic } from "./DuelEntity";
 import type { Duelist } from "./Duelist";
 
@@ -11,7 +11,7 @@ declare module "./DuelEntity" {
     canBeTargetOfEffect(activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionBaseAttr>): boolean;
     canBeSpecialSummoned(summmonRule: TSummonRuleCauseReason, activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionBaseAttr>): boolean;
     canBeTargetOfBattle(activator: Duelist, entity: DuelEntity): boolean;
-    tryDestory(destroyType: TDestoryCauseReason, activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionBaseAttr>): boolean;
+    tryDestory(destroyType: TDestoryCauseReason, activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionBaseAttr>): Promise<boolean>;
     canBeMaterials(summmonRule: TSummonRuleCauseReason, action: Partial<CardActionBaseAttr>, materials: DuelEntity[]): boolean;
     getIndexInCell(): number;
   }
@@ -84,12 +84,12 @@ DuelEntity.prototype.canBeTargetOfBattle = function (activator: Duelist, causedB
     .every((pf) => pf.filter(activator, causedBy, {}, [entity]));
 };
 
-DuelEntity.prototype.tryDestory = function (
+DuelEntity.prototype.tryDestory = async function (
   destroyType: "BattleDestroy" | "EffectDestroy",
   activator: Duelist,
   causedBy: DuelEntity,
   action: Partial<CardActionBaseAttr>
-): boolean {
+): Promise<boolean> {
   const entity = this as DuelEntity;
   console.log(entity);
   entity.info.isDying = entity.procFilterBundle.operators
@@ -100,8 +100,6 @@ DuelEntity.prototype.tryDestory = function (
     entity.info.causeOfDeath = [destroyType];
     entity.info.isKilledBy = causedBy;
     entity.info.isKilledByWhom = causedBy.controller;
-
-    entity.continuousEffects.forEach((ce) => ce.updateState());
   }
   return entity.info.isDying;
 };
@@ -129,3 +127,38 @@ DuelEntity.prototype.getIndexInCell = function (): number {
 
   return index;
 };
+
+export class DuelEntityShortHands {
+  public static readonly tryDestroy = async (cards: DuelEntity[], chainBlockInfo: ChainBlockInfo<unknown>): Promise<DuelEntity[]> => {
+    const _cards = cards.filter((card) => !card.info.isDying);
+    await Promise.all(_cards.map((card) => card.tryDestory("EffectDestroy", chainBlockInfo.activator, chainBlockInfo.action.entity, chainBlockInfo.action)));
+    const result = _cards.filter((card) => card.info.isDying);
+
+    await DuelEntity.waitCorpseDisposal(chainBlockInfo.activator.duel);
+
+    return result;
+  };
+
+  private constructor() {}
+}
+
+// const hogeUnknown: ChainBlockInfo<unknown> = undefined!;
+// const hogeNever: ChainBlockInfo<unknown> = undefined!;
+// const hogeString: ChainBlockInfo<string> = undefined!;
+
+// const fugaUnknown = (chainBlockInfo: Readonly<ChainBlockInfo<unknown>>) => {
+//   console.log(chainBlockInfo);
+// };
+// const fugaNever = (chainBlockInfo: Readonly<ChainBlockInfo<unknown>>) => {
+//   console.log(chainBlockInfo);
+// };
+// fugaUnknown(hogeUnknown);
+// fugaUnknown(hogeNever);
+// fugaUnknown(hogeString);
+// fugaNever(hogeUnknown);
+// fugaNever(hogeNever);
+// fugaNever(hogeString);
+
+// const piyo = [hogeUnknown, hogeNever, hogeString];
+
+// piyo.push;

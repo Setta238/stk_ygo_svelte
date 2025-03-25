@@ -100,9 +100,12 @@ const getLikeTradeInAction = (filter: (card: DuelEntity) => boolean): CardAction
       return defaultSpellTrapValidate(action);
     },
     prepare: async (action, cell, chainBlockInfos, cancelable) => {
-      await action.entity.controller.discard(1, ["Discard", "Cost"], action.entity, action.entity.controller, filter);
+      const discardPromise = action.entity.controller.discard(1, ["Discard", "Cost"], action.entity, action.entity.controller, filter);
+      const preparePromise = defaultSpellTrapPrepare(action, cell, chainBlockInfos, cancelable, ["SearchFromDeck"], [], undefined);
 
-      return defaultSpellTrapPrepare(action, cell, chainBlockInfos, cancelable, ["SearchFromDeck"], [], undefined);
+      await Promise.all([discardPromise, preparePromise]);
+
+      return await preparePromise;
     },
     execute: async (myInfo) => {
       await myInfo.activator.draw(2, myInfo.action.entity, myInfo.activator);

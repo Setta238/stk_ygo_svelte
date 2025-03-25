@@ -429,13 +429,17 @@ export class Duel {
         attacker.controller.battleDamage(defPoint - atkPoint, defender);
       }
 
+      const promiseList: Promise<boolean>[] = [];
+
       // 戦闘破壊計算
       if (atkPoint > 0 && (atkPoint > defPoint || (atkPoint === defPoint && defender.battlePosition === "Attack"))) {
-        defender.tryDestory("BattleDestroy", attacker.controller, attacker, chainBlockInfo.action);
+        promiseList.push(defender.tryDestory("BattleDestroy", attacker.controller, attacker, chainBlockInfo.action));
       }
       if (defender.battlePosition === "Attack" && atkPoint <= defPoint) {
-        attacker.tryDestory("BattleDestroy", attacker.controller, defender, chainBlockInfo.action);
+        promiseList.push(attacker.tryDestory("BattleDestroy", attacker.controller, defender, chainBlockInfo.action));
       }
+
+      await Promise.all(promiseList);
     }
 
     const losers = Object.values(this.duelists).filter((duelist) => duelist.lp <= 0);

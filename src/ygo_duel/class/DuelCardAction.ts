@@ -275,7 +275,7 @@ export class CardAction<T> implements ICardAction<T> {
       return;
     }
 
-    this.entity.field.duel.cardActionLog.push(this.entity.controller, this as CardAction<unknown>);
+    this.entity.field.duel.cardActionLog.push(this.entity.controller, this);
 
     return { ...prepared, action: this, activator: this.entity.controller, isActivatedIn };
   };

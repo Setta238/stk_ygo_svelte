@@ -582,7 +582,7 @@ export class DuelEntity {
   public readonly continuousEffects: ContinuousEffect<unknown>[] = [];
   private _hasDisappeared = false;
   public get status() {
-    return this._status;
+    return this._status as Readonly<EntityStatus>;
   }
   public set status(newStatus) {
     console.log(newStatus);
@@ -727,7 +727,7 @@ export class DuelEntity {
     this._status = JSON.parse(JSON.stringify(cardInfo));
     this._numericStatus = JSON.parse(JSON.stringify(cardInfo));
 
-    this.resetStatus();
+    this.resetStatusAll();
     this._info = {
       isEffective: true,
       attackCount: 0,
@@ -948,13 +948,38 @@ export class DuelEntity {
       // セルに自分を所属させる
       to.acceptEntities([this], pos);
 
-      // 非公開情報になった場合、全ての情報をリセット
+      // ★情報のリセット、再セット
+      //    後処理は後続で行う
       if (to === this.isBelongTo || to.cellType === "Hand" || (to.cellType === "Banished" && this.face === "FaceDown")) {
+        // 非公開情報になった場合、全ての情報をリセット
+        this.counterHolder.clear();
         this.resetInfo();
-        this.resetStatus();
+        this.resetStatusAll();
+      } else if (this.isOnField && this.face === "FaceDown") {
+        // セット状態になった場合
+
+        // カウンター類を除去
+        this.counterHolder.removeAllWhenfaceDown();
+        // 素材情報を削除
+        this.info.materials = [];
+
+        // 無効化状態を解除
+        this._status.isEffective = true;
+        this.info.isEffective = true;
+
+        // フィールドから離れたとき除外される系のリセット
+        this.info.willBeBanished = false;
+        this.info.willReturnToDeck = undefined;
+
+        //ステータスをリセット
+        this.resetNumericStatus();
+
+        // セットしたターンに発動できない制約を付与
+        this.info.isSettingSickness = this.status.kind === "Trap" || this.status.spellCategory === "QuickPlay";
       }
     }
 
+    // 移動ログ追加
     this.moveLog.push(movedAs, movedBy, actionOwner, chooser);
 
     return to;
@@ -989,7 +1014,7 @@ export class DuelEntity {
     this.counterHolder.clear();
   };
 
-  private readonly resetStatus = () => {
+  private readonly resetNumericStatus = () => {
     const master = entityFlexibleStatusKeys.reduce(
       (wip, key) => {
         wip[key] = this.origin[key];
@@ -1003,6 +1028,10 @@ export class DuelEntity {
       current: { ...master },
       calculated: { ...master },
     };
+  };
+
+  private readonly resetStatusAll = () => {
+    this.resetNumericStatus();
     this._status = {
       ...this.origin,
       canAttack: true,

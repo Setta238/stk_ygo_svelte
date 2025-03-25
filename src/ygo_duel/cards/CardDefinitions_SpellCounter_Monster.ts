@@ -8,9 +8,9 @@ import {
 } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import { spellTrapZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
-import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 import type { TCardKind } from "@ygo/class/YgoTypes";
+import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 
 const createSpellCounterCommonEffect = (kind: TCardKind, maxQty?: number) => {
   const title = maxQty ? `魔力充填可能(${maxQty})` : "魔力充填可能";
@@ -123,8 +123,7 @@ export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] =
           }
           myInfo.action.entity.counterHolder.remove("SpellCounter", 1);
 
-          myInfo.selectedEntities.forEach((card) => card.tryDestory("EffectDestroy", myInfo.activator, myInfo.action.entity, myInfo.action));
-          await DuelEntity.waitCorpseDisposal(myInfo.activator.duel);
+          await DuelEntityShortHands.tryDestroy(myInfo.selectedEntities, myInfo);
 
           return true;
         },

@@ -17,12 +17,12 @@ export default class DuelCardActionLog {
     this.nextSeq = 0;
     this.duel = duel;
   }
-  public readonly push = (activator: Duelist, action: CardAction<unknown>): void => {
+  public readonly push = <T>(activator: Duelist, action: CardAction<T>): void => {
     this.records.push({
       seq: this.nextSeq++,
       clock: this.duel.clock.getClone(),
       activator: activator,
-      cardAction: action,
+      cardAction: action as CardAction<unknown>,
     });
   };
 }

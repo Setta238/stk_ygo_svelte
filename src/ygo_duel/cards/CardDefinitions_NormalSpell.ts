@@ -7,6 +7,7 @@ import { type CardAction, type CardActionBase } from "@ygo_duel/class/DuelCardAc
 import { IllegalCancelError } from "@ygo_duel/class/Duel";
 
 import type { CardDefinition } from "./CardDefinitions";
+import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 
 export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
   const result: CardDefinition[] = [];
@@ -372,9 +373,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
               cards = cards.filter((card) => card.controller !== myInfo.action.entity.controller);
             }
 
-            cards.forEach((card) => card.tryDestory("EffectDestroy", myInfo.activator, myInfo.action.entity, myInfo.action));
-
-            await DuelEntity.waitCorpseDisposal(myInfo.activator.duel);
+            await DuelEntityShortHands.tryDestroy(cards, myInfo);
 
             return true;
           },

@@ -31,7 +31,8 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
           playType: "CardActivation",
           spellSpeed: "Normal",
           executableCells: ["Hand", "SpellAndTrapZone"],
-          isLikeContinuousSpell: true,
+          executablePeriods: ["main1", "main2"],
+          executableDuelistTypes: ["Controller"],
           validate: (action) => {
             const monsters = action.entity.field
               .getMonstersOnField()
@@ -118,8 +119,9 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
         playType: "CardActivation",
         spellSpeed: "Normal",
         executableCells: ["Hand", "SpellAndTrapZone"],
+        executablePeriods: ["main1", "main2"],
+        executableDuelistTypes: ["Controller"],
         hasToTargetCards: true,
-        isLikeContinuousSpell: true,
         // 墓地に蘇生可能モンスター、場に空きが必要。
         validate: (action) => {
           if (

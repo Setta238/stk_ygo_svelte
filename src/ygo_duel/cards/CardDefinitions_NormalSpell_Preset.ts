@@ -12,6 +12,9 @@ const getDefaultSearchSpellAction = (filter: (card: DuelEntity) => boolean): Car
     playType: "CardActivation",
     spellSpeed: "Normal",
     executableCells: ["Hand", "SpellAndTrapZone"],
+    executablePeriods: ["main1", "main2"],
+    executableDuelistTypes: ["Controller"],
+
     // デッキに対象カードが一枚以上必要。
     validate: (action) => {
       if (action.entity.controller.getDeckCell().cardEntities.filter(filter).length === 0) {
@@ -40,6 +43,7 @@ const getDefaultSearchSpellAction = (filter: (card: DuelEntity) => boolean): Car
       for (const monster of target ?? []) {
         await monster.addToHand(["Effect"], myInfo.action.entity, myInfo.activator);
       }
+
       myInfo.activator.shuffleDeck();
       return true;
     },
@@ -52,6 +56,9 @@ const getDefaultSalvageSpellAction = (filter: (card: DuelEntity) => boolean, qty
     playType: "CardActivation",
     spellSpeed: "Normal",
     executableCells: ["Hand", "SpellAndTrapZone"],
+    executablePeriods: ["main1", "main2"],
+    executableDuelistTypes: ["Controller"],
+
     hasToTargetCards: true,
     // 墓地にに対象カードが一枚以上必要。
     validate: (action) => {
@@ -89,6 +96,9 @@ const getLikeTradeInAction = (filter: (card: DuelEntity) => boolean): CardAction
     playType: "CardActivation",
     spellSpeed: "Normal",
     executableCells: ["Hand", "SpellAndTrapZone"],
+    executablePeriods: ["main1", "main2"],
+    executableDuelistTypes: ["Controller"],
+
     // 手札に対象カードが一枚以上必要。
     validate: (action) => {
       if (action.entity.controller.getHandCell().cardEntities.filter(filter).length === 0) {
@@ -121,6 +131,8 @@ const getDefaultHealBurnSpellAction = (calcDamage: (entity: DuelEntity) => [numb
     playType: "CardActivation",
     spellSpeed: "Normal",
     executableCells: ["Hand", "SpellAndTrapZone"],
+    executablePeriods: ["main1", "main2"],
+    executableDuelistTypes: ["Controller"],
     validate: defaultSpellTrapValidate,
     prepare: (action, cell, chainBlockInfos, cancelable) => {
       const [toSelf, toOpponent] = calcDamage(action.entity);

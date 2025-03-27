@@ -1,4 +1,4 @@
-import { defaultSpellTrapPrepare, defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/functions/DefaultCardAction_Spell";
+import { defaultSpellTrapSetAction, defaultSpellTrapValidate, defaultUndefinedSpellTrapPrepare } from "@ygo_duel/functions/DefaultCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardActionBase } from "@ygo_duel/class/DuelCardAction";
@@ -18,14 +18,15 @@ export const createCardDefinitions_ContinuousSpell_Preset = (): CardDefinition[]
         playType: "CardActivation",
         spellSpeed: "Normal",
         executableCells: ["Hand", "SpellAndTrapZone"],
-        isLikeContinuousSpell: true,
+        executablePeriods: ["main1", "main2"],
+        executableDuelistTypes: ["Controller"],
         validate: defaultSpellTrapValidate,
-        prepare: defaultSpellTrapPrepare,
+        prepare: defaultUndefinedSpellTrapPrepare,
         execute: async () => true,
         settle: async () => true,
-      },
-      defaultSpellTrapSetAction,
-    ] as CardActionBase<unknown>[],
+      } as CardActionBase<unknown>,
+      defaultSpellTrapSetAction as CardActionBase<unknown>,
+    ],
     continuousEffects: [
       createBroadRegularNumericStateOperatorHandler(
         "発動",

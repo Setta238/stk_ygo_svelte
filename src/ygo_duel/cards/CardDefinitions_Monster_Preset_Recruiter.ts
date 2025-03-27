@@ -6,6 +6,7 @@ import { defaultAttackAction, defaultBattlePotisionChangeAction, defaultNormalSu
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardDefinition } from "./CardDefinitions";
+import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 
 const getDefalutRecruiterAction = (
   monsterFilter: (monsters: DuelEntity) => boolean,
@@ -19,7 +20,8 @@ const getDefalutRecruiterAction = (
     playType: "TriggerEffect",
     spellSpeed: "Normal",
     executableCells: executableCells,
-    canExecuteOnDamageStep: true,
+    executablePeriods: destoryTypes.includes("EffectDestroy") ? [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys] : ["b1DEnd", "b2DEnd"],
+    executableDuelistTypes: ["Controller"],
     validate: (action): DuelFieldCell[] | undefined => {
       if (!action.entity.wasMovedAtPreviousChain) {
         return;

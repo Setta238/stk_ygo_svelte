@@ -34,30 +34,40 @@ export const createCardDefinitions_SyncroMonster = (): CardDefinition[] => {
   result.push({
     name: "マジカル・アンドロイド",
     actions: [
-      defaultAttackAction,
-      defaultBattlePotisionChangeAction,
-      getDefaultSyncroSummonAction(),
+      defaultAttackAction as CardActionBase<unknown>,
+      defaultBattlePotisionChangeAction as CardActionBase<unknown>,
+      getDefaultSyncroSummonAction() as CardActionBase<unknown>,
       {
         title: "回復",
-        playType: "TriggerMandatoryEffect",
+        playType: "MandatoryIgnitionEffect",
         spellSpeed: "Normal",
         executableCells: ["MonsterZone", "ExtraMonsterZone"],
+        executablePeriods: ["end"],
+        executableDuelistTypes: ["Controller"],
         validate: (action) =>
-          action.entity.counterHolder.getQty("①") === 0 && action.entity.duel.phase === "end" && action.entity.controller.isTurnPlayer ? [] : undefined,
+          action.entity.counterHolder.getQty("①") === 0 &&
+          action.entity.duel.phase === "end" &&
+          action.entity.controller.isTurnPlayer &&
+          action.entity.face === "FaceUp"
+            ? []
+            : undefined,
         prepare: (action) => {
           action.entity.counterHolder.add("①");
           return defaultPrepare();
         },
         execute: async (myInfo) => {
           myInfo.activator.heal(
-            myInfo.activator.getMonstersOnField().filter((monster) => monster.types.includes("Psychic")).length * 600,
+            myInfo.activator
+              .getMonstersOnField()
+              .filter((monster) => monster.face === "FaceUp")
+              .filter((monster) => monster.types.includes("Psychic")).length * 600,
             myInfo.action.entity
           );
           return true;
         },
         settle: async () => true,
       },
-    ] as CardActionBase<unknown>[],
+    ],
   });
 
   return result;

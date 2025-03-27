@@ -50,9 +50,11 @@ export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] =
       defaultNormalSummonAction,
       {
         title: "①魔力充填",
-        playType: "TriggerMandatoryEffect",
+        playType: "MandatoryTriggerEffect",
         spellSpeed: "Normal",
         executableCells: ["MonsterZone"],
+        executablePeriods: ["main1", "main2"],
+        executableDuelistTypes: ["Controller"],
         validate: (action) => {
           if (!action.entity.hasBeenSummonedNow(["NormalSummon"])) {
             return;
@@ -78,6 +80,8 @@ export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] =
         playType: "IgnitionEffect",
         spellSpeed: "Normal",
         executableCells: ["MonsterZone"],
+        executablePeriods: ["main1", "main2"],
+        executableDuelistTypes: ["Controller"],
         validate: (action) => {
           if (!action.entity.counterHolder.getQty("SpellCounter")) {
             return;

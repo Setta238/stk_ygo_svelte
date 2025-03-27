@@ -1,14 +1,14 @@
 import StkEvent from "@stk_utils/class/StkEvent";
-import { SystemError, type TDuelPhase, type TDuelPhaseStep } from "./Duel";
+import { SystemError } from "./Duel";
 import { Duel } from "./Duel";
 import { type Duelist } from "./Duelist";
 import type { DuelClock } from "./DuelClock";
+import type { TDuelPeriodKey } from "./DuelPeriod";
 
 type DuelLogRecord = {
   seq: number;
   turn: number;
-  phase: TDuelPhase;
-  phaseStep: TDuelPhaseStep;
+  periodKey: TDuelPeriodKey;
   clock: DuelClock;
   duelist: Duelist | undefined;
   text: string;
@@ -59,8 +59,7 @@ export default class DuelLog {
     this.records.push({
       seq: this.nextSeq++,
       turn: this.duel.clock.turn,
-      phase: this.duel.phase,
-      phaseStep: this.duel.phaseStep,
+      periodKey: this.duel.clock.period.key,
       clock: this.duel.clock,
       duelist: duelist,
       text: _text,

@@ -52,7 +52,8 @@ export const createCardDefinitions_EquipSpell_Preset = (): CardDefinition[] => {
           playType: "CardActivation",
           spellSpeed: "Normal",
           executableCells: ["Hand", "SpellAndTrapZone"],
-          isLikeContinuousSpell: true,
+          executablePeriods: ["main1", "main2"],
+          executableDuelistTypes: ["Controller"],
           validate: (action) => {
             const monsters = action.entity.field
               .getMonstersOnField()
@@ -90,8 +91,8 @@ export const createCardDefinitions_EquipSpell_Preset = (): CardDefinition[] => {
           execute: async () => true,
           settle: async () => true,
         },
-        defaultSpellTrapSetAction,
-      ] as CardActionBase<unknown>[],
+        defaultSpellTrapSetAction as CardActionBase<unknown>,
+      ],
       continuousEffects: [
         createRegularEquipRelationHandler(
           "EquipTarget",

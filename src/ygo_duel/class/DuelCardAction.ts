@@ -2,14 +2,19 @@ import type { TBattlePosition } from "@ygo/class/YgoTypes";
 import type { DuelFieldCell, DuelFieldCellType } from "./DuelFieldCell";
 import { type Duelist } from "./Duelist";
 import type { DuelEntity } from "./DuelEntity";
+import type { TDuelPeriodKey } from "./DuelPeriod";
+
+export const executableDuelistTypes = ["Controller", "Opponent"] as const;
+export type TExecutableDuelistType = (typeof executableDuelistTypes)[number];
+
 export const effectActiovationTypes = ["CardActivation", "EffectActivation", "NonActivate"] as const;
 export type TEffectActiovationType = (typeof effectActiovationTypes)[number];
 export const cardActionChainBlockTypes = [
-  "TriggerEffect",
-  "TriggerMandatoryEffect",
-  "MandatoryEffect",
-  "QuickEffect",
   "IgnitionEffect",
+  "MandatoryIgnitionEffect",
+  "TriggerEffect",
+  "MandatoryTriggerEffect",
+  "QuickEffect",
   "CardActivation",
 ] as const;
 export type TCardActionChainBlockType = (typeof cardActionChainBlockTypes)[number];
@@ -70,13 +75,16 @@ export type CardActionBaseAttr = {
   playType: TCardActionType;
   spellSpeed: TSpellSpeed;
   hasToTargetCards?: boolean;
-  executableCells: DuelFieldCellType[];
+  executableCells: Readonly<DuelFieldCellType[]>;
+  executablePeriods: Readonly<TDuelPeriodKey[]>;
+  executableDuelistTypes: TExecutableDuelistType[];
   isOnlyNTimesPerTurn?: number;
   isOnlyNTimesPerDuel?: number;
   actionGroupNamePerTurn?: string;
-  canExecuteOnDamageStep?: boolean;
+  /**
+   * 光の護封剣などの例外のみ指定が必要
+   */
   isLikeContinuousSpell?: boolean;
-  willRemainInField?: boolean;
 };
 export type CardActionBase<T> = CardActionBaseAttr & {
   /**
@@ -119,8 +127,6 @@ export interface ICardAction<T> {
   isOnlyNTimesPerTurn: number;
   isOnlyNTimesPerDuel: number;
   isLikeContinuousSpell: boolean;
-  executableCells: DuelFieldCellType[];
-
   getClone: () => ICardAction<T>;
   /**
    *
@@ -174,7 +180,6 @@ export class CardAction<T> implements ICardAction<T> {
       entity: entity,
       playType: "Dammy",
       spellSpeed: "Dammy",
-      executableCells: [entity.fieldCell.cellType],
       hasToTargetCards: false,
       isOnlyNTimesPerDuel: 0,
       isOnlyNTimesPerTurn: 0,
@@ -213,7 +218,24 @@ export class CardAction<T> implements ICardAction<T> {
   public get executableCells() {
     return this.cardActionBase.executableCells;
   }
+  public get executablePeriods() {
+    return this.cardActionBase.executablePeriods;
+  }
+  public get executableDuelistTypes() {
+    return this.cardActionBase.executableDuelistTypes;
+  }
+  public get executableDuelists() {
+    const duelists: Duelist[] = [];
 
+    if (this.cardActionBase.executableDuelistTypes.includes("Controller")) {
+      duelists.push(this.entity.controller);
+    }
+    if (this.cardActionBase.executableDuelistTypes.includes("Opponent")) {
+      duelists.push(this.entity.controller.getOpponentPlayer());
+    }
+
+    return duelists;
+  }
   public get isOnlyNTimesPerDuel() {
     return this.cardActionBase.isOnlyNTimesPerDuel ?? 0;
   }
@@ -227,9 +249,6 @@ export class CardAction<T> implements ICardAction<T> {
 
   public get actionGroupNamePerTurn() {
     return this.cardActionBase.actionGroupNamePerTurn;
-  }
-  public get canExecuteOnDamageStep() {
-    return this.cardActionBase.canExecuteOnDamageStep ?? false;
   }
 
   private constructor(seq: number, entity: DuelEntity, cardActionBase: CardActionBase<T>) {

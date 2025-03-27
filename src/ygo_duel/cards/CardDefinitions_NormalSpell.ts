@@ -20,6 +20,8 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         playType: "CardActivation",
         spellSpeed: "Normal",
         executableCells: ["Hand", "SpellAndTrapZone"],
+        executablePeriods: ["main1", "main2"],
+        executableDuelistTypes: ["Controller"],
         validate: (action) => {
           if (action.entity.controller.getDeckCell().cardEntities.length < 2) {
             return;
@@ -39,12 +41,13 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           return true;
         },
         settle: async () => true,
-      },
-      defaultSpellTrapSetAction,
-    ] as CardActionBase<unknown>[],
+      } as CardActionBase<unknown>,
+      defaultSpellTrapSetAction as CardActionBase<unknown>,
+    ],
   };
 
   result.push(def_強欲な壺);
+
   const def_貪欲な壺 = {
     name: "貪欲な壺",
     actions: [
@@ -53,6 +56,8 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         playType: "CardActivation",
         spellSpeed: "Normal",
         executableCells: ["Hand", "SpellAndTrapZone"],
+        executablePeriods: ["main1", "main2"],
+        executableDuelistTypes: ["Controller"],
         validate: (action) => {
           // 墓地に対象に取れるモンスターが５体以上必要
           if (
@@ -94,23 +99,18 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           if (myInfo.selectedEntities.some((monster) => monster.wasMovedAtCurrentChain)) {
             return false;
           }
+
           //デッキorエクストラデッキに戻す
           await DuelEntity.returnManyToDeckForTheSameReason("Random", myInfo.selectedEntities, ["Effect"], myInfo.action.entity, myInfo.activator);
-
-          // シャッフルの必要がある場合、シャッフルする。
-          myInfo.action.entity.field
-            .getCells("Deck")
-            .filter((cell) => cell.needsShuffle)
-            .forEach((cell) => cell.shuffle());
 
           await myInfo.activator.draw(2, myInfo.action.entity, myInfo.activator);
 
           return true;
         },
         settle: async () => true,
-      },
-      defaultSpellTrapSetAction,
-    ] as CardActionBase<unknown>[],
+      } as CardActionBase<unknown>,
+      defaultSpellTrapSetAction as CardActionBase<unknown>,
+    ],
   };
 
   result.push(def_貪欲な壺);
@@ -122,6 +122,8 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         playType: "CardActivation",
         spellSpeed: "Normal",
         executableCells: ["Hand", "SpellAndTrapZone"],
+        executablePeriods: ["main1", "main2"],
+        executableDuelistTypes: ["Controller"],
         validate: (action) => {
           if (action.entity.controller.getDeckCell().cardEntities.length < 3) {
             return;
@@ -136,9 +138,9 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           return true;
         },
         settle: async () => true,
-      },
-      defaultSpellTrapSetAction,
-    ] as CardActionBase<unknown>[],
+      } as CardActionBase<unknown>,
+      defaultSpellTrapSetAction as CardActionBase<unknown>,
+    ],
   };
 
   result.push(def_天使の施し);
@@ -150,6 +152,8 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         playType: "CardActivation",
         spellSpeed: "Normal",
         executableCells: ["Hand", "SpellAndTrapZone"],
+        executablePeriods: ["main1", "main2"],
+        executableDuelistTypes: ["Controller"],
         validate: (action) => {
           if (action.entity.controller.getDeckCell().cardEntities.length < 1) {
             return;
@@ -166,9 +170,9 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           return true;
         },
         settle: async () => true,
-      },
-      defaultSpellTrapSetAction,
-    ] as CardActionBase<unknown>[],
+      } as CardActionBase<unknown>,
+      defaultSpellTrapSetAction as CardActionBase<unknown>,
+    ],
   };
 
   result.push(def_成金ゴブリン);
@@ -180,6 +184,8 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         playType: "CardActivation",
         spellSpeed: "Normal",
         executableCells: ["Hand", "SpellAndTrapZone"],
+        executablePeriods: ["main1", "main2"],
+        executableDuelistTypes: ["Controller"],
         // デッキにモンスターが一枚以上必要。
         validate: (action) => {
           if (action.entity.controller.getDeckCell().cardEntities.filter((card) => card.status.kind === "Monster").length === 0) {
@@ -210,9 +216,9 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           return true;
         },
         settle: async () => true,
-      },
-      defaultSpellTrapSetAction,
-    ] as CardActionBase<unknown>[],
+      } as CardActionBase<unknown>,
+      defaultSpellTrapSetAction as CardActionBase<unknown>,
+    ],
   };
 
   result.push(def_おろかな埋葬);
@@ -225,6 +231,8 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         playType: "CardActivation",
         spellSpeed: "Normal",
         executableCells: ["Hand", "SpellAndTrapZone"],
+        executablePeriods: ["main1", "main2"],
+        executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerTurn: 1,
         // デッキにモンスターが一枚以上必要。
         validate: (action) => {
@@ -255,9 +263,9 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           return true;
         },
         settle: async () => true,
-      },
-      defaultSpellTrapSetAction,
-    ] as CardActionBase<unknown>[],
+      } as CardActionBase<unknown>,
+      defaultSpellTrapSetAction as CardActionBase<unknown>,
+    ],
   };
 
   result.push(def_おろかな副葬);
@@ -270,6 +278,8 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         playType: "CardActivation",
         spellSpeed: "Normal",
         executableCells: ["Hand", "SpellAndTrapZone"],
+        executablePeriods: ["main1", "main2"],
+        executableDuelistTypes: ["Controller"],
         hasToTargetCards: true,
         // 墓地に蘇生可能モンスター、場に空きが必要。
         validate: (action) => {
@@ -316,9 +326,9 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           return true;
         },
         settle: async () => true,
-      },
-      defaultSpellTrapSetAction,
-    ] as CardActionBase<unknown>[],
+      } as CardActionBase<unknown>,
+      defaultSpellTrapSetAction as CardActionBase<unknown>,
+    ],
   };
 
   result.push(def_死者蘇生);
@@ -338,7 +348,8 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           playType: "CardActivation",
           spellSpeed: "Normal",
           executableCells: ["Hand", "SpellAndTrapZone"],
-          hasToTargetCards: true,
+          executablePeriods: ["main1", "main2"],
+          executableDuelistTypes: ["Controller"],
           validate: (action) => {
             let cards = action.entity.field
               .getCells(...item.cellTypes)
@@ -378,9 +389,9 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
             return true;
           },
           settle: async () => true,
-        },
-        defaultSpellTrapSetAction,
-      ] as CardActionBase<unknown>[],
+        } as CardActionBase<unknown>,
+        defaultSpellTrapSetAction as CardActionBase<unknown>,
+      ],
     });
   });
 
@@ -392,7 +403,8 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         playType: "CardActivation",
         spellSpeed: "Normal",
         executableCells: ["Hand", "SpellAndTrapZone"],
-        hasToTargetCards: true,
+        executablePeriods: ["main1", "main2"],
+        executableDuelistTypes: ["Controller"],
         validate: (action) => {
           const cards = action.entity.field
             .getCells("SpellAndTrapZone", "FieldSpellZone")
@@ -428,9 +440,9 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           return true;
         },
         settle: async () => true,
-      },
-      defaultSpellTrapSetAction,
-    ] as CardActionBase<unknown>[],
+      } as CardActionBase<unknown>,
+      defaultSpellTrapSetAction as CardActionBase<unknown>,
+    ],
   };
   result.push(def_ハリケーン);
 
@@ -442,6 +454,8 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         playType: "CardActivation",
         spellSpeed: "Normal",
         executableCells: ["Hand", "SpellAndTrapZone"],
+        executablePeriods: ["main1", "main2"],
+        executableDuelistTypes: ["Controller"],
         validate: (action) => {
           if (
             action.entity.controller.getDeckCell().cardEntities.length <
@@ -486,9 +500,9 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           return true;
         },
         settle: async () => true,
-      },
-      defaultSpellTrapSetAction,
-    ] as CardActionBase<unknown>[],
+      } as CardActionBase<unknown>,
+      defaultSpellTrapSetAction as CardActionBase<unknown>,
+    ],
   };
   result.push(def_手札抹殺);
 
@@ -500,6 +514,8 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         playType: "CardActivation",
         spellSpeed: "Normal",
         executableCells: ["Hand", "SpellAndTrapZone"],
+        executablePeriods: ["main1", "main2"],
+        executableDuelistTypes: ["Controller"],
         // デッキに対象モンスターが一枚以上必要。
         validate: (action) => {
           if (action.entity.controller.getDeckCell().cardEntities.length < 4) {
@@ -543,12 +559,14 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           for (const monster of target ?? []) {
             await monster.addToHand(["Effect"], myInfo.action.entity, myInfo.activator);
           }
+          myInfo.activator.shuffleDeck();
+
           return true;
         },
         settle: async () => true,
-      },
-      defaultSpellTrapSetAction,
-    ] as CardActionBase<unknown>[],
+      } as CardActionBase<unknown>,
+      defaultSpellTrapSetAction as CardActionBase<unknown>,
+    ],
   };
 
   result.push(def_光の援軍);
@@ -561,6 +579,8 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         playType: "CardActivation",
         spellSpeed: "Normal",
         executableCells: ["Hand", "SpellAndTrapZone"],
+        executablePeriods: ["main1", "main2"],
+        executableDuelistTypes: ["Controller"],
         // デッキ二枚以上、対象モンスターが一枚以上必要。
         validate: (action) => {
           const cards = action.entity.controller.getDeckCell().cardEntities;
@@ -606,9 +626,9 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           return true;
         },
         settle: async () => true,
-      },
-      defaultSpellTrapSetAction,
-    ] as CardActionBase<unknown>[],
+      } as CardActionBase<unknown>,
+      defaultSpellTrapSetAction as CardActionBase<unknown>,
+    ],
   };
 
   result.push(def_調律);
@@ -620,6 +640,8 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         playType: "CardActivation",
         spellSpeed: "Normal",
         executableCells: ["Hand", "SpellAndTrapZone"],
+        executablePeriods: ["main1", "main2"],
+        executableDuelistTypes: ["Controller"],
         // デッキ・手札に対象モンスターが一枚以上かつ、手札コストモンスターが必要。
         validate: (action) => {
           if (action.entity.controller.getDeckCell().cardEntities.filter((card) => card.lvl === 1).length === 0) {
@@ -696,9 +718,9 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           return true;
         },
         settle: async () => true,
-      },
-      defaultSpellTrapSetAction,
-    ] as CardActionBase<unknown>[],
+      } as CardActionBase<unknown>,
+      defaultSpellTrapSetAction as CardActionBase<unknown>,
+    ],
   };
 
   result.push(def_ワン・フォー・ワン);

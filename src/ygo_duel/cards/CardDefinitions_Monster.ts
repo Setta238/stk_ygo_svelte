@@ -18,6 +18,7 @@ import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardDefinition } from "./CardDefinitions";
 import { createRegularProcFilterHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { ProcFilter } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
+import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 
 export const createCardDefinitions_Monster = (): CardDefinition[] => {
   const result: CardDefinition[] = [];
@@ -33,6 +34,8 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
           playType: "SpecialSummon",
           spellSpeed: "Normal",
           executableCells: ["Hand"],
+          executablePeriods: ["main1", "main2"],
+          executableDuelistTypes: ["Controller"],
           isOnlyNTimesPerDuel: name === "アンノウン・シンクロン" ? 1 : undefined,
           validate: (action: CardAction<SummonPrepared>): DuelFieldCell[] | undefined => {
             const monsters = action.entity.field.getMonstersOnField();
@@ -62,6 +65,8 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
         playType: "SpecialSummon",
         spellSpeed: "Normal",
         executableCells: ["Hand"],
+        executablePeriods: ["main1", "main2"],
+        executableDuelistTypes: ["Controller"],
         validate: (action: CardAction<SummonPrepared>): DuelFieldCell[] | undefined => {
           const emptyCells = action.entity.controller.getAvailableMonsterZones();
           if (!emptyCells.length) {
@@ -91,6 +96,8 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
         playType: "IgnitionEffect",
         spellSpeed: "Normal",
         executableCells: ["Graveyard"],
+        executablePeriods: ["main1", "main2"],
+        executableDuelistTypes: ["Controller"],
         validate: (action: CardAction<undefined>): DuelFieldCell[] | undefined => {
           if (action.entity.controller.getDeckCell().cardEntities.filter((card) => card.nm === "Ｄ－ＨＥＲＯ ディアボリックガイ").length === 0) {
             return;
@@ -133,6 +140,8 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
         playType: "IgnitionEffect",
         spellSpeed: "Normal",
         executableCells: ["Graveyard"],
+        executablePeriods: ["main1", "main2"],
+        executableDuelistTypes: ["Controller"],
         validate: (action: CardAction<undefined>): DuelFieldCell[] | undefined => {
           if (action.entity.controller.getHandCell().cardEntities.length === 0) {
             return;
@@ -187,6 +196,8 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
         playType: "IgnitionEffect",
         spellSpeed: "Normal",
         executableCells: ["Graveyard"],
+        executablePeriods: ["main1", "main2"],
+        executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerDuel: 1,
         validate: (action: CardAction<undefined>): DuelFieldCell[] | undefined => {
           if (action.entity.controller.getDeckCell().cardEntities.length === 0) {
@@ -229,7 +240,8 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
         playType: "TriggerEffect",
         spellSpeed: "Normal",
         executableCells: ["MonsterZone"],
-        canExecuteOnDamageStep: true,
+        executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
+        executableDuelistTypes: ["Controller"],
         validate: (action: CardAction<undefined>): DuelFieldCell[] | undefined => {
           if (!action.entity.hasBeenSummonedNow(["NormalSummon", "SpecialSummon", "FlipSummon"])) {
             return;
@@ -284,6 +296,8 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
         playType: "TriggerEffect",
         spellSpeed: "Normal",
         executableCells: ["MonsterZone"],
+        executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
+        executableDuelistTypes: ["Controller"],
         validate: (action: CardAction<undefined>): DuelFieldCell[] | undefined => {
           if (!action.entity.hasBeenSummonedNow(["NormalSummon"])) {
             return;
@@ -321,7 +335,8 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
         playType: "TriggerEffect",
         spellSpeed: "Normal",
         executableCells: ["Graveyard"],
-        canExecuteOnDamageStep: true,
+        executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
+        executableDuelistTypes: ["Controller"],
         validate: (action: CardAction<undefined>): DuelFieldCell[] | undefined => {
           if (action.entity.face === "FaceDown") {
             return;
@@ -359,9 +374,11 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
       defaultBattlePotisionChangeAction,
       {
         title: "①自己再生",
-        playType: "TriggerMandatoryEffect",
+        playType: "MandatoryTriggerEffect",
         spellSpeed: "Normal",
         executableCells: ["Graveyard"],
+        executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
+        executableDuelistTypes: ["Controller"],
         validate: (action: CardAction<undefined>): DuelFieldCell[] | undefined => {
           // 前回のチェーンで動いたかどうか
           if (!action.entity.wasMovedAtPreviousChain) {
@@ -408,9 +425,11 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
       defaultNormalSummonAction,
       {
         title: "①サーチ",
-        playType: "TriggerMandatoryEffect",
+        playType: "MandatoryTriggerEffect",
         spellSpeed: "Normal",
         executableCells: ["Graveyard"],
+        executablePeriods: freeChainDuelPeriodKeys,
+        executableDuelistTypes: ["Controller"],
         validate: (action: CardAction<undefined>): DuelFieldCell[] | undefined => {
           // 前回のチェーンで動いたかどうか
           if (!action.entity.wasMovedAtPreviousChain) {
@@ -464,6 +483,8 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
           playType: "QuickEffect",
           spellSpeed: "Quick",
           executableCells: ["Hand"],
+          executablePeriods: freeChainDuelPeriodKeys,
+          executableDuelistTypes: ["Controller"],
           isOnlyNTimesPerTurn: 1,
           validate: (action, chainBlockInfos): DuelFieldCell[] | undefined => {
             if (chainBlockInfos.length === 0) {

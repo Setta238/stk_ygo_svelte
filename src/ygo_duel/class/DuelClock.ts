@@ -1,9 +1,12 @@
 import StkEvent from "@stk_utils/class/StkEvent";
+import { duelPeriodDic, type TDuelPeriodKey, type TDuelPhase, type TDuelPhaseStep, type TDuelPhaseStepStage } from "@ygo_duel/class/DuelPeriod";
+import { Duel, SystemError } from "./Duel";
 
 export interface IDuelClock {
   turn: number;
   phaseSeq: number;
   stepSeq: number;
+  stageSeq: number;
   chainSeq: number;
   chainBlockSeq: number;
   procSeq: number;
@@ -17,10 +20,16 @@ export class DuelClock implements IDuelClock {
   private _turn: number = 0;
   private _phaseSeq: number = 0;
   private _stepSeq: number = 0;
+  private _stageSeq: number = 0;
   private _chainSeq: number = 0;
   private _chainBlockSeq: number = 0;
   private _procSeq: number = 0;
   private _procTotalSeq: number = 0;
+  private _periodKey: TDuelPeriodKey;
+  public get period() {
+    return duelPeriodDic[this._periodKey];
+  }
+
   public get turn() {
     return this._turn;
   }
@@ -29,6 +38,9 @@ export class DuelClock implements IDuelClock {
   }
   public get stepSeq() {
     return this._stepSeq;
+  }
+  public get stageSeq() {
+    return this._stageSeq;
   }
   public get chainSeq() {
     return this._chainSeq;
@@ -42,29 +54,83 @@ export class DuelClock implements IDuelClock {
   public get totalProcSeq() {
     return this._procTotalSeq;
   }
-  public readonly incrementTurn = () => {
-    this._turn++;
-    this._phaseSeq = 0;
+  public get isFirstChain() {
+    return this.chainSeq === 0;
+  }
+
+  public constructor() {
+    this._periodKey = "end";
+  }
+  public readonly setPhase = (duel: Duel, phase: TDuelPhase) => {
+    const period = Object.values(duelPeriodDic)
+      .filter((period) => period.phase === phase)
+      .find((period) => (period.step ?? "start") === "start");
+
+    if (!period) {
+      throw new SystemError("想定されない状態", this.period, phase, duelPeriodDic);
+    }
+
+    if (phase === "draw") {
+      duel.log.info(`ターン終了。`, duel.getTurnPlayer());
+      this._turn++;
+      this._phaseSeq = 0;
+    } else {
+      duel.log.info(`フェイズ移行（${this.period.phase}→${phase}）`, duel.getTurnPlayer());
+      this._phaseSeq++;
+    }
+
     this._stepSeq = 0;
+    this._stageSeq = 0;
     this._chainSeq = 0;
     this._chainBlockSeq = 0;
     this._procSeq = 0;
     this.incrementTotalProcSeq();
+
+    this._periodKey = period.key;
   };
-  public readonly incrementPhaseSeq = () => {
-    this._phaseSeq++;
-    this._stepSeq = 0;
-    this._chainSeq = 0;
-    this._chainBlockSeq = 0;
-    this._procSeq = 0;
-    this.incrementTotalProcSeq();
-  };
-  public readonly incrementStepSeq = () => {
+  public readonly setStep = (duel: Duel, step: TDuelPhaseStep) => {
+    const currentPhase = this.period.phase;
+
+    const period = Object.values(duelPeriodDic)
+      .filter((period) => period.phase === currentPhase)
+      .find((period) => (period.step ?? "") === step);
+
+    if (!period) {
+      throw new SystemError("想定されない状態", this.period, step, duelPeriodDic);
+    }
+
+    duel.log.info(`ステップ移行（${this.period.step}→${step}）`, duel.getTurnPlayer());
+
     this._stepSeq++;
+    this._stageSeq = 0;
     this._chainSeq = 0;
     this._chainBlockSeq = 0;
     this._procSeq = 0;
     this.incrementTotalProcSeq();
+
+    this._periodKey = period.key;
+  };
+  public readonly setStage = (duel: Duel, stage: TDuelPhaseStepStage) => {
+    const currentPeriod = this.period;
+
+    const period = Object.values(duelPeriodDic)
+      .filter((period) => period.phase === currentPeriod.phase)
+      .filter((period) => period.step === currentPeriod.step)
+      .find((period) => (period.stage ?? "") === stage);
+
+    if (!period) {
+      throw new SystemError("想定されない状態", this.period, stage, duelPeriodDic);
+    }
+
+    duel.log.info(`タイミング移行（${this.period.stage}→${stage}）`, duel.getTurnPlayer());
+
+    this._stageSeq++;
+    this._chainSeq = 0;
+    this._chainBlockSeq = 0;
+    this._procSeq = 0;
+    this.incrementTotalProcSeq();
+
+    this._periodKey = period.key;
   };
   public readonly incrementChainSeq = () => {
     this._chainSeq++;
@@ -86,13 +152,14 @@ export class DuelClock implements IDuelClock {
     this.onTotalProcSeqChangeEvent.trigger(this.totalProcSeq);
   };
   public readonly toString = () => {
-    return `${this.totalProcSeq}(t${this.turn}-p${this.phaseSeq}-ps${this.stepSeq}-c${this.chainSeq}-cb${this.chainBlockSeq}-p${this.procSeq})`;
+    return `${this.totalProcSeq}(t${this.turn}-phs${this.phaseSeq}-stp${this.stepSeq}-stg${this.stepSeq}-c${this.chainSeq}-cb${this.chainBlockSeq}-prc${this.procSeq})`;
   };
   public readonly getClone = (): IDuelClock => {
     return {
       turn: this.turn,
       phaseSeq: this.phaseSeq,
       stepSeq: this.stepSeq,
+      stageSeq: this.stageSeq,
       chainSeq: this.chainSeq,
       chainBlockSeq: this.chainBlockSeq,
       procSeq: this.procSeq,
@@ -100,10 +167,22 @@ export class DuelClock implements IDuelClock {
     };
   };
   public readonly isSameChain = (other: IDuelClock): boolean => {
-    return this.turn === other.turn && this.phaseSeq === other.phaseSeq && this.stepSeq === other.stepSeq && this.chainSeq === other.chainSeq;
+    return (
+      this.turn === other.turn &&
+      this.phaseSeq === other.phaseSeq &&
+      this.stepSeq === other.stepSeq &&
+      this.stageSeq === other.stageSeq &&
+      this.chainSeq === other.chainSeq
+    );
   };
   public readonly isPreviousChain = (other: IDuelClock): boolean => {
-    return this.turn === other.turn && this.phaseSeq === other.phaseSeq && this.stepSeq === other.stepSeq && this.chainSeq === other.chainSeq + 1;
+    return (
+      this.turn === other.turn &&
+      this.phaseSeq === other.phaseSeq &&
+      this.stepSeq === other.stepSeq &&
+      this.stageSeq === other.stageSeq &&
+      this.chainSeq === other.chainSeq + 1
+    );
   };
   public readonly isPreviousProc = (other: IDuelClock): boolean => {
     return this.totalProcSeq === other.totalProcSeq + 1;

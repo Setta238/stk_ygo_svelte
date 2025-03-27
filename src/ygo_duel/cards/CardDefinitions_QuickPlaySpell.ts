@@ -5,6 +5,7 @@ import type { CardActionBase, TEffectTag } from "@ygo_duel/class/DuelCardAction"
 import { IllegalCancelError } from "@ygo_duel/class/Duel";
 
 import type { CardDefinition } from "./CardDefinitions";
+import { freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 
 export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
   const result: CardDefinition[] = [];
@@ -18,6 +19,8 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
         playType: "CardActivation",
         spellSpeed: "Quick",
         executableCells: ["Hand", "SpellAndTrapZone"],
+        executablePeriods: freeChainDuelPeriodKeys,
+        executableDuelistTypes: ["Controller"],
         validate: defaultSpellTrapValidate,
         prepare: async (action, cell, chainBlockInfos, cancelable) => {
           const selected = await action.entity.field.duel.view.waitSelectText(
@@ -63,6 +66,8 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
         playType: "CardActivation",
         spellSpeed: "Quick",
         executableCells: ["Hand", "SpellAndTrapZone"],
+        executablePeriods: freeChainDuelPeriodKeys,
+        executableDuelistTypes: ["Controller"],
         validate: (action) => {
           const monsters = action.entity.field.getMonstersOnField().filter((monster) => monster.canBeEffected(action.entity.controller, action.entity, action));
           if (!monsters.length) {
@@ -110,9 +115,9 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
           return true;
         },
         settle: async () => true,
-      },
-      defaultSpellTrapSetAction,
-    ] as CardActionBase<unknown>[],
+      } as CardActionBase<unknown>,
+      defaultSpellTrapSetAction as CardActionBase<unknown>,
+    ],
   };
 
   result.push(def_月の書);

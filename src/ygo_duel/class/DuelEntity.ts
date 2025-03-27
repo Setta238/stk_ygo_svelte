@@ -338,9 +338,9 @@ export class DuelEntity {
     return DuelEntity.bringManyToSameCell(
       to,
       pos,
-      entities.map((newOne) => {
+      entities.map((entity) => {
         return {
-          entity: newOne,
+          entity: entity,
           face: face,
           orientation: orientation,
           causedAs: movedAs,
@@ -539,11 +539,16 @@ export class DuelEntity {
     // 色々更新処理
     DuelEntity.settleEntityMove(items[0].entity.duel);
   };
+
   private static readonly settleEntityMove = (duel: Duel) => {
     duel.distributeOperators(duel.clock.totalProcSeq);
     const entities = duel.field.getAllEntities().filter((entity) => entity.wasMovedAtCurrentProc);
     entities.filter((entity) => !entity.isOnField).forEach((entity) => entity.resetInfo());
     entities.flatMap((entity) => entity.continuousEffects).forEach((ce) => ce.updateState());
+    duel.field
+      .getAllCells()
+      .filter((cell) => cell.needsShuffle)
+      .map((cell) => cell.shuffle());
   };
 
   public readonly seq: number;
@@ -672,7 +677,8 @@ export class DuelEntity {
       this.status.spellCategory === "Continuous" ||
       this.status.spellCategory === "Field" ||
       this.status.spellCategory === "Equip" ||
-      this.status.trapCategory === "Continuous"
+      this.status.trapCategory === "Continuous" ||
+      (this.status.monsterCategories ?? []).includes("Pendulum")
     );
   }
   public get isBelongTo() {

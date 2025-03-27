@@ -75,6 +75,8 @@ export const defaultSpellTrapSetAction: CardActionBase<{ dest: DuelFieldCell }> 
   playType: "SpellTrapSet",
   spellSpeed: "Normal",
   executableCells: ["Hand"],
+  executablePeriods: ["main1", "main2"],
+  executableDuelistTypes: ["Controller"],
   validate: defaultSpellTrapSetValidate,
   prepare: defaultSpellTrapSetPrepare,
   execute: defaultSpellTrapSetExecute,
@@ -103,6 +105,16 @@ export const defaultSpellTrapValidate = <T>(action: CardAction<T>): DuelFieldCel
   const availableCells = action.entity.controller.getAvailableSpellTrapZones();
   return availableCells.length > 0 ? availableCells : undefined;
 };
+export const defaultUndefinedSpellTrapPrepare = (
+  action: CardAction<undefined>,
+  cell: DuelFieldCell | undefined,
+  chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
+  cancelable: boolean,
+  chainBlockTags?: TEffectTag[],
+  selectedEntities?: DuelEntity[]
+): Promise<ChainBlockInfoBase<undefined> | undefined> =>
+  defaultSpellTrapPrepare(action, cell, chainBlockInfos, cancelable, chainBlockTags, selectedEntities, undefined);
+
 export const defaultSpellTrapPrepare = async <T>(
   action: CardAction<T>,
   cell: DuelFieldCell | undefined,

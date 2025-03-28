@@ -7,10 +7,12 @@ import type { IOperatorPool, StickyEffectOperatorBase, StickyEffectOperatorBundl
 import type { ProcFilter } from "./DuelProcFilter";
 import type { CardRelation } from "./DuelCardRelation";
 import type { StatusOperator } from "./DuelStatusOperator";
+import { duelPeriodKeys, type TDuelPeriodKey } from "@ygo_duel/class/DuelPeriod";
 
 export type ContinuousEffectBase<T> = {
   title: string;
-  executableCellTypes: DuelFieldCellType[];
+  appliableCellTypes: DuelFieldCellType[];
+  appliableDuelPeriodKeys: Readonly<TDuelPeriodKey[]>;
   faceList: TDuelEntityFace[];
   canStart: (entity: DuelEntity) => boolean;
   start: (entity: DuelEntity) => Promise<T>;
@@ -33,8 +35,11 @@ export class ContinuousEffect<T> {
   private info: T | undefined;
   private readonly continuousEffectBase: ContinuousEffectBase<T>;
 
-  public get executableCellTypes() {
-    return this.continuousEffectBase.executableCellTypes;
+  public get appliableCellTypes() {
+    return this.continuousEffectBase.appliableCellTypes;
+  }
+  public get appliableDuelPeriodKeys() {
+    return this.continuousEffectBase.appliableDuelPeriodKeys;
   }
   public get faceList() {
     return this.continuousEffectBase.faceList;
@@ -44,7 +49,7 @@ export class ContinuousEffect<T> {
     this.entity = entity;
     this.continuousEffectBase = continuousEffectBase;
     this.isRegular =
-      this.executableCellTypes.every((ct) => playFieldCellTypes.find((t) => t === ct)) && this.faceList.length === 1 && this.faceList[0] === "FaceUp";
+      this.appliableCellTypes.every((ct) => playFieldCellTypes.find((t) => t === ct)) && this.faceList.length === 1 && this.faceList[0] === "FaceUp";
   }
 
   public readonly updateState = async () => {
@@ -64,7 +69,10 @@ export class ContinuousEffect<T> {
   };
 
   private get hasToStart() {
-    if (!this.executableCellTypes.includes(this.entity.fieldCell.cellType)) {
+    if (!this.appliableCellTypes.includes(this.entity.fieldCell.cellType)) {
+      return false;
+    }
+    if (!this.appliableDuelPeriodKeys.includes(this.entity.duel.clock.period.key)) {
       return false;
     }
 
@@ -94,7 +102,8 @@ export const createBroadRegularOperatorHandler = <OPE extends StickyEffectOperat
 ): ContinuousEffectBase<number[]> => {
   return {
     title: title,
-    executableCellTypes: kind === "Monster" ? ["MonsterZone", "ExtraMonsterZone"] : ["FieldSpellZone", "SpellAndTrapZone"],
+    appliableCellTypes: kind === "Monster" ? ["MonsterZone", "ExtraMonsterZone"] : ["FieldSpellZone", "SpellAndTrapZone"],
+    appliableDuelPeriodKeys: duelPeriodKeys,
     faceList: ["FaceUp"],
     canStart: (source) => !source.info.isPending && !source.info.isDying && canStart(source),
     start: async (entity: DuelEntity): Promise<number[]> => {
@@ -128,7 +137,8 @@ export const createRegularOperatorHandler = <OPE extends StickyEffectOperatorBas
 ): ContinuousEffectBase<{ targets: DuelEntity[]; seqList: number[] }> => {
   return {
     title: title,
-    executableCellTypes: kind === "Monster" ? ["MonsterZone", "ExtraMonsterZone"] : ["FieldSpellZone", "SpellAndTrapZone"],
+    appliableCellTypes: kind === "Monster" ? ["MonsterZone", "ExtraMonsterZone"] : ["FieldSpellZone", "SpellAndTrapZone"],
+    appliableDuelPeriodKeys: duelPeriodKeys,
     faceList: ["FaceUp"],
     canStart: (source) => !source.info.isPending && !source.info.isDying && canStart(source),
     start: async (target: DuelEntity): Promise<{ targets: DuelEntity[]; seqList: number[] }> => {

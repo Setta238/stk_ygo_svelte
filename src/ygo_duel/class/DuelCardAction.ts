@@ -58,17 +58,19 @@ export const effectTags = [
 ] as const;
 export type TEffectTag = (typeof effectTags)[number];
 export type ChainBlockInfoBase<T> = {
-  chainBlockTags: TEffectTag[];
-  selectedEntities: DuelEntity[];
-  prepared: T;
-};
-export type ChainBlockInfo<T> = ChainBlockInfoBase<T> & {
   action: CardAction<T>;
   activator: Duelist;
   isActivatedIn: DuelFieldCell;
   isNegatedActivationBy?: CardAction<unknown>;
   isNegatedEffectBy?: CardAction<unknown>;
 };
+
+export type ChainBlockInfoPrepared<T> = {
+  chainBlockTags: TEffectTag[];
+  selectedEntities: DuelEntity[];
+  prepared: T;
+};
+export type ChainBlockInfo<T> = ChainBlockInfoBase<T> & ChainBlockInfoPrepared<T>;
 
 export type CardActionBaseAttr = {
   title: string;
@@ -92,7 +94,7 @@ export type CardActionBase<T> = CardActionBaseAttr & {
    * @param entity
    * @returns 発動時にドラッグ・アンド・ドロップ可能である場合、選択肢のcellが返る。
    */
-  validate: (action: CardAction<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => DuelFieldCell[] | undefined;
+  validate: (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => DuelFieldCell[] | undefined;
   /**
    * コストの支払い、対象に取るなど
    * フィールドに残らない魔法罠の場合、isDyingの設定が必要
@@ -101,11 +103,11 @@ export type CardActionBase<T> = CardActionBaseAttr & {
    * @returns
    */
   prepare: (
-    action: CardAction<T>,
+    myInfo: ChainBlockInfoBase<T>,
     cell: DuelFieldCell | undefined,
     chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
     cancelable: boolean
-  ) => Promise<ChainBlockInfoBase<T> | undefined>;
+  ) => Promise<ChainBlockInfoPrepared<T> | undefined>;
   /**
    * 実際の処理部分
    * @param entity
@@ -132,13 +134,14 @@ export interface ICardAction<T> {
    *
    * @returns 発動時にドラッグ・アンド・ドロップ可能である場合、選択肢のcellが返る。
    */
-  validate: (chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => DuelFieldCell[] | undefined;
+  validate: (activator: Duelist, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => DuelFieldCell[] | undefined;
   /**
    * チェーンに乗る処理の場合、コストの支払いや対象に取る処理までを行う。
    * @param cell 効果発動時にドラッグ・アンド・ドロップなどで指定されたセルがある場合、値が入る。
    * @returns 実行時に必要な任意の情報
    */
   prepare: (
+    activator: Duelist,
     cell: DuelFieldCell | undefined,
     chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
     cancelable: boolean
@@ -261,7 +264,7 @@ export class CardAction<T> implements ICardAction<T> {
     return new CardAction<T>(this.seq, this.entity, this.cardActionBase);
   };
 
-  public readonly validate = (chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => {
+  public readonly validate = (activator: Duelist, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => {
     // カードの発動はフィールド表側表示ではできない
     if (this.playType === "CardActivation" && this.entity.isOnField && this.entity.face === "FaceUp") {
       return;
@@ -284,23 +287,39 @@ export class CardAction<T> implements ICardAction<T> {
         return;
       }
     }
-    return this.cardActionBase.validate(this, chainBlockInfos);
+
+    const myInfo: ChainBlockInfoBase<T> = {
+      action: this,
+      activator: activator,
+      isActivatedIn: this.entity.fieldCell,
+    };
+    return this.cardActionBase.validate(myInfo, chainBlockInfos);
   };
-  public readonly prepare = async (cell: DuelFieldCell | undefined, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, cancelable: boolean) => {
+  public readonly prepare = async (
+    activator: Duelist,
+    cell: DuelFieldCell | undefined,
+    chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
+    cancelable: boolean
+  ) => {
     if (this.isLikeContinuousSpell) {
       this.entity.info.isPending = true;
     }
 
     const isActivatedIn = this.entity.fieldCell;
 
-    const prepared = await this.cardActionBase.prepare(this, cell, chainBlockInfos, cancelable);
+    const myInfo: ChainBlockInfoBase<T> = {
+      action: this,
+      activator: activator,
+      isActivatedIn: isActivatedIn,
+    };
+    const prepared = await this.cardActionBase.prepare(myInfo, cell, chainBlockInfos, cancelable);
     if (prepared === undefined) {
       return;
     }
 
     this.entity.field.duel.cardActionLog.push(this.entity.controller, this);
 
-    return { ...prepared, action: this, activator: this.entity.controller, isActivatedIn };
+    return { ...myInfo, ...prepared };
   };
 
   public readonly execute = async (myInfo: ChainBlockInfo<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => {

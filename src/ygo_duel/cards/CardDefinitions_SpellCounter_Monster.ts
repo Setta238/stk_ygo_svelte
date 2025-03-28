@@ -55,8 +55,8 @@ export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] =
         executableCells: ["MonsterZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
-        validate: (action) => {
-          if (!action.entity.hasBeenSummonedNow(["NormalSummon"])) {
+        validate: (myInfo) => {
+          if (!myInfo.action.entity.hasBeenSummonedNow(["NormalSummon"])) {
             return;
           }
           return [];
@@ -82,15 +82,15 @@ export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] =
         executableCells: ["MonsterZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
-        validate: (action) => {
-          if (!action.entity.counterHolder.getQty("SpellCounter")) {
+        validate: (myInfo) => {
+          if (!myInfo.action.entity.counterHolder.getQty("SpellCounter")) {
             return;
           }
 
-          const spells = action.entity.field
+          const spells = myInfo.action.entity.field
             .getCells(...spellTrapZoneCellTypes)
             .flatMap((cell) => cell.cardEntities)
-            .filter((card) => card.canBeTargetOfEffect(action.entity.controller, action.entity, action));
+            .filter((card) => card.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action));
 
           if (!spells.length) {
             return;
@@ -98,16 +98,16 @@ export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] =
 
           return spells.map((spell) => spell.fieldCell);
         },
-        prepare: async (action, cell, chainBlockInfos, cancelable) => {
+        prepare: async (myInfo, cell, chainBlockInfos, cancelable) => {
           let target = cell?.cardEntities[0];
 
           if (!target) {
-            const spells = action.entity.field
+            const spells = myInfo.action.entity.field
               .getCells(...spellTrapZoneCellTypes)
               .flatMap((cell) => cell.cardEntities)
-              .filter((card) => card.canBeTargetOfEffect(action.entity.controller, action.entity, action));
-            const _targets = await action.entity.duel.view.waitSelectEntities(
-              action.entity.controller,
+              .filter((card) => card.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action));
+            const _targets = await myInfo.action.entity.duel.view.waitSelectEntities(
+              myInfo.activator,
               spells,
               1,
               (selected) => selected.length === 1,
@@ -122,7 +122,7 @@ export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] =
             target = _targets[0];
           }
 
-          return { selectedEntities: [target], chainBlockTags: action.calcChainBlockTagsForDestroy([target]), prepared: undefined };
+          return { selectedEntities: [target], chainBlockTags: myInfo.action.calcChainBlockTagsForDestroy([target]), prepared: undefined };
         },
         execute: async (myInfo) => {
           if (!myInfo.action.entity.counterHolder.getQty("SpellCounter")) {

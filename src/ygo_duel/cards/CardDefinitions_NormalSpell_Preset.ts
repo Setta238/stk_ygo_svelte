@@ -2,7 +2,7 @@ import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { defaultSpellTrapPrepare, defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/functions/DefaultCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
-import type { CardActionBase, ChainBlockInfo, TEffectTag } from "@ygo_duel/class/DuelCardAction";
+import type { CardActionBase, TEffectTag } from "@ygo_duel/class/DuelCardAction";
 
 import type { CardDefinition } from "./CardDefinitions";
 
@@ -16,14 +16,14 @@ const getDefaultSearchSpellAction = (filter: (card: DuelEntity) => boolean): Car
     executableDuelistTypes: ["Controller"],
 
     // デッキに対象カードが一枚以上必要。
-    validate: (action) => {
-      if (action.entity.controller.getDeckCell().cardEntities.filter(filter).length === 0) {
+    validate: (myInfo) => {
+      if (myInfo.activator.getDeckCell().cardEntities.filter(filter).length === 0) {
         return;
       }
-      if (!action.entity.controller.canDraw) {
+      if (!myInfo.activator.canDraw) {
         return;
       }
-      return defaultSpellTrapValidate(action);
+      return defaultSpellTrapValidate(myInfo);
     },
     prepare: (action, cell, chainBlockInfos, cancelable) =>
       defaultSpellTrapPrepare(action, cell, chainBlockInfos, cancelable, ["SearchFromDeck"], [], undefined),
@@ -61,11 +61,11 @@ const getDefaultSalvageSpellAction = (filter: (card: DuelEntity) => boolean, qty
 
     hasToTargetCards: true,
     // 墓地にに対象カードが一枚以上必要。
-    validate: (action) => {
-      if (action.entity.controller.getGraveyard().cardEntities.filter(filter).length < qty) {
+    validate: (myInfo) => {
+      if (myInfo.activator.getGraveyard().cardEntities.filter(filter).length < qty) {
         return;
       }
-      return defaultSpellTrapValidate(action);
+      return defaultSpellTrapValidate(myInfo);
     },
     prepare: (action, cell, chainBlockInfos, cancelable) =>
       defaultSpellTrapPrepare(action, cell, chainBlockInfos, cancelable, ["AddToHandFromGraveyard"], [], undefined),
@@ -100,22 +100,20 @@ const getLikeTradeInAction = (filter: (card: DuelEntity) => boolean): CardAction
     executableDuelistTypes: ["Controller"],
 
     // 手札に対象カードが一枚以上必要。
-    validate: (action) => {
-      if (action.entity.controller.getHandCell().cardEntities.filter(filter).length === 0) {
+    validate: (myInfo) => {
+      if (myInfo.activator.getHandCell().cardEntities.filter(filter).length === 0) {
         return;
       }
-      if (action.entity.controller.getDeckCell().cardEntities.length < 2) {
+      if (myInfo.activator.getDeckCell().cardEntities.length < 2) {
         return;
       }
-      return defaultSpellTrapValidate(action);
+      return defaultSpellTrapValidate(myInfo);
     },
-    prepare: async (action, cell, chainBlockInfos, cancelable) => {
-      const discardPromise = action.entity.controller.discard(1, ["Discard", "Cost"], action.entity, action.entity.controller, filter);
-      const preparePromise = defaultSpellTrapPrepare(action, cell, chainBlockInfos, cancelable, ["SearchFromDeck"], [], undefined);
+    prepare: async (myInfo, cell, chainBlockInfos, cancelable) => {
+      const prepared = await defaultSpellTrapPrepare(myInfo, cell, chainBlockInfos, cancelable, ["SearchFromDeck"], [], undefined);
+      await myInfo.activator.discard(1, ["Discard", "Cost"], myInfo.action.entity, myInfo.activator, filter);
 
-      await Promise.all([discardPromise, preparePromise]);
-
-      return await preparePromise;
+      return prepared;
     },
     execute: async (myInfo) => {
       await myInfo.activator.draw(2, myInfo.action.entity, myInfo.activator);
@@ -134,8 +132,8 @@ const getDefaultHealBurnSpellAction = (calcDamage: (entity: DuelEntity) => [numb
     executablePeriods: ["main1", "main2"],
     executableDuelistTypes: ["Controller"],
     validate: defaultSpellTrapValidate,
-    prepare: (action, cell, chainBlockInfos, cancelable) => {
-      const [toSelf, toOpponent] = calcDamage(action.entity);
+    prepare: (myInfo, cell, chainBlockInfos, cancelable) => {
+      const [toSelf, toOpponent] = calcDamage(myInfo.action.entity);
 
       const tags: TEffectTag[] = [];
       if (toSelf < 0) {
@@ -145,9 +143,9 @@ const getDefaultHealBurnSpellAction = (calcDamage: (entity: DuelEntity) => [numb
         tags.push("DamageToOpponent");
       }
 
-      return defaultSpellTrapPrepare(action, cell, chainBlockInfos, cancelable, tags, [], undefined);
+      return defaultSpellTrapPrepare(myInfo, cell, chainBlockInfos, cancelable, tags, [], undefined);
     },
-    execute: async (myInfo: ChainBlockInfo<undefined>) => {
+    execute: async (myInfo) => {
       const [toSelf, toOpponent] = calcDamage(myInfo.action.entity);
       if (toOpponent > 0) {
         myInfo.activator.getOpponentPlayer().heal(toOpponent, myInfo.action.entity);

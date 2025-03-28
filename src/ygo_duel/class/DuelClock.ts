@@ -75,7 +75,7 @@ export class DuelClock implements IDuelClock {
       this._turn++;
       this._phaseSeq = 0;
     } else {
-      duel.log.info(`フェイズ移行（${this.period.phase}→${phase}）`, duel.getTurnPlayer());
+      duel.log.info(`フェイズ移行（${this.period.name}→${period.name}）`, duel.getTurnPlayer());
       this._phaseSeq++;
     }
 
@@ -99,7 +99,7 @@ export class DuelClock implements IDuelClock {
       throw new SystemError("想定されない状態", this.period, step, duelPeriodDic);
     }
 
-    duel.log.info(`ステップ移行（${this.period.step}→${step}）`, duel.getTurnPlayer());
+    duel.log.info(`ステップ移行（${this.period.name}→${period.name}）`, duel.getTurnPlayer());
 
     this._stepSeq++;
     this._stageSeq = 0;
@@ -122,7 +122,7 @@ export class DuelClock implements IDuelClock {
       throw new SystemError("想定されない状態", this.period, stage, duelPeriodDic);
     }
 
-    duel.log.info(`タイミング移行（${this.period.stage}→${stage}）`, duel.getTurnPlayer());
+    duel.log.info(`タイミング移行（${this.period.name}→${period.name}）`, duel.getTurnPlayer());
 
     this._stageSeq++;
     this._chainSeq = 0;

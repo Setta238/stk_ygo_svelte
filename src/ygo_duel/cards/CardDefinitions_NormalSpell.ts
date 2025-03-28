@@ -22,17 +22,17 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         executableCells: ["Hand", "SpellAndTrapZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
-        validate: (action) => {
-          if (action.entity.controller.getDeckCell().cardEntities.length < 2) {
+        validate: (myInfo) => {
+          if (myInfo.activator.getDeckCell().cardEntities.length < 2) {
             return;
           }
-          if (!action.entity.controller.canDraw) {
+          if (!myInfo.activator.canDraw) {
             return;
           }
-          if (!action.entity.controller.canAddToHandFromDeck) {
+          if (!myInfo.activator.canAddToHandFromDeck) {
             return;
           }
-          return defaultSpellTrapValidate(action);
+          return defaultSpellTrapValidate(myInfo);
         },
         prepare: (action, cell, chainBlockInfos, cancelable) =>
           defaultSpellTrapPrepare(action, cell, chainBlockInfos, cancelable, ["Draw", "SearchFromDeck"], [], undefined),
@@ -58,31 +58,31 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         executableCells: ["Hand", "SpellAndTrapZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
-        validate: (action) => {
+        validate: (myInfo) => {
           // 墓地に対象に取れるモンスターが５体以上必要
           if (
-            action.entity.controller
+            myInfo.activator
               .getGraveyard()
               .cardEntities.filter((card) => card.status.kind === "Monster")
-              .filter((card) => card.canBeTargetOfEffect(action.entity.controller, action.entity, action as CardAction<unknown>)).length < 5
+              .filter((card) => card.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action as CardAction<unknown>)).length < 5
           ) {
             return;
           }
-          if (!action.entity.controller.canDraw) {
+          if (!myInfo.activator.canDraw) {
             return;
           }
-          if (!action.entity.controller.canAddToHandFromDeck) {
+          if (!myInfo.activator.canAddToHandFromDeck) {
             return;
           }
-          return defaultSpellTrapValidate(action);
+          return defaultSpellTrapValidate(myInfo);
         },
-        prepare: async (action, cell, chainBlockInfos, cancelable) => {
-          const target = await action.entity.field.duel.view.waitSelectEntities(
-            action.entity.controller,
-            action.entity.controller
+        prepare: async (myInfo, cell, chainBlockInfos, cancelable) => {
+          const target = await myInfo.action.entity.field.duel.view.waitSelectEntities(
+            myInfo.activator,
+            myInfo.activator
               .getGraveyard()
               .cardEntities.filter((card) => card.status.kind === "Monster")
-              .filter((card) => card.canBeTargetOfEffect(action.entity.controller, action.entity, action as CardAction<unknown>)),
+              .filter((card) => card.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action as CardAction<unknown>)),
             5,
             (selected) => selected.length === 5,
             "デッキに戻すモンスターを選択。",
@@ -92,7 +92,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
             return;
           }
 
-          return defaultSpellTrapPrepare(action, cell, chainBlockInfos, cancelable, ["Draw", "SearchFromDeck", "ReturnToDeckFromGraveyard"], target, undefined);
+          return defaultSpellTrapPrepare(myInfo, cell, chainBlockInfos, cancelable, ["Draw", "SearchFromDeck", "ReturnToDeckFromGraveyard"], target, undefined);
         },
         execute: async (myInfo) => {
           // いずれかが同一チェーン中に墓地を離れていたら不可
@@ -124,11 +124,11 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         executableCells: ["Hand", "SpellAndTrapZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
-        validate: (action) => {
-          if (action.entity.controller.getDeckCell().cardEntities.length < 3) {
+        validate: (myInfo) => {
+          if (myInfo.activator.getDeckCell().cardEntities.length < 3) {
             return;
           }
-          return defaultSpellTrapValidate(action);
+          return defaultSpellTrapValidate(myInfo);
         },
         prepare: (action, cell, chainBlockInfos) =>
           defaultSpellTrapPrepare(action, cell, chainBlockInfos, false, ["Draw", "SearchFromDeck", "DiscordAsEffect"], [], undefined),
@@ -154,11 +154,11 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         executableCells: ["Hand", "SpellAndTrapZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
-        validate: (action) => {
-          if (action.entity.controller.getDeckCell().cardEntities.length < 1) {
+        validate: (myInfo) => {
+          if (myInfo.activator.getDeckCell().cardEntities.length < 1) {
             return;
           }
-          return defaultSpellTrapValidate(action);
+          return defaultSpellTrapValidate(myInfo);
         },
         prepare: (action, cell, chainBlockInfos) => defaultSpellTrapPrepare(action, cell, chainBlockInfos, false, ["Draw", "SearchFromDeck"], [], undefined),
 
@@ -187,11 +187,11 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         // デッキにモンスターが一枚以上必要。
-        validate: (action) => {
-          if (action.entity.controller.getDeckCell().cardEntities.filter((card) => card.status.kind === "Monster").length === 0) {
+        validate: (myInfo) => {
+          if (myInfo.activator.getDeckCell().cardEntities.filter((card) => card.status.kind === "Monster").length === 0) {
             return;
           }
-          return defaultSpellTrapValidate(action);
+          return defaultSpellTrapValidate(myInfo);
         },
         prepare: (action, cell, chainBlockInfos) => defaultSpellTrapPrepare(action, cell, chainBlockInfos, false, ["SendToGraveyardFromDeck"], [], undefined),
 
@@ -235,11 +235,11 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerTurn: 1,
         // デッキにモンスターが一枚以上必要。
-        validate: (action) => {
-          if (action.entity.controller.getDeckCell().cardEntities.filter((card) => card.status.kind !== "Monster").length === 0) {
+        validate: (myInfo) => {
+          if (myInfo.activator.getDeckCell().cardEntities.filter((card) => card.status.kind !== "Monster").length === 0) {
             return;
           }
-          return defaultSpellTrapValidate(action);
+          return defaultSpellTrapValidate(myInfo);
         },
         prepare: (action, cell, chainBlockInfos) => defaultSpellTrapPrepare(action, cell, chainBlockInfos, false, ["SendToGraveyardFromDeck"], [], undefined),
         execute: async (myInfo) => {
@@ -282,42 +282,43 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         executableDuelistTypes: ["Controller"],
         hasToTargetCards: true,
         // 墓地に蘇生可能モンスター、場に空きが必要。
-        validate: (action) => {
+        validate: (myInfo) => {
           if (
-            action.entity.field
+            myInfo.action.entity.field
               .getCells("Graveyard")
               .flatMap((cell) => cell.cardEntities)
               .filter((card) => card.status.kind === "Monster")
               .filter((card) => card.info.isRebornable)
-              .filter((card) => card.canBeTargetOfEffect(action.entity.controller, action.entity, action as CardAction<unknown>))
-              .filter((card) => card.canBeSpecialSummoned("SpecialSummon", action.entity.controller, action.entity, action as CardAction<unknown>)).length === 0
+              .filter((card) => card.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action as CardAction<unknown>))
+              .filter((card) => card.canBeSpecialSummoned("SpecialSummon", myInfo.activator, myInfo.action.entity, myInfo.action as CardAction<unknown>))
+              .length === 0
           ) {
             return;
           }
-          if (action.entity.controller.getAvailableMonsterZones().length === 0) {
+          if (myInfo.activator.getAvailableMonsterZones().length === 0) {
             return;
           }
-          return defaultSpellTrapValidate(action);
+          return defaultSpellTrapValidate(myInfo);
         },
-        prepare: async (action, cell, chainBlockInfos) => {
-          const target = await action.entity.field.duel.view.waitSelectEntities(
-            action.entity.controller,
-            action.entity.field
+        prepare: async (myInfo, cell, chainBlockInfos) => {
+          const target = await myInfo.action.entity.field.duel.view.waitSelectEntities(
+            myInfo.activator,
+            myInfo.action.entity.field
               .getCells("Graveyard")
               .flatMap((gy) => gy.cardEntities)
               .filter((card) => card.status.kind === "Monster")
               .filter((card) => card.info.isRebornable)
-              .filter((card) => card.canBeTargetOfEffect(action.entity.controller, action.entity, action as CardAction<unknown>))
-              .filter((card) => card.canBeSpecialSummoned("SpecialSummon", action.entity.controller, action.entity, action as CardAction<unknown>)),
+              .filter((card) => card.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action as CardAction<unknown>))
+              .filter((card) => card.canBeSpecialSummoned("SpecialSummon", myInfo.activator, myInfo.action.entity, myInfo.action as CardAction<unknown>)),
             1,
             (list) => list.length === 1,
             "蘇生対象とするモンスターを選択",
             false
           );
           if (!target) {
-            throw new IllegalCancelError(action);
+            throw new IllegalCancelError(myInfo);
           }
-          return await defaultSpellTrapPrepare(action, cell, chainBlockInfos, false, ["SpecialSummonFromGraveyard"], target, undefined);
+          return await defaultSpellTrapPrepare(myInfo, cell, chainBlockInfos, false, ["SpecialSummonFromGraveyard"], target, undefined);
         },
         execute: async (myInfo) => {
           const emptyCells = myInfo.activator.getEmptyMonsterZones();
@@ -350,30 +351,30 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           executableCells: ["Hand", "SpellAndTrapZone"],
           executablePeriods: ["main1", "main2"],
           executableDuelistTypes: ["Controller"],
-          validate: (action) => {
-            let cards = action.entity.field
+          validate: (myInfo) => {
+            let cards = myInfo.action.entity.field
               .getCells(...item.cellTypes)
               .flatMap((cell) => cell.cardEntities)
-              .filter((card) => card !== action.entity);
+              .filter((card) => card !== myInfo.action.entity);
             if (item.isOnlyEnemies) {
-              cards = cards.filter((card) => card.controller !== action.entity.controller);
+              cards = cards.filter((card) => card.controller !== myInfo.activator);
             }
             if (!cards.length) {
               return;
             }
 
-            return defaultSpellTrapValidate(action);
+            return defaultSpellTrapValidate(myInfo);
           },
-          prepare: async (action, cell, chainBlockInfos) => {
-            let cards = action.entity.field
+          prepare: async (myInfo, cell, chainBlockInfos) => {
+            let cards = myInfo.action.entity.field
               .getCells(...item.cellTypes)
               .flatMap((cell) => cell.cardEntities)
-              .filter((card) => card !== action.entity);
+              .filter((card) => card !== myInfo.action.entity);
             if (item.isOnlyEnemies) {
-              cards = cards.filter((card) => card.controller !== action.entity.controller);
+              cards = cards.filter((card) => card.controller !== myInfo.activator);
             }
 
-            return await defaultSpellTrapPrepare(action, cell, chainBlockInfos, false, action.calcChainBlockTagsForDestroy(cards), [], undefined);
+            return await defaultSpellTrapPrepare(myInfo, cell, chainBlockInfos, false, myInfo.action.calcChainBlockTagsForDestroy(cards), [], undefined);
           },
           execute: async (myInfo) => {
             let cards = myInfo.action.entity.field
@@ -381,7 +382,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
               .flatMap((cell) => cell.cardEntities)
               .filter((card) => card !== myInfo.action.entity);
             if (item.isOnlyEnemies) {
-              cards = cards.filter((card) => card.controller !== myInfo.action.entity.controller);
+              cards = cards.filter((card) => card.controller !== myInfo.activator);
             }
 
             await DuelEntityShortHands.tryDestroy(cards, myInfo);
@@ -405,17 +406,17 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         executableCells: ["Hand", "SpellAndTrapZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
-        validate: (action) => {
-          const cards = action.entity.field
+        validate: (myInfo) => {
+          const cards = myInfo.action.entity.field
             .getCells("SpellAndTrapZone", "FieldSpellZone")
             .flatMap((cell) => cell.cardEntities)
-            .filter((card) => card !== action.entity);
+            .filter((card) => card !== myInfo.action.entity);
 
           if (!cards.length) {
             return;
           }
 
-          return defaultSpellTrapValidate(action);
+          return defaultSpellTrapValidate(myInfo);
         },
         prepare: async (action, cell, chainBlockInfos) => {
           return await defaultSpellTrapPrepare(action, cell, chainBlockInfos, false, ["BounceToHand"], [], undefined);
@@ -456,23 +457,23 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         executableCells: ["Hand", "SpellAndTrapZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
-        validate: (action) => {
+        validate: (myInfo) => {
           if (
-            action.entity.controller.getDeckCell().cardEntities.length <
-            action.entity.controller.getHandCell().cardEntities.filter((card) => card.seq !== action.entity.seq).length
+            myInfo.activator.getDeckCell().cardEntities.length <
+            myInfo.activator.getHandCell().cardEntities.filter((card) => card.seq !== myInfo.action.entity.seq).length
           ) {
             return;
           }
           if (
-            action.entity.field
+            myInfo.action.entity.field
               .getAllCells()
               .filter((c) => c.cellType === "Hand")
               .flatMap((c) => c.cardEntities)
-              .filter((card) => card.seq !== action.entity.seq).length === 0
+              .filter((card) => card.seq !== myInfo.action.entity.seq).length === 0
           ) {
             return;
           }
-          return defaultSpellTrapValidate(action);
+          return defaultSpellTrapValidate(myInfo);
         },
         prepare: (action, cell, chainBlockInfos) => defaultSpellTrapPrepare(action, cell, chainBlockInfos, false, ["SearchFromDeck"], [], undefined),
         execute: async (myInfo) => {
@@ -517,12 +518,12 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         // デッキに対象モンスターが一枚以上必要。
-        validate: (action) => {
-          if (action.entity.controller.getDeckCell().cardEntities.length < 4) {
+        validate: (myInfo) => {
+          if (myInfo.activator.getDeckCell().cardEntities.length < 4) {
             return;
           }
           if (
-            action.entity.controller
+            myInfo.activator
               .getDeckCell()
               .cardEntities.filter((card) => card.status.kind === "Monster")
               .filter((entity) => (entity.lvl ?? 13) < 5)
@@ -530,14 +531,14 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           ) {
             return;
           }
-          return defaultSpellTrapValidate(action);
+          return defaultSpellTrapValidate(myInfo);
         },
-        prepare: async (action, cell, chainBlockInfos) => {
-          const deck = action.entity.controller.getDeckCell();
+        prepare: async (myInfo, cell, chainBlockInfos) => {
+          const deck = myInfo.activator.getDeckCell();
 
-          await DuelEntity.sendManyToGraveyardForTheSameReason(deck.cardEntities.slice(0, 3), ["Cost"], action.entity, action.entity.controller);
+          await DuelEntity.sendManyToGraveyardForTheSameReason(deck.cardEntities.slice(0, 3), ["Cost"], myInfo.action.entity, myInfo.activator);
 
-          return await defaultSpellTrapPrepare(action, cell, chainBlockInfos, false, ["SearchFromDeck", "SendToGraveyardFromDeck"], [], undefined);
+          return await defaultSpellTrapPrepare(myInfo, cell, chainBlockInfos, false, ["SearchFromDeck", "SendToGraveyardFromDeck"], [], undefined);
         },
         execute: async (myInfo) => {
           const monsters = myInfo.activator
@@ -582,8 +583,8 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         // デッキ二枚以上、対象モンスターが一枚以上必要。
-        validate: (action) => {
-          const cards = action.entity.controller.getDeckCell().cardEntities;
+        validate: (myInfo) => {
+          const cards = myInfo.activator.getDeckCell().cardEntities;
           if (cards.length < 2) {
             return;
           }
@@ -592,7 +593,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           ) {
             return;
           }
-          return defaultSpellTrapValidate(action);
+          return defaultSpellTrapValidate(myInfo);
         },
         prepare: (action, cell, chainBlockInfos) =>
           defaultSpellTrapPrepare(action, cell, chainBlockInfos, false, ["SearchFromDeck", "SendToGraveyardFromDeck"], [], undefined),
@@ -643,36 +644,36 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         // デッキ・手札に対象モンスターが一枚以上かつ、手札コストモンスターが必要。
-        validate: (action) => {
-          if (action.entity.controller.getDeckCell().cardEntities.filter((card) => card.lvl === 1).length === 0) {
-            if (action.entity.controller.getHandCell().cardEntities.filter((card) => card.lvl === 1).length === 0) {
+        validate: (myInfo) => {
+          if (myInfo.activator.getDeckCell().cardEntities.filter((card) => card.lvl === 1).length === 0) {
+            if (myInfo.activator.getHandCell().cardEntities.filter((card) => card.lvl === 1).length === 0) {
               return;
             }
-            if (action.entity.controller.getHandCell().cardEntities.filter((card) => card.status.kind === "Monster").length < 2) {
+            if (myInfo.activator.getHandCell().cardEntities.filter((card) => card.status.kind === "Monster").length < 2) {
               return;
             }
-          } else if (action.entity.controller.getHandCell().cardEntities.filter((card) => card.status.kind === "Monster").length === 0) {
+          } else if (myInfo.activator.getHandCell().cardEntities.filter((card) => card.status.kind === "Monster").length === 0) {
             return;
           }
-          return defaultSpellTrapValidate(action);
+          return defaultSpellTrapValidate(myInfo);
         },
-        prepare: async (action, cell, chainBlockInfos) => {
-          let choices: DuelEntity[] = action.entity.controller.getHandCell().cardEntities.filter((card) => card.status.kind === "Monster");
-          if (action.entity.controller.getDeckCell().cardEntities.filter((card) => card.lvl === 1).length === 0) {
-            const monsters = action.entity.controller.getHandCell().cardEntities.filter((card) => card.lvl === 1);
+        prepare: async (myInfo, cell, chainBlockInfos) => {
+          let choices: DuelEntity[] = myInfo.activator.getHandCell().cardEntities.filter((card) => card.status.kind === "Monster");
+          if (myInfo.activator.getDeckCell().cardEntities.filter((card) => card.lvl === 1).length === 0) {
+            const monsters = myInfo.activator.getHandCell().cardEntities.filter((card) => card.lvl === 1);
             if (monsters.length === 1) {
               choices = choices.filter((card) => card !== monsters[0]);
             }
           }
 
-          const cost = await action.entity.field.sendToGraveyard(
+          const cost = await myInfo.action.entity.field.sendToGraveyard(
             "墓地送るモンスターを選択",
-            action.entity.controller,
+            myInfo.activator,
             choices,
             1,
             (selected) => selected.length === 1,
             ["Cost"],
-            action.entity,
+            myInfo.action.entity,
             true
           );
 
@@ -680,12 +681,12 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
             return;
           }
 
-          return await defaultSpellTrapPrepare(action, cell, chainBlockInfos, false, ["SpecialSummonFromDeck"], [], undefined);
+          return await defaultSpellTrapPrepare(myInfo, cell, chainBlockInfos, false, ["SpecialSummonFromDeck"], [], undefined);
         },
         execute: async (myInfo) => {
           const monsters = [
-            ...myInfo.action.entity.controller.getDeckCell().cardEntities.filter((card) => card.lvl === 1),
-            ...myInfo.action.entity.controller.getHandCell().cardEntities.filter((card) => card.lvl === 1),
+            ...myInfo.activator.getDeckCell().cardEntities.filter((card) => card.lvl === 1),
+            ...myInfo.activator.getHandCell().cardEntities.filter((card) => card.lvl === 1),
           ];
           if (monsters.length === 0) {
             return false;

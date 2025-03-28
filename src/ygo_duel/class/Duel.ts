@@ -298,7 +298,7 @@ export class Duel {
       if (response && response.action) {
         if (([...cardActionNonChainBlockTypes] as string[]).includes(response.action.playType)) {
           //チェーンに乗らない処理を実行し、処理番号をインクリメント
-          const chainBlockInfo = await response.action.prepare(response.action.cell, [], true);
+          const chainBlockInfo = await response.action.prepare(this.priorityHolder, response.action.cell, [], true);
 
           if (chainBlockInfo === undefined) {
             continue;
@@ -309,7 +309,7 @@ export class Duel {
           this.clock.incrementChainSeq();
         } else {
           //チェーンに積んで、チェーン処理へ
-          await this.procChainBlock(response.action, undefined);
+          await this.procChainBlock({ activator: this.priorityHolder, action: response.action }, undefined);
         }
         while (await this.procChainBlock(undefined, undefined)) {
           //
@@ -330,7 +330,7 @@ export class Duel {
 
         // 相手が行動した場合、フェイズ移行はキャンセル。
         if (action) {
-          await this.procChainBlock(action, undefined);
+          await this.procChainBlock({ activator: this.priorityHolder, action }, undefined);
           while (await this.procChainBlock(undefined, undefined)) {
             //
           }
@@ -369,7 +369,7 @@ export class Duel {
         break;
       }
       if (response.action) {
-        const info = await response.action.prepare(response.action.cell, [], true);
+        const info = await response.action.prepare(this.priorityHolder, response.action.cell, [], true);
         if (!info) {
           continue;
         }
@@ -446,7 +446,6 @@ export class Duel {
   private readonly procBattlePhaseDamageStep1 = async () => {
     this.clock.setStage(this, "start");
     //ダメージステップ開始時 ※「ダメージ計算を行わずに」などと記載されたものなど
-    this.log.info("ダメージステップ開始時", this.getTurnPlayer());
     //TODO エフェクト処理
     while (await this.procChainBlock(undefined, undefined)) {
       //
@@ -455,7 +454,6 @@ export class Duel {
   private readonly procBattlePhaseDamageStep2 = async (attacker: DuelEntity, defender: DuelEntity) => {
     this.clock.setStage(this, "beforeDmgCalc");
     //ダメージ計算前 ※裏側守備表示モンスターを表にする
-    this.log.info("ダメージ計算前", this.getTurnPlayer());
     if (defender?.battlePosition === "Set") {
       defender.setBattlePosition("Defense", ["Flip", "FlipByBattle"], attacker, attacker.controller);
     }
@@ -472,7 +470,6 @@ export class Duel {
     //ダメージ計算時①永続効果（チェーンを組まない効果）の適用『開始』。 ※《メタル化・魔法反射装甲》など
     this.clock.setStage(this, "dmgCalc");
     //ダメージ計算時
-    this.log.info("ダメージ計算時", this.getTurnPlayer());
 
     //ダメージ計算時②各種効果の発動 ※《プライドの咆哮》など
     // TODO １つ目のチェーンのみ、「ダメージ計算時」を条件とする効果を発動できる
@@ -521,7 +518,6 @@ export class Duel {
   private readonly procBattlePhaseDamageStep4 = async () => {
     this.clock.setStage(this, "afterDmgCalc");
     //ダメージ計算後
-    this.log.info("ダメージ計算後", this.getTurnPlayer());
     // ダメージ発生、戦闘発生をトリガーとする効果、またはダメージ計算後を直接指定する効果
     while (await this.procChainBlock(undefined, undefined)) {
       //
@@ -534,7 +530,6 @@ export class Duel {
     // チェーン番号を加算
     this.clock.incrementChainSeq();
     //ダメージステップ終了時
-    this.log.info("ダメージステップ終了時", this.getTurnPlayer());
     // 戦闘破壊されて墓地に送られた場合の効果
     while (await this.procChainBlock(undefined, undefined)) {
       //
@@ -594,7 +589,7 @@ export class Duel {
       // どちらかのプレイヤーが効果を発動する場合、チェーン処理へ。
       if (action) {
         //チェーンに積んで、チェーン処理へ
-        await this.procChainBlock(action, undefined);
+        await this.procChainBlock({ activator: this.priorityHolder, action }, undefined);
 
         // フリーチェーン処理
         await this.procFreeChain();
@@ -618,12 +613,15 @@ export class Duel {
 
   /**
    * チェーンが発生しうる場合の処理
-   * @param action
+   * @param firstBlock
    * @param triggerEffects
    * @param chainBlockInfos
    * @returns チェーンが発生したかどうか
    */
-  private readonly procChainBlock = async (action: ICardAction<unknown> | undefined, triggerEffects: ICardAction<unknown>[] | undefined): Promise<boolean> => {
+  private readonly procChainBlock = async (
+    firstBlock: { activator: Duelist; action: ICardAction<unknown> } | undefined,
+    triggerEffects: { activator: Duelist; action: CardAction<unknown> }[] | undefined
+  ): Promise<boolean> => {
     // チェーン開始判定
     const isStartPoint = this.clock.chainBlockSeq === 0;
 
@@ -632,19 +630,20 @@ export class Duel {
     //    ※フェイズ
     let _triggerEffets =
       triggerEffects ??
-      Object.values(this.duelists).flatMap((duelist) => {
-        this.priorityHolder = duelist;
-        return this.getEnableActions(["MandatoryTriggerEffect", "TriggerEffect"], ["Normal"], []);
+      Object.values(this.duelists).flatMap((activator) => {
+        return this.getEnableActions(["MandatoryTriggerEffect", "TriggerEffect"], ["Normal"], []).map((action) => {
+          return { activator, action };
+        });
       });
 
     // 返却値 チェーンが発生したかどうか
     let result = false;
     // この呼び出しで積むチェーンブロック
-    let chainBlock: ICardAction<unknown> | undefined;
+    let chainBlock: { activator: Duelist; action: ICardAction<unknown> } | undefined;
 
     // 起点の効果がある場合、最初に積む。
-    if (action) {
-      chainBlock = action;
+    if (firstBlock) {
+      chainBlock = firstBlock;
       result = true;
     } else if (_triggerEffets.length > 0) {
       // 次に誘発効果が存在する場合、まずそちらからチェーンを積む
@@ -664,16 +663,23 @@ export class Duel {
       let skipCount = 0;
       while (skipCount < 2) {
         this.priorityHolder = this.priorityHolder.getOpponentPlayer();
+
+        const spellSpeeds: TSpellSpeed[] = ["Counter"];
+
+        if (this.chainBlockInfos.every((info) => info.action.spellSpeed !== "Counter")) {
+          spellSpeeds.push("Quick");
+        }
+
         const action = await this.view.waitQuickEffect(
           this.priorityHolder,
-          this.getEnableActions(["QuickEffect", "CardActivation"], ["Quick", "Counter"], this.chainBlockInfos),
+          this.getEnableActions(["QuickEffect", "CardActivation"], spellSpeeds, this.chainBlockInfos),
           "クイックエフェクト発動タイミング。効果を発動しますか？",
           true
         );
 
         // どちらかのプレイヤーが効果を発動する場合、チェーン処理へ。
         if (action) {
-          chainBlock = action;
+          chainBlock = { activator: this.priorityHolder, action };
           result = true;
           break;
         }
@@ -684,15 +690,14 @@ export class Duel {
     console.info("selected action: ", chainBlock);
 
     if (chainBlock) {
-      // この時点のコントローラーが効果処理を行う
-      const activator = chainBlock.entity.controller;
+      const activator = chainBlock.activator;
 
       const chainCount = this.clock.chainBlockSeq + 1;
 
-      this.log.info(`チェーン${chainCount}: ${convertCardActionToString(chainBlock)}を発動`, activator);
+      this.log.info(`チェーン${chainCount}: ${convertCardActionToString(chainBlock.action)}を発動`, activator);
 
       // コスト処理
-      const chainBlockInfo = await chainBlock.prepare(chainBlock.cell, this.chainBlockInfos, false);
+      const chainBlockInfo = await chainBlock.action.prepare(activator, chainBlock.action.cell, this.chainBlockInfos, false);
 
       if (!chainBlockInfo) {
         throw new IllegalCancelError(chainBlock);
@@ -714,16 +719,16 @@ export class Duel {
       // 再帰実行
       await this.procChainBlock(
         undefined,
-        _triggerEffets.filter((e) => e.seq !== chainBlock?.seq)
+        _triggerEffets.filter((e) => e.action.seq !== chainBlock?.action.seq)
       );
 
-      this.log.info(`チェーン${chainCount}: ${convertCardActionToString(chainBlock)}の効果処理。`, activator);
+      this.log.info(`チェーン${chainCount}: ${convertCardActionToString(chainBlockInfo.action)}の効果処理。`, activator);
 
       // 有効無効判定
       if (chainBlockInfo.isNegatedActivationBy) {
         // 発動無効時は全ての処理を行わない
         this.log.info(
-          `チェーン${chainCount}: ${convertCardActionToString(chainBlock)}を${convertCardActionToString(chainBlockInfo.isNegatedActivationBy)}によって発動を無効にした。`,
+          `チェーン${chainCount}: ${convertCardActionToString(chainBlock.action)}を${convertCardActionToString(chainBlockInfo.isNegatedActivationBy)}によって発動を無効にした。`,
           chainBlockInfo.activator
         );
       } else {
@@ -731,12 +736,12 @@ export class Duel {
 
         // カードの効果が有効かどうか
         let isEffective = chainBlockInfo.action.entity.isEffective;
-        let nagationText = `チェーン${chainCount}: カードの効果が無効となっているため${convertCardActionToString(chainBlock)}の効果処理を行えない。`;
+        let nagationText = `チェーン${chainCount}: カードの効果が無効となっているため${convertCardActionToString(chainBlock.action)}の効果処理を行えない。`;
 
         if (isEffective) {
           if (chainBlockInfo.isNegatedEffectBy) {
             // うららなどの効果処理のみ無効にするタイプ
-            nagationText = `チェーン${chainCount}: ${convertCardActionToString(chainBlock)}を${convertCardActionToString(chainBlockInfo.isNegatedEffectBy)}によって効果を無効にした。`;
+            nagationText = `チェーン${chainCount}: ${convertCardActionToString(chainBlockInfo.action)}を${convertCardActionToString(chainBlockInfo.isNegatedEffectBy)}によって効果を無効にした。`;
             isEffective = false;
           } else if (isNagatedStrongly) {
             // 発動時にエフェクト・ヴェーラーなどによる強い無効が適用されていた場合、移動ログを検索する。
@@ -748,13 +753,15 @@ export class Duel {
           }
         }
 
+        // 有効であれば、効果処理を行う。
         if (isEffective) {
-          await chainBlock.execute(chainBlockInfo, this.chainBlockInfos);
+          await chainBlockInfo.action.execute(chainBlockInfo, this.chainBlockInfos);
         } else {
           this.log.info(nagationText, chainBlockInfo.activator);
         }
 
-        await chainBlock.settle(chainBlockInfo, this.chainBlockInfos);
+        // 誓約効果などの適用
+        await chainBlock.action.settle(chainBlockInfo, this.chainBlockInfos);
       }
 
       this.clock.incrementProcSeq();
@@ -781,14 +788,15 @@ export class Duel {
 
     return result;
   };
-  private readonly selectTriggerEffect = async (triggerEffects: ICardAction<unknown>[]): Promise<ICardAction<unknown> | undefined> => {
+  private readonly selectTriggerEffect = async (
+    triggerEffects: { activator: Duelist; action: ICardAction<unknown> }[]
+  ): Promise<{ activator: Duelist; action: ICardAction<unknown> } | undefined> => {
     // 誘発効果の処理順に従って効果を抽出する。
     if (triggerEffects.length > 0) {
       for (const triggerType of ["MandatoryTriggerEffect", "TriggerEffect"] as TCardActionType[]) {
-        for (const duelist of [this.getTurnPlayer(), this.getNonTurnPlayer()]) {
+        for (const activator of [this.getTurnPlayer(), this.getNonTurnPlayer()]) {
           // 誘発効果を抽出
-          this.priorityHolder = duelist;
-          const effects = triggerEffects.filter((effect) => effect.playType === triggerType && effect.entity.controller === duelist);
+          const effects = triggerEffects.filter((effect) => effect.action.playType === triggerType && effect.activator === activator);
 
           // なければ次の条件へ
           if (effects.length === 0) {
@@ -797,14 +805,19 @@ export class Duel {
 
           // 強制効果が残り１の場合、選択をスキップ
           if (effects.length === 1 && triggerType === "MandatoryTriggerEffect") {
-            return effects[0] as CardAction<unknown>;
+            return effects[0];
           }
 
           // 任意効果の場合、スキップ可能
-          const _action = await this.view.waitQuickEffect(this.priorityHolder, effects, "効果を選択。", triggerType === "TriggerEffect");
+          const _action = await this.view.waitQuickEffect(
+            activator,
+            effects.map((obj) => obj.action),
+            "効果を選択。",
+            triggerType === "TriggerEffect"
+          );
 
           if (_action) {
-            return _action;
+            return { activator, action: _action };
           }
         }
       }
@@ -823,6 +836,6 @@ export class Duel {
       .filter((action) => enableCardPlayTypes.includes(action.playType))
       .filter((action) => enableSpellSpeeds.includes(action.spellSpeed))
       .filter((action) => action.executableDuelists.includes(this.priorityHolder))
-      .filter((action) => action.validate(chainBlockInfos));
+      .filter((action) => action.validate(this.priorityHolder, chainBlockInfos));
   };
 }

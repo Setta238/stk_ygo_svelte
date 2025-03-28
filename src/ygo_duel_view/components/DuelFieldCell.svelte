@@ -1,7 +1,7 @@
 <script lang="ts">
   import { crossfade } from "svelte/transition";
   import { DuelFieldCell, stackCellTypes } from "@ygo_duel/class/DuelFieldCell";
-  import { type DuelistResponse, type TDuelPhase } from "@ygo_duel/class/Duel";
+  import { type DuelistResponse } from "@ygo_duel/class/Duel";
 
   import DuelCard, { type TCardState } from "@ygo_duel_view/components/DuelCard.svelte";
   import { DuelEntity } from "@ygo_duel/class/DuelEntity";
@@ -10,6 +10,7 @@
   import { cardCrossFade } from "@ygo_duel_view/components/DuelDesk.svelte";
   import { CardAction, type ICardAction } from "@ygo_duel/class/DuelCardAction";
   import { actualCounterEmojiDic, type TActualCounterName } from "@ygo_duel/class/DuelCounter";
+  import type { TDuelPhase } from "@ygo_duel/class/DuelPeriod";
   export let view: DuelViewController;
 
   export let row: number;
@@ -45,7 +46,7 @@
   let canAcceptDrop = false;
   const onDragStart = (actions: ICardAction<unknown>[]) => {
     draggingActions = actions;
-    canAcceptDrop = actions.some((action) => action.validate(view.duel.chainBlockInfos)?.includes(cell)) || false;
+    canAcceptDrop = actions.some((action) => action.validate(view.duel.priorityHolder, view.duel.chainBlockInfos)?.includes(cell)) || false;
     onCellUpdate();
   };
   const onDragEnd = () => {
@@ -148,6 +149,10 @@
     }
   };
   const validateActions = (...entities: DuelEntity[]): TCardState => {
+    if (view.duel.priorityHolder.duelistType === "NPC") {
+      return "Disabled";
+    }
+
     if (view.waitMode === "Animation") {
       return "Disabled";
     }
@@ -179,7 +184,7 @@
     if (actions[0].entity !== entities[0]) {
       return "Clickable";
     }
-    const tmp = actions[0].validate(view.duel.chainBlockInfos);
+    const tmp = actions[0].validate(view.duel.priorityHolder, view.duel.chainBlockInfos);
     return tmp && tmp.length > 0 ? "Draggable" : "Clickable";
   };
 </script>
@@ -233,13 +238,13 @@
         {/if}
       {/each}
 
-      {#if animationArg && animationArg.entity && animationArg.to === cell && animationArg.index === "Bottom"}
+      {#if animationArg && animationArg.entity && animationArg.to === cell && animationArg.index !== "Top"}
         <div class="card_animation_receiver {cell.cellType}" in:receive={{ key: animationArg.entity.seq }}>
           <DuelCard entity={animationArg.entity} state="Disabled" actions={[]} cardActionResolve={undefined} />
         </div>
       {/if}
     {:else}
-      {#if animationArg && animationArg.entity && animationArg.to === cell && animationArg.index === "Bottom"}
+      {#if animationArg && animationArg.entity && animationArg.to === cell && animationArg.index !== "Top"}
         <div style="position: absolute;" class="card_animation_receiver" in:receive={{ key: animationArg.entity.seq }}>
           <DuelCard entity={animationArg.entity} state="Disabled" actions={[]} cardActionResolve={undefined} />
         </div>

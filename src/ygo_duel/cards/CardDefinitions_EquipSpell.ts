@@ -33,21 +33,21 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
           executableCells: ["Hand", "SpellAndTrapZone"],
           executablePeriods: ["main1", "main2"],
           executableDuelistTypes: ["Controller"],
-          validate: (action) => {
-            const monsters = action.entity.field
+          validate: (myInfo) => {
+            const monsters = myInfo.action.entity.field
               .getMonstersOnField()
               .filter((monster) => monster.face === "FaceUp")
-              .filter((monster) => monster.canBeTargetOfEffect(action.entity.controller, action.entity, action as CardAction<unknown>));
+              .filter((monster) => monster.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action as CardAction<unknown>));
 
-            return monsters.length ? defaultSpellTrapValidate(action) : undefined;
+            return monsters.length ? defaultSpellTrapValidate(myInfo) : undefined;
           },
-          prepare: async (action, cell, chainBlockInfos, cancelable) => {
-            const monsters = action.entity.field
+          prepare: async (myInfo, cell, chainBlockInfos, cancelable) => {
+            const monsters = myInfo.action.entity.field
               .getMonstersOnField()
               .filter((monster) => monster.face === "FaceUp")
-              .filter((monster) => monster.canBeTargetOfEffect(action.entity.controller, action.entity, action as CardAction<unknown>));
-            const targets = await action.entity.duel.view.waitSelectEntities(
-              action.entity.controller,
+              .filter((monster) => monster.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action as CardAction<unknown>));
+            const targets = await myInfo.action.entity.duel.view.waitSelectEntities(
+              myInfo.activator,
               monsters,
               1,
               (seleceted) => seleceted.length === 1,
@@ -58,9 +58,9 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
               return undefined;
             }
 
-            action.entity.info.effectTargets["EquipTarget"] = targets;
+            myInfo.action.entity.info.effectTargets["EquipTarget"] = targets;
 
-            return await defaultSpellTrapPrepare(action, cell, chainBlockInfos, false, [], targets, undefined);
+            return await defaultSpellTrapPrepare(myInfo, cell, chainBlockInfos, false, [], targets, undefined);
           },
           execute: async () => true,
           settle: async () => true,
@@ -123,49 +123,50 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
         executableDuelistTypes: ["Controller"],
         hasToTargetCards: true,
         // 墓地に蘇生可能モンスター、場に空きが必要。
-        validate: (action) => {
+        validate: (myInfo) => {
           if (
-            action.entity.controller
+            myInfo.activator
               .getGraveyard()
               .cardEntities.filter((card) => card.status.kind === "Monster")
               .filter((card) => card.info.isRebornable)
-              .filter((card) => card.canBeTargetOfEffect(action.entity.controller, action.entity, action as CardAction<unknown>))
-              .filter((card) => card.canBeSpecialSummoned("SpecialSummon", action.entity.controller, action.entity, action as CardAction<unknown>)).length === 0
+              .filter((card) => card.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action as CardAction<unknown>))
+              .filter((card) => card.canBeSpecialSummoned("SpecialSummon", myInfo.activator, myInfo.action.entity, myInfo.action as CardAction<unknown>))
+              .length === 0
           ) {
             return;
           }
-          if (action.entity.controller.getAvailableMonsterZones().length === 0) {
+          if (myInfo.activator.getAvailableMonsterZones().length === 0) {
             return;
           }
 
-          if (action.entity.controller.lp < 800) {
+          if (myInfo.activator.lp < 800) {
             return;
           }
-          return defaultSpellTrapValidate(action);
+          return defaultSpellTrapValidate(myInfo);
         },
-        prepare: async (action, cell, chainBlockInfos) => {
-          const targets = await action.entity.field.duel.view.waitSelectEntities(
-            action.entity.controller,
-            action.entity.controller
+        prepare: async (myInfo, cell, chainBlockInfos) => {
+          const targets = await myInfo.action.entity.field.duel.view.waitSelectEntities(
+            myInfo.activator,
+            myInfo.activator
               .getGraveyard()
               .cardEntities.filter((card) => card.status.kind === "Monster")
               .filter((card) => card.info.isRebornable)
-              .filter((card) => card.canBeTargetOfEffect(action.entity.controller, action.entity, action as CardAction<unknown>))
-              .filter((card) => card.canBeSpecialSummoned("SpecialSummon", action.entity.controller, action.entity, action as CardAction<unknown>)),
+              .filter((card) => card.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action as CardAction<unknown>))
+              .filter((card) => card.canBeSpecialSummoned("SpecialSummon", myInfo.activator, myInfo.action.entity, myInfo.action as CardAction<unknown>)),
             1,
             (list) => list.length === 1,
             "蘇生対象とするモンスターを選択",
             false
           );
           if (!targets) {
-            throw new IllegalCancelError(action);
+            throw new IllegalCancelError(myInfo);
           }
 
           // 800ポイント支払う
-          action.entity.controller.payLp(800, action.entity);
-          action.entity.info.effectTargets["EquipTarget"] = targets;
+          myInfo.activator.payLp(800, myInfo.action.entity);
+          myInfo.action.entity.info.effectTargets["EquipTarget"] = targets;
 
-          return await defaultSpellTrapPrepare(action, cell, chainBlockInfos, false, ["SpecialSummonFromGraveyard", "PayLifePoint"], targets, undefined);
+          return await defaultSpellTrapPrepare(myInfo, cell, chainBlockInfos, false, ["SpecialSummonFromGraveyard", "PayLifePoint"], targets, undefined);
         },
         execute: async (myInfo) => {
           const emptyCells = myInfo.activator.getEmptyMonsterZones();

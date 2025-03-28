@@ -22,8 +22,8 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
         executablePeriods: freeChainDuelPeriodKeys,
         executableDuelistTypes: ["Controller"],
         validate: defaultSpellTrapValidate,
-        prepare: async (action, cell, chainBlockInfos, cancelable) => {
-          const selected = await action.entity.field.duel.view.waitSelectText(
+        prepare: async (myInfo, cell, chainBlockInfos, cancelable) => {
+          const selected = await myInfo.action.entity.field.duel.view.waitSelectText(
             [
               { seq: 0, text: "●自分は１２００ＬＰ回復する。" },
               { seq: 1, text: "●相手に８００ダメージを与える。" },
@@ -32,7 +32,7 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
             false
           );
           if (selected === undefined && !cancelable) {
-            throw new IllegalCancelError(action);
+            throw new IllegalCancelError(myInfo);
           }
 
           const tags: TEffectTag[] = [];
@@ -41,7 +41,7 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
             tags.push("DamageToOpponent");
           }
 
-          return defaultSpellTrapPrepare(action, cell, chainBlockInfos, cancelable, tags, [], selected ?? 0);
+          return defaultSpellTrapPrepare(myInfo, cell, chainBlockInfos, cancelable, tags, [], selected ?? 0);
         },
         execute: async (myInfo) => {
           if (myInfo.prepared === 1) {
@@ -68,17 +68,21 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
         executableCells: ["Hand", "SpellAndTrapZone"],
         executablePeriods: freeChainDuelPeriodKeys,
         executableDuelistTypes: ["Controller"],
-        validate: (action) => {
-          const monsters = action.entity.field.getMonstersOnField().filter((monster) => monster.canBeEffected(action.entity.controller, action.entity, action));
+        validate: (myInfo) => {
+          const monsters = myInfo.action.entity.field
+            .getMonstersOnField()
+            .filter((monster) => monster.canBeEffected(myInfo.activator, myInfo.action.entity, myInfo.action));
           if (!monsters.length) {
             return;
           }
-          return defaultSpellTrapValidate(action);
+          return defaultSpellTrapValidate(myInfo);
         },
-        prepare: async (action, cell, chainBlockInfos, cancelable) => {
-          const monsters = action.entity.field.getMonstersOnField().filter((monster) => monster.canBeEffected(action.entity.controller, action.entity, action));
-          const selected = await action.entity.duel.view.waitSelectEntities(
-            action.entity.controller,
+        prepare: async (myInfo, cell, chainBlockInfos, cancelable) => {
+          const monsters = myInfo.action.entity.field
+            .getMonstersOnField()
+            .filter((monster) => monster.canBeEffected(myInfo.activator, myInfo.action.entity, myInfo.action));
+          const selected = await myInfo.action.entity.duel.view.waitSelectEntities(
+            myInfo.activator,
             monsters,
             1,
             (selected) => selected.length === 1,
@@ -89,7 +93,7 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
             return;
           }
 
-          return defaultSpellTrapPrepare(action, cell, chainBlockInfos, cancelable, [], [...selected], undefined);
+          return defaultSpellTrapPrepare(myInfo, cell, chainBlockInfos, cancelable, [], [...selected], undefined);
         },
         execute: async (myInfo) => {
           const target = myInfo.selectedEntities[0];

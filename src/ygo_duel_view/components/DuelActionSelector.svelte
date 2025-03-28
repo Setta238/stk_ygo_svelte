@@ -43,7 +43,11 @@
   view.onDragStart.append(onDragStart);
   view.onDragEnd.append(onDragEnd);
   const validateActions = (action: ICardAction<unknown>): TCardState => {
-    const tmp = action.validate(view.duel.chainBlockInfos);
+    if (view.duel.priorityHolder.duelistType === "NPC") {
+      return "Disabled";
+    }
+
+    const tmp = action.validate(view.duel.priorityHolder, view.duel.chainBlockInfos);
     return tmp && tmp.length > 0 ? "Draggable" : "Clickable";
   };
 </script>

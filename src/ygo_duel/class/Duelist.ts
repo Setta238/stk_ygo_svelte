@@ -258,7 +258,6 @@ export class Duelist {
   public readonly shuffleDeck = (): void => {
     const deckCell = this.getDeckCell();
     deckCell.shuffle();
-    this.duel.log.info(`デッキをシャッフル。`, this);
   };
   public readonly discard = async (
     qty: number,

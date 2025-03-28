@@ -18,8 +18,6 @@ import { deckCellTypes, playFieldCellTypes, type DuelFieldCell, type TBundleCell
 import { type Duelist } from "./Duelist";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
-
-import { defaultAttackAction, defaultBattlePotisionChangeAction, defaultNormalSummonAction } from "@ygo_duel/functions/DefaultCardAction_Monster";
 import { cardDefinitionDic, cardInfoDic } from "@ygo/class/CardInfo";
 import { CardAction, type CardActionBase } from "./DuelCardAction";
 import { ProcFilterBundle } from "../class_continuous_effect/DuelProcFilter";
@@ -30,6 +28,7 @@ import type { DuelField } from "./DuelField";
 import { DuelEntityLog } from "./DuelEntityLog";
 import { CounterHolder, type TCounterName } from "./DuelCounter";
 import { StatusOperatorBundle } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
+import { defaultAttackAction, defaultBattlePotisionChangeAction, defaultNormalSummonAction } from "@ygo_duel/functions/DefaultCardAction_Monster";
 export type EntityStatus = {
   canAttack: boolean;
   canDirectAttack: boolean;

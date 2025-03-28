@@ -136,5 +136,6 @@ export class DuelFieldCell {
   public readonly shuffle = (): void => {
     this._entities = this.entities.shuffle();
     this._needsShuffle = false;
+    this.field.duel.log.info(`デッキをシャッフル。`, this.owner);
   };
 }

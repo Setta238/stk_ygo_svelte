@@ -1,7 +1,7 @@
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
 import type { CardAction, CardActionBase } from "@ygo_duel/class/DuelCardAction";
 import { DuelEntity, type TDestoryCauseReason } from "@ygo_duel/class/DuelEntity";
-import type { DuelFieldCell, DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
+import type { DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
 import { defaultAttackAction, defaultBattlePotisionChangeAction, defaultNormalSummonAction } from "@ygo_duel/functions/DefaultCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
@@ -22,14 +22,14 @@ const getDefalutRecruiterAction = (
     executableCells: executableCells,
     executablePeriods: destoryTypes.includes("EffectDestroy") ? [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys] : ["b1DEnd", "b2DEnd"],
     executableDuelistTypes: ["Controller"],
-    validate: (action): DuelFieldCell[] | undefined => {
-      if (!action.entity.wasMovedAtPreviousChain) {
+    validate: (myInfo) => {
+      if (!myInfo.action.entity.wasMovedAtPreviousChain) {
         return;
       }
-      if (!action.entity.moveLog.latestRecord.movedAs.includes("BattleDestroy")) {
+      if (!myInfo.action.entity.moveLog.latestRecord.movedAs.includes("BattleDestroy")) {
         return;
       }
-      const monsters = action.entity.controller.getDeckCell().cardEntities.filter(monsterFilter);
+      const monsters = myInfo.activator.getDeckCell().cardEntities.filter(monsterFilter);
       if (monsters.length === 0) {
         return;
       }
@@ -37,7 +37,7 @@ const getDefalutRecruiterAction = (
       if (
         monsters.every(
           (monster) =>
-            !action.entity.controller.canSummon(action.entity.controller, action.entity, action as CardAction<unknown>, "SpecialSummon", posList, [monster])
+            !myInfo.activator.canSummon(myInfo.activator, myInfo.action.entity, myInfo.action as CardAction<unknown>, "SpecialSummon", posList, [monster])
               .length
         )
       ) {
@@ -49,7 +49,7 @@ const getDefalutRecruiterAction = (
       return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromDeck"], prepared: undefined };
     },
     execute: async (myInfo) => {
-      const monsters = myInfo.action.entity.controller.getDeckCell().cardEntities.filter(monsterFilter);
+      const monsters = myInfo.activator.getDeckCell().cardEntities.filter(monsterFilter);
       if (monsters.length === 0) {
         return false;
       }

@@ -54,26 +54,26 @@ export const createCardDefinitions_EquipSpell_Preset = (): CardDefinition[] => {
           executableCells: ["Hand", "SpellAndTrapZone"],
           executablePeriods: ["main1", "main2"],
           executableDuelistTypes: ["Controller"],
-          validate: (action) => {
-            const monsters = action.entity.field
+          validate: (myInfo) => {
+            const monsters = myInfo.action.entity.field
               .getMonstersOnField()
               .filter((monster) => monster.face === "FaceUp")
-              .filter((monster) => monster.canBeTargetOfEffect(action.entity.controller, action.entity, action as CardAction<unknown>))
+              .filter((monster) => monster.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action as CardAction<unknown>))
               .filter((monster) => !item.attr || monster.attr.includes(item.attr))
               .filter((monster) => !item.monType || monster.types.includes(item.monType));
 
-            return monsters.length ? defaultSpellTrapValidate(action) : undefined;
+            return monsters.length ? defaultSpellTrapValidate(myInfo) : undefined;
           },
-          prepare: async (action, cell, chainBlockInfos, cancelable) => {
-            const monsters = action.entity.field
+          prepare: async (myInfo, cell, chainBlockInfos, cancelable) => {
+            const monsters = myInfo.action.entity.field
               .getMonstersOnField()
               .filter((monster) => monster.face === "FaceUp")
-              .filter((monster) => monster.canBeTargetOfEffect(action.entity.controller, action.entity, action as CardAction<unknown>))
+              .filter((monster) => monster.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action as CardAction<unknown>))
               .filter((monster) => !item.attr || monster.attr.includes(item.attr))
               .filter((monster) => !item.monType || monster.types.includes(item.monType));
 
-            const targets = await action.entity.duel.view.waitSelectEntities(
-              action.entity.controller,
+            const targets = await myInfo.action.entity.duel.view.waitSelectEntities(
+              myInfo.activator,
               monsters,
               1,
               (seleceted) => seleceted.length === 1,
@@ -84,9 +84,9 @@ export const createCardDefinitions_EquipSpell_Preset = (): CardDefinition[] => {
               return undefined;
             }
 
-            action.entity.info.effectTargets["EquipTarget"] = targets;
+            myInfo.action.entity.info.effectTargets["EquipTarget"] = targets;
 
-            return await defaultSpellTrapPrepare(action, cell, chainBlockInfos, false, [], targets, undefined);
+            return await defaultSpellTrapPrepare(myInfo, cell, chainBlockInfos, false, [], targets, undefined);
           },
           execute: async () => true,
           settle: async () => true,

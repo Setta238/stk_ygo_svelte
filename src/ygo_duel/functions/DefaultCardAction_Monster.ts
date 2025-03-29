@@ -1,4 +1,5 @@
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
+import { SystemError } from "@ygo_duel/class/Duel";
 import { CardAction, type CardActionBase, type ChainBlockInfo, type ChainBlockInfoBase, type ChainBlockInfoPrepared } from "@ygo_duel/class/DuelCardAction";
 import { type TDuelCauseReason, DuelEntity } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
@@ -84,7 +85,7 @@ export const defaultNormalSummonPrepare = async (
   let dest: DuelFieldCell = availableCells.randomPick();
 
   if (myInfo.activator.duelistType !== "NPC") {
-    const res = await myInfo.activator.duel.view.waitSelectSummonDest(myInfo.action.entity, availableCells, ["Attack", "Set"], _cancelable);
+    const res = await myInfo.activator.duel.view.waitSelectSummonDest(myInfo.activator, myInfo.action.entity, availableCells, ["Attack", "Set"], _cancelable);
     if (!res) {
       return;
     }
@@ -180,7 +181,7 @@ export const defaultRuleSpecialSummonPrepare = async (
     }
   }
   if (myInfo.activator.duelistType !== "NPC") {
-    const res = await myInfo.activator.duel.view.waitSelectSummonDest(myInfo.action.entity, availableCells, _posList, cancelable);
+    const res = await myInfo.activator.duel.view.waitSelectSummonDest(myInfo.activator, myInfo.action.entity, availableCells, _posList, cancelable);
     if (!res) {
       return;
     }
@@ -213,17 +214,15 @@ export const defaultNormalSummonAction: CardActionBase<SummonPrepared> = {
 };
 
 export const defaultDeclareAttackValidate = (myInfo: ChainBlockInfoBase<{ target: DuelEntity }>): DuelFieldCell[] | undefined => {
-  if (myInfo.action.entity.info.attackCount > 0 || myInfo.action.entity.battlePosition !== "Attack" || !myInfo.activator.isTurnPlayer) {
+  if (!myInfo.activator.isTurnPlayer) {
     return undefined;
   }
+  const targets = myInfo.action.entity.getAttackTargets();
 
-  const enemies = myInfo.activator.getAttackTargetMonsters();
+  console.log(targets);
 
-  if (enemies.length > 0) {
-    return enemies.map((e) => e.fieldCell);
-  }
-
-  return [myInfo.activator.getOpponentPlayer().getHandCell()];
+  // 攻撃対象をダイレクトアタック含めて抽出し、セルに変換
+  return targets.length ? targets.map((e) => e.fieldCell) : undefined;
 };
 export const defaultDeclareAttackPrepare = async (
   myInfo: ChainBlockInfoBase<{ target: DuelEntity }>,
@@ -232,18 +231,28 @@ export const defaultDeclareAttackPrepare = async (
   if (myInfo.action.entity.info.attackCount > 0 || myInfo.action.entity.battlePosition !== "Attack") {
     return;
   }
+
+  // 準備段階でセルを指定していた場合、エンティティに逆変換
   if (cell?.targetForAttack) {
     return { selectedEntities: [], chainBlockTags: [], prepared: { target: cell.targetForAttack } };
   }
 
-  const choices = myInfo.activator.getAttackTargetMonsters();
-  const opponent = myInfo.activator.getOpponentPlayer().entity;
+  const choices = myInfo.action.entity.getAttackTargets();
 
   if (choices.length === 0) {
-    return { selectedEntities: [], chainBlockTags: [], prepared: { target: opponent } };
+    throw new SystemError("想定されない状態", myInfo, cell);
   }
   if (choices.length === 1) {
     return { selectedEntities: [], chainBlockTags: [], prepared: { target: choices[0] } };
+  }
+
+  if (myInfo.activator.duelistType === "NPC") {
+    let target = myInfo.activator.selectAttackTargetForNPC(myInfo.action.entity, myInfo.action as CardAction<unknown>);
+    if (!target) {
+      myInfo.activator.duel.log.warn("NPCの攻撃対象選択に失敗したため、ランダムに攻撃対象を選択。");
+      target = choices.randomPick();
+    }
+    return { selectedEntities: [], chainBlockTags: [], prepared: { target } };
   }
 
   const targets = await myInfo.action.entity.field.duel.view.waitSelectEntities(
@@ -428,7 +437,7 @@ export const defaultSyncroSummonPrepare = async (
   let dest: DuelFieldCell = availableCells.randomPick();
 
   if (myInfo.activator.duelistType !== "NPC") {
-    const res = await myInfo.activator.duel.view.waitSelectSummonDest(myInfo.action.entity, availableCells, ["Attack", "Defense"], false);
+    const res = await myInfo.activator.duel.view.waitSelectSummonDest(myInfo.activator, myInfo.action.entity, availableCells, ["Attack", "Defense"], false);
     if (!res) {
       return;
     }

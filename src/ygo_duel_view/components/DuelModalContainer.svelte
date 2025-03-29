@@ -30,6 +30,7 @@
     <DuelActionSelector
       view={modalController.view}
       title={modalController.cardActionSelectorArg.title}
+      activator={modalController.cardActionSelectorArg.activator}
       actions={modalController.cardActionSelectorArg.actions}
       dragAndDropOnly={modalController.cardActionSelectorArg.dragAndDropOnly ?? false}
       cancelable={modalController.cardActionSelectorArg.cancelable}

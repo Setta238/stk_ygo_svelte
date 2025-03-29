@@ -68,6 +68,7 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
         executableCells: ["Hand", "SpellAndTrapZone"],
         executablePeriods: freeChainDuelPeriodKeys,
         executableDuelistTypes: ["Controller"],
+        hasToTargetCards: true,
         validate: (myInfo) => {
           const monsters = myInfo.action.entity.field
             .getMonstersOnField()

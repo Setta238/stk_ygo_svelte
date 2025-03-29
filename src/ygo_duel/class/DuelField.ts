@@ -185,6 +185,7 @@ export class DuelField {
   };
 
   public readonly activateSpellTrapFromHand = async (
+    activator: Duelist,
     entity: DuelEntity,
     selectableCells: DuelFieldCell[],
     moveAs: TDuelCauseReason[],
@@ -199,6 +200,7 @@ export class DuelField {
         const dammyActions = [CardAction.createDammyAction(entity, "カードの発動", selectableCells, undefined)];
         this.duel.view.modalController.selectAction(this.duel.view, {
           title: "カードを魔法罠ゾーンへドラッグ",
+          activator,
           actions: dammyActions as CardAction<unknown>[],
           cancelable: false,
         });
@@ -219,6 +221,7 @@ export class DuelField {
     return entity;
   };
   public readonly setSpellTrap = async (
+    activator: Duelist,
     entity: DuelEntity,
     cells: DuelFieldCell[],
     causedBy?: DuelEntity,
@@ -233,6 +236,7 @@ export class DuelField {
         const dammyActions = [CardAction.createDammyAction(entity, "セット", cells)];
         const actionPromise = this.duel.view.modalController.selectAction(this.duel.view, {
           title: "カードをセット先へドラッグ",
+          activator,
           actions: dammyActions as CardAction<unknown>[],
           cancelable: cancelable,
         });

@@ -47,6 +47,7 @@ export const defaultSpellTrapSetPrepare = async (
       const dammyActions = [CardAction.createDammyAction(myInfo.action.entity, "セット", availableCells)];
       const actionPromise = myInfo.activator.duel.view.modalController.selectAction(myInfo.activator.duel.view, {
         title: "カードをセット先へドラッグ",
+        activator: myInfo.activator,
         actions: dammyActions as CardAction<unknown>[],
         cancelable: true,
       });
@@ -152,6 +153,7 @@ export const defaultSpellTrapPrepare = async <T>(
         ? [myInfo.activator.getFieldZone()]
         : myInfo.activator.getAvailableSpellTrapZones();
     await myInfo.action.entity.field.activateSpellTrapFromHand(
+      myInfo.activator,
       myInfo.action.entity,
       availableCells,
       causedBy,

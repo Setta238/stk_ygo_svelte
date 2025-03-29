@@ -6,13 +6,14 @@ import { type Duelist } from "@ygo_duel/class/Duelist";
 import { DuelModalController } from "./DuelModalController";
 import type { CardActionSelectorArg } from "@ygo_duel_view/components/DuelActionSelector.svelte";
 import type { DuelEntitiesSelectorArg } from "@ygo_duel_view/components/DuelEntitiesSelector.svelte";
-import { CardAction, type ICardAction } from "@ygo_duel/class/DuelCardAction";
+import { CardAction, type ChainBlockInfo, type ICardAction } from "@ygo_duel/class/DuelCardAction";
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
 import { createPromiseSweet } from "@stk_utils/funcs/StkPromiseUtil";
 import type { TCardDetailMode } from "@ygo_duel_view/components/DuelCardDetail.svelte";
 export type TDuelWaitMode = "None" | "SelectFieldAction" | "SelectAction" | "SelectFieldEntities" | "SelectEntities" | "Animation";
 export type WaitStartEventArg = {
   resolve: (action: DuelistResponse) => void;
+  activator: Duelist;
   enableActions: ICardAction<unknown>[];
   qty: number | undefined;
   selectableEntities: DuelEntity[];
@@ -65,13 +66,16 @@ export class DuelViewController {
   public readonly duel: Duel;
   public readonly modalController: DuelModalController;
   //  private draggingAction: CardAction | undefined;
-  public message: string;
+  private _message: string;
+  public get message() {
+    return this._message || this.duel.log.lastRecord.text;
+  }
   public waitMode: TDuelWaitMode;
   public infoBoardState: TDuelDeskInfoBoardState;
   public infoBoardCell: DuelFieldCell;
   constructor(duel: Duel) {
     this.duel = duel;
-    this.message = "";
+    this._message = "";
     this.waitMode = "None";
     this.infoBoardState = "Log";
     this.infoBoardCell = duel.duelists.Below.getExtraDeck();
@@ -103,58 +107,60 @@ export class DuelViewController {
     this.onWaitEndEvent.clear();
   };
 
+  //TODO この関数はここではないので引っ越しが必要
   /**
    * メインフェイズまたはバトルフェイズ中のターンプレイヤーのアクション類の待機
    * @param message
    * @returns
    */
-  public readonly waitFieldAction = async (enableActions: ICardAction<unknown>[], message: string): Promise<DuelistResponse> => {
+  public readonly waitFieldAction = async (enableActions: CardAction<unknown>[]): Promise<DuelistResponse> => {
     if (this.duel.getTurnPlayer().duelistType === "NPC") {
-      const action = enableActions
-        .toSorted((left, right) => (right.entity.atk || 0) - (left.entity.atk || 0))
-        .find((act) => act.playType === "NormalSummon" || act.playType === "SpecialSummon" || act.playType === "CardActivation");
-      return action ? { action: action as ICardAction<unknown> } : { phaseChange: this.duel.nextPhaseList[0] };
+      const action = this.duel.getTurnPlayer().selectActionForNPC(enableActions, []);
+      return action ? { action } : { phaseChange: this.duel.nextPhaseList[0] };
     }
-    return await this._waitDuelistAction(enableActions, "SelectFieldAction", message);
+    return await this._waitDuelistAction(this.duel.getTurnPlayer(), enableActions, "SelectFieldAction", "");
   };
 
+  //TODO この関数はここではないので引っ越しが必要
   /**
    * 優先権プレイヤーのクイックエフェクト類の待機
    * @param title
    * @returns
    */
   public readonly waitQuickEffect = async (
-    duelist: Duelist,
-    enableActions: ICardAction<unknown>[],
+    activator: Duelist,
+    enableActions: CardAction<unknown>[],
+    chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
     message: string,
     cancelable: boolean
-  ): Promise<ICardAction<unknown> | undefined> => {
+  ): Promise<CardAction<unknown> | undefined> => {
     if (enableActions.length === 0) {
       return;
     }
 
-    if (duelist.duelistType === "NPC") {
-      return duelist.selectActionForNPC(enableActions);
+    if (activator.duelistType === "NPC") {
+      return activator.selectActionForNPC(enableActions, chainBlockInfos);
     }
 
-    const promiseList: Promise<ICardAction<unknown> | undefined>[] = [];
+    const promiseList: Promise<CardAction<unknown> | undefined>[] = [];
 
     promiseList.push(
       this.modalController
         .selectAction(this, {
           title: message,
-          actions: enableActions as ICardAction<unknown>[],
+          activator: activator,
+          actions: enableActions,
           cancelable: cancelable,
         })
         .then((action) => {
-          return action && (action as ICardAction<unknown>);
+          return action && (action as CardAction<unknown>);
         })
     );
 
     promiseList.push(
-      this._waitDuelistAction(enableActions, "SelectAction", this.message).then((result) => {
+      this._waitDuelistAction(activator, enableActions, "SelectAction", this.message).then((result) => {
         this.infoBoardState = "Log";
-        return result.action;
+        return result.action as CardAction<unknown>;
       })
     );
 
@@ -178,7 +184,7 @@ export class DuelViewController {
     if (chooser.duelistType === "NPC") {
       throw Error("Not implemented");
     }
-    return await this._waitDuelistAction(enableActions, "SelectAction", message, undefined, undefined, undefined, cancelable);
+    return await this._waitDuelistAction(chooser, enableActions, "SelectAction", message, undefined, undefined, undefined, cancelable);
   };
 
   /**
@@ -224,12 +230,13 @@ export class DuelViewController {
       ? "SelectFieldEntities"
       : "SelectEntities";
 
-    const actions = await this._waitDuelistAction([], this.waitMode, message, choises, qty, validator, cancelable);
+    const actions = await this._waitDuelistAction(chooser, [], this.waitMode, message, choises, qty, validator, cancelable);
 
     return actions.selectedEntities;
   };
 
   private readonly _waitDuelistAction = async (
+    activator: Duelist,
     enableActions: ICardAction<unknown>[],
     waitMode: TDuelWaitMode,
     message: string,
@@ -239,7 +246,7 @@ export class DuelViewController {
     cancelable: boolean = false
   ): Promise<DuelistResponse> => {
     this.waitMode = waitMode;
-    this.message = message;
+    this._message = message;
 
     this.onDuelUpdateEvent.trigger();
 
@@ -249,6 +256,7 @@ export class DuelViewController {
     // 待機のための引数作成。解決のためのresolveを渡す
     const args: WaitStartEventArg = {
       resolve: promiseSweet.resolve,
+      activator: activator,
       enableActions,
       qty: qty,
       entitiesValidator: entitiesValidator || (() => false),
@@ -286,6 +294,7 @@ export class DuelViewController {
   };
 
   public readonly waitSelectSummonDest = async (
+    activator: Duelist,
     entity: DuelEntity,
     availableCells: DuelFieldCell[],
     posList: TBattlePosition[],
@@ -295,6 +304,7 @@ export class DuelViewController {
     const dammyActions = (posList as TBattlePosition[]).map((pos) => CardAction.createDammyAction(entity, pos, availableCells, pos));
     const p1 = this.modalController.selectAction(entity.field.duel.view, {
       title: msg,
+      activator: activator,
       actions: dammyActions as ICardAction<unknown>[],
       cancelable: false,
     });
@@ -326,7 +336,7 @@ export class DuelViewController {
   };
 
   public readonly waitAnimation = async (args: Omit<AnimationStartEventArg, "resolve">): Promise<void> => {
-    this.message = this.duel.log.lastRecord.text;
+    this._message = "";
     this.waitMode = "Animation";
     this.onDuelUpdateEvent.trigger();
     return new Promise<void>((resolve) => this.onAnimationStartEvent.trigger({ ...args, resolve }));

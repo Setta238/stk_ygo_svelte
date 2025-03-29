@@ -6,7 +6,7 @@
 
   const onlogUpdate = () => {
     log = log;
-    tick().then(() => duelLogRef && duelLogRef.scroll(0, duelLogRef.clientHeight * 10));
+    tick().then(() => duelLogRef && duelLogRef.scroll(0, duelLogRef.clientHeight * 990));
   };
   log?.onUpdate?.append(onlogUpdate);
 </script>

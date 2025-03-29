@@ -3,6 +3,7 @@
   import type { CardAction, ICardAction } from "@ygo_duel/class/DuelCardAction";
   export type CardActionSelectorArg = {
     title: string;
+    activator: Duelist;
     actions: ICardAction<unknown>[];
     dragAndDropOnly?: boolean;
     cancelable: boolean;
@@ -18,15 +19,17 @@
   import DuelCard, { type TCardState } from "@ygo_duel_view/components/DuelCard.svelte";
   import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
   import type { DuelViewController } from "@ygo_duel_view/class/DuelViewController";
+  import type { Duelist } from "@ygo_duel/class/Duelist";
   interface IProp {
     view: DuelViewController;
     resolve: (action?: ICardAction<unknown>, cell?: DuelFieldCell) => void;
     title: string;
+    activator: Duelist;
     actions: ICardAction<unknown>[];
     dragAndDropOnly: boolean;
     cancelable: boolean;
   }
-  let { view, resolve, title, actions, dragAndDropOnly, cancelable }: IProp = $props();
+  let { view, resolve, title, activator, actions, dragAndDropOnly, cancelable }: IProp = $props();
 
   let isShown = true;
 
@@ -43,11 +46,11 @@
   view.onDragStart.append(onDragStart);
   view.onDragEnd.append(onDragEnd);
   const validateActions = (action: ICardAction<unknown>): TCardState => {
-    if (view.duel.priorityHolder.duelistType === "NPC") {
+    if (activator.duelistType === "NPC") {
       return "Disabled";
     }
 
-    const tmp = action.validate(view.duel.priorityHolder, view.duel.chainBlockInfos);
+    const tmp = action.validate(activator, view.duel.chainBlockInfos);
     return tmp && tmp.length > 0 ? "Draggable" : "Clickable";
   };
 </script>

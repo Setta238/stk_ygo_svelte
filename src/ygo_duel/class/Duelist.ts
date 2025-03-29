@@ -7,7 +7,8 @@ import type { DuelFieldCell } from "./DuelFieldCell";
 import { cardInfoDic } from "@ygo/class/CardInfo";
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
-import { CardAction, type ICardAction } from "./DuelCardAction";
+import { CardAction, type ChainBlockInfo, type ICardAction } from "./DuelCardAction";
+import { max, min } from "@stk_utils/funcs/StkMathUtils";
 
 type TLifeLogReason = "BattleDamage" | "EffectDamage" | "Heal" | "Lost" | "Pay" | "Set";
 export type TDuelistType = "NPC" | "Player";
@@ -213,10 +214,6 @@ export class Duelist {
     return this.duel.field.getEntiteisOnField().filter((card) => card.controller === this);
   };
 
-  public readonly getAttackTargetMonsters = (): DuelEntity[] => {
-    return this.duel.field.getMonstersOnField().filter((monster) => monster.status.isSelectableForAttack && monster.controller !== this);
-  };
-
   public readonly pushDeck = (): void => {
     this.deckInfo.cardNames
       .map((name) => cardInfoDic[name])
@@ -302,6 +299,7 @@ export class Duelist {
         const dammyActions = selectablePosList.map((pos) => CardAction.createDammyAction(entity, pos, selectableCells, pos));
         const p1 = this.duel.view.modalController.selectAction(this.duel.view, {
           title: msg,
+          activator: this,
           actions: dammyActions as ICardAction<unknown>[],
           cancelable: false,
         });
@@ -325,22 +323,188 @@ export class Duelist {
     return entity;
   };
 
-  public readonly selectActionForNPC = (enableActions: ICardAction<unknown>[]): ICardAction<unknown> | undefined => {
-    let result = enableActions.filter((action) => action.entity.status.kind === "Spell").randomPick();
-    if (result) {
-      return result;
+  public readonly selectAttackTargetForNPC = (attacker: DuelEntity, action: CardAction<unknown>): DuelEntity | undefined => {
+    // 攻撃力と攻撃対象を抽出。
+    const atk = attacker.atk ?? 0;
+    const enemies = attacker.getAttackTargets();
+
+    if (!enemies.length) {
+      return;
     }
 
-    // TODO NPCのロジック
+    const opponent = enemies.find((enemy) => enemy.entityType === "Duelist");
 
-    if (this.duel.phase === "main2" && this.getAvailableSpellTrapZones.length > 1) {
-      result = enableActions
-        .filter((action) => action.playType === "SpellTrapSet")
-        .filter((action) => action.entity.status.kind !== "Spell" || action.entity.status.spellCategory === "QuickPlay")
-        .randomPick();
-      if (result) {
-        return result;
+    console.log(this, atk, opponent);
+    // 直接攻撃可能かつ、勝利可能または1600以上なら直接攻撃する。
+    if (opponent && (atk >= min(1600, this.getOpponentPlayer().lp) || attacker.info.battlePotisionChangeCount > 0)) {
+      return opponent;
+    }
+
+    return enemies.find((enemy) => {
+      // 相手が攻撃表示なら、相打ち以上で攻撃
+      if (enemy.battlePosition === "Attack") {
+        console.log(this, atk, enemy);
+        return atk >= (enemy.atk ?? 0);
       }
+      // 守備表示なら、ステータスが超過していない場合攻撃しない
+      if (atk < (enemy.battlePosition === "Set" ? 1000 : (enemy.def ?? 0))) {
+        return false;
+      }
+      // 戦闘破壊可能であれば、攻撃する。
+      return enemy.validateDestory("BattleDestroy", this, attacker, action);
+    });
+  };
+
+  public readonly selectActionForNPC = (
+    enableActions: CardAction<unknown>[],
+    chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>
+  ): CardAction<unknown> | undefined => {
+    // 発動可能な効果がなければ何もしない
+    if (!enableActions.length) {
+      return;
+    }
+
+    // 強制効果がある場合、最優先で選択 ※重要
+    const mandatoryEffects = enableActions.filter((action) => action.playType === "MandatoryIgnitionEffect" || action.playType === "MandatoryTriggerEffect");
+    if (mandatoryEffects.length) {
+      return mandatoryEffects.randomPick();
+    }
+
+    // 優先度高を発動
+    const highPriorities = enableActions
+      .filter((action) => !Number.isNaN(action.priorityForNPC))
+      .shuffle()
+      .sort((left, right) => left.priorityForNPC - right.priorityForNPC);
+    if (highPriorities.length) {
+      return highPriorities[0];
+    }
+
+    // 誘発効果は発動しておけの精神
+    const triggerEffects = enableActions.filter((action) => action.playType === "TriggerEffect");
+    if (triggerEffects.length) {
+      return triggerEffects.randomPick();
+    }
+
+    // メインフェイズ以外の起動効果は発動しておけの精神
+    if (this.duel.phase !== "main1" && this.duel.phase !== "main2") {
+      const ignitionEffect = enableActions.filter((action) => action.playType === "IgnitionEffect");
+      if (ignitionEffect.length) {
+        return ignitionEffect.randomPick();
+      }
+    }
+
+    // 攻撃宣言がある場合、攻撃力の低いモンスターから戦闘破壊可能なモンスターを攻撃できるかチェックし、選択する
+    const battleActions = enableActions
+      .filter((action) => action.playType === "Battle")
+      .sort((left, right) => (left.entity.atk ?? 0) - (right.entity.atk ?? 0));
+
+    // 攻撃宣言のタイミングは、攻撃宣言しかできないのでここでreturnする。
+    if (battleActions.length) {
+      return battleActions.find((action) => this.selectAttackTargetForNPC(action.entity, action));
+    }
+
+    // 攻撃宣言は（念の為）この時点でフィルタリング
+    let _enableActions = enableActions.filter((action) => action.playType !== "Battle");
+
+    // 一つ前のブロックの発動者が自分ではない場合、無効化効果を探して実行する。
+    const previousBlock = enableActions.length ? chainBlockInfos.slice(-1)[0] : undefined;
+    const negationEffects = enableActions.filter((action) => action.negatePreviousBlock);
+    if (previousBlock && previousBlock.activator !== this && negationEffects) {
+      return negationEffects.randomPick();
+    }
+
+    // それ以外の場合、無効化効果は発動しないようにフィルタリング
+    _enableActions = enableActions.filter((action) => !action.negatePreviousBlock);
+
+    // 発動可能な効果がなければ何もしない
+    if (!_enableActions.length) {
+      return;
+    }
+
+    // 相手フィールドの状態取得
+    const maxEnemyAtk = max(
+      ...this.getOpponentPlayer()
+        .getMonstersOnField()
+        .filter((enemy) => enemy.battlePosition === "Attack")
+        .map((enemy) => enemy.atk ?? 0),
+      1600
+    );
+    const minEnemyAtkDef = min(
+      ...this.getOpponentPlayer()
+        .getMonstersOnField()
+        .map((enemy) => (enemy.battlePosition === "Set" ? 1500 : ((enemy.battlePosition === "Attack" ? enemy.atk : enemy.def) ?? 0))),
+      1500
+    );
+
+    const allies = this.getMonstersOnField();
+    const maxAllyAtk = max(...allies.filter((enemy) => enemy.battlePosition === "Attack").map((enemy) => enemy.atk ?? 0), 0);
+
+    // 攻撃表示への変更判断はメイン１、メイン２両方行う
+    let posActions = _enableActions
+      .filter((action) => action.playType !== "ChangeBattlePosition")
+      .filter((action) => action.entity.battlePosition !== "Attack")
+      .filter((action) => (action.entity.atk ?? 0) >= maxEnemyAtk || ((action.entity.atk ?? 0) > minEnemyAtkDef && (action.entity.atk ?? 0) > 2300));
+    if (posActions.length) {
+      return posActions.randomPick();
+    }
+
+    // 魔法罠のセットと、表示形式の変更、手札誘発持ちの召喚特殊召喚は一旦選択肢から除外する
+    _enableActions = _enableActions
+      .filter((action) => action.playType !== "ChangeBattlePosition")
+      .filter((action) => action.playType !== "SpellTrapSet")
+      .filter(
+        (action) =>
+          action.entity.actions
+            .filter((otherAction) => otherAction.playType !== "NormalSummon" && otherAction.playType !== "SpecialSummon")
+            .flatMap((otherAction) => otherAction.executableCells)
+            .every((ct) => ct !== "Hand") ||
+          (action.playType !== "NormalSummon" && action.playType !== "SpecialSummon")
+      );
+
+    // 手札効果なし、リリースなしで通常召喚できるモンスターが居るなら出しとけの精神
+    // 手札効果なし、特殊召喚できるモンスターも出しておけの精神
+    // アドバンス召喚は、最大攻撃力以上であれば出す
+    // 表側表示で使える効果は使っておけの精神
+    const effects = [
+      ..._enableActions.filter((action) => action.playType === "NormalSummon").filter((action) => (action.entity.lvl ?? 12) < 5),
+      ..._enableActions.filter((action) => action.playType === "SpecialSummon"),
+      ..._enableActions
+        .filter((action) => action.playType === "NormalSummon")
+        .filter((action) => (action.entity.atk ?? 0) > 2600 || ((action.entity.atk ?? 0) > 2300 && (action.entity.lvl ?? 12) < 7))
+        .filter((action) => (action.entity.atk ?? 0) >= maxAllyAtk),
+      ..._enableActions.filter((action) => action.entity.face === "FaceUp").filter((action) => action.entity.isOnField),
+    ];
+
+    if (effects.length) {
+      return effects.randomPick();
+    }
+
+    // 召喚特殊召喚は除外
+    _enableActions = _enableActions.filter((action) => action.playType !== "NormalSummon").filter((action) => action.playType !== "SpecialSummon");
+
+    // メイン２である場合
+    if (this.duel.phase === "main2") {
+      // 守備表示への変更判断はメイン２のみ
+      posActions = enableActions
+        .filter((action) => action.playType === "ChangeBattlePosition")
+        .filter((action) => action.entity.battlePosition === "Attack")
+        .filter((action) => (action.entity.atk ?? 0) < maxEnemyAtk || ((action.entity.atk ?? 0) > minEnemyAtkDef && (action.entity.atk ?? 0) > 2300));
+      if (posActions.length) {
+        return posActions.randomPick();
+      }
+
+      // 空きが二箇所以上なら、魔法罠のセットを行う
+      if (this.getAvailableSpellTrapZones.length > 1) {
+        return enableActions
+          .filter((action) => action.playType === "SpellTrapSet")
+          .filter((action) => action.entity.status.kind !== "Spell" || action.entity.status.spellCategory === "QuickPlay")
+          .randomPick();
+      }
+    }
+
+    // 残った行動を、残り数に応じてランダムに実行する。
+    if (Math.random() < _enableActions.length / 4) {
+      return _enableActions.randomPick();
     }
   };
 }

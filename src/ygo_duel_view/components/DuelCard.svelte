@@ -5,13 +5,14 @@
 <script lang="ts">
   import { monsterCategoryDic, monsterCategoryEmojiDic, monsterTypeDic, monsterTypeEmojiDic, spellCategoryDic, trapCategoryDic } from "@ygo/class/YgoTypes";
 
-  import type { DuelistResponse } from "@ygo_duel/class/Duel";
+  import { SystemError, type DuelistResponse } from "@ygo_duel/class/Duel";
   import type { ICardAction } from "@ygo_duel/class/DuelCardAction";
 
   import { DuelEntity } from "@ygo_duel/class/DuelEntity";
   import { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
   import type { WaitStartEventArg } from "@ygo_duel_view/class/DuelViewController";
   import type { TCardDetailMode } from "./DuelCardDetail.svelte";
+  import type { Duelist } from "@ygo_duel/class/Duelist";
   export let entity: DuelEntity;
   export let state: TCardState = "Disabled";
   export let selectedList = [] as DuelEntity[];
@@ -20,10 +21,13 @@
   export let actions: ICardAction<unknown>[] = [];
   export let cardActionResolve: ((action?: ICardAction<unknown>, cell?: DuelFieldCell) => void) | undefined;
   export let entitySelectResolve: ((entities: DuelEntity[]) => void) | undefined = () => {};
+
+  let activator: Duelist | undefined = undefined;
   let isSelected = false;
   let duelistResponseResolve: (res: DuelistResponse) => void = () => {};
   export let qty: number | undefined = undefined;
   const onWaitStart: (args: WaitStartEventArg) => void = (args) => {
+    activator = args.activator;
     isSelected = false;
     qty = args.qty;
     duelistResponseResolve = args.resolve;
@@ -35,12 +39,12 @@
       return;
     }
 
-    if (state === "Selectable" && qty && qty === 1) {
+    if (state === "Selectable" && qty === 1) {
       if (selectedList.some((card) => card.seq !== entity.seq)) {
         selectedList = [entity];
         return;
       }
-      if (qty && qty === 1 && entitySelectResolve) {
+      if (qty === 1 && entitySelectResolve) {
         entitySelectResolve([entity]);
       }
     }
@@ -59,6 +63,10 @@
     }
     if (state === "Selectable") {
       isSelected = !isSelected;
+      if (qty === 1) {
+        selectedList.splice(0);
+        entity.duel.view.requireUpdate();
+      }
       selectedList = isSelected ? [...selectedList, entity] : selectedList.filter((e) => e !== entity);
       return;
     }
@@ -79,10 +87,14 @@
       });
       return;
     }
+    if (!activator) {
+      return;
+    }
     const view = entity.field.duel.view;
     view.modalController
       .selectAction(view, {
         title: "行動を選択。",
+        activator,
         actions: actions,
         cancelable: true,
       })
@@ -179,9 +191,13 @@
     </div>
   </button>
 {:else if entity.battlePosition === "Set"}
-  <div class="duel_card duel_card_face_down duel_card_face_down_defense"><div></div></div>
+  <button
+    class="duel_card duel_card_face_down duel_card_face_down_defense {state}  {isSelected ? 'duel_card_selected' : ''}"
+    on:click={onClick}
+    on:dblclick={dblclick}><div>裏守備</div></button
+  >
 {:else}
-  <div class="duel_card duel_card_face_down"><div></div></div>
+  <div class="duel_card duel_card_face_down"><div>セット</div></div>
 {/if}
 
 <style>
@@ -279,10 +295,19 @@
     height: 3rem;
     border-radius: 100%;
     background-color: black;
+    color: black;
+    text-align: center;
+    font-size: 1px;
   }
   .duel_card_face_down_defense {
     width: 5.6rem;
     height: 4.1rem;
+  }
+  .duel_card_face_down_defense.Selectable {
+    display: flex;
+    width: 5.6rem;
+    height: 4.1rem;
+    min-width: initial;
   }
   .duel_card_face_down_defense > div {
     width: 3rem;

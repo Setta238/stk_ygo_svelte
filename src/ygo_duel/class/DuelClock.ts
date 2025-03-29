@@ -99,6 +99,10 @@ export class DuelClock implements IDuelClock {
       throw new SystemError("想定されない状態", this.period, step, duelPeriodDic);
     }
 
+    if (this.period.name === period.name) {
+      return;
+    }
+
     duel.log.info(`ステップ移行（${this.period.name}→${period.name}）`, duel.getTurnPlayer());
 
     this._stepSeq++;
@@ -186,5 +190,9 @@ export class DuelClock implements IDuelClock {
   };
   public readonly isPreviousProc = (other: IDuelClock): boolean => {
     return this.totalProcSeq === other.totalProcSeq + 1;
+  };
+  public readonly isUponAttackDeclaration = (): boolean => {
+    // バトルステップかつ、chainSeqが1の場合、攻撃宣言時（※0は攻撃宣言そのものに振られる）
+    return this.period.step === "battle" && this.chainSeq === 1;
   };
 }

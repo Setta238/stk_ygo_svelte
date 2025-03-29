@@ -5,8 +5,13 @@ import { type Duelist } from "./Duelist";
 import type { DuelClock } from "./DuelClock";
 import type { TDuelPeriodKey } from "./DuelPeriod";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const logLevels = ["info", "warn", "error"] as const;
+type TLogLevel = (typeof logLevels)[number];
+
 type DuelLogRecord = {
   seq: number;
+  lvl: TLogLevel;
   turn: number;
   periodKey: TDuelPeriodKey;
   clock: DuelClock;
@@ -50,14 +55,22 @@ export default class DuelLog {
       lines.push("-- エラー型特定失敗 --");
       lines.push(JSON.stringify(error));
     }
-    this.info(lines);
+    this.write("error", lines);
   };
 
-  public readonly info = (text: string | string[], duelist?: Duelist) => {
+  public readonly warn = (text: string) => {
+    this.write("warn", ["【注意】", text]);
+  };
+
+  public readonly info = (text: string, duelist?: Duelist) => {
+    this.write("info", [text], duelist);
+  };
+  private readonly write = (lvl: TLogLevel, text: string[], duelist?: Duelist) => {
     const _text = Array.isArray(text) ? text.join("\n") : text;
 
     this.records.push({
       seq: this.nextSeq++,
+      lvl: lvl,
       turn: this.duel.clock.turn,
       periodKey: this.duel.clock.period.key,
       clock: this.duel.clock,

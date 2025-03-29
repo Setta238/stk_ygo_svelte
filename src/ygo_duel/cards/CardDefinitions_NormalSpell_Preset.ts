@@ -14,6 +14,7 @@ const getDefaultSearchSpellAction = (filter: (card: DuelEntity) => boolean): Car
     executableCells: ["Hand", "SpellAndTrapZone"],
     executablePeriods: ["main1", "main2"],
     executableDuelistTypes: ["Controller"],
+    priorityForNPC: 40,
 
     // デッキに対象カードが一枚以上必要。
     validate: (myInfo) => {
@@ -60,6 +61,7 @@ const getDefaultSalvageSpellAction = (filter: (card: DuelEntity) => boolean, qty
     executableDuelistTypes: ["Controller"],
 
     hasToTargetCards: true,
+    priorityForNPC: 40,
     // 墓地にに対象カードが一枚以上必要。
     validate: (myInfo) => {
       if (myInfo.activator.getGraveyard().cardEntities.filter(filter).length < qty) {
@@ -98,6 +100,7 @@ const getLikeTradeInAction = (filter: (card: DuelEntity) => boolean): CardAction
     executableCells: ["Hand", "SpellAndTrapZone"],
     executablePeriods: ["main1", "main2"],
     executableDuelistTypes: ["Controller"],
+    priorityForNPC: 40,
 
     // 手札に対象カードが一枚以上必要。
     validate: (myInfo) => {
@@ -110,7 +113,7 @@ const getLikeTradeInAction = (filter: (card: DuelEntity) => boolean): CardAction
       return defaultSpellTrapValidate(myInfo);
     },
     prepare: async (myInfo, cell, chainBlockInfos, cancelable) => {
-      const prepared = await defaultSpellTrapPrepare(myInfo, cell, chainBlockInfos, cancelable, ["SearchFromDeck"], [], undefined);
+      const prepared = await defaultSpellTrapPrepare(myInfo, cell, chainBlockInfos, cancelable, ["Draw"], [], undefined);
       await myInfo.activator.discard(1, ["Discard", "Cost"], myInfo.action.entity, myInfo.activator, filter);
 
       return prepared;

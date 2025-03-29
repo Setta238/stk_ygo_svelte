@@ -34,7 +34,10 @@ export type EntityStatus = {
   canDirectAttack: boolean;
   allowHandSyncro: boolean;
   isEffective: boolean;
-  isSelectableForAttack: boolean /** falseのモンスターしかいない場合、ダイレクトアタックになる。《伝説のフィッシャーマン》など。 */;
+  /**
+   * falseのモンスターしかいない場合、ダイレクトアタックになる。《伝説のフィッシャーマン》など。
+   */
+  isSelectableForAttack: boolean;
   maxCounterQty: { [key in TCounterName]?: number };
 } & EntityStatusBase;
 export type TDuelEntityFace = "FaceUp" | "FaceDown";
@@ -255,7 +258,7 @@ export class DuelEntity {
     movedBy: DuelEntity | undefined,
     activator: Duelist | undefined
   ): Promise<void> => {
-    return DuelEntity.bringManyToSameCellForTheSameReason("Banished", "Top", entities, "FaceDown", "Vertical", movedAs, movedBy, activator);
+    return DuelEntity.bringManyToSameCellForTheSameReason("Banished", "Top", entities, "FaceUp", "Vertical", movedAs, movedBy, activator);
   };
   public static readonly returnManyToDeckForTheSameReason = (
     pos: TDuelEntityMovePos,
@@ -766,6 +769,7 @@ export class DuelEntity {
       if (movedAs.includes("Rule")) {
         logText = `${this.toString()}を反転召喚`;
         _movedAs.push("FlipSummon");
+        _movedAs.push("AttackSummon");
       }
     }
     this.moveAlone(

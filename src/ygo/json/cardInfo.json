@@ -18182,7 +18182,10 @@
     "description": "自分のエンドフェイズ時に手札枚数制限によって手札を墓地に捨てた場合、\nその中にモンスターカードが含まれていれば１体のみ自分フィールド上に特殊召喚する事ができる。",
     "kind": "Spell",
     "spellCategory": "Continuous",
-    "wikiEncodedName": "%A1%D4%B0%C5%B9%F5%B3%A6%A4%CE%BD%F1%CA%AA%A1%D5"
+    "wikiEncodedName": "%A1%D4%B0%C5%B9%F5%B3%A6%A4%CE%BD%F1%CA%AA%A1%D5",
+    "nameTags": [
+      "暗黒界"
+    ]
   },
   "三賢者の書": {
     "name": "三賢者の書",
@@ -18215,5 +18218,29 @@
     "kind": "Trap",
     "trapCategory": "Normal",
     "wikiEncodedName": "%A1%D4%B5%B7%BC%B0%B9%DF%CE%D7%C9%F5%B0%F5%A4%CE%BD%F1%A1%D5"
+  },
+  "炸裂装甲": {
+    "name": "炸裂装甲",
+    "nameKana": "",
+    "description": "(1)：相手モンスターの攻撃宣言時、攻撃モンスター１体を対象として発動できる。その攻撃モンスターを破壊する。",
+    "kind": "Trap",
+    "trapCategory": "Normal",
+    "wikiEncodedName": "%A1%D4%DF%DA%CE%F6%C1%F5%B9%C3%A1%D5"
+  },
+  "魔の試着部屋": {
+    "name": "魔の試着部屋",
+    "nameKana": "",
+    "description": "８００ライフポイントを払う。\n自分のデッキの上からカードを４枚めくり、その中のレベル３以下の通常モンスターを自分フィールド上に特殊召喚する。\nそれ以外のカードはデッキに戻してシャッフルする。",
+    "kind": "Spell",
+    "spellCategory": "Normal",
+    "wikiEncodedName": "%A1%D4%CB%E2%A4%CE%BB%EE%C3%E5%C9%F4%B2%B0%A1%D5"
+  },
+  "強欲な瓶": {
+    "name": "強欲な瓶",
+    "nameKana": "",
+    "description": "(1)：自分はデッキから１枚ドローする。",
+    "kind": "Trap",
+    "trapCategory": "Normal",
+    "wikiEncodedName": "%A1%D4%B6%AF%CD%DF%A4%CA%C9%D3%A1%D5"
   }
 }

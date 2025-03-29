@@ -22,6 +22,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         executableCells: ["Hand", "SpellAndTrapZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
+        priorityForNPC: 20,
         validate: (myInfo) => {
           if (myInfo.activator.getDeckCell().cardEntities.length < 2) {
             return;
@@ -34,8 +35,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           }
           return defaultSpellTrapValidate(myInfo);
         },
-        prepare: (action, cell, chainBlockInfos, cancelable) =>
-          defaultSpellTrapPrepare(action, cell, chainBlockInfos, cancelable, ["Draw", "SearchFromDeck"], [], undefined),
+        prepare: (action, cell, chainBlockInfos, cancelable) => defaultSpellTrapPrepare(action, cell, chainBlockInfos, cancelable, ["Draw"], [], undefined),
         execute: async (chainBlockInfo) => {
           await chainBlockInfo.activator.draw(2, chainBlockInfo.action.entity, chainBlockInfo.activator);
           return true;
@@ -58,6 +58,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         executableCells: ["Hand", "SpellAndTrapZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
+        priorityForNPC: 30,
         validate: (myInfo) => {
           // 墓地に対象に取れるモンスターが５体以上必要
           if (
@@ -92,7 +93,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
             return;
           }
 
-          return defaultSpellTrapPrepare(myInfo, cell, chainBlockInfos, cancelable, ["Draw", "SearchFromDeck", "ReturnToDeckFromGraveyard"], target, undefined);
+          return defaultSpellTrapPrepare(myInfo, cell, chainBlockInfos, cancelable, ["Draw", "ReturnToDeckFromGraveyard"], target, undefined);
         },
         execute: async (myInfo) => {
           // いずれかが同一チェーン中に墓地を離れていたら不可
@@ -124,14 +125,14 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         executableCells: ["Hand", "SpellAndTrapZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
+        priorityForNPC: 30,
         validate: (myInfo) => {
           if (myInfo.activator.getDeckCell().cardEntities.length < 3) {
             return;
           }
           return defaultSpellTrapValidate(myInfo);
         },
-        prepare: (action, cell, chainBlockInfos) =>
-          defaultSpellTrapPrepare(action, cell, chainBlockInfos, false, ["Draw", "SearchFromDeck", "DiscordAsEffect"], [], undefined),
+        prepare: (action, cell, chainBlockInfos) => defaultSpellTrapPrepare(action, cell, chainBlockInfos, false, ["Draw", "DiscordAsEffect"], [], undefined),
         execute: async (myInfo) => {
           await myInfo.activator.draw(3, myInfo.action.entity, myInfo.activator);
           await myInfo.activator.discard(2, ["Effect", "Discard"], myInfo.action.entity, myInfo.activator);
@@ -154,13 +155,14 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         executableCells: ["Hand", "SpellAndTrapZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
+        priorityForNPC: 20,
         validate: (myInfo) => {
           if (myInfo.activator.getDeckCell().cardEntities.length < 1) {
             return;
           }
           return defaultSpellTrapValidate(myInfo);
         },
-        prepare: (action, cell, chainBlockInfos) => defaultSpellTrapPrepare(action, cell, chainBlockInfos, false, ["Draw", "SearchFromDeck"], [], undefined),
+        prepare: (action, cell, chainBlockInfos) => defaultSpellTrapPrepare(action, cell, chainBlockInfos, false, ["Draw"], [], undefined),
 
         execute: async (myInfo) => {
           await myInfo.activator.draw(1, myInfo.action.entity, myInfo.activator);
@@ -186,6 +188,8 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         executableCells: ["Hand", "SpellAndTrapZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
+        priorityForNPC: 40,
+
         // デッキにモンスターが一枚以上必要。
         validate: (myInfo) => {
           if (myInfo.activator.getDeckCell().cardEntities.filter((card) => card.status.kind === "Monster").length === 0) {
@@ -234,6 +238,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerTurn: 1,
+        priorityForNPC: 40,
         // デッキにモンスターが一枚以上必要。
         validate: (myInfo) => {
           if (myInfo.activator.getDeckCell().cardEntities.filter((card) => card.status.kind !== "Monster").length === 0) {
@@ -517,6 +522,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         executableCells: ["Hand", "SpellAndTrapZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
+        priorityForNPC: 40,
         // デッキに対象モンスターが一枚以上必要。
         validate: (myInfo) => {
           if (myInfo.activator.getDeckCell().cardEntities.length < 4) {
@@ -582,6 +588,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         executableCells: ["Hand", "SpellAndTrapZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
+        priorityForNPC: 40,
         // デッキ二枚以上、対象モンスターが一枚以上必要。
         validate: (myInfo) => {
           const cards = myInfo.activator.getDeckCell().cardEntities;
@@ -643,6 +650,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         executableCells: ["Hand", "SpellAndTrapZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
+        priorityForNPC: 40,
         // デッキ・手札に対象モンスターが一枚以上かつ、手札コストモンスターが必要。
         validate: (myInfo) => {
           if (myInfo.activator.getDeckCell().cardEntities.filter((card) => card.lvl === 1).length === 0) {

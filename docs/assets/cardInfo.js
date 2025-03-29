@@ -1191,7 +1191,7 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 そのモンスターを裏側守備表示にする。`,kind:"Spell",spellCategory:"QuickPlay",wikiEncodedName:"%A1%D4%B7%EE%A4%CE%BD%F1%A1%D5"},"生者の書－禁断の呪術－":{name:"生者の書－禁断の呪術－",nameKana:"",description:`(1)：自分の墓地のアンデット族モンスター１体と相手の墓地のモンスター１体を対象として発動できる。
 その自分のアンデット族モンスターを特殊召喚する。
 その相手のモンスターを除外する。`,kind:"Spell",spellCategory:"Normal",wikiEncodedName:"%A1%D4%C0%B8%BC%D4%A4%CE%BD%F1%A1%DD%B6%D8%C3%C7%A4%CE%BC%F6%BD%D1%A1%DD%A1%D5"},太陽の書:{name:"太陽の書",nameKana:"",description:"フィールド上に裏側表示で存在するモンスター１体を選択し、表側攻撃表示にする。",kind:"Spell",spellCategory:"Normal",wikiEncodedName:"%A1%D4%C2%C0%CD%DB%A4%CE%BD%F1%A1%D5"},暗黒界の書物:{name:"暗黒界の書物",nameKana:"",description:`自分のエンドフェイズ時に手札枚数制限によって手札を墓地に捨てた場合、
-その中にモンスターカードが含まれていれば１体のみ自分フィールド上に特殊召喚する事ができる。`,kind:"Spell",spellCategory:"Continuous",wikiEncodedName:"%A1%D4%B0%C5%B9%F5%B3%A6%A4%CE%BD%F1%CA%AA%A1%D5"},三賢者の書:{name:"三賢者の書",nameKana:"",description:`このカード名の(2)(3)の効果は１ターンに１度、いずれか１つしか使用できない。
+その中にモンスターカードが含まれていれば１体のみ自分フィールド上に特殊召喚する事ができる。`,kind:"Spell",spellCategory:"Continuous",wikiEncodedName:"%A1%D4%B0%C5%B9%F5%B3%A6%A4%CE%BD%F1%CA%AA%A1%D5",nameTags:["暗黒界"]},三賢者の書:{name:"三賢者の書",nameKana:"",description:`このカード名の(2)(3)の効果は１ターンに１度、いずれか１つしか使用できない。
 (1)：このカードが魔法＆罠ゾーンに存在する限り、
 装備カードを装備した「マギストス」モンスターはそれぞれ１ターンに１度だけ戦闘では破壊されない。
 (2)：自分メインフェイズに発動できる。
@@ -1200,4 +1200,6 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 手札から「マギストス」モンスターを任意の数だけ特殊召喚する（同名カードは１枚まで）。`,kind:"Spell",spellCategory:"Continuous",wikiEncodedName:"%A1%D4%BB%B0%B8%AD%BC%D4%A4%CE%BD%F1%A1%D5"},皆既月蝕の書:{name:"皆既月蝕の書",nameKana:"",description:`(1)：手札を１枚捨て、フィールドの表側表示モンスター２体を対象として発動できる。
 そのモンスターを裏側守備表示にする。`,kind:"Spell",spellCategory:"QuickPlay",wikiEncodedName:"%A1%D4%B3%A7%B4%FB%B7%EE%BF%AA%A4%CE%BD%F1%A1%D5"},皆既日蝕の書:{name:"皆既日蝕の書",nameKana:"",description:`(1)：フィールドの表側表示モンスターを全て裏側守備表示にする。
 このターンのエンドフェイズに、相手フィールドの裏側守備表示モンスターを全て表側守備表示にし、
-その後、この効果で表側守備表示にしたモンスターの数だけ相手はドローする。`,kind:"Spell",spellCategory:"QuickPlay",wikiEncodedName:"%A1%D4%B3%A7%B4%FB%C6%FC%BF%AA%A4%CE%BD%F1%A1%D5"},儀式降臨封印の書:{name:"儀式降臨封印の書",nameKana:"",description:"フィールド上に表側表示で存在する儀式モンスター１体を破壊する。",kind:"Trap",trapCategory:"Normal",wikiEncodedName:"%A1%D4%B5%B7%BC%B0%B9%DF%CE%D7%C9%F5%B0%F5%A4%CE%BD%F1%A1%D5"}};export{e as j};
+その後、この効果で表側守備表示にしたモンスターの数だけ相手はドローする。`,kind:"Spell",spellCategory:"QuickPlay",wikiEncodedName:"%A1%D4%B3%A7%B4%FB%C6%FC%BF%AA%A4%CE%BD%F1%A1%D5"},儀式降臨封印の書:{name:"儀式降臨封印の書",nameKana:"",description:"フィールド上に表側表示で存在する儀式モンスター１体を破壊する。",kind:"Trap",trapCategory:"Normal",wikiEncodedName:"%A1%D4%B5%B7%BC%B0%B9%DF%CE%D7%C9%F5%B0%F5%A4%CE%BD%F1%A1%D5"},炸裂装甲:{name:"炸裂装甲",nameKana:"",description:"(1)：相手モンスターの攻撃宣言時、攻撃モンスター１体を対象として発動できる。その攻撃モンスターを破壊する。",kind:"Trap",trapCategory:"Normal",wikiEncodedName:"%A1%D4%DF%DA%CE%F6%C1%F5%B9%C3%A1%D5"},魔の試着部屋:{name:"魔の試着部屋",nameKana:"",description:`８００ライフポイントを払う。
+自分のデッキの上からカードを４枚めくり、その中のレベル３以下の通常モンスターを自分フィールド上に特殊召喚する。
+それ以外のカードはデッキに戻してシャッフルする。`,kind:"Spell",spellCategory:"Normal",wikiEncodedName:"%A1%D4%CB%E2%A4%CE%BB%EE%C3%E5%C9%F4%B2%B0%A1%D5"},強欲な瓶:{name:"強欲な瓶",nameKana:"",description:"(1)：自分はデッキから１枚ドローする。",kind:"Trap",trapCategory:"Normal",wikiEncodedName:"%A1%D4%B6%AF%CD%DF%A4%CA%C9%D3%A1%D5"}};export{e as j};

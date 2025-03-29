@@ -15,9 +15,11 @@
 }
 .duel_card.Syncro .duel_card_detail {
   background-color: snow;
-}
-.duel_card.Spell {
+}.duel_card.Spell {
   background-color: forestgreen;
+  color: white;
+}.duel_card.Trap {
+  background-color: orchid;
   color: white;
 }
   

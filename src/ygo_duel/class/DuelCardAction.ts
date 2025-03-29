@@ -87,6 +87,16 @@ export type CardActionBaseAttr = {
    * 光の護封剣などの例外のみ指定が必要
    */
   isLikeContinuousSpell?: boolean;
+
+  /**
+   *NPC用プロパティ
+   */
+  negatePreviousBlock?: boolean;
+
+  /**
+   * NPC用プロパティ
+   */
+  priorityForNPC?: number;
 };
 export type CardActionBase<T> = CardActionBaseAttr & {
   /**
@@ -252,6 +262,13 @@ export class CardAction<T> implements ICardAction<T> {
 
   public get actionGroupNamePerTurn() {
     return this.cardActionBase.actionGroupNamePerTurn;
+  }
+
+  public get negatePreviousBlock() {
+    return this.cardActionBase.negatePreviousBlock ?? false;
+  }
+  public get priorityForNPC() {
+    return this.cardActionBase.priorityForNPC ?? Number.NaN;
   }
 
   private constructor(seq: number, entity: DuelEntity, cardActionBase: CardActionBase<T>) {

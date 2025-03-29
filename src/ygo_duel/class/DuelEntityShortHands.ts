@@ -7,11 +7,25 @@ import type { Duelist } from "./Duelist";
 declare module "./DuelEntity" {
   interface DuelEntity {
     hasBeenSummonedNow(summonRules: (TSummonRuleCauseReason | "FlipSummon")[], posList?: TBattlePosition[]): boolean;
+    getAttackTargets(): DuelEntity[];
+    /**
+     * 相手側の状態を考慮せず、攻撃できる状態か判定
+     */
+    hasAttackRight(): boolean;
+    /**
+     * モンスターへ攻撃できる状態かどうか判定
+     */
+    canAttackToMonster(): boolean;
+    /**
+     * 直接攻撃できる状態かどうか判定
+     */
+    canDirectAttack(): boolean;
     canBeEffected(activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionBaseAttr>): boolean;
     canBeTargetOfEffect(activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionBaseAttr>): boolean;
     canBeSpecialSummoned(summmonRule: TSummonRuleCauseReason, activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionBaseAttr>): boolean;
     canBeTargetOfBattle(activator: Duelist, entity: DuelEntity): boolean;
     tryDestory(destroyType: TDestoryCauseReason, activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionBaseAttr>): Promise<boolean>;
+    validateDestory(destroyType: TDestoryCauseReason, activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionBaseAttr>): boolean;
     canBeMaterials(summmonRule: TSummonRuleCauseReason, action: Partial<CardActionBaseAttr>, materials: DuelEntity[]): boolean;
     getIndexInCell(): number;
   }
@@ -27,20 +41,52 @@ DuelEntity.prototype.hasBeenSummonedNow = function (
   const entity = this as DuelEntity;
   const _posList = posList.map(posToSummonPos);
   const movedAs = entity.moveLog.latestRecord.movedAs;
-  console.log(entity);
+  console.log(entity, entity.moveLog.records);
   if (!entity.wasMovedAtPreviousChain) {
     return false;
   }
-  console.log(entity);
   if (!movedAs.union(summonRules).length) {
     return false;
   }
-  console.log(entity);
   if (!movedAs.union(_posList).length) {
     return false;
   }
-  console.log(entity);
   return true;
+};
+
+DuelEntity.prototype.getAttackTargets = function (): DuelEntity[] {
+  if (!this.hasAttackRight()) {
+    return [];
+  }
+
+  // ダイレクトアタックを阻害しうるモンスターを抽出
+  const enemies = this.duel.field
+    .getMonstersOnField()
+    .filter((enemy) => enemy.status.isSelectableForAttack)
+    .filter((enemy) => enemy.controller !== this.controller);
+
+  if (this.status.canDirectAttack || !enemies.length) {
+    enemies.push(this.controller.getOpponentPlayer().entity);
+  }
+
+  // 自分、相手ともにフィルタリングが必要。
+  return enemies
+    .filter((enemy) => enemy.canBeTargetOfBattle(this.controller, this))
+    .filter((enemy) =>
+      this.procFilterBundle.operators.filter((pf) => pf.procTypes.includes("BattleTarget")).every((pf) => pf.filter(this.controller, this, {}, [enemy]))
+    );
+};
+DuelEntity.prototype.canDirectAttack = function (): boolean {
+  return this.getAttackTargets().some((enemy) => enemy.entityType === "Duelist");
+};
+
+DuelEntity.prototype.canAttackToMonster = function (): boolean {
+  return this.getAttackTargets().some((enemy) => enemy.entityType !== "Duelist");
+};
+
+DuelEntity.prototype.hasAttackRight = function (): boolean {
+  // TODO 連続攻撃モンスター、絶対防御将軍などの考慮
+  return this.battlePosition === "Attack" && this.info.attackCount === 0 && this.status.canAttack;
 };
 
 DuelEntity.prototype.canBeEffected = function (activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionBaseAttr>): boolean {
@@ -98,10 +144,8 @@ DuelEntity.prototype.tryDestory = async function (
   action: Partial<CardActionBaseAttr>
 ): Promise<boolean> {
   const entity = this as DuelEntity;
-
-  entity.info.isDying = entity.procFilterBundle.operators
-    .filter((pf) => pf.procTypes.includes(destroyType))
-    .every((pf) => pf.filter(activator, causedBy, action ?? {}, [entity]));
+  // TODO 身代わり効果
+  entity.info.isDying = entity.validateDestory(destroyType, activator, causedBy, action);
   if (entity.info.isDying) {
     entity.duel.log.info(`${entity.toString()}を${destoryCauseReasonDic[destroyType]}`, causedBy.controller);
     entity.info.causeOfDeath = [destroyType];
@@ -109,6 +153,18 @@ DuelEntity.prototype.tryDestory = async function (
     entity.info.isKilledByWhom = causedBy.controller;
   }
   return entity.info.isDying;
+};
+
+DuelEntity.prototype.validateDestory = function (
+  destroyType: "BattleDestroy" | "EffectDestroy",
+  activator: Duelist,
+  causedBy: DuelEntity,
+  action: Partial<CardActionBaseAttr>
+): boolean {
+  const entity = this as DuelEntity;
+  return entity.procFilterBundle.operators
+    .filter((pf) => pf.procTypes.includes(destroyType))
+    .every((pf) => pf.filter(activator, causedBy, action ?? {}, [entity]));
 };
 
 DuelEntity.prototype.canBeMaterials = function (summmonRule: TSummonRuleCauseReason, action: CardAction<unknown>, materials: DuelEntity[]): boolean {

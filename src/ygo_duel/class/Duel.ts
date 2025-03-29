@@ -278,6 +278,7 @@ export class Duel {
       // ユーザー入力を待つ。
       const response = await this.view.waitFieldAction(
         this.getEnableActions(
+          this.priorityHolder,
           [
             "NormalSummon",
             "SpellTrapSet",
@@ -290,8 +291,7 @@ export class Duel {
           ],
           ["Normal", "Quick", "Counter"],
           []
-        ),
-        "あなたの手番です。"
+        )
       );
 
       // ユーザー入力がカードアクションだった場合、チェーンブロックを作るか作らないかで処理を分ける
@@ -323,7 +323,8 @@ export class Duel {
         this.priorityHolder = this.getNonTurnPlayer();
         const action = await this.view.waitQuickEffect(
           this.priorityHolder,
-          this.getEnableActions(["QuickEffect", "TriggerEffect"], ["Quick", "Counter"], []),
+          this.getEnableActions(this.priorityHolder, ["QuickEffect", "TriggerEffect"], ["Quick", "Counter"], []),
+          [],
           "",
           true
         );
@@ -362,13 +363,14 @@ export class Duel {
     while (true) {
       this.clock.setStep(this, "battle");
       this.priorityHolder = this.getTurnPlayer();
-      const response = await this.view.waitFieldAction(this.getEnableActions(["Battle"], ["Normal"], []), "攻撃モンスターと対象を選択。");
+      const response = await this.view.waitFieldAction(this.getEnableActions(this.priorityHolder, ["Battle"], ["Normal"], []));
 
       if (response.phaseChange) {
         //エンドステップへ（※優先権の移動はない）
         break;
       }
       if (response.action) {
+        console.log(response.action, response.action.cell);
         const info = await response.action.prepare(this.priorityHolder, response.action.cell, [], true);
         if (!info) {
           continue;
@@ -570,7 +572,12 @@ export class Duel {
 
     while (skipCount < 2) {
       this.priorityHolder = this.priorityHolder.getOpponentPlayer();
-      const actions = this.getEnableActions(["IgnitionEffect", "MandatoryIgnitionEffect", "QuickEffect", "CardActivation"], ["Normal", "Quick", "Counter"], []);
+      const actions = this.getEnableActions(
+        this.priorityHolder,
+        ["IgnitionEffect", "MandatoryIgnitionEffect", "QuickEffect", "CardActivation"],
+        ["Normal", "Quick", "Counter"],
+        []
+      );
 
       // 強制効果が残っていて、お互いにキャンセルすることの防止
       const cancelable = actions.every((action) => action.playType !== "MandatoryIgnitionEffect") || skipCount < 2;
@@ -580,8 +587,14 @@ export class Duel {
       if (actions.length !== 1 || actions[0].playType !== "MandatoryIgnitionEffect") {
         action = await this.view.waitQuickEffect(
           this.priorityHolder,
-          this.getEnableActions(["IgnitionEffect", "MandatoryIgnitionEffect", "QuickEffect", "CardActivation"], ["Normal", "Quick", "Counter"], []),
-          cancelable ? "効果を発動しますか？" : "まだ発動しなければならない効果が残っている。",
+          this.getEnableActions(
+            this.priorityHolder,
+            ["IgnitionEffect", "MandatoryIgnitionEffect", "QuickEffect", "CardActivation"],
+            ["Normal", "Quick", "Counter"],
+            []
+          ),
+          [],
+          cancelable ? "" : "まだ発動しなければならない効果が残っている。",
           cancelable
         );
       }
@@ -631,7 +644,9 @@ export class Duel {
     let _triggerEffets =
       triggerEffects ??
       Object.values(this.duelists).flatMap((activator) => {
-        return this.getEnableActions(["MandatoryTriggerEffect", "TriggerEffect"], ["Normal"], []).map((action) => {
+        // この効果の収拾のみ、優先権が移らない。
+        return this.getEnableActions(activator, ["MandatoryTriggerEffect", "TriggerEffect"], ["Normal"], []).map((action) => {
+          console.log(activator, action);
           return { activator, action };
         });
       });
@@ -644,6 +659,7 @@ export class Duel {
     // 起点の効果がある場合、最初に積む。
     if (firstBlock) {
       chainBlock = firstBlock;
+      this.priorityHolder = chainBlock.activator;
       result = true;
     } else if (_triggerEffets.length > 0) {
       // 次に誘発効果が存在する場合、まずそちらからチェーンを積む
@@ -653,6 +669,9 @@ export class Duel {
       if (triggerEffect) {
         _triggerEffets = _triggerEffets.filter((effect) => effect !== triggerEffect);
         chainBlock = triggerEffect;
+        // 誘発効果は優先権を無視してチェーンブロックを積むが、その次のブロックは優先権に従うので都度更新しておく。
+        // クイックエフェクトのループの先頭で反転する点に注意
+        this.priorityHolder = chainBlock.activator;
         result = true;
       }
     }
@@ -670,10 +689,13 @@ export class Duel {
           spellSpeeds.push("Quick");
         }
 
+        const msg = this.chainBlockInfos.length ? "" : "クイックエフェクト発動タイミング。効果を発動しますか？";
+
         const action = await this.view.waitQuickEffect(
           this.priorityHolder,
-          this.getEnableActions(["QuickEffect", "CardActivation"], spellSpeeds, this.chainBlockInfos),
-          "クイックエフェクト発動タイミング。効果を発動しますか？",
+          this.getEnableActions(this.priorityHolder, ["QuickEffect", "CardActivation"], spellSpeeds, this.chainBlockInfos),
+          this.chainBlockInfos,
+          msg,
           true
         );
 
@@ -789,8 +811,8 @@ export class Duel {
     return result;
   };
   private readonly selectTriggerEffect = async (
-    triggerEffects: { activator: Duelist; action: ICardAction<unknown> }[]
-  ): Promise<{ activator: Duelist; action: ICardAction<unknown> } | undefined> => {
+    triggerEffects: { activator: Duelist; action: CardAction<unknown> }[]
+  ): Promise<{ activator: Duelist; action: CardAction<unknown> } | undefined> => {
     // 誘発効果の処理順に従って効果を抽出する。
     if (triggerEffects.length > 0) {
       for (const triggerType of ["MandatoryTriggerEffect", "TriggerEffect"] as TCardActionType[]) {
@@ -812,7 +834,8 @@ export class Duel {
           const _action = await this.view.waitQuickEffect(
             activator,
             effects.map((obj) => obj.action),
-            "効果を選択。",
+            this.chainBlockInfos,
+            "誘発効果を選択。",
             triggerType === "TriggerEffect"
           );
 
@@ -824,6 +847,7 @@ export class Duel {
     }
   };
   private readonly getEnableActions = (
+    duelist: Duelist,
     enableCardPlayTypes: TCardActionType[],
     enableSpellSpeeds: TSpellSpeed[],
     chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>
@@ -835,7 +859,7 @@ export class Duel {
       .filter((action) => action.executablePeriods.includes(this.clock.period.key))
       .filter((action) => enableCardPlayTypes.includes(action.playType))
       .filter((action) => enableSpellSpeeds.includes(action.spellSpeed))
-      .filter((action) => action.executableDuelists.includes(this.priorityHolder))
-      .filter((action) => action.validate(this.priorityHolder, chainBlockInfos));
+      .filter((action) => action.executableDuelists.includes(duelist))
+      .filter((action) => action.validate(duelist, chainBlockInfos));
   };
 }

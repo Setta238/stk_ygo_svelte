@@ -18,7 +18,7 @@ import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardDefinition } from "./CardDefinitions";
 import { createRegularProcFilterHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { ProcFilter } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
-import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
+import { damageStepPeriodKeys, duelPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 
 export const createCardDefinitions_Monster = (): CardDefinition[] => {
   const result: CardDefinition[] = [];
@@ -96,6 +96,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
         executableCells: ["Graveyard"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
+        priorityForNPC: 10,
         validate: (myInfo) => {
           if (myInfo.activator.getDeckCell().cardEntities.filter((card) => card.nm === "Ｄ－ＨＥＲＯ ディアボリックガイ").length === 0) {
             return;
@@ -352,7 +353,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
           return [];
         },
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["Draw"], prepared: undefined };
         },
         execute: async (myInfo): Promise<boolean> => {
           await myInfo.activator.draw(1, myInfo.action.entity, myInfo.activator);
@@ -427,7 +428,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
         playType: "MandatoryTriggerEffect",
         spellSpeed: "Normal",
         executableCells: ["Graveyard"],
-        executablePeriods: freeChainDuelPeriodKeys,
+        executablePeriods: duelPeriodKeys,
         executableDuelistTypes: ["Controller"],
         validate: (myInfo) => {
           // 前回のチェーンで動いたかどうか
@@ -485,6 +486,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
           executablePeriods: freeChainDuelPeriodKeys,
           executableDuelistTypes: ["Controller"],
           isOnlyNTimesPerTurn: 1,
+          negatePreviousBlock: true,
           validate: (myInfo, chainBlockInfos): DuelFieldCell[] | undefined => {
             if (chainBlockInfos.length === 0) {
               return;

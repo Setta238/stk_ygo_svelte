@@ -1,7 +1,7 @@
 <script lang="ts">
   import { crossfade } from "svelte/transition";
   import { DuelFieldCell, stackCellTypes } from "@ygo_duel/class/DuelFieldCell";
-  import { type DuelistResponse } from "@ygo_duel/class/Duel";
+  import { SystemError, type DuelistResponse } from "@ygo_duel/class/Duel";
 
   import DuelCard, { type TCardState } from "@ygo_duel_view/components/DuelCard.svelte";
   import { DuelEntity } from "@ygo_duel/class/DuelEntity";
@@ -11,6 +11,7 @@
   import { CardAction, type ICardAction } from "@ygo_duel/class/DuelCardAction";
   import { actualCounterEmojiDic, type TActualCounterName } from "@ygo_duel/class/DuelCounter";
   import type { TDuelPhase } from "@ygo_duel/class/DuelPeriod";
+  import type { Duelist } from "@ygo_duel/class/Duelist";
   export let view: DuelViewController;
 
   export let row: number;
@@ -28,6 +29,7 @@
   view.onDuelUpdate.append(onCellUpdate);
   view.modalController.onUpdate.append(onCellUpdate);
 
+  let activator: Duelist | undefined = undefined;
   let enableActions: ICardAction<unknown>[] = [];
   let responseResolve: (action: DuelistResponse) => void = () => {};
   let selectedEntitiesValidator: (selectedEntities: DuelEntity[]) => boolean = () => true;
@@ -35,6 +37,7 @@
   const onWaitStart: (args: WaitStartEventArg) => void = (args) => {
     animationArg = undefined;
     selectedList.reset();
+    activator = args.activator;
     responseResolve = args.resolve;
     enableActions = args.enableActions as ICardAction<unknown>[];
     selectableEntities = args.selectableEntities;
@@ -60,6 +63,7 @@
 
   let animationArg: AnimationStartEventArg | undefined = undefined;
   const onCrossFade = (args: AnimationStartEventArg) => {
+    activator = undefined;
     if (cell === args.to || cell.entities.includes(args.entity)) {
       animationArg = args;
       const resolve = args.resolve;
@@ -97,10 +101,15 @@
       const actions = cell.entities.flatMap((e) => e.actions).filter((act) => enableActions.map((a) => a.seq).some((seq) => seq === act.seq));
 
       if (actions.length) {
+        if (!activator) {
+          return;
+        }
+
         const view = cell.field.duel.view;
         view.modalController
           .selectAction(view, {
             title: "カードを選択。",
+            activator,
             actions: actions,
             cancelable: true,
           })
@@ -136,9 +145,13 @@
           action.cell = cell;
           responseResolve({ action: action });
         } else if (draggingActions.length > 1) {
+          if (!activator) {
+            throw new SystemError("想定されない状態");
+          }
           cell.field.duel.view.modalController.cancelAll();
           cell.field.duel.view.modalController.selectAction(cell.field.duel.view, {
             title: "選択",
+            activator,
             actions: draggingActions,
             cancelable: false,
           });

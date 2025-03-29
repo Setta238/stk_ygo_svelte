@@ -56,6 +56,7 @@ export class DuelModalController {
   };
   public cardActionSelectorArg: CardActionSelectorArg = {
     title: "カード操作を選択。",
+    activator: undefined!,
     actions: [],
     cancelable: false,
   };

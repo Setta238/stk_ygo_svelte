@@ -18,7 +18,12 @@ import {
 } from "./DuelCardAction";
 import { playFieldCellTypes } from "./DuelFieldCell";
 import type { TDuelPhase } from "./DuelPeriod";
-
+export type TDuelStartMode = "PlayFirst" | "DrawFirst" | "Random";
+export const duelStartModeDic: { [key in TDuelStartMode]: string } = {
+  PlayFirst: "先攻",
+  DrawFirst: "後攻",
+  Random: "ランダム",
+};
 export const seats = ["Above", "Below"] as const;
 export type TSeat = (typeof seats)[number];
 export type DuelistResponse = {
@@ -88,20 +93,25 @@ export class Duel {
 
   public isEnded: boolean;
   private coin = false;
+  private readonly startMode: TDuelStartMode;
   public constructor(
     duelist1: IDuelistProfile,
     duelist1Type: TDuelistType,
     deck1: IDeckInfo,
+    hand1: string[] = [],
     duelist2: IDuelistProfile,
     duelist2Type: TDuelistType,
-    deck2: IDeckInfo
+    deck2: IDeckInfo,
+    hand2: string[] = [],
+    startMode: TDuelStartMode = "Random"
   ) {
     this.clock = new DuelClock();
     this.nextPhaseList = [];
     this.isEnded = false;
+    this.startMode = startMode;
     this.duelists = {
-      Below: new Duelist(this, "Below", duelist1, duelist1Type, deck1),
-      Above: new Duelist(this, "Above", duelist2, duelist2Type, deck2),
+      Below: new Duelist(this, "Below", duelist1, duelist1Type, deck1, hand1),
+      Above: new Duelist(this, "Above", duelist2, duelist2Type, deck2, hand2),
     };
     this.priorityHolder = this.firstPlayer;
     this._chainBlockInfos = [];
@@ -153,10 +163,10 @@ export class Duel {
     return this.clock.turn % 2 === 0 ? this.firstPlayer : this.secondPlayer;
   };
 
-  public readonly main = async (coin: boolean = Math.random() > 0.5, hand1: string[] = [], hand2: string[] = []) => {
+  public readonly main = async () => {
     console.info("main start!");
 
-    this.coin = coin;
+    this.coin = this.startMode === "PlayFirst" ? true : this.startMode === "DrawFirst" ? false : Math.random() > 0.5;
 
     this.priorityHolder = this.firstPlayer;
     this.log.info("【デュエル開始】");
@@ -166,22 +176,16 @@ export class Duel {
     Object.values(this.duelists).forEach((duelist) => duelist.pushDeck());
     Object.values(this.duelists).forEach((duelist) => duelist.getDeckCell().shuffle());
 
-    // 初手操作
-    const initHandProp: { hand: string[]; duelist: Duelist }[] = [
-      { hand: hand1, duelist: this.duelists.Below },
-      { hand: hand2, duelist: this.duelists.Above },
-    ];
-
-    initHandProp.forEach((prop) => {
-      if (prop.hand.length) {
-        prop.hand.forEach((name) => {
-          const card = prop.duelist.getDeckCell().cardEntities.find((card) => card.origin.name === name);
+    Object.values(this.duelists).forEach((duelist) => {
+      if (duelist.initHand.length) {
+        duelist.initHand.forEach((name) => {
+          const card = duelist.getDeckCell().cardEntities.find((card) => card.origin.name === name);
           if (!card) {
             this.log.info(`初手操作により${name}を手札に加えようとしたが、デッキに存在しない。`);
             return;
           }
           card.addToHand(["System"], undefined, undefined);
-          this.log.info(`初手操作により${card.toString()}を手札に加えた`, prop.duelist);
+          this.log.info(`初手操作により${card.toString()}を手札に加えた`, duelist);
         });
       }
     });

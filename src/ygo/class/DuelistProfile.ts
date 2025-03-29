@@ -11,6 +11,7 @@ export interface IDuelistProfile {
   id: number;
   name: string;
   description: string;
+  npcLvl: number;
 }
 
 export class DuelistProfile implements IDuelistProfile {
@@ -37,6 +38,9 @@ export class DuelistProfile implements IDuelistProfile {
   public readonly id: number;
   public readonly name: string;
   public readonly description: string;
+  public get npcLvl() {
+    return Number.MAX_VALUE;
+  }
   private constructor(header: DuelistHeaderRecord) {
     this.id = header.id;
     this.name = header.name;
@@ -71,7 +75,20 @@ let npcId = -1;
 export const nonPlayerCharacters: IDuelistProfile[] = [
   {
     id: npcId--,
-    name: "NPC",
-    description: "",
+    name: "サンドバッグくん棒立ち",
+    description: "攻撃宣言なし、強制効果以外の効果の発動なし。",
+    npcLvl: 0,
+  },
+  {
+    id: npcId--,
+    name: "サンドバッグくん非暴力",
+    description: "攻撃宣言なし。",
+    npcLvl: 100,
+  },
+  {
+    id: npcId--,
+    name: "サンドバッグくん白帯",
+    description: "とくに制限なし。",
+    npcLvl: 200,
   },
 ];

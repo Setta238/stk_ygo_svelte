@@ -7,16 +7,20 @@
 <script lang="ts">
   import { DeckInfo, sampleDecks } from "@ygo/class/DeckInfo";
   import { DuelistProfile, nonPlayerCharacters } from "@ygo/class/DuelistProfile";
-  import { Duel } from "@ygo_duel/class/Duel";
+  import { Duel, duelStartModeDic, type TDuelStartMode } from "@ygo_duel/class/Duel";
   import DuelDesk from "@ygo_duel_view/components/DuelDesk.svelte";
   import DeckEditor from "@ygo_deck_editor/components/DeckEditor.svelte";
   import { StkIndexedDB } from "@stk_utils/class/StkIndexedDB";
   import timestampJson from "@stk_utils/json/timestamp.json";
+  import { getKeys } from "@stk_utils/funcs/StkObjectUtils";
+  import { min } from "@stk_utils/funcs/StkMathUtils";
   const idb = new StkIndexedDB<TTblNames>("stk_ygo_svelte", currentVersion, tblNames);
 
   let duel: Duel | undefined;
   let mode = "None" as "Duel" | "DeckEdit" | "None";
   let selectedDeckId = 0;
+  let selectedNpcId = min(...nonPlayerCharacters.map((npc) => npc.id));
+  let startMode: TDuelStartMode = "Random";
   const userProfilePromise = DuelistProfile.getOrCreateNew(idb);
   let userDecksPromise = DeckInfo.getAllDeckInfo(idb).then((deckInfos) => {
     Promise.all(
@@ -69,7 +73,13 @@
     await Promise.all([saveUserProfile(), prepareSampleDeck()]);
     const selectedDeck = await getSelectedDeckInfo();
     selectedDeck.updateTimestamp();
-    duel = new Duel(await userProfilePromise, "Player", await getSelectedDeckInfo(), nonPlayerCharacters[0], "NPC", sampleDecks[0]);
+    const npc = nonPlayerCharacters.find((npc) => npc.id === selectedNpcId);
+    if (!npc) {
+      return;
+    }
+
+    console.log(npc);
+    duel = new Duel(await userProfilePromise, "Player", await getSelectedDeckInfo(), [], npc, "NPC", sampleDecks[0], [], startMode);
   };
   const onEditClick = async () => {
     await Promise.all([saveUserProfile(), prepareSampleDeck()]);
@@ -87,6 +97,11 @@
 </script>
 
 <main>
+  <div class="link">
+    <a href="https://github.com/Setta238/stk_ygo_svelte" target="_blank" rel="noopener noreferrer" title="repository">repository</a>
+    <a href="https://x.com/ninja_no" target="_blank" rel="noopener noreferrer" title="repository">X(Twitter)</a>
+    <a href="https://posfie.com/@ninja_no/p/Lx7FLj3" target="_blank" rel="noopener noreferrer" title="posfie">posfie(toggeter)</a>
+  </div>
   {#if duel}
     <DuelDesk {duel} />
   {:else if mode === "DeckEdit"}
@@ -108,6 +123,23 @@
             <select id="deck_selector" class="deck_selector" bind:value={selectedDeckId}>
               {#each userDecks as userDeck}
                 <option value={userDeck.id}>{userDeck.name}</option>
+              {/each}
+            </select>
+          </div>
+          <div>
+            <label for="npc_selector" class="npc_selector">対戦相手：</label>
+            <select id="npc_selector" class="npc_selector" bind:value={selectedNpcId}>
+              {#each nonPlayerCharacters as npc}
+                <option value={npc.id}>{npc.name}</option>
+              {/each}
+            </select>
+            <div>※{nonPlayerCharacters.find((npc) => npc.id === selectedNpcId)?.description}</div>
+          </div>
+          <div>
+            <label for="npc_selector" class="npc_selector">先攻後攻：</label>
+            <select id="npc_selector" class="npc_selector" bind:value={startMode}>
+              {#each getKeys(duelStartModeDic) as key}
+                <option value={key}>{duelStartModeDic[key]}</option>
               {/each}
             </select>
           </div>
@@ -151,13 +183,22 @@
   .app_body > div {
     margin: 1rem;
   }
+  .link {
+    position: absolute;
+    top: 0.3rem;
+    left: 1rem;
+  }
+  .link a {
+    margin: 0rem 1rem;
+  }
   .debug_info {
     position: absolute;
     right: 1rem;
     bottom: 1rem;
   }
   .duelist_name,
-  .deck_selector {
+  .deck_selector,
+  .npc_selector {
     font-size: 1.4rem;
     text-decoration: none;
   }

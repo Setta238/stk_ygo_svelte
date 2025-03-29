@@ -7,7 +7,7 @@ import type { DuelFieldCell } from "./DuelFieldCell";
 import { cardInfoDic } from "@ygo/class/CardInfo";
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
-import { CardAction, type ChainBlockInfo, type ICardAction } from "./DuelCardAction";
+import { CardAction, type ChainBlockInfo, type ICardAction, type TCardActionType } from "./DuelCardAction";
 import { max, min } from "@stk_utils/funcs/StkMathUtils";
 
 type TLifeLogReason = "BattleDamage" | "EffectDamage" | "Heal" | "Lost" | "Pay" | "Set";
@@ -58,13 +58,16 @@ export class Duelist {
   public readonly statusOrigin: DuelistStatus;
   public readonly duelistType: TDuelistType;
   public readonly lifeLog: LifeLogRecord[];
+  private readonly actionBlackListForNPC: Readonly<TCardActionType[]>;
   private _lp: number;
-  public constructor(duel: Duel, seat: TSeat, profile: IDuelistProfile, duelistType: TDuelistType, deckInfo: IDeckInfo) {
+  public readonly initHand: Readonly<string[]>;
+  public constructor(duel: Duel, seat: TSeat, profile: IDuelistProfile, duelistType: TDuelistType, deckInfo: IDeckInfo, hand: string[] = []) {
     this.duel = duel;
     this.seat = seat;
     this.profile = profile;
     this.duelistType = duelistType;
     this.deckInfo = deckInfo;
+    this.initHand = hand;
     this.lifeLog = [];
     this.infoOrigin = {
       maxRuleNormalSummonCount: 1,
@@ -86,6 +89,18 @@ export class Duelist {
     this.status = { ...this.statusOrigin };
 
     this._lp = 8000;
+
+    const tmp: TCardActionType[] = [];
+
+    if (this.duelistType === "NPC") {
+      if (this.profile.npcLvl < 1) {
+        tmp.push("CardActivation", "IgnitionEffect", "TriggerEffect", "QuickEffect");
+      }
+      if (this.profile.npcLvl < 101) {
+        tmp.push("Battle");
+      }
+    }
+    this.actionBlackListForNPC = tmp;
   }
   public get lp() {
     return this._lp;
@@ -370,8 +385,10 @@ export class Duelist {
       return mandatoryEffects.randomPick();
     }
 
+    let _enableActions = enableActions.filter((action) => !this.actionBlackListForNPC.includes(action.playType));
+
     // 優先度高を発動
-    const highPriorities = enableActions
+    const highPriorities = _enableActions
       .filter((action) => !Number.isNaN(action.priorityForNPC))
       .shuffle()
       .sort((left, right) => left.priorityForNPC - right.priorityForNPC);
@@ -380,21 +397,21 @@ export class Duelist {
     }
 
     // 誘発効果は発動しておけの精神
-    const triggerEffects = enableActions.filter((action) => action.playType === "TriggerEffect");
+    const triggerEffects = _enableActions.filter((action) => action.playType === "TriggerEffect");
     if (triggerEffects.length) {
       return triggerEffects.randomPick();
     }
 
     // メインフェイズ以外の起動効果は発動しておけの精神
     if (this.duel.phase !== "main1" && this.duel.phase !== "main2") {
-      const ignitionEffect = enableActions.filter((action) => action.playType === "IgnitionEffect");
+      const ignitionEffect = _enableActions.filter((action) => action.playType === "IgnitionEffect");
       if (ignitionEffect.length) {
         return ignitionEffect.randomPick();
       }
     }
 
     // 攻撃宣言がある場合、攻撃力の低いモンスターから戦闘破壊可能なモンスターを攻撃できるかチェックし、選択する
-    const battleActions = enableActions
+    const battleActions = _enableActions
       .filter((action) => action.playType === "Battle")
       .sort((left, right) => (left.entity.atk ?? 0) - (right.entity.atk ?? 0));
 
@@ -404,17 +421,17 @@ export class Duelist {
     }
 
     // 攻撃宣言は（念の為）この時点でフィルタリング
-    let _enableActions = enableActions.filter((action) => action.playType !== "Battle");
+    _enableActions = _enableActions.filter((action) => action.playType !== "Battle");
 
     // 一つ前のブロックの発動者が自分ではない場合、無効化効果を探して実行する。
-    const previousBlock = enableActions.length ? chainBlockInfos.slice(-1)[0] : undefined;
-    const negationEffects = enableActions.filter((action) => action.negatePreviousBlock);
+    const previousBlock = _enableActions.length ? chainBlockInfos.slice(-1)[0] : undefined;
+    const negationEffects = _enableActions.filter((action) => action.negatePreviousBlock);
     if (previousBlock && previousBlock.activator !== this && negationEffects) {
       return negationEffects.randomPick();
     }
 
     // それ以外の場合、無効化効果は発動しないようにフィルタリング
-    _enableActions = enableActions.filter((action) => !action.negatePreviousBlock);
+    _enableActions = _enableActions.filter((action) => !action.negatePreviousBlock);
 
     // 発動可能な効果がなければ何もしない
     if (!_enableActions.length) {

@@ -146,7 +146,7 @@ export const defaultSpellTrapPrepare = async <T>(
   }
 
   if (myInfo.action.entity.fieldCell.cellType === "Hand") {
-    const causedBy: TDuelCauseReason[] = ["SpellTrapActivate"];
+    const causedBy: TDuelCauseReason[] = ["CardActivation"];
     const availableCells = cell
       ? [cell]
       : myInfo.action.entity.status.spellCategory === "Field"

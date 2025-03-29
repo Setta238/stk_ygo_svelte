@@ -82,7 +82,7 @@ export type TDuelCauseReason =
   | "Rule"
   | "Spawn"
   | "SpellTrapSet"
-  | "SpellTrapActivate"
+  | "CardActivation"
   | "Flip"
   | "FlipByBattle"
   | "FlipSummon"
@@ -154,7 +154,7 @@ export type DuelEntityInfomation = {
   isEffective: boolean;
   isPending: boolean;
   isDying: boolean;
-  causeOfDeath: (TDestoryCauseReason | "SpellTrapActivate")[];
+  causeOfDeath: (TDestoryCauseReason | "CardActivation")[];
   isKilledBy: DuelEntity | undefined;
   isKilledByWhom: Duelist | undefined;
   isVanished: boolean;
@@ -817,7 +817,7 @@ export class DuelEntity {
     movedBy: DuelEntity | undefined,
     actionOwner: Duelist | undefined
   ): Promise<void> => {
-    await this.moveAlone(to, "FaceUp", "Vertical", "Top", [...movedAs, "SpellTrapActivate"], movedBy, actionOwner, actionOwner);
+    await this.moveAlone(to, "FaceUp", "Vertical", "Top", [...movedAs, "CardActivation"], movedBy, actionOwner, actionOwner);
   };
 
   public readonly activateSpellTrapOnField = async (
@@ -825,7 +825,7 @@ export class DuelEntity {
     movedBy: DuelEntity | undefined,
     actionOwner: Duelist | undefined
   ): Promise<void> => {
-    await this.moveAlone(this.fieldCell, "FaceUp", "Vertical", "Top", [...movedAs, "SpellTrapActivate"], movedBy, actionOwner, actionOwner);
+    await this.moveAlone(this.fieldCell, "FaceUp", "Vertical", "Top", [...movedAs, "CardActivation"], movedBy, actionOwner, actionOwner);
   };
   public readonly draw = async (
     moveAs: TDuelCauseReason[],

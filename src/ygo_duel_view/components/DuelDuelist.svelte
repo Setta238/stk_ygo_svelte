@@ -70,9 +70,10 @@
   .duelist_name {
     border-left-style: solid;
     border-left-width: 1rem;
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 1rem 0.5rem 0rem;
     font-size: 2rem;
     width: fit-content;
+    word-wrap: break-word;
   }
 
   .duelist.Below .duelist_name {

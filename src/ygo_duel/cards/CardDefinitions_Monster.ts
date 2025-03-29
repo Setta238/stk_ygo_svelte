@@ -118,7 +118,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
             return false;
           }
           await myInfo.activator.summon(newOne, ["Attack", "Defense"], availableCells, "SpecialSummon", ["Effect"], myInfo.action.entity, false);
-          myInfo.activator.shuffleDeck();
+          myInfo.activator.getDeckCell().shuffle();
           return true;
         },
         settle: async () => true,
@@ -275,7 +275,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
             myInfo.action.entity,
             false
           );
-          myInfo.activator.shuffleDeck();
+          myInfo.activator.getDeckCell().shuffle();
           return true;
         },
         settle: async () => true,
@@ -324,7 +324,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
             myInfo.action.entity,
             false
           );
-          myInfo.activator.shuffleDeck();
+          myInfo.activator.getDeckCell().shuffle();
           return true;
         },
         settle: async () => true,
@@ -450,7 +450,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
             return false;
           }
           await monster.addToHand(["Effect"], myInfo.action.entity, myInfo.activator);
-          myInfo.activator.shuffleDeck();
+          myInfo.activator.getDeckCell().shuffle();
           return true;
         },
         settle: async () => true,

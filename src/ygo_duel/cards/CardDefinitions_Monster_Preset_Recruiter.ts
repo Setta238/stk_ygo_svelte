@@ -70,7 +70,7 @@ const getDefalutRecruiterAction = (
         await myInfo.activator.summon(monster, posList, myInfo.activator.getAvailableMonsterZones(), "SpecialSummon", ["Effect"], myInfo.action.entity, false);
       }
 
-      myInfo.activator.shuffleDeck();
+      myInfo.activator.getDeckCell().shuffle();
 
       return true;
     },

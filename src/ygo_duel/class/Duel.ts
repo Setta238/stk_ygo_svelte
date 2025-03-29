@@ -164,7 +164,7 @@ export class Duel {
 
     // 下の三行はまとめても良いが、ログ的に交互にやったほうがそれっぽいのでこのままにする。
     Object.values(this.duelists).forEach((duelist) => duelist.pushDeck());
-    Object.values(this.duelists).forEach((duelist) => duelist.shuffleDeck());
+    Object.values(this.duelists).forEach((duelist) => duelist.getDeckCell().shuffle());
 
     // 初手操作
     const initHandProp: { hand: string[]; duelist: Duelist }[] = [

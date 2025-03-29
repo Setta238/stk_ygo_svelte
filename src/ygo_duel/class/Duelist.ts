@@ -255,10 +255,6 @@ export class Duelist {
     return;
   };
 
-  public readonly shuffleDeck = (): void => {
-    const deckCell = this.getDeckCell();
-    deckCell.shuffle();
-  };
   public readonly discard = async (
     qty: number,
     moveAs: TDuelCauseReason[],

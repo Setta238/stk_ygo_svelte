@@ -44,7 +44,7 @@ const getDefaultSearchSpellAction = (filter: (card: DuelEntity) => boolean): Car
         await monster.addToHand(["Effect"], myInfo.action.entity, myInfo.activator);
       }
 
-      myInfo.activator.shuffleDeck();
+      myInfo.activator.getDeckCell().shuffle();
       return true;
     },
     settle: async () => true,

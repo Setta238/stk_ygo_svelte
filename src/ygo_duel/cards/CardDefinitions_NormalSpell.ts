@@ -212,7 +212,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
             throw new IllegalCancelError(myInfo);
           }
           await DuelEntity.sendManyToGraveyardForTheSameReason(target, ["Effect"], myInfo.action.entity, myInfo.activator);
-          await myInfo.activator.shuffleDeck();
+          await myInfo.activator.getDeckCell().shuffle();
           return true;
         },
         settle: async () => true,
@@ -259,7 +259,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
             throw new IllegalCancelError(myInfo);
           }
           await DuelEntity.sendManyToGraveyardForTheSameReason(target, ["Effect"], myInfo.action.entity, myInfo.activator);
-          await myInfo.activator.shuffleDeck();
+          await myInfo.activator.getDeckCell().shuffle();
           return true;
         },
         settle: async () => true,
@@ -560,7 +560,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           for (const monster of target ?? []) {
             await monster.addToHand(["Effect"], myInfo.action.entity, myInfo.activator);
           }
-          myInfo.activator.shuffleDeck();
+          myInfo.activator.getDeckCell().shuffle();
 
           return true;
         },
@@ -714,7 +714,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
             false
           );
 
-          myInfo.activator.shuffleDeck();
+          myInfo.activator.getDeckCell().shuffle();
 
           return true;
         },

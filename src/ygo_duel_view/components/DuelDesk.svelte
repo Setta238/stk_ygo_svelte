@@ -55,6 +55,7 @@
     duel = duel;
   };
   duel.view.onDuelUpdate.append(onDuelUpdate);
+  duel.log.onUpdate.append(onDuelUpdate);
 
   const onOkClick = () => {
     if (selectedEntitiesValidator(selectedList)) {

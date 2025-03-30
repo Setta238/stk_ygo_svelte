@@ -120,6 +120,11 @@
               <div>"{pf.isSpawnedBy.toString()} {pf.title}",</div>
             {/each}
             <div>{"],"}</div>
+            <div>"lastMoveLogRecord" :{"{"}</div>
+            <div>"movedBy":"{entity.moveLog.latestRecord.movedBy?.toString()}",</div>
+            <div>"movedAs":"{entity.moveLog.latestRecord.movedAs.join(" ")}",</div>
+            <div>"movedAt":"{entity.moveLog.latestRecord.movedAt}",</div>
+            <div>{"},"}</div>
           </div>
         </div>
       {/if}

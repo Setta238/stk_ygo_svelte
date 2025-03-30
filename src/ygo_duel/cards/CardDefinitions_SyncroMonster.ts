@@ -3,11 +3,14 @@ import {
   defaultAttackAction,
   defaultBattlePotisionChangeAction,
   defaultPrepare,
+  defaultRebornExecute,
   getDefaultSyncroSummonAction,
 } from "@ygo_duel/functions/DefaultCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardDefinition } from "./CardDefinitions";
+import { duelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
+import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 
 export const createCardDefinitions_SyncroMonster = (): CardDefinition[] => {
   const result: CardDefinition[] = [];
@@ -65,6 +68,85 @@ export const createCardDefinitions_SyncroMonster = (): CardDefinition[] => {
           );
           return true;
         },
+        settle: async () => true,
+      },
+    ],
+  });
+  result.push({
+    name: "スターダスト・ドラゴン",
+    actions: [
+      defaultAttackAction as CardActionBase<unknown>,
+      defaultBattlePotisionChangeAction as CardActionBase<unknown>,
+      getDefaultSyncroSummonAction() as CardActionBase<unknown>,
+      {
+        title: "①ヴィクテム・サンクチュアリ",
+        playType: "QuickEffect",
+        spellSpeed: "Quick",
+        executableCells: ["MonsterZone", "ExtraMonsterZone"],
+        executablePeriods: duelPeriodKeys,
+        executableDuelistTypes: ["Controller"],
+        validate: (myInfo, chainBlockInfos) => {
+          if (chainBlockInfos.length === 0) {
+            return;
+          }
+
+          const info = chainBlockInfos[myInfo.index - 1];
+
+          return info.chainBlockTags.includes("DestroyOnField") ? [] : undefined;
+        },
+        prepare: async (myInfo, cell, chainBlockInfos) => {
+          if (chainBlockInfos.length === 0) {
+            return;
+          }
+
+          const info = chainBlockInfos.slice(-1)[0];
+
+          await myInfo.action.entity.release(["Cost"], myInfo.action.entity, myInfo.activator);
+          return { selectedEntities: [], chainBlockTags: myInfo.action.calcChainBlockTagsForDestroy([info.action.entity]), prepared: undefined };
+        },
+        execute: async (myInfo, chainBlockInfos) => {
+          const info = chainBlockInfos[myInfo.index - 1];
+          info.isNegatedActivationBy = myInfo.action;
+          DuelEntityShortHands.tryDestroy([info.action.entity], myInfo);
+          return true;
+        },
+        settle: async () => true,
+      },
+      {
+        title: "②自己再生",
+        playType: "IgnitionEffect",
+        spellSpeed: "Normal",
+        executableCells: ["Graveyard"],
+        executablePeriods: ["end"],
+        executableDuelistTypes: ["Controller"],
+        validate: (myInfo) => {
+          const moveLogRecord = myInfo.action.entity.moveLog.latestRecord;
+
+          if (moveLogRecord.movedBy !== myInfo.action.entity) {
+            return;
+          }
+          if (!myInfo.activator.duel.clock.isSameTurn(moveLogRecord.movedAt)) {
+            return;
+          }
+          if (!moveLogRecord.movedAs.includes("Cost")) {
+            return;
+          }
+
+          const duel = myInfo.activator.duel;
+          const lastAction = myInfo.action.entity.actionLogRecords
+            .filter((rec) => duel.clock.isSameTurn(rec.clock))
+            .map((rec) => rec.chainBlockInfo)
+            .findLast((info) => info.action.title === "①ヴィクテム・サンクチュアリ");
+
+          if (!lastAction || lastAction.state !== "done") {
+            return;
+          }
+
+          const availableCells = myInfo.activator.getAvailableMonsterZones();
+          return availableCells.length > 0 ? [] : undefined;
+        },
+        prepare: defaultPrepare,
+        execute: (myInfo) => defaultRebornExecute(myInfo),
         settle: async () => true,
       },
     ],

@@ -198,6 +198,7 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
                 return true;
               }
               if (relation.isSpawnedBy.moveLog.currentProcRecords.flatMap((rec) => rec.movedAs).find((reason) => reason === "Destroy")) {
+                // この場所では破壊マーキングまで実行。
                 relation.target.tryDestory("EffectDestroy", relation.effectOwner, relation.isSpawnedBy, {});
               }
 

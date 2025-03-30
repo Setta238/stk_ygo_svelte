@@ -6,7 +6,7 @@ import DuelLog from "@ygo_duel/class/DuelLog";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { DuelViewController } from "@ygo_duel_view/class/DuelViewController";
 import { DuelClock } from "./DuelClock";
-import DuelCardActionLog from "./DuelCardActionLog";
+import DuelChainBlockLog from "./DuelChainBlockLog";
 import {
   cardActionNonChainBlockTypes,
   convertCardActionToString,
@@ -61,7 +61,7 @@ export class IllegalCancelError extends SystemError {
 export class Duel {
   public readonly view: DuelViewController;
   public readonly log: DuelLog;
-  public readonly cardActionLog: DuelCardActionLog;
+  public readonly chainBlockLog: DuelChainBlockLog;
   public clock: DuelClock;
   public get phase() {
     return this.clock.period.phase;
@@ -120,7 +120,7 @@ export class Duel {
 
     this.view = new DuelViewController(this);
     this.log = new DuelLog(this);
-    this.cardActionLog = new DuelCardActionLog(this);
+    this.chainBlockLog = new DuelChainBlockLog(this);
   }
 
   public readonly distributeOperators = (totalProcSeq: number) => {
@@ -729,12 +729,15 @@ export class Duel {
         throw new IllegalCancelError(chainBlock);
       }
 
+      this.chainBlockLog.push(chainBlockInfo);
+
       // エフェクト・ヴェーラーなどによる強い無効
-      const isNagatedStrongly = chainBlockInfo.action.entity.isNagatedStrongly && playFieldCellTypes.find((ct) => ct === chainBlockInfo.isActivatedIn.cellType);
+      const wasNagatedStrongly =
+        chainBlockInfo.action.entity.isNagatedStrongly && playFieldCellTypes.find((ct) => ct === chainBlockInfo.isActivatedIn.cellType);
 
       // 対象に取っていた場合、ログを出力
       if (chainBlockInfo.selectedEntities.length) {
-        this.log.info(`対象⇒${chainBlockInfo.selectedEntities.map((e) => e.toString()).join(" ")}`);
+        this.log.info(`対象⇒${chainBlockInfo.selectedEntities.map((e) => e.toString()).join(" ")}`, chainBlockInfo.activator);
       }
 
       this._chainBlockInfos.push(chainBlockInfo);
@@ -769,7 +772,7 @@ export class Duel {
             // うららなどの効果処理のみ無効にするタイプ
             nagationText = `チェーン${chainCount}: ${convertCardActionToString(chainBlockInfo.action)}を${convertCardActionToString(chainBlockInfo.isNegatedEffectBy)}によって効果を無効にした。`;
             isEffective = false;
-          } else if (isNagatedStrongly) {
+          } else if (wasNagatedStrongly) {
             // 発動時にエフェクト・ヴェーラーなどによる強い無効が適用されていた場合、移動ログを検索する。
             const moveLogRecord = chainBlockInfo.action.entity.moveLog.records.findLast((rec) => rec.face === "FaceDown" && rec.orientation === "Horizontal");
 
@@ -782,7 +785,9 @@ export class Duel {
         // 有効であれば、効果処理を行う。
         if (isEffective) {
           await chainBlockInfo.action.execute(chainBlockInfo, this.chainBlockInfos);
+          chainBlockInfo.state = "done";
         } else {
+          chainBlockInfo.state = "failed";
           this.log.info(nagationText, chainBlockInfo.activator);
         }
 

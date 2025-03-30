@@ -491,21 +491,21 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
               return;
             }
 
-            const info = chainBlockInfos.slice(-1)[0];
+            const info = chainBlockInfos[myInfo.index - 1];
 
             return info.chainBlockTags.union(item.chainBlockTags).length > 0 ? [] : undefined;
           },
-          prepare: async (myInfo, cell, chainBlockInfos) => {
+          prepare: async (myInfo) => {
             await myInfo.action.entity.sendToGraveyard(["Discard", "Cost"], myInfo.action.entity, myInfo.activator);
-            return { selectedEntities: [], chainBlockTags: ["NegateCardEffect"], prepared: chainBlockInfos.length };
+            return { selectedEntities: [], chainBlockTags: ["NegateCardEffect"], prepared: undefined };
           },
           execute: async (myInfo, chainBlockInfos): Promise<boolean> => {
-            const info = chainBlockInfos[myInfo.prepared - 1];
+            const info = chainBlockInfos[myInfo.index - 1];
             info.isNegatedEffectBy = myInfo.action as CardAction<unknown>;
             return true;
           },
           settle: async () => true,
-        } as CardActionBase<number>,
+        },
       ] as CardActionBase<unknown>[],
     });
   });

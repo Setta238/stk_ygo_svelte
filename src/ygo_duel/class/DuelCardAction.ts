@@ -58,11 +58,13 @@ export const effectTags = [
 ] as const;
 export type TEffectTag = (typeof effectTags)[number];
 export type ChainBlockInfoBase<T> = {
+  index: number;
   action: CardAction<T>;
   activator: Duelist;
   isActivatedIn: DuelFieldCell;
   isNegatedActivationBy?: CardAction<unknown>;
   isNegatedEffectBy?: CardAction<unknown>;
+  state: "unloaded" | "ready" | "done" | "failed";
 };
 
 export type ChainBlockInfoPrepared<T> = {
@@ -288,27 +290,32 @@ export class CardAction<T> implements ICardAction<T> {
     }
     if (this.isOnlyNTimesPerDuel > 0) {
       if (
-        this.entity.field.duel.cardActionLog.records.filter((rec) => this.isSame(rec.cardAction)).filter((rec) => rec.activator).length >=
-        this.isOnlyNTimesPerDuel
+        this.entity.field.duel.chainBlockLog.records
+          .filter((rec) => !rec.chainBlockInfo.isNegatedActivationBy)
+          .filter((rec) => this.isSame(rec.chainBlockInfo.action))
+          .filter((rec) => rec.chainBlockInfo.activator === activator).length >= this.isOnlyNTimesPerDuel
       ) {
         return;
       }
     }
     if (this.isOnlyNTimesPerTurn > 0) {
       if (
-        this.entity.field.duel.cardActionLog.records
-          .filter((rec) => this.isSameGroupPerTurn(rec.cardAction))
+        this.entity.field.duel.chainBlockLog.records
+          .filter((rec) => !rec.chainBlockInfo.isNegatedActivationBy)
+          .filter((rec) => this.isSameGroupPerTurn(rec.chainBlockInfo.action))
           .filter((rec) => rec.clock.turn === this.entity.field.duel.clock.turn)
-          .filter((rec) => rec.activator).length >= this.isOnlyNTimesPerTurn
+          .filter((rec) => rec.chainBlockInfo.activator === activator).length >= this.isOnlyNTimesPerTurn
       ) {
         return;
       }
     }
 
     const myInfo: ChainBlockInfoBase<T> = {
+      index: chainBlockInfos.length,
       action: this,
       activator: activator,
       isActivatedIn: this.entity.fieldCell,
+      state: "unloaded",
     };
     return this.cardActionBase.validate(myInfo, chainBlockInfos);
   };
@@ -325,16 +332,16 @@ export class CardAction<T> implements ICardAction<T> {
     const isActivatedIn = this.entity.fieldCell;
 
     const myInfo: ChainBlockInfoBase<T> = {
+      index: chainBlockInfos.length,
       action: this,
       activator: activator,
       isActivatedIn: isActivatedIn,
+      state: "ready",
     };
     const prepared = await this.cardActionBase.prepare(myInfo, cell, chainBlockInfos, cancelable);
     if (prepared === undefined) {
       return;
     }
-
-    this.entity.field.duel.cardActionLog.push(this.entity.controller, this);
 
     return { ...myInfo, ...prepared };
   };

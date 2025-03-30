@@ -539,6 +539,11 @@ export class DuelEntity {
   public get duel() {
     return this.owner.duel.field.duel;
   }
+
+  public get actionLogRecords() {
+    return this.duel.chainBlockLog.records.filter((rec) => rec.chainBlockInfo.action.entity === this);
+  }
+
   public fieldCell: DuelFieldCell;
 
   private _status: EntityStatus;

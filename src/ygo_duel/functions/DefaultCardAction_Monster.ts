@@ -1,11 +1,18 @@
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
 import { SystemError } from "@ygo_duel/class/Duel";
-import { CardAction, type CardActionBase, type ChainBlockInfo, type ChainBlockInfoBase, type ChainBlockInfoPrepared } from "@ygo_duel/class/DuelCardAction";
+import {
+  CardAction,
+  type CardActionBase,
+  type ChainBlockInfo,
+  type ChainBlockInfoBase,
+  type ChainBlockInfoPrepared,
+  type TEffectTag,
+} from "@ygo_duel/class/DuelCardAction";
 import { type TDuelCauseReason, DuelEntity } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 export type SummonPrepared = { dest: DuelFieldCell; pos: TBattlePosition; materials: DuelEntity[] };
 export const defaultPrepare = async () => {
-  return { selectedEntities: [], chainBlockTags: [], prepared: undefined };
+  return { selectedEntities: [] as DuelEntity[], chainBlockTags: [] as TEffectTag[], prepared: undefined };
 };
 export const defaultNormalSummonValidate = (myInfo: ChainBlockInfoBase<SummonPrepared>): DuelFieldCell[] | undefined => {
   // 召喚権を使い切っていたら通常召喚不可。
@@ -478,4 +485,26 @@ export const getDefaultSyncroSummonAction = (
     execute: defaultSyncroSummonExecute,
     settle: async () => true,
   };
+};
+
+export const defaultRebornExecute = async (
+  myInfo: ChainBlockInfo<unknown>,
+  monster: DuelEntity = myInfo.action.entity,
+  selectablePosList: TBattlePosition[] = ["Attack", "Defense"]
+) => {
+  // 同一チェーン中に墓地を離れていたら不可
+  if (monster.wasMovedAtCurrentChain) {
+    return false;
+  }
+  const availableCells = myInfo.activator.getAvailableMonsterZones();
+  if (availableCells.length === 0) {
+    return false;
+  }
+  if (!monster.canBeSpecialSummoned("SpecialSummon", myInfo.activator, myInfo.action.entity, myInfo.action)) {
+    return false;
+  }
+
+  await myInfo.activator.summon(monster, selectablePosList, availableCells, "SpecialSummon", ["Effect"], myInfo.action.entity, false);
+
+  return true;
 };

@@ -170,6 +170,9 @@ export class DuelClock implements IDuelClock {
       totalProcSeq: this.totalProcSeq,
     };
   };
+  public readonly isSameTurn = (other: IDuelClock): boolean => {
+    return this.turn === other.turn;
+  };
   public readonly isSameChain = (other: IDuelClock): boolean => {
     return (
       this.turn === other.turn &&

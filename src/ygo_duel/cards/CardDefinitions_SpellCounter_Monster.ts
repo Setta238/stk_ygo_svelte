@@ -76,7 +76,7 @@ export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] =
         settle: async () => true,
       } as CardActionBase<undefined>,
       {
-        title: "③魔法罠破壊",
+        title: "③マナブレイク",
         playType: "IgnitionEffect",
         spellSpeed: "Normal",
         executableCells: ["MonsterZone"],

@@ -3,6 +3,9 @@ import { StickyEffectOperatorBase, StickyEffectOperatorBundle, StickyEffectOpera
 import { type DuelEntity, type TSummonPosCauseReason, type TSummonRuleCauseReason } from "../class/DuelEntity";
 import { type Duelist } from "../class/Duelist";
 
+export const banishProcType = ["BanishAsEffect", "BanishAsCost"] as const;
+export type TBanishProcType = (typeof banishProcType)[number];
+
 export const procTypes = [
   "BattleDestroy",
   "EffectDestroy",
@@ -11,8 +14,7 @@ export const procTypes = [
   "Effect",
   "SendToGraveyardAsEffect",
   "SendToGraveyardAsCost",
-  "BanishAsEffect",
-  "BanishAsCost",
+  ...banishProcType,
 ] as const;
 export type TProcType = (typeof procTypes)[number] | TSummonRuleCauseReason | TSummonPosCauseReason;
 export const removeTriggers = ["Set", "LeavesTheField", "Clock"] as const;

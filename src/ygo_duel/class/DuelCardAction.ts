@@ -18,9 +18,17 @@ export const cardActionChainBlockTypes = [
   "CardActivation",
 ] as const;
 export type TCardActionChainBlockType = (typeof cardActionChainBlockTypes)[number];
-export const cardActionNonChainBlockTypes = ["NormalSummon", "SpecialSummon", "ChangeBattlePosition", "Battle", "SpellTrapSet"] as const;
+export const cardActionNonChainBlockTypes = [
+  "NormalSummon",
+  "SpecialSummon",
+  "ChangeBattlePosition",
+  "Battle",
+  "SpellTrapSet",
+  "LingeringEffect",
+  "MandatoryLingeringEffect",
+] as const;
 export type TCardActionNonChainBlockType = (typeof cardActionNonChainBlockTypes)[number];
-export type TCardActionType = TCardActionChainBlockType | TCardActionNonChainBlockType | "Dammy" | "RuleDraw";
+export type TCardActionType = TCardActionChainBlockType | TCardActionNonChainBlockType | "Dammy" | "RuleDraw" | "SystemAction";
 export type TSpellSpeed = "Normal" | "Quick" | "Counter" | "Dammy";
 export const effectTags = [
   "NormalSummon",
@@ -30,10 +38,13 @@ export const effectTags = [
   "SendToGraveyardFromDeck", //うらら
   "Draw", //うらら
   "SearchFromDeck", //うらら
+  "BanishFromDeck", //今のところない？
   "BanishFromGraveyard", //わらし
   "AddToHandFromGraveyard", //わらし
   "ReturnToDeckFromGraveyard", //わらし
   "SpecialSummonFromGraveyard", //わらし
+  "Banish", //今のところない？
+  "BanishFromField", //今のところない？
   "Destroy",
   "DestroyMultiple",
   "DestroyOnField", //スタダ
@@ -178,6 +189,10 @@ export const convertCardActionToString = (action: ICardAction<unknown>) =>
 
 export class CardAction<T> implements ICardAction<T> {
   private static nextActionSeq = 0;
+  public get isMandatory() {
+    return this.playType === "MandatoryIgnitionEffect" || this.playType === "MandatoryLingeringEffect" || this.playType === "MandatoryTriggerEffect";
+  }
+
   public static readonly createNew = <T>(entity: DuelEntity, cardActionBase: CardActionBase<T>) => {
     return new CardAction<T>(CardAction.nextActionSeq++, entity, cardActionBase);
   };

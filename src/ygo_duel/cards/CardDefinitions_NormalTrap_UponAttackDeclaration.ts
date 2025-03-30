@@ -1,7 +1,7 @@
 import { defaultSpellTrapPrepare, defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/functions/DefaultCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
-import type { CardActionBase } from "@ygo_duel/class/DuelCardAction";
+import type { CardActionBase, TEffectTag } from "@ygo_duel/class/DuelCardAction";
 import { SystemError } from "@ygo_duel/class/Duel";
 
 import type { CardDefinition } from "./CardDefinitions";
@@ -35,8 +35,13 @@ export const createCardDefinitions_NormalTrap_UponAttackDeclaration = (): CardDe
               throw new SystemError("想定されない状態", myInfo, attacker);
             }
 
-            if (!attacker.canBeEffected(myInfo.activator, myInfo.action.entity, myInfo.action)) {
+            if (!attacker.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action)) {
               return;
+            }
+
+            // 王宮の鉄壁などが有効である場合、発動不可
+            if (name === "次元幽閉" && !myInfo.activator.canTryBanish(attacker, "BanishAsEffect", myInfo.action)) {
+              return false;
             }
 
             return defaultSpellTrapValidate(myInfo);
@@ -46,15 +51,10 @@ export const createCardDefinitions_NormalTrap_UponAttackDeclaration = (): CardDe
             if (!attacker) {
               throw new SystemError("想定されない状態", myInfo, attacker);
             }
-            return defaultSpellTrapPrepare(
-              myInfo,
-              cell,
-              chainBlockInfos,
-              cancelable,
-              myInfo.action.calcChainBlockTagsForDestroy([attacker]),
-              [attacker],
-              undefined
-            );
+
+            const tags: TEffectTag[] = name === "炸裂装甲" ? myInfo.action.calcChainBlockTagsForDestroy([attacker]) : ["Banish", "BanishFromField"];
+
+            return defaultSpellTrapPrepare(myInfo, cell, chainBlockInfos, cancelable, tags, [attacker], undefined);
           },
           execute: async (myInfo) => {
             if (name === "炸裂装甲") {

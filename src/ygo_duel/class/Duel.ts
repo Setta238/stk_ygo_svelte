@@ -8,6 +8,7 @@ import { DuelViewController } from "@ygo_duel_view/class/DuelViewController";
 import { DuelClock } from "./DuelClock";
 import DuelChainBlockLog from "./DuelChainBlockLog";
 import {
+  cardActionChainBlockTypes,
   cardActionNonChainBlockTypes,
   convertCardActionToString,
   type CardAction,
@@ -117,6 +118,7 @@ export class Duel {
     this._chainBlockInfos = [];
     this.field = new DuelField(this);
     this.clock.onTotalProcSeqChange.append(this.distributeOperators);
+    this.clock.onStageChange.append(() => this.executeSystemActions());
 
     this.view = new DuelViewController(this);
     this.log = new DuelLog(this);
@@ -260,19 +262,17 @@ export class Duel {
     } else {
       await this.getTurnPlayer().draw(1, undefined, undefined);
     }
-    // TODO フェイズ強制処理
-    while (await this.procChainBlock(undefined, undefined)) {
-      //
-    }
     this.field.getEntiteisOnField().forEach((m) => m.initForTurn());
+    // フェイズ強制処理
+    await this.procSpellSpeed1();
     this.moveNextPhase("standby");
+    console.log("Hoge");
   };
   private readonly procStanbyPhase = async () => {
-    // TODO フェイズ強制処理
+    console.log("fuga");
+    // フェイズ強制処理
+    await this.procSpellSpeed1();
 
-    while (await this.procChainBlock(undefined, undefined)) {
-      //
-    }
     this.moveNextPhase("main1");
   };
   private readonly procMainPhase = async () => {
@@ -358,10 +358,8 @@ export class Duel {
     this.attackingMonster = undefined;
     this.targetForAttack = undefined;
 
-    // TODO ステップ強制処理
-    while (await this.procChainBlock(undefined, undefined)) {
-      //
-    }
+    // フェイズ強制処理
+    await this.procSpellSpeed1();
   };
   private readonly procBattlePhaseBattleStep = async () => {
     while (true) {
@@ -571,32 +569,33 @@ export class Duel {
   };
 
   private readonly procSpellSpeed1 = async () => {
+    // ターンプレイヤーから処理を行う
     this.priorityHolder = this.getTurnPlayer();
+
+    // 強制効果が処理し終わり、お互いにキャンセルしたら終了
     let skipCount = 0;
 
     while (skipCount < 2) {
-      this.priorityHolder = this.priorityHolder.getOpponentPlayer();
+      // 優先権保持者の可能な処理をリストアップ
       const actions = this.getEnableActions(
         this.priorityHolder,
-        ["IgnitionEffect", "MandatoryIgnitionEffect", "QuickEffect", "CardActivation"],
+        ["IgnitionEffect", "MandatoryIgnitionEffect", "QuickEffect", "CardActivation", "LingeringEffect", "MandatoryLingeringEffect"],
         ["Normal", "Quick", "Counter"],
         []
       );
 
       // 強制効果が残っていて、お互いにキャンセルすることの防止
-      const cancelable = actions.every((action) => action.playType !== "MandatoryIgnitionEffect") || skipCount < 2;
+      const cancelable = actions.every((action) => !action.isMandatory) || skipCount < 2;
 
-      let action = actions.find((action) => action.playType === "MandatoryIgnitionEffect") as ICardAction<unknown> | undefined;
+      // 強制効果を適当にピックアップしておく
+      let action = actions.find((action) => action.isMandatory);
 
-      if (actions.length !== 1 || actions[0].playType !== "MandatoryIgnitionEffect") {
+      // 0件または強制効果1件のときのみ効果選択をスキップ
+      // TODO 強制効果1件のときも一回まではキャンセルできるので、考慮が必要。
+      if (actions.length && (actions.length > 1 || !action)) {
         action = await this.view.waitQuickEffect(
           this.priorityHolder,
-          this.getEnableActions(
-            this.priorityHolder,
-            ["IgnitionEffect", "MandatoryIgnitionEffect", "QuickEffect", "CardActivation"],
-            ["Normal", "Quick", "Counter"],
-            []
-          ),
+          actions,
           [],
           cancelable ? "" : "まだ発動しなければならない効果が残っている。",
           cancelable
@@ -605,8 +604,18 @@ export class Duel {
 
       // どちらかのプレイヤーが効果を発動する場合、チェーン処理へ。
       if (action) {
-        //チェーンに積んで、チェーン処理へ
-        await this.procChainBlock({ activator: this.priorityHolder, action }, undefined);
+        if (cardActionChainBlockTypes.some((tp) => tp === action.playType)) {
+          //チェーンに積んで、チェーン処理へ
+          await this.procChainBlock({ activator: this.priorityHolder, action }, undefined);
+        } else {
+          const info = await action.prepare(this.priorityHolder, undefined, [], true);
+          if (!info) {
+            continue;
+          }
+          await action.execute(info, []);
+          await action.settle(info, []);
+          this.clock.incrementChainSeq();
+        }
 
         // フリーチェーン処理
         await this.procFreeChain();
@@ -617,6 +626,7 @@ export class Duel {
         skipCount = 0;
         continue;
       }
+      this.priorityHolder = this.priorityHolder.getOpponentPlayer();
       skipCount++;
     }
   };
@@ -854,6 +864,26 @@ export class Duel {
         }
       }
     }
+  };
+  private readonly executeSystemActions = async (): Promise<void> => {
+    console.log(this.clock.toString(), this.clock.period, this.clock.period.key);
+    await Promise.all(
+      Object.values(this.duelists)
+        .flatMap((duelist) =>
+          this.getEnableActions(duelist, ["SystemAction"], ["Normal"], []).map((action) => {
+            return { duelist, action };
+          })
+        )
+        .map(async (obj) => {
+          const chainBlockInfo = await obj.action.prepare(obj.duelist, undefined, [], false);
+          if (!chainBlockInfo) {
+            throw new SystemError("想定されない状態", obj);
+          }
+          await obj.action.execute(chainBlockInfo, []);
+          await obj.action.settle(chainBlockInfo, []);
+          return;
+        })
+    );
   };
   private readonly getEnableActions = (
     duelist: Duelist,

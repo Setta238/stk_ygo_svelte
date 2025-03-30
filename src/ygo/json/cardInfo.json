@@ -18352,5 +18352,13 @@
     "kind": "Trap",
     "trapCategory": "Normal",
     "wikiEncodedName": "%A1%D4%BC%A1%B8%B5%CD%A9%CA%C4%A1%D5"
+  },
+  "封印の黄金櫃": {
+    "name": "封印の黄金櫃",
+    "nameKana": "",
+    "description": "(1)：デッキからカード１枚を選んで除外する。\nこのカードの発動後２回目の自分スタンバイフェイズに、\nこの効果で除外されているカードを手札に加える。",
+    "kind": "Spell",
+    "spellCategory": "Normal",
+    "wikiEncodedName": "%A1%D4%C9%F5%B0%F5%A4%CE%B2%AB%B6%E2%DD%A4%A1%D5"
   }
 }

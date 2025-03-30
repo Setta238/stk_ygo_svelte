@@ -1,19 +1,10 @@
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
 import { SystemError } from "@ygo_duel/class/Duel";
-import {
-  CardAction,
-  type CardActionBase,
-  type ChainBlockInfo,
-  type ChainBlockInfoBase,
-  type ChainBlockInfoPrepared,
-  type TEffectTag,
-} from "@ygo_duel/class/DuelCardAction";
+import { CardAction, type CardActionBase, type ChainBlockInfo, type ChainBlockInfoBase, type ChainBlockInfoPrepared } from "@ygo_duel/class/DuelCardAction";
 import { type TDuelCauseReason, DuelEntity } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
+import { defaultPrepare } from "./DefaultCardAction";
 export type SummonPrepared = { dest: DuelFieldCell; pos: TBattlePosition; materials: DuelEntity[] };
-export const defaultPrepare = async () => {
-  return { selectedEntities: [] as DuelEntity[], chainBlockTags: [] as TEffectTag[], prepared: undefined };
-};
 export const defaultNormalSummonValidate = (myInfo: ChainBlockInfoBase<SummonPrepared>): DuelFieldCell[] | undefined => {
   // 召喚権を使い切っていたら通常召喚不可。
   if (myInfo.activator.info.ruleNormalSummonCount >= myInfo.activator.info.maxRuleNormalSummonCount) {

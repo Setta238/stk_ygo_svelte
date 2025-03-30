@@ -1,183 +1,18 @@
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
-import { monsterZoneCellTypes, spellTrapZoneCellTypes, type DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
+import { duelFieldCellTypes, monsterZoneCellTypes, spellTrapZoneCellTypes, type DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
 import { defaultSpellTrapPrepare, defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/functions/DefaultCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import { type CardAction, type CardActionBase } from "@ygo_duel/class/DuelCardAction";
-import { IllegalCancelError } from "@ygo_duel/class/Duel";
+import { IllegalCancelError, SystemError } from "@ygo_duel/class/Duel";
 
 import type { CardDefinition } from "./CardDefinitions";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
+import { defaultPrepare, getSystemAction } from "@ygo_duel/functions/DefaultCardAction";
 
 export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
   const result: CardDefinition[] = [];
 
-  const def_強欲な壺 = {
-    name: "強欲な壺",
-    actions: [
-      {
-        title: "発動",
-        playType: "CardActivation",
-        spellSpeed: "Normal",
-        executableCells: ["Hand", "SpellAndTrapZone"],
-        executablePeriods: ["main1", "main2"],
-        executableDuelistTypes: ["Controller"],
-        priorityForNPC: 20,
-        validate: (myInfo) => {
-          if (myInfo.activator.getDeckCell().cardEntities.length < 2) {
-            return;
-          }
-          if (!myInfo.activator.canDraw) {
-            return;
-          }
-          if (!myInfo.activator.canAddToHandFromDeck) {
-            return;
-          }
-          return defaultSpellTrapValidate(myInfo);
-        },
-        prepare: (action, cell, chainBlockInfos, cancelable) => defaultSpellTrapPrepare(action, cell, chainBlockInfos, cancelable, ["Draw"], [], undefined),
-        execute: async (chainBlockInfo) => {
-          await chainBlockInfo.activator.draw(2, chainBlockInfo.action.entity, chainBlockInfo.activator);
-          return true;
-        },
-        settle: async () => true,
-      } as CardActionBase<unknown>,
-      defaultSpellTrapSetAction as CardActionBase<unknown>,
-    ],
-  };
-
-  result.push(def_強欲な壺);
-
-  const def_貪欲な壺 = {
-    name: "貪欲な壺",
-    actions: [
-      {
-        title: "発動",
-        playType: "CardActivation",
-        spellSpeed: "Normal",
-        executableCells: ["Hand", "SpellAndTrapZone"],
-        executablePeriods: ["main1", "main2"],
-        executableDuelistTypes: ["Controller"],
-        priorityForNPC: 30,
-        validate: (myInfo) => {
-          // 墓地に対象に取れるモンスターが５体以上必要
-          if (
-            myInfo.activator
-              .getGraveyard()
-              .cardEntities.filter((card) => card.status.kind === "Monster")
-              .filter((card) => card.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action as CardAction<unknown>)).length < 5
-          ) {
-            return;
-          }
-          if (!myInfo.activator.canDraw) {
-            return;
-          }
-          if (!myInfo.activator.canAddToHandFromDeck) {
-            return;
-          }
-          return defaultSpellTrapValidate(myInfo);
-        },
-        prepare: async (myInfo, cell, chainBlockInfos, cancelable) => {
-          const target = await myInfo.action.entity.field.duel.view.waitSelectEntities(
-            myInfo.activator,
-            myInfo.activator
-              .getGraveyard()
-              .cardEntities.filter((card) => card.status.kind === "Monster")
-              .filter((card) => card.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action as CardAction<unknown>)),
-            5,
-            (selected) => selected.length === 5,
-            "デッキに戻すモンスターを選択。",
-            false
-          );
-          if (!target) {
-            return;
-          }
-
-          return defaultSpellTrapPrepare(myInfo, cell, chainBlockInfos, cancelable, ["Draw", "ReturnToDeckFromGraveyard"], target, undefined);
-        },
-        execute: async (myInfo) => {
-          // いずれかが同一チェーン中に墓地を離れていたら不可
-          if (myInfo.selectedEntities.some((monster) => monster.wasMovedAtCurrentChain)) {
-            return false;
-          }
-
-          //デッキorエクストラデッキに戻す
-          await DuelEntity.returnManyToDeckForTheSameReason("Random", myInfo.selectedEntities, ["Effect"], myInfo.action.entity, myInfo.activator);
-
-          await myInfo.activator.draw(2, myInfo.action.entity, myInfo.activator);
-
-          return true;
-        },
-        settle: async () => true,
-      } as CardActionBase<unknown>,
-      defaultSpellTrapSetAction as CardActionBase<unknown>,
-    ],
-  };
-
-  result.push(def_貪欲な壺);
-  const def_天使の施し = {
-    name: "天使の施し",
-    actions: [
-      {
-        title: "発動",
-        playType: "CardActivation",
-        spellSpeed: "Normal",
-        executableCells: ["Hand", "SpellAndTrapZone"],
-        executablePeriods: ["main1", "main2"],
-        executableDuelistTypes: ["Controller"],
-        priorityForNPC: 30,
-        validate: (myInfo) => {
-          if (myInfo.activator.getDeckCell().cardEntities.length < 3) {
-            return;
-          }
-          return defaultSpellTrapValidate(myInfo);
-        },
-        prepare: (action, cell, chainBlockInfos) => defaultSpellTrapPrepare(action, cell, chainBlockInfos, false, ["Draw", "DiscordAsEffect"], [], undefined),
-        execute: async (myInfo) => {
-          await myInfo.activator.draw(3, myInfo.action.entity, myInfo.activator);
-          await myInfo.activator.discard(2, ["Effect", "Discard"], myInfo.action.entity, myInfo.activator);
-          return true;
-        },
-        settle: async () => true,
-      } as CardActionBase<unknown>,
-      defaultSpellTrapSetAction as CardActionBase<unknown>,
-    ],
-  };
-
-  result.push(def_天使の施し);
-  const def_成金ゴブリン = {
-    name: "成金ゴブリン",
-    actions: [
-      {
-        title: "発動",
-        playType: "CardActivation",
-        spellSpeed: "Normal",
-        executableCells: ["Hand", "SpellAndTrapZone"],
-        executablePeriods: ["main1", "main2"],
-        executableDuelistTypes: ["Controller"],
-        priorityForNPC: 20,
-        validate: (myInfo) => {
-          if (myInfo.activator.getDeckCell().cardEntities.length < 1) {
-            return;
-          }
-          return defaultSpellTrapValidate(myInfo);
-        },
-        prepare: (action, cell, chainBlockInfos) => defaultSpellTrapPrepare(action, cell, chainBlockInfos, false, ["Draw"], [], undefined),
-
-        execute: async (myInfo) => {
-          await myInfo.activator.draw(1, myInfo.action.entity, myInfo.activator);
-          // このドローは時の任意効果のトリガーにならない。
-          myInfo.action.entity.field.duel.clock.incrementProcSeq();
-          myInfo.activator.getOpponentPlayer().heal(1000, myInfo.action.entity);
-          return true;
-        },
-        settle: async () => true,
-      } as CardActionBase<unknown>,
-      defaultSpellTrapSetAction as CardActionBase<unknown>,
-    ],
-  };
-
-  result.push(def_成金ゴブリン);
   const def_おろかな埋葬 = {
     name: "おろかな埋葬",
     actions: [
@@ -451,67 +286,6 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
     ],
   };
   result.push(def_ハリケーン);
-
-  const def_手札抹殺 = {
-    name: "手札抹殺",
-    actions: [
-      {
-        title: "発動",
-        playType: "CardActivation",
-        spellSpeed: "Normal",
-        executableCells: ["Hand", "SpellAndTrapZone"],
-        executablePeriods: ["main1", "main2"],
-        executableDuelistTypes: ["Controller"],
-        validate: (myInfo) => {
-          if (
-            myInfo.activator.getDeckCell().cardEntities.length <
-            myInfo.activator.getHandCell().cardEntities.filter((card) => card.seq !== myInfo.action.entity.seq).length
-          ) {
-            return;
-          }
-          if (
-            myInfo.action.entity.field
-              .getAllCells()
-              .filter((c) => c.cellType === "Hand")
-              .flatMap((c) => c.cardEntities)
-              .filter((card) => card.seq !== myInfo.action.entity.seq).length === 0
-          ) {
-            return;
-          }
-          return defaultSpellTrapValidate(myInfo);
-        },
-        prepare: (action, cell, chainBlockInfos) => defaultSpellTrapPrepare(action, cell, chainBlockInfos, false, ["SearchFromDeck"], [], undefined),
-        execute: async (myInfo) => {
-          const h1 = myInfo.activator.getHandCell().cardEntities.length;
-          const h2 = myInfo.activator.getOpponentPlayer().getHandCell().cardEntities.length;
-
-          await DuelEntity.sendManyToGraveyardForTheSameReason(
-            myInfo.action.entity.field.getCells("Hand").flatMap((hand) => hand.cardEntities),
-            ["Effect", "Discard"],
-            myInfo.action.entity,
-            myInfo.activator
-          );
-
-          myInfo.activator.duel.clock.incrementProcSeq();
-
-          await myInfo.action.entity.field.drawAtSameTime(
-            myInfo.activator,
-            h1,
-            myInfo.activator.getOpponentPlayer(),
-            h2,
-            myInfo.action.entity,
-            myInfo.activator
-          );
-
-          return true;
-        },
-        settle: async () => true,
-      } as CardActionBase<unknown>,
-      defaultSpellTrapSetAction as CardActionBase<unknown>,
-    ],
-  };
-  result.push(def_手札抹殺);
-
   const def_光の援軍 = {
     name: "光の援軍",
     actions: [
@@ -733,6 +507,137 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
   };
 
   result.push(def_ワン・フォー・ワン);
+
+  const def_封印の黄金棺 = {
+    name: "封印の黄金櫃",
+    actions: [
+      {
+        title: "発動",
+        playType: "CardActivation",
+        spellSpeed: "Normal",
+        executableCells: ["Hand", "SpellAndTrapZone"],
+        executablePeriods: ["main1", "main2"],
+        executableDuelistTypes: ["Controller"],
+        validate: (myInfo) => {
+          // デッキに除外できるカードが必要
+          if (myInfo.activator.getDeckCell().cardEntities.every((card) => !myInfo.activator.canTryBanish(card, "BanishAsEffect", myInfo.action))) {
+            return;
+          }
+
+          return defaultSpellTrapValidate(myInfo);
+        },
+        prepare: async (myInfo, cell, chainBlockInfos) =>
+          defaultSpellTrapPrepare(myInfo, cell, chainBlockInfos, false, ["BanishFromDeck", "Banish"], [], undefined),
+        execute: async (myInfo) => {
+          const cards = myInfo.activator.getDeckCell().cardEntities.filter((card) => myInfo.activator.canTryBanish(card, "BanishAsEffect", myInfo.action));
+          const selectedList = await myInfo.action.entity.field.duel.view.waitSelectEntities(
+            myInfo.activator,
+            cards,
+            1,
+            (list) => list.length === 1,
+            "除外するカードを選択。",
+            false
+          );
+
+          if (!selectedList) {
+            throw new Error("illegal state");
+          }
+
+          const salvageables = await DuelEntityShortHands.tryBanish(selectedList, myInfo);
+
+          //回収可能な場合、封印の黄金櫃カウンターを置く
+          salvageables.forEach((card) => card.counterHolder.setQty("GoldSarcophagus", 0));
+
+          return true;
+        },
+        settle: async () => true,
+      } as CardActionBase<unknown>,
+      getSystemAction("回収カウント進行", ["stanby"], (myInfo) => {
+        if (!myInfo.activator.isTurnPlayer) {
+          return;
+        }
+
+        console.log(myInfo);
+        // 封印の黄金櫃カウンターを置く
+        myInfo.action.entity.field
+          .getCells("Banished")
+          .flatMap((cell) => cell.cardEntities)
+          .filter((card) => card.moveLog.latestRecord.movedBy === myInfo.action.entity)
+          .filter((card) => card.moveLog.latestRecord.actionOwner === myInfo.activator)
+          .forEach((card) => {
+            card.counterHolder.add("GoldSarcophagus");
+            const qty = card.counterHolder.getQty("GoldSarcophagus");
+            if (qty < 3) {
+              myInfo.activator.duel.log.info(`${card.toString()}のターンカウント：${qty - 1}⇒${qty}`);
+            }
+          });
+      }),
+      {
+        title: "回収",
+        playType: "MandatoryLingeringEffect",
+        spellSpeed: "Normal",
+        executableCells: duelFieldCellTypes, //回収効果はカード本体の状態に係わらず、使用可能
+        executablePeriods: ["stanby"],
+        executableDuelistTypes: ["Controller", "Opponent"],
+        validate: (myInfo) => {
+          console.log(myInfo);
+          //発動者のスタンバイフェイズでカウント、カードは持ち主の手札に入る
+          if (!myInfo.activator.isTurnPlayer) {
+            return;
+          }
+
+          console.log(myInfo);
+          // 封印の黄金櫃カウンターがちょうど二個のものを回収できる。
+          return myInfo.action.entity.field
+            .getCells("Banished")
+            .flatMap((cell) => cell.cardEntities)
+            .filter((card) => card.moveLog.latestRecord.movedBy === myInfo.action.entity)
+            .filter((card) => card.moveLog.latestRecord.actionOwner === myInfo.activator)
+            .some((card) => card.counterHolder.getQty("GoldSarcophagus") === 2)
+            ? []
+            : undefined;
+        },
+        prepare: defaultPrepare,
+        execute: async (myInfo) => {
+          const cards = myInfo.action.entity.field
+            .getCells("Banished")
+            .flatMap((cell) => cell.cardEntities)
+            .filter((card) => card.moveLog.latestRecord.movedBy === myInfo.action.entity)
+            .filter((card) => card.moveLog.latestRecord.actionOwner === myInfo.activator)
+            .filter((card) => card.counterHolder.getQty("GoldSarcophagus") === 2);
+          if (!cards.length) {
+            throw new SystemError("想定されない状態", myInfo);
+          }
+
+          let card = cards[0];
+
+          if (cards.length > 1) {
+            const selectedList = await myInfo.action.entity.field.duel.view.waitSelectEntities(
+              myInfo.activator,
+              cards,
+              1,
+              (list) => list.length === 1,
+              "回収するカードを選択。",
+              false
+            );
+            if (!selectedList || !selectedList.length) {
+              throw new SystemError("想定されない状態", myInfo, selectedList);
+            }
+
+            card = selectedList[0];
+          }
+
+          await card.addToHand(["Effect"], myInfo.action.entity, myInfo.activator);
+
+          return true;
+        },
+        settle: async () => true,
+      } as CardActionBase<unknown>,
+      defaultSpellTrapSetAction as CardActionBase<unknown>,
+    ],
+  };
+
+  result.push(def_封印の黄金棺);
 
   return result;
 };

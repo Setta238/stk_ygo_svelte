@@ -2,7 +2,6 @@ import type { CardActionBase } from "@ygo_duel/class/DuelCardAction";
 import {
   defaultAttackAction,
   defaultBattlePotisionChangeAction,
-  defaultPrepare,
   defaultRebornExecute,
   getDefaultSyncroSummonAction,
 } from "@ygo_duel/functions/DefaultCardAction_Monster";
@@ -11,6 +10,7 @@ import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardDefinition } from "./CardDefinitions";
 import { duelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
+import { defaultPrepare } from "@ygo_duel/functions/DefaultCardAction";
 
 export const createCardDefinitions_SyncroMonster = (): CardDefinition[] => {
   const result: CardDefinition[] = [];

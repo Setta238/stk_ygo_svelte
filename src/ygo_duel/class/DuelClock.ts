@@ -1,5 +1,12 @@
 import StkEvent from "@stk_utils/class/StkEvent";
-import { duelPeriodDic, type TDuelPeriodKey, type TDuelPhase, type TDuelPhaseStep, type TDuelPhaseStepStage } from "@ygo_duel/class/DuelPeriod";
+import {
+  duelPeriodDic,
+  type DuelPeriod,
+  type TDuelPeriodKey,
+  type TDuelPhase,
+  type TDuelPhaseStep,
+  type TDuelPhaseStepStage,
+} from "@ygo_duel/class/DuelPeriod";
 import { Duel, SystemError } from "./Duel";
 
 export interface IDuelClock {
@@ -17,6 +24,10 @@ export class DuelClock implements IDuelClock {
   public get onTotalProcSeqChange() {
     return this.onTotalProcSeqChangeEvent.expose();
   }
+  private onStageChangeEvent = new StkEvent<DuelPeriod>();
+  public get onStageChange() {
+    return this.onStageChangeEvent.expose();
+  }
   private _turn: number = 0;
   private _phaseSeq: number = 0;
   private _stepSeq: number = 0;
@@ -26,8 +37,23 @@ export class DuelClock implements IDuelClock {
   private _procSeq: number = 0;
   private _procTotalSeq: number = 0;
   private _periodKey: TDuelPeriodKey;
+  private set periodKey(periodKey: TDuelPeriodKey) {
+    if (this._periodKey === periodKey) {
+      return;
+    }
+    this._periodKey = periodKey;
+    this._chainSeq = 0;
+    this._chainBlockSeq = 0;
+    this._procSeq = 0;
+    console.log(this.period);
+    this.onStageChangeEvent.trigger(this.period);
+    this.incrementTotalProcSeq();
+  }
+  private get periodKey() {
+    return this._periodKey;
+  }
   public get period() {
-    return duelPeriodDic[this._periodKey];
+    return duelPeriodDic[this.periodKey];
   }
 
   public get turn() {
@@ -81,12 +107,7 @@ export class DuelClock implements IDuelClock {
 
     this._stepSeq = 0;
     this._stageSeq = 0;
-    this._chainSeq = 0;
-    this._chainBlockSeq = 0;
-    this._procSeq = 0;
-    this.incrementTotalProcSeq();
-
-    this._periodKey = period.key;
+    this.periodKey = period.key;
   };
   public readonly setStep = (duel: Duel, step: TDuelPhaseStep) => {
     const currentPhase = this.period.phase;
@@ -107,12 +128,8 @@ export class DuelClock implements IDuelClock {
 
     this._stepSeq++;
     this._stageSeq = 0;
-    this._chainSeq = 0;
-    this._chainBlockSeq = 0;
-    this._procSeq = 0;
-    this.incrementTotalProcSeq();
 
-    this._periodKey = period.key;
+    this.periodKey = period.key;
   };
   public readonly setStage = (duel: Duel, stage: TDuelPhaseStepStage) => {
     const currentPeriod = this.period;
@@ -129,12 +146,8 @@ export class DuelClock implements IDuelClock {
     duel.log.info(`タイミング移行（${this.period.name}→${period.name}）`, duel.getTurnPlayer());
 
     this._stageSeq++;
-    this._chainSeq = 0;
-    this._chainBlockSeq = 0;
-    this._procSeq = 0;
-    this.incrementTotalProcSeq();
 
-    this._periodKey = period.key;
+    this.periodKey = period.key;
   };
   public readonly incrementChainSeq = () => {
     this._chainSeq++;

@@ -7,8 +7,9 @@ import type { DuelFieldCell } from "./DuelFieldCell";
 import { cardInfoDic } from "@ygo/class/CardInfo";
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
-import { CardAction, type ChainBlockInfo, type ICardAction, type TCardActionType } from "./DuelCardAction";
+import { CardAction, type CardActionBaseAttr, type ChainBlockInfo, type ICardAction, type TCardActionType } from "./DuelCardAction";
 import { max, min } from "@stk_utils/funcs/StkMathUtils";
+import type { TBanishProcType } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
 
 type TLifeLogReason = "BattleDamage" | "EffectDamage" | "Heal" | "Lost" | "Pay" | "Set";
 export type TDuelistType = "NPC" | "Player";
@@ -116,6 +117,11 @@ export class Duelist {
     // TODO
     return true;
   }
+
+  public readonly writeInfoLog = (text: string) => {
+    this.duel.log.info(text, this);
+  };
+
   public readonly initForDrawPhase = () => {
     this.info = { ...this.infoOrigin };
   };
@@ -140,6 +146,15 @@ export class Duelist {
         .filter((pf) => pf.procTypes.some((pt) => pt === posToSummonPos(pos)))
         .every((pf) => pf.filter(activator, entity, action, entities))
     );
+  };
+  /**
+   * 対象の耐性などを考慮せず、行為を行えるかどうかの判定
+   * @param target
+   * @param procType
+   * @param chainBlockInfo
+   */
+  public readonly canTryBanish = (target: DuelEntity, procType: TBanishProcType, action: CardActionBaseAttr): boolean => {
+    return this.entity.procFilterBundle.operators.filter((pf) => pf.procTypes.includes(procType)).every((pf) => pf.filter(this, this.entity, action, [target]));
   };
 
   public readonly battleDamage = (point: number, entity: DuelEntity): LifeLogRecord => {
@@ -168,7 +183,7 @@ export class Duelist {
     this.lifeLog.push(log);
     this._lp = lp;
 
-    this.duel.log.info(`ライフポイント変動：${log.afterLp - log.beforeLp}（${log.beforeLp} ⇒ ${log.afterLp}）`, this);
+    this.writeInfoLog(`ライフポイント変動：${log.afterLp - log.beforeLp}（${log.beforeLp} ⇒ ${log.afterLp}）`);
 
     return log;
   };
@@ -247,11 +262,10 @@ export class Duelist {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     for (const _ of Array(times)) {
       if (!deckCell.cardEntities.length) {
-        this.duel.log.info(
+        this.writeInfoLog(
           cardNames.length > 0
             ? `デッキからカードを${times}枚ドローしようとしたが、${cardNames.length}枚しかドローできなかった。${cardNames}`
-            : "デッキからカードをドローできなかった。",
-          this
+            : "デッキからカードをドローできなかった。"
         );
         this.duel.isEnded = true;
         this.setLp(0);
@@ -262,7 +276,7 @@ export class Duelist {
 
       cardNames.push(card.origin?.name || "!名称取得失敗!");
     }
-    this.duel.log.info(`デッキからカードを${cardNames.length}枚ドロー。${cardNames}。`, this);
+    this.writeInfoLog(`デッキからカードを${cardNames.length}枚ドロー。${cardNames}。`);
 
     return;
   };
@@ -292,7 +306,7 @@ export class Duelist {
 
     await DuelEntity.sendManyToGraveyardForTheSameReason(selectedList, ["Discard", ...moveAs], causedBy, causedByWhome);
 
-    this.duel.log.info(`手札からカードを${selectedList.length}枚捨てた。${selectedList.map((e) => e.origin?.name)}。`, this);
+    this.writeInfoLog(`手札からカードを${selectedList.length}枚捨てた。${selectedList.map((e) => e.origin?.name)}。`);
 
     return selectedList;
   };

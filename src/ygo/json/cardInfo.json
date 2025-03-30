@@ -18328,7 +18328,7 @@
   "ジャンク・フォアード": {
     "name": "ジャンク・フォアード",
     "nameKana": "",
-    "description": "自分フィールド上にモンスターが存在しない場合、このカードは手札から特殊召喚する事ができる。",
+    "description": "自分フィールド上にモンスターが存在しない場合、\nこのカードは手札から特殊召喚する事ができる。",
     "pendulumDescription": "",
     "kind": "Monster",
     "monsterCategories": [
@@ -18344,5 +18344,13 @@
       "Warrior"
     ],
     "wikiEncodedName": "%A1%D4%A5%B8%A5%E3%A5%F3%A5%AF%A1%A6%A5%D5%A5%A9%A5%A2%A1%BC%A5%C9%A1%D5"
+  },
+  "次元幽閉": {
+    "name": "次元幽閉",
+    "nameKana": "",
+    "description": "相手モンスターの攻撃宣言時、攻撃モンスター１体を選択して発動できる。\n選択した攻撃モンスターをゲームから除外する。",
+    "kind": "Trap",
+    "trapCategory": "Normal",
+    "wikiEncodedName": "%A1%D4%BC%A1%B8%B5%CD%A9%CA%C4%A1%D5"
   }
 }

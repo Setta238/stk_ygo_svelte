@@ -34,8 +34,7 @@
           !deckType ||
           (deckType === "Deck" && !cardInfo?.monsterCategories?.union(exMonsterCategories).length) ||
           (deckType === "ExtraDeck" && cardInfo?.monsterCategories?.union(exMonsterCategories).length)
-      )
-      .toSorted(cardSorter);
+      );
   const onPlusButtonClick = (ev: MouseEvent, cardInfo: CardInfoJson) => {
     const currentQty = deckCardInfos.filter((_cardInfo) => _cardInfo.name === cardInfo.name).length;
     if (currentQty > 2) {
@@ -67,12 +66,12 @@
 <div class="deck_editor_card_list">
   {#each deckTypes as deckType}
     <div class="deck_editor_deck_type">
-      <span>{deckTypeDic[deckType]}</span>
+      <span>{deckTypeDic[deckType]}（{filterCardList(deckType).length}枚）</span>
       {#each listGroup[deckType] as kind}
         <div class="deck_editor_card_kind">
-          <span>{cardKindDic[kind]}</span>
+          <span>{cardKindDic[kind]}（{filterCardList(deckType, kind).length}枚）</span>
           <ul>
-            {#each filterCardList(deckType, kind) as cardInfo}
+            {#each filterCardList(deckType, kind).toSorted(cardSorter) as cardInfo}
               <li class="deck_editor_item">
                 <div
                   role="listitem"

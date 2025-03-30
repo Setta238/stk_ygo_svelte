@@ -3,6 +3,7 @@ import { SystemError } from "./Duel";
 import type { CardActionBaseAttr, CardAction, ChainBlockInfo } from "./DuelCardAction";
 import { DuelEntity, type TSummonRuleCauseReason, posToSummonPos, type TDestoryCauseReason, destoryCauseReasonDic } from "./DuelEntity";
 import type { Duelist } from "./Duelist";
+import type { TProcType } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
 
 declare module "./DuelEntity" {
   interface DuelEntity {
@@ -21,6 +22,7 @@ declare module "./DuelEntity" {
      */
     canDirectAttack(): boolean;
     canBeEffected(activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionBaseAttr>): boolean;
+    canBeBanished(activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionBaseAttr>): boolean;
     canBeTargetOfEffect(activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionBaseAttr>): boolean;
     canBeSpecialSummoned(summmonRule: TSummonRuleCauseReason, activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionBaseAttr>): boolean;
     canBeTargetOfBattle(activator: Duelist, entity: DuelEntity): boolean;
@@ -96,11 +98,28 @@ DuelEntity.prototype.canBeEffected = function (activator: Duelist, causedBy: Due
     .every((pf) => pf.filter(activator, causedBy, action, [this]));
 };
 
+const _canBeDoneSomethingByEffect = (
+  entity: DuelEntity,
+  procType: TProcType,
+  activator: Duelist,
+  causedBy: DuelEntity,
+  action: Partial<CardActionBaseAttr>
+): boolean => {
+  return (
+    entity.canBeEffected(activator, causedBy, action) &&
+    entity.procFilterBundle.operators.filter((pf) => pf.procTypes.some((t) => t === procType)).every((pf) => pf.filter(activator, causedBy, action, [entity]))
+  );
+};
+
 DuelEntity.prototype.canBeTargetOfEffect = function (activator: Duelist, causedBy: DuelEntity, action: CardAction<unknown>): boolean {
-  const entity = this as DuelEntity;
-  return entity.procFilterBundle.operators
-    .filter((pf) => pf.procTypes.some((t) => t === "EffectTarget"))
-    .every((pf) => pf.filter(activator, causedBy, action, [this]));
+  return _canBeDoneSomethingByEffect(this, "EffectTarget", activator, causedBy, action);
+};
+
+DuelEntity.prototype.canBeBanished = function (activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionBaseAttr>): boolean {
+  if (this.fieldCell.cellType === "Banished") {
+    return false;
+  }
+  return _canBeDoneSomethingByEffect(this, "BanishAsEffect", activator, causedBy, action);
 };
 
 DuelEntity.prototype.canBeSpecialSummoned = function (
@@ -161,9 +180,15 @@ DuelEntity.prototype.validateDestory = function (
   action: Partial<CardActionBaseAttr>
 ): boolean {
   const entity = this as DuelEntity;
-  return entity.procFilterBundle.operators
+  let flg = entity.procFilterBundle.operators
     .filter((pf) => pf.procTypes.includes(destroyType))
     .every((pf) => pf.filter(activator, causedBy, action ?? {}, [entity]));
+
+  if (flg && destroyType === "EffectDestroy") {
+    flg = entity.canBeEffected(activator, causedBy, action);
+  }
+
+  return flg;
 };
 
 DuelEntity.prototype.canBeMaterials = function (summmonRule: TSummonRuleCauseReason, action: CardAction<unknown>, materials: DuelEntity[]): boolean {
@@ -199,6 +224,12 @@ export class DuelEntityShortHands {
     await DuelEntity.waitCorpseDisposal(chainBlockInfo.activator.duel);
 
     return result;
+  };
+
+  public static readonly tryBanish = async (cards: DuelEntity[], chainBlockInfo: ChainBlockInfo<unknown>): Promise<DuelEntity[]> => {
+    const _cards = cards.filter((card) => card.canBeBanished(chainBlockInfo.activator, chainBlockInfo.action.entity, chainBlockInfo.action));
+    await DuelEntity.banishManyForTheSameReason(_cards, ["Effect"], chainBlockInfo.action.entity, chainBlockInfo.activator);
+    return _cards.filter((card) => card.fieldCell.cellType === "Banished").filter((card) => card.moveLog.latestRecord.movedBy === chainBlockInfo.action.entity);
   };
 
   private constructor() {}

@@ -3063,7 +3063,6 @@
     "description": "この世の成仏できない霊が集まってできた怨霊。",
     "cardType": "Monster",
     "monsterCategories": [
-      "Effect",
       "Normal"
     ],
     "level": 2,
@@ -14463,8 +14462,7 @@
     "cardType": "Monster",
     "monsterCategories": [
       "Tuner",
-      "Effect",
-      "Normal"
+      "Effect"
     ],
     "level": 2,
     "attack": 1000,
@@ -18242,5 +18240,109 @@
     "kind": "Trap",
     "trapCategory": "Normal",
     "wikiEncodedName": "%A1%D4%B6%AF%CD%DF%A4%CA%C9%D3%A1%D5"
+  },
+  "アクセルシンクロ・スターダスト・ドラゴン": {
+    "name": "アクセルシンクロ・スターダスト・ドラゴン",
+    "nameKana": "",
+    "description": "チューナー＋チューナー以外のモンスター１体以上\nこのカード名の(1)(2)の効果はそれぞれ１ターンに１度しか使用できない。\n(1)：このカードがＳ召喚した場合に発動できる。\n自分の墓地からレベル２以下のチューナー１体を特殊召喚する。\n(2)：自分・相手のメインフェイズに、このカードをリリースして発動できる。\nＥＸデッキから「スターダスト・ドラゴン」１体をＳ召喚扱いで特殊召喚する。\nその後、Ｓモンスター１体のＳ召喚を行う。\nこの効果でＳ召喚したモンスターは、このターン相手が発動した効果を受けない。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Syncro",
+      "Effect"
+    ],
+    "level": 8,
+    "attack": 2500,
+    "defense": 2000,
+    "attributes": [
+      "Wind"
+    ],
+    "types": [
+      "Dragon"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%A2%A5%AF%A5%BB%A5%EB%A5%B7%A5%F3%A5%AF%A5%ED%A1%A6%A5%B9%A5%BF%A1%BC%A5%C0%A5%B9%A5%C8%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5"
+  },
+  "スターダスト・ドラゴン": {
+    "name": "スターダスト・ドラゴン",
+    "nameKana": "",
+    "description": "チューナー＋チューナー以外のモンスター１体以上\n(1)：フィールドのカードを破壊する魔法・罠・モンスターの効果が発動した時、\nこのカードをリリースして発動できる。\nその発動を無効にし破壊する。\n(2)：このカードの(1)の効果を適用したターンのエンドフェイズに発動できる。\nその効果を発動するためにリリースしたこのカードを墓地から特殊召喚する。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Syncro",
+      "Effect"
+    ],
+    "level": 8,
+    "attack": 2500,
+    "defense": 2000,
+    "attributes": [
+      "Wind"
+    ],
+    "types": [
+      "Dragon"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%B9%A5%BF%A1%BC%A5%C0%A5%B9%A5%C8%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5"
+  },
+  "Ｓｉｎ スターダスト・ドラゴン": {
+    "name": "Ｓｉｎ スターダスト・ドラゴン",
+    "nameKana": "",
+    "description": "このカードは通常召喚できない。\nＥＸデッキから「スターダスト・ドラゴン」１体を除外した場合のみ特殊召喚できる。\n(1)：「Ｓｉｎ」モンスターはフィールドに１体しか表側表示で存在できない。\n(2)：このカードがモンスターゾーンに存在する限り、フィールドゾーンの表側表示のカードは効果では破壊されない。\n(3)：このカードがモンスターゾーンに存在する限り、他の自分のモンスターは攻撃宣言できない。\n(4)：フィールド魔法カードが表側表示で存在しない場合にこのカードは破壊される。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "SpecialSummon",
+      "Effect"
+    ],
+    "level": 8,
+    "attack": 2500,
+    "defense": 2000,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Dragon"
+    ],
+    "wikiEncodedName": "%A1%D4%A3%D3%A3%E9%A3%EE+%A5%B9%A5%BF%A1%BC%A5%C0%A5%B9%A5%C8%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5"
+  },
+  "スターダスト・ドラゴン／バスター": {
+    "name": "スターダスト・ドラゴン／バスター",
+    "nameKana": "",
+    "description": "このカードは通常召喚できない。\n「バスター・モード」の効果及び\nこのカードの効果でのみ特殊召喚する事ができる。\n魔法・罠・効果モンスターの効果が発動した時、\nこのカードをリリースする事でその発動を無効にし破壊する。\nこの効果を適用したターンのエンドフェイズ時、\nこの効果を発動するためにリリースされ墓地に存在するこのカードを、\n自分フィールド上に特殊召喚する事ができる。\nまた、フィールド上に存在するこのカードが破壊された時、\n自分の墓地に存在する「スターダスト・ドラゴン」１体を特殊召喚する事ができる。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "SpecialSummon",
+      "Effect"
+    ],
+    "level": 10,
+    "attack": 3000,
+    "defense": 2500,
+    "attributes": [
+      "Wind"
+    ],
+    "types": [
+      "Dragon"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%B9%A5%BF%A1%BC%A5%C0%A5%B9%A5%C8%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%BF%A5%D0%A5%B9%A5%BF%A1%BC%A1%D5"
+  },
+  "ジャンク・フォアード": {
+    "name": "ジャンク・フォアード",
+    "nameKana": "",
+    "description": "自分フィールド上にモンスターが存在しない場合、このカードは手札から特殊召喚する事ができる。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "level": 3,
+    "attack": 900,
+    "defense": 1500,
+    "attributes": [
+      "Earth"
+    ],
+    "types": [
+      "Warrior"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%B8%A5%E3%A5%F3%A5%AF%A1%A6%A5%D5%A5%A9%A5%A2%A1%BC%A5%C9%A1%D5"
   }
 }

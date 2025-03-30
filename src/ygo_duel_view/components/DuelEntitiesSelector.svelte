@@ -9,7 +9,7 @@
 </script>
 
 <script lang="ts">
-  import { CardEntitySorter, type DuelEntity } from "../../ygo_duel/class/DuelEntity";
+  import { cardEntitySorter, type DuelEntity } from "../../ygo_duel/class/DuelEntity";
   import DuelCard from "@ygo_duel_view/components/DuelCard.svelte";
   let { resolve, title, entities, validator, qty, cancelable }: DuelEntitiesSelectorArg & { resolve: (selected: DuelEntity[] | undefined) => void } = $props();
   let selectedList = $state([] as DuelEntity[]);
@@ -26,7 +26,7 @@
       <div>{title}</div>
       {#each entities.map((e) => e.controller.seat).getDistinct() as seat}
         <div class="entities_list {seat}">
-          {#each entities.filter((e) => e.controller.seat === seat).toSorted(CardEntitySorter) as entity}<div>
+          {#each entities.filter((e) => e.controller.seat === seat).toSorted(cardEntitySorter) as entity}<div>
               <DuelCard
                 {entity}
                 isVisibleForcibly={true}

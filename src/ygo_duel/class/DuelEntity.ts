@@ -1,6 +1,5 @@
 import {
   battlePositionDic,
-  cardKinds,
   exMonsterCategories,
   specialMonsterCategories,
   type TBattlePosition,
@@ -12,6 +11,7 @@ import {
   entityFlexibleStatusKeys,
   type TEntityFlexibleStatusKey,
   type EntityNumericStatus,
+  cardSorter,
 } from "@ygo/class/YgoTypes";
 import { Duel } from "./Duel";
 import { deckCellTypes, playFieldCellTypes, type DuelFieldCell, type TBundleCellType, type TDuelEntityMovePos } from "./DuelFieldCell";
@@ -99,55 +99,9 @@ export type TDuelEntityInfoDetail = {
   cardPlayList: Array<CardAction<unknown>>;
 };
 export type TDuelEntityInfo = CardInfoDescription & TDuelEntityInfoDetail;
-export const CardSorter = (left: EntityStatusBase, right: EntityStatusBase): number => {
-  // エクストラデッキのモンスターは、魔法罠よりも下
-  const leftCatList = left.monsterCategories ?? [];
-  const rightCatList = right.monsterCategories ?? [];
 
-  for (const cat of exMonsterCategories.toReversed()) {
-    if (leftCatList.includes(cat) && !rightCatList.includes(cat)) {
-      return 1;
-    }
-    if (!leftCatList.includes(cat) && rightCatList.includes(cat)) {
-      return -1;
-    }
-  }
-
-  if (left.kind === right.kind) {
-    if (left.kind === "Monster") {
-      if ((left.link ?? 0) !== (right.link ?? 0)) {
-        return (left.link ?? 0) - (right.link ?? 0);
-      }
-      if ((left.rank ?? 0) !== (right.rank ?? 0)) {
-        return (left.rank ?? 0) - (right.rank ?? 0);
-      }
-      if ((left.level ?? 0) !== (right.level ?? 0)) {
-        return (left.level ?? 0) - (right.level ?? 0);
-      }
-      if ((left.attack ?? 0) !== (right.attack ?? 0)) {
-        return (left.attack ?? 0) - (right.attack ?? 0);
-      }
-      if ((left.defense ?? 0) !== (right.defense ?? 0)) {
-        return (left.defense ?? 0) - (right.defense ?? 0);
-      }
-    }
-    return left.name.localeCompare(right.name, "Ja");
-  }
-
-  for (const kind of cardKinds) {
-    if (left.kind === kind) {
-      return -1;
-    }
-    if (right.kind === kind) {
-      return 1;
-    }
-  }
-
-  // 到達しないコード
-  return left.name.localeCompare(right.name, "Ja");
-};
-export const CardEntitySorter = (left: DuelEntity, right: DuelEntity): number => {
-  return CardSorter(left.origin, right.origin);
+export const cardEntitySorter = (left: DuelEntity, right: DuelEntity): number => {
+  return cardSorter(left.origin, right.origin);
 };
 
 export type DuelEntityInfomation = {
@@ -545,7 +499,14 @@ export class DuelEntity {
   private static readonly settleEntityMove = (duel: Duel) => {
     duel.distributeOperators(duel.clock.totalProcSeq);
     const entities = duel.field.getAllEntities().filter((entity) => entity.wasMovedAtCurrentProc);
-    entities.filter((entity) => !entity.isOnField).forEach((entity) => entity.resetInfo());
+    entities.filter((entity) => !entity.isOnField).forEach((entity) => entity.resetInfoIfLeavesTheField());
+    entities
+      .filter((entity) => entity.face === "FaceDown")
+      .filter((entity) => entity.fieldCell === entity.isBelongTo)
+      .forEach((entity) => {
+        entity.resetInfoAll();
+        entity.resetStatusAll();
+      });
     entities.flatMap((entity) => entity.continuousEffects).forEach((ce) => ce.updateState());
     duel.field
       .getAllCells()
@@ -743,7 +704,7 @@ export class DuelEntity {
       willBeBanished: false,
       willReturnToDeck: undefined,
     };
-    this.resetInfo();
+    this.resetInfoAll();
     this.face = face;
     this.orientation = orientation;
     this.procFilterBundle = new ProcFilterBundle(fieldCell.field.procFilterPool, this);
@@ -952,7 +913,7 @@ export class DuelEntity {
       if (to === this.isBelongTo || to.cellType === "Hand" || (to.cellType === "Banished" && this.face === "FaceDown")) {
         // 非公開情報になった場合、全ての情報をリセット
         this.counterHolder.clear();
-        this.resetInfo();
+        this.resetInfoAll();
         this.resetStatusAll();
       }
     }
@@ -995,7 +956,22 @@ export class DuelEntity {
     this.counterHolder.corpseDisposal();
   };
 
-  private readonly resetInfo = () => {
+  private readonly resetInfoIfLeavesTheField = () => {
+    this._info = {
+      ...this._info,
+      isDying: false,
+      isPending: false,
+      isEffective: true,
+      causeOfDeath: [],
+      isKilledBy: undefined,
+      isKilledByWhom: undefined,
+      effectTargets: {},
+      attackCount: 0,
+      battlePotisionChangeCount: 0,
+    };
+  };
+
+  private readonly resetInfoAll = () => {
     this._info = {
       isDying: false,
       isPending: false,

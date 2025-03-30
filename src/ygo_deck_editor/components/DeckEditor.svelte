@@ -1,7 +1,7 @@
 <script lang="ts">
   import { cardInfoDic } from "@ygo/class/CardInfo";
   import { DeckInfo, type IDeckInfo } from "@ygo/class/DeckInfo";
-  import { CardEntitySorter, CardSorter, type TDuelEntityFace } from "@ygo_duel/class/DuelEntity";
+  import { type TDuelEntityFace } from "@ygo_duel/class/DuelEntity";
   import DeckEditorCardList from "./DeckEditorCardList.svelte";
   import DuelCardDetail from "@ygo_duel_view/components/DuelCardDetail.svelte";
   import DeckEditiorCardDetail from "./DeckEditiorCardDetail.svelte";
@@ -28,7 +28,18 @@
   } from "@ygo/class/YgoTypes";
   import {} from "@stk_utils/funcs/StkDateUtils";
 
-  const onSelectDeck = async () => {
+  const onClearSearchConditionClick = async () => {
+    seachCondition.name = "";
+    seachCondition.cardKinds = [];
+    seachCondition.monsterCategories = [];
+    seachCondition.monsterAttributes = [];
+    seachCondition.monsterTypes = [];
+    seachCondition.spellCategories = [];
+    seachCondition.trapCategories = [];
+    seachCondition.isForTest = false;
+  };
+
+  const onSelectDeckChange = async () => {
     const deckInfos = await deckInfosPromise;
     const deckInfo = deckInfos.find((deckInfo) => deckInfo.id === selectedId);
     if (!deckInfo) {
@@ -49,10 +60,13 @@
 
   let selectedId = -1;
   let deckInfosPromise: Promise<DeckInfo[]> = initDeck();
-  deckInfosPromise.then(onSelectDeck);
+  let deckInfosObjectURLPromise: Promise<string> = deckInfosPromise.then((deckInfos) => DeckInfo.convertToObjectURL(deckInfos));
+
+  deckInfosPromise.then(onSelectDeckChange);
   const reloadAllDeckInfo = () => {
     deckInfosPromise = initDeck();
-    onSelectDeck();
+    deckInfosObjectURLPromise = deckInfosPromise.then((deckInfos) => DeckInfo.convertToObjectURL(deckInfos));
+    onSelectDeckChange();
   };
 
   let tmpDeck = {
@@ -159,7 +173,10 @@
   <div class="deck_editor_body">
     <div class="deck_editor_body_left">
       <div class="deck_editor_search_box">
-        <div><div>検索条件</div></div>
+        <div class="deck_editor_search_box_header">
+          <div>検索条件</div>
+          <div><button class="white_button" on:click={onClearSearchConditionClick}>条件クリア</button></div>
+        </div>
         <div class="deck_editor_search_box_row">
           <div>名称</div>
           <div>
@@ -255,23 +272,40 @@
       {:then deckInfos}
         <div class="deck_editor_body_right_header">
           <div class="deck_editor_body_right_header_row">
-            <div>編集対象</div>
-            <select bind:value={selectedId} on:change={onSelectDeck}>
-              {#each deckInfos as deckInfo}
-                <option value={deckInfo.id}>{deckInfo.name}</option>
-              {/each}
-            </select>
-          </div>
-          <div class="deck_editor_body_right_header_row">
-            <div>新規名称</div>
-            <input type="text" bind:value={tmpDeck.name} />
-          </div>
-          <div class="deck_editor_body_right_header_row">
-            <div>操作</div>
-            <div><button on:click={onSaveDeckClick}>デッキを保存</button></div>
+            <div>
+              編集対象
+              <select bind:value={selectedId} on:change={onSelectDeckChange}>
+                {#each deckInfos as deckInfo}
+                  <option value={deckInfo.id}>{deckInfo.name}</option>
+                {/each}
+              </select>
+            </div>
             <div></div>
-            <div><button on:click={onCopyDeckClick}>デッキを複製</button></div>
-            <div><button on:click={onDeleteDeckClick} title="shiftキー押下で確認メッセージスキップ">デッキを削除</button></div>
+            <div>
+              新規名称
+              <input type="text" bind:value={tmpDeck.name} />
+            </div>
+          </div>
+          <div class="deck_editor_body_right_header_row"></div>
+          <div class="deck_editor_body_right_header_row">
+            <div>基本操作</div>
+            <div><button class="white_button" on:click={onSaveDeckClick}>デッキを保存</button></div>
+            <div></div>
+            <div><button class="white_button" on:click={onCopyDeckClick}>デッキを複製</button></div>
+            <div><button class="white_button" on:click={onDeleteDeckClick} title="shiftキー押下で確認メッセージスキップ">デッキを削除</button></div>
+          </div>
+          <div class="deck_editor_body_right_header_row">
+            <div>DL/UL</div>
+            {#await getSelectedDeck()}
+              <div></div>
+            {:then deckInfo}
+              <div><a class="white_button" href={DeckInfo.convertToObjectURL([deckInfo])} download="SVS_DeckInfos.json">ダウンロード</a></div>
+            {/await}
+            {#await deckInfosObjectURLPromise}
+              <div></div>
+            {:then url}
+              <div><a class="white_button" href={url} download="SVS_DeckInfos.json">ダウンロード（一括）</a></div>
+            {/await}
           </div>
         </div>
         <DeckEditorCardList mode="Deck" allCardInfos={[]} bind:deckCardInfos={tmpDeck.cardInfos} {onAttention} />
@@ -282,7 +316,7 @@
               <textarea class="deck_editor_card_list" rows="90" cols="50"
           >{deckInfo.cardNames
             .map((cardName) => cardInfoDic[cardName])
-            .toSorted(CardSorter)
+            .toSorted(cardSorter)
             .map((info) => info.name)
             .join("\n")
             .trim()}</textarea
@@ -318,6 +352,26 @@
   .deck_editor_body_left > div {
     flex-grow: 1;
   }
+  .deck_editor_search_box_header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    background-color: burlywood;
+    border-radius: 0.5rem;
+    padding: 0.2rem;
+  }
+  .white_button {
+    background-color: #ffffff;
+    display: inline-block;
+    padding: 0em 1em;
+    text-decoration: none;
+    color: #67c5ff;
+    border: solid 0.2rem #67c5ff;
+    border-radius: 3px;
+    transition: 0.4s;
+    margin: 0.1rem 0.3rem;
+  }
+
   .deck_editor_search_box_row {
     display: flex;
     flex-direction: row;
@@ -361,7 +415,7 @@
     min-width: 5rem;
     flex-grow: 0;
   }
-  .deck_editor_body_right_header button {
+  .white_button {
     background-color: #ffffff;
     display: inline-block;
     padding: 0em 1em;
@@ -371,9 +425,10 @@
     border-radius: 3px;
     transition: 0.4s;
     margin: 0.1rem 0.3rem;
+    line-height: 1.3;
   }
 
-  .deck_editor_body_right_header button:hover {
+  .white_button:hover {
     background: #67c5ff;
     color: white;
   }

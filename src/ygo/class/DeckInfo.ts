@@ -2,6 +2,8 @@ import { StkIndexedDB } from "@stk_utils/class/StkIndexedDB";
 import { StkDataStore, type IStkDataRecord } from "@stk_utils/class/StkDataStore";
 import { cardInfoDic } from "@ygo/class/CardInfo";
 import type { TTblNames } from "@ygo_app/components/App.svelte";
+import { cardSorter } from "./YgoTypes";
+import sampleDeckInfos from "@ygo/json/SampleDeckInfos.json";
 
 export type DeckHeaderRecord = IStkDataRecord & {
   lastUsedAt: Date;
@@ -19,6 +21,27 @@ export interface IDeckInfo {
 }
 
 export class DeckInfo implements IDeckInfo {
+  public static readonly toJson = (deckInfos: IDeckInfo[]): string => {
+    const _deckInfos = deckInfos.map((info) => {
+      const { id, name, description, lastUsedAt, cardNames } = info;
+      return { id, name, description, lastUsedAt, cardNames };
+    });
+
+    _deckInfos.forEach((info) => {
+      info.cardNames = info.cardNames
+        .map((name) => cardInfoDic[name])
+        .sort(cardSorter)
+        .map((info) => info.name);
+    });
+
+    return JSON.stringify(_deckInfos, null, 2);
+  };
+  public static readonly convertToObjectURL = (deckInfos: IDeckInfo[]) => {
+    const json = DeckInfo.toJson(deckInfos);
+    // 指定されたデータを保持するBlobを作成する。
+    const blob = new Blob([json], { type: "text/plain" });
+    return window.URL.createObjectURL(blob);
+  };
   private static idb: StkIndexedDB<TTblNames> | undefined;
   private static tblHeader: TblDeckHeader;
   private static tblDetail: TblDeckDetail;
@@ -68,7 +91,8 @@ export class DeckInfo implements IDeckInfo {
   };
 
   public static prepareSampleDeck = async () => {
-    return await DeckInfo.createNewDeck(sampleDecks[0].name, sampleDecks[0].description, sampleDecks[0].cardNames);
+    const sampleDeck = sampleDeckInfos.slice(-1)[0];
+    return await DeckInfo.createNewDeck(sampleDeck.name, sampleDeck.description, sampleDeck.cardNames);
   };
 
   public readonly id: number;
@@ -167,60 +191,8 @@ class TblDeckDetail extends StkDataStore<DeckDetailRecord, TTblNames> {
   public _prepareInitialRecords = () => [];
 }
 
-let sampleid = -1;
-let cardNames = [
-  "成金ゴブリン",
-  "強欲な壺",
-  "天使の施し",
-  "トレード・イン",
-  "調和の宝札",
-  "死者蘇生",
-  "召喚師のスキル",
-  "サイバー・ドラゴン",
-  "Ｄ－ＨＥＲＯ ディアボリックガイ",
-  "マジカル・アンドロイド",
-  "ナチュル・ガオドレイク",
-  "スクラップ・デスデーモン",
-  "大地の騎士ガイアナイト",
-  "青眼の白龍",
-  "伝説の白石",
-  "トレード・イン",
-  "貪欲な壺",
-];
-cardNames = [
-  ...cardNames,
-  ...cardNames,
-  ...cardNames,
-  "Ｅ－エマージェンシーコール",
-  "ライトロード・ビースト ウォルフ",
-  "増援",
-  "おろかな埋葬",
-  "闇の量産工場",
-  "戦士の生還",
-  "ジェネティック・ワーウルフ",
-  "ジョングルグールの幻術師",
-  "ゾンビーノ",
-  "フロストザウルス",
-  "しゃりの軍貫",
-  "チューン・ウォリアー",
-  "ガード・オブ・フレムベル",
-  "ギャラクシーサーペント",
-  "ハロハロ",
-  "ラブラドライドラゴン",
-  "守護竜ユスティア",
-  "Ｅ・ＨＥＲＯ クレイマン",
-  "Ｅ・ＨＥＲＯ スパークマン",
-  "Ｅ・ＨＥＲＯ ネオス",
-  "Ｅ・ＨＥＲＯ バーストレディ",
-  "Ｅ・ＨＥＲＯ フェザーマン",
-];
-
-export const sampleDecks: IDeckInfo[] = [
-  {
-    id: sampleid--,
-    name: "サンプルデッキ１",
-    description: "",
-    lastUsedAt: new Date(),
-    cardNames: cardNames,
-  },
-];
+export const sampleDecks: IDeckInfo[] = (sampleDeckInfos as Omit<IDeckInfo, "lastUsedAt">[])
+  .map((info) => {
+    return { ...info, lastUsedAt: new Date() };
+  })
+  .filter((info) => info.id < 0);

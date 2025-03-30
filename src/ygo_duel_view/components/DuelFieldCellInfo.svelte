@@ -2,7 +2,7 @@
   import type { DuelViewController } from "@ygo_duel_view/class/DuelViewController";
   import DuelCard from "./DuelCard.svelte";
   import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
-  import { CardEntitySorter, type TDuelEntityFace } from "@ygo_duel/class/DuelEntity";
+  import { cardEntitySorter, type TDuelEntityFace } from "@ygo_duel/class/DuelEntity";
   export let cell: DuelFieldCell;
 
   const onCellUpdate = () => {
@@ -26,7 +26,7 @@
           <div class="duel_field_cell_info_label">
             {face === "FaceUp" ? "表向き" : "裏向き"}
           </div>
-          {#each getList(face).toSorted(CardEntitySorter) as card}
+          {#each getList(face).toSorted(cardEntitySorter) as card}
             <div class="duel_field_cell_info_item">
               <DuelCard entity={card} isVisibleForcibly={cell.owner === cell.field.duel.duelists.Below} isWideMode={true} cardActionResolve={undefined} />
             </div>

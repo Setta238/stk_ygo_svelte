@@ -118,7 +118,6 @@ DuelEntity.prototype.canBeSpecialSummoned = function (
   // 特殊召喚モンスターかつ蘇生制限を満たしていないモンスター
   if (
     entity.origin.monsterCategories?.includes("SpecialSummon") &&
-    !entity.status.canReborn &&
     !entity.info.isRebornable &&
     (entity.fieldCell.cellType === "Graveyard" || this.fieldCell.cellType === "Banished")
   ) {

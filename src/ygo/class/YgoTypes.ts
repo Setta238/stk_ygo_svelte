@@ -247,3 +247,56 @@ export const monsterTypeEmojiDic = {
 export const getMonsterType = (text: string): TMonsterType | undefined => {
   return (Object.entries(monsterTypeDic) as [TMonsterType, string][]).find((entry) => entry[1] === text)?.[0] || undefined;
 };
+export const getKonamiUrl = (status: EntityStatusBase) => {
+  return (status.cardId ?? 0 > 0)
+    ? `https://www.db.yugioh-card.com/yugiohdb/card_search.action?ope=2&cid=${status.cardId}`
+    : `https://www.db.yugioh-card.com/yugiohdb/card_search.action?ope=1&sess=1&rp=10&mode=&sort=1&keyword=${status.name}&stype=1&ctype=&othercon=2&starfr=&starto=&pscalefr=&pscaleto=&linkmarkerfr=&linkmarkerto=&link_m=2&atkfr=&atkto=&deffr=&defto=&releaseDStart=1&releaseMStart=1&releaseYStart=1999&releaseDEnd=&releaseMEnd=&releaseYEnd=`;
+};
+
+export const cardSorter = (left: EntityStatusBase, right: EntityStatusBase): number => {
+  // エクストラデッキのモンスターは、魔法罠よりも下
+  const leftCatList = left.monsterCategories ?? [];
+  const rightCatList = right.monsterCategories ?? [];
+
+  for (const cat of exMonsterCategories.toReversed()) {
+    if (leftCatList.includes(cat) && !rightCatList.includes(cat)) {
+      return 1;
+    }
+    if (!leftCatList.includes(cat) && rightCatList.includes(cat)) {
+      return -1;
+    }
+  }
+
+  if (left.kind === right.kind) {
+    if (left.kind === "Monster") {
+      if ((left.link ?? 0) !== (right.link ?? 0)) {
+        return (left.link ?? 0) - (right.link ?? 0);
+      }
+      if ((left.rank ?? 0) !== (right.rank ?? 0)) {
+        return (left.rank ?? 0) - (right.rank ?? 0);
+      }
+      if ((left.level ?? 0) !== (right.level ?? 0)) {
+        return (left.level ?? 0) - (right.level ?? 0);
+      }
+      if ((left.attack ?? 0) !== (right.attack ?? 0)) {
+        return (left.attack ?? 0) - (right.attack ?? 0);
+      }
+      if ((left.defense ?? 0) !== (right.defense ?? 0)) {
+        return (left.defense ?? 0) - (right.defense ?? 0);
+      }
+    }
+    return left.name.localeCompare(right.name, "Ja");
+  }
+
+  for (const kind of cardKinds) {
+    if (left.kind === kind) {
+      return -1;
+    }
+    if (right.kind === kind) {
+      return 1;
+    }
+  }
+
+  // 到達しないコード
+  return left.name.localeCompare(right.name, "Ja");
+};

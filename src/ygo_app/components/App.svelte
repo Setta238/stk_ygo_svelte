@@ -74,12 +74,16 @@
     const selectedDeck = await getSelectedDeckInfo();
     selectedDeck.updateTimestamp();
     const npc = nonPlayerCharacters.find((npc) => npc.id === selectedNpcId);
+    let npcDeck = sampleDecks.slice(-1)[0];
     if (!npc) {
       return;
     }
+    if (npc.id === -1) {
+      npcDeck = sampleDecks.find((info) => info.id === -1) ?? npcDeck;
+    }
 
     console.log(npc);
-    duel = new Duel(await userProfilePromise, "Player", await getSelectedDeckInfo(), [], npc, "NPC", sampleDecks[0], [], startMode);
+    duel = new Duel(await userProfilePromise, "Player", await getSelectedDeckInfo(), [], npc, "NPC", npcDeck, [], startMode);
   };
   const onEditClick = async () => {
     await Promise.all([saveUserProfile(), prepareSampleDeck()]);

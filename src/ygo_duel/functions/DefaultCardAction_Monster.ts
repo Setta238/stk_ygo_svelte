@@ -98,13 +98,14 @@ export const defaultNormalSummonPrepare = async (
 
 export const defaultNormalSummonExecute = async (myInfo: ChainBlockInfo<SummonPrepared>): Promise<boolean> => {
   const movedAs: TDuelCauseReason[] = ["Rule", "NormalSummon"];
-
+  let summonRule: TDuelCauseReason = "NormalSummon";
   if (myInfo.prepared.materials.length > 0) {
     myInfo.action.entity.info.materials.reset(...myInfo.prepared.materials);
+    summonRule = "AdvanceSummon";
     movedAs.push("AdvanceSummon");
   }
 
-  await myInfo.action.entity.summon(myInfo.prepared.dest, myInfo.prepared.pos, "NormalSummon", movedAs, myInfo.action.entity, myInfo.activator);
+  await myInfo.action.entity.summon(myInfo.prepared.dest, myInfo.prepared.pos, summonRule, movedAs, myInfo.action.entity, myInfo.activator);
 
   myInfo.activator.info.ruleNormalSummonCount++;
   myInfo.activator.info.ruleNormalSummonCountQty++;

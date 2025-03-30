@@ -4,6 +4,7 @@
   import {
     cardKindDic,
     cardKinds,
+    cardSorter,
     deckTypeDic,
     deckTypes,
     exMonsterCategories,
@@ -15,7 +16,6 @@
     type TCardKind,
     type TDeckTypes,
   } from "@ygo/class/YgoTypes";
-  import { CardEntitySorter, CardSorter, type TDuelEntityFace } from "@ygo_duel/class/DuelEntity";
 
   export let allCardInfos: CardInfoJson[];
   export let deckCardInfos: CardInfoJson[];
@@ -35,7 +35,7 @@
           (deckType === "Deck" && !cardInfo?.monsterCategories?.union(exMonsterCategories).length) ||
           (deckType === "ExtraDeck" && cardInfo?.monsterCategories?.union(exMonsterCategories).length)
       )
-      .toSorted(CardSorter);
+      .toSorted(cardSorter);
   const onPlusButtonClick = (ev: MouseEvent, cardInfo: CardInfoJson) => {
     const currentQty = deckCardInfos.filter((_cardInfo) => _cardInfo.name === cardInfo.name).length;
     if (currentQty > 2) {
@@ -47,7 +47,7 @@
     }
 
     deckCardInfos.push(...Array(qty).fill(cardInfo));
-    deckCardInfos.sort(CardSorter);
+    deckCardInfos.sort(cardSorter);
     deckCardInfos = deckCardInfos;
   };
   const onMinusButtonClick = (ev: MouseEvent, cardInfo: CardInfoJson) => {
@@ -60,7 +60,7 @@
       count++;
       return !ev.shiftKey && count > 1;
     });
-    deckCardInfos.sort(CardSorter);
+    deckCardInfos.sort(cardSorter);
   };
 </script>
 
@@ -117,8 +117,8 @@
                     </div>
                   </div>
                 </div>
-                <button class="button_style_reset" on:click={(ev) => onPlusButtonClick(ev, cardInfo)}>+</button>
-                <button class="button_style_reset" on:click={(ev) => onMinusButtonClick(ev, cardInfo)}>-</button>
+                <button class="button_style_reset" title="※shiftキー同時押しで一括投入" on:click={(ev) => onPlusButtonClick(ev, cardInfo)}>+</button>
+                <button class="button_style_reset" title="※shiftキー同時押しで一括外し" on:click={(ev) => onMinusButtonClick(ev, cardInfo)}>-</button>
               </li>
             {/each}
           </ul>

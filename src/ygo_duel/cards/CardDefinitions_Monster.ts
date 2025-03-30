@@ -67,8 +67,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         validate: (myInfo) => {
-          const emptyCells = myInfo.activator.getAvailableMonsterZones();
-          if (!emptyCells.length) {
+          if (myInfo.activator.getMonstersOnField().length) {
             return;
           }
 

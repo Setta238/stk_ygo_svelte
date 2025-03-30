@@ -140,7 +140,7 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 特に大好物のロースト・ビーフには目がなく、
 今日も新たな味との出会いに心を躍らせながら現世を彷徨っている。`,cardType:"Monster",monsterCategories:["Normal","Pendulum"],level:7,attack:2e3,defense:1e3,pendulumScaleR:4,pendulumScaleL:4,kind:"Monster",pendulumDescription:`(1)：１ターンに１度、自分メインフェイズに発動できる。
 サイコロを１回振る。
-ターン終了時まで、このカードのＰスケールを出た目の数だけ上げる（最大１０まで）。`,wikiEncodedName:"%A1%D4%A5%B4%A1%BC%A5%B9%A5%C8%A1%A6%A5%D3%A1%BC%A5%D5%A1%D5",attributes:["Dark"],types:["Beast"]},ゴースト:{name:"ゴースト",nameKana:"",description:"この世の成仏できない霊が集まってできた怨霊。",cardType:"Monster",monsterCategories:["Effect","Normal"],level:2,attack:600,defense:800,kind:"Monster",wikiEncodedName:"%A1%D4%A5%B4%A1%BC%A5%B9%A5%C8%A1%D5",attributes:["Dark"],types:["Zombie"]},ゴキボール:{name:"ゴキボール",nameKana:"",description:`丸いゴキブリ。
+ターン終了時まで、このカードのＰスケールを出た目の数だけ上げる（最大１０まで）。`,wikiEncodedName:"%A1%D4%A5%B4%A1%BC%A5%B9%A5%C8%A1%A6%A5%D3%A1%BC%A5%D5%A1%D5",attributes:["Dark"],types:["Beast"]},ゴースト:{name:"ゴースト",nameKana:"",description:"この世の成仏できない霊が集まってできた怨霊。",cardType:"Monster",monsterCategories:["Normal"],level:2,attack:600,defense:800,kind:"Monster",wikiEncodedName:"%A1%D4%A5%B4%A1%BC%A5%B9%A5%C8%A1%D5",attributes:["Dark"],types:["Zombie"]},ゴキボール:{name:"ゴキボール",nameKana:"",description:`丸いゴキブリ。
 ゴロゴロ転がって攻撃。
 守備が意外と高いぞ。`,cardType:"Monster",monsterCategories:["Normal"],level:4,attack:1200,defense:1400,kind:"Monster",wikiEncodedName:"%A1%D4%A5%B4%A5%AD%A5%DC%A1%BC%A5%EB%A1%D5",attributes:["Earth"],types:["Insect"]},"ゴギガ・ガガギゴ":{name:"ゴギガ・ガガギゴ",nameKana:"",description:`既に精神は崩壊し、肉体は更なるパワーを求めて暴走する。
 その姿にかつての面影はない・・・。`,cardType:"Monster",monsterCategories:["Normal"],level:8,attack:2950,defense:2800,kind:"Monster",wikiEncodedName:"%A1%D4%A5%B4%A5%AE%A5%AC%A1%A6%A5%AC%A5%AC%A5%AE%A5%B4%A1%D5",attributes:["Water"],types:["Reptile"]},ゴルゴイル:{name:"ゴルゴイル",nameKana:"",description:"異次元に通じる穴から出てくる、大きな鋼鉄の魔人。",cardType:"Monster",monsterCategories:["Normal"],level:4,attack:900,defense:1600,kind:"Monster",wikiEncodedName:"%A1%D4%A5%B4%A5%EB%A5%B4%A5%A4%A5%EB%A1%D5",attributes:["Earth"],types:["Machine"]},サイガー:{name:"サイガー",nameKana:"",description:"守備は見た目ほど高くないが、ツノによる攻撃は強力だ。",cardType:"Monster",monsterCategories:["Normal"],level:3,attack:1200,defense:600,kind:"Monster",wikiEncodedName:"%A1%D4%A5%B5%A5%A4%A5%AC%A1%BC%A1%D5",attributes:["Earth"],types:["Beast"]},サイクロイド:{name:"サイクロイド",nameKana:"",description:`数あるビークロイドの中で、最も親しみ深く愛されるビークロイド。
@@ -602,7 +602,7 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 (2)：このカードが墓地に存在し、
 「魔妖」モンスターがＥＸデッキから自分フィールドに特殊召喚された時に発動できる。
 このカードを特殊召喚する。
-この効果を発動するターン、自分は「魔妖」モンスターしかＥＸデッキから特殊召喚できない。`,cardType:"Monster",monsterCategories:["Tuner","Effect","Normal"],level:2,attack:1e3,defense:0,kind:"Monster",wikiEncodedName:"%A1%D4%CE%EF%A4%CE%CB%E2%CD%C5%A1%DD%D5%A7%C9%B1%A1%D5",attributes:["Fire"],types:["Zombie"]},六武衆の侍従:{name:"六武衆の侍従",nameKana:"",description:`六武衆を陰で支える謎多き人物。
+この効果を発動するターン、自分は「魔妖」モンスターしかＥＸデッキから特殊召喚できない。`,cardType:"Monster",monsterCategories:["Tuner","Effect"],level:2,attack:1e3,defense:0,kind:"Monster",wikiEncodedName:"%A1%D4%CE%EF%A4%CE%CB%E2%CD%C5%A1%DD%D5%A7%C9%B1%A1%D5",attributes:["Fire"],types:["Zombie"]},六武衆の侍従:{name:"六武衆の侍従",nameKana:"",description:`六武衆を陰で支える謎多き人物。
 今はもう闘う事はないが、体に刻まれた無数の傷跡が何かを語る。
 その過去を知る者はいない。`,cardType:"Monster",monsterCategories:["Normal"],level:3,attack:200,defense:2e3,kind:"Monster",nameTags:["六武衆"],wikiEncodedName:"%A1%D4%CF%BB%C9%F0%BD%B0%A4%CE%BB%F8%BD%BE%A1%D5",attributes:["Earth"],types:["Warrior"]},恍惚の人魚:{name:"恍惚の人魚",nameKana:"",description:"海を航海する者を誘惑しておぼれさせる、美しい人魚。",cardType:"Monster",monsterCategories:["Normal"],level:3,attack:1200,defense:900,kind:"Monster",wikiEncodedName:"%A1%D4%D7%F2%B9%FB%A4%CE%BF%CD%B5%FB%A1%D5",attributes:["Water"],types:["Fish"]},髑髏の寺院:{name:"髑髏の寺院",nameKana:"",description:`ドクロと骨ばかりの、気味の悪いお寺。
 近づく者を吸い込む。`,cardType:"Monster",monsterCategories:["Normal"],level:4,attack:900,defense:1300,kind:"Monster",wikiEncodedName:"%A1%D4%F1%F1%F1%F0%A4%CE%BB%FB%B1%A1%A1%D5",attributes:["Dark"],types:["Zombie"]},"サイバー・ドラゴン・インフィニティ":{name:"サイバー・ドラゴン・インフィニティ",nameKana:"",description:`機械族・光属性レベル６モンスター×３
@@ -1202,4 +1202,30 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 このターンのエンドフェイズに、相手フィールドの裏側守備表示モンスターを全て表側守備表示にし、
 その後、この効果で表側守備表示にしたモンスターの数だけ相手はドローする。`,kind:"Spell",spellCategory:"QuickPlay",wikiEncodedName:"%A1%D4%B3%A7%B4%FB%C6%FC%BF%AA%A4%CE%BD%F1%A1%D5"},儀式降臨封印の書:{name:"儀式降臨封印の書",nameKana:"",description:"フィールド上に表側表示で存在する儀式モンスター１体を破壊する。",kind:"Trap",trapCategory:"Normal",wikiEncodedName:"%A1%D4%B5%B7%BC%B0%B9%DF%CE%D7%C9%F5%B0%F5%A4%CE%BD%F1%A1%D5"},炸裂装甲:{name:"炸裂装甲",nameKana:"",description:"(1)：相手モンスターの攻撃宣言時、攻撃モンスター１体を対象として発動できる。その攻撃モンスターを破壊する。",kind:"Trap",trapCategory:"Normal",wikiEncodedName:"%A1%D4%DF%DA%CE%F6%C1%F5%B9%C3%A1%D5"},魔の試着部屋:{name:"魔の試着部屋",nameKana:"",description:`８００ライフポイントを払う。
 自分のデッキの上からカードを４枚めくり、その中のレベル３以下の通常モンスターを自分フィールド上に特殊召喚する。
-それ以外のカードはデッキに戻してシャッフルする。`,kind:"Spell",spellCategory:"Normal",wikiEncodedName:"%A1%D4%CB%E2%A4%CE%BB%EE%C3%E5%C9%F4%B2%B0%A1%D5"},強欲な瓶:{name:"強欲な瓶",nameKana:"",description:"(1)：自分はデッキから１枚ドローする。",kind:"Trap",trapCategory:"Normal",wikiEncodedName:"%A1%D4%B6%AF%CD%DF%A4%CA%C9%D3%A1%D5"}};export{e as j};
+それ以外のカードはデッキに戻してシャッフルする。`,kind:"Spell",spellCategory:"Normal",wikiEncodedName:"%A1%D4%CB%E2%A4%CE%BB%EE%C3%E5%C9%F4%B2%B0%A1%D5"},強欲な瓶:{name:"強欲な瓶",nameKana:"",description:"(1)：自分はデッキから１枚ドローする。",kind:"Trap",trapCategory:"Normal",wikiEncodedName:"%A1%D4%B6%AF%CD%DF%A4%CA%C9%D3%A1%D5"},"アクセルシンクロ・スターダスト・ドラゴン":{name:"アクセルシンクロ・スターダスト・ドラゴン",nameKana:"",description:`チューナー＋チューナー以外のモンスター１体以上
+このカード名の(1)(2)の効果はそれぞれ１ターンに１度しか使用できない。
+(1)：このカードがＳ召喚した場合に発動できる。
+自分の墓地からレベル２以下のチューナー１体を特殊召喚する。
+(2)：自分・相手のメインフェイズに、このカードをリリースして発動できる。
+ＥＸデッキから「スターダスト・ドラゴン」１体をＳ召喚扱いで特殊召喚する。
+その後、Ｓモンスター１体のＳ召喚を行う。
+この効果でＳ召喚したモンスターは、このターン相手が発動した効果を受けない。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","Effect"],level:8,attack:2500,defense:2e3,attributes:["Wind"],types:["Dragon"],wikiEncodedName:"%A1%D4%A5%A2%A5%AF%A5%BB%A5%EB%A5%B7%A5%F3%A5%AF%A5%ED%A1%A6%A5%B9%A5%BF%A1%BC%A5%C0%A5%B9%A5%C8%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5"},"スターダスト・ドラゴン":{name:"スターダスト・ドラゴン",nameKana:"",description:`チューナー＋チューナー以外のモンスター１体以上
+(1)：フィールドのカードを破壊する魔法・罠・モンスターの効果が発動した時、
+このカードをリリースして発動できる。
+その発動を無効にし破壊する。
+(2)：このカードの(1)の効果を適用したターンのエンドフェイズに発動できる。
+その効果を発動するためにリリースしたこのカードを墓地から特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","Effect"],level:8,attack:2500,defense:2e3,attributes:["Wind"],types:["Dragon"],wikiEncodedName:"%A1%D4%A5%B9%A5%BF%A1%BC%A5%C0%A5%B9%A5%C8%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5"},"Ｓｉｎ スターダスト・ドラゴン":{name:"Ｓｉｎ スターダスト・ドラゴン",nameKana:"",description:`このカードは通常召喚できない。
+ＥＸデッキから「スターダスト・ドラゴン」１体を除外した場合のみ特殊召喚できる。
+(1)：「Ｓｉｎ」モンスターはフィールドに１体しか表側表示で存在できない。
+(2)：このカードがモンスターゾーンに存在する限り、フィールドゾーンの表側表示のカードは効果では破壊されない。
+(3)：このカードがモンスターゾーンに存在する限り、他の自分のモンスターは攻撃宣言できない。
+(4)：フィールド魔法カードが表側表示で存在しない場合にこのカードは破壊される。`,pendulumDescription:"",kind:"Monster",monsterCategories:["SpecialSummon","Effect"],level:8,attack:2500,defense:2e3,attributes:["Dark"],types:["Dragon"],wikiEncodedName:"%A1%D4%A3%D3%A3%E9%A3%EE+%A5%B9%A5%BF%A1%BC%A5%C0%A5%B9%A5%C8%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5"},"スターダスト・ドラゴン／バスター":{name:"スターダスト・ドラゴン／バスター",nameKana:"",description:`このカードは通常召喚できない。
+「バスター・モード」の効果及び
+このカードの効果でのみ特殊召喚する事ができる。
+魔法・罠・効果モンスターの効果が発動した時、
+このカードをリリースする事でその発動を無効にし破壊する。
+この効果を適用したターンのエンドフェイズ時、
+この効果を発動するためにリリースされ墓地に存在するこのカードを、
+自分フィールド上に特殊召喚する事ができる。
+また、フィールド上に存在するこのカードが破壊された時、
+自分の墓地に存在する「スターダスト・ドラゴン」１体を特殊召喚する事ができる。`,pendulumDescription:"",kind:"Monster",monsterCategories:["SpecialSummon","Effect"],level:10,attack:3e3,defense:2500,attributes:["Wind"],types:["Dragon"],wikiEncodedName:"%A1%D4%A5%B9%A5%BF%A1%BC%A5%C0%A5%B9%A5%C8%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%BF%A5%D0%A5%B9%A5%BF%A1%BC%A1%D5"},"ジャンク・フォアード":{name:"ジャンク・フォアード",nameKana:"",description:"自分フィールド上にモンスターが存在しない場合、このカードは手札から特殊召喚する事ができる。",pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:3,attack:900,defense:1500,attributes:["Earth"],types:["Warrior"],wikiEncodedName:"%A1%D4%A5%B8%A5%E3%A5%F3%A5%AF%A1%A6%A5%D5%A5%A9%A5%A2%A1%BC%A5%C9%A1%D5"}};export{e as j};

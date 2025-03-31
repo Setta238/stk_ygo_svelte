@@ -22,6 +22,7 @@ export default defineConfig({
       input: {
         index: "./index.html",
         note: "./note.html",
+        md: "./md.css",
       },
       output: {
         manualChunks(id) {

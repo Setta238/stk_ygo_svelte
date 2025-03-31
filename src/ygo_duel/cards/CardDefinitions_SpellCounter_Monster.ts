@@ -1,4 +1,4 @@
-import { defaultAttackAction, defaultBattlePotisionChangeAction, defaultNormalSummonAction } from "@ygo_duel/functions/DefaultCardAction_Monster";
+import { defaultAttackAction, defaultBattlePotisionChangeAction, defaultNormalSummonAction } from "@ygo_duel/cards/DefaultCardAction_Monster";
 import type { CardDefinition } from "./CardDefinitions";
 import type { CardActionBase } from "@ygo_duel/class/DuelCardAction";
 import {

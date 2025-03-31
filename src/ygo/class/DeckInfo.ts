@@ -1,7 +1,7 @@
 import { StkIndexedDB } from "@stk_utils/class/StkIndexedDB";
 import { StkDataStore, type IStkDataRecord } from "@stk_utils/class/StkDataStore";
 import { cardInfoDic } from "@ygo/class/CardInfo";
-import type { TTblNames } from "@ygo_app/components/App.svelte";
+import type { TTblNames } from "@app/components/App.svelte";
 import { cardSorter } from "./YgoTypes";
 import sampleDeckInfos from "@ygo/json/SampleDeckInfos.json";
 

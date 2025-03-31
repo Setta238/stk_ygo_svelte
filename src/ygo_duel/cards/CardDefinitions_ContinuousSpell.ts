@@ -1,4 +1,4 @@
-import { defaultSpellTrapSetAction, defaultSpellTrapValidate, defaultUndefinedSpellTrapPrepare } from "@ygo_duel/functions/DefaultCardAction_Spell";
+import { defaultSpellTrapSetAction, defaultSpellTrapValidate, defaultUndefinedSpellTrapPrepare } from "@ygo_duel/cards/DefaultCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardActionBase } from "@ygo_duel/class/DuelCardAction";

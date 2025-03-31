@@ -1,6 +1,6 @@
 import { StkDataStore, type IStkDataRecord } from "@stk_utils/class/StkDataStore";
 import type { StkIndexedDB } from "@stk_utils/class/StkIndexedDB";
-import type { TTblNames } from "@ygo_app/components/App.svelte";
+import type { TTblNames } from "@app/components/App.svelte";
 export type DuelistHeaderRecord = IStkDataRecord & {};
 export interface IDuelistHeaderRecord {
   id: number;

@@ -1,6 +1,6 @@
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { duelFieldCellTypes, monsterZoneCellTypes, spellTrapZoneCellTypes, type DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
-import { defaultSpellTrapPrepare, defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/functions/DefaultCardAction_Spell";
+import { defaultSpellTrapPrepare, defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/cards/DefaultCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import { type CardAction, type CardActionBase } from "@ygo_duel/class/DuelCardAction";
@@ -8,7 +8,7 @@ import { IllegalCancelError, SystemError } from "@ygo_duel/class/Duel";
 
 import type { CardDefinition } from "./CardDefinitions";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import { defaultPrepare, getSystemAction } from "@ygo_duel/functions/DefaultCardAction";
+import { defaultPrepare, getSystemAction } from "@ygo_duel/cards/DefaultCardAction";
 
 export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
   const result: CardDefinition[] = [];

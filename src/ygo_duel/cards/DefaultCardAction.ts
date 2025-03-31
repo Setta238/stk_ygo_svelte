@@ -6,6 +6,8 @@ export const defaultPrepare = async () => {
   return { selectedEntities: [] as DuelEntity[], chainBlockTags: [] as TEffectTag[], prepared: undefined };
 };
 export const getSystemAction = (title: string, executablePeriods: Readonly<TDuelPeriodKey[]>, callback: (myInfo: ChainBlockInfoBase<unknown>) => undefined) => {
+
+  // FIXME 非同期が使えない都合上、validateにcallbackを渡し、そちらで実行する。
   return {
     title: title,
     playType: "SystemAction",

@@ -11,7 +11,7 @@ import {
   defaultRuleSpecialSummonPrepare,
   defaultRuleSpecialSummonValidate,
   type SummonPrepared,
-} from "@ygo_duel/functions/DefaultCardAction_Monster";
+} from "@ygo_duel/cards/DefaultCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 

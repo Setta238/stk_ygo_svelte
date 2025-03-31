@@ -4,13 +4,13 @@ import {
   defaultBattlePotisionChangeAction,
   defaultRebornExecute,
   getDefaultSyncroSummonAction,
-} from "@ygo_duel/functions/DefaultCardAction_Monster";
+} from "@ygo_duel/cards/DefaultCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardDefinition } from "./CardDefinitions";
 import { duelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import { defaultPrepare } from "@ygo_duel/functions/DefaultCardAction";
+import { defaultPrepare } from "@ygo_duel/cards/DefaultCardAction";
 
 export const createCardDefinitions_SyncroMonster = (): CardDefinition[] => {
   const result: CardDefinition[] = [];

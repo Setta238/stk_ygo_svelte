@@ -28,7 +28,7 @@ import type { DuelField } from "./DuelField";
 import { DuelEntityLog } from "./DuelEntityLog";
 import { CounterHolder, type TCounterName } from "./DuelCounter";
 import { StatusOperatorBundle } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
-import { defaultAttackAction, defaultBattlePotisionChangeAction, defaultNormalSummonAction } from "@ygo_duel/functions/DefaultCardAction_Monster";
+import { defaultAttackAction, defaultBattlePotisionChangeAction, defaultNormalSummonAction } from "@ygo_duel/cards/DefaultCardAction_Monster";
 export type EntityStatus = {
   canAttack: boolean;
   canDirectAttack: boolean;

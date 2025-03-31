@@ -19,9 +19,12 @@ export default defineConfig({
   },
   build: {
     rollupOptions: {
+      input: {
+        index: "./index.html",
+        note: "./note.html",
+      },
       output: {
         manualChunks(id) {
-          console.log(id);
           if (id.endsWith("cardInfo.json")) {
             return "cardInfo";
           }
@@ -32,3 +35,5 @@ export default defineConfig({
     },
   },
 });
+
+console.log(process.env.DEV);

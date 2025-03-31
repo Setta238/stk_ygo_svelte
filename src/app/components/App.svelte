@@ -101,10 +101,13 @@
 </script>
 
 <main>
-  <div class="link">
+  <div class="link link_left">
     <a href="https://github.com/Setta238/stk_ygo_svelte" target="_blank" rel="noopener noreferrer" title="repository">repository</a>
     <a href="https://x.com/ninja_no" target="_blank" rel="noopener noreferrer" title="repository">X(Twitter)</a>
     <a href="https://posfie.com/@ninja_no/p/Lx7FLj3" target="_blank" rel="noopener noreferrer" title="posfie">posfie(toggeter)</a>
+  </div>
+  <div class="link link_right">
+    <a href="/stk_ygo_svelte/note.html" target="_blank" rel="noopener noreferrer" title="repository">現時点とこの先のこと</a>
   </div>
   {#if duel}
     <DuelDesk {duel} />
@@ -187,10 +190,15 @@
   .app_body > div {
     margin: 1rem;
   }
-  .link {
+  .link.link_left {
     position: absolute;
     top: 0.3rem;
     left: 1rem;
+  }
+  .link.link_right {
+    position: absolute;
+    top: 0.3rem;
+    right: 1rem;
   }
   .link a {
     margin: 0rem 1rem;

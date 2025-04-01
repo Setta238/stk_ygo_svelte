@@ -1,7 +1,6 @@
 import type { IDuelClock } from "./DuelClock";
 import type { DuelEntity, TDuelCauseReason, TDuelEntityFace, TDuelEntityOrientation } from "./DuelEntity";
 import type { Duelist } from "./Duelist";
-import type { ChainBlockInfo } from "./DuelCardAction";
 import type { DuelFieldCell } from "./DuelFieldCell";
 
 export type DuelEntityLogRecord = {
@@ -47,8 +46,15 @@ export class DuelEntityLog {
   };
 
   public readonly push = (movedAs: TDuelCauseReason[], movedBy?: DuelEntity, actionOwner?: Duelist, chooser?: Duelist) => {
+    let cell = this.entity.fieldCell;
+
+    // XYZ素材のみ、ログ上「XYZ素材ゾーン」にいたことにする。
+    if (this.entity.status.kind === "XyzMaterial") {
+      cell = this.entity.controller.getXyzMaterialZone();
+    }
+
     this._records.push({
-      cell: this.entity.fieldCell,
+      cell,
       face: this.entity.face,
       orientation: this.entity.orientation,
       movedAt: this.entity.duel.clock.getClone(),
@@ -59,7 +65,7 @@ export class DuelEntityLog {
     });
   };
 
-  public readonly pushByChainBlockInfo = (chainBlockInfo: ChainBlockInfo<unknown>, movedAs: TDuelCauseReason[]) => {
-    this.push(movedAs, chainBlockInfo.action.entity, chainBlockInfo.activator);
-  };
+  // public readonly pushByChainBlockInfo = (chainBlockInfo: ChainBlockInfo<unknown>, movedAs: TDuelCauseReason[]) => {
+  //   this.push(movedAs, chainBlockInfo.action.entity, chainBlockInfo.activator);
+  // };
 }

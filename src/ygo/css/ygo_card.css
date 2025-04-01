@@ -9,13 +9,21 @@
 }
 .duel_card.Effect .duel_card_detail{
   background-color: moccasin;
-}
-.duel_card.Syncro {
+}.duel_card.Syncro {
   background-color: snow;
 }
+
 .duel_card.Syncro .duel_card_detail {
   background-color: snow;
-}.duel_card.Spell {
+}
+.duel_card.Xyz {
+  background-color: black;color: white;
+}
+
+.duel_card.Xyz .duel_card_detail {
+  background-color: black;
+}
+.duel_card.Spell {
   background-color: forestgreen;
   color: white;
 }.duel_card.Trap {

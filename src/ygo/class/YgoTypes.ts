@@ -4,12 +4,13 @@ export const deckTypeDic: { [key in TDeckTypes]: string } = {
   Deck: "メインデッキ",
   ExtraDeck: "エクストラデッキ",
 };
-export const cardKinds = ["Monster", "Spell", "Trap"] as const;
+export const cardKinds = ["Monster", "Spell", "Trap", "XyzMaterial"] as const;
 export type TCardKind = (typeof cardKinds)[number];
 export const cardKindDic: { [key in TCardKind]: string } = {
   Monster: "モンスター",
   Spell: "魔法",
   Trap: "罠",
+  XyzMaterial: "XYZ素材",
 };
 export const exMonsterCategories = ["Fusion", "Syncro", "Xyz", "Link"] as const;
 export type TMonsterExSummonCategory = (typeof exMonsterCategories)[number];
@@ -127,7 +128,7 @@ export const battlePositionDic: { [key in TBattlePosition]: string } = {
   Defense: "守備表示",
   Set: "裏側守備表示",
 };
-export type TNonBattlePosition = "FaceUp" | "Set" | "XysMaterial";
+export type TNonBattlePosition = "FaceUp" | "Set";
 
 export type CardInfoWiki = {
   wikiName: string;
@@ -137,26 +138,72 @@ export type CardInfoWiki = {
 };
 
 export const entityFlexibleStatusKeys = ["level", "rank", "attack", "defense", "pendulumScaleR", "pendulumScaleL"] as const;
-export type TEntityFlexibleStatusKey = (typeof entityFlexibleStatusKeys)[number];
-export type TEntityFlexibleStatusGen = "origin" | "current" | "calculated";
-export type FlexibleStatus = { [key in TEntityFlexibleStatusKey]: number | undefined };
+export type TEntityFlexibleNumericStatusKey = (typeof entityFlexibleStatusKeys)[number];
+export type TEntityFlexibleNumericStatusGen = "origin" | "current" | "calculated";
+export type TEntityFlexibleNumericStatus = { [key in TEntityFlexibleNumericStatusKey]: number | undefined };
+
+/**
+ * 変更されない、または変更されたとしても変更原因の状態を監視する必要がないステータス
+ */
+export type EntityStaticStatus = {
+  /**
+   * モンスター・魔法・罠・エクシーズ素材
+   */
+  kind: TCardKind;
+  /**
+   * 蘇生制限が実質ない特殊召喚モンスターのフラグ
+   */
+  canReborn?: boolean;
+  /**
+   * コナミデータベースで振られているID
+   */
+  cardId?: number;
+  /**
+   * テスト用カードのフラグ
+   */
+  isForTest?: boolean;
+  /**
+   * リンク数
+   */
+  link?: number;
+  /**
+   * 「テキストに～～が記された」で括られる場合
+   */
+  textTags?: string[];
+};
+/**
+ * 変更されたとき、変更原因の状態を監視する必要がある可能性があるステータス
+ */
+export type EntityFlexibleStatus = {
+  name: string;
+  /**
+   * ※チューナー・効果モンスター・通常モンスターはスキドレによって変化する可能性がある
+   */
+  monsterCategories?: Array<TMonsterCategory>;
+  /**
+   * ※ここに置くのはちょっと微妙？
+   */
+  spellCategory?: TSpellCategory;
+  /**
+   * ※ここに置くのはちょっと微妙？
+   */
+  trapCategory?: TTrapCategory;
+  nameTags?: Array<string>;
+  attributes?: TMonsterAttribute[];
+  types?: TMonsterType[];
+};
 
 export type EntityStatusBase = {
   name: string;
-  kind: TCardKind;
   monsterCategories?: Array<TMonsterCategory>;
   spellCategory?: TSpellCategory;
   trapCategory?: TTrapCategory;
   nameTags?: Array<string>;
-  textTags?: Array<string>;
-  link?: number;
   attributes?: TMonsterAttribute[];
   types?: TMonsterType[];
-  canReborn?: boolean;
-  cardId?: number;
-  isForTest?: boolean;
-} & Partial<FlexibleStatus> & { wikiEncodedName: string };
-export type EntityNumericStatus = { [key in TEntityFlexibleStatusGen]: FlexibleStatus };
+} & EntityStaticStatus &
+  Partial<TEntityFlexibleNumericStatus> & { wikiEncodedName: string };
+export type EntityNumericStatus = { [key in TEntityFlexibleNumericStatusGen]: TEntityFlexibleNumericStatus };
 export type CardInfoDescription = {
   nameKana?: string;
   description?: string;
@@ -244,6 +291,69 @@ export const monsterTypeEmojiDic = {
   Wyrm: "🐉",
   Zombie: "🦴",
 } as { [key in TMonsterType]: string };
+
+export const arrowHeadKeys = ["TopLeft", "TopCenter", "TopRight", "MiddleLeft", "MiddleRight", "BottomLeft", "BottomCenter", "BottomRight"] as const;
+export type TArrowHeadKey = (typeof arrowHeadKeys)[number];
+export type ArrowHead = { x: 1 | 0 | -1; y: 1 | 0 | -1 };
+export const arrowHeadDic: { [key in TArrowHeadKey]: { name: string; arrowHead: ArrowHead } } = {
+  TopLeft: {
+    name: "左上",
+    arrowHead: {
+      x: -1,
+      y: -1,
+    },
+  },
+  TopCenter: {
+    name: "上",
+    arrowHead: {
+      x: 0,
+      y: -1,
+    },
+  },
+  TopRight: {
+    name: "右上",
+    arrowHead: {
+      x: 1,
+      y: -1,
+    },
+  },
+  MiddleLeft: {
+    name: "左",
+    arrowHead: {
+      x: -1,
+      y: 0,
+    },
+  },
+  MiddleRight: {
+    name: "右",
+    arrowHead: {
+      x: 1,
+      y: 0,
+    },
+  },
+  BottomLeft: {
+    name: "左下",
+    arrowHead: {
+      x: -1,
+      y: 1,
+    },
+  },
+  BottomCenter: {
+    name: "下",
+    arrowHead: {
+      x: 0,
+      y: 1,
+    },
+  },
+  BottomRight: {
+    name: "右下",
+    arrowHead: {
+      x: 1,
+      y: 1,
+    },
+  },
+};
+
 export const getMonsterType = (text: string): TMonsterType | undefined => {
   return (Object.entries(monsterTypeDic) as [TMonsterType, string][]).find((entry) => entry[1] === text)?.[0] || undefined;
 };

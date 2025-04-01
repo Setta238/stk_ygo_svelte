@@ -4,7 +4,7 @@ import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardAction, CardActionBase } from "@ygo_duel/class/DuelCardAction";
 
 import type { CardDefinition } from "./CardDefinitions";
-import type { TEntityFlexibleStatusKey, TMonsterAttribute, TMonsterType } from "@ygo/class/YgoTypes";
+import type { TEntityFlexibleNumericStatusKey, TMonsterAttribute, TMonsterType } from "@ygo/class/YgoTypes";
 import {
   createRegularEquipRelationHandler,
   createRegularNumericStateOperatorHandler as createRegularNumericStateOperatorHandler,
@@ -84,7 +84,7 @@ export const createCardDefinitions_EquipSpell_Preset = (): CardDefinition[] => {
               return undefined;
             }
 
-            myInfo.action.entity.info.effectTargets["EquipTarget"] = targets;
+            myInfo.action.entity.info.equipBy = targets[0];
 
             return await defaultSpellTrapPrepare(myInfo, cell, chainBlockInfos, false, [], targets, undefined);
           },
@@ -111,10 +111,10 @@ export const createCardDefinitions_EquipSpell_Preset = (): CardDefinition[] => {
         createRegularNumericStateOperatorHandler(
           item.name,
           "Spell",
-          (source) => source.info.effectTargets["EquipTarget"],
+          (source) => (source.info.equipBy ? [source.info.equipBy] : []),
           (source) => source.isOnField && source.face === "FaceUp",
           (entity) => {
-            const targetStatus: [targetState: TEntityFlexibleStatusKey, point: number][] = [];
+            const targetStatus: [targetState: TEntityFlexibleNumericStatusKey, point: number][] = [];
             if (item.atk !== 0) {
               targetStatus.push(["attack", item.atk]);
             }

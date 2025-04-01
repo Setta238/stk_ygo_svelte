@@ -4,7 +4,7 @@ import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardAction, CardActionBase } from "@ygo_duel/class/DuelCardAction";
 
 import type { CardDefinition } from "./CardDefinitions";
-import type { TCardKind, TEntityFlexibleStatusKey } from "@ygo/class/YgoTypes";
+import type { TCardKind, TEntityFlexibleNumericStatusKey } from "@ygo/class/YgoTypes";
 import {
   createRegularEquipRelationHandler,
   createRegularNumericStateOperatorHandler as createRegularNumericStateOperatorHandler,
@@ -58,7 +58,7 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
               return undefined;
             }
 
-            myInfo.action.entity.info.effectTargets["EquipTarget"] = targets;
+            myInfo.action.entity.info.equipBy = targets[0];
 
             return await defaultSpellTrapPrepare(myInfo, cell, chainBlockInfos, false, [], targets, undefined);
           },
@@ -85,10 +85,10 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
         createRegularNumericStateOperatorHandler(
           item.name,
           "Spell",
-          (source) => source.info.effectTargets["EquipTarget"],
+          (source) => (source.info.equipBy ? [source.info.equipBy] : []),
           (source) => source.isOnField && source.face === "FaceUp",
           (entity) => {
-            return (["attack", "defense"] as TEntityFlexibleStatusKey[]).map((targetState) =>
+            return (["attack", "defense"] as TEntityFlexibleNumericStatusKey[]).map((targetState) =>
               NumericStateOperator.createContinuous(
                 "発動",
                 (spawner) => spawner.isOnField && spawner.face === "FaceUp",
@@ -164,7 +164,7 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
 
           // 800ポイント支払う
           myInfo.activator.payLp(800, myInfo.action.entity);
-          myInfo.action.entity.info.effectTargets["EquipTarget"] = targets;
+          myInfo.action.entity.info.equipBy = targets[0];
 
           return await defaultSpellTrapPrepare(myInfo, cell, chainBlockInfos, false, ["SpecialSummonFromGraveyard", "PayLifePoint"], targets, undefined);
         },

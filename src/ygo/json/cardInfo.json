@@ -14547,7 +14547,6 @@
     "kind": "Monster",
     "monsterCategories": [
       "Xyz",
-      "SpecialSummon",
       "Effect"
     ],
     "attack": 2100,
@@ -15092,7 +15091,6 @@
     "kind": "Monster",
     "monsterCategories": [
       "Xyz",
-      "SpecialSummon",
       "Effect"
     ],
     "rank": 4,
@@ -17165,8 +17163,7 @@
     "pendulumDescription": "",
     "kind": "Monster",
     "monsterCategories": [
-      "Xyz",
-      "SpecialSummon"
+      "Xyz"
     ],
     "rank": 4,
     "attack": 2950,
@@ -18356,9 +18353,29 @@
   "封印の黄金櫃": {
     "name": "封印の黄金櫃",
     "nameKana": "",
-    "description": "(1)：デッキからカード１枚を選んで除外する。\nこのカードの発動後２回目の自分スタンバイフェイズに、\nこの効果で除外されているカードを手札に加える。",
+    "description": "(1)：デッキからカード１枚を選んで除外する。\nこのカードの発動後２回目の自分スタンバイフェイズに、この効果で除外されているカードを手札に加える。",
     "kind": "Spell",
     "spellCategory": "Normal",
     "wikiEncodedName": "%A1%D4%C9%F5%B0%F5%A4%CE%B2%AB%B6%E2%DD%A4%A1%D5"
+  },
+  "ジェムナイト・パール": {
+    "name": "ジェムナイト・パール",
+    "nameKana": "",
+    "description": "レベル４モンスター×２",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Xyz"
+    ],
+    "rank": 4,
+    "attack": 2600,
+    "defense": 1900,
+    "attributes": [
+      "Earth"
+    ],
+    "types": [
+      "Rock"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%B8%A5%A7%A5%E0%A5%CA%A5%A4%A5%C8%A1%A6%A5%D1%A1%BC%A5%EB%A1%D5"
   }
 }

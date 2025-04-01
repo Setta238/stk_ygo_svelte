@@ -10,7 +10,7 @@ import {
   createRegularNumericStateOperatorHandler,
   type ContinuousEffectBase,
 } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
-import type { TEntityFlexibleStatusKey } from "@ygo/class/YgoTypes";
+import type { TEntityFlexibleNumericStatusKey } from "@ygo/class/YgoTypes";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 
 export const createCardDefinitions_TestMonster = (): CardDefinition[] => {
@@ -26,7 +26,7 @@ export const createCardDefinitions_TestMonster = (): CardDefinition[] => {
         (source: DuelEntity) => [source],
         (source: DuelEntity) => source.isOnField && source.face === "FaceUp",
         (entity: DuelEntity) => {
-          return (["attack", "defense"] as TEntityFlexibleStatusKey[]).map((targetState) =>
+          return (["attack", "defense"] as TEntityFlexibleNumericStatusKey[]).map((targetState) =>
             NumericStateOperator.createContinuous(
               "THE_DEVILS_AVATAR",
               (spawner: DuelEntity) => spawner.isOnField && spawner.face === "FaceUp",
@@ -54,7 +54,7 @@ export const createCardDefinitions_TestMonster = (): CardDefinition[] => {
         "Monster",
         (source: DuelEntity) => source.isOnField && source.face === "FaceUp",
         (entity: DuelEntity) => {
-          return (["attack", "defense"] as TEntityFlexibleStatusKey[]).map((targetState) =>
+          return (["attack", "defense"] as TEntityFlexibleNumericStatusKey[]).map((targetState) =>
             NumericStateOperator.createContinuous(
               "THE_DEVILS_DREAD-ROOT",
               (spawner: DuelEntity) => spawner.isOnField && spawner.face === "FaceUp",

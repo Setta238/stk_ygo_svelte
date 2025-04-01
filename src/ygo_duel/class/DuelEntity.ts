@@ -9,12 +9,13 @@ import {
   type EntityStatusBase,
   getSubsetAsEntityStatusBase,
   entityFlexibleStatusKeys,
-  type TEntityFlexibleStatusKey,
+  type TEntityFlexibleNumericStatusKey,
   type EntityNumericStatus,
   cardSorter,
+  type TCardKind,
 } from "@ygo/class/YgoTypes";
 import { Duel } from "./Duel";
-import { deckCellTypes, playFieldCellTypes, type DuelFieldCell, type TBundleCellType, type TDuelEntityMovePos } from "./DuelFieldCell";
+import { deckCellTypes, monsterZoneCellTypes, playFieldCellTypes, type DuelFieldCell, type TBundleCellType, type TDuelEntityMovePos } from "./DuelFieldCell";
 import { type Duelist } from "./Duelist";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
@@ -40,6 +41,27 @@ export type EntityStatus = {
   isSelectableForAttack: boolean;
   maxCounterQty: { [key in TCounterName]?: number };
 } & EntityStatusBase;
+
+export type DuelEntityInfomation = {
+  isEffective: boolean;
+  isPending: boolean;
+  isDying: boolean;
+  causeOfDeath: (TDestoryCauseReason | "CardActivation" | "LostXyzOwner" | "LostEquipOwner")[];
+  isKilledBy: DuelEntity | undefined;
+  isKilledByWhom: Duelist | undefined;
+  isVanished: boolean;
+  isRebornable: boolean;
+  isSettingSickness: boolean;
+  materials: DuelEntity[];
+  effectTargets: { [effectKey: string]: DuelEntity[] };
+  willBeBanished: boolean;
+  willReturnToDeck: TDuelEntityMovePos | undefined;
+  attackCount: number;
+  battlePotisionChangeCount: number;
+  equipBy: DuelEntity | undefined;
+  equipEntites: DuelEntity[];
+};
+
 export type TDuelEntityFace = "FaceUp" | "FaceDown";
 export type TDuelEntityOrientation = "Horizontal" | "Vertical";
 export const namedSummonRuleCauseReasons = ["FusionSummon", "SyncroSummon", "XyzSummon", "PendulumSummon", "LinkSummon"] as const;
@@ -75,7 +97,7 @@ export type TDuelCauseReason =
   | "SpecialSummonMaterial"
   | "FusionMaterial"
   | "SyncroMaterial"
-  | "EyzMaterial"
+  | "XyzMaterial"
   | "RitualMaterial"
   | "Cost"
   | "Discard"
@@ -86,7 +108,9 @@ export type TDuelCauseReason =
   | "Flip"
   | "FlipByBattle"
   | "FlipSummon"
-  | "System";
+  | "System"
+  | "LostXyzOwner"
+  | "LostEquipOwner";
 
 export const duelEntityCardTypes = ["Card", "Token", "Avatar"] as const;
 export type TDuelEntityCardType = (typeof duelEntityCardTypes)[number];
@@ -102,24 +126,6 @@ export type TDuelEntityInfo = CardInfoDescription & TDuelEntityInfoDetail;
 
 export const cardEntitySorter = (left: DuelEntity, right: DuelEntity): number => {
   return cardSorter(left.origin, right.origin);
-};
-
-export type DuelEntityInfomation = {
-  isEffective: boolean;
-  isPending: boolean;
-  isDying: boolean;
-  causeOfDeath: (TDestoryCauseReason | "CardActivation")[];
-  isKilledBy: DuelEntity | undefined;
-  isKilledByWhom: Duelist | undefined;
-  isVanished: boolean;
-  isRebornable: boolean;
-  isSettingSickness: boolean;
-  materials: DuelEntity[];
-  effectTargets: { [effectKey: string]: DuelEntity[] };
-  willBeBanished: boolean;
-  willReturnToDeck: TDuelEntityMovePos | undefined;
-  attackCount: number;
-  battlePotisionChangeCount: number;
 };
 
 export class DuelEntity {
@@ -233,6 +239,27 @@ export class DuelEntity {
     return DuelEntity.bringManyToSameCellForTheSameReason("Hand", "Bottom", entities, "FaceDown", "Vertical", movedAs, movedBy, activator);
   };
 
+  public static readonly convertManyToXyzMaterials = (
+    entities: DuelEntity[],
+    movedAs: TDuelCauseReason[],
+    movedBy: DuelEntity,
+    activator: Duelist
+  ): Promise<void> => {
+    return DuelEntity.moveMany(
+      entities.map((entity) => [entity, entity.fieldCell, "XyzMaterial", "FaceUp", "Vertical", "Top", movedAs, movedBy, activator, activator])
+    );
+  };
+  public static readonly moveToXyzOwner = (
+    dest: DuelFieldCell,
+    xyzMaterials: DuelEntity[],
+    movedAs: TDuelCauseReason[],
+    movedBy: DuelEntity,
+    activator: Duelist
+  ): Promise<void> => {
+    return DuelEntity.moveMany(
+      xyzMaterials.map((entity) => [entity, dest, "XyzMaterial", "FaceUp", "Vertical", "Top", movedAs, movedBy, activator, activator])
+    );
+  };
   /**
    *
    * @param items
@@ -323,6 +350,7 @@ export class DuelEntity {
       items.map((item) => [
         item.entity,
         item.entity.field.getCells(to).filter((cell) => cell.owner === item.entity.owner)[0],
+        item.entity.origin.kind,
         item.face,
         item.orientation,
         pos,
@@ -356,9 +384,10 @@ export class DuelEntity {
 
     // 目的地ごとに仕分ける
     const destMap = new Map<DuelFieldCell, [entity: DuelEntity, ...Parameters<typeof DuelEntity.prototype._move>][]>();
-    items.forEach(([entity, to, face, orientation, pos, ...rest]) => {
+    items.forEach(([entity, to, kind, face, orientation, pos, ...rest]) => {
       // 状態によって、行き先や表裏の情報を書き換える。
       let _to = to;
+      let _kind = kind;
       let _face = face;
       let _pos = pos;
       let _orientation = orientation;
@@ -380,7 +409,15 @@ export class DuelEntity {
           _orientation = "Vertical";
         }
       }
-      destMap.set(_to, [[entity, _to, _face, _orientation, _pos, ...rest], ...(destMap.get(_to) ?? [])]);
+
+      if (!_to.isPlayFieldCell) {
+        _kind = entity.origin.kind;
+      }
+      if (!_to.isMonsterZoneLikeCell) {
+        _orientation = "Vertical";
+      }
+
+      destMap.set(_to, [[entity, _to, _kind, _face, _orientation, _pos, ...rest], ...(destMap.get(_to) ?? [])]);
     });
 
     // 取り出せなくなるまでループ
@@ -474,7 +511,7 @@ export class DuelEntity {
 
         // 移動処理
         const { face, orientation } = DuelEntity.splitBattlePos(pos);
-        await entity._move(to, face, orientation, "Top", [summonType, moveAsDic[pos], ...moveAs], movedBy, actionOwner, chooser);
+        await entity._move(to, "Monster", face, orientation, "Top", [summonType, moveAsDic[pos], ...moveAs], movedBy, actionOwner, chooser);
       })
     );
 
@@ -640,6 +677,9 @@ export class DuelEntity {
   public get isOnField() {
     return playFieldCellTypes.some((t) => t === this.fieldCell.cellType);
   }
+  public get isOnFieldAsMonster() {
+    return monsterZoneCellTypes.some((t) => t === this.fieldCell.cellType);
+  }
   public get isLikeContinuousSpell() {
     return (
       this.status.spellCategory === "Continuous" ||
@@ -708,6 +748,8 @@ export class DuelEntity {
       effectTargets: {},
       willBeBanished: false,
       willReturnToDeck: undefined,
+      equipBy: undefined,
+      equipEntites: [],
     };
     this.resetInfoAll();
     this.face = face;
@@ -740,6 +782,7 @@ export class DuelEntity {
     }
     this.moveAlone(
       this.fieldCell,
+      "Monster",
       pos === "Set" ? "FaceDown" : "FaceUp",
       pos === "Attack" ? "Vertical" : "Horizontal",
       "Top",
@@ -752,46 +795,41 @@ export class DuelEntity {
   };
 
   public readonly setNonFieldMonsterPosition = async (
+    kind: TCardKind,
     pos: TNonBattlePosition,
     movedAs: TDuelCauseReason[],
     movedBy?: DuelEntity,
     actionOwner?: Duelist
   ): Promise<void> => {
-    this.moveAlone(
-      this.fieldCell,
-      pos === "FaceUp" ? "FaceUp" : "FaceDown",
-      pos === "XysMaterial" ? "Horizontal" : "Vertical",
-      "Top",
-      movedAs,
-      movedBy,
-      actionOwner,
-      actionOwner
-    );
+    this.moveAlone(this.fieldCell, kind, pos === "FaceUp" ? "FaceUp" : "FaceDown", "Vertical", "Top", movedAs, movedBy, actionOwner, actionOwner);
   };
 
   public readonly setAsSpellTrap = async (
     to: DuelFieldCell,
+    kind: TCardKind,
     movedAs: TDuelCauseReason[],
     movedBy: DuelEntity | undefined,
     actionOwner: Duelist | undefined
   ): Promise<void> => {
-    await this.moveAlone(to, "FaceDown", "Vertical", "Top", [...movedAs, "SpellTrapSet"], movedBy, actionOwner, actionOwner);
+    await this.moveAlone(to, kind, "FaceDown", "Vertical", "Top", [...movedAs, "SpellTrapSet"], movedBy, actionOwner, actionOwner);
   };
   public readonly activateSpellTrapFromHand = async (
     to: DuelFieldCell,
+    kind: TCardKind,
     movedAs: TDuelCauseReason[],
     movedBy: DuelEntity | undefined,
     actionOwner: Duelist | undefined
   ): Promise<void> => {
-    await this.moveAlone(to, "FaceUp", "Vertical", "Top", [...movedAs, "CardActivation"], movedBy, actionOwner, actionOwner);
+    await this.moveAlone(to, kind, "FaceUp", "Vertical", "Top", [...movedAs, "CardActivation"], movedBy, actionOwner, actionOwner);
   };
 
   public readonly activateSpellTrapOnField = async (
+    kind: TCardKind,
     movedAs: TDuelCauseReason[],
     movedBy: DuelEntity | undefined,
     actionOwner: Duelist | undefined
   ): Promise<void> => {
-    await this.moveAlone(this.fieldCell, "FaceUp", "Vertical", "Top", [...movedAs, "CardActivation"], movedBy, actionOwner, actionOwner);
+    await this.moveAlone(this.fieldCell, kind, "FaceUp", "Vertical", "Top", [...movedAs, "CardActivation"], movedBy, actionOwner, actionOwner);
   };
   public readonly draw = async (
     moveAs: TDuelCauseReason[],
@@ -805,7 +843,7 @@ export class DuelEntity {
     movedBy: DuelEntity | undefined,
     actionOwner: Duelist | undefined
   ): Promise<DuelFieldCell | undefined> => {
-    return await this.moveAlone(this.owner.getHandCell(), "FaceDown", "Vertical", "Bottom", [...movedAs], movedBy, actionOwner, actionOwner);
+    return await this.moveAlone(this.owner.getHandCell(), this.origin.kind, "FaceDown", "Vertical", "Bottom", [...movedAs], movedBy, actionOwner, actionOwner);
   };
   public readonly release = async (
     moveAs: TDuelCauseReason[],
@@ -844,6 +882,7 @@ export class DuelEntity {
 
   private readonly moveAlone = async (
     to: DuelFieldCell,
+    kind: TCardKind,
     face: TDuelEntityFace,
     orientation: TDuelEntityOrientation,
     pos: TDuelEntityMovePos,
@@ -852,13 +891,14 @@ export class DuelEntity {
     actionOwner: Duelist | undefined,
     chooser: Duelist | undefined
   ): Promise<DuelFieldCell | undefined> => {
-    await DuelEntity.moveMany([[this, to, face, orientation, pos, movedAs, movedBy, actionOwner, chooser]], undefined);
+    await DuelEntity.moveMany([[this, to, kind, face, orientation, pos, movedAs, movedBy, actionOwner, chooser]], undefined);
     return this.fieldCell;
   };
 
   /**
    * 移動の処理のみのため、直接呼び出す場合は後処理を忘れないこと
    * @param to
+   * @param kind
    * @param face
    * @param orientation
    * @param pos
@@ -870,6 +910,7 @@ export class DuelEntity {
    */
   private readonly _move = async (
     to: DuelFieldCell,
+    kind: TCardKind,
     face: TDuelEntityFace,
     orientation: TDuelEntityOrientation,
     pos: TDuelEntityMovePos,
@@ -882,7 +923,7 @@ export class DuelEntity {
       // ミスで一回あったので念の為おいておく
       throw new Error("illegal argument: to");
     }
-
+    this._status.kind = kind;
     this.face = face;
     this.orientation = orientation;
 
@@ -908,6 +949,29 @@ export class DuelEntity {
           this.field.duel.log.info(`${this.nm}は消滅した。`, this.controller);
           return;
         }
+      }
+
+      // モンスターゾーンを離れる時の処理
+      if ((this.fieldCell.isMonsterZoneLikeCell && !to.isMonsterZoneLikeCell) || kind !== "Monster") {
+        // 装備していたカードにマーキング
+        this.info.equipEntites.forEach((equip) => {
+          equip.info.isDying = true;
+          equip.info.causeOfDeath = ["RuleDestroy"];
+          this.controller.writeInfoLog(`装備対象${this.toString()}不在により${equip.toString()}は破壊された。`);
+        });
+        this.info.equipEntites = [];
+        // XYZ素材にマーキング
+        this.fieldCell.xymMaterials.forEach((material) => {
+          material.info.isDying = true;
+          material.info.causeOfDeath = ["LostXyzOwner"];
+          this.controller.writeInfoLog(`エクシーズモンスター${this.toString()}不在により${material.toString()}は墓地に送られた。`);
+        });
+      }
+
+      // 魔法罠を離れる時の処理
+      if (this.fieldCell.cellType === "SpellAndTrapZone" && to.cellType !== "SpellAndTrapZone") {
+        // 装備解除
+        this.info.equipBy = undefined;
       }
 
       // セルに自分を所属させる
@@ -973,6 +1037,8 @@ export class DuelEntity {
       effectTargets: {},
       attackCount: 0,
       battlePotisionChangeCount: 0,
+      equipBy: undefined,
+      equipEntites: [],
     };
   };
 
@@ -993,6 +1059,8 @@ export class DuelEntity {
       willReturnToDeck: undefined,
       attackCount: 0,
       battlePotisionChangeCount: 0,
+      equipBy: undefined,
+      equipEntites: [],
     };
 
     this.counterHolder.clear();
@@ -1004,7 +1072,7 @@ export class DuelEntity {
         wip[key] = this.origin[key];
         return wip;
       },
-      {} as { [key in TEntityFlexibleStatusKey]: number | undefined }
+      {} as { [key in TEntityFlexibleNumericStatusKey]: number | undefined }
     );
 
     this._numericStatus = {

@@ -25,7 +25,7 @@ export class DuelField {
           this,
           row,
           column,
-          row < 3 ? duel.duelists.Above : row > 3 ? duel.duelists.Below : column === 0 ? duel.duelists.Above : column === 6 ? duel.duelists.Below : undefined
+          row < 3 ? duel.duelists.Above : row > 3 ? duel.duelists.Below : column < 2 ? duel.duelists.Above : column > 4 ? duel.duelists.Below : undefined
         );
       }
     }
@@ -216,7 +216,7 @@ export class DuelField {
       }
     }
 
-    await entity.activateSpellTrapFromHand(cell, moveAs, causedBy, _chooser);
+    await entity.activateSpellTrapFromHand(cell, entity.origin.kind, moveAs, causedBy, _chooser);
 
     return entity;
   };
@@ -253,7 +253,7 @@ export class DuelField {
         targetCell = action.cell || targetCell;
       }
     }
-    await entity.setAsSpellTrap(targetCell, ["SpellTrapSet"], causedBy, _chooser);
+    await entity.setAsSpellTrap(targetCell, entity.origin.kind, ["SpellTrapSet"], causedBy, _chooser);
     this.duel.log.info(`${entity.status.name}をセット（${"SpellTrapSet"}）。`, chooser ?? causedBy?.controller ?? entity.controller);
     return targetCell;
   };

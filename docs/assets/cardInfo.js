@@ -613,7 +613,7 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 そのモンスターをこのカードのＸ素材とする。
 (3)：１ターンに１度、魔法・罠・モンスターの効果が発動した時、
 このカードのＸ素材を１つ取り除いて発動できる。
-その発動を無効にし破壊する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Xyz","SpecialSummon","Effect"],attack:2100,defense:1600,wikiEncodedName:"%A1%D4%A5%B5%A5%A4%A5%D0%A1%BC%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%A6%A5%A4%A5%F3%A5%D5%A5%A3%A5%CB%A5%C6%A5%A3%A1%D5",attributes:["Light"],types:["Machine"]},"サイバー・ドラゴン・ノヴァ":{name:"サイバー・ドラゴン・ノヴァ",nameKana:"",description:`機械族レベル５モンスター×２
+その発動を無効にし破壊する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Xyz","Effect"],attack:2100,defense:1600,wikiEncodedName:"%A1%D4%A5%B5%A5%A4%A5%D0%A1%BC%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%A6%A5%A4%A5%F3%A5%D5%A5%A3%A5%CB%A5%C6%A5%A3%A1%D5",attributes:["Light"],types:["Machine"]},"サイバー・ドラゴン・ノヴァ":{name:"サイバー・ドラゴン・ノヴァ",nameKana:"",description:`機械族レベル５モンスター×２
 (1)：１ターンに１度、このカードのＸ素材を１つ取り除き、
 自分の墓地の「サイバー・ドラゴン」１体を対象として発動できる。
 そのモンスターを特殊召喚する。
@@ -714,7 +714,7 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 (2)：このカードが戦闘または相手の効果で破壊された場合に発動できる。
 自分のデッキの上からカード３枚を墓地へ送る。
 その中に「ライトロード」カードがあった場合、
-さらにその数までフィールドのカードを破壊できる。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Xyz","SpecialSummon","Effect"],rank:4,attack:2e3,defense:800,nameTags:["ライトロード"],wikiEncodedName:"%A1%D4%A5%E9%A5%A4%A5%C8%A5%ED%A1%BC%A5%C9%A1%A6%A5%BB%A5%A4%A5%F3%A5%C8%20%A5%DF%A5%CD%A5%EB%A5%D0%A1%D5",attributes:["Light"],types:["Fairy"]},"ライトロード・アーク ミカエル":{name:"ライトロード・アーク ミカエル",nameKana:"",description:`チューナー＋チューナー以外の光属性モンスター１体以上
+さらにその数までフィールドのカードを破壊できる。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Xyz","Effect"],rank:4,attack:2e3,defense:800,nameTags:["ライトロード"],wikiEncodedName:"%A1%D4%A5%E9%A5%A4%A5%C8%A5%ED%A1%BC%A5%C9%A1%A6%A5%BB%A5%A4%A5%F3%A5%C8%20%A5%DF%A5%CD%A5%EB%A5%D0%A1%D5",attributes:["Light"],types:["Fairy"]},"ライトロード・アーク ミカエル":{name:"ライトロード・アーク ミカエル",nameKana:"",description:`チューナー＋チューナー以外の光属性モンスター１体以上
 (1)：１ターンに１度、１０００ＬＰを払い、
 フィールドのカード１枚を対象として発動できる。
 そのカードを除外する。
@@ -990,7 +990,7 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 守備力は４００ポイントダウンする。`,kind:"Spell",spellCategory:"Field",wikiEncodedName:"%A1%D4%A5%B7%A5%E3%A5%A4%A5%F3%A5%B9%A5%D1%A1%BC%A5%AF%A1%D5"},ダークゾーン:{name:"ダークゾーン",nameKana:"",description:`フィールド上に表側表示で存在する闇属性モンスターの攻撃力は５００ポイントアップし、
 守備力は４００ポイントダウンする。`,kind:"Spell",spellCategory:"Field",wikiEncodedName:"%A1%D4%A5%C0%A1%BC%A5%AF%A5%BE%A1%BC%A5%F3%A1%D5"},デザートストーム:{name:"デザートストーム",nameKana:"",description:`フィールド上に表側表示で存在する風属性モンスターの攻撃力は５００ポイントアップし、
 守備力は４００ポイントダウンする。`,kind:"Spell",spellCategory:"Field",wikiEncodedName:"%A1%D4%A5%C7%A5%B6%A1%BC%A5%C8%A5%B9%A5%C8%A1%BC%A5%E0%A1%D5"},バーニングブラッド:{name:"バーニングブラッド",nameKana:"",description:`フィールド上に表側表示で存在する炎属性モンスターの攻撃力は５００ポイントアップし、
-守備力は４００ポイントダウンする。`,kind:"Spell",spellCategory:"Field",wikiEncodedName:"%A1%D4%A5%D0%A1%BC%A5%CB%A5%F3%A5%B0%A5%D6%A5%E9%A5%C3%A5%C9%A1%D5"},"覚醒の勇士 ガガギゴ":{name:"覚醒の勇士 ガガギゴ",nameKana:"",description:"レベル４モンスター×３",pendulumDescription:"",kind:"Monster",monsterCategories:["Xyz","SpecialSummon"],rank:4,attack:2950,defense:2800,wikiEncodedName:"%A1%D4%B3%D0%C0%C3%A4%CE%CD%A6%BB%CE+%A5%AC%A5%AC%A5%AE%A5%B4%A1%D5",attributes:["Water"],types:["Reptile"]},覚醒の魔導剣士:{name:"覚醒の魔導剣士",nameKana:"",description:`チューナー＋チューナー以外のモンスター１体以上
+守備力は４００ポイントダウンする。`,kind:"Spell",spellCategory:"Field",wikiEncodedName:"%A1%D4%A5%D0%A1%BC%A5%CB%A5%F3%A5%B0%A5%D6%A5%E9%A5%C3%A5%C9%A1%D5"},"覚醒の勇士 ガガギゴ":{name:"覚醒の勇士 ガガギゴ",nameKana:"",description:"レベル４モンスター×３",pendulumDescription:"",kind:"Monster",monsterCategories:["Xyz"],rank:4,attack:2950,defense:2800,wikiEncodedName:"%A1%D4%B3%D0%C0%C3%A4%CE%CD%A6%BB%CE+%A5%AC%A5%AC%A5%AE%A5%B4%A1%D5",attributes:["Water"],types:["Reptile"]},覚醒の魔導剣士:{name:"覚醒の魔導剣士",nameKana:"",description:`チューナー＋チューナー以外のモンスター１体以上
 「覚醒の魔導剣士」の(1)の効果は１ターンに１度しか使用できない。
 (1)：「魔術師」Ｐモンスターを素材としてこのカードがＳ召喚に成功した場合、
 自分の墓地の魔法カード１枚を対象として発動できる。
@@ -1231,5 +1231,4 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 自分の墓地に存在する「スターダスト・ドラゴン」１体を特殊召喚する事ができる。`,pendulumDescription:"",kind:"Monster",monsterCategories:["SpecialSummon","Effect"],level:10,attack:3e3,defense:2500,attributes:["Wind"],types:["Dragon"],wikiEncodedName:"%A1%D4%A5%B9%A5%BF%A1%BC%A5%C0%A5%B9%A5%C8%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%BF%A5%D0%A5%B9%A5%BF%A1%BC%A1%D5"},"ジャンク・フォアード":{name:"ジャンク・フォアード",nameKana:"",description:`自分フィールド上にモンスターが存在しない場合、
 このカードは手札から特殊召喚する事ができる。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:3,attack:900,defense:1500,attributes:["Earth"],types:["Warrior"],wikiEncodedName:"%A1%D4%A5%B8%A5%E3%A5%F3%A5%AF%A1%A6%A5%D5%A5%A9%A5%A2%A1%BC%A5%C9%A1%D5"},次元幽閉:{name:"次元幽閉",nameKana:"",description:`相手モンスターの攻撃宣言時、攻撃モンスター１体を選択して発動できる。
 選択した攻撃モンスターをゲームから除外する。`,kind:"Trap",trapCategory:"Normal",wikiEncodedName:"%A1%D4%BC%A1%B8%B5%CD%A9%CA%C4%A1%D5"},封印の黄金櫃:{name:"封印の黄金櫃",nameKana:"",description:`(1)：デッキからカード１枚を選んで除外する。
-このカードの発動後２回目の自分スタンバイフェイズに、
-この効果で除外されているカードを手札に加える。`,kind:"Spell",spellCategory:"Normal",wikiEncodedName:"%A1%D4%C9%F5%B0%F5%A4%CE%B2%AB%B6%E2%DD%A4%A1%D5"}};export{e as j};
+このカードの発動後２回目の自分スタンバイフェイズに、この効果で除外されているカードを手札に加える。`,kind:"Spell",spellCategory:"Normal",wikiEncodedName:"%A1%D4%C9%F5%B0%F5%A4%CE%B2%AB%B6%E2%DD%A4%A1%D5"},"ジェムナイト・パール":{name:"ジェムナイト・パール",nameKana:"",description:"レベル４モンスター×２",pendulumDescription:"",kind:"Monster",monsterCategories:["Xyz"],rank:4,attack:2600,defense:1900,attributes:["Earth"],types:["Rock"],wikiEncodedName:"%A1%D4%A5%B8%A5%A7%A5%E0%A5%CA%A5%A4%A5%C8%A1%A6%A5%D1%A1%BC%A5%EB%A1%D5"}};export{e as j};

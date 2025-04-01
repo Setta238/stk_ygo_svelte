@@ -81,7 +81,7 @@
 
   const seachCondition = {
     name: "" as string,
-    cardKinds: [...cardKinds] as TCardKind[],
+    cardKinds: [...cardKinds] as Omit<TCardKind, "XyzMaterial">[],
     monsterCategories: [...monsterCategories].filter((cat) => cat !== "Normal" && cat !== "Token") as TMonsterCategory[],
     monsterAttributes: [...monsterAttributes],
     monsterTypes: [...monsterTypes],
@@ -186,7 +186,7 @@
         <div class="deck_editor_search_box_row">
           <div>種類</div>
           <div>
-            {#each cardKinds as key}
+            {#each cardKinds.filter((kind) => kind !== "XyzMaterial") as key}
               <label>
                 <input type="checkbox" value={key} bind:group={seachCondition.cardKinds} />
                 {cardKindDic[key]}

@@ -217,6 +217,9 @@ export class Duelist {
   public readonly getSpellTrapZones = (): DuelFieldCell[] => {
     return this.duel.field.getCells("SpellAndTrapZone").filter((cell) => cell.owner === this);
   };
+  public readonly getXyzMaterialZone = (): DuelFieldCell => {
+    return this.duel.field.getCells("XyzMaterialZone").filter((cell) => cell.owner === this)[0];
+  };
   public readonly getEmptyMonsterZones = (): DuelFieldCell[] => {
     return this.getMonsterZones().filter((cell) => cell.cardEntities.length === 0);
   };

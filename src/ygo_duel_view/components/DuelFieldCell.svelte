@@ -212,7 +212,7 @@
     ondragover={(ev) => dragover(ev)}
     ondrop={(ev) => drop(ev)}
   >
-    {#if cell.cellType === "Disable"}
+    {#if cell.isDisabledCell}
       {#if cell.row === 3}
         {#if cell.column === 1}
           <div class="phase_display"><span>{String(cell.field.duel.clock.turn).padStart(2, "0")}</span>{cell.field.duel.phase.toUpperCase()}</div>
@@ -237,7 +237,7 @@
           <DuelCard entity={animationArg.entity} state="Disabled" actions={[]} cardActionResolve={undefined} />
         </div>
       {/if}
-      {#each cell.cardEntities as entity}
+      {#each cell.visibleEntities as entity}
         {#if !animationArg || animationArg.entity.seq !== entity.seq}
           <div out:send={{ key: entity.seq }}>
             <DuelCard
@@ -262,28 +262,28 @@
           <DuelCard entity={animationArg.entity} state="Disabled" actions={[]} cardActionResolve={undefined} />
         </div>
       {/if}
-      {#if cell.cardEntities.length > 0}
-        {#each cell.cardEntities.toReversed() as entity, index}
+      {#if cell.visibleEntities.length > 0}
+        {#each cell.visibleEntities.toReversed() as entity, index}
           {#if !animationArg || animationArg.entity.seq !== entity.seq}
             <div style="position: absolute; display:flex;justify-content: center;" out:send={{ key: entity.seq }}>
               <DuelCard
                 {entity}
-                state={index === 0 && !cell.isStackCell ? validateActions(...cell.cardEntities) : undefined}
-                actions={index === 0 ? enableActions.filter((action) => cell.cardEntities.includes(action.entity)) : undefined}
+                state={index === 0 && !cell.isStackCell ? validateActions(...cell.visibleEntities) : undefined}
+                actions={index === 0 ? enableActions.filter((action) => cell.visibleEntities.includes(action.entity)) : undefined}
                 cardActionResolve={undefined}
                 bind:selectedList
               />
             </div>
           {/if}
         {/each}
-        {#if cell.cardEntities[0].battlePosition}
+        {#if cell.visibleEntities[0].battlePosition}
           <div style="position: absolute; bottom:0rem">
-            【{cell.cardEntities[0].battlePositionName}】
-            {#each Object.keys(cell.cardEntities[0].status.maxCounterQty) as TActualCounterName[] as counter}
+            【{cell.visibleEntities[0].battlePositionName}】
+            {#each Object.keys(cell.visibleEntities[0].status.maxCounterQty) as TActualCounterName[] as counter}
               【
-              {actualCounterEmojiDic[counter]}{cell.cardEntities[0].counterHolder.getQty(counter)}
-              {#if cell.cardEntities[0].status.maxCounterQty[counter] ?? 9999 < 100}
-                /{cell.cardEntities[0].status.maxCounterQty[counter]}
+              {actualCounterEmojiDic[counter]}{cell.visibleEntities[0].counterHolder.getQty(counter)}
+              {#if cell.visibleEntities[0].status.maxCounterQty[counter] ?? 9999 < 100}
+                /{cell.visibleEntities[0].status.maxCounterQty[counter]}
               {/if}
               】
             {/each}
@@ -291,7 +291,7 @@
         {/if}
       {/if}
       {#if cell.isStackCell}
-        <div class="badge">{cell.cardEntities.length}</div>
+        <div class="badge">{cell.visibleEntities.length}</div>
       {/if}
       {#if animationArg && animationArg.entity && animationArg.to === cell && animationArg.index === "Top"}
         <div class="card_animation_receiver" in:receive={{ key: animationArg.entity.seq }}>

@@ -16,6 +16,7 @@ import { createCardDefinitions_SpellCounter_Monster } from "./CardDefinitions_Sp
 import { createCardDefinitions_NormalTrap_UponAttackDeclaration } from "./CardDefinitions_NormalTrap_UponAttackDeclaration";
 import { createCardDefinitions_NormalTrap } from "./CardDefinitions_NormalTrap";
 import { createCardDefinitions_NormalSpell_General_Draw } from "./CardDefinitions_NormalSpell_General_Draw";
+import { createCardDefinitions_XyzMonster } from "./CardDefinitions_XyzMonster";
 
 export type CardDefinition = {
   name: string;
@@ -40,6 +41,7 @@ export const createCardDefinitions = (): CardDefinition[] => {
     ...createCardDefinitions_NormalTrap(),
     ...createCardDefinitions_NormalTrap_UponAttackDeclaration(),
     ...createCardDefinitions_NormalSpell_General_Draw(),
+    ...createCardDefinitions_XyzMonster(),
   ];
   const names = hoge.map((def) => def.name);
   console.info(names);

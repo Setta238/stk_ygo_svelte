@@ -70,7 +70,13 @@ export const defaultSpellTrapSetPrepare = async (
 };
 
 export const defaultSpellTrapSetExecute = async (myInfo: ChainBlockInfo<{ dest: DuelFieldCell }>): Promise<boolean> => {
-  await myInfo.action.entity.setAsSpellTrap(myInfo.prepared.dest, ["Rule", "SpellTrapSet"], myInfo.action.entity, myInfo.activator);
+  await myInfo.action.entity.setAsSpellTrap(
+    myInfo.prepared.dest,
+    myInfo.action.entity.origin.kind,
+    ["Rule", "SpellTrapSet"],
+    myInfo.action.entity,
+    myInfo.activator
+  );
 
   myInfo.activator.duel.log.info(`${myInfo.action.entity.status.name}をセット（${"SpellTrapSet"}）。`, myInfo.activator);
 
@@ -133,7 +139,7 @@ export const defaultSpellTrapPrepare = async <T>(
   prepared: T
 ): Promise<ChainBlockInfoPrepared<T> | undefined> => {
   if (spellTrapZoneCellTypes.some((ct) => ct === myInfo.action.entity.fieldCell.cellType) && myInfo.action.entity.face === "FaceDown") {
-    await myInfo.action.entity.setNonFieldMonsterPosition("FaceUp", ["Rule"]);
+    await myInfo.action.entity.setNonFieldMonsterPosition(myInfo.action.entity.origin.kind, "FaceUp", ["Rule"]);
     return { chainBlockTags: chainBlockTags ?? [], selectedEntities: selectedEntities ?? [], prepared };
   }
   if (myInfo.action.entity.status.spellCategory === "Field") {

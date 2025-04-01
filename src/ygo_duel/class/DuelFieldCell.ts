@@ -1,5 +1,5 @@
 import StkEvent from "../../stk_utils/class/StkEvent";
-import { duelEntityCardTypes } from "./DuelEntity";
+import { duelEntityCardTypes, duelEntityDammyTypes } from "./DuelEntity";
 import type { DuelEntity } from "./DuelEntity";
 import type { DuelField } from "./DuelField";
 import { type Duelist } from "./Duelist";
@@ -13,7 +13,8 @@ export const spellTrapZoneCellTypes = ["SpellAndTrapZone", "FieldSpellZone"] as 
  * fieldCellTypesとしたいが、フィールドゾーンと誤解する可能性が高いので一旦playとつけておく
  */
 export const playFieldCellTypes = [...monsterZoneCellTypes, ...spellTrapZoneCellTypes] as const;
-export const duelFieldCellTypes = [...bundleCellTypes, ...playFieldCellTypes, "Disable"] as const;
+export const disabledCellTypes = ["XyzMaterialZone", "Disable"] as const;
+export const duelFieldCellTypes = [...bundleCellTypes, ...playFieldCellTypes, ...disabledCellTypes] as const;
 export type DuelFieldCellType = (typeof duelFieldCellTypes)[number];
 export type TDuelEntityMovePos = "Top" | "Bottom" | "Random";
 
@@ -41,11 +42,11 @@ export const cellTypeMaster = {
   },
   3: {
     0: "Banished",
-    1: "Disable",
+    1: "XyzMaterialZone",
     2: "ExtraMonsterZone",
     3: "Disable",
     4: "ExtraMonsterZone",
-    5: "Disable",
+    5: "XyzMaterialZone",
     6: "Banished",
   },
   4: {
@@ -87,14 +88,20 @@ export class DuelFieldCell {
   public get entities() {
     return this._entities;
   }
-  public get cardEntities() {
+  public get visibleEntities() {
     return this._entities.filter((e) => duelEntityCardTypes.find((t) => t === e.entityType));
+  }
+  public get cardEntities() {
+    return this._entities.filter((e) => duelEntityCardTypes.find((t) => t === e.entityType)).filter((e) => e.status.kind !== "XyzMaterial");
+  }
+  public get xymMaterials() {
+    return this._entities.filter((e) => e.status.kind === "XyzMaterial");
   }
   public get targetForAttack() {
     return this.cellType === "Hand" ? this._entities.find((e) => e.entityType === "Duelist") : this.cardEntities[0];
   }
   public get isAvailable() {
-    return this._entities.length === 0;
+    return this.cardEntities.length === 0 && this._entities.filter((e) => duelEntityDammyTypes.find((t) => t === e.entityType)).length === 0;
   }
 
   public get isStackCell() {
@@ -103,6 +110,15 @@ export class DuelFieldCell {
 
   public get isPlayFieldCell() {
     return playFieldCellTypes.some((t) => t === this.cellType);
+  }
+  public get isMonsterZoneLikeCell() {
+    return monsterZoneCellTypes.some((t) => t === this.cellType);
+  }
+  public get isSpellTrapZoneLikeCell() {
+    return spellTrapZoneCellTypes.some((t) => t === this.cellType);
+  }
+  public get isDisabledCell() {
+    return disabledCellTypes.some((t) => t === this.cellType);
   }
   private _entities: DuelEntity[];
   public constructor(duelField: DuelField, row: number, column: number, owner?: Duelist) {

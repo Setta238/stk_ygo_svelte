@@ -1,13 +1,13 @@
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { StickyEffectOperatorBase, StickyEffectOperatorBundle, StickyEffectOperatorPool } from "@ygo_duel/class_continuous_effect/DuelStickyEffectOperatorBase";
 import { Duel, SystemError } from "@ygo_duel/class/Duel";
-import { entityFlexibleStatusKeys, type TEntityFlexibleStatusGen, type TEntityFlexibleStatusKey } from "@ygo/class/YgoTypes";
+import { entityFlexibleStatusKeys, type TEntityFlexibleNumericStatusGen, type TEntityFlexibleNumericStatusKey } from "@ygo/class/YgoTypes";
 import type { CardActionBaseAttr, TEffectActiovationType } from "@ygo_duel/class/DuelCardAction";
 
 export const stateOperationTypes = ["Addition", "Fixation", "THE_DEVILS_DREAD-ROOT", "THE_DEVILS_AVATAR", "Gradius'_Option"] as const;
 type TStateOperationType = (typeof stateOperationTypes)[number];
 
-const minValueDic: { [key in TEntityFlexibleStatusKey]: number } = {
+const minValueDic: { [key in TEntityFlexibleNumericStatusKey]: number } = {
   level: 1,
   rank: 1,
   attack: 0,
@@ -92,7 +92,7 @@ export class NumericStateOperatorPool extends StickyEffectOperatorPool<NumericSt
   };
 }
 export class NumericStateOperatorBundle extends StickyEffectOperatorBundle<NumericStateOperator> {
-  public dominantOperators: { [key in TEntityFlexibleStatusKey]: NumericStateOperator | undefined } = {
+  public dominantOperators: { [key in TEntityFlexibleNumericStatusKey]: NumericStateOperator | undefined } = {
     level: undefined,
     rank: undefined,
     attack: undefined,
@@ -179,7 +179,7 @@ export class NumericStateOperatorBundle extends StickyEffectOperatorBundle<Numer
 
   public readonly calcStateAll = (): void => entityFlexibleStatusKeys.forEach(this.calcState);
 
-  public readonly calcState = (targetState: TEntityFlexibleStatusKey): void => {
+  public readonly calcState = (targetState: TEntityFlexibleNumericStatusKey): void => {
     if (this.entity.status.kind !== "Monster") {
       this.entity.numericStatus.calculated[targetState] = undefined;
       return;
@@ -283,8 +283,8 @@ export class NumericStateOperator extends StickyEffectOperatorBase {
     validateAlive: (spawner: DuelEntity) => boolean,
     isSpawnedBy: DuelEntity,
     isApplicableTo: (spawner: DuelEntity, target: DuelEntity) => boolean,
-    targetState: TEntityFlexibleStatusKey,
-    targetStateGen: TEntityFlexibleStatusGen,
+    targetState: TEntityFlexibleNumericStatusKey,
+    targetStateGen: TEntityFlexibleNumericStatusGen,
     stateOperationType: TStateOperationType,
     calcValue: (spawner: DuelEntity, target: DuelEntity, current: number) => number
   ) => {
@@ -298,8 +298,8 @@ export class NumericStateOperator extends StickyEffectOperatorBase {
     actionAttr: Partial<CardActionBaseAttr>,
 
     isApplicableTo: (spawner: DuelEntity, target: DuelEntity) => boolean,
-    targetState: TEntityFlexibleStatusKey,
-    targetStateGen: TEntityFlexibleStatusGen,
+    targetState: TEntityFlexibleNumericStatusKey,
+    targetStateGen: TEntityFlexibleNumericStatusGen,
     stateOperationType: TStateOperationType,
     value: number
   ) => {
@@ -317,8 +317,8 @@ export class NumericStateOperator extends StickyEffectOperatorBase {
     );
   };
 
-  public readonly targetState: TEntityFlexibleStatusKey;
-  public readonly targetStateGen: TEntityFlexibleStatusGen;
+  public readonly targetState: TEntityFlexibleNumericStatusKey;
+  public readonly targetStateGen: TEntityFlexibleNumericStatusGen;
   public readonly stateOperationType: TStateOperationType;
   public readonly calcValue: (spawner: DuelEntity, entity: DuelEntity, source: number) => number;
 
@@ -330,8 +330,8 @@ export class NumericStateOperator extends StickyEffectOperatorBase {
     actionAttr: Partial<CardActionBaseAttr>,
 
     isApplicableTo: (spawner: DuelEntity, target: DuelEntity) => boolean,
-    targetState: TEntityFlexibleStatusKey,
-    targetStateGen: TEntityFlexibleStatusGen,
+    targetState: TEntityFlexibleNumericStatusKey,
+    targetStateGen: TEntityFlexibleNumericStatusGen,
     stateOperationType: TStateOperationType,
     calcValue: (spawner: DuelEntity, target: DuelEntity, current: number) => number
   ) {

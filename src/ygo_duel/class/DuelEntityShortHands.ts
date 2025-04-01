@@ -30,6 +30,7 @@ declare module "./DuelEntity" {
     validateDestory(destroyType: TDestoryCauseReason, activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionBaseAttr>): boolean;
     canBeMaterials(summmonRule: TSummonRuleCauseReason, action: Partial<CardActionBaseAttr>, materials: DuelEntity[]): boolean;
     getIndexInCell(): number;
+    getXyzMaterials(): DuelEntity[];
   }
   interface DuelEntityConstructor {
     isEmpty(value: string): boolean;
@@ -213,6 +214,12 @@ DuelEntity.prototype.getIndexInCell = function (): number {
   }
 
   return index;
+};
+
+DuelEntity.prototype.getXyzMaterials = function (): DuelEntity[] {
+  const entity = this as DuelEntity;
+
+  return (entity.status.monsterCategories ?? []).includes("Xyz") ? entity.fieldCell.xymMaterials : [];
 };
 
 export class DuelEntityShortHands {

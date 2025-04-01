@@ -235,7 +235,7 @@ export class Duel {
 
   public readonly moveNextPhase = (next: TDuelPhase) => {
     this.clock.setPhase(this, next);
-
+    console.log(this.nextPhaseList);
     if (this.phase === "main2" || this.clock.turn === 1) {
       this.nextPhaseList = ["end"];
     } else if (this.phase === "battle1" || this.phase === "battle2") {
@@ -245,6 +245,7 @@ export class Duel {
     } else {
       this.nextPhaseList = [];
     }
+    console.log(this.nextPhaseList);
   };
 
   public readonly declareAnAttack = (attacker: DuelEntity, defender: DuelEntity): void => {

@@ -4,7 +4,7 @@ import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardActionBase } from "@ygo_duel/class/DuelCardAction";
 
 import type { CardDefinition } from "./CardDefinitions";
-import type { TEntityFlexibleStatusKey, TMonsterAttribute, TMonsterType } from "@ygo/class/YgoTypes";
+import type { TEntityFlexibleNumericStatusKey, TMonsterAttribute, TMonsterType } from "@ygo/class/YgoTypes";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import { createBroadRegularNumericStateOperatorHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 
@@ -67,7 +67,7 @@ export const createCardDefinitions_FieldSpell_Preset = (): CardDefinition[] => {
           "Spell",
           (source) => source.isOnField && source.face === "FaceUp",
           (source) => {
-            return (["attack", "defense"] as TEntityFlexibleStatusKey[]).flatMap((state) => {
+            return (["attack", "defense"] as TEntityFlexibleNumericStatusKey[]).flatMap((state) => {
               return (["up", "down"] as const).map((updown) => {
                 return NumericStateOperator.createContinuous(
                   "発動",
@@ -149,7 +149,7 @@ export const createCardDefinitions_FieldSpell_Preset = (): CardDefinition[] => {
           "Spell",
           (source) => source.isOnField && source.face === "FaceUp",
           (source) => {
-            return (["attack", "defense"] as TEntityFlexibleStatusKey[]).flatMap((state) => {
+            return (["attack", "defense"] as TEntityFlexibleNumericStatusKey[]).flatMap((state) => {
               return NumericStateOperator.createContinuous(
                 "発動",
                 (spawner) => spawner.isOnField && spawner.face === "FaceUp",

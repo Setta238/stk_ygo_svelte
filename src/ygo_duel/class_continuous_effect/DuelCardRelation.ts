@@ -1,6 +1,7 @@
 import { StickyEffectOperatorBase, StickyEffectOperatorBundle, StickyEffectOperatorPool } from "./DuelStickyEffectOperatorBase";
 import type { DuelEntity, TSummonPosCauseReason, TSummonRuleCauseReason } from "../class/DuelEntity";
 import type { CardActionBaseAttr } from "@ygo_duel/class/DuelCardAction";
+import { SystemError } from "@ygo_duel/class/Duel";
 
 export const relationTypes = ["Equip", "XyzMaterial"] as const;
 export type TRelationType = (typeof relationTypes)[number] | TSummonRuleCauseReason | TSummonPosCauseReason;
@@ -23,6 +24,10 @@ export class CardRelation extends StickyEffectOperatorBase {
     isApplicableTo: (spawner: DuelEntity, target: DuelEntity) => boolean,
     beforeRemove: (relation: CardRelation) => boolean = () => true
   ) => {
+    if (!isSpawnedBy.info.equipBy) {
+      throw new SystemError("想定されない状態", title, validateAlive, isSpawnedBy, actionAttr, isApplicableTo, beforeRemove);
+    }
+
     return new CardRelation(
       title,
       validateAlive,
@@ -30,17 +35,17 @@ export class CardRelation extends StickyEffectOperatorBase {
       isSpawnedBy,
       actionAttr,
       (spawner: DuelEntity, target: DuelEntity) => {
-        return target.isOnField && target.face === "FaceUp" && isApplicableTo(spawner, target);
+        return target.isOnFieldAsMonster && target.face === "FaceUp" && isApplicableTo(spawner, target);
       },
       "Equip",
-      isSpawnedBy.info.effectTargets[title][0],
+      isSpawnedBy.info.equipBy,
       (relation: CardRelation) => {
         if (!beforeRemove(relation)) {
           return;
         }
 
         // 装備できない状態でフィールドに残っている場合、ルールにより破壊される。
-        if (relation.isSpawnedBy.isOnField && !relation.isSpawnedBy.info.isDying) {
+        if (relation.isSpawnedBy.isOnFieldAsMonster && !relation.isSpawnedBy.info.isDying) {
           relation.isSpawnedBy.info.isDying = true;
           relation.isSpawnedBy.info.causeOfDeath = ["RuleDestroy"];
           relation.isSpawnedBy.duel.log.info(
@@ -49,7 +54,8 @@ export class CardRelation extends StickyEffectOperatorBase {
           );
         }
 
-        relation.isSpawnedBy.info.effectTargets[title] = [];
+        //TODO 共通処理で処理できるので不要
+        relation.isSpawnedBy.info.equipBy = undefined;
       }
     );
   };

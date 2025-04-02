@@ -366,7 +366,6 @@ export class Duelist {
 
     const opponent = enemies.find((enemy) => enemy.entityType === "Duelist");
 
-    console.log(this, atk, opponent);
     // 直接攻撃可能かつ、勝利可能または1600以上なら直接攻撃する。
     if (opponent && (atk >= min(1600, this.getOpponentPlayer().lp) || attacker.info.battlePotisionChangeCount > 0)) {
       return opponent;
@@ -375,7 +374,6 @@ export class Duelist {
     return enemies.find((enemy) => {
       // 相手が攻撃表示なら、相打ち以上で攻撃
       if (enemy.battlePosition === "Attack") {
-        console.log(this, atk, enemy);
         return atk >= (enemy.atk ?? 0);
       }
       // 守備表示なら、ステータスが超過していない場合攻撃しない

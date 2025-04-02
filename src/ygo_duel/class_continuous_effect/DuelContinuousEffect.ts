@@ -198,7 +198,7 @@ export const createRegularEquipRelationHandler = (
     title,
     kind,
     (source: DuelEntity) => {
-      return source.info.equipBy ? [source.info.equipBy] : [];
+      return source.info.equipedBy ? [source.info.equipedBy] : [];
     },
     canStart,
     relartionsCreater,

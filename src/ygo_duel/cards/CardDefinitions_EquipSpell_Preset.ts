@@ -1,16 +1,14 @@
-import { defaultSpellTrapPrepare, defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/cards/DefaultCardAction_Spell";
+import { defaultSpellTrapSetAction, getDefaultEquipSpellTrapAction } from "@ygo_duel/cards/DefaultCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
-import type { CardAction, CardActionBase } from "@ygo_duel/class/DuelCardAction";
+import type { CardActionBase } from "@ygo_duel/class/DuelCardAction";
 
 import type { CardDefinition } from "./CardDefinitions";
 import type { TEntityFlexibleNumericStatusKey, TMonsterAttribute, TMonsterType } from "@ygo/class/YgoTypes";
 import {
-  createRegularEquipRelationHandler,
   createRegularNumericStateOperatorHandler as createRegularNumericStateOperatorHandler,
   type ContinuousEffectBase,
 } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
-import { CardRelation } from "@ygo_duel/class_continuous_effect/DuelCardRelation";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 
 export const createCardDefinitions_EquipSpell_Preset = (): CardDefinition[] => {
@@ -47,71 +45,16 @@ export const createCardDefinitions_EquipSpell_Preset = (): CardDefinition[] => {
     result.push({
       name: item.name,
       actions: [
-        {
-          title: "発動",
-          playType: "CardActivation",
-          spellSpeed: "Normal",
-          executableCells: ["Hand", "SpellAndTrapZone"],
-          executablePeriods: ["main1", "main2"],
-          executableDuelistTypes: ["Controller"],
-          validate: (myInfo) => {
-            const monsters = myInfo.action.entity.field
-              .getMonstersOnField()
-              .filter((monster) => monster.face === "FaceUp")
-              .filter((monster) => monster.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action as CardAction<unknown>))
-              .filter((monster) => !item.attr || monster.attr.includes(item.attr))
-              .filter((monster) => !item.monType || monster.types.includes(item.monType));
-
-            return monsters.length ? defaultSpellTrapValidate(myInfo) : undefined;
-          },
-          prepare: async (myInfo, cell, chainBlockInfos, cancelable) => {
-            const monsters = myInfo.action.entity.field
-              .getMonstersOnField()
-              .filter((monster) => monster.face === "FaceUp")
-              .filter((monster) => monster.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action as CardAction<unknown>))
-              .filter((monster) => !item.attr || monster.attr.includes(item.attr))
-              .filter((monster) => !item.monType || monster.types.includes(item.monType));
-
-            const targets = await myInfo.action.entity.duel.view.waitSelectEntities(
-              myInfo.activator,
-              monsters,
-              1,
-              (seleceted) => seleceted.length === 1,
-              "装備対象モンスターを選択",
-              cancelable
-            );
-            if (!targets) {
-              return undefined;
-            }
-
-            myInfo.action.entity.info.equipBy = targets[0];
-
-            return await defaultSpellTrapPrepare(myInfo, cell, chainBlockInfos, false, [], targets, undefined);
-          },
-          execute: async () => true,
-          settle: async () => true,
-        },
+        getDefaultEquipSpellTrapAction(
+          (monster) => (!item.attr || monster.attr.includes(item.attr)) && (!item.monType || monster.types.includes(item.monType))
+        ),
         defaultSpellTrapSetAction as CardActionBase<unknown>,
       ],
       continuousEffects: [
-        createRegularEquipRelationHandler(
-          "EquipTarget",
-          "Spell",
-          () => true,
-          (source) => [
-            CardRelation.createRegularEquipRelation(
-              "EquipTarget",
-              () => true,
-              source,
-              {},
-              () => true
-            ),
-          ]
-        ),
         createRegularNumericStateOperatorHandler(
           item.name,
           "Spell",
-          (source) => (source.info.equipBy ? [source.info.equipBy] : []),
+          (source) => (source.info.equipedBy ? [source.info.equipedBy] : []),
           (source) => source.isOnField && source.face === "FaceUp",
           (entity) => {
             const targetStatus: [targetState: TEntityFlexibleNumericStatusKey, point: number][] = [];

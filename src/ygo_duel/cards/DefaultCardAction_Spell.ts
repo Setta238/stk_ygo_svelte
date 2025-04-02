@@ -171,3 +171,69 @@ export const defaultSpellTrapPrepare = async <T>(
   }
   return;
 };
+
+export const defaultEquipSpellTrapValidate = <T>(
+  myInfo: ChainBlockInfoBase<T>,
+  chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
+  filter: (monster: DuelEntity) => boolean = () => true
+) => {
+  const monsters = myInfo.action.entity.field
+    .getMonstersOnField()
+    .filter((monster) => monster.face === "FaceUp")
+    .filter((monster) => monster.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action as CardAction<unknown>))
+    .filter(filter);
+  return monsters.length ? defaultSpellTrapValidate(myInfo) : undefined;
+};
+
+export const defaultEquipSpellTrapPrepare = async <T>(
+  myInfo: ChainBlockInfoBase<T>,
+  cell: DuelFieldCell | undefined,
+  chainBlockInfos: Readonly<ChainBlockInfoPrepared<unknown>[]>,
+  cancelable: boolean,
+  chainBlockTags: TEffectTag[] | undefined,
+  prepared: T,
+  filter: (monster: DuelEntity) => boolean = () => true
+) => {
+  const monsters = myInfo.action.entity.field
+    .getMonstersOnField()
+    .filter((monster) => monster.face === "FaceUp")
+    .filter((monster) => monster.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action as CardAction<unknown>))
+    .filter(filter);
+  const targets = await myInfo.action.entity.duel.view.waitSelectEntities(
+    myInfo.activator,
+    monsters,
+    1,
+    (seleceted) => seleceted.length === 1,
+    "装備対象モンスターを選択",
+    cancelable
+  );
+  if (!targets) {
+    return undefined;
+  }
+
+  myInfo.action.entity.info.equipedBy = targets[0];
+
+  return await defaultSpellTrapPrepare(myInfo, cell, chainBlockInfos, cancelable, chainBlockTags, targets, prepared);
+};
+
+export const defaultEquipSpellTrapExecute = async <T>(myInfo: ChainBlockInfo<T>) => {
+  const target = myInfo.selectedEntities[0];
+  myInfo.action.entity.info.equipedBy = target;
+  target.info.equipEntities.push(myInfo.action.entity);
+  return true;
+};
+
+export const getDefaultEquipSpellTrapAction = (filter: (monster: DuelEntity) => boolean = () => true): CardActionBase<unknown> => {
+  return {
+    title: "発動",
+    playType: "CardActivation",
+    spellSpeed: "Normal",
+    executableCells: ["Hand", "SpellAndTrapZone"],
+    executablePeriods: ["main1", "main2"],
+    executableDuelistTypes: ["Controller"],
+    validate: (myInfo, chainBlockInfos) => defaultEquipSpellTrapValidate(myInfo, chainBlockInfos, filter),
+    prepare: (myInfo, cell, chainBlockInfos, cancelable) => defaultEquipSpellTrapPrepare(myInfo, cell, chainBlockInfos, cancelable, [], undefined, filter),
+    execute: defaultEquipSpellTrapExecute,
+    settle: async () => true,
+  };
+};

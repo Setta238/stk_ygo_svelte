@@ -20,7 +20,7 @@ import { type Duelist } from "./Duelist";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import { cardDefinitionDic, cardInfoDic } from "@ygo/class/CardInfo";
-import { CardAction, type CardActionBase } from "./DuelCardAction";
+import { CardAction, type CardActionBase, type ChainBlockInfo } from "./DuelCardAction";
 import { ProcFilterBundle } from "../class_continuous_effect/DuelProcFilter";
 import { ContinuousEffect, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { NumericStateOperatorBundle } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
@@ -30,6 +30,7 @@ import { DuelEntityLog } from "./DuelEntityLog";
 import { CounterHolder, type TCounterName } from "./DuelCounter";
 import { StatusOperatorBundle } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 import { defaultAttackAction, defaultBattlePotisionChangeAction, defaultNormalSummonAction } from "@ygo_duel/cards/DefaultCardAction_Monster";
+import StkEvent from "@stk_utils/class/StkEvent";
 export type EntityStatus = {
   canAttack: boolean;
   canDirectAttack: boolean;
@@ -58,8 +59,9 @@ export type DuelEntityInfomation = {
   willReturnToDeck: TDuelEntityMovePos | undefined;
   attackCount: number;
   battlePotisionChangeCount: number;
-  equipBy: DuelEntity | undefined;
-  equipEntites: DuelEntity[];
+  equipedBy: DuelEntity | undefined;
+  equipedAs: ChainBlockInfo<unknown> | undefined;
+  equipEntities: DuelEntity[];
 };
 
 export type TDuelEntityFace = "FaceUp" | "FaceDown";
@@ -551,6 +553,10 @@ export class DuelEntity {
       .map((cell) => cell.shuffle());
   };
 
+  private readonly onAfterMoveEvent = new StkEvent<void>();
+  public get onAfterMove() {
+    return this.onAfterMoveEvent.expose();
+  }
   public readonly seq: number;
   public readonly origin: EntityStatusBase;
   public readonly entityType: TDuelEntityType;
@@ -748,8 +754,9 @@ export class DuelEntity {
       effectTargets: {},
       willBeBanished: false,
       willReturnToDeck: undefined,
-      equipBy: undefined,
-      equipEntites: [],
+      equipedBy: undefined,
+      equipedAs: undefined,
+      equipEntities: [],
     };
     this.resetInfoAll();
     this.face = face;
@@ -926,6 +933,7 @@ export class DuelEntity {
     this._status.kind = kind;
     this.face = face;
     this.orientation = orientation;
+    console.log(this.toString(), this.fieldCell.xyzMaterials);
 
     // 異なるセルに移動する場合
     if (to !== this.fieldCell) {
@@ -953,15 +961,16 @@ export class DuelEntity {
 
       // モンスターゾーンを離れる時の処理
       if ((this.fieldCell.isMonsterZoneLikeCell && !to.isMonsterZoneLikeCell) || kind !== "Monster") {
+        console.log(this.toString(), this.fieldCell.xyzMaterials);
         // 装備していたカードにマーキング
-        this.info.equipEntites.forEach((equip) => {
+        this.info.equipEntities.forEach((equip) => {
           equip.info.isDying = true;
           equip.info.causeOfDeath = ["RuleDestroy"];
           this.controller.writeInfoLog(`装備対象${this.toString()}不在により${equip.toString()}は破壊された。`);
         });
-        this.info.equipEntites = [];
+        this.info.equipEntities = [];
         // XYZ素材にマーキング
-        this.fieldCell.xymMaterials.forEach((material) => {
+        this.fieldCell.xyzMaterials.forEach((material) => {
           material.info.isDying = true;
           material.info.causeOfDeath = ["LostXyzOwner"];
           this.controller.writeInfoLog(`エクシーズモンスター${this.toString()}不在により${material.toString()}は墓地に送られた。`);
@@ -971,7 +980,7 @@ export class DuelEntity {
       // 魔法罠を離れる時の処理
       if (this.fieldCell.cellType === "SpellAndTrapZone" && to.cellType !== "SpellAndTrapZone") {
         // 装備解除
-        this.info.equipBy = undefined;
+        this.info.equipedBy = undefined;
       }
 
       // セルに自分を所属させる
@@ -986,12 +995,16 @@ export class DuelEntity {
         this.resetStatusAll();
       }
     }
-    console.log(this.toString(), this);
 
     if (this.isOnField && this.face === "FaceDown") {
-      console.log(this.toString(), this);
-
       // セット状態になった場合
+
+      // 装備していたカードにマーキング
+      this.info.equipEntities.forEach((equip) => {
+        equip.info.isDying = true;
+        equip.info.causeOfDeath = ["RuleDestroy"];
+        this.controller.writeInfoLog(`装備対象${this.toString()}不在により${equip.toString()}は破壊された。`);
+      });
 
       // カウンター類を除去
       this.counterHolder.removeAllWhenfaceDown();
@@ -1015,6 +1028,8 @@ export class DuelEntity {
     // 移動ログ追加
     this.moveLog.push(movedAs, movedBy, actionOwner, chooser);
 
+    this.onAfterMoveEvent.trigger();
+
     return to;
   };
   public readonly initForTurn = () => {
@@ -1037,8 +1052,9 @@ export class DuelEntity {
       effectTargets: {},
       attackCount: 0,
       battlePotisionChangeCount: 0,
-      equipBy: undefined,
-      equipEntites: [],
+      equipedBy: undefined,
+      equipedAs: undefined,
+      equipEntities: [],
     };
   };
 
@@ -1059,8 +1075,9 @@ export class DuelEntity {
       willReturnToDeck: undefined,
       attackCount: 0,
       battlePotisionChangeCount: 0,
-      equipBy: undefined,
-      equipEntites: [],
+      equipedBy: undefined,
+      equipedAs: undefined,
+      equipEntities: [],
     };
 
     this.counterHolder.clear();

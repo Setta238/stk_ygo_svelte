@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { crossfade } from "svelte/transition";
-  import { DuelFieldCell, stackCellTypes } from "@ygo_duel/class/DuelFieldCell";
   import { SystemError, type DuelistResponse } from "@ygo_duel/class/Duel";
 
   import DuelCard, { type TCardState } from "@ygo_duel_view/components/DuelCard.svelte";
@@ -8,7 +6,7 @@
   import type { AnimationStartEventArg, DuelViewController, WaitStartEventArg } from "@ygo_duel_view/class/DuelViewController";
   import {} from "@stk_utils/funcs/StkArrayUtils";
   import { cardCrossFade } from "@ygo_duel_view/components/DuelDesk.svelte";
-  import { CardAction, type ICardAction } from "@ygo_duel/class/DuelCardAction";
+  import { type ICardAction } from "@ygo_duel/class/DuelCardAction";
   import { actualCounterEmojiDic, type TActualCounterName } from "@ygo_duel/class/DuelCounter";
   import type { TDuelPhase } from "@ygo_duel/class/DuelPeriod";
   import type { Duelist } from "@ygo_duel/class/Duelist";
@@ -162,16 +160,14 @@
     }
   };
   const validateActions = (...entities: DuelEntity[]): TCardState => {
-    if (view.duel.priorityHolder.duelistType === "NPC") {
-      return "Disabled";
-    }
-
     if (view.waitMode === "Animation") {
       return "Disabled";
     }
+
     if (selectableEntities && selectableEntities.find((e1) => entities.find((e2) => e1 === e2))) {
       return "Selectable";
     }
+
     if (!enableActions || enableActions.length === 0) {
       return "Disabled";
     }
@@ -187,9 +183,6 @@
     }
     if (actions.length > 1) {
       return "Clickable";
-    }
-    if (enableActions[0].playType === "RuleDraw") {
-      return "Draggable";
     }
     if (cell.isStackCell) {
       return "Clickable";
@@ -213,6 +206,7 @@
     ondrop={(ev) => drop(ev)}
   >
     {#if cell.isDisabledCell}
+      <!-- 使用不可セルの場合-->
       {#if cell.row === 3}
         {#if cell.column === 1}
           <div class="phase_display"><span>{String(cell.field.duel.clock.turn).padStart(2, "0")}</span>{cell.field.duel.phase.toUpperCase()}</div>
@@ -232,6 +226,7 @@
         {/if}
       {/if}
     {:else if cell.cellType === "Hand"}
+      <!-- 手札の場合-->
       {#if animationArg && animationArg.entity && animationArg.to === cell && animationArg.index === "Top"}
         <div class="card_animation_receiver {cell.cellType}" in:receive={{ key: animationArg.entity.seq }}>
           <DuelCard entity={animationArg.entity} state="Disabled" actions={[]} cardActionResolve={undefined} />
@@ -257,19 +252,27 @@
         </div>
       {/if}
     {:else}
+      <!-- それ以外のセルの場合-->
       {#if animationArg && animationArg.entity && animationArg.to === cell && animationArg.index !== "Top"}
+        <!-- アニメーションの目的地-->
         <div style="position: absolute;" class="card_animation_receiver" in:receive={{ key: animationArg.entity.seq }}>
           <DuelCard entity={animationArg.entity} state="Disabled" actions={[]} cardActionResolve={undefined} />
         </div>
       {/if}
       {#if cell.visibleEntities.length > 0}
-        {#each cell.visibleEntities.toReversed() as entity, index}
-          {#if !animationArg || animationArg.entity.seq !== entity.seq}
-            <div style="position: absolute; display:flex;justify-content: center;" out:send={{ key: entity.seq }}>
+        {#each cell.visibleEntities
+          .map((entity, index) => {
+            // 元々の配列だと上下が逆になってしまうので、反転してループする。
+            // index===0を判定したいので、反転する前にindexを付与する。
+            return { index, entity };
+          })
+          .toReversed() as item}
+          {#if !animationArg || animationArg.entity.seq !== item.entity.seq}
+            <div style="position: absolute; display:flex;justify-content: center;" out:send={{ key: item.entity.seq }}>
               <DuelCard
-                {entity}
-                state={index === 0 && !cell.isStackCell ? validateActions(...cell.visibleEntities) : undefined}
-                actions={index === 0 ? enableActions.filter((action) => cell.visibleEntities.includes(action.entity)) : undefined}
+                entity={item.entity}
+                state={!cell.isStackCell && item.index === 0 ? validateActions(...cell.visibleEntities) : undefined}
+                actions={item.index === 0 ? enableActions.filter((action) => cell.visibleEntities.includes(action.entity)) : undefined}
                 cardActionResolve={undefined}
                 bind:selectedList
               />
@@ -277,6 +280,7 @@
           {/if}
         {/each}
         {#if cell.visibleEntities[0].battlePosition}
+          <!-- 表示形式、カウンターの表示-->
           <div style="position: absolute; bottom:0rem">
             【{cell.visibleEntities[0].battlePositionName}】
             {#each Object.keys(cell.visibleEntities[0].status.maxCounterQty) as TActualCounterName[] as counter}
@@ -291,9 +295,11 @@
         {/if}
       {/if}
       {#if cell.isStackCell}
+        <!-- バッチ-->
         <div class="badge">{cell.visibleEntities.length}</div>
       {/if}
       {#if animationArg && animationArg.entity && animationArg.to === cell && animationArg.index === "Top"}
+        <!-- アニメーションの目的地-->
         <div class="card_animation_receiver" in:receive={{ key: animationArg.entity.seq }}>
           <DuelCard entity={animationArg.entity} state="Disabled" actions={[]} cardActionResolve={undefined} />
         </div>

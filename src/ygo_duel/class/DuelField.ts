@@ -60,7 +60,7 @@ export class DuelField {
   };
   public readonly getEntiteisOnField = (): DuelEntity[] => {
     return this.getCells(...playFieldCellTypes)
-      .map((cell) => cell.cardEntities)
+      .map((cell) => cell.entities)
       .filter((entities) => entities.length > 0)
       .map((entities) => entities[0]);
   };

@@ -557,7 +557,6 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           return;
         }
 
-        console.log(myInfo);
         // 封印の黄金櫃カウンターを置く
         myInfo.action.entity.field
           .getCells("Banished")
@@ -580,13 +579,10 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         executablePeriods: ["stanby"],
         executableDuelistTypes: ["Controller", "Opponent"],
         validate: (myInfo) => {
-          console.log(myInfo);
           //発動者のスタンバイフェイズでカウント、カードは持ち主の手札に入る
           if (!myInfo.activator.isTurnPlayer) {
             return;
           }
-
-          console.log(myInfo);
           // 封印の黄金櫃カウンターがちょうど二個のものを回収できる。
           return myInfo.action.entity.field
             .getCells("Banished")

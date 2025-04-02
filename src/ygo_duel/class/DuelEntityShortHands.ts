@@ -44,7 +44,7 @@ DuelEntity.prototype.hasBeenSummonedNow = function (
   const entity = this as DuelEntity;
   const _posList = posList.map(posToSummonPos);
   const movedAs = entity.moveLog.latestRecord.movedAs;
-  console.log(entity, entity.moveLog.records);
+
   if (!entity.wasMovedAtPreviousChain) {
     return false;
   }
@@ -219,7 +219,7 @@ DuelEntity.prototype.getIndexInCell = function (): number {
 DuelEntity.prototype.getXyzMaterials = function (): DuelEntity[] {
   const entity = this as DuelEntity;
 
-  return (entity.status.monsterCategories ?? []).includes("Xyz") ? entity.fieldCell.xymMaterials : [];
+  return (entity.status.monsterCategories ?? []).includes("Xyz") ? entity.fieldCell.xyzMaterials : [];
 };
 
 export class DuelEntityShortHands {

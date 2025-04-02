@@ -232,7 +232,7 @@ export class DuelViewController {
 
     const actions = await this._waitDuelistAction(chooser, [], this.waitMode, message, choises, qty, validator, cancelable);
 
-    return actions.selectedEntities;
+    return [...(actions.selectedEntities ?? [])];
   };
 
   private readonly _waitDuelistAction = async (

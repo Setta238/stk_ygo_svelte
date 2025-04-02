@@ -148,7 +148,6 @@ export class DeckInfo implements IDeckInfo {
 
     //旧明細削除
     const oldDetails = (await DeckInfo.tblDetail.getAll()).filter((detail) => detail.deckId === this.id);
-    console.log(_newDeckInfo.cardNames);
     await DeckInfo.tblDetail.delete(oldDetails.map((detail) => detail.id));
 
     //新明細作成
@@ -163,7 +162,6 @@ export class DeckInfo implements IDeckInfo {
       })
     );
 
-    console.log(newDetails);
     //新規のデッキ情報を返す。
     return new DeckInfo(await DeckInfo.tblHeader.get(this.id), newDetails);
   };

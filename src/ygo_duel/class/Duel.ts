@@ -235,7 +235,6 @@ export class Duel {
 
   public readonly moveNextPhase = (next: TDuelPhase) => {
     this.clock.setPhase(this, next);
-    console.log(this.nextPhaseList);
     if (this.phase === "main2" || this.clock.turn === 1) {
       this.nextPhaseList = ["end"];
     } else if (this.phase === "battle1" || this.phase === "battle2") {
@@ -245,7 +244,6 @@ export class Duel {
     } else {
       this.nextPhaseList = [];
     }
-    console.log(this.nextPhaseList);
   };
 
   public readonly declareAnAttack = (attacker: DuelEntity, defender: DuelEntity): void => {
@@ -267,10 +265,8 @@ export class Duel {
     // フェイズ強制処理
     await this.procSpellSpeed1();
     this.moveNextPhase("standby");
-    console.log("Hoge");
   };
   private readonly procStanbyPhase = async () => {
-    console.log("fuga");
     // フェイズ強制処理
     await this.procSpellSpeed1();
 
@@ -373,7 +369,6 @@ export class Duel {
         break;
       }
       if (response.action) {
-        console.log(response.action, response.action.cell);
         const info = await response.action.prepare(this.priorityHolder, response.action.cell, [], true);
         if (!info) {
           continue;
@@ -661,7 +656,6 @@ export class Duel {
       Object.values(this.duelists).flatMap((activator) => {
         // この効果の収拾のみ、優先権が移らない。
         return this.getEnableActions(activator, ["MandatoryTriggerEffect", "TriggerEffect"], ["Normal"], []).map((action) => {
-          console.log(activator, action);
           return { activator, action };
         });
       });
@@ -867,7 +861,6 @@ export class Duel {
     }
   };
   private readonly executeSystemActions = async (): Promise<void> => {
-    console.log(this.clock.toString(), this.clock.period, this.clock.period.key);
     await Promise.all(
       Object.values(this.duelists)
         .flatMap((duelist) =>

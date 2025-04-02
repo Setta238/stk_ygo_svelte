@@ -45,7 +45,7 @@ export class DuelClock implements IDuelClock {
     this._chainSeq = 0;
     this._chainBlockSeq = 0;
     this._procSeq = 0;
-    console.log(this.period);
+
     this.onStageChangeEvent.trigger(this.period);
     this.incrementTotalProcSeq();
   }

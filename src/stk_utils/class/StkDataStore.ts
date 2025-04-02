@@ -199,20 +199,17 @@ export abstract class StkDataStore<R extends IStkDataRecord, SN extends string> 
 
   private patchForInsert = (event: InsertEventArg<R, SN>, dictionary: Record<number, R>) => {
     event.newRecords.forEach((r) => {
-      console.log(r);
       dictionary[r.id] = r;
     });
   };
   private patchForUpdate = (event: UpdateEventArg<R, SN>, dictionary: Record<number, R>) => {
     event.recordPairs.forEach((pair) => {
-      console.log(dictionary[pair.newRecord.id], pair.newRecord);
       //Note:古いオブジェクトがそのままくる場合、別オブジェクトに作り直さないとreactiveが反応しない
       dictionary[pair.newRecord.id] = { ...pair.newRecord };
     });
   };
   private patchForDelete = (event: DeleteEventArg<R, SN>, dictionary: Record<number, R>) => {
     event.oldRecords.forEach((r) => {
-      console.log(r);
       delete dictionary[r.id];
     });
   };

@@ -218,8 +218,6 @@ export const defaultDeclareAttackValidate = (myInfo: ChainBlockInfoBase<{ target
   }
   const targets = myInfo.action.entity.getAttackTargets();
 
-  console.log(targets);
-
   // 攻撃対象をダイレクトアタック含めて抽出し、セルに変換
   return targets.length ? targets.map((e) => e.fieldCell) : undefined;
 };
@@ -431,8 +429,6 @@ export const defaultSyncroSummonPrepare = async (
 ): Promise<ChainBlockInfoPrepared<SummonPrepared> | undefined> => {
   const patterns = getEnableSyncroSummonPatterns(myInfo, tunersValidator, nonTunersValidator);
 
-  console.log(patterns);
-
   let materials = patterns[0];
 
   if (patterns.length > 1) {
@@ -620,8 +616,6 @@ export const defaultXyzSummonPrepare = async (
   const availableCells = [...myInfo.activator.getAvailableMonsterZones(), ...myInfo.activator.getAvailableExtraZones()];
   let pos: TBattlePosition = (myInfo.action.entity.atk ?? 0) > 0 && (myInfo.action.entity.atk ?? 0) >= (myInfo.action.entity.def ?? 0) ? "Attack" : "Defense";
   let dest: DuelFieldCell = availableCells.randomPick();
-
-  console.log(myInfo.action.entity, posList);
 
   if (myInfo.activator.duelistType !== "NPC") {
     const res = await myInfo.activator.duel.view.waitSelectSummonDest(myInfo.activator, myInfo.action.entity, availableCells, posList, false);

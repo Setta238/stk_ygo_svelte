@@ -24,7 +24,7 @@ export class CardRelation extends StickyEffectOperatorBase {
     isApplicableTo: (spawner: DuelEntity, target: DuelEntity) => boolean,
     beforeRemove: (relation: CardRelation) => boolean = () => true
   ) => {
-    if (!isSpawnedBy.info.equipBy) {
+    if (!isSpawnedBy.info.equipedBy) {
       throw new SystemError("想定されない状態", title, validateAlive, isSpawnedBy, actionAttr, isApplicableTo, beforeRemove);
     }
 
@@ -38,11 +38,13 @@ export class CardRelation extends StickyEffectOperatorBase {
         return target.isOnFieldAsMonster && target.face === "FaceUp" && isApplicableTo(spawner, target);
       },
       "Equip",
-      isSpawnedBy.info.equipBy,
+      isSpawnedBy.info.equipedBy,
       (relation: CardRelation) => {
         if (!beforeRemove(relation)) {
           return;
         }
+
+        // TODO 全体的に見直し必要
 
         // 装備できない状態でフィールドに残っている場合、ルールにより破壊される。
         if (relation.isSpawnedBy.isOnFieldAsMonster && !relation.isSpawnedBy.info.isDying) {
@@ -55,7 +57,7 @@ export class CardRelation extends StickyEffectOperatorBase {
         }
 
         //TODO 共通処理で処理できるので不要
-        relation.isSpawnedBy.info.equipBy = undefined;
+        relation.isSpawnedBy.info.equipedBy = undefined;
       }
     );
   };

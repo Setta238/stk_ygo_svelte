@@ -94,7 +94,7 @@ export class DuelFieldCell {
   public get cardEntities() {
     return this._entities.filter((e) => duelEntityCardTypes.find((t) => t === e.entityType)).filter((e) => e.status.kind !== "XyzMaterial");
   }
-  public get xymMaterials() {
+  public get xyzMaterials() {
     return this._entities.filter((e) => e.status.kind === "XyzMaterial");
   }
   public get targetForAttack() {

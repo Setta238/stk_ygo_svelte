@@ -17,6 +17,7 @@ import { createCardDefinitions_NormalTrap_UponAttackDeclaration } from "./CardDe
 import { createCardDefinitions_NormalTrap } from "./CardDefinitions_NormalTrap";
 import { createCardDefinitions_NormalSpell_General_Draw } from "./CardDefinitions_NormalSpell_General_Draw";
 import { createCardDefinitions_XyzMonster } from "./CardDefinitions_XyzMonster";
+import { createCardDefinitions_Blackwing_Monster } from "./CardDefinitions_Blackwing_Monster";
 
 export type CardDefinition = {
   name: string;
@@ -38,6 +39,7 @@ export const createCardDefinitions = (): CardDefinition[] => {
     ...createCardDefinitions_EquipSpell_Preset(),
     ...createCardDefinitions_TestMonster(),
     ...createCardDefinitions_SpellCounter_Monster(),
+    ...createCardDefinitions_Blackwing_Monster(),
     ...createCardDefinitions_NormalTrap(),
     ...createCardDefinitions_NormalTrap_UponAttackDeclaration(),
     ...createCardDefinitions_NormalSpell_General_Draw(),

@@ -15,7 +15,15 @@ import {
   type TCardKind,
 } from "@ygo/class/YgoTypes";
 import { Duel } from "./Duel";
-import { deckCellTypes, monsterZoneCellTypes, playFieldCellTypes, type DuelFieldCell, type TBundleCellType, type TDuelEntityMovePos } from "./DuelFieldCell";
+import {
+  deckCellTypes,
+  monsterZoneCellTypes,
+  playFieldCellTypes,
+  spellTrapZoneCellTypes,
+  type DuelFieldCell,
+  type TBundleCellType,
+  type TDuelEntityMovePos,
+} from "./DuelFieldCell";
 import { type Duelist } from "./Duelist";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
@@ -685,6 +693,9 @@ export class DuelEntity {
   }
   public get isOnFieldAsMonster() {
     return monsterZoneCellTypes.some((t) => t === this.fieldCell.cellType);
+  }
+  public get isOnFieldAsSpellTrap() {
+    return spellTrapZoneCellTypes.some((t) => t === this.fieldCell.cellType);
   }
   public get isLikeContinuousSpell() {
     return (

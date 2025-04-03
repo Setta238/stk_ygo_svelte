@@ -3,7 +3,6 @@ import type { DuelFieldCell, DuelFieldCellType } from "./DuelFieldCell";
 import { type Duelist } from "./Duelist";
 import type { DuelEntity } from "./DuelEntity";
 import type { TDuelPeriodKey } from "./DuelPeriod";
-
 export const executableDuelistTypes = ["Controller", "Opponent"] as const;
 export type TExecutableDuelistType = (typeof executableDuelistTypes)[number];
 
@@ -95,6 +94,8 @@ export type CardActionBaseAttr = {
   executableDuelistTypes: TExecutableDuelistType[];
   isOnlyNTimesPerTurn?: number;
   isOnlyNTimesPerDuel?: number;
+  isOnlyNTimesPerTurnIfFaceup?: number;
+  isOnlyNTimesIfFaceup?: number;
   actionGroupNamePerTurn?: string;
   /**
    * 光の護封剣などの例外のみ指定が必要
@@ -273,6 +274,12 @@ export class CardAction<T> implements ICardAction<T> {
   public get isOnlyNTimesPerTurn() {
     return this.cardActionBase.isOnlyNTimesPerTurn ?? 0;
   }
+  public get isOnlyNTimesPerTurnIfFaceup() {
+    return this.cardActionBase.isOnlyNTimesPerTurnIfFaceup ?? 0;
+  }
+  public get isOnlyNTimesIfFaceup() {
+    return this.cardActionBase.isOnlyNTimesIfFaceup ?? 0;
+  }
   public get isLikeContinuousSpell() {
     return this.cardActionBase.isLikeContinuousSpell || (this.entity.isLikeContinuousSpell && this.playType === "CardActivation");
   }
@@ -323,6 +330,15 @@ export class CardAction<T> implements ICardAction<T> {
       ) {
         return;
       }
+    }
+    // このチェーン上で、同一の効果が発動している回数をカウント。
+    const currentChainCount = chainBlockInfos.filter((info) => info.action.seq === this.seq).length;
+
+    if (this.isOnlyNTimesPerTurnIfFaceup > 0 && this.entity.counterHolder.getActionCount(this) + currentChainCount >= this.isOnlyNTimesPerTurnIfFaceup) {
+      return;
+    }
+    if (this.isOnlyNTimesIfFaceup > 0 && this.entity.counterHolder.getActionCount(this) + currentChainCount >= this.isOnlyNTimesIfFaceup) {
+      return;
     }
 
     const myInfo: ChainBlockInfoBase<T> = {
@@ -379,8 +395,14 @@ export class CardAction<T> implements ICardAction<T> {
     }
     return result;
   };
-  public readonly settle = (myInfo: ChainBlockInfo<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) =>
-    this.cardActionBase.settle(myInfo, chainBlockInfos);
+  public readonly settle = (myInfo: ChainBlockInfo<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => {
+    if (this.isOnlyNTimesPerTurnIfFaceup > 0) {
+      this.entity.counterHolder.incrementActionCountPerTurn(myInfo.action);
+    } else if (this.isOnlyNTimesIfFaceup > 0) {
+      this.entity.counterHolder.incrementActionCount(myInfo.action);
+    }
+    return this.cardActionBase.settle(myInfo, chainBlockInfos);
+  };
 
   public readonly isSame = (other: CardAction<unknown>) => this.entity.origin.name === other.entity.origin.name && this.title === other.title;
   public readonly isSameGroupPerTurn = (other: CardAction<unknown>) =>

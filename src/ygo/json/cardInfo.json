@@ -17717,6 +17717,9 @@
     ],
     "types": [
       "WingedBeast"
+    ],
+    "nameTags": [
+      "ＢＦ"
     ]
   },
   "おジャマ・デルタハリケーン！！": {
@@ -18377,5 +18380,29 @@
       "Rock"
     ],
     "wikiEncodedName": "%A1%D4%A5%B8%A5%A7%A5%E0%A5%CA%A5%A4%A5%C8%A1%A6%A5%D1%A1%BC%A5%EB%A1%D5"
+  },
+  "ＢＦ－疾風のゲイル": {
+    "name": "ＢＦ－疾風のゲイル",
+    "nameKana": "",
+    "description": "(1)：自分フィールドに「ＢＦ－疾風のゲイル」以外の「ＢＦ」モンスターが存在する場合、\nこのカードは手札から特殊召喚できる。\n(2)：１ターンに１度、相手フィールドの表側表示モンスター１体を対象として発動できる。\nその相手モンスターの攻撃力・守備力を半分にする。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Tuner",
+      "Effect"
+    ],
+    "level": 3,
+    "attack": 1300,
+    "defense": 400,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "WingedBeast"
+    ],
+    "wikiEncodedName": "%A1%D4%A3%C2%A3%C6%A1%DD%BC%C0%C9%F7%A4%CE%A5%B2%A5%A4%A5%EB%A1%D5",
+    "nameTags": [
+      "ＢＦ"
+    ]
   }
 }

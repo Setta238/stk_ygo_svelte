@@ -2,7 +2,7 @@ import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { StickyEffectOperatorBase, StickyEffectOperatorBundle, StickyEffectOperatorPool } from "@ygo_duel/class_continuous_effect/DuelStickyEffectOperatorBase";
 import { Duel, SystemError } from "@ygo_duel/class/Duel";
 import { entityFlexibleStatusKeys, type TEntityFlexibleNumericStatusGen, type TEntityFlexibleNumericStatusKey } from "@ygo/class/YgoTypes";
-import type { CardActionBaseAttr, TEffectActiovationType } from "@ygo_duel/class/DuelCardAction";
+import type { CardActionBaseAttr } from "@ygo_duel/class/DuelCardAction";
 
 export const stateOperationTypes = ["Addition", "Fixation", "THE_DEVILS_DREAD-ROOT", "THE_DEVILS_AVATAR", "Gradius'_Option"] as const;
 type TStateOperationType = (typeof stateOperationTypes)[number];
@@ -33,7 +33,7 @@ const minValueDic: { [key in TEntityFlexibleNumericStatusKey]: number } = {
 //    永続的な効果で攻撃力・守備力が指定された数値になる効果      →   永続攻守指定 C-F
 //    発動して攻撃力・守備力がアップ・ダウンする効果              →  発動攻守上下 L-A
 //    永続的な効果で攻撃力・守備力がアップ・ダウンする効果        →   永続攻守上下 C-A
-//    邪神アバター、邪神ドレッド・ルート、オプション、オプション・トークン                             枠外
+//    銀幕の鏡壁、邪神アバター、邪神ドレッド・ルート、オプション、オプション・トークン                             枠外
 
 export class NumericStateOperatorPool extends StickyEffectOperatorPool<NumericStateOperator, NumericStateOperatorBundle> {
   public readonly afterDistributeAll = (duel: Duel) => {
@@ -292,28 +292,24 @@ export class NumericStateOperator extends StickyEffectOperatorBase {
   };
   public static readonly createLingering = (
     title: string,
-    validateAlive: (spawner: DuelEntity) => boolean,
     isSpawnedBy: DuelEntity,
-    activateType: TEffectActiovationType,
     actionAttr: Partial<CardActionBaseAttr>,
-
-    isApplicableTo: (spawner: DuelEntity, target: DuelEntity) => boolean,
     targetState: TEntityFlexibleNumericStatusKey,
     targetStateGen: TEntityFlexibleNumericStatusGen,
     stateOperationType: TStateOperationType,
-    value: number
+    calcValue: (spawner: DuelEntity, target: DuelEntity, current: number) => number
   ) => {
     return new NumericStateOperator(
       title,
-      validateAlive,
+      () => true,
       false,
       isSpawnedBy,
       actionAttr,
-      isApplicableTo,
+      () => true,
       targetState,
       targetStateGen,
       stateOperationType,
-      () => value
+      calcValue
     );
   };
 

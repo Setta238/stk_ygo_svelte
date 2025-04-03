@@ -47,17 +47,10 @@ export const createCardDefinitions_SyncroMonster = (): CardDefinition[] => {
         executableCells: ["MonsterZone", "ExtraMonsterZone"],
         executablePeriods: ["end"],
         executableDuelistTypes: ["Controller"],
+        isOnlyNTimesPerTurnIfFaceup: 1,
         validate: (myInfo) =>
-          myInfo.action.entity.counterHolder.getQty("①") === 0 &&
-          myInfo.action.entity.duel.phase === "end" &&
-          myInfo.activator.isTurnPlayer &&
-          myInfo.action.entity.face === "FaceUp"
-            ? []
-            : undefined,
-        prepare: (myInfo) => {
-          myInfo.action.entity.counterHolder.add("①");
-          return defaultPrepare();
-        },
+          myInfo.action.entity.duel.phase === "end" && myInfo.activator.isTurnPlayer && myInfo.action.entity.face === "FaceUp" ? [] : undefined,
+        prepare: defaultPrepare,
         execute: async (myInfo) => {
           myInfo.activator.heal(
             myInfo.activator

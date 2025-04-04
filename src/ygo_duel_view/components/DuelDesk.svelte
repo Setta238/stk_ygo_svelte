@@ -80,7 +80,6 @@
 <!-- <div><button on:click={() => {
     duel.field.pushDeck(duel.duelists.Below);
   }}>hoge</button></div>-->
-<div style="position:absolute;right:0;top:0">{duel.clock.toString()}</div>
 <div class="flex duel_desk">
   <div class="duel_desk_left v_flex">
     <DuelDuelist duelist={duel.duelists.Above}></DuelDuelist>
@@ -128,6 +127,7 @@
   </div>
 </div>
 
+<div style="position:absolute;left:0;bottom:0">{duel.clock.toString()}</div>
 <ModalContainer modalController={duel.view.modalController} />
 
 <style>

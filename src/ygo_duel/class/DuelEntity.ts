@@ -39,6 +39,7 @@ import { CounterHolder, type TCounterName } from "./DuelCounter";
 import { StatusOperatorBundle } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 import { defaultAttackAction, defaultBattlePotisionChangeAction, defaultNormalSummonAction } from "@ygo_duel/cards/DefaultCardAction_Monster";
 import StkEvent from "@stk_utils/class/StkEvent";
+import type { CardDefinition, MaterialInfo } from "@ygo_duel/cards/CardDefinitions";
 export type EntityStatus = {
   canAttack: boolean;
   canDirectAttack: boolean;
@@ -61,7 +62,7 @@ export type DuelEntityInfomation = {
   isVanished: boolean;
   isRebornable: boolean;
   isSettingSickness: boolean;
-  materials: DuelEntity[];
+  materials: MaterialInfo[];
   effectTargets: { [effectKey: string]: DuelEntity[] };
   willBeBanished: boolean;
   willReturnToDeck: TDuelEntityMovePos | undefined;
@@ -95,20 +96,23 @@ export const destoryCauseReasonDic: { [key in TDestoryCauseReason]: string } = {
 export const summonPosCauseReasons = ["AttackSummon", "SetSummon", "DefenseSummon"] as const;
 export const posToSummonPos = (pos: TBattlePosition) => (pos + "Summon") as TSummonPosCauseReason;
 export type TSummonPosCauseReason = (typeof summonPosCauseReasons)[number];
+export const materialCauseReason = [
+  "AdvanceSummonRelease",
+  "SpecialSummonMaterial",
+  "FusionMaterial",
+  "SyncroMaterial",
+  "XyzMaterial",
+  "RitualMaterial",
+] as const;
+export type TMaterialCauseReason = (typeof materialCauseReason)[number];
 export type TDuelCauseReason =
   | TSummonRuleCauseReason
   | TSummonPosCauseReason
+  | TMaterialCauseReason
   | TDestoryCauseReason
   | "Draw"
-  | "Destroy"
   | "Effect"
   | "Release"
-  | "AdvanceSummonRelease"
-  | "SpecialSummonMaterial"
-  | "FusionMaterial"
-  | "SyncroMaterial"
-  | "XyzMaterial"
-  | "RitualMaterial"
   | "Cost"
   | "Discard"
   | "Rule"
@@ -170,31 +174,26 @@ export class DuelEntity {
       "Duelist",
       { name: duelist.profile.name, kind: "Monster", wikiEncodedName: "%A5%D7%A5%EC%A5%A4%A5%E4%A1%BC" },
       "FaceUp",
-      "Vertical"
+      "Vertical",
+      undefined
     );
   };
   public static readonly createCardEntity = (owner: Duelist, cardInfo: CardInfoJson): DuelEntity => {
     // cardはデッキまたはEXデッキに生成
     const fieldCell = cardInfo.monsterCategories && cardInfo.monsterCategories.union(exMonsterCategories).length ? owner.getExtraDeck() : owner.getDeckCell();
 
-    const newCard = new DuelEntity(owner, fieldCell, "Card", getSubsetAsEntityStatusBase(cardInfo), "FaceDown", "Vertical");
+    const newCard = new DuelEntity(
+      owner,
+      fieldCell,
+      "Card",
+      getSubsetAsEntityStatusBase(cardInfo),
+      "FaceDown",
+      "Vertical",
+      cardDefinitionDic.get(cardInfo.name)
+    );
     if (!Object.hasOwn(cardInfoDic, newCard.origin.name)) {
       owner.duel.log.info(`未実装カード${cardInfo.name}がデッキに投入された。`, owner);
     }
-    const info = cardInfoDic[newCard.origin.name];
-    let actionBases: CardActionBase<unknown>[] = [];
-    let continuousEffectBases: ContinuousEffectBase<unknown>[] = [];
-    if (info.kind === "Monster" && info.monsterCategories?.includes("Normal")) {
-      actionBases = [defaultNormalSummonAction, defaultAttackAction, defaultBattlePotisionChangeAction] as CardActionBase<unknown>[];
-    } else {
-      const def = cardDefinitionDic.get(newCard.origin.name);
-      if (def) {
-        actionBases = def.actions;
-        continuousEffectBases = def.continuousEffects ?? [];
-      }
-    }
-    newCard.actions.push(...actionBases.map((b) => CardAction.createNew(newCard, b)));
-    newCard.continuousEffects.push(...continuousEffectBases.map((b) => ContinuousEffect.createNew(newCard, b)));
 
     return newCard;
   };
@@ -561,7 +560,7 @@ export class DuelEntity {
       .map((cell) => cell.shuffle());
   };
 
-  private readonly onAfterMoveEvent = new StkEvent<void>();
+  private readonly onAfterMoveEvent = new StkEvent<DuelEntity>();
   public get onAfterMove() {
     return this.onAfterMoveEvent.expose();
   }
@@ -603,6 +602,23 @@ export class DuelEntity {
 
   public readonly actions: CardAction<unknown>[] = [];
   public readonly continuousEffects: ContinuousEffect<unknown>[] = [];
+  public readonly canBeSummoned: <T>(
+    activator: Duelist,
+    action: CardAction<T>,
+    summonType: TSummonRuleCauseReason,
+    pos: TBattlePosition,
+    materialInfos: MaterialInfo[],
+    ignoreSummoningConditions: boolean
+  ) => boolean;
+  public readonly canBeMaterial: <T>(
+    activator: Duelist,
+    monster: DuelEntity,
+    action: CardAction<T>,
+    materialType: TMaterialCauseReason,
+    pos: TBattlePosition,
+    materialInfos: MaterialInfo[],
+    ignoreSummoningConditions: boolean
+  ) => boolean;
   private _hasDisappeared = false;
   public get status() {
     return this._status as Readonly<EntityStatus>;
@@ -735,7 +751,8 @@ export class DuelEntity {
     entityType: TDuelEntityType,
     cardInfo: EntityStatusBase,
     face: TDuelEntityFace,
-    orientation: TDuelEntityOrientation
+    orientation: TDuelEntityOrientation,
+    cardDefinition: CardDefinition | undefined
   ) {
     this.seq = DuelEntity.nextEntitySeq++;
     this.counterHolder = new CounterHolder();
@@ -780,6 +797,42 @@ export class DuelEntity {
     fieldCell.acceptEntities([this], "Top");
     this.moveLog = new DuelEntityLog(this);
     this.moveLog.pushForRuleAction(["Spawn"]);
+
+    let actionBases: CardActionBase<unknown>[] = [];
+    let continuousEffectBases: ContinuousEffectBase<unknown>[] = [];
+
+    if (this.origin.kind === "Monster" && this.origin.monsterCategories?.includes("Normal")) {
+      actionBases = [defaultNormalSummonAction, defaultAttackAction, defaultBattlePotisionChangeAction] as CardActionBase<unknown>[];
+    } else if (cardDefinition) {
+      actionBases = cardDefinition.actions;
+      continuousEffectBases = cardDefinition.continuousEffects ?? [];
+    }
+    this.actions.push(...actionBases.map((b) => CardAction.createNew(this, b)));
+    this.continuousEffects.push(...continuousEffectBases.map((b) => ContinuousEffect.createNew(this, b)));
+
+    const tmp = cardDefinition?.canBeSummoned ?? (() => true);
+
+    this.canBeSummoned = (activator, action, summonType, pos, materialInfos, ignoreSummoningConditions) =>
+      tmp(activator, this, action, summonType, pos, materialInfos, ignoreSummoningConditions);
+
+    this.canBeMaterial = (activator, monster, action, materialType, pos, materialInfos, ignoreSummoningConditions) => {
+      if (cardDefinition?.canBeMaterial) {
+        if (!cardDefinition?.canBeMaterial(activator, monster, action, materialType, pos, materialInfos, ignoreSummoningConditions)) {
+          return false;
+        }
+      }
+
+      return this.procFilterBundle.operators
+        .filter((pf) => pf.procTypes.some((t) => t === materialType))
+        .every((pf) =>
+          pf.filter(
+            action.entity.controller,
+            action.entity,
+            action,
+            materialInfos.map((info) => info.material)
+          )
+        );
+    };
   }
 
   public readonly toString = () => `《${this.nm}》`;
@@ -944,7 +997,6 @@ export class DuelEntity {
     this._status.kind = kind;
     this.face = face;
     this.orientation = orientation;
-    console.log(this.toString(), this.fieldCell.xyzMaterials);
 
     // 異なるセルに移動する場合
     if (to !== this.fieldCell) {
@@ -972,13 +1024,14 @@ export class DuelEntity {
 
       // モンスターゾーンを離れる時の処理
       if ((this.fieldCell.isMonsterZoneLikeCell && !to.isMonsterZoneLikeCell) || kind !== "Monster") {
-        console.log(this.toString(), this.fieldCell.xyzMaterials);
         // 装備していたカードにマーキング
-        this.info.equipEntities.forEach((equip) => {
-          equip.info.isDying = true;
-          equip.info.causeOfDeath = ["RuleDestroy"];
-          this.controller.writeInfoLog(`装備対象${this.toString()}不在により${equip.toString()}は破壊された。`);
-        });
+        this.info.equipEntities
+          .filter((equip) => equip.isOnFieldAsSpellTrap)
+          .forEach((equip) => {
+            equip.info.isDying = true;
+            equip.info.causeOfDeath = ["RuleDestroy"];
+            this.controller.writeInfoLog(`装備対象${this.toString()}不在により${equip.toString()}は破壊された。`);
+          });
         this.info.equipEntities = [];
         // XYZ素材にマーキング
         this.fieldCell.xyzMaterials.forEach((material) => {
@@ -1039,7 +1092,8 @@ export class DuelEntity {
     // 移動ログ追加
     this.moveLog.push(movedAs, movedBy, actionOwner, chooser);
 
-    this.onAfterMoveEvent.trigger();
+    console.log(this.toString());
+    this.onAfterMoveEvent.trigger(this);
 
     return to;
   };
@@ -1078,7 +1132,7 @@ export class DuelEntity {
       isKilledBy: undefined,
       isKilledByWhom: undefined,
       isVanished: false,
-      isRebornable: this.origin.monsterCategories?.union(specialMonsterCategories).length === 0 || (this.origin.canReborn ?? false),
+      isRebornable: this.origin.monsterCategories?.union(specialMonsterCategories).length === 0,
       isSettingSickness: false,
       materials: [],
       effectTargets: {},

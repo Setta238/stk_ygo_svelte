@@ -9,6 +9,7 @@ import { IllegalCancelError, SystemError } from "@ygo_duel/class/Duel";
 import type { CardDefinition } from "./CardDefinitions";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { defaultPrepare, getSystemAction } from "@ygo_duel/cards/DefaultCardAction";
+import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 
 export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
   const result: CardDefinition[] = [];
@@ -123,6 +124,9 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         hasToTargetCards: true,
         // 墓地に蘇生可能モンスター、場に空きが必要。
         validate: (myInfo) => {
+          if (myInfo.activator.getAvailableMonsterZones().length === 0) {
+            return;
+          }
           if (
             myInfo.action.entity.field
               .getCells("Graveyard")
@@ -130,12 +134,9 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
               .filter((card) => card.status.kind === "Monster")
               .filter((card) => card.info.isRebornable)
               .filter((card) => card.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action as CardAction<unknown>))
-              .filter((card) => card.canBeSpecialSummoned("SpecialSummon", myInfo.activator, myInfo.action.entity, myInfo.action as CardAction<unknown>))
+              .filter((card) => faceupBattlePositions.some((pos) => card.canBeSummoned(myInfo.activator, myInfo.action, "SpecialSummon", pos, [], false)))
               .length === 0
           ) {
-            return;
-          }
-          if (myInfo.activator.getAvailableMonsterZones().length === 0) {
             return;
           }
           return defaultSpellTrapValidate(myInfo);
@@ -149,7 +150,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
               .filter((card) => card.status.kind === "Monster")
               .filter((card) => card.info.isRebornable)
               .filter((card) => card.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action as CardAction<unknown>))
-              .filter((card) => card.canBeSpecialSummoned("SpecialSummon", myInfo.activator, myInfo.action.entity, myInfo.action as CardAction<unknown>)),
+              .filter((card) => faceupBattlePositions.some((pos) => card.canBeSummoned(myInfo.activator, myInfo.action, "SpecialSummon", pos, [], false))),
             1,
             (list) => list.length === 1,
             "蘇生対象とするモンスターを選択",

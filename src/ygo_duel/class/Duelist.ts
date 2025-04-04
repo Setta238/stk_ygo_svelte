@@ -10,6 +10,7 @@ import type { TBattlePosition } from "@ygo/class/YgoTypes";
 import { CardAction, type CardActionBaseAttr, type ChainBlockInfo, type ICardAction, type TCardActionType } from "./DuelCardAction";
 import { max, min } from "@stk_utils/funcs/StkMathUtils";
 import type { TBanishProcType } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
+import type { MaterialInfo } from "@ygo_duel/cards/CardDefinitions";
 
 type TLifeLogReason = "BattleDamage" | "EffectDamage" | "Heal" | "Lost" | "Pay" | "Set";
 export type TDuelistType = "NPC" | "Player";
@@ -126,26 +127,38 @@ export class Duelist {
     this.info = { ...this.infoOrigin };
   };
 
-  public readonly canSummon = (
+  public readonly canSummon = <T>(
     activator: Duelist,
     entity: DuelEntity,
-    action: CardAction<unknown>,
+    action: CardAction<T>,
     summonType: TSummonRuleCauseReason,
-    posList: TBattlePosition[],
-    entities: DuelEntity[]
-  ): TBattlePosition[] => {
+    pos: TBattlePosition,
+    materialInfos: MaterialInfo[]
+  ): boolean => {
     if (
       !this.entity.procFilterBundle.operators
         .filter((pf) => pf.procTypes.some((st) => st === summonType))
-        .every((pf) => pf.filter(activator, entity, action, entities))
+        .every((pf) =>
+          pf.filter(
+            activator,
+            entity,
+            action,
+            materialInfos.map((info) => info.material)
+          )
+        )
     ) {
-      return [];
+      return false;
     }
-    return posList.filter((pos) =>
-      this.entity.procFilterBundle.operators
-        .filter((pf) => pf.procTypes.some((pt) => pt === posToSummonPos(pos)))
-        .every((pf) => pf.filter(activator, entity, action, entities))
-    );
+    return this.entity.procFilterBundle.operators
+      .filter((pf) => pf.procTypes.some((pt) => pt === posToSummonPos(pos)))
+      .every((pf) =>
+        pf.filter(
+          activator,
+          entity,
+          action,
+          materialInfos.map((info) => info.material)
+        )
+      );
   };
   /**
    * 対象の耐性などを考慮せず、行為を行えるかどうかの判定

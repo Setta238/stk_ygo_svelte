@@ -122,7 +122,8 @@ export const trapCategoryDic: { [key in TTrapCategory]: string } = {
   Continuous: "永続",
   Counter: "カウンター",
 };
-export type TBattlePosition = "Attack" | "Defense" | "Set";
+export const faceupBattlePositions = ["Attack", "Defense"] as const;
+export type TBattlePosition = (typeof faceupBattlePositions)[number] | "Set";
 export const battlePositionDic: { [key in TBattlePosition]: string } = {
   Attack: "攻撃表示",
   Defense: "守備表示",
@@ -150,10 +151,7 @@ export type EntityStaticStatus = {
    * モンスター・魔法・罠・エクシーズ素材
    */
   kind: TCardKind;
-  /**
-   * 蘇生制限が実質ない特殊召喚モンスターのフラグ
-   */
-  canReborn?: boolean;
+
   /**
    * コナミデータベースで振られているID
    */

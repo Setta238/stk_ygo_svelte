@@ -1,4 +1,4 @@
-import type { CardActionBase } from "@ygo_duel/class/DuelCardAction";
+import type { CardAction, CardActionBase } from "@ygo_duel/class/DuelCardAction";
 import { createCardDefinitions_Monster } from "./CardDefinitions_Monster";
 import { createCardDefinitions_NormalSpell } from "./CardDefinitions_NormalSpell";
 import { createCardDefinitions_Monster_Preset_Recruiter } from "./CardDefinitions_Monster_Preset_Recruiter";
@@ -18,11 +18,39 @@ import { createCardDefinitions_NormalTrap } from "./CardDefinitions_NormalTrap";
 import { createCardDefinitions_NormalSpell_General_Draw } from "./CardDefinitions_NormalSpell_General_Draw";
 import { createCardDefinitions_XyzMonster } from "./CardDefinitions_XyzMonster";
 import { createCardDefinitions_Blackwing_Monster } from "./CardDefinitions_Blackwing_Monster";
+import type { Duelist } from "@ygo_duel/class/Duelist";
+import type { DuelEntity, TMaterialCauseReason, TSummonRuleCauseReason } from "@ygo_duel/class/DuelEntity";
+import type { TBattlePosition } from "@ygo/class/YgoTypes";
 
+export type MaterialInfo = {
+  material: DuelEntity;
+  level?: number;
+  link?: number;
+  isAsTuner?: boolean;
+  name?: string;
+};
 export type CardDefinition = {
   name: string;
   actions: CardActionBase<unknown>[];
   continuousEffects?: ContinuousEffectBase<unknown>[];
+  canBeSummoned?: <T>(
+    activator: Duelist,
+    monster: DuelEntity,
+    action: CardAction<T>,
+    summonType: TSummonRuleCauseReason,
+    pos: TBattlePosition,
+    materialInfos: MaterialInfo[],
+    ignoreSummoningConditions: boolean
+  ) => boolean;
+  canBeMaterial?: <T>(
+    activator: Duelist,
+    monster: DuelEntity,
+    action: CardAction<T>,
+    materialType: TMaterialCauseReason,
+    pos: TBattlePosition,
+    materialInfos: MaterialInfo[],
+    ignoreSummoningConditions: boolean
+  ) => boolean;
 };
 
 export const createCardDefinitions = (): CardDefinition[] => {

@@ -153,7 +153,6 @@ export class Duel {
       if (!this.field.numericStateOperatorPool.distributeAll(this)) {
         continue;
       }
-
       return;
     }
   };
@@ -492,17 +491,15 @@ export class Duel {
         attacker.controller.battleDamage(defPoint - atkPoint, defender);
       }
 
-      const promiseList: Promise<boolean>[] = [];
-
-      //ダメージ計算時 ⑥戦闘破壊確定 ※被破壊側の永続効果の終了、破壊側（混沌の黒魔術師、ハデスなど）の永続効果の適用
+      //ダメージ計算時 ⑥戦闘破壊確定
+      // ※被破壊側の永続効果の終了、破壊側（混沌の黒魔術師、ハデスなど）の永続効果の適用
+      // ※墓地送りはprocBattlePhaseDamageStep5で行う。
       if (atkPoint > 0 && (atkPoint > defPoint || (atkPoint === defPoint && defender.battlePosition === "Attack"))) {
-        promiseList.push(defender.tryDestory("BattleDestroy", attacker.controller, attacker, chainBlockInfo.action));
+        defender.tryDestory("BattleDestroy", attacker.controller, attacker, chainBlockInfo.action);
       }
       if (defender.battlePosition === "Attack" && atkPoint <= defPoint) {
-        promiseList.push(attacker.tryDestory("BattleDestroy", attacker.controller, defender, chainBlockInfo.action));
+        attacker.tryDestory("BattleDestroy", attacker.controller, defender, chainBlockInfo.action);
       }
-
-      await Promise.all(promiseList);
     }
 
     const losers = Object.values(this.duelists).filter((duelist) => duelist.lp <= 0);
@@ -648,17 +645,18 @@ export class Duel {
     // チェーン開始判定
     const isStartPoint = this.clock.chainBlockSeq === 0;
 
-    //両方のプレイヤーの誘発効果を収集する。
+    // 起点となる効果がない場合、両方のプレイヤーの誘発効果を収集する。
     //    ※誘発効果の収集は一回のみ
-    //    ※フェイズ
-    let _triggerEffets =
-      triggerEffects ??
-      Object.values(this.duelists).flatMap((activator) => {
-        // この効果の収拾のみ、優先権が移らない。
-        return this.getEnableActions(activator, ["MandatoryTriggerEffect", "TriggerEffect"], ["Normal"], []).map((action) => {
-          return { activator, action };
-        });
-      });
+    //    ※フェイズの誘発効果は起動効果として設定しているのでここでは収集しない。
+    let _triggerEffets = firstBlock
+      ? []
+      : (triggerEffects ??
+        Object.values(this.duelists).flatMap((activator) => {
+          // この効果の収拾のみ、優先権が移らない。
+          return this.getEnableActions(activator, ["MandatoryTriggerEffect", "TriggerEffect"], ["Normal"], []).map((action) => {
+            return { activator, action };
+          });
+        }));
 
     // 返却値 チェーンが発生したかどうか
     let result = false;

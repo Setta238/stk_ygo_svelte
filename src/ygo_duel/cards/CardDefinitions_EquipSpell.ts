@@ -10,7 +10,7 @@ import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardAction, CardActionBase } from "@ygo_duel/class/DuelCardAction";
 
 import type { CardDefinition } from "./CardDefinitions";
-import type { TCardKind, TEntityFlexibleNumericStatusKey } from "@ygo/class/YgoTypes";
+import { type TCardKind, type TEntityFlexibleNumericStatusKey } from "@ygo/class/YgoTypes";
 import {
   createRegularEquipRelationHandler,
   createRegularNumericStateOperatorHandler as createRegularNumericStateOperatorHandler,
@@ -19,7 +19,6 @@ import {
 import { CardRelation } from "@ygo_duel/class_continuous_effect/DuelCardRelation";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import { IllegalCancelError } from "@ygo_duel/class/Duel";
-
 export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
   const result: CardDefinition[] = [];
 
@@ -81,8 +80,7 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
               .cardEntities.filter((card) => card.status.kind === "Monster")
               .filter((card) => card.info.isRebornable)
               .filter((card) => card.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action as CardAction<unknown>))
-              .filter((card) => card.canBeSpecialSummoned("SpecialSummon", myInfo.activator, myInfo.action.entity, myInfo.action as CardAction<unknown>))
-              .length === 0
+              .filter((card) => card.canBeSummoned(myInfo.activator, myInfo.action, "SpecialSummon", "Attack", [], false)).length === 0
           ) {
             return;
           }
@@ -103,7 +101,7 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
               .cardEntities.filter((card) => card.status.kind === "Monster")
               .filter((card) => card.info.isRebornable)
               .filter((card) => card.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action as CardAction<unknown>))
-              .filter((card) => card.canBeSpecialSummoned("SpecialSummon", myInfo.activator, myInfo.action.entity, myInfo.action as CardAction<unknown>)),
+              .filter((card) => card.canBeSummoned(myInfo.activator, myInfo.action, "SpecialSummon", "Attack", [], false)),
             1,
             (list) => list.length === 1,
             "蘇生対象とするモンスターを選択",
@@ -122,6 +120,21 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
           const emptyCells = myInfo.activator.getEmptyMonsterZones();
           const target = myInfo.selectedEntities[0];
           await myInfo.activator.summon(target, ["Attack"], emptyCells, "SpecialSummon", ["Effect"], myInfo.action.entity, false);
+          // const onAfterMove = (entity: DuelEntity) => {
+          //   console.log(entity.toString());
+          //   if (entity.isOnFieldAsSpellTrap && entity.face === "FaceUp") {
+          //     return;
+          //   }
+
+          //   if (target.isOnField && target.face === "FaceUp" && entity.moveLog.latestRecord.movedAs.union(["EffectDestroy", "RuleDestroy"]).length) {
+          //     console.log(myInfo.action.entity.toString());
+          //     // この場所では破壊マーキングまで実行。
+          //     target.tryDestory("EffectDestroy", myInfo.activator, entity, {});
+          //   }
+
+          //   entity.onAfterMove.remove(onAfterMove);
+          // };
+          // myInfo.action.entity.onAfterMove.append(onAfterMove);
           return defaultEquipSpellTrapExecute(myInfo);
         },
         settle: async () => true,
@@ -141,13 +154,17 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
             {},
             () => true,
             (relation) => {
+              console.log(relation);
               if (!relation.target.isOnField) {
+                console.log(relation);
                 return true;
               }
               if (relation.target.face === "FaceDown") {
+                console.log(relation);
                 return true;
               }
-              if (relation.isSpawnedBy.moveLog.currentProcRecords.flatMap((rec) => rec.movedAs).find((reason) => reason === "Destroy")) {
+              if (relation.isSpawnedBy.moveLog.currentProcRecords.flatMap((rec) => rec.movedAs).union(["EffectDestroy", "RuleDestroy"]).length) {
+                console.log(relation);
                 // この場所では破壊マーキングまで実行。
                 relation.target.tryDestory("EffectDestroy", relation.effectOwner, relation.isSpawnedBy, {});
               }
@@ -160,5 +177,10 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
     ] as ContinuousEffectBase<unknown>[],
   };
   result.push(def_早すぎた埋葬);
+  result.push({
+    name: "幻惑の巻物",
+    actions: [getDefaultEquipSpellTrapAction(), defaultSpellTrapSetAction] as CardActionBase<unknown>[],
+    continuousEffects: [] as ContinuousEffectBase<unknown>[],
+  });
   return result;
 };

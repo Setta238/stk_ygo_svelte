@@ -24,11 +24,9 @@ declare module "./DuelEntity" {
     canBeEffected(activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionBaseAttr>): boolean;
     canBeBanished(activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionBaseAttr>): boolean;
     canBeTargetOfEffect(activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionBaseAttr>): boolean;
-    canBeSpecialSummoned(summmonRule: TSummonRuleCauseReason, activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionBaseAttr>): boolean;
     canBeTargetOfBattle(activator: Duelist, entity: DuelEntity): boolean;
-    tryDestory(destroyType: TDestoryCauseReason, activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionBaseAttr>): Promise<boolean>;
+    tryDestory(destroyType: TDestoryCauseReason, activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionBaseAttr>): boolean;
     validateDestory(destroyType: TDestoryCauseReason, activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionBaseAttr>): boolean;
-    canBeMaterials(summmonRule: TSummonRuleCauseReason, action: Partial<CardActionBaseAttr>, materials: DuelEntity[]): boolean;
     getIndexInCell(): number;
     getXyzMaterials(): DuelEntity[];
   }
@@ -123,32 +121,6 @@ DuelEntity.prototype.canBeBanished = function (activator: Duelist, causedBy: Due
   return _canBeDoneSomethingByEffect(this, "BanishAsEffect", activator, causedBy, action);
 };
 
-DuelEntity.prototype.canBeSpecialSummoned = function (
-  summmonRule: TSummonRuleCauseReason,
-  activator: Duelist,
-  causedBy: DuelEntity,
-  action: CardAction<unknown>
-): boolean {
-  const entity = this as DuelEntity;
-  // 特殊召喚できないモンスター（※神、スピリットなど）
-  if (entity.origin.monsterCategories?.includes("NormalSummonOnly")) {
-    return false;
-  }
-
-  // 特殊召喚モンスターかつ蘇生制限を満たしていないモンスター
-  if (
-    entity.origin.monsterCategories?.includes("SpecialSummon") &&
-    !entity.info.isRebornable &&
-    (entity.fieldCell.cellType === "Graveyard" || this.fieldCell.cellType === "Banished")
-  ) {
-    return false;
-  }
-
-  return entity.procFilterBundle.operators
-    .filter((pf) => pf.procTypes.some((t) => t === "SpecialSummon" || t === summmonRule))
-    .every((pf) => pf.filter(activator, causedBy, action, [entity]));
-};
-
 DuelEntity.prototype.canBeTargetOfBattle = function (activator: Duelist, causedBy: DuelEntity): boolean {
   const entity = this as DuelEntity;
   return entity.procFilterBundle.operators
@@ -156,12 +128,12 @@ DuelEntity.prototype.canBeTargetOfBattle = function (activator: Duelist, causedB
     .every((pf) => pf.filter(activator, causedBy, {}, [entity]));
 };
 
-DuelEntity.prototype.tryDestory = async function (
+DuelEntity.prototype.tryDestory = function (
   destroyType: "BattleDestroy" | "EffectDestroy",
   activator: Duelist,
   causedBy: DuelEntity,
   action: Partial<CardActionBaseAttr>
-): Promise<boolean> {
+): boolean {
   const entity = this as DuelEntity;
   // TODO 身代わり効果
   entity.info.isDying = entity.validateDestory(destroyType, activator, causedBy, action);
@@ -192,14 +164,6 @@ DuelEntity.prototype.validateDestory = function (
   return flg;
 };
 
-DuelEntity.prototype.canBeMaterials = function (summmonRule: TSummonRuleCauseReason, action: CardAction<unknown>, materials: DuelEntity[]): boolean {
-  const entity = this as DuelEntity;
-
-  return entity.procFilterBundle.operators
-    .filter((pf) => pf.procTypes.some((t) => t === summmonRule))
-    .every((pf) => pf.filter(action.entity.controller, action.entity, action, materials));
-};
-
 DuelEntity.prototype.getIndexInCell = function (): number {
   const entity = this as DuelEntity;
 
@@ -225,7 +189,7 @@ DuelEntity.prototype.getXyzMaterials = function (): DuelEntity[] {
 export class DuelEntityShortHands {
   public static readonly tryDestroy = async (cards: DuelEntity[], chainBlockInfo: ChainBlockInfo<unknown>): Promise<DuelEntity[]> => {
     const _cards = cards.filter((card) => !card.info.isDying);
-    await Promise.all(_cards.map((card) => card.tryDestory("EffectDestroy", chainBlockInfo.activator, chainBlockInfo.action.entity, chainBlockInfo.action)));
+    _cards.map((card) => card.tryDestory("EffectDestroy", chainBlockInfo.activator, chainBlockInfo.action.entity, chainBlockInfo.action));
     const result = _cards.filter((card) => card.info.isDying);
 
     await DuelEntity.waitCorpseDisposal(chainBlockInfo.activator.duel);

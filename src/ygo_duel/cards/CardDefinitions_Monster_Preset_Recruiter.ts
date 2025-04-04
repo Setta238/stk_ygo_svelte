@@ -1,5 +1,5 @@
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
-import type { CardAction, CardActionBase } from "@ygo_duel/class/DuelCardAction";
+import type { CardActionBase } from "@ygo_duel/class/DuelCardAction";
 import { DuelEntity, type TDestoryCauseReason } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
 import { defaultAttackAction, defaultBattlePotisionChangeAction, defaultNormalSummonAction } from "@ygo_duel/cards/DefaultCardAction_Monster";
@@ -35,10 +35,12 @@ const getDefalutRecruiterAction = (
       }
 
       if (
-        monsters.every(
-          (monster) =>
-            !myInfo.activator.canSummon(myInfo.activator, myInfo.action.entity, myInfo.action as CardAction<unknown>, "SpecialSummon", posList, [monster])
-              .length
+        monsters.some((monster) =>
+          posList.some(
+            (pos) =>
+              myInfo.activator.canSummon(myInfo.activator, monster, myInfo.action, "SpecialSummon", pos, []) &&
+              monster.canBeSummoned(myInfo.activator, myInfo.action, "SpecialSummon", pos, [], false)
+          )
         )
       ) {
         return;

@@ -1,10 +1,12 @@
-import type { TBattlePosition } from "@ygo/class/YgoTypes";
+import { faceupBattlePositions, type TBattlePosition } from "@ygo/class/YgoTypes";
 import { SystemError } from "@ygo_duel/class/Duel";
 import { CardAction, type CardActionBase, type ChainBlockInfo, type ChainBlockInfoBase, type ChainBlockInfoPrepared } from "@ygo_duel/class/DuelCardAction";
-import { type TDuelCauseReason, DuelEntity } from "@ygo_duel/class/DuelEntity";
+import { type TDuelCauseReason, type TSummonRuleCauseReason, DuelEntity } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 import { defaultPrepare } from "./DefaultCardAction";
-export type SummonPrepared = { dest: DuelFieldCell; pos: TBattlePosition; materials: DuelEntity[] };
+import type { Duelist } from "@ygo_duel/class/Duelist";
+import type { MaterialInfo } from "./CardDefinitions";
+export type SummonPrepared = { dest: DuelFieldCell; pos: TBattlePosition; materialInfos: MaterialInfo[] };
 export const defaultNormalSummonValidate = (myInfo: ChainBlockInfoBase<SummonPrepared>): DuelFieldCell[] | undefined => {
   // 召喚権を使い切っていたら通常召喚不可。
   if (myInfo.activator.info.ruleNormalSummonCount >= myInfo.activator.info.maxRuleNormalSummonCount) {
@@ -49,7 +51,7 @@ export const defaultNormalSummonPrepare = async (
     return;
   }
   let _cancelable = cancelable;
-  let materials: DuelEntity[] = [];
+  let materials: MaterialInfo[] = [];
   if (myInfo.action.entity.lvl > 4) {
     const releasableMonsters = myInfo.activator.getReleasableMonsters();
     const exZoneMonsters = myInfo.activator.getExtraMonsterZones();
@@ -73,7 +75,9 @@ export const defaultNormalSummonPrepare = async (
       return;
     }
 
-    materials = _materials;
+    materials = _materials.map((material) => {
+      return { material };
+    });
 
     // リリース後はキャンセル不可
     _cancelable = false;
@@ -91,14 +95,14 @@ export const defaultNormalSummonPrepare = async (
     dest = res.dest;
     pos = res.pos;
   }
-  return { selectedEntities: [], chainBlockTags: [], prepared: { dest, pos, materials } };
+  return { selectedEntities: [], chainBlockTags: [], prepared: { dest, pos, materialInfos: materials } };
 };
 
 export const defaultNormalSummonExecute = async (myInfo: ChainBlockInfo<SummonPrepared>): Promise<boolean> => {
   const movedAs: TDuelCauseReason[] = ["Rule", "NormalSummon"];
   let summonRule: TDuelCauseReason = "NormalSummon";
-  if (myInfo.prepared.materials.length > 0) {
-    myInfo.action.entity.info.materials.reset(...myInfo.prepared.materials);
+  if (myInfo.prepared.materialInfos.length > 0) {
+    myInfo.action.entity.info.materials.reset(...myInfo.prepared.materialInfos);
     summonRule = "AdvanceSummon";
     movedAs.push("AdvanceSummon");
   }
@@ -112,7 +116,7 @@ export const defaultNormalSummonExecute = async (myInfo: ChainBlockInfo<SummonPr
 export const defaultRuleSpecialSummonValidate = (
   myInfo: ChainBlockInfoBase<SummonPrepared>,
   posList: TBattlePosition[],
-  materials: DuelEntity[]
+  materials: MaterialInfo[]
 ): DuelFieldCell[] | undefined => {
   // 空セルを取得
   const emptyCells = myInfo.activator.getAvailableMonsterZones();
@@ -127,7 +131,7 @@ export const defaultRuleSpecialSummonValidate = (
     if (!materials.length) {
       return;
     }
-    if (materials.every((m) => m.fieldCell.cellType !== "MonsterZone")) {
+    if (materials.every((m) => m.material.fieldCell.cellType !== "MonsterZone")) {
       if (myInfo.action.entity.fieldCell.cellType !== "ExtraDeck") {
         return;
       }
@@ -137,7 +141,11 @@ export const defaultRuleSpecialSummonValidate = (
   }
 
   // コントローラー側の制約チェック
-  if (!myInfo.activator.canSummon(myInfo.activator, myInfo.action.entity, myInfo.action as CardAction<unknown>, "SpecialSummon", posList, materials).length) {
+  if (
+    posList.every(
+      (pos) => !myInfo.activator.canSummon(myInfo.activator, myInfo.action.entity, myInfo.action as CardAction<unknown>, "SpecialSummon", pos, materials)
+    )
+  ) {
     return;
   }
 
@@ -148,7 +156,7 @@ export const defaultRuleSpecialSummonPrepare = async (
   myInfo: ChainBlockInfoBase<SummonPrepared>,
   cell: DuelFieldCell | undefined,
   posList: TBattlePosition[],
-  materials: DuelEntity[],
+  materials: MaterialInfo[],
   cancelable: boolean
 ): Promise<ChainBlockInfoPrepared<SummonPrepared> | undefined> => {
   const availableCells = cell ? [cell] : myInfo.activator.getAvailableMonsterZones();
@@ -156,13 +164,8 @@ export const defaultRuleSpecialSummonPrepare = async (
     return;
   }
 
-  const _posList = myInfo.activator.canSummon(
-    myInfo.activator,
-    myInfo.action.entity,
-    myInfo.action as CardAction<unknown>,
-    "SpecialSummon",
-    posList,
-    materials
+  const _posList = posList.filter((pos) =>
+    myInfo.activator.canSummon(myInfo.activator, myInfo.action.entity, myInfo.action as CardAction<unknown>, "SpecialSummon", pos, materials)
   );
   if (_posList.length === 0) {
     return;
@@ -188,14 +191,14 @@ export const defaultRuleSpecialSummonPrepare = async (
     dest = res.dest;
     pos = res.pos;
   }
-  return { selectedEntities: [], chainBlockTags: [], prepared: { dest, pos, materials } };
+  return { selectedEntities: [], chainBlockTags: [], prepared: { dest, pos, materialInfos: materials } };
 };
 
 export const defaultRuleSpecialSummonExecute = async (myInfo: ChainBlockInfo<SummonPrepared>): Promise<boolean> => {
   const movedAs: TDuelCauseReason[] = ["Rule", "SpecialSummon"];
 
   await myInfo.action.entity.summon(myInfo.prepared.dest, myInfo.prepared.pos, "SpecialSummon", movedAs, myInfo.action.entity, myInfo.activator);
-  myInfo.action.entity.info.materials = myInfo.prepared.materials;
+  myInfo.action.entity.info.materials = myInfo.prepared.materialInfos;
   return true;
 };
 
@@ -334,7 +337,8 @@ export const defaultRebornExecute = async (
   if (availableCells.length === 0) {
     return false;
   }
-  if (!monster.canBeSpecialSummoned("SpecialSummon", myInfo.activator, myInfo.action.entity, myInfo.action)) {
+
+  if (selectablePosList.every((pos) => !monster.canBeSummoned(myInfo.activator, myInfo.action, "SpecialSummon", pos, [], false))) {
     return false;
   }
 
@@ -343,50 +347,89 @@ export const defaultRebornExecute = async (
   return true;
 };
 
+export const defaultCanBeSummoned = <T>(activator: Duelist, entity: DuelEntity, action: CardAction<T>, summonType: TSummonRuleCauseReason): boolean => {
+  // モンスターのみ
+  if (entity.status.kind !== "Monster") {
+    return false;
+  }
+
+  // モンスターのみ
+  if (!entity.origin.monsterCategories) {
+    return false;
+  }
+
+  // 特殊召喚できないモンスター（※神、スピリットなど）
+  if (entity.origin.monsterCategories.includes("NormalSummonOnly")) {
+    return summonType === "NormalSummon" || summonType === "AdvanceSummon";
+  }
+
+  // 特殊召喚モンスターでなければ全て可
+  if (!entity.origin.monsterCategories.includes("SpecialSummon")) {
+    return true;
+  }
+
+  // 墓地に存在する場合、蘇生制限を満たしていれば可
+  if (entity.fieldCell.cellType === "Graveyard" || entity.fieldCell.cellType === "Banished") {
+    return entity.info.isRebornable;
+  }
+
+  return true;
+};
+
 export const defaultSyncroMaterialsValidator = (
   myInfo: ChainBlockInfoBase<SummonPrepared>,
+  pos: TBattlePosition,
   materials: DuelEntity[],
   tunersValidator: (tuners: DuelEntity[]) => boolean,
   nonTunersValidator: (nonTuners: DuelEntity[]) => boolean
-): TBattlePosition[] => {
+): MaterialInfo[] | undefined => {
   if (!myInfo.action.entity.origin.level) {
-    return [];
+    return;
   }
   // レベルを持たないモンスターが存在する場合、不可
   if (materials.some((material) => !material.lvl)) {
-    return [];
+    return;
   }
 
   //レベルが合わない場合、不可
   //TODO https://yugioh-wiki.net/index.php?%A1%D4%A5%C1%A5%E5%A1%BC%A5%CB%A5%F3%A5%B0%A1%A6%A5%B5%A5%DD%A1%BC%A5%BF%A1%BC%A1%D5#list
   if (materials.map((material) => material.lvl ?? 0).reduce((sum, lvl) => sum + lvl, 0) !== myInfo.action.entity.origin.level) {
-    return [];
+    return;
   }
 
+  const tuners = materials.filter((cost) => cost.status.monsterCategories?.some((cat) => cat === "Tuner"));
+  const nonTuners = materials.filter((cost) => cost.status.monsterCategories?.some((cat) => cat !== "Tuner"));
+
   // TODO https://yugioh-wiki.net/index.php?%A1%D4%B8%B8%B1%C6%B2%A6%20%A5%CF%A5%A4%A5%C9%A1%A6%A5%E9%A5%A4%A5%C9%A1%D5#list
-  if (!tunersValidator(materials.filter((cost) => cost.status.monsterCategories?.some((cat) => cat === "Tuner")))) {
-    return [];
+  // シンクロモンスター側から見たチューナー側の条件チェック
+  if (!tunersValidator(tuners)) {
+    return;
   }
 
   // シンクロモンスター側から見た非チューナー側の条件チェック
-  if (!nonTunersValidator(materials.filter((cost) => cost.status.monsterCategories?.every((cat) => cat !== "Tuner")))) {
-    return [];
+  if (!nonTunersValidator(nonTuners)) {
+    return;
   }
 
+  const _materials = [
+    ...tuners.map((tuner) => {
+      return { material: tuner, isAsTuner: true };
+    }),
+    ...nonTuners.map((nonTuner) => {
+      return { material: nonTuner, isAsTuner: false };
+    }),
+  ];
+
   // 素材側から見た全体の条件チェック（デブリ・ドラゴンなど）
-  if (!materials.every((m) => m.canBeMaterials("SyncroSummon", myInfo.action as CardAction<unknown>, materials))) {
-    return [];
+  if (!materials.every((m) => m.canBeMaterial(myInfo.activator, myInfo.action.entity, myInfo.action, "SyncroMaterial", pos, _materials, false))) {
+    return;
   }
 
   // プレイヤーの特殊召喚可能チェック
-  return myInfo.activator.canSummon(
-    myInfo.activator,
-    myInfo.action.entity,
-    myInfo.action as CardAction<unknown>,
-    "SyncroSummon",
-    ["Attack", "Defense"],
-    materials
-  );
+  if (!myInfo.activator.canSummon(myInfo.activator, myInfo.action.entity, myInfo.action, "SyncroSummon", pos, _materials)) {
+    return;
+  }
+  return _materials;
 };
 
 const getEnableSyncroSummonPatterns = (
@@ -410,8 +453,12 @@ const getEnableSyncroSummonPatterns = (
     return [];
   }
 
+  const posList: TBattlePosition[] = ["Attack", "Defense"];
+
   //全パターンを試し、シンクロ召喚可能なパターンを全て列挙する。
-  return materials.getAllOnOffPattern().filter((pattern) => defaultSyncroMaterialsValidator(myInfo, pattern, tunersValidator, nonTunersValidator).length > 0);
+  return materials
+    .getAllOnOffPattern()
+    .filter((pattern) => posList.some((pos) => defaultSyncroMaterialsValidator(myInfo, pos, pattern, tunersValidator, nonTunersValidator)));
 };
 export const defaultSyncroSummonValidate = (
   myInfo: ChainBlockInfoBase<SummonPrepared>,
@@ -437,9 +484,9 @@ export const defaultSyncroSummonPrepare = async (
       myInfo.activator,
       choices,
       undefined,
-      (selected) => defaultSyncroMaterialsValidator(myInfo, selected, tunersValidator, nonTunersValidator).length > 0,
+      (selected) => faceupBattlePositions.some((pos) => defaultSyncroMaterialsValidator(myInfo, pos, selected, tunersValidator, nonTunersValidator)),
       "シンクロ素材とするモンスターを選択",
-      true
+      cancelable
     );
     //墓地へ送らなければキャンセル。
     if (!_materials) {
@@ -452,20 +499,30 @@ export const defaultSyncroSummonPrepare = async (
   await DuelEntity.sendManyToGraveyardForTheSameReason(materials, ["SyncroMaterial", "Rule", "SpecialSummonMaterial"], myInfo.action.entity, myInfo.activator);
 
   const availableCells = [...myInfo.activator.getAvailableMonsterZones(), ...myInfo.activator.getAvailableExtraZones()];
-  const posList = defaultSyncroMaterialsValidator(myInfo, materials, tunersValidator, nonTunersValidator);
-  let pos: TBattlePosition = (myInfo.action.entity.atk ?? 0) > 0 && (myInfo.action.entity.atk ?? 0) >= (myInfo.action.entity.def ?? 0) ? "Attack" : "Defense";
+  const pairs = faceupBattlePositions
+    .map((pos) => {
+      const materialInfos = defaultSyncroMaterialsValidator(myInfo, pos, materials, tunersValidator, nonTunersValidator);
+      return { pos, materialInfos };
+    })
+    .filter((pair) => pair.materialInfos) as { pos: TBattlePosition; materialInfos: MaterialInfo[] }[];
+
+  const _posList = pairs.map((pair) => pair.pos);
+  let pos = pairs[0].pos;
+  let materialInfos = pairs[0].materialInfos;
   let dest: DuelFieldCell = availableCells.randomPick();
 
   if (myInfo.activator.duelistType !== "NPC") {
-    const res = await myInfo.activator.duel.view.waitSelectSummonDest(myInfo.activator, myInfo.action.entity, availableCells, posList, false);
+    const res = await myInfo.activator.duel.view.waitSelectSummonDest(myInfo.activator, myInfo.action.entity, availableCells, _posList, false);
     if (!res) {
       return;
     }
 
     dest = res.dest;
     pos = res.pos;
+    materialInfos = pairs.find((pair) => pair.pos === pos)?.materialInfos ?? materialInfos;
   }
-  return { selectedEntities: [], chainBlockTags: [], prepared: { dest, pos, materials } };
+
+  return { selectedEntities: [], chainBlockTags: [], prepared: { dest, pos, materialInfos } };
 };
 export const defaultSyncroSummonExecute = async (myInfo: ChainBlockInfo<SummonPrepared>): Promise<boolean> => {
   const movedAs: TDuelCauseReason[] = ["Rule", "SpecialSummon", "SyncroSummon"];
@@ -501,52 +558,50 @@ export const getDefaultSyncroSummonAction = (
 
 export const defaultXyzMaterialsValidator = (
   myInfo: ChainBlockInfoBase<SummonPrepared>,
+  pos: TBattlePosition,
   materials: DuelEntity[],
   qtyLowerBound: number = 2,
   qtyUpperBound: number = 2,
   validator: (materials: DuelEntity[]) => boolean
-): TBattlePosition[] => {
+): MaterialInfo[] | undefined => {
   if (!myInfo.action.entity.origin.rank) {
-    return [];
+    return;
   }
 
   if (materials.length < qtyLowerBound) {
-    return [];
+    return;
   }
 
   if (materials.length > qtyUpperBound) {
-    return [];
+    return;
   }
 
   // レベルを持たないモンスターが存在する場合、不可
   if (materials.some((material) => !material.lvl)) {
-    return [];
+    return;
   }
 
   // ランクとレベルが異なる場合、不可
   if (materials.some((material) => material.lvl !== myInfo.action.entity.rank)) {
-    return [];
+    return;
   }
 
-  // エクシーズモンスター側から見た非チューナー側の条件チェック
+  // エクシーズモンスター側から見た素材条件チェック
   if (!validator(materials)) {
-    return [];
+    return;
   }
+
+  const materialInfos = materials.map((material) => {
+    return { material, level: material.status.level };
+  });
 
   // 素材側から見た全体の条件チェック（デブリ・ドラゴンなど）
-  if (!materials.every((m) => m.canBeMaterials("XyzSummon", myInfo.action as CardAction<unknown>, materials))) {
-    return [];
+  if (!materials.every((m) => m.canBeMaterial(myInfo.activator, myInfo.action.entity, myInfo.action, "XyzMaterial", pos, materialInfos, false))) {
+    return;
   }
 
   // プレイヤーの特殊召喚可能チェック
-  return myInfo.activator.canSummon(
-    myInfo.activator,
-    myInfo.action.entity,
-    myInfo.action as CardAction<unknown>,
-    "XyzSummon",
-    ["Attack", "Defense"],
-    materials
-  );
+  return myInfo.activator.canSummon(myInfo.activator, myInfo.action.entity, myInfo.action, "XyzSummon", pos, materialInfos) ? materialInfos : undefined;
 };
 
 const getEnableXyzSummonPatterns = (
@@ -568,7 +623,7 @@ const getEnableXyzSummonPatterns = (
     .getAllOnOffPattern()
     .filter((pattern) => pattern.length >= qtyLowerBound)
     .filter((pattern) => pattern.length <= qtyUpperBound)
-    .filter((pattern) => defaultXyzMaterialsValidator(myInfo, pattern, qtyLowerBound, qtyUpperBound, validator).length > 0);
+    .filter((pattern) => faceupBattlePositions.some((pos) => defaultXyzMaterialsValidator(myInfo, pos, pattern, qtyLowerBound, qtyUpperBound, validator)));
 };
 
 export const defaultXyzSummonValidate = (
@@ -597,7 +652,7 @@ export const defaultXyzSummonPrepare = async (
       myInfo.activator,
       choices,
       undefined,
-      (selected) => defaultXyzMaterialsValidator(myInfo, selected, qtyLowerBound, qtyUpperBound, validator).length > 0,
+      (selected) => faceupBattlePositions.some((pos) => defaultXyzMaterialsValidator(myInfo, pos, selected, qtyLowerBound, qtyUpperBound, validator)),
       "XYZ素材とするモンスターを選択",
       true
     );
@@ -608,31 +663,46 @@ export const defaultXyzSummonPrepare = async (
     materials = _materials;
   }
   // posListはXYZ素材への変換前の時点で取得しておかないと、空になってしまう
-  const posList = defaultXyzMaterialsValidator(myInfo, materials, qtyLowerBound, qtyUpperBound, validator);
+  const pairs = faceupBattlePositions
+    .map((pos) => {
+      const materialInfos = defaultXyzMaterialsValidator(myInfo, pos, materials, qtyLowerBound, qtyUpperBound, validator);
+      return { pos, materialInfos };
+    })
+    .filter((pair) => pair.materialInfos) as { pos: TBattlePosition; materialInfos: MaterialInfo[] }[];
 
   myInfo.action.entity.field.duel.log.info(`${materials.map((m) => "《" + m.nm + "》").join(" ")}によって、オーバレイネットワークを構築――`, myInfo.activator);
   await DuelEntity.convertManyToXyzMaterials(materials, ["XyzMaterial", "Rule", "SpecialSummonMaterial"], myInfo.action.entity, myInfo.activator);
 
   const availableCells = [...myInfo.activator.getAvailableMonsterZones(), ...myInfo.activator.getAvailableExtraZones()];
-  let pos: TBattlePosition = (myInfo.action.entity.atk ?? 0) > 0 && (myInfo.action.entity.atk ?? 0) >= (myInfo.action.entity.def ?? 0) ? "Attack" : "Defense";
+
+  const _posList = pairs.map((pair) => pair.pos);
+  let pos = pairs[0].pos;
+  let materialInfos = pairs[0].materialInfos;
   let dest: DuelFieldCell = availableCells.randomPick();
 
   if (myInfo.activator.duelistType !== "NPC") {
-    const res = await myInfo.activator.duel.view.waitSelectSummonDest(myInfo.activator, myInfo.action.entity, availableCells, posList, false);
+    const res = await myInfo.activator.duel.view.waitSelectSummonDest(myInfo.activator, myInfo.action.entity, availableCells, _posList, false);
     if (!res) {
       return;
     }
 
     dest = res.dest;
     pos = res.pos;
+    materialInfos = pairs.find((pair) => pair.pos === pos)?.materialInfos ?? materialInfos;
   }
-  return { selectedEntities: [], chainBlockTags: [], prepared: { dest, pos, materials } };
+  return { selectedEntities: [], chainBlockTags: [], prepared: { dest, pos, materialInfos } };
 };
 
 export const defaultXyzSummonExecute = async (myInfo: ChainBlockInfo<SummonPrepared>): Promise<boolean> => {
   const movedAs: TDuelCauseReason[] = ["Rule", "SpecialSummon", "XyzSummon"];
 
-  await DuelEntity.moveToXyzOwner(myInfo.prepared.dest, myInfo.prepared.materials, ["XyzMaterial"], myInfo.action.entity, myInfo.activator);
+  await DuelEntity.moveToXyzOwner(
+    myInfo.prepared.dest,
+    myInfo.prepared.materialInfos.map((info) => info.material),
+    ["XyzMaterial"],
+    myInfo.action.entity,
+    myInfo.activator
+  );
 
   await myInfo.action.entity.summon(myInfo.prepared.dest, myInfo.prepared.pos, "XyzSummon", movedAs, myInfo.action.entity, myInfo.activator);
 

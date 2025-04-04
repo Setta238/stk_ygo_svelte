@@ -2,6 +2,7 @@ import type { CardActionBase } from "@ygo_duel/class/DuelCardAction";
 import {
   defaultAttackAction,
   defaultBattlePotisionChangeAction,
+  defaultCanBeSummoned,
   defaultRebornExecute,
   getDefaultSyncroSummonAction,
 } from "@ygo_duel/cards/DefaultCardAction_Monster";
@@ -19,6 +20,7 @@ export const createCardDefinitions_SyncroMonster = (): CardDefinition[] => {
     result.push({
       name: name,
       actions: [defaultAttackAction, defaultBattlePotisionChangeAction, getDefaultSyncroSummonAction()] as CardActionBase<unknown>[],
+      canBeSummoned: defaultCanBeSummoned,
     })
   );
 
@@ -32,6 +34,7 @@ export const createCardDefinitions_SyncroMonster = (): CardDefinition[] => {
         (nonTuners) => nonTuners.length > 0 && nonTuners.every((nonTuner) => nonTuner.attr.some((a) => a === "Earth"))
       ),
     ] as CardActionBase<unknown>[],
+    canBeSummoned: defaultCanBeSummoned,
   });
 
   result.push({
@@ -64,6 +67,7 @@ export const createCardDefinitions_SyncroMonster = (): CardDefinition[] => {
         settle: async () => true,
       },
     ],
+    canBeSummoned: defaultCanBeSummoned,
   });
   result.push({
     name: "スターダスト・ドラゴン",
@@ -143,6 +147,7 @@ export const createCardDefinitions_SyncroMonster = (): CardDefinition[] => {
         settle: async () => true,
       },
     ],
+    canBeSummoned: defaultCanBeSummoned,
   });
 
   return result;

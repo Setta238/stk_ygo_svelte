@@ -19,7 +19,8 @@ import {
 } from "./DuelCardAction";
 import { playFieldCellTypes } from "./DuelFieldCell";
 import type { TDuelPhase } from "./DuelPeriod";
-export type TDuelStartMode = "PlayFirst" | "DrawFirst" | "Random";
+export const duelStartModes = ["PlayFirst", "DrawFirst", "Random"] as const;
+export type TDuelStartMode = (typeof duelStartModes)[number];
 export const duelStartModeDic: { [key in TDuelStartMode]: string } = {
   PlayFirst: "先攻",
   DrawFirst: "後攻",

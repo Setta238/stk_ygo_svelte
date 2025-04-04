@@ -19,8 +19,6 @@
   let duel: Duel | undefined;
   let mode = "None" as "Duel" | "DeckEdit" | "None";
   let selectedDeckId = 0;
-  let selectedNpcId = min(...nonPlayerCharacters.map((npc) => npc.id));
-  let startMode: TDuelStartMode = "Random";
   const userProfilePromise = DuelistProfile.getOrCreateNew(idb);
   let userDecksPromise = DeckInfo.getAllDeckInfo(idb).then((deckInfos) => {
     Promise.all(
@@ -49,6 +47,7 @@
 
   const saveUserProfile = async () => {
     const userProfile = await userProfilePromise;
+    console.log(userProfile);
     userProfile.save();
   };
   const reloadDeckInfos = () => {
@@ -72,8 +71,9 @@
   const onDuelStartClick = async () => {
     await Promise.all([saveUserProfile(), prepareSampleDeck()]);
     const selectedDeck = await getSelectedDeckInfo();
+    const userProfile = await userProfilePromise;
     selectedDeck.updateTimestamp();
-    const npc = nonPlayerCharacters.find((npc) => npc.id === selectedNpcId);
+    const npc = nonPlayerCharacters.find((npc) => npc.id === userProfile.previousNpcId);
     let npcDeck = sampleDecks.slice(-1)[0];
     if (!npc) {
       return;
@@ -83,7 +83,7 @@
     }
 
     console.log(npc);
-    duel = new Duel(await userProfilePromise, "Player", await getSelectedDeckInfo(), [], npc, "NPC", npcDeck, [], startMode);
+    duel = new Duel(userProfile, "Player", await getSelectedDeckInfo(), [], npc, "NPC", npcDeck, [], userProfile.previousStartMode);
   };
   const onEditClick = async () => {
     await Promise.all([saveUserProfile(), prepareSampleDeck()]);
@@ -135,16 +135,16 @@
           </div>
           <div>
             <label for="npc_selector" class="npc_selector">対戦相手：</label>
-            <select id="npc_selector" class="npc_selector" bind:value={selectedNpcId}>
+            <select id="npc_selector" class="npc_selector" bind:value={userProfile.previousNpcId}>
               {#each nonPlayerCharacters as npc}
                 <option value={npc.id}>{npc.name}</option>
               {/each}
             </select>
-            <div>※{nonPlayerCharacters.find((npc) => npc.id === selectedNpcId)?.description}</div>
+            <div>※{nonPlayerCharacters.find((npc) => npc.id === userProfile.previousNpcId)?.description}</div>
           </div>
           <div>
             <label for="npc_selector" class="npc_selector">先攻後攻：</label>
-            <select id="npc_selector" class="npc_selector" bind:value={startMode}>
+            <select id="npc_selector" class="npc_selector" bind:value={userProfile.previousStartMode}>
               {#each getKeys(duelStartModeDic) as key}
                 <option value={key}>{duelStartModeDic[key]}</option>
               {/each}

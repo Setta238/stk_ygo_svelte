@@ -1,11 +1,18 @@
 import { StkDataStore, type IStkDataRecord } from "@stk_utils/class/StkDataStore";
 import type { StkIndexedDB } from "@stk_utils/class/StkIndexedDB";
 import type { TTblNames } from "@app/components/App.svelte";
-export type DuelistHeaderRecord = IStkDataRecord & {};
+import { duelStartModes, type TDuelStartMode } from "@ygo_duel/class/Duel";
+import { min } from "@stk_utils/funcs/StkMathUtils";
+export type DuelistHeaderRecord = IStkDataRecord & {
+  previousNpcId: number;
+  previousStartMode: TDuelStartMode;
+};
 export interface IDuelistHeaderRecord {
   id: number;
   name: string;
   description: string;
+  previousNpcId: number;
+  previousStartMode: TDuelStartMode;
 }
 export interface IDuelistProfile {
   id: number;
@@ -30,6 +37,8 @@ export class DuelistProfile implements IDuelistProfile {
     const header = await DuelistProfile.tblHeader.insert({
       name: "あなた",
       description: "ここの文字列を何に使うかは未定。",
+      previousNpcId: 0,
+      previousStartMode: "Random",
     });
 
     return new DuelistProfile(header);
@@ -38,17 +47,28 @@ export class DuelistProfile implements IDuelistProfile {
   public readonly id: number;
   public readonly name: string;
   public readonly description: string;
+  public readonly previousNpcId: number;
+  public readonly previousStartMode: TDuelStartMode;
   public get npcLvl() {
     return Number.MAX_VALUE;
   }
   private constructor(header: DuelistHeaderRecord) {
+    console.log(header);
     this.id = header.id;
     this.name = header.name;
     this.description = header.description;
+    this.previousNpcId = nonPlayerCharacters.find((npc) => npc.id === header.previousNpcId)?.id ?? min(...nonPlayerCharacters.map((npc) => npc.id));
+    this.previousStartMode = duelStartModes.includes(header.previousStartMode) ? header.previousStartMode : "Random";
   }
 
   public save = async (newInfo?: IDuelistHeaderRecord): Promise<DuelistProfile> => {
-    const _newInfo = newInfo ?? { id: this.id, name: this.name, description: this.description };
+    const _newInfo = newInfo ?? {
+      id: this.id,
+      name: this.name,
+      description: this.description,
+      previousNpcId: this.previousNpcId,
+      previousStartMode: this.previousStartMode,
+    };
 
     //ヘッダ情報更新
     const newRecord = await DuelistProfile.tblHeader.update(this.id, (info) => {

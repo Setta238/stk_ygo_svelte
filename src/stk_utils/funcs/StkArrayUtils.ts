@@ -10,6 +10,7 @@ declare global {
     union(another: Readonly<T[]>): T[];
     getAllOnOffPattern(): T[][];
     getDistinct(): T[];
+    distinct(): void;
   }
 }
 
@@ -72,4 +73,8 @@ Array.prototype.getAllOnOffPattern = function <T>(): T[][] {
 // };
 Array.prototype.getDistinct = function <T>(): T[] {
   return Array.from(new Set(this as T[]));
+};
+
+Array.prototype.distinct = function (): void {
+  this.reset(...this.getDistinct());
 };

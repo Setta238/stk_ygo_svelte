@@ -12,11 +12,9 @@ import type { CardAction, CardActionBase } from "@ygo_duel/class/DuelCardAction"
 import type { CardDefinition } from "./CardDefinitions";
 import { type TCardKind, type TEntityFlexibleNumericStatusKey } from "@ygo/class/YgoTypes";
 import {
-  createRegularEquipRelationHandler,
   createRegularNumericStateOperatorHandler as createRegularNumericStateOperatorHandler,
   type ContinuousEffectBase,
 } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
-import { CardRelation } from "@ygo_duel/class_continuous_effect/DuelCardRelation";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import { IllegalCancelError } from "@ygo_duel/class/Duel";
 export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
@@ -41,11 +39,11 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
             return (["attack", "defense"] as TEntityFlexibleNumericStatusKey[]).map((targetState) =>
               NumericStateOperator.createContinuous(
                 "発動",
-                (spawner) => spawner.isOnField && spawner.face === "FaceUp",
+                (operator) => operator.isSpawnedBy.isOnField && operator.isSpawnedBy.face === "FaceUp",
                 entity,
-                (spawner, target) => target.isOnField && target.face === "FaceUp",
+                (operator, target) => target.isOnField && target.face === "FaceUp",
                 targetState,
-                "current",
+                "wip",
                 "Addition",
                 (spawner, monster, current) => {
                   if (!spawner.isEffective) {
@@ -75,12 +73,14 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
         // 墓地に蘇生可能モンスター、場に空きが必要。
         validate: (myInfo) => {
           if (
-            myInfo.activator
-              .getGraveyard()
-              .cardEntities.filter((card) => card.status.kind === "Monster")
+            !myInfo.action.entity.field
+              .getCells("Graveyard")
+              .flatMap((cell) => cell.cardEntities)
+              .filter((card) => card.status.kind === "Monster")
               .filter((card) => card.info.isRebornable)
-              .filter((card) => card.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action as CardAction<unknown>))
-              .filter((card) => card.canBeSummoned(myInfo.activator, myInfo.action, "SpecialSummon", "Attack", [], false)).length === 0
+              .filter((card) => card.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action))
+              .filter((card) => card.canBeSummoned(myInfo.activator, myInfo.action, "SpecialSummon", "Attack", [], false))
+              .some((card) => myInfo.activator.canSummon(myInfo.activator, card, myInfo.action, "SpecialSummon", "Attack", []))
           ) {
             return;
           }
@@ -101,7 +101,8 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
               .cardEntities.filter((card) => card.status.kind === "Monster")
               .filter((card) => card.info.isRebornable)
               .filter((card) => card.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action as CardAction<unknown>))
-              .filter((card) => card.canBeSummoned(myInfo.activator, myInfo.action, "SpecialSummon", "Attack", [], false)),
+              .filter((card) => card.canBeSummoned(myInfo.activator, myInfo.action, "SpecialSummon", "Attack", [], false))
+              .filter((card) => myInfo.activator.canSummon(myInfo.activator, card, myInfo.action, "SpecialSummon", "Attack", [])),
             1,
             (list) => list.length === 1,
             "蘇生対象とするモンスターを選択",
@@ -113,68 +114,86 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
 
           // 800ポイント支払う
           myInfo.activator.payLp(800, myInfo.action.entity);
-
+          myInfo.action.entity.info.effectTargets[myInfo.action.seq] = targets;
           return await defaultSpellTrapPrepare(myInfo, cell, chainBlockInfos, false, ["SpecialSummonFromGraveyard", "PayLifePoint"], targets, undefined);
         },
-        execute: async (myInfo) => {
+        execute: async (myInfo, chainBlockInfos) => {
+          // 力の集約などですでに何かに装備されている場合、破壊して処理を終了する。
+          if (myInfo.action.entity.info.equipedBy) {
+            await myInfo.action.entity.ruleDestory();
+            return false;
+          }
+
           const emptyCells = myInfo.activator.getEmptyMonsterZones();
           const target = myInfo.selectedEntities[0];
           await myInfo.activator.summon(target, ["Attack"], emptyCells, "SpecialSummon", ["Effect"], myInfo.action.entity, false);
-          // const onAfterMove = (entity: DuelEntity) => {
-          //   console.log(entity.toString());
-          //   if (entity.isOnFieldAsSpellTrap && entity.face === "FaceUp") {
-          //     return;
-          //   }
 
-          //   if (target.isOnField && target.face === "FaceUp" && entity.moveLog.latestRecord.movedAs.union(["EffectDestroy", "RuleDestroy"]).length) {
-          //     console.log(myInfo.action.entity.toString());
-          //     // この場所では破壊マーキングまで実行。
-          //     target.tryDestory("EffectDestroy", myInfo.activator, entity, {});
-          //   }
+          // チェーンして除外された場合など、このカードで蘇生した状態でない場合、破壊して処理を終了する。
+          if (target.moveLog.latestRecord.movedBy !== myInfo.action.entity) {
+            await myInfo.action.entity.ruleDestory();
+            return false;
+          }
 
-          //   entity.onAfterMove.remove(onAfterMove);
-          // };
-          // myInfo.action.entity.onAfterMove.append(onAfterMove);
-          return defaultEquipSpellTrapExecute(myInfo);
+          myInfo.action.entity.onBeforeMove.append((data) => {
+            if (data.entity.face !== "FaceUp" || !data.entity.isOnFieldAsSpellTrap) {
+              return "RemoveMe";
+            }
+            console.log(data.entity.toString(), data.entity);
+
+            const [, , , , , movedAs] = data.args;
+
+            if (target.isOnField && target.face === "FaceUp" && data.entity.isEffective && movedAs.union(["EffectDestroy", "RuleDestroy"]).length) {
+              console.log(myInfo.action.entity.toString());
+              // この場所では破壊マーキングまで実行。
+              data.entity.controller.writeInfoLog(`${myInfo.action.entity.toString()}が破壊されたため、装備対象モンスター${data.entity}を破壊。`);
+              target.tryMarkForDestory("EffectDestroy", myInfo.activator, data.entity, {});
+            }
+
+            return "RemoveMe";
+          });
+
+          return defaultEquipSpellTrapExecute(myInfo, chainBlockInfos, (equipOwner, equip) =>
+            equip.info.effectTargets[myInfo.action.seq]?.includes(equipOwner)
+          );
         },
         settle: async () => true,
       },
       defaultSpellTrapSetAction,
     ] as CardActionBase<unknown>[],
-    continuousEffects: [
-      createRegularEquipRelationHandler(
-        "EquipTarget",
-        "Spell",
-        () => true,
-        (source) => [
-          CardRelation.createRegularEquipRelation(
-            "EquipTarget",
-            () => true,
-            source,
-            {},
-            () => true,
-            (relation) => {
-              console.log(relation);
-              if (!relation.target.isOnField) {
-                console.log(relation);
-                return true;
-              }
-              if (relation.target.face === "FaceDown") {
-                console.log(relation);
-                return true;
-              }
-              if (relation.isSpawnedBy.moveLog.currentProcRecords.flatMap((rec) => rec.movedAs).union(["EffectDestroy", "RuleDestroy"]).length) {
-                console.log(relation);
-                // この場所では破壊マーキングまで実行。
-                relation.target.tryDestory("EffectDestroy", relation.effectOwner, relation.isSpawnedBy, {});
-              }
+    // continuousEffects: [
+    //   createRegularEquipRelationHandler(
+    //     "EquipTarget",
+    //     "Spell",
+    //     () => true,
+    //     (source) => [
+    //       CardRelation.createRegularEquipRelation(
+    //         "EquipTarget",
+    //         () => true,
+    //         source,
+    //         {},
+    //         () => true,
+    //         (relation) => {
+    //           console.log(relation);
+    //           if (!relation.target.isOnField) {
+    //             console.log(relation);
+    //             return true;
+    //           }
+    //           if (relation.target.face === "FaceDown") {
+    //             console.log(relation);
+    //             return true;
+    //           }
+    //           if (relation.isSpawnedBy.moveLog.currentProcRecords.flatMap((rec) => rec.movedAs).union(["EffectDestroy", "RuleDestroy"]).length) {
+    //             console.log(relation);
+    //             // この場所では破壊マーキングまで実行。
+    //             relation.target.tryDestory("EffectDestroy", relation.effectOwner, relation.isSpawnedBy, {});
+    //           }
 
-              return true;
-            }
-          ),
-        ]
-      ),
-    ] as ContinuousEffectBase<unknown>[],
+    //           return true;
+    //         }
+    //       ),
+    //     ]
+    //   ),
+    // ] as ContinuousEffectBase<unknown>[],
   };
   result.push(def_早すぎた埋葬);
   result.push({

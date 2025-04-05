@@ -1,20 +1,23 @@
 export interface IStkEvent<T> {
-  append(handler: { (data: T): void }): void;
-  remove(handler: { (data: T): void }): void;
+  append(handler: { (data: T): void | "RemoveMe" }): void;
+  remove(handler: { (data: T): void | "RemoveMe" }): void;
 }
 export default class StkEvent<T> {
-  private handlers: { (data: T): void }[] = [];
+  private handlers: { (data: T): void | "RemoveMe" }[] = [];
 
-  public append(handler: { (data: T): void }): void {
+  public append(handler: { (data: T): void | "RemoveMe" }): void {
     this.handlers.push(handler);
   }
 
-  public remove(handler: { (data: T): void }): void {
+  public remove(handler: { (data: T): void | "RemoveMe" }): void {
     this.handlers = this.handlers.filter((h) => h !== handler);
   }
 
   public trigger(data: T) {
-    this.handlers.slice(0).forEach((h) => h(data));
+    this.handlers
+      .slice(0)
+      .filter((h) => h(data) === "RemoveMe")
+      .forEach((h) => this.remove(h));
   }
 
   public clear() {
@@ -87,9 +90,11 @@ export class StkEventChainNode {
   public get events() {
     return this._events as Record<string, IStkEvent<unknown>>;
   }
-  private _eventHandlers: Record<string, { (arg: unknown): void }> = {};
+  private _eventHandlers: Record<string, { (arg: unknown): undefined }> = {};
   protected readonly appendEvent = (name: string, event: StkEvent<unknown>) => {
     this.__events[name] = event;
-    this._eventHandlers[name] = (arg: unknown) => event.trigger(arg);
+    this._eventHandlers[name] = (arg: unknown) => {
+      event.trigger(arg);
+    };
   };
 }

@@ -18,10 +18,10 @@ export class CardRelationBundle extends StickyEffectOperatorBundle<CardRelation>
 export class CardRelation extends StickyEffectOperatorBase {
   public static readonly createRegularEquipRelation = (
     title: string,
-    validateAlive: (spawner: DuelEntity) => boolean,
+    validateAlive: (operator: StickyEffectOperatorBase) => boolean,
     isSpawnedBy: DuelEntity,
     actionAttr: Partial<CardActionBaseAttr>,
-    isApplicableTo: (spawner: DuelEntity, target: DuelEntity) => boolean,
+    isApplicableTo: (operator: StickyEffectOperatorBase, target: DuelEntity) => boolean,
     beforeRemove: (relation: CardRelation) => boolean = () => true
   ) => {
     if (!isSpawnedBy.info.equipedBy) {
@@ -34,8 +34,8 @@ export class CardRelation extends StickyEffectOperatorBase {
       true,
       isSpawnedBy,
       actionAttr,
-      (spawner: DuelEntity, target: DuelEntity) => {
-        return target.isOnFieldAsMonster && target.face === "FaceUp" && isApplicableTo(spawner, target);
+      (operator: StickyEffectOperatorBase, target: DuelEntity) => {
+        return target.isOnFieldAsMonster && target.face === "FaceUp" && isApplicableTo(operator, target);
       },
       "Equip",
       isSpawnedBy.info.equipedBy,
@@ -66,11 +66,11 @@ export class CardRelation extends StickyEffectOperatorBase {
   public beforeRemove: () => void;
   public constructor(
     title: string,
-    validateAlive: (spawner: DuelEntity) => boolean,
+    validateAlive: (operator: StickyEffectOperatorBase) => boolean,
     isContinuous: boolean,
     isSpawnedBy: DuelEntity,
     actionAttr: Partial<CardActionBaseAttr>,
-    isApplicableTo: (spawner: DuelEntity, entity: DuelEntity) => boolean,
+    isApplicableTo: (operator: StickyEffectOperatorBase, target: DuelEntity) => boolean,
     relationType: TRelationType,
     target: DuelEntity,
     beforeRemove: (relation: CardRelation) => void

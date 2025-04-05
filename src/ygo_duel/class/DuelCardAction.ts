@@ -6,8 +6,6 @@ import type { TDuelPeriodKey } from "./DuelPeriod";
 export const executableDuelistTypes = ["Controller", "Opponent"] as const;
 export type TExecutableDuelistType = (typeof executableDuelistTypes)[number];
 
-export const effectActiovationTypes = ["CardActivation", "EffectActivation", "NonActivate"] as const;
-export type TEffectActiovationType = (typeof effectActiovationTypes)[number];
 export const cardActionChainBlockTypes = [
   "IgnitionEffect",
   "MandatoryIgnitionEffect",
@@ -28,6 +26,21 @@ export const cardActionNonChainBlockTypes = [
 ] as const;
 export type TCardActionNonChainBlockType = (typeof cardActionNonChainBlockTypes)[number];
 export type TCardActionType = TCardActionChainBlockType | TCardActionNonChainBlockType | "Dammy" | "RuleDraw" | "SystemAction";
+
+export const effectActiovationTypes = ["CardActivation", "EffectActivation", "NonActivate"] as const;
+export type TEffectActiovationType = (typeof effectActiovationTypes)[number];
+export const getEffectActiovationType = (actionType: TCardActionType): TEffectActiovationType => {
+  if (actionType === "CardActivation") {
+    return "CardActivation";
+  }
+
+  if (cardActionChainBlockTypes.some((at) => at === actionType)) {
+    return "EffectActivation";
+  }
+
+  return "NonActivate";
+};
+
 export type TSpellSpeed = "Normal" | "Quick" | "Counter" | "Dammy";
 export const effectTags = [
   "NormalSummon",

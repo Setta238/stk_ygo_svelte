@@ -28,7 +28,7 @@ const createSpellCounterCommonEffect = (kind: TCardKind, maxQty?: number) => {
           true,
           source,
           {},
-          (spawner, target) => spawner === target,
+          (operator, target) => operator.isSpawnedBy === target,
           (ope, wip) => {
             wip.maxCounterQty.SpellCounter = maxQty ?? Number.MAX_VALUE;
             return wip;
@@ -156,7 +156,7 @@ export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] =
               source,
               () => true,
               "attack",
-              "current",
+              "wip",
               "Addition",
               (spawner, target, source) => {
                 if (!spawner.isEffective) {

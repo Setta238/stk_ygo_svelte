@@ -33,11 +33,11 @@ export class StatusOperator extends StickyEffectOperatorBase {
   public readonly statusCalculator: (operator: StickyEffectOperatorBase, wipStatus: EntityStatus) => EntityStatus;
   public constructor(
     title: string,
-    validateAlive: (spawner: DuelEntity) => boolean,
+    validateAlive: (operator: StickyEffectOperatorBase) => boolean,
     isContinuous: boolean,
     isSpawnedBy: DuelEntity,
     actionAttr: Partial<CardActionBaseAttr>,
-    isApplicableTo: (spawner: DuelEntity, target: DuelEntity) => boolean,
+    isApplicableTo: (operator: StickyEffectOperatorBase, target: DuelEntity) => boolean,
     statusCalculator: (operator: StickyEffectOperatorBase, wipStatus: EntityStatus) => EntityStatus
   ) {
     super(title, validateAlive, isContinuous, isSpawnedBy, actionAttr, isApplicableTo);

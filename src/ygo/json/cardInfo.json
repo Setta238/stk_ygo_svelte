@@ -18384,7 +18384,7 @@
   "ＢＦ－疾風のゲイル": {
     "name": "ＢＦ－疾風のゲイル",
     "nameKana": "",
-    "description": "(1)：自分フィールドに「ＢＦ－疾風のゲイル」以外の「ＢＦ」モンスターが存在する場合、\nこのカードは手札から特殊召喚できる。\n(2)：１ターンに１度、相手フィールドの表側表示モンスター１体を対象として発動できる。\nその相手モンスターの攻撃力・守備力を半分にする。",
+    "description": "(1)：自分フィールドに「ＢＦ－疾風のゲイル」以外の「ＢＦ」モンスターが存在する場合、このカードは手札から特殊召喚できる。\n(2)：１ターンに１度、相手フィールドの表側表示モンスター１体を対象として発動できる。その相手モンスターの攻撃力・守備力を半分にする。",
     "pendulumDescription": "",
     "kind": "Monster",
     "monsterCategories": [
@@ -18404,5 +18404,85 @@
     "nameTags": [
       "ＢＦ"
     ]
+  },
+  "リミット・リバース": {
+    "name": "リミット・リバース",
+    "nameKana": "",
+    "description": "自分の墓地の攻撃力１０００以下のモンスター１体を選択し、表側攻撃表示で特殊召喚する。\nそのモンスターが守備表示になった時、そのモンスターとこのカードを破壊する。\nこのカードがフィールド上から離れた時、そのモンスターを破壊する。\nそのモンスターが破壊された時、このカードを破壊する。",
+    "kind": "Trap",
+    "trapCategory": "Continuous",
+    "wikiEncodedName": "%A1%D4%A5%EA%A5%DF%A5%C3%A5%C8%A1%A6%A5%EA%A5%D0%A1%BC%A5%B9%A1%D5"
+  },
+  "戦線復帰": {
+    "name": "戦線復帰",
+    "nameKana": "",
+    "description": "(1)：自分の墓地のモンスター１体を対象として発動できる。\nそのモンスターを守備表示で特殊召喚する。",
+    "kind": "Trap",
+    "trapCategory": "Normal",
+    "wikiEncodedName": "%A1%D4%C0%EF%C0%FE%C9%FC%B5%A2%A1%D5"
+  },
+  "ミイラの呼び声": {
+    "name": "ミイラの呼び声",
+    "nameKana": "",
+    "description": "(1)：１ターンに１度、自分メインフェイズに発動できる。\n手札からアンデット族モンスター１体を特殊召喚する。\nこの効果は自分フィールドにモンスターが存在しない場合に発動と処理ができる。",
+    "kind": "Spell",
+    "spellCategory": "Continuous",
+    "wikiEncodedName": "%A1%D4%A5%DF%A5%A4%A5%E9%A4%CE%B8%C6%A4%D3%C0%BC%A1%D5"
+  },
+  "死神の呼び声": {
+    "name": "死神の呼び声",
+    "nameKana": "",
+    "description": "自分の墓地からモンスターが特殊召喚された時に発動できる。\n自分の墓地に存在する「スーパイ」または「赤蟻アスカトル」１体を選択して特殊召喚する。",
+    "kind": "Trap",
+    "trapCategory": "Normal",
+    "wikiEncodedName": "%A1%D4%BB%E0%BF%C0%A4%CE%B8%C6%A4%D3%C0%BC%A1%D5"
+  },
+  "墓場からの呼び声": {
+    "name": "墓場からの呼び声",
+    "nameKana": "",
+    "description": "相手が「死者蘇生」を発動した時に発動する事ができる。\nその「死者蘇生」の効果を無効にする。",
+    "kind": "Trap",
+    "trapCategory": "Normal",
+    "wikiEncodedName": "%A1%D4%CA%E8%BE%EC%A4%AB%A4%E9%A4%CE%B8%C6%A4%D3%C0%BC%A1%D5"
+  },
+  "デーモンの呼び声": {
+    "name": "デーモンの呼び声",
+    "nameKana": "",
+    "description": "このカード名の(1)の効果は１ターンに１度しか使用できない。\n(1)：自分の墓地のレベル５以上の悪魔族モンスター１体を対象として発動できる。\n手札から悪魔族モンスター１体を捨て、対象のモンスターを特殊召喚する。",
+    "kind": "Trap",
+    "trapCategory": "Continuous",
+    "wikiEncodedName": "%A1%D4%A5%C7%A1%BC%A5%E2%A5%F3%A4%CE%B8%C6%A4%D3%C0%BC%A1%D5"
+  },
+  "リビングデッドの呼び声": {
+    "name": "リビングデッドの呼び声",
+    "nameKana": "",
+    "description": "(1)：自分の墓地のモンスター１体を対象としてこのカードを発動できる。そのモンスターを攻撃表示で特殊召喚する。このカードがフィールドから離れる時にそのモンスターは破壊される。\nそのモンスターが破壊される時にこのカードは破壊される。",
+    "kind": "Trap",
+    "trapCategory": "Continuous",
+    "wikiEncodedName": "%A1%D4%A5%EA%A5%D3%A5%F3%A5%B0%A5%C7%A5%C3%A5%C9%A4%CE%B8%C6%A4%D3%C0%BC%A1%D5"
+  },
+  "闇からの呼び声": {
+    "name": "闇からの呼び声",
+    "nameKana": "",
+    "description": "「死者蘇生」の効果によって特殊召喚したモンスターを全て墓地へ送る。このカードがフィールド上に存在する限り、お互いに「死者蘇生」を使用する事はできない。",
+    "kind": "Trap",
+    "trapCategory": "Continuous",
+    "wikiEncodedName": "%A1%D4%B0%C7%A4%AB%A4%E9%A4%CE%B8%C6%A4%D3%C0%BC%A1%D5"
+  },
+  "突進": {
+    "name": "突進",
+    "nameKana": "",
+    "description": "(1)：フィールドの表側表示モンスター１体を対象として発動できる。そのモンスターの攻撃力はターン終了時まで７００アップする。",
+    "kind": "Spell",
+    "spellCategory": "QuickPlay",
+    "wikiEncodedName": "%A1%D4%C6%CD%BF%CA%A1%D5"
+  },
+  "猛突進": {
+    "name": "猛突進",
+    "nameKana": "",
+    "description": "自分フィールド上に表側表示で存在する獣族モンスター１体を選択して破壊し、相手フィールド上に存在するモンスター１体を選択してデッキに戻す。",
+    "kind": "Trap",
+    "trapCategory": "Normal",
+    "wikiEncodedName": "%A1%D4%CC%D4%C6%CD%BF%CA%A1%D5"
   }
 }

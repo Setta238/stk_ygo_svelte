@@ -36,11 +36,12 @@ export const createCardDefinitions_ContinuousSpell_Preset = (): CardDefinition[]
           return [
             NumericStateOperator.createContinuous(
               "発動",
-              (spawner) => spawner.isOnField && spawner.face === "FaceUp",
+              (operator) => operator.isSpawnedBy.isOnField && operator.isSpawnedBy.face === "FaceUp",
               entity,
-              (spawner, target) => target.controller === spawner.controller && target.types.includes("Warrior") && target.isOnField && target.face === "FaceUp",
+              (operator, target) =>
+                target.controller === operator.isSpawnedBy.controller && target.types.includes("Warrior") && target.isOnField && target.face === "FaceUp",
               "attack",
-              "current",
+              "wip",
               "Addition",
               (spawner, monster, current) => {
                 if (!spawner.isEffective) {

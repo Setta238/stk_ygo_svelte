@@ -17,10 +17,12 @@ import {
 import { Duel } from "./Duel";
 import {
   deckCellTypes,
+  duelFieldCellTypes,
   monsterZoneCellTypes,
   playFieldCellTypes,
   spellTrapZoneCellTypes,
   type DuelFieldCell,
+  type DuelFieldCellType,
   type TBundleCellType,
   type TDuelEntityMovePos,
 } from "./DuelFieldCell";
@@ -53,7 +55,7 @@ export type EntityStatus = {
 } & EntityStatusBase;
 
 export type DuelEntityInfomation = {
-  isEffective: boolean;
+  isEffectiveIn: DuelFieldCellType[];
   isPending: boolean;
   isDying: boolean;
   causeOfDeath: (TDestoryCauseReason | "CardActivation" | "LostXyzOwner" | "LostEquipOwner")[];
@@ -63,13 +65,14 @@ export type DuelEntityInfomation = {
   isRebornable: boolean;
   isSettingSickness: boolean;
   materials: MaterialInfo[];
-  effectTargets: { [effectKey: string]: DuelEntity[] };
+  effectTargets: { [actionSeq: number]: DuelEntity[] };
   willBeBanished: boolean;
   willReturnToDeck: TDuelEntityMovePos | undefined;
   attackCount: number;
   battlePotisionChangeCount: number;
   equipedBy: DuelEntity | undefined;
   equipedAs: ChainBlockInfo<unknown> | undefined;
+  validateEquipOwner: (owner: DuelEntity, equip: DuelEntity) => boolean;
   equipEntities: DuelEntity[];
 };
 
@@ -560,10 +563,18 @@ export class DuelEntity {
       .map((cell) => cell.shuffle());
   };
 
+  private readonly onBeforeMoveEvent = new StkEvent<{
+    entity: DuelEntity;
+    args: Readonly<Parameters<typeof DuelEntity.prototype._move>>;
+  }>();
+  public get onBeforeMove() {
+    return this.onBeforeMoveEvent.expose();
+  }
   private readonly onAfterMoveEvent = new StkEvent<DuelEntity>();
   public get onAfterMove() {
     return this.onAfterMoveEvent.expose();
   }
+
   public readonly seq: number;
   public readonly origin: EntityStatusBase;
   public readonly entityType: TDuelEntityType;
@@ -661,13 +672,14 @@ export class DuelEntity {
     return this._numericStatus.calculated.pendulumScaleR;
   }
   public get isEffective() {
-    return this.status.isEffective && this.info.isEffective;
+    return this.status.isEffective && this.info.isEffectiveIn.includes(this.fieldCell.cellType);
   }
+
   /**
-   * エフェクト・ヴェーラーなどによる強い無効
+   * 現在無効状態だが、場所を変えれば有効になる
    */
-  public get isNagatedStrongly() {
-    return !this.info.isEffective;
+  public get isEffectiveWeakly() {
+    return this.status.isEffective;
   }
   public get battlePosition() {
     if (!this.isOnField) {
@@ -767,7 +779,7 @@ export class DuelEntity {
 
     this.resetStatusAll();
     this._info = {
-      isEffective: true,
+      isEffectiveIn: [...duelFieldCellTypes],
       attackCount: 0,
       battlePotisionChangeCount: 0,
       isDying: false,
@@ -784,6 +796,7 @@ export class DuelEntity {
       willReturnToDeck: undefined,
       equipedBy: undefined,
       equipedAs: undefined,
+      validateEquipOwner: () => true,
       equipEntities: [],
     };
     this.resetInfoAll();
@@ -924,6 +937,10 @@ export class DuelEntity {
     await this.sendToGraveyard([...moveAs, "Release"], movedBy, movedByWhom);
     return this.info.isVanished ? undefined : this.fieldCell;
   };
+  public readonly ruleDestory = async (): Promise<DuelFieldCell | undefined> => {
+    await this.sendToGraveyard(["RuleDestroy"], undefined, undefined);
+    return this.info.isVanished ? undefined : this.fieldCell;
+  };
 
   public readonly sendToGraveyard = (movedAs: TDuelCauseReason[], movedBy: DuelEntity | undefined, activator: Duelist | undefined): Promise<void> => {
     return DuelEntity.sendManyToGraveyardForTheSameReason([this], movedAs, movedBy, activator);
@@ -994,6 +1011,11 @@ export class DuelEntity {
       // ミスで一回あったので念の為おいておく
       throw new Error("illegal argument: to");
     }
+
+    this.onBeforeMoveEvent.trigger({
+      entity: this,
+      args: [to, kind, face, orientation, pos, movedAs, movedBy, actionOwner, chooser],
+    });
     this._status.kind = kind;
     this.face = face;
     this.orientation = orientation;
@@ -1045,6 +1067,7 @@ export class DuelEntity {
       if (this.fieldCell.cellType === "SpellAndTrapZone" && to.cellType !== "SpellAndTrapZone") {
         // 装備解除
         this.info.equipedBy = undefined;
+        this.info.equipedAs = undefined;
       }
 
       // セルに自分を所属させる
@@ -1077,7 +1100,7 @@ export class DuelEntity {
 
       // 無効化状態を解除
       this._status.isEffective = true;
-      this.info.isEffective = true;
+      this.info.isEffectiveIn = [...duelFieldCellTypes];
 
       // フィールドから離れたとき除外される系のリセット
       this.info.willBeBanished = false;
@@ -1110,7 +1133,6 @@ export class DuelEntity {
       ...this._info,
       isDying: false,
       isPending: false,
-      isEffective: true,
       causeOfDeath: [],
       isKilledBy: undefined,
       isKilledByWhom: undefined,
@@ -1121,13 +1143,16 @@ export class DuelEntity {
       equipedAs: undefined,
       equipEntities: [],
     };
+
+    this._info.isEffectiveIn.push(...playFieldCellTypes);
+    this._info.isEffectiveIn.distinct();
   };
 
   private readonly resetInfoAll = () => {
     this._info = {
       isDying: false,
       isPending: false,
-      isEffective: true,
+      isEffectiveIn: [...duelFieldCellTypes],
       causeOfDeath: [],
       isKilledBy: undefined,
       isKilledByWhom: undefined,
@@ -1142,6 +1167,7 @@ export class DuelEntity {
       battlePotisionChangeCount: 0,
       equipedBy: undefined,
       equipedAs: undefined,
+      validateEquipOwner: () => true,
       equipEntities: [],
     };
 
@@ -1159,7 +1185,7 @@ export class DuelEntity {
 
     this._numericStatus = {
       origin: { ...master },
-      current: { ...master },
+      wip: { ...master },
       calculated: { ...master },
     };
   };

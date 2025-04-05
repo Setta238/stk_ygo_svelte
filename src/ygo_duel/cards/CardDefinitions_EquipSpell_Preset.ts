@@ -67,15 +67,15 @@ export const createCardDefinitions_EquipSpell_Preset = (): CardDefinition[] => {
             return targetStatus.map(([targetState, point]) =>
               NumericStateOperator.createContinuous(
                 "発動",
-                (spawner) => spawner.isOnField && spawner.face === "FaceUp",
+                (operator) => operator.isSpawnedBy.isOnField && operator.isSpawnedBy.face === "FaceUp",
                 entity,
-                (spawner, target) =>
+                (operator, target) =>
                   target.isOnField &&
                   target.face === "FaceUp" &&
                   (!item.monType || target.types.includes(item.monType)) &&
                   (!item.attr || target.attr.includes(item.attr)),
                 targetState,
-                "current",
+                "wip",
                 "Addition",
                 (spawner, monster, current) => {
                   if (!spawner.isEffective) {

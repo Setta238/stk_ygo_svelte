@@ -1,5 +1,10 @@
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
-import { StickyEffectOperatorBase, StickyEffectOperatorBundle, StickyEffectOperatorPool } from "@ygo_duel/class_continuous_effect/DuelStickyEffectOperatorBase";
+import {
+  StickyEffectOperatorBase,
+  StickyEffectOperatorBundle,
+  StickyEffectOperatorPool,
+  type IOperatorBundle,
+} from "@ygo_duel/class_continuous_effect/DuelStickyEffectOperatorBase";
 import { Duel, SystemError } from "@ygo_duel/class/Duel";
 import { entityFlexibleStatusKeys, type TEntityFlexibleNumericStatusGen, type TEntityFlexibleNumericStatusKey } from "@ygo/class/YgoTypes";
 import type { CardActionBaseAttr } from "@ygo_duel/class/DuelCardAction";
@@ -31,9 +36,10 @@ const minValueDic: { [key in TEntityFlexibleNumericStatusKey]: number } = {
 //    永続的な効果で元々の攻撃力・守備力が指定された数値になる効果  → 永続元々指定 O-C-F
 //    発動して攻撃力・守備力が指定された数値になる効果            →  発動攻守指定 L-F
 //    永続的な効果で攻撃力・守備力が指定された数値になる効果      →   永続攻守指定 C-F
-//    発動して攻撃力・守備力がアップ・ダウンする効果              →  発動攻守上下 L-A
+//    発動して攻撃力・守備力がアップ・ダウンする効果              →  発動攻守上下 L-A ※元に戻る事ができるかの判定が必要。
 //    永続的な効果で攻撃力・守備力がアップ・ダウンする効果        →   永続攻守上下 C-A
-//    銀幕の鏡壁、邪神アバター、邪神ドレッド・ルート、オプション、オプション・トークン                             枠外
+//    銀幕の鏡壁、邪神ドレッド・ルート                          →   枠外 X-C-F
+//    邪神アバター、オプション・トークン                        →     枠外 X-C-X
 
 export class NumericStateOperatorPool extends StickyEffectOperatorPool<NumericStateOperator, NumericStateOperatorBundle> {
   public readonly afterDistributeAll = (duel: Duel) => {
@@ -46,10 +52,7 @@ export class NumericStateOperatorPool extends StickyEffectOperatorPool<NumericSt
       .getMonstersOnField()
       .flatMap((monster) => monster.numericOprsBundle)
       .flatMap((bundle) => bundle.operators)
-      .some(
-        (ope) =>
-          ope.stateOperationType === "THE_DEVILS_AVATAR" || ope.stateOperationType === "THE_DEVILS_DREAD-ROOT" || ope.stateOperationType === "Gradius'_Option"
-      );
+      .some((ope) => ope.targetStateGen === "calculated");
 
     if (needsRecalc) {
       // アバター類を一旦取り除いて最大値を出す。
@@ -59,32 +62,22 @@ export class NumericStateOperatorPool extends StickyEffectOperatorPool<NumericSt
 
       // フィールド上のモンスターのステータスを再計算
       duel.field.getMonstersOnField().forEach((monster) => {
-        // オプション類の場合、対象に取っているはずなので取得
-        let gradius: DuelEntity | undefined = undefined;
-        if (monster.info.effectTargets["Gradius'_Option"]) {
-          gradius = monster.info.effectTargets["Gradius'_Option"][0];
-        }
-
         // オペレータのうち、例外三種を順番に適用
-        monster.numericOprsBundle.operators.forEach((ope) => {
-          // リンクモンスターが効果コピーしていた場合
-          if (monster.status.monsterCategories?.includes("Link") && ope.targetState === "defense") {
+        monster.numericOprsBundle.operators
+          .filter((ope) => ope.targetStateGen === "calculated")
+          .forEach((ope) => {
+            // リンクモンスターが効果コピーしていた場合
+            if (monster.status.monsterCategories?.includes("Link") && ope.targetState === "defense") {
+              return;
+            }
+            if (ope.stateOperationType === "THE_DEVILS_AVATAR") {
+              monster.numericStatus.calculated[ope.targetState] = maxAtk + 100;
+              return;
+            }
+            console.log(monster.toString(), monster.numericStatus.calculated[ope.targetState]);
+            monster.numericStatus.calculated[ope.targetState] = ope.calcValue(monster, monster.numericStatus.calculated[ope.targetState] ?? 0);
             return;
-          }
-
-          if (ope.stateOperationType === "Gradius'_Option") {
-            monster.numericStatus.calculated[ope.targetState] = gradius?.numericStatus.calculated[ope.targetState] ?? 0;
-            return;
-          }
-          if (ope.stateOperationType === "THE_DEVILS_AVATAR") {
-            monster.numericStatus.calculated[ope.targetState] = maxAtk + 100;
-            return;
-          }
-          if (ope.stateOperationType === "THE_DEVILS_DREAD-ROOT") {
-            monster.numericStatus.calculated[ope.targetState] = ope.calcValue(ope.isSpawnedBy, monster, monster.numericStatus.calculated[ope.targetState] ?? 0);
-            return;
-          }
-        });
+          });
       });
     }
 
@@ -92,88 +85,64 @@ export class NumericStateOperatorPool extends StickyEffectOperatorPool<NumericSt
   };
 }
 export class NumericStateOperatorBundle extends StickyEffectOperatorBundle<NumericStateOperator> {
-  public dominantOperators: { [key in TEntityFlexibleNumericStatusKey]: NumericStateOperator | undefined } = {
-    level: undefined,
-    rank: undefined,
-    attack: undefined,
-    defense: undefined,
-    pendulumScaleR: undefined,
-    pendulumScaleL: undefined,
-  };
-
   /**
    * 新しくオペレータが追加された場合
    * @param ope
    * @returns
    */
   protected readonly beforePush = (ope: NumericStateOperator) => {
+    // 対象ステータスのオペレータを抽出
+    const opeList = this.operators.filter((oldOpe) => oldOpe.targetState === ope.targetState).filter((oldOpe) => oldOpe.isEffective);
+
+    // 発動する効果の無効化処理
+    if (ope.kind === "O-L-F" || ope.kind === "O-C-F") {
+      // 元々の数値を指定するものの場合
+
+      // O-L-Fを全て無効化
+      opeList.filter((oldOpe) => oldOpe.kind === "O-L-F").forEach((la) => la.negate());
+      // 例外１の処理と例外２の処理
+      opeList.filter((oldOpe) => oldOpe.kind === "L-F").forEach((la) => la.negate());
+    } else if (ope.kind === "L-F" || ope.kind === "C-F") {
+      // 現在の数値を指定するものの場合
+
+      // L-AとL-Fを全て無効化。
+      opeList.filter((oldOpe) => oldOpe.kind === "L-F" || oldOpe.kind === "L-A").forEach((la) => la.negate());
+    } else if (ope.kind === "X-C-X") {
+      // L系を全て無効化。
+      opeList.filter((oldOpe) => !oldOpe.isContinuous).forEach((la) => la.negate());
+    }
+
+    // アバターまたはオプション類の効果が有効である場合、発動する効果は付着すらしない。
+    if (opeList.filter((oldOpe) => oldOpe.isEffective).some((oldOpe) => oldOpe.kind === "X-C-X") && !ope.isContinuous) {
+      return;
+    }
+
+    if (ope.stateOperationType !== "Addition" && ope.targetStateGen === "wip") {
+      opeList.filter((oldOpe) => !oldOpe.isContinuous).forEach((la) => la.negate());
+    }
+
     // 邪神アバター、オプション類の場合、計算が他者依存なので何もしない
     if (ope.stateOperationType === "THE_DEVILS_AVATAR" || ope.stateOperationType === "Gradius'_Option") {
+      this.entity.numericStatus.calculated[ope.targetState] = -Number.MAX_VALUE;
       return;
     }
 
-    // カード記載の攻撃力
-    const originState = (this.entity.origin[ope.targetState] as number) ?? 0;
-    // 元々の攻撃力
-    const originStateWIP = this.entity.numericStatus["origin"][ope.targetState] ?? 0;
-    // 永続効果適用前の攻撃力
-    const currentStateWIP = this.entity.numericStatus["current"][ope.targetState] ?? 0;
     // 永続効果適用後の攻撃力（※前回計算時）
     const currentState = this.entity.numericStatus["calculated"][ope.targetState] ?? 0;
-    // 現在支配的なオペレータ
-    const domiOpe = this.dominantOperators[ope.targetState];
 
-    // 邪神ドレッド・ルートの場合、現在値を半分にして終了
     if (ope.stateOperationType === "THE_DEVILS_DREAD-ROOT") {
-      this.entity.numericStatus["calculated"][ope.targetState] = ope.calcValue(ope.isSpawnedBy, this.entity, currentState);
+      // 邪神ドレッド・ルートの場合、現在値を半分にして終了
+      this.entity.numericStatus["calculated"][ope.targetState] = ope.calcValue(this.entity, currentState);
       return;
     }
 
-    // 加算減算タイプ（L-A or C-A）
-    if (ope.stateOperationType === "Addition") {
-      // 加算減算タイプに元々の攻守を対象にするものはない
-      if (ope.targetStateGen === "origin") {
-        throw new SystemError("ありえない組合せ", ope);
-      }
-      // その場で加算
-      if (!ope.isContinuous) {
-        // L-A
-        this.entity.numericStatus["current"][ope.targetState] = ope.calcValue(ope.isSpawnedBy, this.entity, currentStateWIP);
-      }
-
-      this.entity.numericStatus["calculated"][ope.targetState] = ope.calcValue(ope.isSpawnedBy, this.entity, currentStateWIP);
-      return;
-    }
-
-    if (ope.targetStateGen === "origin") {
-      // 元々の値を書き換えるタイプ(O-C-F or O-L-F)
-      const tmp = ope.calcValue(ope.isSpawnedBy, this.entity, originState);
-
-      // 例外１ or 例外２ の判定
-      //    ※支配的な効果がL-Fの場合、情報が破壊されているためリセットの必要があるのだと思われる
-      if (domiOpe && !domiOpe.isContinuous && domiOpe.targetStateGen !== "current") {
-        // 例外１ or 例外２の場合、現在値も書き換え。
-        this.entity.numericStatus["current"][ope.targetState] = tmp;
-        // 支配的な効果を一旦undefinedに
-        this.dominantOperators[ope.targetState] = undefined;
-      }
-      this.entity.numericStatus["origin"][ope.targetState] = tmp;
-      // 支配的な効果がundefinedにであれば、支配的な効果を更新
-      this.dominantOperators[ope.targetState] = domiOpe ?? ope;
-    } else if (ope.isContinuous) {
-      // 永続型の固定値タイプのうち、現在値を書き換え(C-F)
-      //   ※下と違い、常に再計算の可能性があるため、永続的な加算減算と共存でき、固定にならなず例外３が発生するのだと思われる。
-      this.entity.numericStatus["current"][ope.targetState] = ope.calcValue(ope.isSpawnedBy, this.entity, originStateWIP);
-
-      // 支配的な効果を更新
-      this.dominantOperators[ope.targetState] = ope;
-    } else {
+    if (ope.kind === "L-F") {
       // 発動型の固定値タイプのうち、現在値を書き換え(L-F)
       //   ※ゲイル、ブラックガーデンなどのタイプ。色々計算したあとの現在の値を書き換えるため、値が固定になる。
       //   ※多分この際に情報が破壊され、これが例外１と例外２の原因となったと思われる。
-      this.entity.numericStatus["current"][ope.targetState] = ope.calcValue(ope.isSpawnedBy, this.entity, currentState);
-      // 支配的な効果を更新
-      this.dominantOperators[ope.targetState] = ope;
+      console.log(this.entity.toString(), currentState);
+      this.entity.numericStatus["wip"][ope.targetState] = ope.calcValue(this.entity, currentState);
+      return;
     }
   };
 
@@ -218,71 +187,77 @@ export class NumericStateOperatorBundle extends StickyEffectOperatorBundle<Numer
     // レベル以外のステータスは、フィールドでのみ計算する。
     if (targetState !== "level" && !this.entity.isOnField) {
       this.entity.numericStatus.origin[targetState] = this.entity.origin[targetState];
-      this.entity.numericStatus.current[targetState] = this.entity.origin[targetState];
+      this.entity.numericStatus.wip[targetState] = this.entity.origin[targetState];
       this.entity.numericStatus.calculated[targetState] = this.entity.origin[targetState];
       return;
     }
 
     // 対象ステータスのオペレータを抽出
-    const opeList = this._operators.filter((ope) => ope.targetState === targetState);
+    const opeList = this._operators.filter((ope) => ope.targetState === targetState).filter((oldOpe) => oldOpe.isEffective);
     // 邪神アバター、オプション類の場合、計算を一度スキップする
     if (opeList.some((ope) => ope.stateOperationType === "THE_DEVILS_AVATAR" || ope.stateOperationType === "Gradius'_Option") && this.entity.isEffective) {
       this.entity.numericStatus.calculated[targetState] = -Number.MAX_VALUE;
       return;
     }
+    // カード記載の値
+    const originValue = this.entity.origin[targetState] ?? 0;
+    // 前回のwipの値
+    const previousWipValue = this.entity.numericStatus.wip[targetState] ?? 0;
 
-    // 現在支配的なオペレータ
-    const domiOpe = this.dominantOperators[targetState];
-    // 現在の元々の値
-    const originStateWIP = this.entity.numericStatus.origin[targetState] ?? 0;
-    // 現在値（永続適用前）
-    let currentValue = this.entity.numericStatus.current[targetState] ?? 0;
-    // 再計算の起点
-    let startIndex = -1;
-    if (domiOpe) {
-      if (domiOpe.targetStateGen === "current" && domiOpe.isContinuous) {
-        // 例外３のため、C-Fの場合は少し戻る
-        startIndex = opeList.findLastIndex((ope) => ope.stateOperationType === "Fixation" && ope !== domiOpe);
-        // 再計算
-        currentValue = domiOpe.calcValue(domiOpe.isSpawnedBy, this.entity, originStateWIP);
-      } else {
-        startIndex = opeList.findIndex((ope) => ope === domiOpe);
-      }
-    }
-    // 一つ次から開始
-    startIndex++;
+    // 元々の値の計算
+    const oOpe = opeList.filter((oldOpe) => oldOpe.targetState === targetState).findLast((oldOpe) => oldOpe.targetStateGen === "origin");
+
+    // 値セット、ステータス更新
+    const originValueWip = oOpe ? oOpe.calcValue(this.entity, originValue ?? 0) : originValue;
+    this.entity.numericStatus.origin[targetState] = originValueWip;
+
     // 計算用work
-    let wip = currentValue;
+    let wipValue = originValueWip;
 
-    if (startIndex < opeList.length) {
-      for (let index = startIndex; index < opeList.length; index++) {
-        const ope = opeList[index];
-        if (ope.isContinuous) {
-          if (ope.targetStateGen === "current") {
-            if (ope.stateOperationType === "Addition") {
-              wip = ope.calcValue(ope.isSpawnedBy, this.entity, wip);
-            }
-          }
-        }
-      }
+    // 値の計算
+    const fOpe = opeList
+      .filter((oldOpe) => oldOpe.targetState === targetState)
+      .filter((oldOpe) => oldOpe.targetStateGen === "wip")
+      .findLast((oldOpe) => oldOpe.stateOperationType === "Fixation");
+
+    if (!fOpe) {
+      // fOpeがない場合、普通に計算し、wipステータスを更新する。
+      wipValue = opeList.filter((ope) => ope.stateOperationType === "Addition").reduce((wip, ope) => ope.calcValue(this.entity, wip), wipValue);
+      this.entity.numericStatus.wip[targetState] = wipValue;
+    } else if (fOpe.isContinuous) {
+      // C-Fの場合、C-Fを計算後、wipステータスを更新する。
+      wipValue = fOpe.calcValue(this.entity, wipValue);
+      wipValue = opeList.filter((ope) => ope.stateOperationType === "Addition").reduce((wip, ope) => ope.calcValue(this.entity, wip), wipValue);
+      this.entity.numericStatus.wip[targetState] = wipValue;
+    } else {
+      console.log("hoge");
+      // L-Fの場合、L-Fは計算せず、wipステータスを元にそれ以降を計算する。wipステータスは更新しない。
+      let flg = false;
+      wipValue = opeList
+        .filter((ope) => {
+          flg = flg || ope === fOpe;
+          return flg && ope !== fOpe;
+        })
+        .filter((ope) => ope.stateOperationType === "Addition")
+        .reduce((wip, ope) => ope.calcValue(this.entity, wip), previousWipValue);
     }
 
     // 最低値を割っている場合、上書き
-    if (wip < minValueDic[targetState]) {
-      wip = minValueDic[targetState];
+    if (wipValue < minValueDic[targetState]) {
+      wipValue = minValueDic[targetState];
     }
 
     //結果を投入
-    this.entity.numericStatus.calculated[targetState] = wip;
+    this.entity.numericStatus.calculated[targetState] = wipValue;
   };
 }
 export class NumericStateOperator extends StickyEffectOperatorBase {
-  public beforeRemove: () => void = () => {};
+  public beforeRemove: <OPE extends StickyEffectOperatorBase>(bundle: IOperatorBundle<OPE>) => void = () => {};
   public static readonly createContinuous = (
     title: string,
-    validateAlive: (spawner: DuelEntity) => boolean,
+    validateAlive: (operator: StickyEffectOperatorBase) => boolean,
     isSpawnedBy: DuelEntity,
-    isApplicableTo: (spawner: DuelEntity, target: DuelEntity) => boolean,
+    isApplicableTo: (operator: StickyEffectOperatorBase, target: DuelEntity) => boolean,
     targetState: TEntityFlexibleNumericStatusKey,
     targetStateGen: TEntityFlexibleNumericStatusGen,
     stateOperationType: TStateOperationType,
@@ -290,51 +265,84 @@ export class NumericStateOperator extends StickyEffectOperatorBase {
   ) => {
     return new NumericStateOperator(title, validateAlive, true, isSpawnedBy, {}, isApplicableTo, targetState, targetStateGen, stateOperationType, calcValue);
   };
-  public static readonly createLingering = (
+  public static readonly createLingeringFixation = (
     title: string,
+    validateAlive: (operator: StickyEffectOperatorBase) => boolean,
     isSpawnedBy: DuelEntity,
     actionAttr: Partial<CardActionBaseAttr>,
     targetState: TEntityFlexibleNumericStatusKey,
-    targetStateGen: TEntityFlexibleNumericStatusGen,
-    stateOperationType: TStateOperationType,
     calcValue: (spawner: DuelEntity, target: DuelEntity, current: number) => number
   ) => {
-    return new NumericStateOperator(
-      title,
-      () => true,
-      false,
-      isSpawnedBy,
-      actionAttr,
-      () => true,
-      targetState,
-      targetStateGen,
-      stateOperationType,
-      calcValue
-    );
+    return new NumericStateOperator(title, validateAlive, false, isSpawnedBy, actionAttr, () => true, targetState, "wip", "Fixation", calcValue);
+  };
+
+  public static readonly createLingeringAddition = (
+    title: string,
+    validateAlive: (operator: StickyEffectOperatorBase) => boolean,
+    isSpawnedBy: DuelEntity,
+    actionAttr: Partial<CardActionBaseAttr>,
+    targetState: TEntityFlexibleNumericStatusKey,
+    calcValue: (spawner: DuelEntity, target: DuelEntity, current: number) => number
+  ) => {
+    return new NumericStateOperator(title, validateAlive, false, isSpawnedBy, actionAttr, () => true, targetState, "wip", "Addition", calcValue);
   };
 
   public readonly targetState: TEntityFlexibleNumericStatusKey;
   public readonly targetStateGen: TEntityFlexibleNumericStatusGen;
   public readonly stateOperationType: TStateOperationType;
-  public readonly calcValue: (spawner: DuelEntity, entity: DuelEntity, source: number) => number;
+  public readonly calcValue: (entity: DuelEntity, source: number) => number;
+  private _isEffective: boolean;
+  public override get isEffective() {
+    return this._isEffective && super.isEffective;
+  }
+
+  public get kind() {
+    if (this.targetStateGen === "origin") {
+      if (this.stateOperationType === "Fixation") {
+        return this.isContinuous ? "O-C-F" : "O-L-F";
+      }
+      throw new SystemError("矛盾したプロパティ", this);
+    }
+    if (this.targetStateGen === "wip") {
+      if (this.stateOperationType === "Addition") {
+        return this.isContinuous ? "C-A" : "L-A";
+      }
+      if (this.stateOperationType === "Fixation") {
+        return this.isContinuous ? "C-F" : "L-F";
+      }
+      throw new SystemError("矛盾したプロパティ", this);
+    }
+    if (this.stateOperationType === "THE_DEVILS_DREAD-ROOT") {
+      return "X-C-F";
+    }
+    if (this.stateOperationType === "THE_DEVILS_AVATAR" || this.stateOperationType === "Gradius'_Option") {
+      return "X-C-X";
+    }
+    throw new SystemError("矛盾したプロパティ", this);
+  }
 
   protected constructor(
     title: string,
-    validateAlive: (spawner: DuelEntity) => boolean,
+    validateAlive: (operator: StickyEffectOperatorBase) => boolean,
     isContinuous: boolean,
     isSpawnedBy: DuelEntity,
     actionAttr: Partial<CardActionBaseAttr>,
 
-    isApplicableTo: (spawner: DuelEntity, target: DuelEntity) => boolean,
+    isApplicableTo: (operator: StickyEffectOperatorBase, target: DuelEntity) => boolean,
     targetState: TEntityFlexibleNumericStatusKey,
     targetStateGen: TEntityFlexibleNumericStatusGen,
     stateOperationType: TStateOperationType,
     calcValue: (spawner: DuelEntity, target: DuelEntity, current: number) => number
   ) {
     super(title, validateAlive, isContinuous, isSpawnedBy, actionAttr, isApplicableTo);
+    this._isEffective = true;
     this.targetState = targetState;
     this.targetStateGen = targetStateGen;
     this.stateOperationType = stateOperationType;
-    this.calcValue = calcValue;
+    this.calcValue = (target: DuelEntity, current: number) => calcValue(this.isSpawnedBy, target, current);
   }
+
+  public readonly negate = () => {
+    this._isEffective = false;
+  };
 }

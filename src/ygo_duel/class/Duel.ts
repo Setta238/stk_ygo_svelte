@@ -17,7 +17,6 @@ import {
   type TCardActionType,
   type TSpellSpeed,
 } from "./DuelCardAction";
-import { playFieldCellTypes } from "./DuelFieldCell";
 import type { TDuelPhase } from "./DuelPeriod";
 export const duelStartModes = ["PlayFirst", "DrawFirst", "Random"] as const;
 export type TDuelStartMode = (typeof duelStartModes)[number];
@@ -119,7 +118,7 @@ export class Duel {
     this._chainBlockInfos = [];
     this.field = new DuelField(this);
     this.clock.onTotalProcSeqChange.append(this.distributeOperators);
-    this.clock.onStageChange.append(() => this.executeSystemActions());
+    this.clock.onStageChange.append(this.executeSystemActions);
 
     this.view = new DuelViewController(this);
     this.log = new DuelLog(this);
@@ -496,10 +495,10 @@ export class Duel {
       // ※被破壊側の永続効果の終了、破壊側（混沌の黒魔術師、ハデスなど）の永続効果の適用
       // ※墓地送りはprocBattlePhaseDamageStep5で行う。
       if (atkPoint > 0 && (atkPoint > defPoint || (atkPoint === defPoint && defender.battlePosition === "Attack"))) {
-        defender.tryDestory("BattleDestroy", attacker.controller, attacker, chainBlockInfo.action);
+        defender.tryMarkForDestory("BattleDestroy", attacker.controller, attacker, chainBlockInfo.action);
       }
       if (defender.battlePosition === "Attack" && atkPoint <= defPoint) {
-        attacker.tryDestory("BattleDestroy", attacker.controller, defender, chainBlockInfo.action);
+        attacker.tryMarkForDestory("BattleDestroy", attacker.controller, defender, chainBlockInfo.action);
       }
     }
 
@@ -569,7 +568,12 @@ export class Duel {
     // 強制効果が処理し終わり、お互いにキャンセルしたら終了
     let skipCount = 0;
 
-    while (skipCount < 2) {
+    const mandatoryCount: { [seat in TSeat]: number } = {
+      Above: Number.MAX_VALUE,
+      Below: Number.MAX_VALUE,
+    };
+
+    while (Object.values(mandatoryCount).some((count) => count !== 0)) {
       // 優先権保持者の可能な処理をリストアップ
       const actions = this.getEnableActions(
         this.priorityHolder,
@@ -578,11 +582,23 @@ export class Duel {
         []
       );
 
-      // 強制効果が残っていて、お互いにキャンセルすることの防止
-      const cancelable = actions.every((action) => !action.isMandatory) || skipCount < 2;
+      mandatoryCount[this.priorityHolder.seat] = actions.filter((action) => action.isMandatory).length;
 
       // 強制効果を適当にピックアップしておく
       let action = actions.find((action) => action.isMandatory);
+
+      // 強制効果が残っていて、お互いにキャンセルすることの防止
+      let cancelable = Boolean(!action);
+
+      if (this.priorityHolder.isTurnPlayer) {
+        if (skipCount === 0) {
+          cancelable = true;
+        }
+      } else {
+        if (mandatoryCount[this.priorityHolder.getOpponentPlayer().seat] >= 0) {
+          cancelable = true;
+        }
+      }
 
       // 0件または強制効果1件のときのみ効果選択をスキップ
       // TODO 強制効果1件のときも一回まではキャンセルできるので、考慮が必要。
@@ -735,9 +751,8 @@ export class Duel {
 
       this.chainBlockLog.push(chainBlockInfo);
 
-      // エフェクト・ヴェーラーなどによる強い無効
-      const wasNagatedStrongly =
-        chainBlockInfo.action.entity.isNagatedStrongly && playFieldCellTypes.find((ct) => ct === chainBlockInfo.isActivatedIn.cellType);
+      // エフェクト・ヴェーラーなどに発動場所を参照する無効を処理するため、この時点の情報をコピー
+      const enableCellTypes = [...chainBlockInfo.action.entity.info.isEffectiveIn];
 
       // 対象に取っていた場合、ログを出力
       if (chainBlockInfo.selectedEntities.length) {
@@ -776,8 +791,8 @@ export class Duel {
             // うららなどの効果処理のみ無効にするタイプ
             nagationText = `チェーン${chainCount}: ${convertCardActionToString(chainBlockInfo.action)}を${convertCardActionToString(chainBlockInfo.isNegatedEffectBy)}によって効果を無効にした。`;
             isEffective = false;
-          } else if (wasNagatedStrongly) {
-            // 発動時にエフェクト・ヴェーラーなどによる強い無効が適用されていた場合、移動ログを検索する。
+          } else if (!enableCellTypes.includes(chainBlockInfo.isActivatedIn.cellType)) {
+            // 発動時にエフェクト・ヴェーラーなどに発動場所を参照する無効が適用されていた場合、移動ログを検索する。
             const moveLogRecord = chainBlockInfo.action.entity.moveLog.records.findLast((rec) => rec.face === "FaceDown" && rec.orientation === "Horizontal");
 
             // 同じチェーン中に、一度以上裏守備を経由していればいいはず
@@ -859,23 +874,11 @@ export class Duel {
       }
     }
   };
-  private readonly executeSystemActions = async (): Promise<void> => {
-    await Promise.all(
-      Object.values(this.duelists)
-        .flatMap((duelist) =>
-          this.getEnableActions(duelist, ["SystemAction"], ["Normal"], []).map((action) => {
-            return { duelist, action };
-          })
-        )
-        .map(async (obj) => {
-          const chainBlockInfo = await obj.action.prepare(obj.duelist, undefined, [], false);
-          if (!chainBlockInfo) {
-            throw new SystemError("想定されない状態", obj);
-          }
-          await obj.action.execute(chainBlockInfo, []);
-          await obj.action.settle(chainBlockInfo, []);
-          return;
-        })
+  private readonly executeSystemActions = (): void => {
+    Object.values(this.duelists).flatMap((duelist) =>
+      this.getEnableActions(duelist, ["SystemAction"], ["Normal"], []).map((action) => {
+        return { duelist, action };
+      })
     );
   };
   private readonly getEnableActions = (

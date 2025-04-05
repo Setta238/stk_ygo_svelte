@@ -71,6 +71,7 @@ export const createCardDefinitions_Blackwing_Monster = (): CardDefinition[] => {
             const enemies = myInfo.activator
               .getOpponentPlayer()
               .getMonstersOnField()
+              .filter((enemy) => enemy.face === "FaceUp")
               .filter((enemy) => enemy.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action));
             const _targets = await myInfo.action.entity.duel.view.waitSelectEntities(
               myInfo.activator,
@@ -101,13 +102,12 @@ export const createCardDefinitions_Blackwing_Monster = (): CardDefinition[] => {
           }
           (["attack", "defense"] as TEntityFlexibleNumericStatusKey[])
             .map((targetState) =>
-              NumericStateOperator.createLingering(
+              NumericStateOperator.createLingeringFixation(
                 "②攻守半減",
+                () => true,
                 myInfo.action.entity,
                 myInfo.action,
                 targetState,
-                "current",
-                "Fixation",
                 (spawner: DuelEntity, monster: DuelEntity, current: number) => Math.round(current / 2)
               )
             )

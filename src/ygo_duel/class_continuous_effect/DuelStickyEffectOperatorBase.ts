@@ -1,12 +1,16 @@
 import type { Duelist } from "@ygo_duel/class/Duelist";
 import { Duel, SystemError } from "../class/Duel";
 import type { DuelEntity } from "../class/DuelEntity";
-import type { CardActionBaseAttr, TEffectActiovationType } from "@ygo_duel/class/DuelCardAction";
+import { getEffectActiovationType, type CardActionBaseAttr, type TEffectActiovationType } from "@ygo_duel/class/DuelCardAction";
+import type { IDuelClock } from "@ygo_duel/class/DuelClock";
 export interface IOperatorPool<OPE extends StickyEffectOperatorBase> {
   push: (ope: OPE) => void;
   append(bundle: StickyEffectOperatorBundle<OPE>): void; // NOTE error回避のため、bivariantになるメソッド記法で定義
   removeItem: (seq: number) => void;
   excludesExpired: () => void;
+}
+export interface IOperatorBundle<OPE extends StickyEffectOperatorBase> {
+  operators: OPE[];
 }
 export abstract class StickyEffectOperatorPool<OPE extends StickyEffectOperatorBase, Bundle extends StickyEffectOperatorBundle<OPE>> {
   // 以降に出現したエンティティのために、オペレータをプールしておく
@@ -18,7 +22,7 @@ export abstract class StickyEffectOperatorPool<OPE extends StickyEffectOperatorB
     this.bundles = this.bundles.filter((bundle) => !bundle.entity.hasDisappeared);
 
     this.bundles.forEach((bundle) => bundle.excludesExpired());
-    this.pooledOperators = this.pooledOperators.filter((ope) => ope.validateAlive(ope.isSpawnedBy));
+    this.pooledOperators = this.pooledOperators.filter((ope) => ope.validateAlive());
   };
 
   public readonly append = (bundle: Bundle) => {
@@ -48,11 +52,11 @@ export abstract class StickyEffectOperatorPool<OPE extends StickyEffectOperatorB
     // 追加の前に、期限切れを削除
     this.excludesExpired();
 
-    // 配布
-    this.pooledOperators.flatMap(this.distribute);
-    // ソートは不要？
-    //       .getDistinct();
-    //        .forEach((bundle) => bundle._operators.sort((left, right) => left.seq - right.seq));
+    // 配布（※適用順は発生順という理解）
+    this.pooledOperators
+      .flatMap(this.distribute)
+      .getDistinct()
+      .forEach((bundle) => bundle.operators.sort((left, right) => left.seq - right.seq));
 
     return this.afterDistributeAll(duel);
   };
@@ -60,12 +64,10 @@ export abstract class StickyEffectOperatorPool<OPE extends StickyEffectOperatorB
   protected abstract readonly afterDistributeAll: (duel: Duel) => boolean;
 
   public readonly distribute = (ope: OPE) => {
-    
-
     // まだ配布されていないオペレータを配布する。
     return this.bundles
       .filter((bundle) => bundle.operators.every((_ope) => _ope.seq !== ope.seq))
-      .filter((bundle) => ope.isApplicableTo(ope.isSpawnedBy, bundle.entity))
+      .filter((bundle) => ope.isApplicableTo(bundle.entity))
       .map((bundle) => {
         bundle.push(ope);
         return bundle;
@@ -96,10 +98,10 @@ export abstract class StickyEffectOperatorBundle<OPE extends StickyEffectOperato
   }
   public readonly excludesExpired = () => {
     this._operators = this._operators.filter((ope) => {
-      const isAlive = ope.validateAlive(ope.isSpawnedBy) && ope.isApplicableTo(ope.isSpawnedBy, this.entity);
+      const isAlive = ope.validateAlive() && ope.isApplicableTo(this.entity);
       if (!isAlive) {
         console.info(`before remove ${this.entity.toString} ${ope.title}`);
-        ope.beforeRemove();
+        ope.beforeRemove(this);
       }
       return isAlive;
     });
@@ -108,9 +110,6 @@ export abstract class StickyEffectOperatorBundle<OPE extends StickyEffectOperato
 
   public readonly push = (ope: OPE) => {
     // ProcFilterで弾かれる場合は追加しない。
-    
-    
-    
 
     if (
       this.entity.procFilterBundle.operators
@@ -119,11 +118,9 @@ export abstract class StickyEffectOperatorBundle<OPE extends StickyEffectOperato
     ) {
       return;
     }
-    
 
     this.beforePush(ope);
 
-    
     this._operators.push(ope);
   };
 
@@ -132,7 +129,7 @@ export abstract class StickyEffectOperatorBundle<OPE extends StickyEffectOperato
       if (ope.seq !== seq) {
         return true;
       }
-      ope.beforeRemove();
+      ope.beforeRemove(this);
 
       return false;
     });
@@ -144,38 +141,44 @@ export abstract class StickyEffectOperatorBase {
 
   public readonly seq: number;
   public readonly title: string;
-  public readonly validateAlive: (spawner: DuelEntity) => boolean;
+  public readonly validateAlive: () => boolean;
   public readonly isContinuous: boolean;
   public readonly isSpawnedBy: DuelEntity;
+  public readonly isSpawnedAt: IDuelClock;
   public readonly activateType: TEffectActiovationType;
   public readonly actionAttr: Partial<CardActionBaseAttr>;
-  public readonly isApplicableTo: (spawner: DuelEntity, target: DuelEntity) => boolean;
+  public readonly isApplicableTo: (target: DuelEntity) => boolean;
   public readonly effectOwner: Duelist;
-  public abstract readonly beforeRemove: () => void;
+  public abstract readonly beforeRemove: <OPE extends StickyEffectOperatorBase>(bundle: IOperatorBundle<OPE>) => void;
+
+  public get isEffective() {
+    if (!this.isContinuous) {
+      return true;
+    }
+    if (this.activateType === "NonActivate") {
+      return true;
+    }
+
+    return this.isSpawnedBy.isEffective;
+  }
 
   protected constructor(
     title: string,
-    validateAlive: (spawner: DuelEntity) => boolean,
+    validateAlive: (operator: StickyEffectOperatorBase) => boolean,
     isContinuous: boolean,
     isSpawnedBy: DuelEntity,
     actionAttr: Partial<CardActionBaseAttr>,
-    isApplicableTo: (spawner: DuelEntity, target: DuelEntity) => boolean
+    isApplicableTo: (operator: StickyEffectOperatorBase, target: DuelEntity) => boolean
   ) {
     this.seq = StickyEffectOperatorBase.nextSeq++;
     this.title = title;
-    this.validateAlive = validateAlive;
+    this.validateAlive = () => validateAlive(this);
     this.isContinuous = isContinuous;
     this.isSpawnedBy = isSpawnedBy;
-    this.isApplicableTo = isApplicableTo;
+    this.isSpawnedAt = isSpawnedBy.duel.clock.getClone();
+    this.isApplicableTo = (target: DuelEntity) => isApplicableTo(this, target);
     this.actionAttr = actionAttr;
-    this.activateType = "NonActivate";
-    if (this.actionAttr.playType) {
-      if (this.actionAttr.playType === "CardActivation") {
-        this.activateType = "CardActivation";
-      } else {
-        this.activateType = "EffectActivation";
-      }
-    }
+    this.activateType = this.actionAttr.playType ? getEffectActiovationType(this.actionAttr.playType) : "NonActivate";
     this.effectOwner = this.isSpawnedBy.controller;
   }
 }

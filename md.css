@@ -18,13 +18,13 @@ h3:after {
     bottom: -3px;
     width: 5em;
 }
-ul li {
+ul > li {
     color: midnightblue;
     list-style-type: none !important
 }
 
-ol li {
-    color: green;
+ol > li {
+    color: black;
 }
 
 img {

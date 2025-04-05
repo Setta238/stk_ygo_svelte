@@ -140,7 +140,7 @@ export type CardInfoWiki = {
 
 export const entityFlexibleStatusKeys = ["level", "rank", "attack", "defense", "pendulumScaleR", "pendulumScaleL"] as const;
 export type TEntityFlexibleNumericStatusKey = (typeof entityFlexibleStatusKeys)[number];
-export type TEntityFlexibleNumericStatusGen = "origin" | "current" | "calculated";
+export type TEntityFlexibleNumericStatusGen = "origin" | "wip" | "calculated";
 export type TEntityFlexibleNumericStatus = { [key in TEntityFlexibleNumericStatusKey]: number | undefined };
 
 /**

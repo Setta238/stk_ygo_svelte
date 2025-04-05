@@ -25,7 +25,7 @@ declare module "./DuelEntity" {
     canBeBanished(activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionBaseAttr>): boolean;
     canBeTargetOfEffect(activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionBaseAttr>): boolean;
     canBeTargetOfBattle(activator: Duelist, entity: DuelEntity): boolean;
-    tryDestory(destroyType: TDestoryCauseReason, activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionBaseAttr>): boolean;
+    tryMarkForDestory(destroyType: TDestoryCauseReason, activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionBaseAttr>): boolean;
     validateDestory(destroyType: TDestoryCauseReason, activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionBaseAttr>): boolean;
     getIndexInCell(): number;
     getXyzMaterials(): DuelEntity[];
@@ -128,7 +128,7 @@ DuelEntity.prototype.canBeTargetOfBattle = function (activator: Duelist, causedB
     .every((pf) => pf.filter(activator, causedBy, {}, [entity]));
 };
 
-DuelEntity.prototype.tryDestory = function (
+DuelEntity.prototype.tryMarkForDestory = function (
   destroyType: "BattleDestroy" | "EffectDestroy",
   activator: Duelist,
   causedBy: DuelEntity,
@@ -189,7 +189,7 @@ DuelEntity.prototype.getXyzMaterials = function (): DuelEntity[] {
 export class DuelEntityShortHands {
   public static readonly tryDestroy = async (cards: DuelEntity[], chainBlockInfo: ChainBlockInfo<unknown>): Promise<DuelEntity[]> => {
     const _cards = cards.filter((card) => !card.info.isDying);
-    _cards.map((card) => card.tryDestory("EffectDestroy", chainBlockInfo.activator, chainBlockInfo.action.entity, chainBlockInfo.action));
+    _cards.map((card) => card.tryMarkForDestory("EffectDestroy", chainBlockInfo.activator, chainBlockInfo.action.entity, chainBlockInfo.action));
     const result = _cards.filter((card) => card.info.isDying);
 
     await DuelEntity.waitCorpseDisposal(chainBlockInfo.activator.duel);

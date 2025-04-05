@@ -71,15 +71,15 @@ export const createCardDefinitions_FieldSpell_Preset = (): CardDefinition[] => {
               return (["up", "down"] as const).map((updown) => {
                 return NumericStateOperator.createContinuous(
                   "発動",
-                  (spawner) => spawner.isOnField && spawner.face === "FaceUp",
+                  (operator) => operator.isSpawnedBy.isOnField && operator.isSpawnedBy.face === "FaceUp",
                   source,
-                  (spawner, monster) =>
+                  (operator, monster) =>
                     monster.isOnField &&
                     monster.face === "FaceUp" &&
                     (monster.status.monsterCategories ?? false) &&
                     item[updown].union(monster.types).length > 0,
                   state,
-                  "current",
+                  "wip",
                   "Addition",
                   (spawner, monster, current) => {
                     if (!spawner.isEffective) {
@@ -152,11 +152,11 @@ export const createCardDefinitions_FieldSpell_Preset = (): CardDefinition[] => {
             return (["attack", "defense"] as TEntityFlexibleNumericStatusKey[]).flatMap((state) => {
               return NumericStateOperator.createContinuous(
                 "発動",
-                (spawner) => spawner.isOnField && spawner.face === "FaceUp",
+                (operator) => operator.isSpawnedBy.isOnField && operator.isSpawnedBy.face === "FaceUp",
                 source,
-                (spawner, monster) => monster.isOnField && monster.face === "FaceUp" && monster.attr.includes(item.attr),
+                (operator, monster) => monster.isOnField && monster.face === "FaceUp" && monster.attr.includes(item.attr),
                 state,
-                "current",
+                "wip",
                 "Addition",
                 (spawner, monster, current) => {
                   if (!spawner.isEffective) {

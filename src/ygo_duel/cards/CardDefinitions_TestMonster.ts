@@ -29,11 +29,11 @@ export const createCardDefinitions_TestMonster = (): CardDefinition[] => {
           return (["attack", "defense"] as TEntityFlexibleNumericStatusKey[]).map((targetState) =>
             NumericStateOperator.createContinuous(
               "THE_DEVILS_AVATAR",
-              (spawner: DuelEntity) => spawner.isOnField && spawner.face === "FaceUp",
+              (operator) => operator.isSpawnedBy.isOnField && operator.isSpawnedBy.face === "FaceUp",
               entity,
-              (spawner: DuelEntity) => spawner.isOnField && spawner.face === "FaceUp",
+              (operator, target) => target.isOnField && target.face === "FaceUp",
               targetState,
-              "current",
+              "calculated",
               "THE_DEVILS_AVATAR",
               () => Number.MIN_VALUE
             )
@@ -57,12 +57,11 @@ export const createCardDefinitions_TestMonster = (): CardDefinition[] => {
           return (["attack", "defense"] as TEntityFlexibleNumericStatusKey[]).map((targetState) =>
             NumericStateOperator.createContinuous(
               "THE_DEVILS_DREAD-ROOT",
-              (spawner: DuelEntity) => spawner.isOnField && spawner.face === "FaceUp",
+              (operator) => operator.isSpawnedBy.isOnField && operator.isSpawnedBy.face === "FaceUp",
               entity,
-              (spawner: DuelEntity, target: DuelEntity) =>
-                target.status.kind === "Monster" && target.isOnField && target.face === "FaceUp" && target !== spawner,
+              (operator, target) => target.status.kind === "Monster" && target.isOnField && target.face === "FaceUp" && target !== operator.isSpawnedBy,
               targetState,
-              "current",
+              "calculated",
               "THE_DEVILS_DREAD-ROOT",
               (spawner: DuelEntity, monster: DuelEntity, current: number) => Math.round(current / 2)
             )

@@ -5,7 +5,9 @@ import type { CardActionBase, TEffectTag } from "@ygo_duel/class/DuelCardAction"
 import { IllegalCancelError } from "@ygo_duel/class/Duel";
 
 import type { CardDefinition } from "./CardDefinitions";
-import { freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
+import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
+import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
+import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
 
 export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
   const result: CardDefinition[] = [];
@@ -72,7 +74,7 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
         validate: (myInfo) => {
           const monsters = myInfo.action.entity.field
             .getMonstersOnField()
-            .filter((monster) => monster.canBeEffected(myInfo.activator, myInfo.action.entity, myInfo.action));
+            .filter((monster) => monster.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action));
           if (!monsters.length) {
             return;
           }
@@ -81,7 +83,7 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
         prepare: async (myInfo, cell, chainBlockInfos, cancelable) => {
           const monsters = myInfo.action.entity.field
             .getMonstersOnField()
-            .filter((monster) => monster.canBeEffected(myInfo.activator, myInfo.action.entity, myInfo.action));
+            .filter((monster) => monster.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action));
           const selected = await myInfo.action.entity.duel.view.waitSelectEntities(
             myInfo.activator,
             monsters,
@@ -100,7 +102,7 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
         execute: async (myInfo) => {
           const target = myInfo.selectedEntities[0];
           // フィールドにいなければ効果なし
-          if (!target.isOnField) {
+          if (!target.isOnFieldAsMonster) {
             return false;
           }
 
@@ -128,5 +130,80 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
   };
 
   result.push(def_月の書);
+
+  result.push({
+    name: "突進",
+    actions: [
+      {
+        title: "発動",
+        playType: "CardActivation",
+        spellSpeed: "Quick",
+        executableCells: ["Hand", "SpellAndTrapZone"],
+        executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
+        executableDuelistTypes: ["Controller"],
+        hasToTargetCards: true,
+        validate: (myInfo) => {
+          const monsters = myInfo.action.entity.field
+            .getMonstersOnField()
+            .filter((monster) => monster.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action));
+          if (!monsters.length) {
+            return;
+          }
+          return defaultSpellTrapValidate(myInfo);
+        },
+        prepare: async (myInfo, cell, chainBlockInfos, cancelable) => {
+          const monsters = myInfo.action.entity.field
+            .getMonstersOnField()
+            .filter((monster) => monster.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action));
+          const selected = await myInfo.action.entity.duel.view.waitSelectEntities(
+            myInfo.activator,
+            monsters,
+            1,
+            (selected) => selected.length === 1,
+            "対象とするモンスターを選択",
+            cancelable
+          );
+          if (!selected) {
+            return;
+          }
+          console.log(selected[0].toString(), selected[0].info.equipEntities);
+
+          return defaultSpellTrapPrepare(myInfo, cell, chainBlockInfos, cancelable, [], [...selected], undefined);
+        },
+        execute: async (myInfo) => {
+          const target = myInfo.selectedEntities[0];
+          // フィールドにいなければ効果なし
+          if (!target.isOnFieldAsMonster) {
+            return false;
+          }
+
+          //セット状態であれば効果なし
+          if (target.battlePosition === "Set") {
+            return false;
+          }
+
+          //効果を受けない状態であれば効果なし
+          if (!target.canBeEffected(myInfo.activator, myInfo.action.entity, myInfo.action)) {
+            myInfo.activator.duel.log.info(`${target.toString()}は${myInfo.action.entity.toString()}の効果を受けない。`);
+            return;
+          }
+          target.numericOprsBundle.push(
+            NumericStateOperator.createLingeringAddition(
+              "攻撃力上昇",
+              (operator) => operator.effectOwner.duel.clock.isSameTurn(operator.isSpawnedAt),
+              myInfo.action.entity,
+              myInfo.action,
+              "attack",
+              (spawner: DuelEntity, monster: DuelEntity, current: number) => current + 700
+            )
+          );
+
+          return true;
+        },
+        settle: async () => true,
+      } as CardActionBase<unknown>,
+      defaultSpellTrapSetAction as CardActionBase<unknown>,
+    ],
+  });
   return result;
 };

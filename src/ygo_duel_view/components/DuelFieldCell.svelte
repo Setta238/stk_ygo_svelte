@@ -32,17 +32,29 @@
   let responseResolve: (action: DuelistResponse) => void = () => {};
   let selectedEntitiesValidator: (selectedEntities: DuelEntity[]) => boolean = () => true;
   let selectableEntities: DuelEntity[];
+  let targetsInPreviousChainBlocks: DuelEntity[] = [];
   const onWaitStart: (args: WaitStartEventArg) => void = (args) => {
     animationArg = undefined;
     selectedList.reset();
     activator = args.activator;
     responseResolve = args.resolve;
     enableActions = args.enableActions as ICardAction<unknown>[];
+    targetsInPreviousChainBlocks = args.chainBlockInfos.flatMap((info) => info.selectedEntities).getDistinct();
     selectableEntities = args.selectableEntities;
     selectedEntitiesValidator = args.entitiesValidator;
   };
   view.onWaitStart.append(onWaitStart);
 
+  const onWaitEnd = () => {
+    activator = undefined;
+    enableActions = [];
+    responseResolve = () => {};
+    selectedEntitiesValidator = () => true;
+    selectableEntities = [];
+    targetsInPreviousChainBlocks = [];
+  };
+
+  view.onWaitEnd.append(onWaitEnd);
   let draggingActions: ICardAction<unknown>[] | undefined;
   let canAcceptDrop = false;
   const onDragStart = (actions: ICardAction<unknown>[]) => {
@@ -269,6 +281,9 @@
           })
           .toReversed() as item}
           {#if !animationArg || animationArg.entity.seq !== item.entity.seq}
+            {#if targetsInPreviousChainBlocks.includes(item.entity)}
+              <div style="position: absolute; top:0rem">｛効果対象｝</div>
+            {/if}
             <div style="position: absolute; display:flex;justify-content: center;" out:send={{ key: item.entity.seq }}>
               <DuelCard
                 entity={item.entity}

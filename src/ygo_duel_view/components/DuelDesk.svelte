@@ -26,7 +26,7 @@
   let retryFlg = false;
   let response: (Action: DuelistResponse) => void = () => {};
   let selectedEntitiesValidator: (selectedEntities: DuelEntity[]) => boolean = () => true;
-  let selectableEntities: DuelEntity[];
+  let selectableEntities: DuelEntity[] = [];
 
   const onWaitStart: (args: WaitStartEventArg) => void = (args) => {
     response = args.resolve;
@@ -41,6 +41,14 @@
     }
   };
   duel.view.onWaitStart.append(onWaitStart);
+
+  const onWaitEnd: () => void = () => {
+    response = () => {};
+    selectedEntitiesValidator = () => true;
+    selectableEntities = [];
+  };
+
+  duel.view.onWaitEnd.append(onWaitEnd);
 
   let focusedCard: DuelEntity | undefined = undefined;
   let focusedCardMode: TCardDetailMode = "Normal";

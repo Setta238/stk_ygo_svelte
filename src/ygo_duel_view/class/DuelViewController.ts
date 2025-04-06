@@ -18,6 +18,7 @@ export type WaitStartEventArg = {
   qty: number | undefined;
   selectableEntities: DuelEntity[];
   entitiesValidator: (selectedEntities: DuelEntity[]) => boolean;
+  chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>;
   cardActionSelectorArg?: CardActionSelectorArg; //TODO 要判断
   duelEntitiesSelectorArg?: DuelEntitiesSelectorArg; //TODO 要判断
 };
@@ -257,6 +258,7 @@ export class DuelViewController {
       activator: activator,
       enableActions,
       qty: qty,
+      chainBlockInfos: activator.duel.chainBlockInfos,
       entitiesValidator: entitiesValidator || (() => false),
       selectableEntities: selectableEntities || [],
     };

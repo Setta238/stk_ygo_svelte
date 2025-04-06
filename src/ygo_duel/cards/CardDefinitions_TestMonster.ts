@@ -1,4 +1,4 @@
-import type { CardActionBase } from "@ygo_duel/class/DuelCardAction";
+import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { defaultAttackAction, defaultBattlePotisionChangeAction, defaultNormalSummonAction } from "@ygo_duel/cards/DefaultCardAction_Monster";
 
@@ -18,7 +18,7 @@ export const createCardDefinitions_TestMonster = (): CardDefinition[] => {
 
   const def_にせアバター = {
     name: "にせアバター",
-    actions: [defaultNormalSummonAction, defaultAttackAction, defaultBattlePotisionChangeAction] as CardActionBase<unknown>[],
+    actions: [defaultNormalSummonAction, defaultAttackAction, defaultBattlePotisionChangeAction] as CardActionDefinition<unknown>[],
     continuousEffects: [
       createRegularNumericStateOperatorHandler(
         "THE_DEVILS_AVATAR",
@@ -47,7 +47,7 @@ export const createCardDefinitions_TestMonster = (): CardDefinition[] => {
 
   const def_にせドレッド・ルート = {
     name: "にせドレッド・ルート",
-    actions: [defaultNormalSummonAction, defaultAttackAction, defaultBattlePotisionChangeAction] as CardActionBase<unknown>[],
+    actions: [defaultNormalSummonAction, defaultAttackAction, defaultBattlePotisionChangeAction] as CardActionDefinition<unknown>[],
     continuousEffects: [
       createBroadRegularNumericStateOperatorHandler(
         "THE_DEVILS_DREAD-ROOT",

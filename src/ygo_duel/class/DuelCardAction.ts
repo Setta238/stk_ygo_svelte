@@ -1,31 +1,16 @@
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
-import type { DuelFieldCell, DuelFieldCellType } from "./DuelFieldCell";
+import type { DuelFieldCell } from "./DuelFieldCell";
 import { type Duelist } from "./Duelist";
 import type { DuelEntity } from "./DuelEntity";
-import type { TDuelPeriodKey } from "./DuelPeriod";
+import { CardActionBase, type CardActionDefinitionBase } from "./DuelCardActionBase";
 export const executableDuelistTypes = ["Controller", "Opponent"] as const;
 export type TExecutableDuelistType = (typeof executableDuelistTypes)[number];
 
-export const cardActionChainBlockTypes = [
-  "IgnitionEffect",
-  "MandatoryIgnitionEffect",
-  "TriggerEffect",
-  "MandatoryTriggerEffect",
-  "QuickEffect",
-  "CardActivation",
-] as const;
+export const cardActionChainBlockTypes = ["IgnitionEffect", "TriggerEffect", "QuickEffect", "CardActivation"] as const;
 export type TCardActionChainBlockType = (typeof cardActionChainBlockTypes)[number];
-export const cardActionNonChainBlockTypes = [
-  "NormalSummon",
-  "SpecialSummon",
-  "ChangeBattlePosition",
-  "Battle",
-  "SpellTrapSet",
-  "LingeringEffect",
-  "MandatoryLingeringEffect",
-] as const;
+export const cardActionNonChainBlockTypes = ["NormalSummon", "SpecialSummon", "ChangeBattlePosition", "Battle", "SpellTrapSet", "LingeringEffect"] as const;
 export type TCardActionNonChainBlockType = (typeof cardActionNonChainBlockTypes)[number];
-export type TCardActionType = TCardActionChainBlockType | TCardActionNonChainBlockType | "Dammy" | "RuleDraw" | "SystemAction";
+export type TCardActionType = TCardActionChainBlockType | TCardActionNonChainBlockType | "Dammy" | "RuleDraw" | "SystemPeriodAction";
 
 export const effectActiovationTypes = ["CardActivation", "EffectActivation", "NonActivate"] as const;
 export type TEffectActiovationType = (typeof effectActiovationTypes)[number];
@@ -97,18 +82,11 @@ export type ChainBlockInfoPrepared<T> = {
 };
 export type ChainBlockInfo<T> = ChainBlockInfoBase<T> & ChainBlockInfoPrepared<T>;
 
-export type CardActionBaseAttr = {
-  title: string;
+export type CardActionDefinitionAttr = CardActionDefinitionBase & {
   playType: TCardActionType;
   spellSpeed: TSpellSpeed;
   hasToTargetCards?: boolean;
-  executableCells: Readonly<DuelFieldCellType[]>;
-  executablePeriods: Readonly<TDuelPeriodKey[]>;
-  executableDuelistTypes: TExecutableDuelistType[];
-  isOnlyNTimesPerTurn?: number;
-  isOnlyNTimesPerDuel?: number;
-  isOnlyNTimesPerTurnIfFaceup?: number;
-  isOnlyNTimesIfFaceup?: number;
+
   actionGroupNamePerTurn?: string;
   /**
    * 光の護封剣などの例外のみ指定が必要
@@ -125,7 +103,7 @@ export type CardActionBaseAttr = {
    */
   priorityForNPC?: number;
 };
-export type CardActionBase<T> = CardActionBaseAttr & {
+export type CardActionDefinition<T> = CardActionDefinitionAttr & {
   /**
    * 発動可能かどうかの検証
    * @param entity
@@ -201,15 +179,11 @@ export interface ICardAction<T> {
 export const convertCardActionToString = (action: ICardAction<unknown>) =>
   action.playType === "CardActivation" ? action.entity.nm : `${action.entity.nm}«${action.title}»`;
 
-export class CardAction<T> implements ICardAction<T> {
-  private static nextActionSeq = 0;
-  public get isMandatory() {
-    return this.playType === "MandatoryIgnitionEffect" || this.playType === "MandatoryLingeringEffect" || this.playType === "MandatoryTriggerEffect";
-  }
-
-  public static readonly createNew = <T>(entity: DuelEntity, cardActionBase: CardActionBase<T>) => {
-    return new CardAction<T>(CardAction.nextActionSeq++, entity, cardActionBase);
+export class CardAction<T> extends CardActionBase implements ICardAction<T> {
+  public static readonly createNew = <T>(entity: DuelEntity, definition: CardActionDefinition<T>) => {
+    return new CardAction<T>("AutoSeq", entity, definition);
   };
+
   /**
    * @param entity
    * @param title
@@ -218,104 +192,58 @@ export class CardAction<T> implements ICardAction<T> {
    * @returns
    */
   public static readonly createDammyAction = (entity: DuelEntity, title: string, cells: DuelFieldCell[], pos?: TBattlePosition): ICardAction<void> => {
-    return {
-      seq: CardAction.nextActionSeq++,
+    const tmp = CardAction.createNew(entity, {
       title: title,
-      entity: entity,
+      isMandatory: false,
+      executableCells: [],
+      executablePeriods: [],
+      executableDuelistTypes: [],
       playType: "Dammy",
       spellSpeed: "Dammy",
-      hasToTargetCards: false,
-      isOnlyNTimesPerDuel: 0,
-      isOnlyNTimesPerTurn: 0,
-      isLikeContinuousSpell: false,
-      getClone: function () {
-        return this;
-      },
       validate: () => cells,
       prepare: async () => undefined,
       execute: async () => false,
       settle: async () => false,
-      pos: pos,
-      cell: cells[0],
-      dragAndDropOnly: cells.length > 1,
-    };
-  };
-  public readonly seq: number;
-  public readonly entity: DuelEntity;
-  private readonly cardActionBase: CardActionBase<T>;
-  public get title() {
-    return this.cardActionBase.title;
-  }
+    }) as ICardAction<void>;
 
+    tmp.pos = pos;
+    tmp.cell = cells[0];
+    tmp.dragAndDropOnly = cells.length > 1;
+
+    return tmp;
+  };
+  protected override get definition() {
+    return super.definition as CardActionDefinition<T>;
+  }
   public get playType() {
-    return this.cardActionBase.playType;
+    return this.definition.playType;
   }
 
   public get spellSpeed() {
-    return this.cardActionBase.spellSpeed;
+    return this.definition.spellSpeed;
   }
 
   public get hasToTargetCards() {
-    return this.cardActionBase.hasToTargetCards ?? false;
+    return this.definition.hasToTargetCards ?? false;
   }
 
-  public get executableCells() {
-    return this.cardActionBase.executableCells;
-  }
-  public get executablePeriods() {
-    return this.cardActionBase.executablePeriods;
-  }
-  public get executableDuelistTypes() {
-    return this.cardActionBase.executableDuelistTypes;
-  }
-  public get executableDuelists() {
-    const duelists: Duelist[] = [];
-
-    if (this.cardActionBase.executableDuelistTypes.includes("Controller")) {
-      duelists.push(this.entity.controller);
-    }
-    if (this.cardActionBase.executableDuelistTypes.includes("Opponent")) {
-      duelists.push(this.entity.controller.getOpponentPlayer());
-    }
-
-    return duelists;
-  }
-  public get isOnlyNTimesPerDuel() {
-    return this.cardActionBase.isOnlyNTimesPerDuel ?? 0;
-  }
-
-  public get isOnlyNTimesPerTurn() {
-    return this.cardActionBase.isOnlyNTimesPerTurn ?? 0;
-  }
-  public get isOnlyNTimesPerTurnIfFaceup() {
-    return this.cardActionBase.isOnlyNTimesPerTurnIfFaceup ?? 0;
-  }
-  public get isOnlyNTimesIfFaceup() {
-    return this.cardActionBase.isOnlyNTimesIfFaceup ?? 0;
-  }
   public get isLikeContinuousSpell() {
-    return this.cardActionBase.isLikeContinuousSpell || (this.entity.isLikeContinuousSpell && this.playType === "CardActivation");
+    return this.definition.isLikeContinuousSpell || (this.entity.isLikeContinuousSpell && this.playType === "CardActivation");
   }
 
   public get actionGroupNamePerTurn() {
-    return this.cardActionBase.actionGroupNamePerTurn;
+    return this.definition.actionGroupNamePerTurn;
   }
 
   public get negatePreviousBlock() {
-    return this.cardActionBase.negatePreviousBlock ?? false;
+    return this.definition.negatePreviousBlock ?? false;
   }
   public get priorityForNPC() {
-    return this.cardActionBase.priorityForNPC ?? Number.NaN;
-  }
-
-  private constructor(seq: number, entity: DuelEntity, cardActionBase: CardActionBase<T>) {
-    this.seq = seq;
-    this.entity = entity;
-    this.cardActionBase = cardActionBase;
+    return this.definition.priorityForNPC ?? Number.NaN;
   }
 
   public readonly getClone = () => {
-    return new CardAction<T>(this.seq, this.entity, this.cardActionBase);
+    return new CardAction<T>(this.seq, this.entity, this.definition);
   };
 
   public readonly validate = (activator: Duelist, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => {
@@ -361,7 +289,7 @@ export class CardAction<T> implements ICardAction<T> {
       isActivatedIn: this.entity.fieldCell,
       state: "unloaded",
     };
-    return this.cardActionBase.validate(myInfo, chainBlockInfos);
+    return this.definition.validate(myInfo, chainBlockInfos);
   };
   public readonly prepare = async (
     activator: Duelist,
@@ -382,7 +310,7 @@ export class CardAction<T> implements ICardAction<T> {
       isActivatedIn: isActivatedIn,
       state: "ready",
     };
-    const prepared = await this.cardActionBase.prepare(myInfo, cell, chainBlockInfos, cancelable);
+    const prepared = await this.definition.prepare(myInfo, cell, chainBlockInfos, cancelable);
     if (prepared === undefined) {
       return;
     }
@@ -396,7 +324,7 @@ export class CardAction<T> implements ICardAction<T> {
       return false;
     }
 
-    const result = await this.cardActionBase.execute(myInfo, chainBlockInfos);
+    const result = await this.definition.execute(myInfo, chainBlockInfos);
 
     // TODO 確認：永続魔法類の発動時の効果処理と適用開始はどちらが先か？
     // 一旦、早すぎた埋葬に便利なので、効果処理を先に行う。
@@ -410,11 +338,11 @@ export class CardAction<T> implements ICardAction<T> {
   };
   public readonly settle = (myInfo: ChainBlockInfo<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => {
     if (this.isOnlyNTimesPerTurnIfFaceup > 0) {
-      this.entity.counterHolder.incrementActionCountPerTurn(myInfo.action);
+      this.entity.counterHolder.incrementActionCountPerTurn(this);
     } else if (this.isOnlyNTimesIfFaceup > 0) {
-      this.entity.counterHolder.incrementActionCount(myInfo.action);
+      this.entity.counterHolder.incrementActionCount(this);
     }
-    return this.cardActionBase.settle(myInfo, chainBlockInfos);
+    return this.definition.settle(myInfo, chainBlockInfos);
   };
 
   public readonly isSame = (other: CardAction<unknown>) => this.entity.origin.name === other.entity.origin.name && this.title === other.title;

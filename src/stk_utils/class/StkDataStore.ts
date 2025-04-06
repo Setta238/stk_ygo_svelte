@@ -1,4 +1,4 @@
-import StkEvent from "@stk_utils/class/StkEvent";
+import { StkEvent } from "@stk_utils/class/StkEvent";
 import { StkAsyncDelegate } from "@stk_utils/class/StkDelegate";
 import { StkIndexedDB } from "@stk_utils/class/StkIndexedDB";
 export interface IStkDataStore {

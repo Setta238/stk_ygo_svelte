@@ -1,7 +1,7 @@
 import { defaultSpellTrapPrepare, defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/cards/DefaultCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
-import type { CardActionBase, TEffectTag } from "@ygo_duel/class/DuelCardAction";
+import type { CardActionDefinition, TEffectTag } from "@ygo_duel/class/DuelCardAction";
 import { SystemError } from "@ygo_duel/class/Duel";
 
 import type { CardDefinition } from "./CardDefinitions";
@@ -35,7 +35,7 @@ export const createCardDefinitions_NormalTrap_UponAttackDeclaration = (): CardDe
               throw new SystemError("想定されない状態", myInfo, attacker);
             }
 
-            if (!attacker.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action)) {
+            if (!attacker.canBeTargetOfEffect(myInfo)) {
               return;
             }
 
@@ -67,7 +67,7 @@ export const createCardDefinitions_NormalTrap_UponAttackDeclaration = (): CardDe
           },
           settle: async () => true,
         },
-      ] as CardActionBase<unknown>[],
+      ] as CardActionDefinition<unknown>[],
     });
   });
 

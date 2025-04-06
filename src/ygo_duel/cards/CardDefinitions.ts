@@ -1,26 +1,29 @@
-import type { CardAction, CardActionBase } from "@ygo_duel/class/DuelCardAction";
-import { createCardDefinitions_Monster } from "./CardDefinitions_Monster";
-import { createCardDefinitions_NormalSpell } from "./CardDefinitions_NormalSpell";
-import { createCardDefinitions_Monster_Preset_Recruiter } from "./CardDefinitions_Monster_Preset_Recruiter";
-import { createCardDefinitions_NormalSpell_Preset } from "./CardDefinitions_NormalSpell_Preset";
-import { createCardDefinitions_SyncroMonster } from "./CardDefinitions_SyncroMonster";
-import type { ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
-import { SystemError } from "@ygo_duel/class/Duel";
-import { createCardDefinitions_FieldSpell_Preset } from "./CardDefinitions_FieldSpell_Preset";
-import { createCardDefinitions_ContinuousSpell_Preset } from "./CardDefinitions_ContinuousSpell";
-import { createCardDefinitions_EquipSpell } from "./CardDefinitions_EquipSpell";
-import { createCardDefinitions_EquipSpell_Preset } from "./CardDefinitions_EquipSpell_Preset";
-import { createCardDefinitions_TestMonster } from "./CardDefinitions_TestMonster";
-import { createCardDefinitions_QuickPlaySpell } from "./CardDefinitions_QuickPlaySpell";
-import { createCardDefinitions_SpellCounter_Monster } from "./CardDefinitions_SpellCounter_Monster";
-import { createCardDefinitions_NormalTrap_UponAttackDeclaration } from "./CardDefinitions_NormalTrap_UponAttackDeclaration";
-import { createCardDefinitions_NormalTrap } from "./CardDefinitions_NormalTrap";
-import { createCardDefinitions_NormalSpell_General_Draw } from "./CardDefinitions_NormalSpell_General_Draw";
-import { createCardDefinitions_XyzMonster } from "./CardDefinitions_XyzMonster";
-import { createCardDefinitions_Blackwing_Monster } from "./CardDefinitions_Blackwing_Monster";
+import type { CardAction, CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
 import type { Duelist } from "@ygo_duel/class/Duelist";
 import type { DuelEntity, TMaterialCauseReason, TSummonRuleCauseReason } from "@ygo_duel/class/DuelEntity";
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
+import type { SubstituteEffectDefinition } from "@ygo_duel/class/DuelSubstituteEffect";
+import type { ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
+import { SystemError } from "@ygo_duel/class/Duel";
+import { createCardDefinitions_Monster } from "@ygo_duel/cards/CardDefinitions_Monster";
+import { createCardDefinitions_NormalSpell } from "@ygo_duel/cards/CardDefinitions_NormalSpell";
+import { createCardDefinitions_Monster_Preset_Recruiter } from "@ygo_duel/cards/CardDefinitions_Monster_Preset_Recruiter";
+import { createCardDefinitions_NormalSpell_Preset } from "@ygo_duel/cards/CardDefinitions_NormalSpell_Preset";
+import { createCardDefinitions_SyncroMonster } from "@ygo_duel/cards/CardDefinitions_SyncroMonster";
+import { createCardDefinitions_FieldSpell_Preset } from "@ygo_duel/cards/CardDefinitions_FieldSpell_Preset";
+import { createCardDefinitions_ContinuousSpell_Preset } from "@ygo_duel/cards/CardDefinitions_ContinuousSpell";
+import { createCardDefinitions_EquipSpell } from "@ygo_duel/cards/CardDefinitions_EquipSpell";
+import { createCardDefinitions_EquipSpell_Preset } from "@ygo_duel/cards/CardDefinitions_EquipSpell_Preset";
+import { createCardDefinitions_TestMonster } from "@ygo_duel/cards/CardDefinitions_TestMonster";
+import { createCardDefinitions_QuickPlaySpell } from "@ygo_duel/cards/CardDefinitions_QuickPlaySpell";
+import { createCardDefinitions_SpellCounter_Monster } from "./tag_s/CardDefinitions_SpellCounter_Monster";
+import { createCardDefinitions_NormalTrap_UponAttackDeclaration } from "@ygo_duel/cards/CardDefinitions_NormalTrap_UponAttackDeclaration";
+import { createCardDefinitions_NormalTrap } from "@ygo_duel/cards/CardDefinitions_NormalTrap";
+import { createCardDefinitions_NormalSpell_General_Draw } from "@ygo_duel/cards/CardDefinitions_NormalSpell_General_Draw";
+import { createCardDefinitions_XyzMonster } from "@ygo_duel/cards/CardDefinitions_XyzMonster";
+import { createCardDefinitions_Blackwing_Monster } from "@ygo_duel/cards/tag_b/CardDefinitions_Blackwing_Monster";
+import { createCardDefinitions_Resonator_Monster } from "@ygo_duel/cards/tag_r/CardDefinitions_Resonator_Monster";
+import { createCardDefinitions_Stardust_Monster } from "@ygo_duel/cards/tag_s/CardDefinitions_Stardust_Monster";
 
 export type MaterialInfo = {
   material: DuelEntity;
@@ -31,7 +34,7 @@ export type MaterialInfo = {
 };
 export type CardDefinition = {
   name: string;
-  actions: CardActionBase<unknown>[];
+  actions: CardActionDefinition<unknown>[];
   continuousEffects?: ContinuousEffectBase<unknown>[];
   canBeSummoned?: <T>(
     activator: Duelist,
@@ -51,6 +54,7 @@ export type CardDefinition = {
     materialInfos: MaterialInfo[],
     ignoreSummoningConditions: boolean
   ) => boolean;
+  substituteEffects?: SubstituteEffectDefinition[];
 };
 
 export const createCardDefinitions = (): CardDefinition[] => {
@@ -72,6 +76,8 @@ export const createCardDefinitions = (): CardDefinition[] => {
     ...createCardDefinitions_NormalTrap_UponAttackDeclaration(),
     ...createCardDefinitions_NormalSpell_General_Draw(),
     ...createCardDefinitions_XyzMonster(),
+    ...createCardDefinitions_Resonator_Monster(),
+    ...createCardDefinitions_Stardust_Monster(),
   ];
   const names = hoge.map((def) => def.name);
   console.info(names);

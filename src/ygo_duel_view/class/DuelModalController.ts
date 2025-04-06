@@ -1,4 +1,4 @@
-import StkEvent from "@stk_utils/class/StkEvent";
+import { StkEvent } from "@stk_utils/class/StkEvent";
 import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import type { CardActionSelectorArg } from "@ygo_duel_view/components/DuelActionSelector.svelte";
 import type { DuelEntitiesSelectorArg } from "@ygo_duel_view/components/DuelEntitiesSelector.svelte";

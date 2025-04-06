@@ -7,7 +7,7 @@ import type { DuelFieldCell } from "./DuelFieldCell";
 import { cardInfoDic } from "@ygo/class/CardInfo";
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
-import { CardAction, type CardActionBaseAttr, type ChainBlockInfo, type ICardAction, type TCardActionType } from "./DuelCardAction";
+import { CardAction, type CardActionDefinitionAttr, type ChainBlockInfo, type ICardAction, type TCardActionType } from "./DuelCardAction";
 import { max, min } from "@stk_utils/funcs/StkMathUtils";
 import type { TBanishProcType } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
 import type { MaterialInfo } from "@ygo_duel/cards/CardDefinitions";
@@ -166,7 +166,7 @@ export class Duelist {
    * @param procType
    * @param chainBlockInfo
    */
-  public readonly canTryBanish = (target: DuelEntity, procType: TBanishProcType, action: CardActionBaseAttr): boolean => {
+  public readonly canTryBanish = (target: DuelEntity, procType: TBanishProcType, action: CardActionDefinitionAttr): boolean => {
     return this.entity.procFilterBundle.operators.filter((pf) => pf.procTypes.includes(procType)).every((pf) => pf.filter(this, this.entity, action, [target]));
   };
 

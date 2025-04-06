@@ -1,5 +1,5 @@
 import { IllegalCancelError } from "@ygo_duel/class/Duel";
-import type { CardAction, CardActionBase, TEffectTag } from "@ygo_duel/class/DuelCardAction";
+import type { CardAction, CardActionDefinition, TEffectTag } from "@ygo_duel/class/DuelCardAction";
 import {} from "@ygo_duel/class/DuelEntityShortHands";
 
 import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
@@ -31,6 +31,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
         defaultBattlePotisionChangeAction,
         {
           title: "特殊召喚",
+          isMandatory: false,
           playType: "SpecialSummon",
           spellSpeed: "Normal",
           executableCells: ["Hand"],
@@ -48,8 +49,8 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
           prepare: (myInfo, cell, chainBlockInfos, cancelable) => defaultRuleSpecialSummonPrepare(myInfo, cell, ["Attack", "Defense"], [], cancelable),
           execute: defaultRuleSpecialSummonExecute,
           settle: async () => true,
-        } as CardActionBase<SummonPrepared>,
-      ] as CardActionBase<unknown>[],
+        } as CardActionDefinition<SummonPrepared>,
+      ] as CardActionDefinition<unknown>[],
     })
   );
 
@@ -61,6 +62,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
       defaultBattlePotisionChangeAction,
       {
         title: "特殊召喚",
+        isMandatory: false,
         playType: "SpecialSummon",
         spellSpeed: "Normal",
         executableCells: ["Hand"],
@@ -76,8 +78,8 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
         prepare: (myInfo, cell, chainBlockInfos, cancelable) => defaultRuleSpecialSummonPrepare(myInfo, cell, ["Attack", "Defense"], [], cancelable),
         execute: defaultRuleSpecialSummonExecute,
         settle: async () => true,
-      } as CardActionBase<SummonPrepared>,
-    ] as CardActionBase<unknown>[],
+      } as CardActionDefinition<SummonPrepared>,
+    ] as CardActionDefinition<unknown>[],
   };
 
   result.push(def_ジャンク・フォアード);
@@ -90,6 +92,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
       defaultBattlePotisionChangeAction,
       {
         title: "①リクルート",
+        isMandatory: false,
         playType: "IgnitionEffect",
         spellSpeed: "Normal",
         executableCells: ["Graveyard"],
@@ -122,8 +125,8 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
           return true;
         },
         settle: async () => true,
-      } as CardActionBase<undefined>,
-    ] as CardActionBase<unknown>[],
+      } as CardActionDefinition<undefined>,
+    ] as CardActionDefinition<unknown>[],
   };
 
   result.push(def_ディアボリックガイ);
@@ -136,6 +139,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
       defaultBattlePotisionChangeAction,
       {
         title: "①自己再生",
+        isMandatory: false,
         playType: "IgnitionEffect",
         spellSpeed: "Normal",
         executableCells: ["Graveyard"],
@@ -178,8 +182,8 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
           return true;
         },
         settle: async () => true,
-      } as CardActionBase<undefined>,
-    ] as CardActionBase<unknown>[],
+      } as CardActionDefinition<undefined>,
+    ] as CardActionDefinition<unknown>[],
   };
 
   result.push(def_ゾンビキャリア);
@@ -192,6 +196,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
       defaultBattlePotisionChangeAction,
       {
         title: "①自己再生",
+        isMandatory: false,
         playType: "IgnitionEffect",
         spellSpeed: "Normal",
         executableCells: ["Graveyard"],
@@ -223,8 +228,8 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
           return true;
         },
         settle: async () => true,
-      } as CardActionBase<undefined>,
-    ] as CardActionBase<unknown>[],
+      } as CardActionDefinition<undefined>,
+    ] as CardActionDefinition<unknown>[],
   };
 
   result.push(def_グローアップ・バルブ);
@@ -236,6 +241,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
       defaultBattlePotisionChangeAction,
       {
         title: "①墓地送り",
+        isMandatory: false,
         playType: "TriggerEffect",
         spellSpeed: "Normal",
         executableCells: ["MonsterZone"],
@@ -279,8 +285,8 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
           return true;
         },
         settle: async () => true,
-      } as CardActionBase<undefined>,
-    ] as CardActionBase<unknown>[],
+      } as CardActionDefinition<undefined>,
+    ] as CardActionDefinition<unknown>[],
   };
 
   result.push(def_終末の騎士);
@@ -292,6 +298,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
       defaultBattlePotisionChangeAction,
       {
         title: "①墓地送り",
+        isMandatory: false,
         playType: "TriggerEffect",
         spellSpeed: "Normal",
         executableCells: ["MonsterZone"],
@@ -328,9 +335,10 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
           return true;
         },
         settle: async () => true,
-      } as CardActionBase<undefined>,
+      } as CardActionDefinition<undefined>,
       {
         title: "②ドロー",
+        isMandatory: false,
         playType: "TriggerEffect",
         spellSpeed: "Normal",
         executableCells: ["Graveyard"],
@@ -360,8 +368,8 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
           return true;
         },
         settle: async () => true,
-      } as CardActionBase<undefined>,
-    ] as CardActionBase<unknown>[],
+      } as CardActionDefinition<undefined>,
+    ] as CardActionDefinition<unknown>[],
   };
 
   result.push(def_マスマティシャン);
@@ -373,7 +381,8 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
       defaultBattlePotisionChangeAction,
       {
         title: "①自己再生",
-        playType: "MandatoryTriggerEffect",
+        isMandatory: true,
+        playType: "TriggerEffect",
         spellSpeed: "Normal",
         executableCells: ["Graveyard"],
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
@@ -411,8 +420,9 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
           return true;
         },
         settle: async () => true,
-      } as CardActionBase<undefined>,
-    ] as CardActionBase<unknown>[],
+      } as CardActionDefinition<undefined>,
+    ] as CardActionDefinition<unknown>[],
+    canBeSummoned: () => true,
   };
   result.push(def_ライトロード・ビーストウォルフ);
 
@@ -424,7 +434,8 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
       defaultNormalSummonAction,
       {
         title: "①サーチ",
-        playType: "MandatoryTriggerEffect",
+        isMandatory: true,
+        playType: "TriggerEffect",
         spellSpeed: "Normal",
         executableCells: ["Graveyard"],
         executablePeriods: duelPeriodKeys,
@@ -454,8 +465,8 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
           return true;
         },
         settle: async () => true,
-      } as CardActionBase<undefined>,
-    ] as CardActionBase<unknown>[],
+      } as CardActionDefinition<undefined>,
+    ] as CardActionDefinition<unknown>[],
   };
   result.push(def_伝説の白石);
 
@@ -479,6 +490,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
         defaultNormalSummonAction,
         {
           title: "①無効化",
+          isMandatory: false,
           playType: "QuickEffect",
           spellSpeed: "Quick",
           executableCells: ["Hand"],
@@ -505,15 +517,15 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
             return true;
           },
           settle: async () => true,
-        },
-      ] as CardActionBase<unknown>[],
+        } as CardActionDefinition<undefined>,
+      ] as CardActionDefinition<unknown>[],
     });
   });
 
   ["翻弄するエルフの剣士", "ロードランナー", "氷結界の修験者"].forEach((name) => {
     result.push({
       name: name,
-      actions: [defaultAttackAction, defaultBattlePotisionChangeAction, defaultNormalSummonAction] as CardActionBase<unknown>[],
+      actions: [defaultAttackAction, defaultBattlePotisionChangeAction, defaultNormalSummonAction] as CardActionDefinition<unknown>[],
       continuousEffects: [
         createRegularProcFilterHandler(
           "①戦闘破壊耐性",
@@ -531,6 +543,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
                 () => true,
                 ["BattleDestroy"],
                 (activator, enemy) => {
+                  console.log(activator, enemy);
                   if (!source.isEffective) {
                     return true;
                   }

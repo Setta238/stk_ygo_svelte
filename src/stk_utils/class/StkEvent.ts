@@ -2,7 +2,7 @@ export interface IStkEvent<T> {
   append(handler: { (data: T): void | "RemoveMe" }): void;
   remove(handler: { (data: T): void | "RemoveMe" }): void;
 }
-export default class StkEvent<T> {
+export class StkEvent<T> {
   private handlers: { (data: T): void | "RemoveMe" }[] = [];
 
   public append(handler: { (data: T): void | "RemoveMe" }): void {
@@ -29,7 +29,44 @@ export default class StkEvent<T> {
     return this;
   }
 }
+export interface IStkAsyncEvent<T> {
+  append(handler: { (data: T): Promise<void | "RemoveMe"> }): void;
+  remove(handler: { (data: T): Promise<void | "RemoveMe"> }): void;
+}
+export class StkAsyncEvent<T> {
+  private handlers: { (data: T): Promise<void | "RemoveMe"> }[] = [];
 
+  public append(handler: { (data: T): Promise<void | "RemoveMe"> }): void {
+    this.handlers.push(handler);
+  }
+
+  public remove(handler: { (data: T): Promise<void | "RemoveMe"> }): void {
+    this.handlers = this.handlers.filter((h) => h !== handler);
+  }
+
+  public async trigger(data: T) {
+    const items = await Promise.all(
+      this.handlers.slice(0).map(async (h) => {
+        const result = await h(data);
+        return { h, result };
+      })
+    );
+
+    items
+      .filter((item) => item.result === "RemoveMe")
+      .map((item) => item.h)
+      .forEach((h) => this.remove(h));
+  }
+
+  public clear() {
+    this.handlers.splice(0);
+  }
+
+  public expose(): IStkAsyncEvent<T> {
+    //追加・除外以外の操作を他クラスからさせないためにキャストする。
+    return this;
+  }
+}
 //下のAの型を任意にできそうだったが、諦めた。
 // type StkEventConstructor<A> = {    (): StkEvent<A>;  };
 // type StkEventDefs<A> = Record<string, StkEventConstructor<A>>;

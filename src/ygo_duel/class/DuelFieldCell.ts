@@ -1,4 +1,4 @@
-import StkEvent from "../../stk_utils/class/StkEvent";
+import { StkEvent } from "../../stk_utils/class/StkEvent";
 import { duelEntityCardTypes, duelEntityDammyTypes } from "./DuelEntity";
 import type { DuelEntity } from "./DuelEntity";
 import type { DuelField } from "./DuelField";

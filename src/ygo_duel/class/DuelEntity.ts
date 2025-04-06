@@ -30,7 +30,7 @@ import { type Duelist } from "./Duelist";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import { cardDefinitionDic, cardInfoDic } from "@ygo/class/CardInfo";
-import { CardAction, type CardActionBase, type ChainBlockInfo } from "./DuelCardAction";
+import { CardAction, type CardActionDefinition, type ChainBlockInfo } from "./DuelCardAction";
 import { ProcFilterBundle } from "../class_continuous_effect/DuelProcFilter";
 import { ContinuousEffect, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { NumericStateOperatorBundle } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
@@ -40,8 +40,9 @@ import { DuelEntityLog } from "./DuelEntityLog";
 import { CounterHolder, type TCounterName } from "./DuelCounter";
 import { StatusOperatorBundle } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 import { defaultAttackAction, defaultBattlePotisionChangeAction, defaultNormalSummonAction } from "@ygo_duel/cards/DefaultCardAction_Monster";
-import StkEvent from "@stk_utils/class/StkEvent";
+import { StkAsyncEvent } from "@stk_utils/class/StkEvent";
 import type { CardDefinition, MaterialInfo } from "@ygo_duel/cards/CardDefinitions";
+import { SubstituteEffect } from "./DuelSubstituteEffect";
 export type EntityStatus = {
   canAttack: boolean;
   canDirectAttack: boolean;
@@ -563,14 +564,14 @@ export class DuelEntity {
       .map((cell) => cell.shuffle());
   };
 
-  private readonly onBeforeMoveEvent = new StkEvent<{
+  private readonly onBeforeMoveEvent = new StkAsyncEvent<{
     entity: DuelEntity;
     args: Readonly<Parameters<typeof DuelEntity.prototype._move>>;
   }>();
   public get onBeforeMove() {
     return this.onBeforeMoveEvent.expose();
   }
-  private readonly onAfterMoveEvent = new StkEvent<DuelEntity>();
+  private readonly onAfterMoveEvent = new StkAsyncEvent<DuelEntity>();
   public get onAfterMove() {
     return this.onAfterMoveEvent.expose();
   }
@@ -613,6 +614,7 @@ export class DuelEntity {
 
   public readonly actions: CardAction<unknown>[] = [];
   public readonly continuousEffects: ContinuousEffect<unknown>[] = [];
+  public readonly substituteEffects: SubstituteEffect[] = [];
   public readonly canBeSummoned: <T>(
     activator: Duelist,
     action: CardAction<T>,
@@ -811,14 +813,15 @@ export class DuelEntity {
     this.moveLog = new DuelEntityLog(this);
     this.moveLog.pushForRuleAction(["Spawn"]);
 
-    let actionBases: CardActionBase<unknown>[] = [];
+    let actionBases: CardActionDefinition<unknown>[] = [];
     let continuousEffectBases: ContinuousEffectBase<unknown>[] = [];
 
     if (this.origin.kind === "Monster" && this.origin.monsterCategories?.includes("Normal")) {
-      actionBases = [defaultNormalSummonAction, defaultAttackAction, defaultBattlePotisionChangeAction] as CardActionBase<unknown>[];
+      actionBases = [defaultNormalSummonAction, defaultAttackAction, defaultBattlePotisionChangeAction] as CardActionDefinition<unknown>[];
     } else if (cardDefinition) {
       actionBases = cardDefinition.actions;
       continuousEffectBases = cardDefinition.continuousEffects ?? [];
+      this.substituteEffects.push(...(cardDefinition.substituteEffects ?? []).map((base) => SubstituteEffect.createNew(this, base)));
     }
     this.actions.push(...actionBases.map((b) => CardAction.createNew(this, b)));
     this.continuousEffects.push(...continuousEffectBases.map((b) => ContinuousEffect.createNew(this, b)));
@@ -848,7 +851,7 @@ export class DuelEntity {
     };
   }
 
-  public readonly toString = () => `《${this.nm}》`;
+  public readonly toString = () => (this.entityType === "Card" ? `《${this.nm}》` : this.nm);
 
   public readonly setBattlePosition = async (pos: TBattlePosition, movedAs: TDuelCauseReason[], movedBy?: DuelEntity, actionOwner?: Duelist): Promise<void> => {
     // ログテキストを準備
@@ -1043,24 +1046,25 @@ export class DuelEntity {
           return;
         }
       }
-
-      // モンスターゾーンを離れる時の処理
-      if ((this.fieldCell.isMonsterZoneLikeCell && !to.isMonsterZoneLikeCell) || kind !== "Monster") {
-        // 装備していたカードにマーキング
-        this.info.equipEntities
-          .filter((equip) => equip.isOnFieldAsSpellTrap)
-          .forEach((equip) => {
-            equip.info.isDying = true;
-            equip.info.causeOfDeath = ["RuleDestroy"];
-            this.controller.writeInfoLog(`装備対象${this.toString()}不在により${equip.toString()}は破壊された。`);
+      if (this.status.kind !== "XyzMaterial") {
+        // モンスターゾーンを離れる時の処理
+        if ((this.fieldCell.isMonsterZoneLikeCell && !to.isMonsterZoneLikeCell) || kind !== "Monster") {
+          // 装備していたカードにマーキング
+          this.info.equipEntities
+            .filter((equip) => equip.isOnFieldAsSpellTrap)
+            .forEach((equip) => {
+              equip.info.isDying = true;
+              equip.info.causeOfDeath = ["RuleDestroy"];
+              this.controller.writeInfoLog(`装備対象${this.toString()}不在により${equip.toString()}は破壊された。`);
+            });
+          this.info.equipEntities = [];
+          // XYZ素材にマーキング
+          this.fieldCell.xyzMaterials.forEach((material) => {
+            material.info.isDying = true;
+            material.info.causeOfDeath = ["LostXyzOwner"];
+            this.controller.writeInfoLog(`エクシーズモンスター${this.toString()}不在により${material.toString()}は墓地に送られた。`);
           });
-        this.info.equipEntities = [];
-        // XYZ素材にマーキング
-        this.fieldCell.xyzMaterials.forEach((material) => {
-          material.info.isDying = true;
-          material.info.causeOfDeath = ["LostXyzOwner"];
-          this.controller.writeInfoLog(`エクシーズモンスター${this.toString()}不在により${material.toString()}は墓地に送られた。`);
-        });
+        }
       }
 
       // 魔法罠を離れる時の処理
@@ -1083,8 +1087,8 @@ export class DuelEntity {
       }
     }
 
-    if (this.isOnField && this.face === "FaceDown") {
-      // セット状態になった場合
+    if ((this.isOnField && this.face === "FaceDown") || kind === "XyzMaterial") {
+      // セット状態になった場合、またはエクシーズ素材になった場合。
 
       // 装備していたカードにマーキング
       this.info.equipEntities.forEach((equip) => {
@@ -1205,7 +1209,7 @@ export class DuelEntity {
     this.resetNumericStatus();
     this.resetStatus();
   };
-  private readonly resetCauseOfDeath = () => {
+  public readonly resetCauseOfDeath = () => {
     this.info.isDying = false;
     this.info.causeOfDeath = [];
     this.info.isKilledBy = undefined;

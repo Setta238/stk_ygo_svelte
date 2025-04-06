@@ -1,7 +1,7 @@
 import { defaultSpellTrapPrepare, defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/cards/DefaultCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
-import type { CardActionBase } from "@ygo_duel/class/DuelCardAction";
+import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
 
 import type { CardDefinition } from "./CardDefinitions";
 import { freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
@@ -16,6 +16,7 @@ export const createCardDefinitions_NormalTrap = (): CardDefinition[] => {
       defaultSpellTrapSetAction,
       {
         title: "発動",
+        isMandatory: false,
         playType: "CardActivation",
         spellSpeed: "Quick",
         executableCells: ["SpellAndTrapZone"],
@@ -40,7 +41,7 @@ export const createCardDefinitions_NormalTrap = (): CardDefinition[] => {
         },
         settle: async () => true,
       },
-    ] as CardActionBase<unknown>[],
+    ] as CardActionDefinition<unknown>[],
   });
 
   result.push({
@@ -48,6 +49,7 @@ export const createCardDefinitions_NormalTrap = (): CardDefinition[] => {
     actions: [
       {
         title: "発動",
+        isMandatory: false,
         playType: "CardActivation",
         spellSpeed: "Quick",
         executableCells: ["SpellAndTrapZone"],
@@ -65,7 +67,7 @@ export const createCardDefinitions_NormalTrap = (): CardDefinition[] => {
               .flatMap((cell) => cell.cardEntities)
               .filter((card) => card.status.kind === "Monster")
               .filter((card) => card.info.isRebornable)
-              .filter((card) => card.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action))
+              .filter((card) => card.canBeTargetOfEffect(myInfo))
               .filter((card) => card.canBeSummoned(myInfo.activator, myInfo.action, "SpecialSummon", "Defense", [], false))
               .some((card) => myInfo.activator.canSummon(myInfo.activator, card, myInfo.action, "SpecialSummon", "Defense", []))
           ) {
@@ -81,7 +83,7 @@ export const createCardDefinitions_NormalTrap = (): CardDefinition[] => {
               .flatMap((gy) => gy.cardEntities)
               .filter((card) => card.status.kind === "Monster")
               .filter((card) => card.info.isRebornable)
-              .filter((card) => card.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action))
+              .filter((card) => card.canBeTargetOfEffect(myInfo))
               .filter((card) => card.canBeSummoned(myInfo.activator, myInfo.action, "SpecialSummon", "Defense", [], false))
               .filter((card) => myInfo.activator.canSummon(myInfo.activator, card, myInfo.action, "SpecialSummon", "Defense", [])),
             1,
@@ -101,9 +103,9 @@ export const createCardDefinitions_NormalTrap = (): CardDefinition[] => {
           return true;
         },
         settle: async () => true,
-      } as CardActionBase<unknown>,
-      defaultSpellTrapSetAction as CardActionBase<unknown>,
-    ] as CardActionBase<unknown>[],
+      } as CardActionDefinition<unknown>,
+      defaultSpellTrapSetAction as CardActionDefinition<unknown>,
+    ] as CardActionDefinition<unknown>[],
   });
   return result;
 };

@@ -1,10 +1,14 @@
-import type { CardAction } from "./DuelCardAction";
+import type { CardActionBase } from "./DuelCardActionBase";
+import type { DuelEntity } from "./DuelEntity";
 
 export const actualCounterNames = ["SpellCounter", "KaijuCounter", "NamelessCounter"] as const;
 export type TActualCounterName = (typeof actualCounterNames)[number];
-export const stickyTemporaryCounterNames = ["CycleFlip"] as const;
+export const namedSystemCounterNames = ["SonicBarrier"] as const;
+export type TNamedSystemCounterName = (typeof namedSystemCounterNames)[number];
+
+export const stickyTemporaryCounterNames = ["CycleFlip", "SonicBarrier"] as const;
 export type TStickyTemporaryCounterName = (typeof stickyTemporaryCounterNames)[number];
-export const stickyCounterNames = ["CycleFlip", "GoldSarcophagus"] as const;
+export const stickyCounterNames = ["GoldSarcophagus"] as const;
 export type TStickyCounterName = (typeof stickyCounterNames)[number];
 export const counterNames = [...actualCounterNames, ...stickyTemporaryCounterNames, ...stickyCounterNames] as const;
 export type TCounterName = (typeof counterNames)[number];
@@ -22,43 +26,75 @@ export const actualCounterEmojiDic: { [key in TActualCounterName]: string } = {
 };
 
 export class CounterHolder {
-  private readonly dic: { [name: string]: number };
+  private readonly dic: { [name: string]: DuelEntity[] };
   private readonly temporaryCounterNames: string[];
   constructor() {
     this.dic = {};
     this.temporaryCounterNames = [];
   }
 
-  public readonly add = (name: TCounterName, qty: number = 1) => {
-    this.dic[name] = (this.dic[name] ?? 0) + qty;
+  public readonly add = (name: TCounterName, qty: number = 1, by: DuelEntity) => {
+    this.dic[name] = [...(this.dic[name] ?? []), ...Array(qty).fill(by)];
     return this.dic[name];
   };
-  public readonly setQty = (name: TCounterName, qty: number = 1) => {
-    this.dic[name] = qty;
+  public readonly setQty = (name: TCounterName, qty: number = 1, by: DuelEntity) => {
+    this.dic[name] = [...Array(qty).fill(by)];
     return this.dic[name];
   };
-  public readonly remove = (name: TCounterName, qty: number = 1) => {
-    this.dic[name] = (this.dic[name] ?? 0) - qty;
+  public readonly remove = (name: TCounterName, qty: number = 1, by?: DuelEntity) => {
+    const currentQty = this.dic[name].length;
+    if (currentQty === undefined) {
+      return [];
+    }
+    if (qty >= currentQty) {
+      delete this.dic[name];
+      return [];
+    }
+
+    if (by) {
+      const tmp = this.dic[name].filter((entity) => entity === by);
+      const rest = this.dic[name].filter((entity) => entity !== by);
+
+      this.dic[name] = [...tmp.slice(qty), ...rest];
+    } else {
+      this.dic[name] = this.dic[name].slice(qty);
+    }
+
     return this.dic[name];
   };
-  public readonly removeAll = (name: TCounterName) => {
+  public readonly removeAll = (name: TCounterName, by?: DuelEntity) => {
+    if (by) {
+      const qty = this.dic[name].filter((entity) => entity === by).length;
+      this.dic[name] = this.dic[name].filter((entity) => entity !== by);
+      return qty;
+    }
     const qty = this.dic[name];
+
     delete this.dic[name];
     return qty;
   };
-  public readonly getQty = (name: TCounterName) => {
-    return this.dic[name] ?? 0;
+  public readonly getQty = (name: TCounterName, by?: DuelEntity) => {
+    if (!this.dic[name]) {
+      return 0;
+    }
+    if (by) {
+      return this.dic[name].filter((entity) => entity === by).length;
+    }
+    return this.dic[name].length ?? 0;
   };
 
-  public readonly incrementActionCountPerTurn = <T>(action: CardAction<T>) => {
+  public readonly incrementActionCountPerTurn = (action: CardActionBase) => {
     this.temporaryCounterNames.push(action.title);
-    this.dic[action.title] = (this.dic[action.title] ?? 0) + 1;
+    this.incrementActionCount(action);
   };
-  public readonly incrementActionCount = <T>(action: CardAction<T>) => {
-    this.dic[action.title] = (this.dic[action.title] ?? 0) + 1;
+  public readonly incrementActionCount = (action: CardActionBase) => {
+    this.dic[action.title] = [action.entity, ...(this.dic[action.title] ?? [])];
   };
-  public readonly getActionCount = <T>(action: CardAction<T>) => {
-    return this.dic[action.title] ?? 0;
+  public readonly getActionCount = (action: CardActionBase) => {
+    if (!this.dic[action.title]) {
+      return 0;
+    }
+    return this.dic[action.title].filter((entity) => entity === action.entity).length;
   };
 
   /**

@@ -7,7 +7,7 @@ import {
 } from "@ygo_duel/class_continuous_effect/DuelStickyEffectOperatorBase";
 import { Duel, SystemError } from "@ygo_duel/class/Duel";
 import { entityFlexibleStatusKeys, type TEntityFlexibleNumericStatusGen, type TEntityFlexibleNumericStatusKey } from "@ygo/class/YgoTypes";
-import type { CardActionBaseAttr } from "@ygo_duel/class/DuelCardAction";
+import type { CardActionDefinitionAttr } from "@ygo_duel/class/DuelCardAction";
 
 export const stateOperationTypes = ["Addition", "Fixation", "THE_DEVILS_DREAD-ROOT", "THE_DEVILS_AVATAR", "Gradius'_Option"] as const;
 type TStateOperationType = (typeof stateOperationTypes)[number];
@@ -191,18 +191,19 @@ export class NumericStateOperatorBundle extends StickyEffectOperatorBundle<Numer
       this.entity.numericStatus.calculated[targetState] = this.entity.origin[targetState];
       return;
     }
+    // カード記載の値
+    const originValue = this.entity.origin[targetState] ?? 0;
+    // 前回のwipの値
+    const previousWipValue = this.entity.numericStatus.wip[targetState] ?? 0;
 
     // 対象ステータスのオペレータを抽出
     const opeList = this._operators.filter((ope) => ope.targetState === targetState).filter((oldOpe) => oldOpe.isEffective);
+
     // 邪神アバター、オプション類の場合、計算を一度スキップする
     if (opeList.some((ope) => ope.stateOperationType === "THE_DEVILS_AVATAR" || ope.stateOperationType === "Gradius'_Option") && this.entity.isEffective) {
       this.entity.numericStatus.calculated[targetState] = -Number.MAX_VALUE;
       return;
     }
-    // カード記載の値
-    const originValue = this.entity.origin[targetState] ?? 0;
-    // 前回のwipの値
-    const previousWipValue = this.entity.numericStatus.wip[targetState] ?? 0;
 
     // 元々の値の計算
     const oOpe = opeList.filter((oldOpe) => oldOpe.targetState === targetState).findLast((oldOpe) => oldOpe.targetStateGen === "origin");
@@ -269,7 +270,7 @@ export class NumericStateOperator extends StickyEffectOperatorBase {
     title: string,
     validateAlive: (operator: StickyEffectOperatorBase) => boolean,
     isSpawnedBy: DuelEntity,
-    actionAttr: Partial<CardActionBaseAttr>,
+    actionAttr: Partial<CardActionDefinitionAttr>,
     targetState: TEntityFlexibleNumericStatusKey,
     calcValue: (spawner: DuelEntity, target: DuelEntity, current: number) => number
   ) => {
@@ -280,7 +281,7 @@ export class NumericStateOperator extends StickyEffectOperatorBase {
     title: string,
     validateAlive: (operator: StickyEffectOperatorBase) => boolean,
     isSpawnedBy: DuelEntity,
-    actionAttr: Partial<CardActionBaseAttr>,
+    actionAttr: Partial<CardActionDefinitionAttr>,
     targetState: TEntityFlexibleNumericStatusKey,
     calcValue: (spawner: DuelEntity, target: DuelEntity, current: number) => number
   ) => {
@@ -326,7 +327,7 @@ export class NumericStateOperator extends StickyEffectOperatorBase {
     validateAlive: (operator: StickyEffectOperatorBase) => boolean,
     isContinuous: boolean,
     isSpawnedBy: DuelEntity,
-    actionAttr: Partial<CardActionBaseAttr>,
+    actionAttr: Partial<CardActionDefinitionAttr>,
 
     isApplicableTo: (operator: StickyEffectOperatorBase, target: DuelEntity) => boolean,
     targetState: TEntityFlexibleNumericStatusKey,

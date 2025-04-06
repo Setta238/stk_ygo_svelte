@@ -1,4 +1,4 @@
-import type { CardActionBase } from "@ygo_duel/class/DuelCardAction";
+import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
 import {
   defaultAttackAction,
   defaultBattlePotisionChangeAction,
@@ -17,7 +17,7 @@ export const createCardDefinitions_XyzMonster = (): CardDefinition[] => {
   ].forEach((item) =>
     result.push({
       name: item.name,
-      actions: [defaultAttackAction, defaultBattlePotisionChangeAction, getDefaultXyzSummonAction(item.qty, item.qty)] as CardActionBase<unknown>[],
+      actions: [defaultAttackAction, defaultBattlePotisionChangeAction, getDefaultXyzSummonAction(item.qty, item.qty)] as CardActionDefinition<unknown>[],
       canBeSummoned: defaultCanBeSummoned,
     })
   );

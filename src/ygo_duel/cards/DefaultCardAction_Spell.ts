@@ -1,6 +1,6 @@
 import {
   CardAction,
-  type CardActionBase,
+  type CardActionDefinition,
   type ChainBlockInfo,
   type ChainBlockInfoBase,
   type ChainBlockInfoPrepared,
@@ -84,13 +84,15 @@ export const defaultSpellTrapSetExecute = async (myInfo: ChainBlockInfo<{ dest: 
   return true;
 };
 
-export const defaultSpellTrapSetAction: CardActionBase<{ dest: DuelFieldCell }> = {
+export const defaultSpellTrapSetAction: CardActionDefinition<{ dest: DuelFieldCell }> = {
   title: "セット",
   playType: "SpellTrapSet",
   spellSpeed: "Normal",
   executableCells: ["Hand"],
   executablePeriods: ["main1", "main2"],
   executableDuelistTypes: ["Controller"],
+  isMandatory: false,
+
   validate: defaultSpellTrapSetValidate,
   prepare: defaultSpellTrapSetPrepare,
   execute: defaultSpellTrapSetExecute,
@@ -180,7 +182,7 @@ export const defaultEquipSpellTrapValidate = <T>(
   const monsters = myInfo.action.entity.field
     .getMonstersOnField()
     .filter((monster) => monster.face === "FaceUp")
-    .filter((monster) => monster.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action as CardAction<unknown>))
+    .filter((monster) => monster.canBeTargetOfEffect(myInfo))
     .filter((monster) => validateEquipOwner(monster, myInfo.action.entity));
   return monsters.length ? defaultSpellTrapValidate(myInfo) : undefined;
 };
@@ -197,7 +199,7 @@ export const defaultEquipSpellTrapPrepare = async <T>(
   const monsters = myInfo.action.entity.field
     .getMonstersOnField()
     .filter((monster) => monster.face === "FaceUp")
-    .filter((monster) => monster.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action as CardAction<unknown>))
+    .filter((monster) => monster.canBeTargetOfEffect(myInfo))
     .filter((monster) => validateEquipOwner(monster, myInfo.action.entity));
   const targets = await myInfo.action.entity.duel.view.waitSelectEntities(
     myInfo.activator,
@@ -235,9 +237,10 @@ export const defaultEquipSpellTrapExecute = async <T>(
   return true;
 };
 
-export const getDefaultEquipSpellTrapAction = (filter: (monster: DuelEntity) => boolean = () => true): CardActionBase<unknown> => {
+export const getDefaultEquipSpellTrapAction = (filter: (monster: DuelEntity) => boolean = () => true): CardActionDefinition<unknown> => {
   return {
     title: "発動",
+    isMandatory: false,
     playType: "CardActivation",
     spellSpeed: "Normal",
     executableCells: ["Hand", "SpellAndTrapZone"],

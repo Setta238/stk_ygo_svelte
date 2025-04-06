@@ -1,5 +1,5 @@
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
-import type { CardActionBase } from "@ygo_duel/class/DuelCardAction";
+import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
 import { DuelEntity, type TDestoryCauseReason } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
 import { defaultAttackAction, defaultBattlePotisionChangeAction, defaultNormalSummonAction } from "@ygo_duel/cards/DefaultCardAction_Monster";
@@ -14,9 +14,10 @@ const getDefalutRecruiterAction = (
   posList: TBattlePosition[],
   destoryTypes: TDestoryCauseReason[],
   executableCells: DuelFieldCellType[]
-): CardActionBase<undefined> => {
+): CardActionDefinition<undefined> => {
   return {
     title: "①リクルート",
+    isMandatory: false,
     playType: "TriggerEffect",
     spellSpeed: "Normal",
     executableCells: executableCells,
@@ -24,18 +25,21 @@ const getDefalutRecruiterAction = (
     executableDuelistTypes: ["Controller"],
     validate: (myInfo) => {
       if (!myInfo.action.entity.wasMovedAtPreviousChain) {
+        console.log(myInfo.action.entity.toString(), myInfo);
         return;
       }
-      if (!myInfo.action.entity.moveLog.latestRecord.movedAs.includes("BattleDestroy")) {
+      if (!myInfo.action.entity.moveLog.latestRecord.movedAs.union(destoryTypes).length) {
+        console.log(myInfo.action.entity.toString(), myInfo);
         return;
       }
       const monsters = myInfo.activator.getDeckCell().cardEntities.filter(monsterFilter);
       if (monsters.length === 0) {
+        console.log(myInfo.action.entity.toString(), myInfo);
         return;
       }
 
       if (
-        monsters.some((monster) =>
+        !monsters.some((monster) =>
           posList.some(
             (pos) =>
               myInfo.activator.canSummon(myInfo.activator, monster, myInfo.action, "SpecialSummon", pos, []) &&
@@ -43,6 +47,7 @@ const getDefalutRecruiterAction = (
           )
         )
       ) {
+        console.log(myInfo.action.entity.toString(), myInfo);
         return;
       }
       return [];
@@ -284,7 +289,7 @@ export const createCardDefinitions_Monster_Preset_Recruiter = (): CardDefinition
         defaultAttackAction,
         defaultBattlePotisionChangeAction,
         defaultNormalSummonAction,
-      ] as CardActionBase<unknown>[],
+      ] as CardActionDefinition<unknown>[],
     });
   });
   return result;

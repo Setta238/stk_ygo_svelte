@@ -2,13 +2,14 @@ import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { defaultSpellTrapPrepare, defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/cards/DefaultCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
-import type { CardActionBase, TEffectTag } from "@ygo_duel/class/DuelCardAction";
+import type { CardActionDefinition, TEffectTag } from "@ygo_duel/class/DuelCardAction";
 
 import type { CardDefinition } from "./CardDefinitions";
 
-const getDefaultSearchSpellAction = (filter: (card: DuelEntity) => boolean): CardActionBase<undefined> => {
+const getDefaultSearchSpellAction = (filter: (card: DuelEntity) => boolean): CardActionDefinition<undefined> => {
   return {
     title: "発動",
+    isMandatory: false,
     playType: "CardActivation",
     spellSpeed: "Normal",
     executableCells: ["Hand", "SpellAndTrapZone"],
@@ -51,9 +52,10 @@ const getDefaultSearchSpellAction = (filter: (card: DuelEntity) => boolean): Car
     settle: async () => true,
   };
 };
-const getDefaultSalvageSpellAction = (filter: (card: DuelEntity) => boolean, qty: number): CardActionBase<undefined> => {
+const getDefaultSalvageSpellAction = (filter: (card: DuelEntity) => boolean, qty: number): CardActionDefinition<undefined> => {
   return {
     title: "発動",
+    isMandatory: false,
     playType: "CardActivation",
     spellSpeed: "Normal",
     executableCells: ["Hand", "SpellAndTrapZone"],
@@ -92,9 +94,10 @@ const getDefaultSalvageSpellAction = (filter: (card: DuelEntity) => boolean, qty
     settle: async () => true,
   };
 };
-const getLikeTradeInAction = (filter: (card: DuelEntity) => boolean): CardActionBase<undefined> => {
+const getLikeTradeInAction = (filter: (card: DuelEntity) => boolean): CardActionDefinition<undefined> => {
   return {
     title: "発動",
+    isMandatory: false,
     playType: "CardActivation",
     spellSpeed: "Normal",
     executableCells: ["Hand", "SpellAndTrapZone"],
@@ -126,9 +129,10 @@ const getLikeTradeInAction = (filter: (card: DuelEntity) => boolean): CardAction
   };
 };
 
-const getDefaultHealBurnSpellAction = (calcDamage: (entity: DuelEntity) => [number, number]): CardActionBase<undefined> => {
+const getDefaultHealBurnSpellAction = (calcDamage: (entity: DuelEntity) => [number, number]): CardActionDefinition<undefined> => {
   return {
     title: "発動",
+    isMandatory: false,
     playType: "CardActivation",
     spellSpeed: "Normal",
     executableCells: ["Hand", "SpellAndTrapZone"],
@@ -217,7 +221,7 @@ export const createCardDefinitions_NormalSpell_Preset = (): CardDefinition[] => 
   ].forEach((item) => {
     result.push({
       name: item.name,
-      actions: [getDefaultSearchSpellAction(item.filter), defaultSpellTrapSetAction] as CardActionBase<unknown>[],
+      actions: [getDefaultSearchSpellAction(item.filter), defaultSpellTrapSetAction] as CardActionDefinition<unknown>[],
     });
   });
 
@@ -255,7 +259,7 @@ export const createCardDefinitions_NormalSpell_Preset = (): CardDefinition[] => 
   ].forEach((item) => {
     result.push({
       name: item.name,
-      actions: [getDefaultSalvageSpellAction(item.filter, item.qty), defaultSpellTrapSetAction] as CardActionBase<unknown>[],
+      actions: [getDefaultSalvageSpellAction(item.filter, item.qty), defaultSpellTrapSetAction] as CardActionDefinition<unknown>[],
     });
   });
   [
@@ -278,7 +282,7 @@ export const createCardDefinitions_NormalSpell_Preset = (): CardDefinition[] => 
   ].forEach((item) => {
     result.push({
       name: item.name,
-      actions: [getLikeTradeInAction(item.filter), defaultSpellTrapSetAction] as CardActionBase<unknown>[],
+      actions: [getLikeTradeInAction(item.filter), defaultSpellTrapSetAction] as CardActionDefinition<unknown>[],
     });
   });
   [
@@ -337,7 +341,7 @@ export const createCardDefinitions_NormalSpell_Preset = (): CardDefinition[] => 
   ].forEach((item) => {
     result.push({
       name: item.name,
-      actions: [getDefaultHealBurnSpellAction(item.calcHeal), defaultSpellTrapSetAction] as CardActionBase<unknown>[],
+      actions: [getDefaultHealBurnSpellAction(item.calcHeal), defaultSpellTrapSetAction] as CardActionDefinition<unknown>[],
     });
   });
   return result;

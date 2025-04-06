@@ -1,7 +1,7 @@
 import { defaultSpellTrapPrepare, defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/cards/DefaultCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
-import type { CardActionBase, TEffectTag } from "@ygo_duel/class/DuelCardAction";
+import type { CardActionDefinition, TEffectTag } from "@ygo_duel/class/DuelCardAction";
 import { IllegalCancelError } from "@ygo_duel/class/Duel";
 
 import type { CardDefinition } from "./CardDefinitions";
@@ -18,6 +18,7 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
       defaultSpellTrapSetAction,
       {
         title: "発動",
+        isMandatory: false,
         playType: "CardActivation",
         spellSpeed: "Quick",
         executableCells: ["Hand", "SpellAndTrapZone"],
@@ -54,8 +55,8 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
           return true;
         },
         settle: async () => true,
-      } as CardActionBase<number>,
-    ] as CardActionBase<unknown>[],
+      } as CardActionDefinition<number>,
+    ] as CardActionDefinition<unknown>[],
   };
 
   result.push(def_ご隠居の猛毒薬);
@@ -65,6 +66,7 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
     actions: [
       {
         title: "発動",
+        isMandatory: false,
         playType: "CardActivation",
         spellSpeed: "Quick",
         executableCells: ["Hand", "SpellAndTrapZone"],
@@ -72,18 +74,14 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
         executableDuelistTypes: ["Controller"],
         hasToTargetCards: true,
         validate: (myInfo) => {
-          const monsters = myInfo.action.entity.field
-            .getMonstersOnField()
-            .filter((monster) => monster.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action));
+          const monsters = myInfo.action.entity.field.getMonstersOnField().filter((monster) => monster.canBeTargetOfEffect(myInfo));
           if (!monsters.length) {
             return;
           }
           return defaultSpellTrapValidate(myInfo);
         },
         prepare: async (myInfo, cell, chainBlockInfos, cancelable) => {
-          const monsters = myInfo.action.entity.field
-            .getMonstersOnField()
-            .filter((monster) => monster.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action));
+          const monsters = myInfo.action.entity.field.getMonstersOnField().filter((monster) => monster.canBeTargetOfEffect(myInfo));
           const selected = await myInfo.action.entity.duel.view.waitSelectEntities(
             myInfo.activator,
             monsters,
@@ -124,8 +122,8 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
           return true;
         },
         settle: async () => true,
-      } as CardActionBase<unknown>,
-      defaultSpellTrapSetAction as CardActionBase<unknown>,
+      } as CardActionDefinition<unknown>,
+      defaultSpellTrapSetAction as CardActionDefinition<unknown>,
     ],
   };
 
@@ -136,6 +134,7 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
     actions: [
       {
         title: "発動",
+        isMandatory: false,
         playType: "CardActivation",
         spellSpeed: "Quick",
         executableCells: ["Hand", "SpellAndTrapZone"],
@@ -143,18 +142,14 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
         executableDuelistTypes: ["Controller"],
         hasToTargetCards: true,
         validate: (myInfo) => {
-          const monsters = myInfo.action.entity.field
-            .getMonstersOnField()
-            .filter((monster) => monster.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action));
+          const monsters = myInfo.action.entity.field.getMonstersOnField().filter((monster) => monster.canBeTargetOfEffect(myInfo));
           if (!monsters.length) {
             return;
           }
           return defaultSpellTrapValidate(myInfo);
         },
         prepare: async (myInfo, cell, chainBlockInfos, cancelable) => {
-          const monsters = myInfo.action.entity.field
-            .getMonstersOnField()
-            .filter((monster) => monster.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action));
+          const monsters = myInfo.action.entity.field.getMonstersOnField().filter((monster) => monster.canBeTargetOfEffect(myInfo));
           const selected = await myInfo.action.entity.duel.view.waitSelectEntities(
             myInfo.activator,
             monsters,
@@ -201,8 +196,8 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
           return true;
         },
         settle: async () => true,
-      } as CardActionBase<unknown>,
-      defaultSpellTrapSetAction as CardActionBase<unknown>,
+      } as CardActionDefinition<unknown>,
+      defaultSpellTrapSetAction as CardActionDefinition<unknown>,
     ],
   });
   return result;

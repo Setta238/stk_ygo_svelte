@@ -1,7 +1,7 @@
 import { defaultSpellTrapSetAction, getDefaultEquipSpellTrapAction } from "@ygo_duel/cards/DefaultCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
-import type { CardActionBase } from "@ygo_duel/class/DuelCardAction";
+import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
 
 import type { CardDefinition } from "./CardDefinitions";
 import type { TEntityFlexibleNumericStatusKey, TMonsterAttribute, TMonsterType } from "@ygo/class/YgoTypes";
@@ -48,7 +48,7 @@ export const createCardDefinitions_EquipSpell_Preset = (): CardDefinition[] => {
         getDefaultEquipSpellTrapAction(
           (monster) => (!item.attr || monster.attr.includes(item.attr)) && (!item.monType || monster.types.includes(item.monType))
         ),
-        defaultSpellTrapSetAction as CardActionBase<unknown>,
+        defaultSpellTrapSetAction as CardActionDefinition<unknown>,
       ],
       continuousEffects: [
         createRegularNumericStateOperatorHandler(

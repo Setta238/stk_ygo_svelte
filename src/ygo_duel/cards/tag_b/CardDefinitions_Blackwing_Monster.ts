@@ -7,8 +7,8 @@ import {
   defaultRuleSpecialSummonValidate,
   type SummonPrepared,
 } from "@ygo_duel/cards/DefaultCardAction_Monster";
-import type { CardDefinition } from "./CardDefinitions";
-import type { CardActionBase } from "@ygo_duel/class/DuelCardAction";
+import type { CardDefinition } from "../CardDefinitions";
+import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import type { TEntityFlexibleNumericStatusKey } from "@ygo/class/YgoTypes";
 import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
@@ -23,6 +23,7 @@ export const createCardDefinitions_Blackwing_Monster = (): CardDefinition[] => {
       defaultBattlePotisionChangeAction,
       {
         title: "①特殊召喚",
+        isMandatory: false,
         playType: "SpecialSummon",
         spellSpeed: "Normal",
         executableCells: ["Hand"],
@@ -42,9 +43,10 @@ export const createCardDefinitions_Blackwing_Monster = (): CardDefinition[] => {
         prepare: (myInfo, cell, chainBlockInfos, cancelable) => defaultRuleSpecialSummonPrepare(myInfo, cell, ["Attack", "Defense"], [], cancelable),
         execute: defaultRuleSpecialSummonExecute,
         settle: async () => true,
-      } as CardActionBase<SummonPrepared>,
+      } as CardActionDefinition<SummonPrepared>,
       {
         title: "②攻守半減",
+        isMandatory: false,
         playType: "IgnitionEffect",
         spellSpeed: "Normal",
         executableCells: ["MonsterZone"],
@@ -57,7 +59,7 @@ export const createCardDefinitions_Blackwing_Monster = (): CardDefinition[] => {
             .getOpponentPlayer()
             .getMonstersOnField()
             .filter((enemy) => enemy.face === "FaceUp")
-            .filter((enemy) => enemy.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action));
+            .filter((enemy) => enemy.canBeTargetOfEffect(myInfo));
           if (!enemies.length) {
             return undefined;
           }
@@ -72,7 +74,7 @@ export const createCardDefinitions_Blackwing_Monster = (): CardDefinition[] => {
               .getOpponentPlayer()
               .getMonstersOnField()
               .filter((enemy) => enemy.face === "FaceUp")
-              .filter((enemy) => enemy.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action));
+              .filter((enemy) => enemy.canBeTargetOfEffect(myInfo));
             const _targets = await myInfo.action.entity.duel.view.waitSelectEntities(
               myInfo.activator,
               enemies,
@@ -116,8 +118,8 @@ export const createCardDefinitions_Blackwing_Monster = (): CardDefinition[] => {
           return true;
         },
         settle: async () => true,
-      } as CardActionBase<undefined>,
-    ] as CardActionBase<unknown>[],
+      } as CardActionDefinition<undefined>,
+    ] as CardActionDefinition<unknown>[],
   });
   return result;
 };

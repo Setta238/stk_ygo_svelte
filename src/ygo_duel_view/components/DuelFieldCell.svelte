@@ -141,6 +141,7 @@
         if (draggingActions.length === 1) {
           const action = draggingActions[0].getClone();
           action.cell = cell;
+          action.pos = draggingActions[0].pos;
           responseResolve({ action: action });
         } else if (draggingActions.length > 1) {
           if (!activator) {

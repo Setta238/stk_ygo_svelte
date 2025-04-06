@@ -18,6 +18,7 @@ import {
   type TSpellSpeed,
 } from "./DuelCardAction";
 import type { TDuelPhase } from "./DuelPeriod";
+import { DuelEntityShortHands } from "./DuelEntityShortHands";
 export const duelStartModes = ["PlayFirst", "DrawFirst", "Random"] as const;
 export type TDuelStartMode = (typeof duelStartModes)[number];
 export const duelStartModeDic: { [key in TDuelStartMode]: string } = {
@@ -118,7 +119,7 @@ export class Duel {
     this._chainBlockInfos = [];
     this.field = new DuelField(this);
     this.clock.onTotalProcSeqChange.append(this.distributeOperators);
-    this.clock.onStageChange.append(this.executeSystemActions);
+    this.clock.onStageChange.append(this.executeSystemPeriodActions);
 
     this.view = new DuelViewController(this);
     this.log = new DuelLog(this);
@@ -248,8 +249,17 @@ export class Duel {
   public readonly declareAnAttack = (attacker: DuelEntity, defender: DuelEntity): void => {
     this.attackingMonster = attacker;
     this.targetForAttack = defender;
+    let def = " (" + (defender.battlePosition === "Attack" ? defender.atk : defender.def)?.toString() + ")";
+    if (defender.face === "FaceDown") {
+      def = " (????)";
+    }
+
+    if (defender.entityType === "Duelist") {
+      def = "";
+    }
+
     attacker.info.attackCount++;
-    this.log.info(`攻撃宣言：${attacker.status.name} ⇒ ${defender.status.name}`, attacker.controller);
+    this.log.info(`攻撃宣言：${attacker.toString()} (${attacker.atk})⇒ ${defender.toString()}${def}`, attacker.controller);
   };
 
   private readonly procDrawPhase = async () => {
@@ -279,16 +289,7 @@ export class Duel {
       const response = await this.view.waitFieldAction(
         this.getEnableActions(
           this.priorityHolder,
-          [
-            "NormalSummon",
-            "SpellTrapSet",
-            "SpecialSummon",
-            "ChangeBattlePosition",
-            "IgnitionEffect",
-            "MandatoryIgnitionEffect",
-            "QuickEffect",
-            "CardActivation",
-          ],
+          ["NormalSummon", "SpellTrapSet", "SpecialSummon", "ChangeBattlePosition", "IgnitionEffect", "QuickEffect", "CardActivation"],
           ["Normal", "Quick", "Counter"],
           []
         )
@@ -481,8 +482,10 @@ export class Duel {
     const defPoint = (defender.battlePosition === "Attack" ? defender.atk : defender.def) ?? 0;
 
     if (defender.entityType === "Duelist") {
+      chainBlockInfo.activator.writeInfoLog(`ダメージ計算：${attacker.toString()} (${atkPoint}) ⇒ ${defender.toString()}`);
       attacker.controller.getOpponentPlayer().battleDamage(atkPoint - defPoint, attacker);
     } else {
+      chainBlockInfo.activator.writeInfoLog(`ダメージ計算：${attacker.toString()} (${atkPoint}) ⇒ ${defender.toString()} (${defPoint})`);
       // 戦闘ダメージ計算
       if (atkPoint > 0 && atkPoint > defPoint && defender.battlePosition === "Attack") {
         attacker.controller.getOpponentPlayer().battleDamage(atkPoint - defPoint, attacker);
@@ -495,10 +498,10 @@ export class Duel {
       // ※被破壊側の永続効果の終了、破壊側（混沌の黒魔術師、ハデスなど）の永続効果の適用
       // ※墓地送りはprocBattlePhaseDamageStep5で行う。
       if (atkPoint > 0 && (atkPoint > defPoint || (atkPoint === defPoint && defender.battlePosition === "Attack"))) {
-        defender.tryMarkForDestory("BattleDestroy", attacker.controller, attacker, chainBlockInfo.action);
+        await DuelEntityShortHands.tryMarkForDestory([defender], chainBlockInfo);
       }
       if (defender.battlePosition === "Attack" && atkPoint <= defPoint) {
-        attacker.tryMarkForDestory("BattleDestroy", attacker.controller, defender, chainBlockInfo.action);
+        await DuelEntityShortHands.tryMarkForDestory([attacker], chainBlockInfo);
       }
     }
 
@@ -522,10 +525,15 @@ export class Duel {
   };
   private readonly procBattlePhaseDamageStep5 = async () => {
     this.clock.setStage(this, "end");
+    console.log(this.clock.period.key, this.clock.toString());
     // 戦闘破壊・墓地送り実施
     await DuelEntity.waitCorpseDisposal(this);
+    console.log(this.clock.period.key, this.clock.toString());
+
     // チェーン番号を加算
     this.clock.incrementChainSeq();
+    console.log(this.clock.period.key, this.clock.toString());
+
     //ダメージステップ終了時
     // 戦闘破壊されて墓地に送られた場合の効果
     while (await this.procChainBlock(undefined, undefined)) {
@@ -577,7 +585,7 @@ export class Duel {
       // 優先権保持者の可能な処理をリストアップ
       const actions = this.getEnableActions(
         this.priorityHolder,
-        ["IgnitionEffect", "MandatoryIgnitionEffect", "QuickEffect", "CardActivation", "LingeringEffect", "MandatoryLingeringEffect"],
+        ["IgnitionEffect", "QuickEffect", "CardActivation", "LingeringEffect"],
         ["Normal", "Quick", "Counter"],
         []
       );
@@ -670,7 +678,7 @@ export class Duel {
       : (triggerEffects ??
         Object.values(this.duelists).flatMap((activator) => {
           // この効果の収拾のみ、優先権が移らない。
-          return this.getEnableActions(activator, ["MandatoryTriggerEffect", "TriggerEffect"], ["Normal"], []).map((action) => {
+          return this.getEnableActions(activator, ["TriggerEffect"], ["Normal"], []).map((action) => {
             return { activator, action };
           });
         }));
@@ -843,10 +851,10 @@ export class Duel {
   ): Promise<{ activator: Duelist; action: CardAction<unknown> } | undefined> => {
     // 誘発効果の処理順に従って効果を抽出する。
     if (triggerEffects.length > 0) {
-      for (const triggerType of ["MandatoryTriggerEffect", "TriggerEffect"] as TCardActionType[]) {
+      for (const isMandatory of [true, false]) {
         for (const activator of [this.getTurnPlayer(), this.getNonTurnPlayer()]) {
           // 誘発効果を抽出
-          const effects = triggerEffects.filter((effect) => effect.action.playType === triggerType && effect.activator === activator);
+          const effects = triggerEffects.filter((effect) => effect.action.isMandatory === isMandatory && effect.activator === activator);
 
           // なければ次の条件へ
           if (effects.length === 0) {
@@ -854,7 +862,7 @@ export class Duel {
           }
 
           // 強制効果が残り１の場合、選択をスキップ
-          if (effects.length === 1 && triggerType === "MandatoryTriggerEffect") {
+          if (effects.length === 1 && isMandatory) {
             return effects[0];
           }
 
@@ -864,7 +872,7 @@ export class Duel {
             effects.map((obj) => obj.action),
             this.chainBlockInfos,
             "誘発効果を選択。",
-            triggerType === "TriggerEffect"
+            !isMandatory
           );
 
           if (_action) {
@@ -874,9 +882,9 @@ export class Duel {
       }
     }
   };
-  private readonly executeSystemActions = (): void => {
+  private readonly executeSystemPeriodActions = (): void => {
     Object.values(this.duelists).flatMap((duelist) =>
-      this.getEnableActions(duelist, ["SystemAction"], ["Normal"], []).map((action) => {
+      this.getEnableActions(duelist, ["SystemPeriodAction"], ["Normal"], []).map((action) => {
         return { duelist, action };
       })
     );
@@ -894,7 +902,7 @@ export class Duel {
       .filter((action) => action.executablePeriods.includes(this.clock.period.key))
       .filter((action) => enableCardPlayTypes.includes(action.playType))
       .filter((action) => enableSpellSpeeds.includes(action.spellSpeed))
-      .filter((action) => action.executableDuelists.includes(duelist))
+      .filter((action) => action.validateDuelist(duelist))
       .filter((action) => action.validate(duelist, chainBlockInfos));
   };
 }

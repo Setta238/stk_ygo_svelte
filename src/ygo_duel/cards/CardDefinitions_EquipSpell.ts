@@ -7,7 +7,7 @@ import {
 } from "@ygo_duel/cards/DefaultCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
-import type { CardAction, CardActionBase } from "@ygo_duel/class/DuelCardAction";
+import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
 
 import type { CardDefinition } from "./CardDefinitions";
 import { type TCardKind, type TEntityFlexibleNumericStatusKey } from "@ygo/class/YgoTypes";
@@ -17,6 +17,7 @@ import {
 } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import { IllegalCancelError } from "@ygo_duel/class/Duel";
+import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
   const result: CardDefinition[] = [];
 
@@ -28,7 +29,7 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
   ).forEach((item) => {
     result.push({
       name: item.name,
-      actions: [getDefaultEquipSpellTrapAction(), defaultSpellTrapSetAction] as CardActionBase<unknown>[],
+      actions: [getDefaultEquipSpellTrapAction(), defaultSpellTrapSetAction] as CardActionDefinition<unknown>[],
       continuousEffects: [
         createRegularNumericStateOperatorHandler(
           item.name,
@@ -64,6 +65,7 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
     actions: [
       {
         title: "発動",
+        isMandatory: false,
         playType: "CardActivation",
         spellSpeed: "Normal",
         executableCells: ["Hand", "SpellAndTrapZone"],
@@ -78,7 +80,7 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
               .flatMap((cell) => cell.cardEntities)
               .filter((card) => card.status.kind === "Monster")
               .filter((card) => card.info.isRebornable)
-              .filter((card) => card.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action))
+              .filter((card) => card.canBeTargetOfEffect(myInfo))
               .filter((card) => card.canBeSummoned(myInfo.activator, myInfo.action, "SpecialSummon", "Attack", [], false))
               .some((card) => myInfo.activator.canSummon(myInfo.activator, card, myInfo.action, "SpecialSummon", "Attack", []))
           ) {
@@ -100,7 +102,7 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
               .getGraveyard()
               .cardEntities.filter((card) => card.status.kind === "Monster")
               .filter((card) => card.info.isRebornable)
-              .filter((card) => card.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action as CardAction<unknown>))
+              .filter((card) => card.canBeTargetOfEffect(myInfo))
               .filter((card) => card.canBeSummoned(myInfo.activator, myInfo.action, "SpecialSummon", "Attack", [], false))
               .filter((card) => myInfo.activator.canSummon(myInfo.activator, card, myInfo.action, "SpecialSummon", "Attack", [])),
             1,
@@ -134,7 +136,7 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
             return false;
           }
 
-          myInfo.action.entity.onBeforeMove.append((data) => {
+          myInfo.action.entity.onBeforeMove.append(async (data) => {
             if (data.entity.face !== "FaceUp" || !data.entity.isOnFieldAsSpellTrap) {
               return "RemoveMe";
             }
@@ -145,8 +147,8 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
             if (target.isOnField && target.face === "FaceUp" && data.entity.isEffective && movedAs.union(["EffectDestroy", "RuleDestroy"]).length) {
               console.log(myInfo.action.entity.toString());
               // この場所では破壊マーキングまで実行。
-              data.entity.controller.writeInfoLog(`${myInfo.action.entity.toString()}が破壊されたため、装備対象モンスター${data.entity}を破壊。`);
-              target.tryMarkForDestory("EffectDestroy", myInfo.activator, data.entity, {});
+              data.entity.controller.writeInfoLog(`${myInfo.action.entity.toString()}が破壊されたため、装備対象モンスター${target.toString()}を破壊。`);
+              DuelEntityShortHands.tryMarkForDestory([target], myInfo);
             }
 
             return "RemoveMe";
@@ -159,7 +161,7 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
         settle: async () => true,
       },
       defaultSpellTrapSetAction,
-    ] as CardActionBase<unknown>[],
+    ] as CardActionDefinition<unknown>[],
     // continuousEffects: [
     //   createRegularEquipRelationHandler(
     //     "EquipTarget",
@@ -198,7 +200,7 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
   result.push(def_早すぎた埋葬);
   result.push({
     name: "幻惑の巻物",
-    actions: [getDefaultEquipSpellTrapAction(), defaultSpellTrapSetAction] as CardActionBase<unknown>[],
+    actions: [getDefaultEquipSpellTrapAction(), defaultSpellTrapSetAction] as CardActionDefinition<unknown>[],
     continuousEffects: [] as ContinuousEffectBase<unknown>[],
   });
   return result;

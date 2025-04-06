@@ -1,16 +1,13 @@
-import type { CardActionBase } from "@ygo_duel/class/DuelCardAction";
+import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
 import {
   defaultAttackAction,
   defaultBattlePotisionChangeAction,
   defaultCanBeSummoned,
-  defaultRebornExecute,
   getDefaultSyncroSummonAction,
 } from "@ygo_duel/cards/DefaultCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardDefinition } from "./CardDefinitions";
-import { duelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
-import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { defaultPrepare } from "@ygo_duel/cards/DefaultCardAction";
 
 export const createCardDefinitions_SyncroMonster = (): CardDefinition[] => {
@@ -19,7 +16,7 @@ export const createCardDefinitions_SyncroMonster = (): CardDefinition[] => {
   ["大地の騎士ガイアナイト", "スクラップ・デスデーモン"].forEach((name) =>
     result.push({
       name: name,
-      actions: [defaultAttackAction, defaultBattlePotisionChangeAction, getDefaultSyncroSummonAction()] as CardActionBase<unknown>[],
+      actions: [defaultAttackAction, defaultBattlePotisionChangeAction, getDefaultSyncroSummonAction()] as CardActionDefinition<unknown>[],
       canBeSummoned: defaultCanBeSummoned,
     })
   );
@@ -33,19 +30,20 @@ export const createCardDefinitions_SyncroMonster = (): CardDefinition[] => {
         (tuners) => tuners.length === 1 && tuners.every((tuner) => tuner.attr.some((a) => a === "Earth")),
         (nonTuners) => nonTuners.length > 0 && nonTuners.every((nonTuner) => nonTuner.attr.some((a) => a === "Earth"))
       ),
-    ] as CardActionBase<unknown>[],
+    ] as CardActionDefinition<unknown>[],
     canBeSummoned: defaultCanBeSummoned,
   });
 
   result.push({
     name: "マジカル・アンドロイド",
     actions: [
-      defaultAttackAction as CardActionBase<unknown>,
-      defaultBattlePotisionChangeAction as CardActionBase<unknown>,
-      getDefaultSyncroSummonAction() as CardActionBase<unknown>,
+      defaultAttackAction as CardActionDefinition<unknown>,
+      defaultBattlePotisionChangeAction as CardActionDefinition<unknown>,
+      getDefaultSyncroSummonAction() as CardActionDefinition<unknown>,
       {
         title: "回復",
-        playType: "MandatoryIgnitionEffect",
+        isMandatory: true,
+        playType: "IgnitionEffect",
         spellSpeed: "Normal",
         executableCells: ["MonsterZone", "ExtraMonsterZone"],
         executablePeriods: ["end"],
@@ -69,86 +67,5 @@ export const createCardDefinitions_SyncroMonster = (): CardDefinition[] => {
     ],
     canBeSummoned: defaultCanBeSummoned,
   });
-  result.push({
-    name: "スターダスト・ドラゴン",
-    actions: [
-      defaultAttackAction as CardActionBase<unknown>,
-      defaultBattlePotisionChangeAction as CardActionBase<unknown>,
-      getDefaultSyncroSummonAction() as CardActionBase<unknown>,
-      {
-        title: "①ヴィクテム・サンクチュアリ",
-        playType: "QuickEffect",
-        spellSpeed: "Quick",
-        executableCells: ["MonsterZone", "ExtraMonsterZone"],
-        executablePeriods: duelPeriodKeys,
-        executableDuelistTypes: ["Controller"],
-        validate: (myInfo, chainBlockInfos) => {
-          if (chainBlockInfos.length === 0) {
-            return;
-          }
-
-          const info = chainBlockInfos[myInfo.index - 1];
-
-          return info.chainBlockTags.includes("DestroyOnField") ? [] : undefined;
-        },
-        prepare: async (myInfo, cell, chainBlockInfos) => {
-          if (chainBlockInfos.length === 0) {
-            return;
-          }
-
-          const info = chainBlockInfos.slice(-1)[0];
-
-          await myInfo.action.entity.release(["Cost"], myInfo.action.entity, myInfo.activator);
-          return { selectedEntities: [], chainBlockTags: myInfo.action.calcChainBlockTagsForDestroy([info.action.entity]), prepared: undefined };
-        },
-        execute: async (myInfo, chainBlockInfos) => {
-          const info = chainBlockInfos[myInfo.index - 1];
-          info.isNegatedActivationBy = myInfo.action;
-          DuelEntityShortHands.tryDestroy([info.action.entity], myInfo);
-          return true;
-        },
-        settle: async () => true,
-      },
-      {
-        title: "②自己再生",
-        playType: "IgnitionEffect",
-        spellSpeed: "Normal",
-        executableCells: ["Graveyard"],
-        executablePeriods: ["end"],
-        executableDuelistTypes: ["Controller"],
-        validate: (myInfo) => {
-          const moveLogRecord = myInfo.action.entity.moveLog.latestRecord;
-
-          if (moveLogRecord.movedBy !== myInfo.action.entity) {
-            return;
-          }
-          if (!myInfo.activator.duel.clock.isSameTurn(moveLogRecord.movedAt)) {
-            return;
-          }
-          if (!moveLogRecord.movedAs.includes("Cost")) {
-            return;
-          }
-
-          const duel = myInfo.activator.duel;
-          const lastAction = myInfo.action.entity.actionLogRecords
-            .filter((rec) => duel.clock.isSameTurn(rec.clock))
-            .map((rec) => rec.chainBlockInfo)
-            .findLast((info) => info.action.title === "①ヴィクテム・サンクチュアリ");
-
-          if (!lastAction || lastAction.state !== "done") {
-            return;
-          }
-
-          const availableCells = myInfo.activator.getAvailableMonsterZones();
-          return availableCells.length > 0 ? [] : undefined;
-        },
-        prepare: defaultPrepare,
-        execute: (myInfo) => defaultRebornExecute(myInfo),
-        settle: async () => true,
-      },
-    ],
-    canBeSummoned: defaultCanBeSummoned,
-  });
-
   return result;
 };

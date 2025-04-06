@@ -1,4 +1,4 @@
-import StkEvent from "@stk_utils/class/StkEvent";
+import { StkEvent } from "@stk_utils/class/StkEvent";
 import { SystemError } from "./Duel";
 import { Duel } from "./Duel";
 import { type Duelist } from "./Duelist";

@@ -1,4 +1,4 @@
-import StkEvent from "@stk_utils/class/StkEvent";
+import { StkEvent } from "@stk_utils/class/StkEvent";
 import { Duel } from "./Duel";
 import { type Duelist } from "./Duelist";
 import type { DuelClock } from "./DuelClock";

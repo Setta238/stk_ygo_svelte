@@ -2,7 +2,7 @@ import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { defaultSpellTrapPrepare, defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/cards/DefaultCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
-import { type CardAction, type CardActionBase } from "@ygo_duel/class/DuelCardAction";
+import { type CardAction, type CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
 
 import type { CardDefinition } from "./CardDefinitions";
 
@@ -14,6 +14,7 @@ export const createCardDefinitions_NormalSpell_General_Draw = (): CardDefinition
     actions: [
       {
         title: "発動",
+        isMandatory: false,
         playType: "CardActivation",
         spellSpeed: "Normal",
         executableCells: ["Hand", "SpellAndTrapZone"],
@@ -38,8 +39,8 @@ export const createCardDefinitions_NormalSpell_General_Draw = (): CardDefinition
           return true;
         },
         settle: async () => true,
-      } as CardActionBase<unknown>,
-      defaultSpellTrapSetAction as CardActionBase<unknown>,
+      } as CardActionDefinition<unknown>,
+      defaultSpellTrapSetAction as CardActionDefinition<unknown>,
     ],
   };
 
@@ -50,6 +51,7 @@ export const createCardDefinitions_NormalSpell_General_Draw = (): CardDefinition
     actions: [
       {
         title: "発動",
+        isMandatory: false,
         playType: "CardActivation",
         spellSpeed: "Normal",
         executableCells: ["Hand", "SpellAndTrapZone"],
@@ -62,7 +64,7 @@ export const createCardDefinitions_NormalSpell_General_Draw = (): CardDefinition
             myInfo.activator
               .getGraveyard()
               .cardEntities.filter((card) => card.status.kind === "Monster")
-              .filter((card) => card.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action as CardAction<unknown>)).length < 5
+              .filter((card) => card.canBeTargetOfEffect(myInfo)).length < 5
           ) {
             return;
           }
@@ -80,7 +82,7 @@ export const createCardDefinitions_NormalSpell_General_Draw = (): CardDefinition
             myInfo.activator
               .getGraveyard()
               .cardEntities.filter((card) => card.status.kind === "Monster")
-              .filter((card) => card.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action as CardAction<unknown>)),
+              .filter((card) => card.canBeTargetOfEffect(myInfo)),
             5,
             (selected) => selected.length === 5,
             "デッキに戻すモンスターを選択。",
@@ -106,8 +108,8 @@ export const createCardDefinitions_NormalSpell_General_Draw = (): CardDefinition
           return true;
         },
         settle: async () => true,
-      } as CardActionBase<unknown>,
-      defaultSpellTrapSetAction as CardActionBase<unknown>,
+      } as CardActionDefinition<unknown>,
+      defaultSpellTrapSetAction as CardActionDefinition<unknown>,
     ],
   };
 
@@ -117,6 +119,7 @@ export const createCardDefinitions_NormalSpell_General_Draw = (): CardDefinition
     actions: [
       {
         title: "発動",
+        isMandatory: false,
         playType: "CardActivation",
         spellSpeed: "Normal",
         executableCells: ["Hand", "SpellAndTrapZone"],
@@ -136,8 +139,8 @@ export const createCardDefinitions_NormalSpell_General_Draw = (): CardDefinition
           return true;
         },
         settle: async () => true,
-      } as CardActionBase<unknown>,
-      defaultSpellTrapSetAction as CardActionBase<unknown>,
+      } as CardActionDefinition<unknown>,
+      defaultSpellTrapSetAction as CardActionDefinition<unknown>,
     ],
   };
 
@@ -147,6 +150,7 @@ export const createCardDefinitions_NormalSpell_General_Draw = (): CardDefinition
     actions: [
       {
         title: "発動",
+        isMandatory: false,
         playType: "CardActivation",
         spellSpeed: "Normal",
         executableCells: ["Hand", "SpellAndTrapZone"],
@@ -169,8 +173,8 @@ export const createCardDefinitions_NormalSpell_General_Draw = (): CardDefinition
           return true;
         },
         settle: async () => true,
-      } as CardActionBase<unknown>,
-      defaultSpellTrapSetAction as CardActionBase<unknown>,
+      } as CardActionDefinition<unknown>,
+      defaultSpellTrapSetAction as CardActionDefinition<unknown>,
     ],
   };
 
@@ -180,6 +184,7 @@ export const createCardDefinitions_NormalSpell_General_Draw = (): CardDefinition
     actions: [
       {
         title: "発動",
+        isMandatory: false,
         playType: "CardActivation",
         spellSpeed: "Normal",
         executableCells: ["Hand", "SpellAndTrapZone"],
@@ -229,8 +234,8 @@ export const createCardDefinitions_NormalSpell_General_Draw = (): CardDefinition
           return true;
         },
         settle: async () => true,
-      } as CardActionBase<unknown>,
-      defaultSpellTrapSetAction as CardActionBase<unknown>,
+      } as CardActionDefinition<unknown>,
+      defaultSpellTrapSetAction as CardActionDefinition<unknown>,
     ],
   };
   result.push(def_手札抹殺);

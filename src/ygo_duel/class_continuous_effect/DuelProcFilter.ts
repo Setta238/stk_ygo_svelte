@@ -1,4 +1,4 @@
-import type { CardActionBaseAttr } from "../class/DuelCardAction";
+import type { CardActionDefinitionAttr } from "../class/DuelCardAction";
 import { StickyEffectOperatorBase, StickyEffectOperatorBundle, StickyEffectOperatorPool } from "./DuelStickyEffectOperatorBase";
 import { type DuelEntity, type TMaterialCauseReason, type TSummonPosCauseReason, type TSummonRuleCauseReason } from "../class/DuelEntity";
 import { type Duelist } from "../class/Duelist";
@@ -52,17 +52,17 @@ export class ProcFilterBundle extends StickyEffectOperatorBundle<ProcFilter> {
 export class ProcFilter extends StickyEffectOperatorBase {
   public beforeRemove: () => void = () => {};
   public readonly procTypes: TProcType[];
-  public readonly filter: (activator: Duelist, entity: DuelEntity, actionAttr: Partial<CardActionBaseAttr>, effectedEntites: DuelEntity[]) => boolean;
+  public readonly filter: (activator: Duelist, entity: DuelEntity, actionAttr: Partial<CardActionDefinitionAttr>, effectedEntites: DuelEntity[]) => boolean;
   public constructor(
     title: string,
     validateAlive: (operator: StickyEffectOperatorBase) => boolean,
     isContinuous: boolean,
     isSpawnedBy: DuelEntity,
-    actionAttr: Partial<CardActionBaseAttr>,
+    actionAttr: Partial<CardActionDefinitionAttr>,
 
     isApplicableTo: (operator: StickyEffectOperatorBase, target: DuelEntity) => boolean,
     procTypes: TProcType[],
-    filter: (activator: Duelist, entity: DuelEntity, actionAttr: Partial<CardActionBaseAttr>, effectedEntites: DuelEntity[] | undefined) => boolean
+    filter: (activator: Duelist, entity: DuelEntity, actionAttr: Partial<CardActionDefinitionAttr>, effectedEntites: DuelEntity[] | undefined) => boolean
   ) {
     super(title, validateAlive, isContinuous, isSpawnedBy, actionAttr, isApplicableTo);
     this.procTypes = procTypes;

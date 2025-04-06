@@ -1,6 +1,6 @@
 import { defaultAttackAction, defaultBattlePotisionChangeAction, defaultNormalSummonAction } from "@ygo_duel/cards/DefaultCardAction_Monster";
-import type { CardDefinition } from "./CardDefinitions";
-import type { CardActionBase } from "@ygo_duel/class/DuelCardAction";
+import type { CardDefinition } from "../CardDefinitions";
+import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
 import {
   createRegularNumericStateOperatorHandler,
   createRegularStatusOperatorHandler,
@@ -50,7 +50,8 @@ export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] =
       defaultNormalSummonAction,
       {
         title: "①魔力充填",
-        playType: "MandatoryTriggerEffect",
+        isMandatory: true,
+        playType: "TriggerEffect",
         spellSpeed: "Normal",
         executableCells: ["MonsterZone"],
         executablePeriods: ["main1", "main2"],
@@ -70,13 +71,14 @@ export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] =
           }
           // ブレイカーは最大一個なので、1で上書きする。
           // 無効になっている場合乗せられないが、そもそもこの処理に入らない
-          myInfo.action.entity.counterHolder.setQty("SpellCounter", 1);
+          myInfo.action.entity.counterHolder.setQty("SpellCounter", 1, myInfo.action.entity);
           return true;
         },
         settle: async () => true,
-      } as CardActionBase<undefined>,
+      } as CardActionDefinition<undefined>,
       {
         title: "③マナブレイク",
+        isMandatory: false,
         playType: "IgnitionEffect",
         spellSpeed: "Normal",
         executableCells: ["MonsterZone"],
@@ -90,7 +92,7 @@ export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] =
           const spells = myInfo.action.entity.field
             .getCells(...spellTrapZoneCellTypes)
             .flatMap((cell) => cell.cardEntities)
-            .filter((card) => card.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action));
+            .filter((card) => card.canBeTargetOfEffect(myInfo));
 
           if (!spells.length) {
             return;
@@ -105,7 +107,7 @@ export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] =
             const spells = myInfo.action.entity.field
               .getCells(...spellTrapZoneCellTypes)
               .flatMap((cell) => cell.cardEntities)
-              .filter((card) => card.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action));
+              .filter((card) => card.canBeTargetOfEffect(myInfo));
             const _targets = await myInfo.action.entity.duel.view.waitSelectEntities(
               myInfo.activator,
               spells,
@@ -139,8 +141,8 @@ export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] =
           return true;
         },
         settle: async () => true,
-      } as CardActionBase<unknown>,
-    ] as CardActionBase<unknown>[],
+      } as CardActionDefinition<unknown>,
+    ] as CardActionDefinition<unknown>[],
     continuousEffects: [
       createSpellCounterCommonEffect("Monster", 1),
       createRegularNumericStateOperatorHandler(

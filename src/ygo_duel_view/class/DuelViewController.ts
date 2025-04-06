@@ -1,4 +1,4 @@
-import StkEvent from "@stk_utils/class/StkEvent";
+import { StkEvent } from "@stk_utils/class/StkEvent";
 import { Duel, DuelEnd, SystemError, type DuelistResponse } from "@ygo_duel/class/Duel";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { DuelFieldCell, type TDuelEntityMovePos } from "@ygo_duel/class/DuelFieldCell";
@@ -223,9 +223,7 @@ export class DuelViewController {
     }
 
     this.waitMode = choises.every(
-      (e) =>
-        ((e.fieldCell.cellType === "MonsterZone" || e.fieldCell.cellType === "ExtraMonsterZone") && e.getIndexInCell() === 0) ||
-        (e.fieldCell.cellType === "Hand" && e.controller === chooser)
+      (e) => (e.fieldCell.isPlayFieldCell && e.getIndexInCell() === 0) || (e.fieldCell.cellType === "Hand" && e.controller === chooser)
     )
       ? "SelectFieldEntities"
       : "SelectEntities";

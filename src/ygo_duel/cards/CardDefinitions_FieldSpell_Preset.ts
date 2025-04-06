@@ -1,7 +1,7 @@
 import { defaultSpellTrapSetAction, defaultSpellTrapValidate, defaultUndefinedSpellTrapPrepare } from "@ygo_duel/cards/DefaultCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
-import type { CardActionBase } from "@ygo_duel/class/DuelCardAction";
+import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
 
 import type { CardDefinition } from "./CardDefinitions";
 import type { TEntityFlexibleNumericStatusKey, TMonsterAttribute, TMonsterType } from "@ygo/class/YgoTypes";
@@ -49,6 +49,7 @@ export const createCardDefinitions_FieldSpell_Preset = (): CardDefinition[] => {
       actions: [
         {
           title: "発動",
+          isMandatory: false,
           playType: "CardActivation",
           spellSpeed: "Normal",
           executableCells: ["Hand", "SpellAndTrapZone"],
@@ -58,8 +59,8 @@ export const createCardDefinitions_FieldSpell_Preset = (): CardDefinition[] => {
           prepare: defaultUndefinedSpellTrapPrepare,
           execute: async () => true,
           settle: async () => true,
-        } as CardActionBase<unknown>,
-        defaultSpellTrapSetAction as CardActionBase<unknown>,
+        } as CardActionDefinition<unknown>,
+        defaultSpellTrapSetAction as CardActionDefinition<unknown>,
       ],
       continuousEffects: [
         createBroadRegularNumericStateOperatorHandler(
@@ -131,6 +132,7 @@ export const createCardDefinitions_FieldSpell_Preset = (): CardDefinition[] => {
       actions: [
         {
           title: "発動",
+          isMandatory: false,
           playType: "CardActivation",
           spellSpeed: "Normal",
           executableCells: ["Hand", "FieldSpellZone"],
@@ -140,8 +142,8 @@ export const createCardDefinitions_FieldSpell_Preset = (): CardDefinition[] => {
           prepare: defaultUndefinedSpellTrapPrepare,
           execute: async () => true,
           settle: async () => true,
-        } as CardActionBase<unknown>,
-        defaultSpellTrapSetAction as CardActionBase<unknown>,
+        } as CardActionDefinition<unknown>,
+        defaultSpellTrapSetAction as CardActionDefinition<unknown>,
       ],
       continuousEffects: [
         createBroadRegularNumericStateOperatorHandler(

@@ -1,6 +1,6 @@
 import { StickyEffectOperatorBase, StickyEffectOperatorBundle, StickyEffectOperatorPool } from "./DuelStickyEffectOperatorBase";
 import type { DuelEntity, TSummonPosCauseReason, TSummonRuleCauseReason } from "../class/DuelEntity";
-import type { CardActionBaseAttr } from "@ygo_duel/class/DuelCardAction";
+import type { CardActionDefinitionAttr } from "@ygo_duel/class/DuelCardAction";
 import { SystemError } from "@ygo_duel/class/Duel";
 
 export const relationTypes = ["Equip", "XyzMaterial"] as const;
@@ -20,7 +20,7 @@ export class CardRelation extends StickyEffectOperatorBase {
     title: string,
     validateAlive: (operator: StickyEffectOperatorBase) => boolean,
     isSpawnedBy: DuelEntity,
-    actionAttr: Partial<CardActionBaseAttr>,
+    actionAttr: Partial<CardActionDefinitionAttr>,
     isApplicableTo: (operator: StickyEffectOperatorBase, target: DuelEntity) => boolean,
     beforeRemove: (relation: CardRelation) => boolean = () => true
   ) => {
@@ -69,7 +69,7 @@ export class CardRelation extends StickyEffectOperatorBase {
     validateAlive: (operator: StickyEffectOperatorBase) => boolean,
     isContinuous: boolean,
     isSpawnedBy: DuelEntity,
-    actionAttr: Partial<CardActionBaseAttr>,
+    actionAttr: Partial<CardActionDefinitionAttr>,
     isApplicableTo: (operator: StickyEffectOperatorBase, target: DuelEntity) => boolean,
     relationType: TRelationType,
     target: DuelEntity,

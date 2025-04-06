@@ -3,12 +3,12 @@ import { duelFieldCellTypes, monsterZoneCellTypes, spellTrapZoneCellTypes, type 
 import { defaultSpellTrapPrepare, defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/cards/DefaultCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
-import { type CardAction, type CardActionBase } from "@ygo_duel/class/DuelCardAction";
+import { type CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
 import { IllegalCancelError, SystemError } from "@ygo_duel/class/Duel";
 
 import type { CardDefinition } from "./CardDefinitions";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import { defaultPrepare, getSystemAction } from "@ygo_duel/cards/DefaultCardAction";
+import { defaultPrepare, getSystemPeriodAction } from "@ygo_duel/cards/DefaultCardAction";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 
 export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
@@ -19,6 +19,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
     actions: [
       {
         title: "発動",
+        isMandatory: false,
         playType: "CardActivation",
         spellSpeed: "Normal",
         executableCells: ["Hand", "SpellAndTrapZone"],
@@ -56,8 +57,8 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           return true;
         },
         settle: async () => true,
-      } as CardActionBase<unknown>,
-      defaultSpellTrapSetAction as CardActionBase<unknown>,
+      } as CardActionDefinition<unknown>,
+      defaultSpellTrapSetAction as CardActionDefinition<unknown>,
     ],
   };
 
@@ -68,6 +69,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
     actions: [
       {
         title: "発動",
+        isMandatory: false,
         playType: "CardActivation",
         spellSpeed: "Normal",
         executableCells: ["Hand", "SpellAndTrapZone"],
@@ -104,8 +106,8 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           return true;
         },
         settle: async () => true,
-      } as CardActionBase<unknown>,
-      defaultSpellTrapSetAction as CardActionBase<unknown>,
+      } as CardActionDefinition<unknown>,
+      defaultSpellTrapSetAction as CardActionDefinition<unknown>,
     ],
   };
 
@@ -116,6 +118,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
     actions: [
       {
         title: "発動",
+        isMandatory: false,
         playType: "CardActivation",
         spellSpeed: "Normal",
         executableCells: ["Hand", "SpellAndTrapZone"],
@@ -133,7 +136,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
               .flatMap((cell) => cell.cardEntities)
               .filter((card) => card.status.kind === "Monster")
               .filter((card) => card.info.isRebornable)
-              .filter((card) => card.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action as CardAction<unknown>))
+              .filter((card) => card.canBeTargetOfEffect(myInfo))
               .filter((card) => faceupBattlePositions.some((pos) => card.canBeSummoned(myInfo.activator, myInfo.action, "SpecialSummon", pos, [], false)))
               .some((card) => faceupBattlePositions.some((pos) => myInfo.activator.canSummon(myInfo.activator, card, myInfo.action, "SpecialSummon", pos, [])))
           ) {
@@ -149,7 +152,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
               .flatMap((gy) => gy.cardEntities)
               .filter((card) => card.status.kind === "Monster")
               .filter((card) => card.info.isRebornable)
-              .filter((card) => card.canBeTargetOfEffect(myInfo.activator, myInfo.action.entity, myInfo.action as CardAction<unknown>))
+              .filter((card) => card.canBeTargetOfEffect(myInfo))
               .filter((card) => faceupBattlePositions.some((pos) => card.canBeSummoned(myInfo.activator, myInfo.action, "SpecialSummon", pos, [], false)))
               .filter((card) =>
                 faceupBattlePositions.some((pos) => myInfo.activator.canSummon(myInfo.activator, card, myInfo.action, "SpecialSummon", pos, []))
@@ -171,8 +174,8 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           return true;
         },
         settle: async () => true,
-      } as CardActionBase<unknown>,
-      defaultSpellTrapSetAction as CardActionBase<unknown>,
+      } as CardActionDefinition<unknown>,
+      defaultSpellTrapSetAction as CardActionDefinition<unknown>,
     ],
   };
 
@@ -190,6 +193,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
       actions: [
         {
           title: "発動",
+          isMandatory: false,
           playType: "CardActivation",
           spellSpeed: "Normal",
           executableCells: ["Hand", "SpellAndTrapZone"],
@@ -234,8 +238,8 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
             return true;
           },
           settle: async () => true,
-        } as CardActionBase<unknown>,
-        defaultSpellTrapSetAction as CardActionBase<unknown>,
+        } as CardActionDefinition<unknown>,
+        defaultSpellTrapSetAction as CardActionDefinition<unknown>,
       ],
     });
   });
@@ -245,6 +249,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
     actions: [
       {
         title: "発動",
+        isMandatory: false,
         playType: "CardActivation",
         spellSpeed: "Normal",
         executableCells: ["Hand", "SpellAndTrapZone"],
@@ -285,8 +290,8 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           return true;
         },
         settle: async () => true,
-      } as CardActionBase<unknown>,
-      defaultSpellTrapSetAction as CardActionBase<unknown>,
+      } as CardActionDefinition<unknown>,
+      defaultSpellTrapSetAction as CardActionDefinition<unknown>,
     ],
   };
   result.push(def_ハリケーン);
@@ -295,6 +300,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
     actions: [
       {
         title: "発動",
+        isMandatory: false,
         playType: "CardActivation",
         spellSpeed: "Normal",
         executableCells: ["Hand", "SpellAndTrapZone"],
@@ -349,8 +355,8 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           return true;
         },
         settle: async () => true,
-      } as CardActionBase<unknown>,
-      defaultSpellTrapSetAction as CardActionBase<unknown>,
+      } as CardActionDefinition<unknown>,
+      defaultSpellTrapSetAction as CardActionDefinition<unknown>,
     ],
   };
 
@@ -361,6 +367,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
     actions: [
       {
         title: "発動",
+        isMandatory: false,
         playType: "CardActivation",
         spellSpeed: "Normal",
         executableCells: ["Hand", "SpellAndTrapZone"],
@@ -412,8 +419,8 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           return true;
         },
         settle: async () => true,
-      } as CardActionBase<unknown>,
-      defaultSpellTrapSetAction as CardActionBase<unknown>,
+      } as CardActionDefinition<unknown>,
+      defaultSpellTrapSetAction as CardActionDefinition<unknown>,
     ],
   };
 
@@ -423,6 +430,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
     actions: [
       {
         title: "発動",
+        isMandatory: false,
         playType: "CardActivation",
         spellSpeed: "Normal",
         executableCells: ["Hand", "SpellAndTrapZone"],
@@ -505,8 +513,8 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           return true;
         },
         settle: async () => true,
-      } as CardActionBase<unknown>,
-      defaultSpellTrapSetAction as CardActionBase<unknown>,
+      } as CardActionDefinition<unknown>,
+      defaultSpellTrapSetAction as CardActionDefinition<unknown>,
     ],
   };
 
@@ -517,6 +525,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
     actions: [
       {
         title: "発動",
+        isMandatory: false,
         playType: "CardActivation",
         spellSpeed: "Normal",
         executableCells: ["Hand", "SpellAndTrapZone"],
@@ -549,14 +558,14 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
 
           const salvageables = await DuelEntityShortHands.tryBanish(selectedList, myInfo);
 
-          //回収可能な場合、封印の黄金櫃カウンターを置く
-          salvageables.forEach((card) => card.counterHolder.setQty("GoldSarcophagus", 0));
+          //回収可能な場合、一旦既存の封印の黄金櫃カウンターを全て取り除く
+          salvageables.forEach((card) => card.counterHolder.removeAll("GoldSarcophagus"));
 
           return true;
         },
         settle: async () => true,
-      } as CardActionBase<unknown>,
-      getSystemAction("回収カウント進行", ["stanby"], (myInfo) => {
+      } as CardActionDefinition<unknown>,
+      getSystemPeriodAction("回収カウント進行", ["stanby"], (myInfo) => {
         if (!myInfo.activator.isTurnPlayer) {
           return;
         }
@@ -568,8 +577,8 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           .filter((card) => card.moveLog.latestRecord.movedBy === myInfo.action.entity)
           .filter((card) => card.moveLog.latestRecord.actionOwner === myInfo.activator)
           .forEach((card) => {
-            card.counterHolder.add("GoldSarcophagus");
-            const qty = card.counterHolder.getQty("GoldSarcophagus");
+            card.counterHolder.add("GoldSarcophagus", 1, myInfo.action.entity);
+            const qty = card.counterHolder.getQty("GoldSarcophagus", myInfo.action.entity);
             if (qty < 3) {
               myInfo.activator.duel.log.info(`${card.toString()}のターンカウント：${qty - 1}⇒${qty}`);
             }
@@ -577,7 +586,8 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
       }),
       {
         title: "回収",
-        playType: "MandatoryLingeringEffect",
+        isMandatory: true,
+        playType: "LingeringEffect",
         spellSpeed: "Normal",
         executableCells: duelFieldCellTypes, //回収効果はカード本体の状態に係わらず、使用可能
         executablePeriods: ["stanby"],
@@ -632,8 +642,8 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           return true;
         },
         settle: async () => true,
-      } as CardActionBase<unknown>,
-      defaultSpellTrapSetAction as CardActionBase<unknown>,
+      } as CardActionDefinition<unknown>,
+      defaultSpellTrapSetAction as CardActionDefinition<unknown>,
     ],
   };
 

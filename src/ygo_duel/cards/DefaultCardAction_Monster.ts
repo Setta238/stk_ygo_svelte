@@ -1,11 +1,18 @@
 import { faceupBattlePositions, type TBattlePosition } from "@ygo/class/YgoTypes";
 import { SystemError } from "@ygo_duel/class/Duel";
-import { CardAction, type CardActionBase, type ChainBlockInfo, type ChainBlockInfoBase, type ChainBlockInfoPrepared } from "@ygo_duel/class/DuelCardAction";
+import {
+  CardAction,
+  type CardActionDefinition,
+  type ChainBlockInfo,
+  type ChainBlockInfoBase,
+  type ChainBlockInfoPrepared,
+} from "@ygo_duel/class/DuelCardAction";
 import { type TDuelCauseReason, type TSummonRuleCauseReason, DuelEntity } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 import { defaultPrepare } from "./DefaultCardAction";
 import type { Duelist } from "@ygo_duel/class/Duelist";
 import type { MaterialInfo } from "./CardDefinitions";
+import type { SubstituteEffectDefinition } from "@ygo_duel/class/DuelSubstituteEffect";
 export type SummonPrepared = { dest: DuelFieldCell; pos: TBattlePosition; materialInfos: MaterialInfo[] };
 export const defaultNormalSummonValidate = (myInfo: ChainBlockInfoBase<SummonPrepared>): DuelFieldCell[] | undefined => {
   // 召喚権を使い切っていたら通常召喚不可。
@@ -202,8 +209,10 @@ export const defaultRuleSpecialSummonExecute = async (myInfo: ChainBlockInfo<Sum
   return true;
 };
 
-export const defaultNormalSummonAction: CardActionBase<SummonPrepared> = {
+export const defaultNormalSummonAction: CardActionDefinition<SummonPrepared> = {
   title: "通常召喚",
+  isMandatory: false,
+
   playType: "NormalSummon",
   spellSpeed: "Normal",
   executableCells: ["Hand"],
@@ -215,7 +224,7 @@ export const defaultNormalSummonAction: CardActionBase<SummonPrepared> = {
   settle: async () => true,
 };
 
-export const defaultDeclareAttackValidate = (myInfo: ChainBlockInfoBase<{ target: DuelEntity }>): DuelFieldCell[] | undefined => {
+export const defaultDeclareAttackValidate = (myInfo: ChainBlockInfoBase<undefined>): DuelFieldCell[] | undefined => {
   if (!myInfo.activator.isTurnPlayer) {
     return undefined;
   }
@@ -225,16 +234,16 @@ export const defaultDeclareAttackValidate = (myInfo: ChainBlockInfoBase<{ target
   return targets.length ? targets.map((e) => e.fieldCell) : undefined;
 };
 export const defaultDeclareAttackPrepare = async (
-  myInfo: ChainBlockInfoBase<{ target: DuelEntity }>,
+  myInfo: ChainBlockInfoBase<undefined>,
   cell: DuelFieldCell | undefined
-): Promise<ChainBlockInfoPrepared<{ target: DuelEntity }> | undefined> => {
+): Promise<ChainBlockInfoPrepared<undefined> | undefined> => {
   if (myInfo.action.entity.info.attackCount > 0 || myInfo.action.entity.battlePosition !== "Attack") {
     return;
   }
 
   // 準備段階でセルを指定していた場合、エンティティに逆変換
   if (cell?.targetForAttack) {
-    return { selectedEntities: [], chainBlockTags: [], prepared: { target: cell.targetForAttack } };
+    return { selectedEntities: cell.cardEntities, chainBlockTags: [], prepared: undefined };
   }
 
   const choices = myInfo.action.entity.getAttackTargets();
@@ -243,7 +252,7 @@ export const defaultDeclareAttackPrepare = async (
     throw new SystemError("想定されない状態", myInfo, cell);
   }
   if (choices.length === 1) {
-    return { selectedEntities: [], chainBlockTags: [], prepared: { target: choices[0] } };
+    return { selectedEntities: choices, chainBlockTags: [], prepared: undefined };
   }
 
   if (myInfo.activator.duelistType === "NPC") {
@@ -252,7 +261,7 @@ export const defaultDeclareAttackPrepare = async (
       myInfo.activator.duel.log.warn("NPCの攻撃対象選択に失敗したため、ランダムに攻撃対象を選択。");
       target = choices.randomPick();
     }
-    return { selectedEntities: [], chainBlockTags: [], prepared: { target } };
+    return { selectedEntities: [target], chainBlockTags: [], prepared: undefined };
   }
 
   const targets = await myInfo.action.entity.field.duel.view.waitSelectEntities(
@@ -268,16 +277,18 @@ export const defaultDeclareAttackPrepare = async (
     return;
   }
 
-  return { selectedEntities: [], chainBlockTags: [], prepared: { target: targets[0] } };
+  return { selectedEntities: targets, chainBlockTags: [], prepared: undefined };
 };
-export const defaultDeclareAttackExecute = async (myInfo: ChainBlockInfo<{ target: DuelEntity }>): Promise<boolean> => {
-  myInfo.action.entity.field.duel.declareAnAttack(myInfo.action.entity, myInfo.prepared.target);
+export const defaultDeclareAttackExecute = async (myInfo: ChainBlockInfo<undefined>): Promise<boolean> => {
+  myInfo.action.entity.field.duel.declareAnAttack(myInfo.action.entity, myInfo.selectedEntities[0]);
 
   return true;
 };
 
-export const defaultAttackAction: CardActionBase<{ target: DuelEntity }> = {
+export const defaultAttackAction: CardActionDefinition<undefined> = {
   title: "攻撃宣言",
+  isMandatory: false,
+
   playType: "Battle",
   spellSpeed: "Normal",
   executableCells: ["MonsterZone", "ExtraMonsterZone"],
@@ -311,8 +322,10 @@ export const defaultBattlePotisionChangeExecute = async (myInfo: ChainBlockInfo<
   return true;
 };
 
-export const defaultBattlePotisionChangeAction: CardActionBase<undefined> = {
+export const defaultBattlePotisionChangeAction: CardActionDefinition<undefined> = {
   title: "表示形式変更",
+  isMandatory: false,
+
   playType: "ChangeBattlePosition",
   spellSpeed: "Normal",
   executableCells: ["MonsterZone", "ExtraMonsterZone"],
@@ -536,9 +549,11 @@ export const defaultSyncroSummonExecute = async (myInfo: ChainBlockInfo<SummonPr
 export const getDefaultSyncroSummonAction = (
   tunersValidator: (tuners: DuelEntity[]) => boolean = (tuners) => tuners.length === 1,
   nonTunersValidator: (nonTuners: DuelEntity[]) => boolean = (nonTuners) => nonTuners.length > 0
-): CardActionBase<SummonPrepared> => {
+): CardActionDefinition<SummonPrepared> => {
   return {
     title: "シンクロ召喚",
+    isMandatory: false,
+
     playType: "SpecialSummon",
     spellSpeed: "Normal",
     executableCells: ["ExtraDeck"],
@@ -714,9 +729,11 @@ export const getDefaultXyzSummonAction = (
   qtyLowerBound: number = 2,
   qtyUpperBound: number = 2,
   validator: (materials: DuelEntity[]) => boolean = (materials) => materials.length > 1
-): CardActionBase<SummonPrepared> => {
+): CardActionDefinition<SummonPrepared> => {
   return {
     title: "エクシーズ召喚",
+    isMandatory: false,
+
     playType: "SpecialSummon",
     spellSpeed: "Normal",
     executableCells: ["ExtraDeck"],
@@ -732,4 +749,44 @@ export const getDefaultXyzSummonAction = (
     execute: defaultXyzSummonExecute,
     settle: async () => true,
   };
+};
+
+// 使いまわしたほうがメモリの節約になったりする？
+const _selfBattleSubstituteEffectDefinitionDic: { [times: number]: SubstituteEffectDefinition } = {};
+export const getSelfBattleSubstituteEffectDefinition = (times: number): SubstituteEffectDefinition => {
+  if (!_selfBattleSubstituteEffectDefinitionDic[times]) {
+    _selfBattleSubstituteEffectDefinitionDic[times] = {
+      title: `戦闘破壊耐性(${times})`,
+      isMandatory: true,
+      executableCells: ["MonsterZone"],
+      executablePeriods: ["b1DDmgCalc", "b2DDmgCalc"],
+      executableDuelistTypes: ["Controller"],
+      isOnlyNTimesPerTurnIfFaceup: times,
+      isApplicableTo: (effect, destroyType, targets) => {
+        console.log(effect.entity.toString(), effect, destroyType, targets);
+        if (!targets.includes(effect.entity)) {
+          return [];
+        }
+        if (destroyType !== "BattleDestroy") {
+          return [];
+        }
+        return [effect.entity];
+      },
+      substitute: async (effect, destroyType, targets) => {
+        if (!targets.includes(effect.entity)) {
+          return [];
+        }
+        if (destroyType !== "BattleDestroy") {
+          return [];
+        }
+        if (!effect.entity.isEffective) {
+          return [];
+        }
+        effect.entity.controller.writeInfoLog(`${effect.entity.toString()}は１ターンに１度だけ戦闘では破壊されない。`);
+        return [effect.entity];
+      },
+    };
+  }
+
+  return _selfBattleSubstituteEffectDefinitionDic[times];
 };

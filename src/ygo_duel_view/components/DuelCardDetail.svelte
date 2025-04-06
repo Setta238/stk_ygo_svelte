@@ -88,11 +88,24 @@
       {:else}
         <div class="duel_card_info_row">
           <div>
-            <pre class="json">"info" :{JSON.stringify(entity.info, null, 2)},</pre>
-            <pre class="json">"status" :{JSON.stringify(entity.status, null, 2)},</pre>
+            <div>"info" :{"{"}</div>
+            {#each Object.entries(entity.info) as [key, value]}
+              <div>"{key}" :{value?.toString()},</div>
+            {/each}
+            <div>{"},"}</div>
+            <div>"status" :{"{"}</div>
+            {#each Object.entries(entity.status) as [key, value]}
+              <div>"{key}" :{value?.toString()},</div>
+            {/each}
+            <div>{"},"}</div>
             <div>"actions" :{"["}</div>
             {#each entity.actions as action}
               <div>"{action.playType} {action.title}",</div>
+            {/each}
+            <div>{"],"}</div>
+            <div>"substituteEffects" :{"["}</div>
+            {#each entity.substituteEffects as action}
+              <div>"{action.title}",</div>
             {/each}
             <div>{"],"}</div>
             <div>"continuousEffects" :{"["}</div>

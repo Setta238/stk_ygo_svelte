@@ -408,7 +408,7 @@ export class Duelist {
     }
 
     // 強制効果がある場合、最優先で選択 ※重要
-    const mandatoryEffects = enableActions.filter((action) => action.playType === "MandatoryIgnitionEffect" || action.playType === "MandatoryTriggerEffect");
+    const mandatoryEffects = enableActions.filter((action) => action.isMandatory);
     if (mandatoryEffects.length) {
       return mandatoryEffects.randomPick();
     }

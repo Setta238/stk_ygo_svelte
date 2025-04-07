@@ -318,6 +318,9 @@ export const defaultBattlePotisionChangeExecute = async (myInfo: ChainBlockInfo<
     myInfo.action.entity,
     myInfo.activator
   );
+
+  console.log(myInfo.action.entity.toString());
+
   myInfo.action.entity.info.battlePotisionChangeCount++;
   return true;
 };

@@ -271,6 +271,7 @@ export class DuelViewController {
         validator: entitiesValidator,
         qty: qty ?? -1,
         cancelable: false,
+        chainBlockInfos: activator.duel.chainBlockInfos,
       };
     }
 

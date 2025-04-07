@@ -822,7 +822,9 @@ export class Duel {
         await chainBlock.action.settle(chainBlockInfo, this.chainBlockInfos);
       }
 
-      this.clock.incrementProcSeq();
+      console.log(this.clock.totalProcSeq);
+      this.clock.incrementChainBlockSeq();
+      console.log(this.clock.totalProcSeq);
 
       if (isStartPoint) {
         // このチェーンでカードの発動を行った、永続類ではない魔法罠を全て墓地送りにする。

@@ -24,6 +24,7 @@ import { createCardDefinitions_XyzMonster } from "@ygo_duel/cards/CardDefinition
 import { createCardDefinitions_Blackwing_Monster } from "@ygo_duel/cards/tag_b/CardDefinitions_Blackwing_Monster";
 import { createCardDefinitions_Resonator_Monster } from "@ygo_duel/cards/tag_r/CardDefinitions_Resonator_Monster";
 import { createCardDefinitions_Stardust_Monster } from "@ygo_duel/cards/tag_s/CardDefinitions_Stardust_Monster";
+import { createCardDefinitions_ContinuousTrap } from "./CardDefinitions_ContinuousTrap";
 
 export type MaterialInfo = {
   material: DuelEntity;
@@ -74,6 +75,7 @@ export const createCardDefinitions = (): CardDefinition[] => {
     ...createCardDefinitions_Blackwing_Monster(),
     ...createCardDefinitions_NormalTrap(),
     ...createCardDefinitions_NormalTrap_UponAttackDeclaration(),
+    ...createCardDefinitions_ContinuousTrap(),
     ...createCardDefinitions_NormalSpell_General_Draw(),
     ...createCardDefinitions_XyzMonster(),
     ...createCardDefinitions_Resonator_Monster(),

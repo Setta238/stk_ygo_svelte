@@ -21,6 +21,7 @@
       validator={modalController.duelEntitiesSelectorArg.validator}
       qty={modalController.duelEntitiesSelectorArg.qty}
       cancelable={modalController.duelEntitiesSelectorArg.cancelable}
+      chainBlockInfos={modalController.duelEntitiesSelectorArg.chainBlockInfos}
       resolve={(selectedList: DuelEntity[] | undefined) => {
         modalController.duelEntitiesSelectorResolve(selectedList);
       }}

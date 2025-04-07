@@ -18940,5 +18940,29 @@
     "kind": "Spell",
     "spellCategory": "QuickPlay",
     "wikiEncodedName": "%A1%D4%A5%B3%A5%DE%A5%F3%A5%C9%A1%A6%A5%EA%A5%BE%A5%CD%A1%BC%A5%BF%A1%BC%A1%D5"
+  },
+  "エンジェル・リフト": {
+    "name": "エンジェル・リフト",
+    "nameKana": "",
+    "description": "自分の墓地のレベル２以下のモンスター１体を選択し、表側攻撃表示で特殊召喚する。\nこのカードがフィールド上から離れた時、そのモンスターを破壊する。\nそのモンスターがフィールド上から離れた時、このカードを破壊する。 ",
+    "kind": "Trap",
+    "trapCategory": "Continuous",
+    "wikiEncodedName": "%A1%D4%A5%A8%A5%F3%A5%B8%A5%A7%A5%EB%A1%A6%A5%EA%A5%D5%A5%C8%A1%D5"
+  },
+  "正統なる血統": {
+    "name": "正統なる血統",
+    "nameKana": "",
+    "description": "(1)：自分の墓地の通常モンスター１体を対象としてこのカードを発動できる。\nそのモンスターを攻撃表示で特殊召喚する。\nこのカードがフィールドから離れた時にそのモンスターは破壊される。\nそのモンスターがフィールドから離れた時にこのカードは破壊される。 ",
+    "kind": "Trap",
+    "trapCategory": "Continuous",
+    "wikiEncodedName": "%A1%D4%C0%B5%C5%FD%A4%CA%A4%EB%B7%EC%C5%FD%A1%D5"
+  },
+  "蘇りし魂": {
+    "name": "蘇りし魂",
+    "nameKana": "",
+    "description": "(1)：自分の墓地の通常モンスター１体を対象としてこのカードを発動できる。\nそのモンスターを守備表示で特殊召喚する。\nこのカードがフィールドから離れた時にそのモンスターは破壊される。\nそのモンスターが破壊された時にこのカードは破壊される。",
+    "kind": "Trap",
+    "trapCategory": "Continuous",
+    "wikiEncodedName": "%A1%D4%C1%C9%A4%EA%A4%B7%BA%B2%A1%D5"
   }
 }

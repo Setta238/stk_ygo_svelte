@@ -4,6 +4,7 @@ import { type CardActionDefinitionAttr, CardAction, type ChainBlockInfo, type IC
 import { DuelEntity, type TSummonRuleCauseReason, destoryCauseReasonDic, posToSummonPos } from "./DuelEntity";
 import type { Duelist } from "./Duelist";
 import type { TProcType } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
+import type { IDuelClock } from "./DuelClock";
 
 declare module "./DuelEntity" {
   interface DuelEntity {
@@ -28,6 +29,7 @@ declare module "./DuelEntity" {
     validateDestory(destroyType: TDestoryCauseReason, activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionDefinitionAttr>): boolean;
     getIndexInCell(): number;
     getXyzMaterials(): DuelEntity[];
+    wasMovedAfter(clock: IDuelClock): boolean;
   }
   interface DuelEntityConstructor {
     isEmpty(value: string): boolean;
@@ -165,6 +167,10 @@ DuelEntity.prototype.getXyzMaterials = function (): DuelEntity[] {
   const entity = this as DuelEntity;
 
   return (entity.status.monsterCategories ?? []).includes("Xyz") ? entity.fieldCell.xyzMaterials : [];
+};
+DuelEntity.prototype.wasMovedAfter = function (clock: IDuelClock): boolean {
+  console.log(this.toString(), this.moveLog.latestRecord.movedAt.totalProcSeq, clock.totalProcSeq);
+  return this.moveLog.latestRecord.movedAt.totalProcSeq > clock.totalProcSeq;
 };
 
 const _tryMarkForDestory = (entity: DuelEntity, chainBlockInfo: ChainBlockInfo<unknown>): boolean => {

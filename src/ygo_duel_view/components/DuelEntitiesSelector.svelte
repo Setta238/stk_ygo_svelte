@@ -1,20 +1,32 @@
 <script lang="ts" module>
+  import type { ChainBlockInfo } from "@ygo_duel/class/DuelCardAction";
+
   export type DuelEntitiesSelectorArg = {
     title: string;
     entities: DuelEntity[];
     validator: (entities: DuelEntity[]) => boolean;
     qty: number;
     cancelable: boolean;
+    chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>;
   };
 </script>
 
 <script lang="ts">
   import { cardEntitySorter, type DuelEntity } from "../../ygo_duel/class/DuelEntity";
   import DuelCard from "@ygo_duel_view/components/DuelCard.svelte";
-  let { resolve, title, entities, validator, qty, cancelable }: DuelEntitiesSelectorArg & { resolve: (selected: DuelEntity[] | undefined) => void } = $props();
+  let {
+    resolve,
+    title,
+    entities,
+    validator,
+    qty,
+    cancelable,
+    chainBlockInfos,
+  }: DuelEntitiesSelectorArg & { resolve: (selected: DuelEntity[] | undefined) => void } = $props();
   let selectedList = $state([] as DuelEntity[]);
 
   let isShown = true;
+  let targetsInPreviousChainBlocks = chainBlockInfos.flatMap((info) => info.selectedEntities).getDistinct();
 
   const close = () => {};
 </script>
@@ -26,7 +38,8 @@
       <div>{title}</div>
       {#each entities.map((e) => e.controller.seat).getDistinct() as seat}
         <div class="entities_list {seat}">
-          {#each entities.filter((e) => e.controller.seat === seat).toSorted(cardEntitySorter) as entity}<div>
+          {#each entities.filter((e) => e.controller.seat === seat).toSorted(cardEntitySorter) as entity}
+            <div class="entities_list_item {targetsInPreviousChainBlocks.includes(entity) ? `effect_target` : ``}">
               <DuelCard
                 {entity}
                 isVisibleForcibly={true}
@@ -67,6 +80,18 @@
     margin: 0.3rem;
     padding: 0.5rem;
   }
+  .entities_list_item {
+    display: flex;
+    flex-direction: column;
+  }
+  .entities_list_item::before {
+    content: "{効果対象}";
+    visibility: hidden;
+  }
+  .entities_list_item.effect_target::before {
+    visibility: initial;
+  }
+
   .base {
     position: fixed;
     top: 0;

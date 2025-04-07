@@ -1175,4 +1175,12 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 デッキから「レッド・デーモンズ・ドラゴン」のカード名が記された魔法・罠カード１枚を手札に加える。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Tuner","Effect"],level:2,attack:400,defense:400,attributes:["Dark"],types:["Fiend"],wikiEncodedName:"%A1%D4%A5%F4%A5%A3%A5%B8%A5%E7%A5%F3%A1%A6%A5%EA%A5%BE%A5%CD%A1%BC%A5%BF%A1%BC%A1%D5",nameTags:["リゾネーター"]},"リゾネーター・エンジン":{name:"リゾネーター・エンジン",nameKana:"",description:`(1)：自分の墓地の「リゾネーター」モンスター２体を対象として発動できる。
 デッキからレベル４モンスター１体を手札に加え、対象のモンスターをデッキに戻す。`,kind:"Spell",spellCategory:"Normal",wikiEncodedName:"%A1%D4%A5%EA%A5%BE%A5%CD%A1%BC%A5%BF%A1%BC%A1%A6%A5%A8%A5%F3%A5%B8%A5%F3%A1%D5"},"コマンド・リゾネーター":{name:"コマンド・リゾネーター",nameKana:"",description:`このカード名のカードは１ターンに１枚しか発動できない。
 (1)：手札から「リゾネーター」モンスター１体を捨てて発動できる。
-デッキからレベル４以下の悪魔族モンスター１体を手札に加える。`,kind:"Spell",spellCategory:"QuickPlay",wikiEncodedName:"%A1%D4%A5%B3%A5%DE%A5%F3%A5%C9%A1%A6%A5%EA%A5%BE%A5%CD%A1%BC%A5%BF%A1%BC%A1%D5"}};export{e as j};
+デッキからレベル４以下の悪魔族モンスター１体を手札に加える。`,kind:"Spell",spellCategory:"QuickPlay",wikiEncodedName:"%A1%D4%A5%B3%A5%DE%A5%F3%A5%C9%A1%A6%A5%EA%A5%BE%A5%CD%A1%BC%A5%BF%A1%BC%A1%D5"},"エンジェル・リフト":{name:"エンジェル・リフト",nameKana:"",description:`自分の墓地のレベル２以下のモンスター１体を選択し、表側攻撃表示で特殊召喚する。
+このカードがフィールド上から離れた時、そのモンスターを破壊する。
+そのモンスターがフィールド上から離れた時、このカードを破壊する。 `,kind:"Trap",trapCategory:"Continuous",wikiEncodedName:"%A1%D4%A5%A8%A5%F3%A5%B8%A5%A7%A5%EB%A1%A6%A5%EA%A5%D5%A5%C8%A1%D5"},正統なる血統:{name:"正統なる血統",nameKana:"",description:`(1)：自分の墓地の通常モンスター１体を対象としてこのカードを発動できる。
+そのモンスターを攻撃表示で特殊召喚する。
+このカードがフィールドから離れた時にそのモンスターは破壊される。
+そのモンスターがフィールドから離れた時にこのカードは破壊される。 `,kind:"Trap",trapCategory:"Continuous",wikiEncodedName:"%A1%D4%C0%B5%C5%FD%A4%CA%A4%EB%B7%EC%C5%FD%A1%D5"},蘇りし魂:{name:"蘇りし魂",nameKana:"",description:`(1)：自分の墓地の通常モンスター１体を対象としてこのカードを発動できる。
+そのモンスターを守備表示で特殊召喚する。
+このカードがフィールドから離れた時にそのモンスターは破壊される。
+そのモンスターが破壊された時にこのカードは破壊される。`,kind:"Trap",trapCategory:"Continuous",wikiEncodedName:"%A1%D4%C1%C9%A4%EA%A4%B7%BA%B2%A1%D5"}};export{e as j};

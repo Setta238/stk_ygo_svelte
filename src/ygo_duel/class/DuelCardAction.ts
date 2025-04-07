@@ -3,6 +3,7 @@ import type { DuelFieldCell } from "./DuelFieldCell";
 import { type Duelist } from "./Duelist";
 import type { DuelEntity } from "./DuelEntity";
 import { CardActionBase, type CardActionDefinitionBase } from "./DuelCardActionBase";
+import type { IDuelClock } from "./DuelClock";
 export const executableDuelistTypes = ["Controller", "Opponent"] as const;
 export type TExecutableDuelistType = (typeof executableDuelistTypes)[number];
 
@@ -70,6 +71,7 @@ export type ChainBlockInfoBase<T> = {
   action: CardAction<T>;
   activator: Duelist;
   isActivatedIn: DuelFieldCell;
+  isActivatedAt: IDuelClock;
   isNegatedActivationBy?: CardAction<unknown>;
   isNegatedEffectBy?: CardAction<unknown>;
   state: "unloaded" | "ready" | "done" | "failed";
@@ -287,6 +289,7 @@ export class CardAction<T> extends CardActionBase implements ICardAction<T> {
       action: this,
       activator: activator,
       isActivatedIn: this.entity.fieldCell,
+      isActivatedAt: this.duel.clock.getClone(),
       state: "unloaded",
     };
     return this.definition.validate(myInfo, chainBlockInfos);
@@ -308,6 +311,7 @@ export class CardAction<T> extends CardActionBase implements ICardAction<T> {
       action: this,
       activator: activator,
       isActivatedIn: isActivatedIn,
+      isActivatedAt: this.duel.clock.getClone(),
       state: "ready",
     };
     const prepared = await this.definition.prepare(myInfo, cell, chainBlockInfos, cancelable);

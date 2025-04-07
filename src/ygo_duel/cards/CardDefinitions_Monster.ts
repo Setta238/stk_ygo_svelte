@@ -217,9 +217,11 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
         },
         execute: async (myInfo) => {
           // 同一チェーン中に墓地を離れていたら不可
-          if (myInfo.action.entity.wasMovedAtCurrentChain) {
+          if (myInfo.action.entity.wasMovedAfter(myInfo.isActivatedAt)) {
+            await myInfo.action.entity.ruleDestory();
             return false;
           }
+
           const availableCells = myInfo.activator.getAvailableMonsterZones();
           if (availableCells.length === 0) {
             return false;
@@ -403,7 +405,8 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
         },
         execute: async (myInfo) => {
           // 同一チェーン中に墓地を離れていたら不可
-          if (myInfo.action.entity.wasMovedAtCurrentChain) {
+          // 移動していた場合、処理を終了する。
+          if (myInfo.action.entity.wasMovedAfter(myInfo.isActivatedAt)) {
             return false;
           }
           const availableCells = myInfo.activator.getAvailableMonsterZones();

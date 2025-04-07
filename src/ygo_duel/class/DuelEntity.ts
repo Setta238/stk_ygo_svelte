@@ -391,9 +391,13 @@ export class DuelEntity {
 
     const duel = items[0][0].duel;
 
-    // 対象を配列にしておく
-    const targets = items.map(([entity]) => entity).filter((entity) => !(excludedList ?? []).includes(entity));
-    const _excludedList = [...targets, ...duel.field.getEntiteisOnField().filter((entity) => entity.info.isDying)];
+    // 除外対象を配列にしておく
+    // TODO 不要かも？
+    const entitiesWithAnimation = items
+      .filter(([entity, to]) => entity.fieldCell !== to)
+      .map(([entity]) => entity)
+      .filter((entity) => !(excludedList ?? []).includes(entity));
+    const _excludedList = [...entitiesWithAnimation, ...duel.field.getEntiteisOnField().filter((entity) => entity.info.isDying)];
 
     // 目的地ごとに仕分ける
     const destMap = new Map<DuelFieldCell, [entity: DuelEntity, ...Parameters<typeof DuelEntity.prototype._move>][]>();
@@ -452,7 +456,7 @@ export class DuelEntity {
       // 装備対象不在で破壊されるものを更新
       duel.field.cardRelationPool.excludesExpired();
 
-      // 新しく発生したものを検知（※ここまでのどこかで対象だったものを除く）
+      // 新しく発生したものを検知（※ここまでのどこかでアニメーションしたものを除く）
       const newTargets = duel.field
         .getEntiteisOnField()
         .filter((entity) => entity.info.isDying)
@@ -471,8 +475,10 @@ export class DuelEntity {
         await this.sendManyToGraveyard(newTargets, _excludedList);
       }
     }
+    console.log(items.map(([entity]) => entity.toString()));
     // 色々更新処理
     DuelEntity.settleEntityMove(duel);
+    console.log(items.map(([entity]) => entity.toString()));
   };
 
   public static readonly summonMany = async (
@@ -867,7 +873,8 @@ export class DuelEntity {
         _movedAs.push("AttackSummon");
       }
     }
-    this.moveAlone(
+    this.duel.log.info(logText, actionOwner);
+    await this.moveAlone(
       this.fieldCell,
       "Monster",
       pos === "Set" ? "FaceDown" : "FaceUp",
@@ -878,7 +885,6 @@ export class DuelEntity {
       actionOwner,
       actionOwner
     );
-    this.duel.log.info(logText, actionOwner);
   };
 
   public readonly setNonFieldMonsterPosition = async (
@@ -1015,7 +1021,7 @@ export class DuelEntity {
       throw new Error("illegal argument: to");
     }
 
-    this.onBeforeMoveEvent.trigger({
+    await this.onBeforeMoveEvent.trigger({
       entity: this,
       args: [to, kind, face, orientation, pos, movedAs, movedBy, actionOwner, chooser],
     });
@@ -1120,7 +1126,7 @@ export class DuelEntity {
     this.moveLog.push(movedAs, movedBy, actionOwner, chooser);
 
     console.log(this.toString());
-    this.onAfterMoveEvent.trigger(this);
+    await this.onAfterMoveEvent.trigger(this);
 
     return to;
   };

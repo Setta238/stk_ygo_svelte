@@ -170,6 +170,11 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         execute: async (myInfo) => {
           const emptyCells = myInfo.activator.getEmptyMonsterZones();
           const target = myInfo.selectedEntities[0];
+          // 移動していた場合、処理を終了する。
+          if (target.wasMovedAfter(myInfo.isActivatedAt)) {
+            return false;
+          }
+
           await myInfo.activator.summon(target, ["Attack", "Defense"], emptyCells, "SpecialSummon", ["Effect"], myInfo.action.entity, false);
           return true;
         },
@@ -461,7 +466,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           }
 
           const cost = await myInfo.action.entity.field.sendToGraveyard(
-            "墓地送るモンスターを選択",
+            "墓地へ送るモンスターを選択",
             myInfo.activator,
             choices,
             1,

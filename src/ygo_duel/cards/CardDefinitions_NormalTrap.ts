@@ -99,6 +99,11 @@ export const createCardDefinitions_NormalTrap = (): CardDefinition[] => {
         execute: async (myInfo) => {
           const emptyCells = myInfo.activator.getEmptyMonsterZones();
           const target = myInfo.selectedEntities[0];
+          //発動後に移動していた場合、蘇生不可
+          if (target.wasMovedAfter(myInfo.isActivatedAt)) {
+            return false;
+          }
+
           await myInfo.activator.summon(target, ["Defense"], emptyCells, "SpecialSummon", ["Effect"], myInfo.action.entity, false);
           return true;
         },

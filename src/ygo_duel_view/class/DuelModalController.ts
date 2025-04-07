@@ -29,6 +29,7 @@ export class DuelModalController {
     validator: () => true,
     qty: -1,
     cancelable: false,
+    chainBlockInfos: [],
   };
   public duelEntitiesSelectorValue: DuelEntity[] | undefined;
   public duelEntitiesSelectorResolve: (value: DuelEntity[] | undefined) => void = () => {};

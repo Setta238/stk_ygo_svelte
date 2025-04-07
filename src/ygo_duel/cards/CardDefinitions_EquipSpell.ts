@@ -125,16 +125,16 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
             await myInfo.action.entity.ruleDestory();
             return false;
           }
-
           const emptyCells = myInfo.activator.getEmptyMonsterZones();
           const target = myInfo.selectedEntities[0];
-          await myInfo.activator.summon(target, ["Attack"], emptyCells, "SpecialSummon", ["Effect"], myInfo.action.entity, false);
 
-          // チェーンして除外された場合など、このカードで蘇生した状態でない場合、破壊して処理を終了する。
-          if (target.moveLog.latestRecord.movedBy !== myInfo.action.entity) {
+          // 移動していた場合、破壊して処理を終了する。
+          if (target.wasMovedAfter(myInfo.isActivatedAt)) {
             await myInfo.action.entity.ruleDestory();
             return false;
           }
+
+          await myInfo.activator.summon(target, ["Attack"], emptyCells, "SpecialSummon", ["Effect"], myInfo.action.entity, false);
 
           myInfo.action.entity.onBeforeMove.append(async (data) => {
             if (data.entity.face !== "FaceUp" || !data.entity.isOnFieldAsSpellTrap) {

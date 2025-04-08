@@ -920,29 +920,28 @@ export class DuelEntity {
     to: DuelFieldCell,
     kind: TCardKind,
     movedAs: TDuelCauseReason[],
-    movedBy: DuelEntity | undefined,
-    actionOwner: Duelist | undefined
+    movedBy: DuelEntity,
+    actionOwner: Duelist
   ): Promise<void> => {
+    actionOwner.writeInfoLog(`${this.toString()}をセット（${movedAs}）。`);
     await this.moveAlone(to, kind, "FaceDown", "Vertical", "Top", [...movedAs, "SpellTrapSet"], movedBy, actionOwner, actionOwner);
   };
   public readonly activateSpellTrapFromHand = async (
     to: DuelFieldCell,
     kind: TCardKind,
     movedAs: TDuelCauseReason[],
-    movedBy: DuelEntity | undefined,
-    actionOwner: Duelist | undefined
+    movedBy: DuelEntity,
+    actionOwner: Duelist
   ): Promise<void> => {
+    actionOwner.writeInfoLog(`手札から${this.toString()}を発動。`);
     await this.moveAlone(to, kind, "FaceUp", "Vertical", "Top", [...movedAs, "CardActivation"], movedBy, actionOwner, actionOwner);
   };
 
-  public readonly activateSpellTrapOnField = async (
-    kind: TCardKind,
-    movedAs: TDuelCauseReason[],
-    movedBy: DuelEntity | undefined,
-    actionOwner: Duelist | undefined
-  ): Promise<void> => {
+  public readonly activateSpellTrapOnField = async (kind: TCardKind, movedAs: TDuelCauseReason[], movedBy: DuelEntity, actionOwner: Duelist): Promise<void> => {
+    actionOwner?.writeInfoLog(`セットカードをオープン、${this.toString()}を発動。`);
     await this.moveAlone(this.fieldCell, kind, "FaceUp", "Vertical", "Top", [...movedAs, "CardActivation"], movedBy, actionOwner, actionOwner);
   };
+
   public readonly draw = async (
     moveAs: TDuelCauseReason[],
     movedBy: DuelEntity | undefined,

@@ -31,6 +31,9 @@ export const createCardDefinitions_Stardust_Monster = (): CardDefinition[] => {
         executableCells: ["MonsterZone", "ExtraMonsterZone"],
         executablePeriods: duelPeriodKeys,
         executableDuelistTypes: ["Controller"],
+        canPayCosts: (myInfo) =>
+          myInfo.activator.canRelease([myInfo.action.entity]) &&
+          myInfo.action.entity.canBeReleased(myInfo.activator, myInfo.action.entity, ["ReleaseAsCost"], myInfo.action),
         validate: (myInfo, chainBlockInfos) => {
           if (chainBlockInfos.length === 0) {
             return;

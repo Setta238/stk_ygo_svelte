@@ -1,5 +1,5 @@
 import { StkEvent } from "@stk_utils/class/StkEvent";
-import { Duel, DuelEnd, SystemError, type DuelistResponse } from "@ygo_duel/class/Duel";
+import { Duel, DuelEnd, IllegalCancelError, SystemError, type DuelistResponse } from "@ygo_duel/class/Duel";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { DuelFieldCell, type TDuelEntityMovePos } from "@ygo_duel/class/DuelFieldCell";
 import { type Duelist } from "@ygo_duel/class/Duelist";
@@ -347,7 +347,40 @@ export class DuelViewController {
     this.onDragStartEvent.trigger(actions);
     this.requireUpdate();
   };
+
   public readonly removeDraggingActions = () => {
     this.onDragEndEvent.trigger();
+  };
+
+  public readonly waitDammyActions = async (
+    chooser: Duelist,
+    entity: DuelEntity,
+    selectableCells: DuelFieldCell[],
+    message: string,
+    actionTitle: string,
+    cancelable: boolean = false
+  ): Promise<DuelFieldCell | undefined> => {
+    let cell: DuelFieldCell = selectableCells.randomPick();
+    if (selectableCells.length > 1) {
+      if (chooser.duelistType !== "NPC") {
+        const dammyActions = [CardAction.createDammyAction(entity, actionTitle, selectableCells, undefined)];
+        this.duel.view.modalController.selectAction(this.duel.view, {
+          title: message,
+          activator: chooser,
+          actions: dammyActions as CardAction<unknown>[],
+          cancelable: false,
+        });
+        const dAct = await this.duel.view.waitSubAction(chooser, dammyActions as CardAction<unknown>[], message, cancelable);
+        const action = dAct.action;
+        if (!action && !cancelable) {
+          throw new IllegalCancelError("", dAct);
+        }
+        if (!action) {
+          return;
+        }
+        cell = action.cell || cell;
+      }
+    }
+    return cell;
   };
 }

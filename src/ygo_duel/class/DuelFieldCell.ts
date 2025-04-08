@@ -104,6 +104,10 @@ export class DuelFieldCell {
     return this.cardEntities.length === 0 && this._entities.filter((e) => duelEntityDammyTypes.find((t) => t === e.entityType)).length === 0;
   }
 
+  public get isAvailableForPendulum() {
+    return this.isAvailable && this.isSpellTrapZoneLikeCell && (this.column === 1 || this.column === 5);
+  }
+
   public get isStackCell() {
     return stackCellTypes.some((t) => t === this.cellType);
   }

@@ -1,8 +1,8 @@
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
-import { defaultSpellTrapPrepare, defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/cards/DefaultCardAction_Spell";
+import { defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/cards/DefaultCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
-import { type CardAction, type CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
+import { type CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
 
 import type { CardDefinition } from "./CardDefinitions";
 
@@ -33,7 +33,9 @@ export const createCardDefinitions_NormalSpell_General_Draw = (): CardDefinition
           }
           return defaultSpellTrapValidate(myInfo);
         },
-        prepare: (action, cell, chainBlockInfos, cancelable) => defaultSpellTrapPrepare(action, cell, chainBlockInfos, cancelable, ["Draw"], [], undefined),
+        prepare: async () => {
+          return { selectedEntities: [], chainBlockTags: ["Draw"], prepared: undefined };
+        },
         execute: async (chainBlockInfo) => {
           await chainBlockInfo.activator.draw(2, chainBlockInfo.action.entity, chainBlockInfo.activator);
           return true;
@@ -76,8 +78,8 @@ export const createCardDefinitions_NormalSpell_General_Draw = (): CardDefinition
           }
           return defaultSpellTrapValidate(myInfo);
         },
-        prepare: async (myInfo, cell, chainBlockInfos, cancelable) => {
-          const target = await myInfo.action.entity.field.duel.view.waitSelectEntities(
+        prepare: async (myInfo) => {
+          const targets = await myInfo.action.entity.field.duel.view.waitSelectEntities(
             myInfo.activator,
             myInfo.activator
               .getGraveyard()
@@ -88,11 +90,11 @@ export const createCardDefinitions_NormalSpell_General_Draw = (): CardDefinition
             "デッキに戻すモンスターを選択。",
             false
           );
-          if (!target) {
+          if (!targets) {
             return;
           }
 
-          return defaultSpellTrapPrepare(myInfo, cell, chainBlockInfos, cancelable, ["Draw", "ReturnToDeckFromGraveyard"], target, undefined);
+          return { selectedEntities: targets, chainBlockTags: ["Draw", "ReturnToDeckFromGraveyard"], prepared: undefined };
         },
         execute: async (myInfo) => {
           // いずれかが同一チェーン中に墓地を離れていたら不可
@@ -132,7 +134,9 @@ export const createCardDefinitions_NormalSpell_General_Draw = (): CardDefinition
           }
           return defaultSpellTrapValidate(myInfo);
         },
-        prepare: (action, cell, chainBlockInfos) => defaultSpellTrapPrepare(action, cell, chainBlockInfos, false, ["Draw", "DiscordAsEffect"], [], undefined),
+        prepare: async () => {
+          return { selectedEntities: [], chainBlockTags: ["Draw", "DiscordAsEffect"], prepared: undefined };
+        },
         execute: async (myInfo) => {
           await myInfo.activator.draw(3, myInfo.action.entity, myInfo.activator);
           await myInfo.activator.discard(2, ["Effect", "Discard"], myInfo.action.entity, myInfo.activator);
@@ -163,8 +167,9 @@ export const createCardDefinitions_NormalSpell_General_Draw = (): CardDefinition
           }
           return defaultSpellTrapValidate(myInfo);
         },
-        prepare: (action, cell, chainBlockInfos) => defaultSpellTrapPrepare(action, cell, chainBlockInfos, false, ["Draw"], [], undefined),
-
+        prepare: async () => {
+          return { selectedEntities: [], chainBlockTags: ["Draw"], prepared: undefined };
+        },
         execute: async (myInfo) => {
           await myInfo.activator.draw(1, myInfo.action.entity, myInfo.activator);
           // このドローは時の任意効果のトリガーにならない。
@@ -208,7 +213,9 @@ export const createCardDefinitions_NormalSpell_General_Draw = (): CardDefinition
           }
           return defaultSpellTrapValidate(myInfo);
         },
-        prepare: (action, cell, chainBlockInfos) => defaultSpellTrapPrepare(action, cell, chainBlockInfos, false, ["SearchFromDeck"], [], undefined),
+        prepare: async () => {
+          return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"], prepared: undefined };
+        },
         execute: async (myInfo) => {
           const h1 = myInfo.activator.getHandCell().cardEntities.length;
           const h2 = myInfo.activator.getOpponentPlayer().getHandCell().cardEntities.length;

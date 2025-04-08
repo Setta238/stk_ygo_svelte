@@ -1,10 +1,19 @@
-import { type CardActionDefinition, type ChainBlockInfoBase, type TEffectTag } from "@ygo_duel/class/DuelCardAction";
+import { type ActionCostInfo, type CardActionDefinition, type ChainBlockInfo, type ChainBlockInfoBase, type TEffectTag } from "@ygo_duel/class/DuelCardAction";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { duelFieldCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import type { TDuelPeriodKey } from "@ygo_duel/class/DuelPeriod";
 export const defaultPrepare = async () => {
   return { selectedEntities: [] as DuelEntity[], chainBlockTags: [] as TEffectTag[], prepared: undefined };
 };
+export const defaultPayLifePoint = async <T>(
+  myInfo: ChainBlockInfoBase<T>,
+  chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
+  point: number
+): Promise<ActionCostInfo> => {
+  myInfo.activator.payLp(point, myInfo.action.entity);
+  return { LifePoint: point };
+};
+
 export const getSystemPeriodAction = (
   title: string,
   executablePeriods: Readonly<TDuelPeriodKey[]>,

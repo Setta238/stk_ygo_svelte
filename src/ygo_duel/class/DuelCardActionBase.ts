@@ -14,6 +14,7 @@ export type CardActionDefinitionBase = {
   isOnlyNTimesPerDuel?: number;
   isOnlyNTimesPerTurnIfFaceup?: number;
   isOnlyNTimesIfFaceup?: number;
+  actionGroupNamePerTurn?: string;
 };
 
 export class CardActionBase {

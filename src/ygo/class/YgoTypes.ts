@@ -104,7 +104,7 @@ export const monsterTypes = [
   "Zombie",
 ] as const;
 export type TMonsterType = (typeof monsterTypes)[number];
-export const spellCategories = ["Normal", "Continuous", "Field", "QuickPlay", "Equip", "Ritual"] as const;
+export const spellCategories = ["Normal", "Continuous", "Field", "QuickPlay", "Equip", "Ritual", "PendulumScale"] as const;
 export type TSpellCategory = (typeof spellCategories)[number];
 
 export const spellCategoryDic: { [key in TSpellCategory]: string } = {
@@ -114,6 +114,7 @@ export const spellCategoryDic: { [key in TSpellCategory]: string } = {
   QuickPlay: "速攻",
   Equip: "装備",
   Ritual: "儀式",
+  PendulumScale: "ペンデュラム",
 };
 export const trapCategories = ["Normal", "Continuous", "Counter"] as const;
 export type TTrapCategory = (typeof trapCategories)[number];

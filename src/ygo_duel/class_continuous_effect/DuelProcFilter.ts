@@ -14,6 +14,8 @@ export const procTypes = [
   "Effect",
   "SendToGraveyardAsEffect",
   "SendToGraveyardAsCost",
+  "ReleaseAsCost",
+  "ReleaseAsEffect",
   ...banishProcType,
 ] as const;
 export type TProcType = (typeof procTypes)[number] | TSummonRuleCauseReason | TSummonPosCauseReason | TMaterialCauseReason;

@@ -1,7 +1,7 @@
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
 import type { DuelFieldCell } from "./DuelFieldCell";
 import { type Duelist } from "./Duelist";
-import type { DuelEntity } from "./DuelEntity";
+import { DuelEntity } from "./DuelEntity";
 import { CardActionBase, type CardActionDefinitionBase } from "./DuelCardActionBase";
 import type { IDuelClock } from "./DuelClock";
 export const executableDuelistTypes = ["Controller", "Opponent"] as const;
@@ -41,8 +41,8 @@ export const effectTags = [
   "AddToHandFromGraveyard", //わらし
   "ReturnToDeckFromGraveyard", //わらし
   "SpecialSummonFromGraveyard", //わらし
-  "Banish", //今のところない？
   "BanishFromField", //今のところない？
+  "BanishFromHand", //今のところない？
   "Destroy",
   "DestroyMultiple",
   "DestroyOnField", //スタダ
@@ -53,6 +53,8 @@ export const effectTags = [
   "DestroyMonstersOnField", //我が身を盾に
   "DestroySpellTrapOnField", //アヌビスの裁き
   "DestroySpellTrapsOnField", //アヌビスの裁き
+  "SpecialSummonFromHand",
+  "SpecialSummonFromExtraDeck",
   "IfNormarlSummonSucceed", //畳返し
   "IfSpecialSummonSucceed", //ツバメ返し
   "DamageToOpponent", //地獄の扉越し銃
@@ -66,6 +68,16 @@ export const effectTags = [
   "NegateCardActivation",
 ] as const;
 export type TEffectTag = (typeof effectTags)[number];
+
+export const NumericCostTypes = ["LifePoint", "XyzMaterial", "Counter"] as const;
+export type TNumericCostType = (typeof NumericCostTypes)[number];
+export const EntityCostTypes = ["Discard", "Banish", "Release", "ReturnToDeck", "ReturnToHand", "SendToGraveyard"] as const;
+export type TEntityCostType = (typeof EntityCostTypes)[number];
+export const CostTypes = [...NumericCostTypes, ...EntityCostTypes] as const;
+export type TCostType = (typeof CostTypes)[number];
+
+export type ActionCostInfo = { [key in TCostType]?: key extends TNumericCostType ? number : DuelEntity[] };
+
 export type ChainBlockInfoBase<T> = {
   index: number;
   action: CardAction<T>;
@@ -74,6 +86,7 @@ export type ChainBlockInfoBase<T> = {
   isActivatedAt: IDuelClock;
   isNegatedActivationBy?: CardAction<unknown>;
   isNegatedEffectBy?: CardAction<unknown>;
+  costInfo: ActionCostInfo;
   state: "unloaded" | "ready" | "done" | "failed";
 };
 
@@ -88,8 +101,10 @@ export type CardActionDefinitionAttr = CardActionDefinitionBase & {
   playType: TCardActionType;
   spellSpeed: TSpellSpeed;
   hasToTargetCards?: boolean;
-
-  actionGroupNamePerTurn?: string;
+  /**
+   * コスト払う必要があるかどうか（コピー効果用）
+   */
+  needsToPayCost?: boolean;
   /**
    * 光の護封剣などの例外のみ指定が必要
    */
@@ -106,17 +121,23 @@ export type CardActionDefinitionAttr = CardActionDefinitionBase & {
   priorityForNPC?: number;
 };
 export type CardActionDefinition<T> = CardActionDefinitionAttr & {
+  canPayCosts?: (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => boolean;
+
   /**
    * 発動可能かどうかの検証
-   * @param entity
+   * @param myInfo
+   * @param chainBlockInfos
    * @returns 発動時にドラッグ・アンド・ドロップ可能である場合、選択肢のcellが返る。
    */
   validate: (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => DuelFieldCell[] | undefined;
+
+  payCosts?: (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, cancelable: boolean) => Promise<ActionCostInfo | undefined>;
   /**
    * コストの支払い、対象に取るなど
-   * フィールドに残らない魔法罠の場合、isDyingの設定が必要
-   * @param entity
+   * @param myInfo
    * @param cell
+   * @param chainBlockInfos
+   * @param cancelable
    * @returns
    */
   prepare: (
@@ -151,7 +172,7 @@ export interface ICardAction<T> {
    *
    * @returns 発動時にドラッグ・アンド・ドロップ可能である場合、選択肢のcellが返る。
    */
-  validate: (activator: Duelist, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => DuelFieldCell[] | undefined;
+  validate: (activator: Duelist, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, ignoreCosts: boolean) => DuelFieldCell[] | undefined;
   /**
    * チェーンに乗る処理の場合、コストの支払いや対象に取る処理までを行う。
    * @param cell 効果発動時にドラッグ・アンド・ドロップなどで指定されたセルがある場合、値が入る。
@@ -161,7 +182,8 @@ export interface ICardAction<T> {
     activator: Duelist,
     cell: DuelFieldCell | undefined,
     chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
-    cancelable: boolean
+    cancelable: boolean,
+    ignoreCosts: boolean
   ) => Promise<ChainBlockInfo<T> | undefined>;
   /**
    *
@@ -224,6 +246,9 @@ export class CardAction<T> extends CardActionBase implements ICardAction<T> {
   public get spellSpeed() {
     return this.definition.spellSpeed;
   }
+  public get needsToPayCost() {
+    return this.definition.needsToPayCost ?? false;
+  }
 
   public get hasToTargetCards() {
     return this.definition.hasToTargetCards ?? false;
@@ -248,7 +273,7 @@ export class CardAction<T> extends CardActionBase implements ICardAction<T> {
     return new CardAction<T>(this.seq, this.entity, this.definition);
   };
 
-  public readonly validate = (activator: Duelist, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => {
+  public readonly validate = (activator: Duelist, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, ignoreCosts: boolean) => {
     // カードの発動はフィールド表側表示ではできない
     if (this.playType === "CardActivation" && this.entity.isOnField && this.entity.face === "FaceUp") {
       return;
@@ -290,35 +315,104 @@ export class CardAction<T> extends CardActionBase implements ICardAction<T> {
       activator: activator,
       isActivatedIn: this.entity.fieldCell,
       isActivatedAt: this.duel.clock.getClone(),
+      costInfo: {},
       state: "unloaded",
     };
+
+    if (this.definition.canPayCosts && !ignoreCosts) {
+      if (!this.definition.canPayCosts(myInfo, chainBlockInfos)) {
+        return;
+      }
+    }
+
     return this.definition.validate(myInfo, chainBlockInfos);
   };
   public readonly prepare = async (
     activator: Duelist,
     cell: DuelFieldCell | undefined,
     chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
-    cancelable: boolean
+    cancelable: boolean,
+    ignoreCosts: boolean
   ) => {
+    let _cancelable = cancelable;
     if (this.isLikeContinuousSpell) {
       this.entity.info.isPending = true;
     }
 
-    const isActivatedIn = this.entity.fieldCell;
+    if (this.playType === "CardActivation" || this.playType === "SpellTrapSet") {
+      //魔法・罠・ペンデュラムスケールのカードの発動またはセットの場合、コスト支払いの前に移動処理を行う。
 
+      if (this.entity.fieldCell.cellType === "Hand") {
+        // 手札からの発動・セットの場合
+
+        let availableCells = cell ? [cell] : this.entity.status.spellCategory === "Field" ? [activator.getFieldZone()] : activator.getAvailableSpellTrapZones();
+
+        if (this.entity.status.spellCategory === "Field") {
+          // フィールド魔法を手札から発動する場合、既存のフィールドがあれば上書き
+          const olds = activator.getFieldZone().cardEntities;
+          if (olds.length) {
+            const oldOne = olds[0];
+            await DuelEntity.sendManyToGraveyardForTheSameReason(activator.getFieldZone().cardEntities, ["Rule"], this.entity, activator);
+            activator.writeInfoLog(`フィールド魔法の上書きにより、${oldOne.toString()}は墓地に送られた。`);
+            _cancelable = false;
+          }
+        }
+
+        if (this.entity.status.monsterCategories?.includes("Pendulum")) {
+          // ペンデュラムの場合、発動先はペンデュラムゾーンのみ
+          availableCells = availableCells.filter((cell) => cell.isAvailableForPendulum);
+        }
+
+        let dest = availableCells[0];
+
+        if (availableCells.length > 1) {
+          dest = availableCells.randomPick();
+          const actionTitle = this.playType === "SpellTrapSet" ? "セット" : "カードの発動";
+          const _dest = await this.duel.view.waitDammyActions(activator, this.entity, availableCells, "カードを移動先へドラッグ", actionTitle, _cancelable);
+          if (!_dest) {
+            return;
+          }
+          dest = _dest;
+        }
+
+        if (this.entity.status.monsterCategories?.includes("Pendulum")) {
+          await this.entity.activateAsPendulumScale(dest, ["CardActivation"], this.entity, activator);
+        } else if (this.playType === "CardActivation") {
+          await this.entity.activateSpellTrapFromHand(dest, this.entity.status.kind, ["CardActivation"], this.entity, activator);
+        } else {
+          await this.entity.setAsSpellTrap(dest, this.entity.status.kind, ["SpellTrapSet"], this.entity, activator);
+        }
+        _cancelable = false;
+      } else if (this.entity.isOnFieldAsSpellTrap && this.entity.face === "FaceDown") {
+        // セット状態からの発動ならば、表にする。
+        await this.entity.setNonFieldMonsterPosition(this.entity.origin.kind, "FaceUp", ["Rule"]);
+        _cancelable = false;
+      }
+    }
+    // チェーンブロック情報の準備
     const myInfo: ChainBlockInfoBase<T> = {
       index: chainBlockInfos.length,
       action: this,
       activator: activator,
-      isActivatedIn: isActivatedIn,
+      isActivatedIn: this.entity.fieldCell,
       isActivatedAt: this.duel.clock.getClone(),
+      costInfo: {},
       state: "ready",
     };
-    const prepared = await this.definition.prepare(myInfo, cell, chainBlockInfos, cancelable);
+
+    if (this.definition.payCosts && !ignoreCosts) {
+      const costInfo = await this.definition.payCosts(myInfo, chainBlockInfos, _cancelable);
+      if (!costInfo) {
+        return;
+      }
+      myInfo.costInfo = costInfo;
+    }
+
+    // 準備
+    const prepared = await this.definition.prepare(myInfo, cell, chainBlockInfos, _cancelable);
     if (prepared === undefined) {
       return;
     }
-
     return { ...myInfo, ...prepared };
   };
 

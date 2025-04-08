@@ -99,6 +99,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         priorityForNPC: 10,
+        canPayCosts: () => true,
         validate: (myInfo) => {
           if (myInfo.activator.getDeckCell().cardEntities.filter((card) => card.nm === "Ｄ－ＨＥＲＯ ディアボリックガイ").length === 0) {
             return;
@@ -107,8 +108,11 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
           const availableCells = myInfo.activator.getAvailableMonsterZones();
           return availableCells.length > 0 ? [] : undefined;
         },
-        prepare: async (myInfo) => {
+        payCosts: async (myInfo) => {
           await myInfo.action.entity.banish(["Cost"], myInfo.action.entity, myInfo.activator);
+          return { Banish: [myInfo.action.entity] };
+        },
+        prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromDeck"], prepared: undefined };
         },
         execute: async (myInfo) => {
@@ -145,15 +149,9 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
         executableCells: ["Graveyard"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
-        validate: (myInfo) => {
-          if (myInfo.activator.getHandCell().cardEntities.length === 0) {
-            return;
-          }
-
-          const availableCells = myInfo.activator.getAvailableMonsterZones();
-          return availableCells.length > 0 ? [] : undefined;
-        },
-        prepare: async (myInfo) => {
+        canPayCosts: (myInfo) => myInfo.activator.getHandCell().cardEntities.length > 0,
+        validate: (myInfo) => (myInfo.activator.getAvailableMonsterZones().length > 0 ? [] : undefined),
+        payCosts: async (myInfo) => {
           const hands = myInfo.activator.getHandCell().cardEntities;
           const cost = await myInfo.activator.duel.view.waitSelectEntities(
             myInfo.activator,
@@ -166,6 +164,9 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
             throw new IllegalCancelError(myInfo);
           }
           await cost[0].returnToDeck("Top", ["Cost"], myInfo.action.entity, myInfo.activator);
+          return { ReturnToDeck: cost };
+        },
+        prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromGraveyard"], prepared: undefined };
         },
         execute: async (myInfo): Promise<boolean> => {
@@ -203,16 +204,14 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerDuel: 1,
-        validate: (myInfo) => {
-          if (myInfo.activator.getDeckCell().cardEntities.length === 0) {
-            return;
-          }
-
-          const availableCells = myInfo.activator.getAvailableMonsterZones();
-          return availableCells.length > 0 ? [] : undefined;
-        },
-        prepare: async (myInfo) => {
+        canPayCosts: (myInfo) => myInfo.activator.getDeckCell().cardEntities.length > 0,
+        validate: (myInfo) => (myInfo.activator.getAvailableMonsterZones().length > 0 ? [] : undefined),
+        payCosts: async (myInfo) => {
+          const cost = myInfo.activator.getDeckCell().cardEntities[0];
           await myInfo.activator.getDeckCell().cardEntities[0].sendToGraveyard(["Cost"], myInfo.action.entity, myInfo.activator);
+          return { SendToGraveyard: [cost] };
+        },
+        prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromGraveyard"], prepared: undefined };
         },
         execute: async (myInfo) => {
@@ -501,6 +500,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
           executableDuelistTypes: ["Controller"],
           isOnlyNTimesPerTurn: 1,
           negatePreviousBlock: true,
+          canPayCosts: (myInfo) => myInfo.activator.canDiscard([myInfo.action.entity]),
           validate: (myInfo, chainBlockInfos): DuelFieldCell[] | undefined => {
             if (chainBlockInfos.length === 0) {
               return;
@@ -510,8 +510,11 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
 
             return info.chainBlockTags.union(item.chainBlockTags).length > 0 ? [] : undefined;
           },
-          prepare: async (myInfo) => {
-            await myInfo.action.entity.sendToGraveyard(["Discard", "Cost"], myInfo.action.entity, myInfo.activator);
+          payCosts: async (myInfo) => {
+            await myInfo.action.entity.discard(["Cost"], myInfo.action.entity, myInfo.activator);
+            return { selectedEntities: [myInfo.action.entity] };
+          },
+          prepare: async () => {
             return { selectedEntities: [], chainBlockTags: ["NegateCardEffect"], prepared: undefined };
           },
           execute: async (myInfo, chainBlockInfos): Promise<boolean> => {

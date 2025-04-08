@@ -1,4 +1,4 @@
-import { defaultSpellTrapSetAction, defaultSpellTrapValidate, defaultUndefinedSpellTrapPrepare } from "@ygo_duel/cards/DefaultCardAction_Spell";
+import { defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/cards/DefaultCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
@@ -6,6 +6,7 @@ import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
 import type { CardDefinition } from "./CardDefinitions";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import { createBroadRegularNumericStateOperatorHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
+import { defaultPrepare } from "./DefaultCardAction";
 
 export const createCardDefinitions_ContinuousSpell_Preset = (): CardDefinition[] => {
   const result: CardDefinition[] = [];
@@ -22,7 +23,7 @@ export const createCardDefinitions_ContinuousSpell_Preset = (): CardDefinition[]
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         validate: defaultSpellTrapValidate,
-        prepare: defaultUndefinedSpellTrapPrepare,
+        prepare: defaultPrepare,
         execute: async () => true,
         settle: async () => true,
       } as CardActionDefinition<unknown>,

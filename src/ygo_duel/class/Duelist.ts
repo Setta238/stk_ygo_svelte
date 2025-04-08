@@ -126,6 +126,21 @@ export class Duelist {
   public readonly initForDrawPhase = () => {
     this.info = { ...this.infoOrigin };
   };
+  public readonly canDiscard = (entities: DuelEntity[]) => {
+    console.log(entities);
+    // TODO
+    return true;
+  };
+  public readonly canSendToGraveyard = (entities: DuelEntity[]) => {
+    console.log(entities);
+    // TODO
+    return true;
+  };
+  public readonly canRelease = (entities: DuelEntity[]) => {
+    console.log(entities);
+    // TODO
+    return true;
+  };
 
   public readonly canSummon = <T>(
     activator: Duelist,
@@ -320,7 +335,7 @@ export class Duelist {
         (await this.duel.view.waitSelectEntities(chooser || this, choices, qty, (list) => list.length === qty, `${qty}枚カードを捨てる。`, false)) || [];
     }
 
-    await DuelEntity.sendManyToGraveyardForTheSameReason(selectedList, ["Discard", ...moveAs], causedBy, causedByWhome);
+    await DuelEntity.discardManyForTheSameReason(selectedList, ["Discard", ...moveAs], causedBy, causedByWhome);
 
     this.writeInfoLog(`手札からカードを${selectedList.length}枚捨てた。${selectedList.map((e) => e.origin?.name)}。`);
 

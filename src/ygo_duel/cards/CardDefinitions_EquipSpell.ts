@@ -1,6 +1,5 @@
 import {
   defaultEquipSpellTrapExecute,
-  defaultSpellTrapPrepare,
   defaultSpellTrapSetAction,
   defaultSpellTrapValidate,
   getDefaultEquipSpellTrapAction,
@@ -18,6 +17,7 @@ import {
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import { IllegalCancelError } from "@ygo_duel/class/Duel";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
+import { defaultPayLifePoint } from "./DefaultCardAction";
 export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
   const result: CardDefinition[] = [];
 
@@ -72,6 +72,7 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         hasToTargetCards: true,
+        canPayCosts: (myInfo) => myInfo.activator.lp >= 800,
         // 墓地に蘇生可能モンスター、場に空きが必要。
         validate: (myInfo) => {
           if (
@@ -90,12 +91,10 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
             return;
           }
 
-          if (myInfo.activator.lp < 800) {
-            return;
-          }
           return defaultSpellTrapValidate(myInfo);
         },
-        prepare: async (myInfo, cell, chainBlockInfos) => {
+        payCosts: (myInfo, chainBlockInfos) => defaultPayLifePoint(myInfo, chainBlockInfos, 800),
+        prepare: async (myInfo) => {
           const targets = await myInfo.action.entity.field.duel.view.waitSelectEntities(
             myInfo.activator,
             myInfo.activator
@@ -114,10 +113,8 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
             throw new IllegalCancelError(myInfo);
           }
 
-          // 800ポイント支払う
-          myInfo.activator.payLp(800, myInfo.action.entity);
           myInfo.action.entity.info.effectTargets[myInfo.action.seq] = targets;
-          return await defaultSpellTrapPrepare(myInfo, cell, chainBlockInfos, false, ["SpecialSummonFromGraveyard", "PayLifePoint"], targets, undefined);
+          return { selectedEntities: targets, chainBlockTags: ["SpecialSummonFromGraveyard", "PayLifePoint"], prepared: undefined };
         },
         execute: async (myInfo, chainBlockInfos) => {
           // 力の集約などですでに何かに装備されている場合、破壊して処理を終了する。

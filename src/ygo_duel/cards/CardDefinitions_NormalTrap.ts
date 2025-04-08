@@ -1,4 +1,4 @@
-import { defaultSpellTrapPrepare, defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/cards/DefaultCardAction_Spell";
+import { defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/cards/DefaultCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
@@ -34,7 +34,9 @@ export const createCardDefinitions_NormalTrap = (): CardDefinition[] => {
           }
           return defaultSpellTrapValidate(myInfo);
         },
-        prepare: (action, cell, chainBlockInfos, cancelable) => defaultSpellTrapPrepare(action, cell, chainBlockInfos, cancelable, ["Draw"], [], undefined),
+        prepare: async () => {
+          return { selectedEntities: [], chainBlockTags: ["Draw"], prepared: undefined };
+        },
         execute: async (chainBlockInfo) => {
           await chainBlockInfo.activator.draw(1, chainBlockInfo.action.entity, chainBlockInfo.activator);
           return true;
@@ -75,7 +77,7 @@ export const createCardDefinitions_NormalTrap = (): CardDefinition[] => {
           }
           return defaultSpellTrapValidate(myInfo);
         },
-        prepare: async (myInfo, cell, chainBlockInfos) => {
+        prepare: async (myInfo) => {
           const target = await myInfo.action.entity.field.duel.view.waitSelectEntities(
             myInfo.activator,
             myInfo.action.entity.field
@@ -94,7 +96,7 @@ export const createCardDefinitions_NormalTrap = (): CardDefinition[] => {
           if (!target) {
             throw new IllegalCancelError(myInfo);
           }
-          return await defaultSpellTrapPrepare(myInfo, cell, chainBlockInfos, false, ["SpecialSummonFromGraveyard"], target, undefined);
+          return { selectedEntities: target, chainBlockTags: ["SpecialSummonFromGraveyard"], prepared: undefined };
         },
         execute: async (myInfo) => {
           const emptyCells = myInfo.activator.getEmptyMonsterZones();

@@ -1,4 +1,4 @@
-import { defaultSpellTrapPrepare, defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/cards/DefaultCardAction_Spell";
+import { defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/cards/DefaultCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 
@@ -76,7 +76,7 @@ export const createCardDefinitions_ContinuousTrap = (): CardDefinition[] => {
 
             return defaultSpellTrapValidate(myInfo);
           },
-          prepare: async (myInfo, cell, chainBlockInfos) => {
+          prepare: async (myInfo) => {
             const targets = await myInfo.action.entity.field.duel.view.waitSelectEntities(
               myInfo.activator,
               myInfo.activator
@@ -97,7 +97,7 @@ export const createCardDefinitions_ContinuousTrap = (): CardDefinition[] => {
             }
 
             myInfo.action.entity.info.effectTargets[myInfo.action.seq] = targets;
-            return await defaultSpellTrapPrepare(myInfo, cell, chainBlockInfos, false, ["SpecialSummonFromGraveyard"], targets, undefined);
+            return { selectedEntities: targets, chainBlockTags: ["SpecialSummonFromGraveyard"], prepared: undefined };
           },
           execute: async (myInfo) => {
             const emptyCells = myInfo.activator.getEmptyMonsterZones();

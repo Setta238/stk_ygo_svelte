@@ -1,4 +1,4 @@
-import { defaultSpellTrapPrepare, defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/cards/DefaultCardAction_Spell";
+import { defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/cards/DefaultCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardActionDefinition, TEffectTag } from "@ygo_duel/class/DuelCardAction";
@@ -44,7 +44,7 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
             tags.push("DamageToOpponent");
           }
 
-          return defaultSpellTrapPrepare(myInfo, cell, chainBlockInfos, cancelable, tags, [], selected ?? 0);
+          return { selectedEntities: [], chainBlockTags: tags, prepared: selected ?? 0 };
         },
         execute: async (myInfo) => {
           if (myInfo.prepared === 1) {
@@ -93,9 +93,7 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
           if (!selected) {
             return;
           }
-          console.log(selected[0].toString(), selected[0].info.equipEntities);
-
-          return defaultSpellTrapPrepare(myInfo, cell, chainBlockInfos, cancelable, [], [...selected], undefined);
+          return { selectedEntities: selected, chainBlockTags: [], prepared: undefined };
         },
         execute: async (myInfo) => {
           const target = myInfo.selectedEntities[0];
@@ -163,7 +161,7 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
           }
           console.log(selected[0].toString(), selected[0].info.equipEntities);
 
-          return defaultSpellTrapPrepare(myInfo, cell, chainBlockInfos, cancelable, [], [...selected], undefined);
+          return { selectedEntities: selected, chainBlockTags: [], prepared: undefined };
         },
         execute: async (myInfo) => {
           const target = myInfo.selectedEntities[0];

@@ -1,4 +1,4 @@
-import { defaultSpellTrapPrepare, defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/cards/DefaultCardAction_Spell";
+import { defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/cards/DefaultCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardActionDefinition, TEffectTag } from "@ygo_duel/class/DuelCardAction";
@@ -46,15 +46,15 @@ export const createCardDefinitions_NormalTrap_UponAttackDeclaration = (): CardDe
 
             return defaultSpellTrapValidate(myInfo);
           },
-          prepare: async (myInfo, cell, chainBlockInfos, cancelable) => {
+          prepare: async (myInfo) => {
             const attacker = myInfo.activator.duel.attackingMonster;
             if (!attacker) {
               throw new SystemError("想定されない状態", myInfo, attacker);
             }
 
-            const tags: TEffectTag[] = name === "炸裂装甲" ? myInfo.action.calcChainBlockTagsForDestroy([attacker]) : ["Banish", "BanishFromField"];
+            const tags: TEffectTag[] = name === "炸裂装甲" ? myInfo.action.calcChainBlockTagsForDestroy([attacker]) : ["BanishFromField"];
 
-            return defaultSpellTrapPrepare(myInfo, cell, chainBlockInfos, cancelable, tags, [attacker], undefined);
+            return { selectedEntities: [attacker], chainBlockTags: tags, prepared: undefined };
           },
           execute: async (myInfo) => {
             if (name === "炸裂装甲") {

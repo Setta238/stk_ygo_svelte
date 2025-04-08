@@ -1,6 +1,6 @@
 import { defaultAttackAction, defaultBattlePotisionChangeAction, defaultNormalSummonAction } from "@ygo_duel/cards/DefaultCardAction_Monster";
 import type { CardDefinition } from "../CardDefinitions";
-import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
+import type { CardActionDefinition, ChainBlockInfo, ChainBlockInfoBase } from "@ygo_duel/class/DuelCardAction";
 import {
   createRegularNumericStateOperatorHandler,
   createRegularStatusOperatorHandler,
@@ -37,6 +37,21 @@ const createSpellCounterCommonEffect = (kind: TCardKind, maxQty?: number) => {
       ];
     }
   );
+};
+
+export const canPaySpellCounters = <T>(myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, minQty: number) =>
+  myInfo.action.entity.counterHolder.getQty("SpellCounter") >= minQty;
+
+export const paySpellCounters = <T>(
+  myInfo: ChainBlockInfoBase<T>,
+  chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
+  cancelable: boolean,
+  qtyList: number[]
+) => {
+  // TODO 取り除く個数が選べる場合
+  const qty = qtyList[0];
+  myInfo.action.entity.counterHolder.remove("SpellCounter", qty);
+  return { Counter: qty };
 };
 
 export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] => {
@@ -84,11 +99,8 @@ export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] =
         executableCells: ["MonsterZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
+        canPayCosts: (myInfo, chainBlockInfos) => canPaySpellCounters(myInfo, chainBlockInfos, 1),
         validate: (myInfo) => {
-          if (!myInfo.action.entity.counterHolder.getQty("SpellCounter")) {
-            return;
-          }
-
           const spells = myInfo.action.entity.field
             .getCells(...spellTrapZoneCellTypes)
             .flatMap((cell) => cell.cardEntities)
@@ -100,6 +112,7 @@ export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] =
 
           return spells.map((spell) => spell.fieldCell);
         },
+        payCosts: async (myInfo, chainBlockInfos, cancelable) => paySpellCounters(myInfo, chainBlockInfos, cancelable, [1]),
         prepare: async (myInfo, cell, chainBlockInfos, cancelable) => {
           let target = cell?.cardEntities[0];
 
@@ -130,11 +143,6 @@ export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] =
           if (myInfo.selectedEntities.every((target) => !target.isOnFieldAsSpellTrap)) {
             return;
           }
-
-          if (!myInfo.action.entity.counterHolder.getQty("SpellCounter")) {
-            return;
-          }
-          myInfo.action.entity.counterHolder.remove("SpellCounter", 1);
 
           await DuelEntityShortHands.tryDestroy(myInfo.selectedEntities, myInfo);
 

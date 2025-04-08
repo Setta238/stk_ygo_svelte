@@ -299,7 +299,7 @@ export class Duel {
       if (response && response.action) {
         if (([...cardActionNonChainBlockTypes] as string[]).includes(response.action.playType)) {
           //チェーンに乗らない処理を実行し、処理番号をインクリメント
-          const chainBlockInfo = await response.action.prepare(this.priorityHolder, response.action.cell, [], true);
+          const chainBlockInfo = await response.action.prepare(this.priorityHolder, response.action.cell, [], true, false);
 
           if (chainBlockInfo === undefined) {
             continue;
@@ -369,7 +369,7 @@ export class Duel {
         break;
       }
       if (response.action) {
-        const info = await response.action.prepare(this.priorityHolder, response.action.cell, [], true);
+        const info = await response.action.prepare(this.priorityHolder, response.action.cell, [], true, false);
         if (!info) {
           continue;
         }
@@ -626,7 +626,7 @@ export class Duel {
           //チェーンに積んで、チェーン処理へ
           await this.procChainBlock({ activator: this.priorityHolder, action }, undefined);
         } else {
-          const info = await action.prepare(this.priorityHolder, undefined, [], true);
+          const info = await action.prepare(this.priorityHolder, undefined, [], true, false);
           if (!info) {
             continue;
           }
@@ -751,7 +751,7 @@ export class Duel {
       this.log.info(`チェーン${chainCount}: ${convertCardActionToString(chainBlock.action)}を発動`, activator);
 
       // コスト処理
-      const chainBlockInfo = await chainBlock.action.prepare(activator, chainBlock.action.cell, this.chainBlockInfos, false);
+      const chainBlockInfo = await chainBlock.action.prepare(activator, chainBlock.action.cell, this.chainBlockInfos, false, false);
 
       if (!chainBlockInfo) {
         throw new IllegalCancelError(chainBlock);
@@ -905,6 +905,6 @@ export class Duel {
       .filter((action) => enableCardPlayTypes.includes(action.playType))
       .filter((action) => enableSpellSpeeds.includes(action.spellSpeed))
       .filter((action) => action.validateDuelist(duelist))
-      .filter((action) => action.validate(duelist, chainBlockInfos));
+      .filter((action) => action.validate(duelist, chainBlockInfos, false));
   };
 }

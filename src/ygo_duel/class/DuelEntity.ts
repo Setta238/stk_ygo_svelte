@@ -225,6 +225,14 @@ export class DuelEntity {
   ): Promise<void> => {
     return DuelEntity.bringManyToSameCellForTheSameReason("Graveyard", "Top", entities, "FaceUp", "Vertical", movedAs, movedBy, activator);
   };
+  public static readonly discardManyForTheSameReason = (
+    entities: DuelEntity[],
+    movedAs: TDuelCauseReason[],
+    movedBy: DuelEntity | undefined,
+    activator: Duelist | undefined
+  ): Promise<void> => {
+    return DuelEntity.bringManyToSameCellForTheSameReason("Graveyard", "Top", entities, "FaceUp", "Vertical", ["Discard", ...movedAs], movedBy, activator);
+  };
   public static readonly banishManyForTheSameReason = (
     entities: DuelEntity[],
     movedAs: TDuelCauseReason[],
@@ -638,6 +646,14 @@ export class DuelEntity {
     materialInfos: MaterialInfo[],
     ignoreSummoningConditions: boolean
   ) => boolean;
+  public readonly canBeReleased = <T>(
+    activator: Duelist,
+    causedBy: DuelEntity,
+    causedAs: (TMaterialCauseReason | "ReleaseAsCost" | "ReleaseAsEffect")[],
+    action: CardAction<T>
+  ): boolean => {
+    return this.procFilterBundle.operators.filter((pf) => pf.procTypes.union(causedAs).length).every((pf) => pf.filter(activator, causedBy, action, [this]));
+  };
   private _hasDisappeared = false;
   public get status() {
     return this._status as Readonly<EntityStatus>;
@@ -887,6 +903,9 @@ export class DuelEntity {
     );
   };
 
+  public readonly activateAsPendulumScale = (pendulumZone: DuelFieldCell, movedAs: TDuelCauseReason[], movedBy?: DuelEntity, actionOwner?: Duelist) =>
+    this.moveAlone(pendulumZone, "Spell", "FaceUp", "Vertical", "Top", ["CardActivation", ...movedAs], movedBy, actionOwner, actionOwner);
+
   public readonly setNonFieldMonsterPosition = async (
     kind: TCardKind,
     pos: TNonBattlePosition,
@@ -953,6 +972,9 @@ export class DuelEntity {
 
   public readonly sendToGraveyard = (movedAs: TDuelCauseReason[], movedBy: DuelEntity | undefined, activator: Duelist | undefined): Promise<void> => {
     return DuelEntity.sendManyToGraveyardForTheSameReason([this], movedAs, movedBy, activator);
+  };
+  public readonly discard = (movedAs: TDuelCauseReason[], movedBy: DuelEntity | undefined, activator: Duelist | undefined): Promise<void> => {
+    return DuelEntity.discardManyForTheSameReason([this], movedAs, movedBy, activator);
   };
   public readonly returnToDeck = (
     pos: TDuelEntityMovePos,

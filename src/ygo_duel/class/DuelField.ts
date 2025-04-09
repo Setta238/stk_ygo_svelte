@@ -4,7 +4,6 @@ import { type TDuelCauseReason, DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { type Duelist } from "./Duelist";
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import { cellTypeMaster, DuelFieldCell, monsterZoneCellTypes, playFieldCellTypes, type DuelFieldCellType } from "./DuelFieldCell";
-import { CardAction } from "./DuelCardAction";
 import { ProcFilterPool } from "../class_continuous_effect/DuelProcFilter";
 import { NumericStateOperatorPool } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import { CardRelationPool } from "@ygo_duel/class_continuous_effect/DuelCardRelation";
@@ -140,121 +139,5 @@ export class DuelField {
 
     this.duel.log.info(`${targets.map((e) => e.status.name).join(", ")}を墓地に送った（${moveAs.getDistinct().join(", ")}）。`, chooser);
     return targets;
-  };
-
-  public readonly release = async (
-    chooser: Duelist,
-    choices: DuelEntity[],
-    qty: number,
-    by: "Cost" | "Effect",
-    moveAs: TDuelCauseReason[],
-    causedBy?: DuelEntity,
-    allowZero?: boolean,
-    cancelable?: boolean
-  ): Promise<DuelEntity[] | undefined> => {
-    if (qty > 0 && choices.length < qty) {
-      return;
-    }
-    const target: DuelEntity[] | undefined = await this.duel.view.waitSelectEntities(
-      chooser,
-      choices,
-      qty,
-      (selected) => (allowZero || selected.length > 0) && (qty < 0 || selected.length === qty),
-      "リリースするモンスターを選択",
-      cancelable
-    );
-
-    if (!target) {
-      return;
-    }
-
-    const entities: DuelEntity[] = [];
-    for (const entity of target) {
-      await entity.release(["Release", by, ...moveAs], causedBy, chooser);
-      entities.push(entity);
-    }
-
-    this.duel.log.info(
-      `${entities.map((e) => e.status.name).join(", ")}をリリース（${entities
-        .flatMap((e) => e.moveLog.latestRecord.movedAs)
-        .getDistinct()
-        .join(", ")}）。`,
-      chooser
-    );
-    return entities;
-  };
-
-  public readonly activateSpellTrapFromHand = async (
-    activator: Duelist,
-    entity: DuelEntity,
-    selectableCells: DuelFieldCell[],
-    moveAs: TDuelCauseReason[],
-    causedBy?: DuelEntity,
-    chooser?: Duelist,
-    cancelable: boolean = false
-  ): Promise<DuelEntity | undefined> => {
-    const _chooser = chooser ?? causedBy?.controller ?? entity.controller;
-    let cell: DuelFieldCell = selectableCells.randomPick();
-    if (selectableCells.length > 1) {
-      if (_chooser.duelistType !== "NPC") {
-        const dammyActions = [CardAction.createDammyAction(entity, "カードの発動", selectableCells, undefined)];
-        this.duel.view.modalController.selectAction(this.duel.view, {
-          title: "カードを魔法罠ゾーンへドラッグ",
-          activator,
-          actions: dammyActions as CardAction<unknown>[],
-          cancelable: false,
-        });
-        const dAct = await this.duel.view.waitSubAction(_chooser, dammyActions as CardAction<unknown>[], "カードを魔法罠ゾーンへドラッグ。", cancelable);
-        const action = dAct.action;
-        if (!action && !cancelable) {
-          throw new SystemError("", dAct);
-        }
-        if (!action) {
-          return;
-        }
-        cell = action.cell || cell;
-      }
-    }
-
-    await entity.activateSpellTrapFromHand(cell, entity.origin.kind, moveAs, causedBy, _chooser);
-
-    return entity;
-  };
-  public readonly setSpellTrap = async (
-    activator: Duelist,
-    entity: DuelEntity,
-    cells: DuelFieldCell[],
-    causedBy?: DuelEntity,
-    chooser?: Duelist,
-    cancelable: boolean = false
-  ): Promise<DuelFieldCell | undefined> => {
-    let targetCell = cells[0];
-
-    const _chooser = chooser ?? causedBy?.controller ?? entity.controller;
-    if (cells.length > 1) {
-      if (_chooser.duelistType !== "NPC") {
-        const dammyActions = [CardAction.createDammyAction(entity, "セット", cells)];
-        const actionPromise = this.duel.view.modalController.selectAction(this.duel.view, {
-          title: "カードをセット先へドラッグ",
-          activator,
-          actions: dammyActions as CardAction<unknown>[],
-          cancelable: cancelable,
-        });
-        const responsePromise = this.duel.view.waitSubAction(_chooser, dammyActions as CardAction<unknown>[], "カードをセット先へドラッグ", cancelable);
-
-        const action = await Promise.any([actionPromise, responsePromise.then((res) => res.action)]);
-
-        if (!action && !cancelable) {
-          throw new SystemError("", action);
-        }
-        if (!action) {
-          return;
-        }
-        targetCell = action.cell || targetCell;
-      }
-    }
-    await entity.setAsSpellTrap(targetCell, entity.origin.kind, ["SpellTrapSet"], causedBy, _chooser);
-    this.duel.log.info(`${entity.status.name}をセット（${"SpellTrapSet"}）。`, chooser ?? causedBy?.controller ?? entity.controller);
-    return targetCell;
   };
 }

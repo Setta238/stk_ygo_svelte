@@ -139,7 +139,7 @@ export const createCardDefinitions_NormalSpell_General_Draw = (): CardDefinition
         },
         execute: async (myInfo) => {
           await myInfo.activator.draw(3, myInfo.action.entity, myInfo.activator);
-          await myInfo.activator.discard(2, ["Effect", "Discard"], myInfo.action.entity, myInfo.activator);
+          await myInfo.activator.discard(2, ["Effect", "Discard"], myInfo.action.entity, myInfo.activator, () => true, myInfo.activator);
           return true;
         },
         settle: async () => true,

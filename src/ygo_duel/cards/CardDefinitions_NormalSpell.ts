@@ -168,7 +168,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           if (!target) {
             throw new IllegalCancelError(myInfo);
           }
-          return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromGraveyard"], prepared: undefined };
+          return { selectedEntities: target, chainBlockTags: ["SpecialSummonFromGraveyard"], prepared: undefined };
         },
         execute: async (myInfo) => {
           const emptyCells = myInfo.activator.getEmptyMonsterZones();
@@ -461,17 +461,17 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
 
           return true;
         },
-        // デッキ・手札に対象モンスターが一枚以上かつ、手札コストモンスターが必要。
         validate: (myInfo) => {
+          // デッキ・手札に対象モンスターが一枚以上かつ、手札コストモンスターが必要。
           if (
-            myInfo.activator.getDeckCell().cardEntities.every((card) => (card.lvl ?? 12) > 1) ||
+            myInfo.activator.getDeckCell().cardEntities.every((card) => (card.lvl ?? 12) > 1) &&
             myInfo.activator.getHandCell().cardEntities.every((card) => (card.lvl ?? 12) > 1)
           ) {
             return;
           }
           return defaultSpellTrapValidate(myInfo);
         },
-        payCosts: async (myInfo) => {
+        payCosts: async (myInfo, chainBlockInfos, cancelable) => {
           let choices: DuelEntity[] = myInfo.activator.getHandCell().cardEntities.filter((card) => card.status.kind === "Monster");
           if (myInfo.activator.getDeckCell().cardEntities.filter((card) => card.lvl === 1).length === 0) {
             const monsters = myInfo.activator.getHandCell().cardEntities.filter((card) => card.lvl === 1);
@@ -480,21 +480,22 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
             }
           }
 
-          const cost = await myInfo.action.entity.field.sendToGraveyard(
-            "墓地へ送るモンスターを選択",
-            myInfo.activator,
-            choices,
-            1,
-            (selected) => selected.length === 1,
-            ["Cost"],
-            myInfo.action.entity,
-            true
-          );
-
-          if (!cost) {
+          const costs =
+            (await myInfo.activator.duel.view.waitSelectEntities(
+              myInfo.activator,
+              choices,
+              1,
+              (selected) => selected.length === 1,
+              "墓地へ送るモンスターを選択",
+              cancelable
+            )) ?? [];
+          if (!costs.length) {
             return;
           }
-          return { SendToGraveyard: cost };
+
+          await DuelEntity.sendManyToGraveyardForTheSameReason(costs, ["Cost"], myInfo.action.entity, myInfo.activator);
+
+          return { SendToGraveyard: costs };
         },
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromDeck"], prepared: undefined };

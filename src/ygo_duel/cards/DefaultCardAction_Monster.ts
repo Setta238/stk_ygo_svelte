@@ -58,7 +58,8 @@ export const defaultNormalSummonPrepare = async (
     return;
   }
   let _cancelable = cancelable;
-  let materials: MaterialInfo[] = [];
+  let materialInfos: MaterialInfo[] = [];
+
   if (myInfo.action.entity.lvl > 4) {
     const releasableMonsters = myInfo.activator.getReleasableMonsters();
     const exZoneMonsters = myInfo.activator.getExtraMonsterZones();
@@ -67,29 +68,34 @@ export const defaultNormalSummonPrepare = async (
     if (exZoneMonsters.length >= qty) {
       releasableMonsters.filter((monster) => monster.fieldCell.cellType !== "ExtraMonsterZone");
     }
-    const _materials = await myInfo.action.entity.field.release(
-      myInfo.activator,
-      myInfo.activator.getReleasableMonsters(),
-      qty,
-      "Cost",
-      ["AdvanceSummonRelease", "Rule"],
-      myInfo.action.entity,
-      _cancelable
-    );
+
+    const materials =
+      (await myInfo.activator.duel.view.waitSelectEntities(
+        myInfo.activator,
+        myInfo.activator.getReleasableMonsters(),
+        qty,
+        (selected) => (_cancelable || selected.length > 0) && (qty < 0 || selected.length === qty),
+        "リリースするモンスターを選択",
+        cancelable
+      )) ?? [];
 
     //リリースしなければキャンセル。
-    if (!_materials) {
+    if (!materials.length) {
       return;
     }
+    // リリース後はキャンセル不可
+    _cancelable = false;
 
-    materials = _materials.map((material) => {
+    await DuelEntity.releaseManyForTheSameReason(materials, ["Cost", "AdvanceSummonRelease", "Rule"], myInfo.action.entity, myInfo.activator);
+
+    // 詰め直し
+    materialInfos = materials.map((material) => {
       return { material };
     });
 
-    // リリース後はキャンセル不可
-    _cancelable = false;
     availableCells = myInfo.activator.getAvailableMonsterZones();
   }
+
   let pos: TBattlePosition = (myInfo.action.entity.atk ?? 0) > 0 && (myInfo.action.entity.atk ?? 0) >= (myInfo.action.entity.def ?? 0) ? "Attack" : "Set";
   let dest: DuelFieldCell = availableCells.randomPick();
 
@@ -102,7 +108,7 @@ export const defaultNormalSummonPrepare = async (
     dest = res.dest;
     pos = res.pos;
   }
-  return { selectedEntities: [], chainBlockTags: [], prepared: { dest, pos, materialInfos: materials } };
+  return { selectedEntities: [], chainBlockTags: [], prepared: { dest, pos, materialInfos } };
 };
 
 export const defaultNormalSummonExecute = async (myInfo: ChainBlockInfo<SummonPrepared>): Promise<boolean> => {
@@ -511,8 +517,12 @@ export const defaultSyncroSummonPrepare = async (
     materials = _materials;
   }
 
-  myInfo.action.entity.field.duel.log.info(`シンクロ素材として、${materials.map((m) => "《" + m.nm + "》").join("")}を墓地に送り――`, myInfo.activator);
-  await DuelEntity.sendManyToGraveyardForTheSameReason(materials, ["SyncroMaterial", "Rule", "SpecialSummonMaterial"], myInfo.action.entity, myInfo.activator);
+  await DuelEntity.sendManyToGraveyardForTheSameReason(
+    materials,
+    ["SyncroMaterial", "Cost", "Rule", "SpecialSummonMaterial"],
+    myInfo.action.entity,
+    myInfo.activator
+  );
 
   const availableCells = [...myInfo.activator.getAvailableMonsterZones(), ...myInfo.activator.getAvailableExtraZones()];
   const pairs = faceupBattlePositions
@@ -688,8 +698,7 @@ export const defaultXyzSummonPrepare = async (
     })
     .filter((pair) => pair.materialInfos) as { pos: TBattlePosition; materialInfos: MaterialInfo[] }[];
 
-  myInfo.action.entity.field.duel.log.info(`${materials.map((m) => "《" + m.nm + "》").join(" ")}によって、オーバレイネットワークを構築――`, myInfo.activator);
-  await DuelEntity.convertManyToXyzMaterials(materials, ["XyzMaterial", "Rule", "SpecialSummonMaterial"], myInfo.action.entity, myInfo.activator);
+  await DuelEntity.convertManyToXyzMaterials(materials, ["XyzMaterial", "Rule", "Cost", "SpecialSummonMaterial"], myInfo.action.entity, myInfo.activator);
 
   const availableCells = [...myInfo.activator.getAvailableMonsterZones(), ...myInfo.activator.getAvailableExtraZones()];
 
@@ -717,7 +726,7 @@ export const defaultXyzSummonExecute = async (myInfo: ChainBlockInfo<SummonPrepa
   await DuelEntity.moveToXyzOwner(
     myInfo.prepared.dest,
     myInfo.prepared.materialInfos.map((info) => info.material),
-    ["XyzMaterial"],
+    ["XyzMaterial", "Rule"],
     myInfo.action.entity,
     myInfo.activator
   );

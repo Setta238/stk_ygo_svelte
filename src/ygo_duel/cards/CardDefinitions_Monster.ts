@@ -104,6 +104,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
           if (myInfo.activator.getDeckCell().cardEntities.filter((card) => card.nm === "Ｄ－ＨＥＲＯ ディアボリックガイ").length === 0) {
             return;
           }
+          console.log(myInfo.action.entity.toString());
 
           const availableCells = myInfo.activator.getAvailableMonsterZones();
           return availableCells.length > 0 ? [] : undefined;

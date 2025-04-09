@@ -811,7 +811,9 @@ export class Duel {
 
         // 有効であれば、効果処理を行う。
         if (isEffective) {
+          console.log("piyo");
           await chainBlockInfo.action.execute(chainBlockInfo, this.chainBlockInfos);
+          console.log("piyo");
           chainBlockInfo.state = "done";
         } else {
           chainBlockInfo.state = "failed";
@@ -844,8 +846,10 @@ export class Duel {
         // チェーン番号を加算。
         this.clock.incrementChainSeq();
       }
+      console.log("hoge");
     }
 
+    console.log("fuga");
     return result;
   };
   private readonly selectTriggerEffect = async (

@@ -158,4 +158,11 @@ export class DuelFieldCell {
     this._needsShuffle = false;
     this.field.duel.log.info(`デッキをシャッフル。`, this.owner);
   };
+  public readonly toString = (): string => {
+    if (this.isMonsterZoneLikeCell || this.cellType === "SpellAndTrapZone") {
+      return `${this.cellType}(${this.row},${this.column})`;
+    }
+
+    return this.cellType;
+  };
 }

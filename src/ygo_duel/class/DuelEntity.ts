@@ -105,6 +105,7 @@ export const materialCauseReason = [
   "SpecialSummonMaterial",
   "FusionMaterial",
   "SyncroMaterial",
+  "LinkMaterial",
   "XyzMaterial",
   "RitualMaterial",
 ] as const;
@@ -217,12 +218,40 @@ export class DuelEntity {
         })
     );
   };
+  public static readonly releaseManyForTheSameReason = (
+    entities: DuelEntity[],
+    movedAs: TDuelCauseReason[],
+    movedBy: DuelEntity,
+    activator: Duelist
+  ): Promise<void> => {
+    if (!entities.length) {
+      return Promise.resolve();
+    }
+    if (movedAs.includes("Cost")) {
+      activator.writeInfoLog(`${entities.map((entity) => entity.nm).join(" ")}をリリースし――、`);
+    }
+    return DuelEntity.bringManyToSameCellForTheSameReason("Graveyard", "Top", entities, "FaceUp", "Vertical", ["Release", ...movedAs], movedBy, activator);
+  };
   public static readonly sendManyToGraveyardForTheSameReason = (
     entities: DuelEntity[],
     movedAs: TDuelCauseReason[],
     movedBy: DuelEntity | undefined,
     activator: Duelist | undefined
   ): Promise<void> => {
+    if (!entities.length) {
+      return Promise.resolve();
+    }
+    if (activator && movedAs.includes("Cost")) {
+      if (movedAs.includes("FusionMaterial")) {
+        activator.writeInfoLog(`${entities.map((entity) => entity.nm).join(" ")}を融合素材とし――、`);
+      } else if (movedAs.includes("SyncroMaterial")) {
+        activator.writeInfoLog(`${entities.map((entity) => entity.nm).join(" ")}をシンクロ素材し――、`);
+      } else if (movedAs.includes("LinkMaterial")) {
+        activator.writeInfoLog(`${entities.map((entity) => entity.nm).join(" ")}をリンクマーカーにセッティング――、`);
+      } else {
+        activator.writeInfoLog(`${entities.map((entity) => entity.nm).join(" ")}を墓地に送り――、`);
+      }
+    }
     return DuelEntity.bringManyToSameCellForTheSameReason("Graveyard", "Top", entities, "FaceUp", "Vertical", movedAs, movedBy, activator);
   };
   public static readonly discardManyForTheSameReason = (
@@ -231,6 +260,12 @@ export class DuelEntity {
     movedBy: DuelEntity | undefined,
     activator: Duelist | undefined
   ): Promise<void> => {
+    if (!entities.length) {
+      return Promise.resolve();
+    }
+    if (activator && movedAs.includes("Cost")) {
+      activator.writeInfoLog(`${entities.map((entity) => entity.nm).join(" ")}を手札から捨て――、`);
+    }
     return DuelEntity.bringManyToSameCellForTheSameReason("Graveyard", "Top", entities, "FaceUp", "Vertical", ["Discard", ...movedAs], movedBy, activator);
   };
   public static readonly banishManyForTheSameReason = (
@@ -239,6 +274,12 @@ export class DuelEntity {
     movedBy: DuelEntity | undefined,
     activator: Duelist | undefined
   ): Promise<void> => {
+    if (!entities.length) {
+      return Promise.resolve();
+    }
+    if (activator && movedAs.includes("Cost")) {
+      activator.writeInfoLog(`${entities.map((entity) => entity.nm).join(" ")}をゲームから除外し――、`);
+    }
     return DuelEntity.bringManyToSameCellForTheSameReason("Banished", "Top", entities, "FaceUp", "Vertical", movedAs, movedBy, activator);
   };
   public static readonly returnManyToDeckForTheSameReason = (
@@ -248,6 +289,12 @@ export class DuelEntity {
     movedBy: DuelEntity | undefined,
     activator: Duelist | undefined
   ): Promise<void> => {
+    if (!entities.length) {
+      return Promise.resolve();
+    }
+    if (activator && movedAs.includes("Cost")) {
+      activator.writeInfoLog(`${entities.map((entity) => entity.nm).join(" ")}をデッキに戻し――、`);
+    }
     return DuelEntity.bringManyToSameCellForTheSameReason("Deck", pos, entities, "FaceDown", "Vertical", movedAs, movedBy, activator);
   };
 
@@ -257,6 +304,12 @@ export class DuelEntity {
     movedBy: DuelEntity | undefined,
     activator: Duelist | undefined
   ): Promise<void> => {
+    if (!entities.length) {
+      return Promise.resolve();
+    }
+    if (activator && movedAs.includes("Cost")) {
+      activator.writeInfoLog(`${entities.map((entity) => entity.nm).join(" ")}を手札に戻し――、`);
+    }
     return DuelEntity.bringManyToSameCellForTheSameReason("Hand", "Bottom", entities, "FaceDown", "Vertical", movedAs, movedBy, activator);
   };
 
@@ -266,6 +319,12 @@ export class DuelEntity {
     movedBy: DuelEntity,
     activator: Duelist
   ): Promise<void> => {
+    if (!entities.length) {
+      return Promise.resolve();
+    }
+    if (activator && movedAs.includes("Cost")) {
+      activator.writeInfoLog(`${entities.map((entity) => entity.nm).join(" ")}によって、オーバーレイネットワークを構築――、`);
+    }
     return DuelEntity.moveMany(
       entities.map((entity) => [entity, entity.fieldCell, "XyzMaterial", "FaceUp", "Vertical", "Top", movedAs, movedBy, activator, activator])
     );
@@ -277,6 +336,12 @@ export class DuelEntity {
     movedBy: DuelEntity,
     activator: Duelist
   ): Promise<void> => {
+    if (!xyzMaterials.length) {
+      return Promise.resolve();
+    }
+    if (movedAs.includes("Effect")) {
+      activator.writeInfoLog(`${xyzMaterials.map((entity) => entity.nm).join(" ")}をXYZ素材として吸収。`);
+    }
     return DuelEntity.moveMany(
       xyzMaterials.map((entity) => [entity, dest, "XyzMaterial", "FaceUp", "Vertical", "Top", movedAs, movedBy, activator, activator])
     );
@@ -1053,6 +1118,7 @@ export class DuelEntity {
     // 異なるセルに移動する場合
     if (to !== this.fieldCell) {
       if (this.field.duel.clock.turn > 0) {
+        this.duel.log.info(`移動：${this.toString()}  ${this.fieldCell.toString()} ⇒ ${to.toString()}`, actionOwner);
         await this.field.duel.view.waitAnimation({ entity: this, to: to, index: pos, count: 0 });
       }
       // セルから自分自身を取り除く

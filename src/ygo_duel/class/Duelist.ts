@@ -290,6 +290,8 @@ export class Duelist {
     }
     const deckCell = this.getDeckCell();
     const cardNames = [] as string[];
+
+    this.writeInfoLog(`デッキからカードを${times}枚ドロー。`);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     for (const _ of Array(times)) {
       if (!deckCell.cardEntities.length) {
@@ -307,7 +309,6 @@ export class Duelist {
 
       cardNames.push(card.origin?.name || "!名称取得失敗!");
     }
-    this.writeInfoLog(`デッキからカードを${cardNames.length}枚ドロー。${cardNames}。`);
 
     return;
   };
@@ -334,10 +335,9 @@ export class Duelist {
       selectedList =
         (await this.duel.view.waitSelectEntities(chooser || this, choices, qty, (list) => list.length === qty, `${qty}枚カードを捨てる。`, false)) || [];
     }
+    this.writeInfoLog(`手札からカードを${selectedList.length}枚捨てた。${selectedList.map((e) => e.origin?.name)}。`);
 
     await DuelEntity.discardManyForTheSameReason(selectedList, ["Discard", ...moveAs], causedBy, causedByWhome);
-
-    this.writeInfoLog(`手札からカードを${selectedList.length}枚捨てた。${selectedList.map((e) => e.origin?.name)}。`);
 
     return selectedList;
   };

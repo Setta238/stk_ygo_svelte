@@ -2,13 +2,17 @@ import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { duelFieldCellTypes, monsterZoneCellTypes, spellTrapZoneCellTypes, type DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
 import { defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/cards/DefaultCardAction_Spell";
 
-import {} from "@stk_utils/funcs/StkArrayUtils";
 import { type CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
 import { IllegalCancelError, SystemError } from "@ygo_duel/class/Duel";
 
 import type { CardDefinition } from "./CardDefinitions";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import { defaultPrepare, getSystemPeriodAction } from "@ygo_duel/cards/DefaultCardAction";
+import {
+  defaultPrepare,
+  defaultTargetMonstersRebornExecute,
+  defaultTargetMonstersRebornPrepare,
+  getSystemPeriodAction,
+} from "@ygo_duel/cards/DefaultCardAction";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 
 export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
@@ -130,57 +134,38 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         hasToTargetCards: true,
         // 墓地に蘇生可能モンスター、場に空きが必要。
         validate: (myInfo) => {
-          if (myInfo.activator.getAvailableMonsterZones().length === 0) {
-            return;
-          }
-          if (
-            !myInfo.action.entity.field
+          const cells = myInfo.activator.getMonsterZones();
+          const list = myInfo.activator.getEnableSummonList(
+            myInfo.activator,
+            "SpecialSummon",
+            ["Effect"],
+            myInfo.action,
+            myInfo.activator.duel.field
               .getCells("Graveyard")
               .flatMap((cell) => cell.cardEntities)
               .filter((card) => card.status.kind === "Monster")
-              .filter((card) => card.info.isRebornable)
               .filter((card) => card.canBeTargetOfEffect(myInfo))
-              .filter((card) => faceupBattlePositions.some((pos) => card.canBeSummoned(myInfo.activator, myInfo.action, "SpecialSummon", pos, [], false)))
-              .some((card) => faceupBattlePositions.some((pos) => myInfo.activator.canSummon(myInfo.activator, card, myInfo.action, "SpecialSummon", pos, [])))
-          ) {
+              .map((monster) => {
+                return { monster, posList: faceupBattlePositions, cells };
+              }),
+            [],
+            false
+          );
+          if (!list.length) {
             return;
           }
           return defaultSpellTrapValidate(myInfo);
         },
-        prepare: async (myInfo) => {
-          const target = await myInfo.action.entity.field.duel.view.waitSelectEntities(
-            myInfo.activator,
-            myInfo.action.entity.field
+        prepare: (myInfo) =>
+          defaultTargetMonstersRebornPrepare(
+            myInfo,
+            myInfo.activator.duel.field
               .getCells("Graveyard")
-              .flatMap((gy) => gy.cardEntities)
+              .flatMap((cell) => cell.cardEntities)
               .filter((card) => card.status.kind === "Monster")
-              .filter((card) => card.info.isRebornable)
               .filter((card) => card.canBeTargetOfEffect(myInfo))
-              .filter((card) => faceupBattlePositions.some((pos) => card.canBeSummoned(myInfo.activator, myInfo.action, "SpecialSummon", pos, [], false)))
-              .filter((card) =>
-                faceupBattlePositions.some((pos) => myInfo.activator.canSummon(myInfo.activator, card, myInfo.action, "SpecialSummon", pos, []))
-              ),
-            1,
-            (list) => list.length === 1,
-            "蘇生対象とするモンスターを選択",
-            false
-          );
-          if (!target) {
-            throw new IllegalCancelError(myInfo);
-          }
-          return { selectedEntities: target, chainBlockTags: ["SpecialSummonFromGraveyard"], prepared: undefined };
-        },
-        execute: async (myInfo) => {
-          const emptyCells = myInfo.activator.getEmptyMonsterZones();
-          const target = myInfo.selectedEntities[0];
-          // 移動していた場合、処理を終了する。
-          if (target.wasMovedAfter(myInfo.isActivatedAt)) {
-            return false;
-          }
-
-          await myInfo.activator.summon(target, ["Attack", "Defense"], emptyCells, "SpecialSummon", ["Effect"], myInfo.action.entity, false);
-          return true;
-        },
+          ),
+        execute: async (myInfo) => defaultTargetMonstersRebornExecute(myInfo),
         settle: async () => true,
       } as CardActionDefinition<unknown>,
       defaultSpellTrapSetAction as CardActionDefinition<unknown>,
@@ -462,22 +447,56 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           return true;
         },
         validate: (myInfo) => {
-          // デッキ・手札に対象モンスターが一枚以上かつ、手札コストモンスターが必要。
-          if (
-            myInfo.activator.getDeckCell().cardEntities.every((card) => (card.lvl ?? 12) > 1) &&
-            myInfo.activator.getHandCell().cardEntities.every((card) => (card.lvl ?? 12) > 1)
-          ) {
+          let allLvl1Monsters = [
+            ...myInfo.activator.getDeckCell().cardEntities.filter((card) => (card.lvl ?? 12) === 1),
+            ...myInfo.activator.getHandCell().cardEntities.filter((card) => (card.lvl ?? 12) === 1),
+          ];
+          const handMonsters = myInfo.activator.getHandCell().cardEntities;
+
+          if (handMonsters.length < 2 || !myInfo.ignoreCost) {
+            allLvl1Monsters = allLvl1Monsters.filter((lvl1) => !handMonsters.includes(lvl1));
+          }
+          const cells = myInfo.activator.getMonsterZones();
+          const list = myInfo.activator.getEnableSummonList(
+            myInfo.activator,
+            "SpecialSummon",
+            ["Effect"],
+            myInfo.action,
+            allLvl1Monsters.map((lvl1) => {
+              return { monster: lvl1, posList: faceupBattlePositions, cells };
+            }),
+            [],
+            false
+          );
+          if (!list.length) {
             return;
           }
           return defaultSpellTrapValidate(myInfo);
         },
         payCosts: async (myInfo, chainBlockInfos, cancelable) => {
+          // 特殊召喚できるレベル１を取得
+          const allLvl1Monsters = [
+            ...myInfo.activator.getDeckCell().cardEntities.filter((card) => (card.lvl ?? 12) === 1),
+            ...myInfo.activator.getHandCell().cardEntities.filter((card) => (card.lvl ?? 12) === 1),
+          ];
+          const cells = myInfo.activator.getMonsterZones();
+
+          const list = myInfo.activator.getEnableSummonList(
+            myInfo.activator,
+            "SpecialSummon",
+            ["Effect"],
+            myInfo.action,
+            allLvl1Monsters.map((lvl1) => {
+              return { monster: lvl1, posList: faceupBattlePositions, cells };
+            }),
+            [],
+            false
+          );
           let choices: DuelEntity[] = myInfo.activator.getHandCell().cardEntities.filter((card) => card.status.kind === "Monster");
-          if (myInfo.activator.getDeckCell().cardEntities.filter((card) => card.lvl === 1).length === 0) {
-            const monsters = myInfo.activator.getHandCell().cardEntities.filter((card) => card.lvl === 1);
-            if (monsters.length === 1) {
-              choices = choices.filter((card) => card !== monsters[0]);
-            }
+
+          //特殊召喚できるレベル１が一体しかいない場合、そのモンスターは手札コストにできない。
+          if (list.length === 1) {
+            choices = choices.filter((monster) => !list.map((item) => item.monster).includes(monster));
           }
 
           const costs =
@@ -505,35 +524,23 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
             ...myInfo.activator.getDeckCell().cardEntities.filter((card) => card.lvl === 1),
             ...myInfo.activator.getHandCell().cardEntities.filter((card) => card.lvl === 1),
           ];
-          if (monsters.length === 0) {
-            return false;
-          }
-          const selectedList = await myInfo.action.entity.field.duel.view.waitSelectEntities(
+
+          const cells = myInfo.activator.getMonsterZones();
+          const monster = myInfo.activator.summonMany(
             myInfo.activator,
-            monsters,
-            1,
-            (list) => list.length === 1,
-            "特殊召喚するモンスターを選択",
-            false
-          );
-
-          if (!selectedList) {
-            throw new Error("illegal state");
-          }
-
-          await myInfo.activator.summon(
-            selectedList[0],
-            ["Attack", "Defense"],
-            myInfo.activator.getAvailableMonsterZones(),
             "SpecialSummon",
             ["Effect"],
-            myInfo.action.entity,
+            myInfo.action,
+            monsters.map((lvl1) => {
+              return { monster: lvl1, posList: faceupBattlePositions, cells };
+            }),
+            [],
+            false,
+            (summoned) => summoned.length === 1,
             false
           );
 
-          myInfo.activator.getDeckCell().shuffle();
-
-          return true;
+          return Boolean(monster);
         },
         settle: async () => true,
       } as CardActionDefinition<unknown>,

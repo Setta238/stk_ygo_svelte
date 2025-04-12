@@ -1183,4 +1183,23 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 そのモンスターがフィールドから離れた時にこのカードは破壊される。 `,kind:"Trap",trapCategory:"Continuous",wikiEncodedName:"%A1%D4%C0%B5%C5%FD%A4%CA%A4%EB%B7%EC%C5%FD%A1%D5"},蘇りし魂:{name:"蘇りし魂",nameKana:"",description:`(1)：自分の墓地の通常モンスター１体を対象としてこのカードを発動できる。
 そのモンスターを守備表示で特殊召喚する。
 このカードがフィールドから離れた時にそのモンスターは破壊される。
-そのモンスターが破壊された時にこのカードは破壊される。`,kind:"Trap",trapCategory:"Continuous",wikiEncodedName:"%A1%D4%C1%C9%A4%EA%A4%B7%BA%B2%A1%D5"}};export{e as j};
+そのモンスターが破壊された時にこのカードは破壊される。`,kind:"Trap",trapCategory:"Continuous",wikiEncodedName:"%A1%D4%C1%C9%A4%EA%A4%B7%BA%B2%A1%D5"},ＬＡＮフォリンクス:{name:"ＬＡＮフォリンクス",nameKana:"",description:`【リンクマーカー：左下/右下】
+モンスター２体`,pendulumDescription:"",kind:"Monster",monsterCategories:["Link"],attack:1200,attributes:["Light"],types:["Cyberse"],wikiEncodedName:"%A1%D4%A3%CC%A3%C1%A3%CE%A5%D5%A5%A9%A5%EA%A5%F3%A5%AF%A5%B9%A1%D5",arrowheadKeys:["BottomLeft","BottomRight"],link:2},トラフィックゴースト:{name:"トラフィックゴースト",nameKana:"",description:`【リンクマーカー：左下/下/右下】
+モンスター３体`,pendulumDescription:"",kind:"Monster",monsterCategories:["Link"],attack:1800,attributes:["Dark"],types:["Cyberse"],wikiEncodedName:"%A1%D4%A5%C8%A5%E9%A5%D5%A5%A3%A5%C3%A5%AF%A5%B4%A1%BC%A5%B9%A5%C8%A1%D5",arrowheadKeys:["BottomLeft","BottomCenter","BottomRight"],link:3},天威の鬼神:{name:"天威の鬼神",nameKana:"",description:`【リンクマーカー：上/右上/右下】
+リンクモンスターを含むモンスター２体以上`,pendulumDescription:"",kind:"Monster",monsterCategories:["Link"],attack:3e3,attributes:["Dark"],types:["Wyrm"],wikiEncodedName:"%A1%D4%C5%B7%B0%D2%A4%CE%B5%B4%BF%C0%A1%D5",arrowheadKeys:["TopCenter","TopRight","BottomRight"],link:3},天威の拳僧:{name:"天威の拳僧",nameKana:"",description:`【リンクマーカー：下】
+リンクモンスター以外の「天威」モンスター１体`,pendulumDescription:"",kind:"Monster",monsterCategories:["Link"],attack:1e3,attributes:["Earth"],types:["Wyrm"],wikiEncodedName:"%A1%D4%C5%B7%B0%D2%A4%CE%B7%FD%C1%CE%A1%D5",arrowheadKeys:["BottomCenter"],link:1},電影の騎士ガイアセイバー:{name:"電影の騎士ガイアセイバー",nameKana:"",description:`【リンクマーカー：左/右/下】
+モンスター２体以上`,pendulumDescription:"",kind:"Monster",monsterCategories:["Link"],attack:2600,attributes:["Earth"],types:["Machine"],wikiEncodedName:"%A1%D4%C5%C5%B1%C6%A4%CE%B5%B3%BB%CE%A5%AC%A5%A4%A5%A2%A5%BB%A5%A4%A5%D0%A1%BC%A1%D5",arrowheadKeys:["MiddleLeft","MiddleRight","BottomCenter"],link:3},"ファイアウォール・ドラゴン・シンギュラリティ":{name:"ファイアウォール・ドラゴン・シンギュラリティ",nameKana:"",description:`【リンクマーカー：左上/上/右上/左/右/下】
+効果モンスター３体以上
+このカード名の(1)(2)の効果はそれぞれ１ターンに１度しか使用できない。
+(1)：自分・相手ターンに、自分のフィールド・墓地のモンスターの種類（儀式・融合・Ｓ・Ｘ）の数まで、相手のフィールド・墓地のカードを対象として発動できる。
+そのカードを手札に戻す。
+このカードの攻撃力は戻した数×５００アップする。
+(2)：このカードのリンク先のモンスターが、戦闘で破壊された場合、または墓地へ送られた場合、
+自分の墓地のサイバース族モンスター１体を対象として発動できる。
+そのモンスターを特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Link","Effect"],link:6,attack:3500,attributes:["Dark"],types:["Cyberse"],wikiEncodedName:"%A1%D4%A5%D5%A5%A1%A5%A4%A5%A2%A5%A6%A5%A9%A1%BC%A5%EB%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%A6%A5%B7%A5%F3%A5%AE%A5%E5%A5%E9%A5%EA%A5%C6%A5%A3%A1%D5",arrowheadKeys:["TopLeft","TopCenter","TopRight","MiddleLeft","MiddleRight","BottomCenter"]},リンクリボー:{name:"リンクリボー",nameKana:"",description:`【リンクマーカー：下】
+レベル１モンスター１体
+このカード名の(2)の効果は１ターンに１度しか使用できない。
+(1)：相手モンスターの攻撃宣言時、このカードをリリースして発動できる。
+その相手モンスターの攻撃力はターン終了時まで０になる。
+(2)：自分・相手ターンに、このカードが墓地に存在する場合、自分フィールドのレベル１モンスター１体をリリースして発動できる。
+このカードを特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Link","Effect"],link:1,attack:300,attributes:["Dark"],types:["Cyberse"],wikiEncodedName:"%A1%D4%A5%EA%A5%F3%A5%AF%A5%EA%A5%DC%A1%BC%A1%D5",arrowheadKeys:["BottomCenter"]}};export{e as j};

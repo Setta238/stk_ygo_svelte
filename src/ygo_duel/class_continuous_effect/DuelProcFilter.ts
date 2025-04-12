@@ -1,6 +1,6 @@
 import type { CardActionDefinitionAttr } from "../class/DuelCardAction";
 import { StickyEffectOperatorBase, StickyEffectOperatorBundle, StickyEffectOperatorPool } from "./DuelStickyEffectOperatorBase";
-import { type DuelEntity, type TMaterialCauseReason, type TSummonPosCauseReason, type TSummonRuleCauseReason } from "../class/DuelEntity";
+import { type DuelEntity, type TMaterialCauseReason } from "../class/DuelEntity";
 import { type Duelist } from "../class/Duelist";
 
 export const banishProcType = ["BanishAsEffect", "BanishAsCost"] as const;
@@ -18,7 +18,7 @@ export const procTypes = [
   "ReleaseAsEffect",
   ...banishProcType,
 ] as const;
-export type TProcType = (typeof procTypes)[number] | TSummonRuleCauseReason | TSummonPosCauseReason | TMaterialCauseReason;
+export type TProcType = (typeof procTypes)[number] | TMaterialCauseReason;
 export const removeTriggers = ["Set", "LeavesTheField", "Clock"] as const;
 export type TRemoveTrigger = (typeof removeTriggers)[number];
 

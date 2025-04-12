@@ -15,9 +15,8 @@ import {
   type ContinuousEffectBase,
 } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
-import { IllegalCancelError } from "@ygo_duel/class/Duel";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import { defaultPayLifePoint } from "./DefaultCardAction";
+import { defaultPayLifePoint, defaultTargetMonstersRebornExecute, defaultTargetMonstersRebornPrepare } from "./DefaultCardAction";
 export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
   const result: CardDefinition[] = [];
 
@@ -75,46 +74,39 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
         canPayCosts: (myInfo) => myInfo.activator.lp >= 800,
         // 墓地に蘇生可能モンスター、場に空きが必要。
         validate: (myInfo) => {
-          if (
-            !myInfo.action.entity.field
-              .getCells("Graveyard")
-              .flatMap((cell) => cell.cardEntities)
-              .filter((card) => card.status.kind === "Monster")
-              .filter((card) => card.info.isRebornable)
+          const cells = myInfo.activator.getMonsterZones();
+          const list = myInfo.activator.getEnableSummonList(
+            myInfo.activator,
+            "SpecialSummon",
+            ["Effect"],
+            myInfo.action,
+            myInfo.activator
+              .getGraveyard()
+              .cardEntities.filter((card) => card.status.kind === "Monster")
               .filter((card) => card.canBeTargetOfEffect(myInfo))
-              .filter((card) => card.canBeSummoned(myInfo.activator, myInfo.action, "SpecialSummon", "Attack", [], false))
-              .some((card) => myInfo.activator.canSummon(myInfo.activator, card, myInfo.action, "SpecialSummon", "Attack", []))
-          ) {
+              .map((monster) => {
+                return { monster, posList: ["Attack"], cells };
+              }),
+            [],
+            false
+          );
+          if (!list.length) {
             return;
           }
-          if (myInfo.activator.getAvailableMonsterZones().length === 0) {
-            return;
-          }
-
           return defaultSpellTrapValidate(myInfo);
         },
         payCosts: (myInfo, chainBlockInfos) => defaultPayLifePoint(myInfo, chainBlockInfos, 800),
         prepare: async (myInfo) => {
-          const targets = await myInfo.action.entity.field.duel.view.waitSelectEntities(
-            myInfo.activator,
+          const result = await defaultTargetMonstersRebornPrepare(
+            myInfo,
             myInfo.activator
               .getGraveyard()
               .cardEntities.filter((card) => card.status.kind === "Monster")
-              .filter((card) => card.info.isRebornable)
-              .filter((card) => card.canBeTargetOfEffect(myInfo))
-              .filter((card) => card.canBeSummoned(myInfo.activator, myInfo.action, "SpecialSummon", "Attack", [], false))
-              .filter((card) => myInfo.activator.canSummon(myInfo.activator, card, myInfo.action, "SpecialSummon", "Attack", [])),
-            1,
-            (list) => list.length === 1,
-            "蘇生対象とするモンスターを選択",
-            false
+              .filter((card) => card.canBeTargetOfEffect(myInfo)),
+            ["Attack"]
           );
-          if (!targets) {
-            throw new IllegalCancelError(myInfo);
-          }
-
-          myInfo.action.entity.info.effectTargets[myInfo.action.seq] = targets;
-          return { selectedEntities: targets, chainBlockTags: ["SpecialSummonFromGraveyard", "PayLifePoint"], prepared: undefined };
+          result.chainBlockTags.push("PayLifePoint");
+          return result;
         },
         execute: async (myInfo, chainBlockInfos) => {
           // 力の集約などですでに何かに装備されている場合、破壊して処理を終了する。
@@ -122,19 +114,21 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
             await myInfo.action.entity.ruleDestory();
             return false;
           }
-          const emptyCells = myInfo.activator.getEmptyMonsterZones();
-          const target = myInfo.selectedEntities[0];
 
-          // 移動していた場合、破壊して処理を終了する。
-          if (target.wasMovedAfter(myInfo.isActivatedAt)) {
+          const flg = await defaultTargetMonstersRebornExecute(myInfo, ["Attack"]);
+
+          // 蘇生できなかった場合、破壊して処理を終了する。
+          if (!flg) {
             await myInfo.action.entity.ruleDestory();
             return false;
           }
 
-          await myInfo.activator.summon(target, ["Attack"], emptyCells, "SpecialSummon", ["Effect"], myInfo.action.entity, false);
-
           myInfo.action.entity.onBeforeMove.append(async (data) => {
             if (data.entity.face !== "FaceUp" || !data.entity.isOnFieldAsSpellTrap) {
+              return "RemoveMe";
+            }
+            const target = data.entity.info.equipedBy;
+            if (!target) {
               return "RemoveMe";
             }
             console.log(data.entity.toString(), data.entity);

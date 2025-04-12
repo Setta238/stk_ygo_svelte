@@ -25,7 +25,7 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
         executablePeriods: freeChainDuelPeriodKeys,
         executableDuelistTypes: ["Controller"],
         validate: defaultSpellTrapValidate,
-        prepare: async (myInfo, cell, chainBlockInfos, cancelable) => {
+        prepare: async (myInfo, chainBlockInfos, cancelable) => {
           const selected = await myInfo.action.entity.field.duel.view.waitSelectText(
             [
               { seq: 0, text: "●自分は１２００ＬＰ回復する。" },
@@ -80,7 +80,7 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
           }
           return defaultSpellTrapValidate(myInfo);
         },
-        prepare: async (myInfo, cell, chainBlockInfos, cancelable) => {
+        prepare: async (myInfo, chainBlockInfos, cancelable) => {
           const monsters = myInfo.action.entity.field.getMonstersOnField().filter((monster) => monster.canBeTargetOfEffect(myInfo));
           const selected = await myInfo.action.entity.duel.view.waitSelectEntities(
             myInfo.activator,
@@ -146,7 +146,7 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
           }
           return defaultSpellTrapValidate(myInfo);
         },
-        prepare: async (myInfo, cell, chainBlockInfos, cancelable) => {
+        prepare: async (myInfo, chainBlockInfos, cancelable) => {
           const monsters = myInfo.action.entity.field.getMonstersOnField().filter((monster) => monster.canBeTargetOfEffect(myInfo));
           const selected = await myInfo.action.entity.duel.view.waitSelectEntities(
             myInfo.activator,

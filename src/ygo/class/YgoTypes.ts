@@ -14,11 +14,11 @@ export const cardKindDic: { [key in TCardKind]: string } = {
 };
 export const exMonsterCategories = ["Fusion", "Syncro", "Xyz", "Link"] as const;
 export type TMonsterExSummonCategory = (typeof exMonsterCategories)[number];
-export const specialMonsterCategories = [...exMonsterCategories, "SpecialSummon"] as const;
+export const specialMonsterCategories = [...exMonsterCategories, "SpecialSummon", "Ritual"] as const;
 export type TMonsterSpecialSummonCategory = (typeof specialMonsterCategories)[number];
 export const monsterEffectCategories = ["Toon", "Spirit", "Union", "Gemini", "FlipEffect"] as const;
 export type TMonsterEffectCategory = (typeof monsterEffectCategories)[number];
-export const monsterOtherCategories = ["Tuner", "Effect", "Normal", "Pendulum", "Token", "NormalSummonOnly"] as const;
+export const monsterOtherCategories = ["Tuner", "Effect", "Normal", "Pendulum", "Token", "NormalSummonOnly", "RegularSpecialSummonOnly"] as const;
 export type TMonsterOtherCategory = (typeof monsterOtherCategories)[number];
 export const monsterCategories = [...specialMonsterCategories, ...monsterEffectCategories, ...monsterOtherCategories] as const;
 export type TMonsterCategory = (typeof monsterCategories)[number];
@@ -27,6 +27,7 @@ export const monsterCategoryDic: { [key in TMonsterCategory]: string } = {
   Fusion: "融合",
   Xyz: "エクシーズ",
   Link: "リンク",
+  Ritual: "儀式",
   SpecialSummon: "特殊召喚",
   Toon: "トゥーン",
   Spirit: "スピリット",
@@ -39,12 +40,14 @@ export const monsterCategoryDic: { [key in TMonsterCategory]: string } = {
   Pendulum: "ペンデュラム",
   Token: "トークン",
   NormalSummonOnly: "特殊召喚不可",
+  RegularSpecialSummonOnly: "正規特殊召喚のみ",
 };
 export const monsterCategoryEmojiDic: { [key in TMonsterCategory]: string } = {
   Syncro: "🎵",
   Fusion: "🌀",
   Xyz: "📰",
   Link: "⛓️",
+  Ritual: "📜",
   SpecialSummon: "🔯",
   Toon: "📖",
   Spirit: "👻",
@@ -57,6 +60,7 @@ export const monsterCategoryEmojiDic: { [key in TMonsterCategory]: string } = {
   Pendulum: "💠",
   Token: "🐏",
   NormalSummonOnly: "🔲",
+  RegularSpecialSummonOnly: "❗",
 };
 export const monsterAttributes = ["Light", "Dark", "Earth", "Water", "Fire", "Wind", "Divine"] as const;
 export type TMonsterAttribute = (typeof monsterAttributes)[number];
@@ -200,6 +204,7 @@ export type EntityStatusBase = {
   nameTags?: Array<string>;
   attributes?: TMonsterAttribute[];
   types?: TMonsterType[];
+  arrowheadKeys?: TArrowheadKey[];
 } & EntityStaticStatus &
   Partial<TEntityFlexibleNumericStatus> & { wikiEncodedName: string };
 export type EntityNumericStatus = { [key in TEntityFlexibleNumericStatusGen]: TEntityFlexibleNumericStatus };
@@ -291,67 +296,67 @@ export const monsterTypeEmojiDic = {
   Zombie: "🦴",
 } as { [key in TMonsterType]: string };
 
-export const arrowHeadKeys = ["TopLeft", "TopCenter", "TopRight", "MiddleLeft", "MiddleRight", "BottomLeft", "BottomCenter", "BottomRight"] as const;
-export type TArrowHeadKey = (typeof arrowHeadKeys)[number];
-export type ArrowHead = { x: 1 | 0 | -1; y: 1 | 0 | -1 };
-export const arrowHeadDic: { [key in TArrowHeadKey]: { name: string; arrowHead: ArrowHead } } = {
+export const arrowheadKeys = ["TopLeft", "TopCenter", "TopRight", "MiddleLeft", "MiddleRight", "BottomLeft", "BottomCenter", "BottomRight"] as const;
+export type TArrowheadKey = (typeof arrowheadKeys)[number];
+export type Arrowhead = { offsetRow: 1 | 0 | -1; offsetColumn: 1 | 0 | -1 };
+export const arrowheadDic: { [key in TArrowheadKey]: { name: string; arrowhead: Arrowhead } } = {
   TopLeft: {
     name: "左上",
-    arrowHead: {
-      x: -1,
-      y: -1,
+    arrowhead: {
+      offsetRow: -1,
+      offsetColumn: -1,
     },
   },
   TopCenter: {
     name: "上",
-    arrowHead: {
-      x: 0,
-      y: -1,
+    arrowhead: {
+      offsetRow: -1,
+      offsetColumn: 0,
     },
   },
   TopRight: {
     name: "右上",
-    arrowHead: {
-      x: 1,
-      y: -1,
+    arrowhead: {
+      offsetRow: -1,
+      offsetColumn: 1,
     },
   },
   MiddleLeft: {
     name: "左",
-    arrowHead: {
-      x: -1,
-      y: 0,
+    arrowhead: {
+      offsetRow: 0,
+      offsetColumn: -1,
     },
   },
   MiddleRight: {
     name: "右",
-    arrowHead: {
-      x: 1,
-      y: 0,
+    arrowhead: {
+      offsetRow: 0,
+      offsetColumn: 1,
     },
   },
   BottomLeft: {
     name: "左下",
-    arrowHead: {
-      x: -1,
-      y: 1,
+    arrowhead: {
+      offsetRow: 1,
+      offsetColumn: -1,
     },
   },
   BottomCenter: {
     name: "下",
-    arrowHead: {
-      x: 0,
-      y: 1,
+    arrowhead: {
+      offsetRow: 1,
+      offsetColumn: 0,
     },
   },
   BottomRight: {
     name: "右下",
-    arrowHead: {
-      x: 1,
-      y: 1,
+    arrowhead: {
+      offsetRow: 1,
+      offsetColumn: 1,
     },
   },
-};
+} as const;
 
 export const getMonsterType = (text: string): TMonsterType | undefined => {
   return (Object.entries(monsterTypeDic) as [TMonsterType, string][]).find((entry) => entry[1] === text)?.[0] || undefined;

@@ -13,6 +13,8 @@ import {
   type EntityNumericStatus,
   cardSorter,
   type TCardKind,
+  arrowheadDic,
+  type Arrowhead,
 } from "@ygo/class/YgoTypes";
 import { Duel } from "./Duel";
 import {
@@ -21,6 +23,7 @@ import {
   monsterZoneCellTypes,
   playFieldCellTypes,
   spellTrapZoneCellTypes,
+  trashCellTypes,
   type DuelFieldCell,
   type DuelFieldCellType,
   type TBundleCellType,
@@ -43,10 +46,12 @@ import { defaultAttackAction, defaultBattlePotisionChangeAction, defaultNormalSu
 import { StkAsyncEvent } from "@stk_utils/class/StkEvent";
 import type { CardDefinition, MaterialInfo } from "@ygo_duel/cards/CardDefinitions";
 import { SubstituteEffect } from "./DuelSubstituteEffect";
+import { SummonFilter, SummonFilterBundle } from "@ygo_duel/class_continuous_effect/DuelSummonFilter";
 export type EntityStatus = {
   canAttack: boolean;
   canDirectAttack: boolean;
   allowHandSyncro: boolean;
+  allowHandLink: boolean;
   isEffective: boolean;
   /**
    * falseのモンスターしかいない場合、ダイレクトアタックになる。《伝説のフィッシャーマン》など。
@@ -79,7 +84,7 @@ export type DuelEntityInfomation = {
 
 export type TDuelEntityFace = "FaceUp" | "FaceDown";
 export type TDuelEntityOrientation = "Horizontal" | "Vertical";
-export const namedSummonRuleCauseReasons = ["FusionSummon", "SyncroSummon", "XyzSummon", "PendulumSummon", "LinkSummon"] as const;
+export const namedSummonRuleCauseReasons = ["FusionSummon", "SyncroSummon", "XyzSummon", "PendulumSummon", "LinkSummon", "RitualSummon"] as const;
 export type TNamedSummonRuleCauseReason = (typeof namedSummonRuleCauseReasons)[number];
 export const summonNameDic: { [key in TNamedSummonRuleCauseReason]: string } = {
   FusionSummon: "融合召喚",
@@ -87,6 +92,7 @@ export const summonNameDic: { [key in TNamedSummonRuleCauseReason]: string } = {
   XyzSummon: "エクシーズ召喚",
   PendulumSummon: "ペンデュラム召喚",
   LinkSummon: "リンク召喚",
+  RitualSummon: "儀式召喚",
 };
 export const summonRuleCauseReasons = [...namedSummonRuleCauseReasons, "AdvanceSummon", "NormalSummon", "SpecialSummon"] as const;
 export type TSummonRuleCauseReason = (typeof summonRuleCauseReasons)[number];
@@ -147,6 +153,7 @@ export const cardEntitySorter = (left: DuelEntity, right: DuelEntity): number =>
   return cardSorter(left.origin, right.origin);
 };
 
+export type SummonArg = { summoner: Duelist; monster: DuelEntity; pos: TBattlePosition; dest: DuelFieldCell };
 export class DuelEntity {
   private static nextEntitySeq = 0;
 
@@ -555,12 +562,7 @@ export class DuelEntity {
   };
 
   public static readonly summonMany = async (
-    items: {
-      entity: DuelEntity;
-      to: DuelFieldCell;
-      pos: TBattlePosition;
-      chooser: Duelist;
-    }[],
+    items: SummonArg[],
     summonType: TSummonRuleCauseReason,
     moveAs: TDuelCauseReason[],
     movedBy: DuelEntity,
@@ -577,7 +579,7 @@ export class DuelEntity {
     };
 
     await Promise.all(
-      items.map(async ({ entity, to, pos, chooser }) => {
+      items.map(async ({ monster: entity, dest: to, pos, summoner: chooser }) => {
         if (summonType === "NormalSummon" || summonType === "AdvanceSummon") {
           const advance = summonType === "AdvanceSummon" ? "アドバンス" : "";
           if (pos === "Attack") {
@@ -609,7 +611,7 @@ export class DuelEntity {
 
     // 召喚回数を加算
     items
-      .map((item) => item.chooser)
+      .map((item) => item.summoner)
       .forEach((duelist) => {
         if (summonType === "NormalSummon" || summonType === "AdvanceSummon") {
           if (moveAs.includes("Rule")) {
@@ -622,10 +624,11 @@ export class DuelEntity {
         }
       });
     // 色々更新処理
-    DuelEntity.settleEntityMove(items[0].entity.duel);
+    DuelEntity.settleEntityMove(items[0].monster.duel);
   };
 
   private static readonly settleEntityMove = (duel: Duel) => {
+    duel.field.recalcArrowheads();
     duel.distributeOperators(duel.clock.totalProcSeq);
     const entities = duel.field.getAllEntities().filter((entity) => entity.wasMovedAtCurrentProc);
     entities.filter((entity) => !entity.isOnField).forEach((entity) => entity.resetInfoIfLeavesTheField());
@@ -658,6 +661,7 @@ export class DuelEntity {
   public readonly seq: number;
   public readonly origin: EntityStatusBase;
   public readonly entityType: TDuelEntityType;
+  public readonly summonFilterBundle: SummonFilterBundle;
   public readonly procFilterBundle: ProcFilterBundle;
   public readonly numericOprsBundle: NumericStateOperatorBundle;
   public readonly cardRelationBundle: CardRelationBundle;
@@ -694,23 +698,6 @@ export class DuelEntity {
   public readonly actions: CardAction<unknown>[] = [];
   public readonly continuousEffects: ContinuousEffect<unknown>[] = [];
   public readonly substituteEffects: SubstituteEffect[] = [];
-  public readonly canBeSummoned: <T>(
-    activator: Duelist,
-    action: CardAction<T>,
-    summonType: TSummonRuleCauseReason,
-    pos: TBattlePosition,
-    materialInfos: MaterialInfo[],
-    ignoreSummoningConditions: boolean
-  ) => boolean;
-  public readonly canBeMaterial: <T>(
-    activator: Duelist,
-    monster: DuelEntity,
-    action: CardAction<T>,
-    materialType: TMaterialCauseReason,
-    pos: TBattlePosition,
-    materialInfos: MaterialInfo[],
-    ignoreSummoningConditions: boolean
-  ) => boolean;
   public readonly canBeReleased = <T>(
     activator: Duelist,
     causedBy: DuelEntity,
@@ -760,6 +747,54 @@ export class DuelEntity {
   public get psR() {
     return this._numericStatus.calculated.pendulumScaleR;
   }
+  public get arrowheads() {
+    let _arrowheads = (this.origin.arrowheadKeys ?? []).map((key) => arrowheadDic[key].arrowhead);
+
+    if (this.controller.seat === "Above") {
+      _arrowheads = _arrowheads.map((origin) => {
+        return { offsetColumn: origin.offsetColumn * -1, offsetRow: origin.offsetRow * -1 } as Arrowhead;
+      });
+    }
+
+    return _arrowheads;
+  }
+
+  public get arrowheadDests() {
+    if (!this.origin.monsterCategories?.includes("Link")) {
+      return [];
+    }
+    if (!this.isOnFieldAsMonster) {
+      return [];
+    }
+    return this.fieldCell.neighbors
+      .filter((cell) => cell.isMonsterZoneLikeCell)
+      .filter((cell) => cell.cardEntities.length)
+      .flatMap((cell) => cell.cardEntities[0].arrowheads.map((ah) => [cell.row + ah.offsetRow, cell.column + ah.offsetColumn]))
+      .filter(([row, column]) => this.fieldCell.row === row && this.fieldCell.column === column)
+      .map(([row, column]) => this.field.cells[row][column]);
+  }
+
+  public get linkedEntities(): DuelEntity[] {
+    if (!this.isOnFieldAsMonster) {
+      return [];
+    }
+
+    return [...this.arrowheadDests.map((cell) => cell.cardEntities[0]).map((monster) => monster), ...this.fieldCell.arrowheadSources].getDistinct();
+  }
+  public get coLinkedEntities(): DuelEntity[] {
+    if (!this.isOnFieldAsMonster) {
+      return [];
+    }
+    if (!this.origin.monsterCategories?.includes("Link")) {
+      return [];
+    }
+
+    return this.arrowheadDests
+      .map((cell) => cell.cardEntities[0])
+      .map((monster) => monster)
+      .union(this.fieldCell.arrowheadSources);
+  }
+
   public get isEffective() {
     return this.status.isEffective && this.info.isEffectiveIn.includes(this.fieldCell.cellType);
   }
@@ -813,6 +848,9 @@ export class DuelEntity {
   }
   public get isOnFieldAsSpellTrap() {
     return spellTrapZoneCellTypes.some((t) => t === this.fieldCell.cellType);
+  }
+  public get isInTrashCell() {
+    return trashCellTypes.some((t) => t === this.fieldCell.cellType);
   }
   public get isLikeContinuousSpell() {
     return (
@@ -891,12 +929,13 @@ export class DuelEntity {
     this.resetInfoAll();
     this.face = face;
     this.orientation = orientation;
+    this.summonFilterBundle = new SummonFilterBundle(fieldCell.field.summonFilterPool, this);
     this.procFilterBundle = new ProcFilterBundle(fieldCell.field.procFilterPool, this);
     this.numericOprsBundle = new NumericStateOperatorBundle(fieldCell.field.numericStateOperatorPool, this);
     this.cardRelationBundle = new CardRelationBundle(fieldCell.field.cardRelationPool, this);
     this.statusOperatorBundle = new StatusOperatorBundle(fieldCell.field.statusOperatorPool, this);
 
-    fieldCell.acceptEntities([this], "Top");
+    fieldCell.acceptEntities(this, "Top");
     this.moveLog = new DuelEntityLog(this);
     this.moveLog.pushForRuleAction(["Spawn"]);
 
@@ -909,33 +948,24 @@ export class DuelEntity {
       actionBases = cardDefinition.actions;
       continuousEffectBases = cardDefinition.continuousEffects ?? [];
       this.substituteEffects.push(...(cardDefinition.substituteEffects ?? []).map((base) => SubstituteEffect.createNew(this, base)));
+
+      if (cardDefinition.defaultSummonFilter) {
+        this.summonFilterBundle.push(
+          new SummonFilter(
+            "default",
+            () => true,
+            true,
+            this,
+            {},
+            () => true,
+            summonRuleCauseReasons,
+            cardDefinition.defaultSummonFilter
+          )
+        );
+      }
     }
     this.actions.push(...actionBases.map((b) => CardAction.createNew(this, b)));
     this.continuousEffects.push(...continuousEffectBases.map((b) => ContinuousEffect.createNew(this, b)));
-
-    const tmp = cardDefinition?.canBeSummoned ?? (() => true);
-
-    this.canBeSummoned = (activator, action, summonType, pos, materialInfos, ignoreSummoningConditions) =>
-      tmp(activator, this, action, summonType, pos, materialInfos, ignoreSummoningConditions);
-
-    this.canBeMaterial = (activator, monster, action, materialType, pos, materialInfos, ignoreSummoningConditions) => {
-      if (cardDefinition?.canBeMaterial) {
-        if (!cardDefinition?.canBeMaterial(activator, monster, action, materialType, pos, materialInfos, ignoreSummoningConditions)) {
-          return false;
-        }
-      }
-
-      return this.procFilterBundle.operators
-        .filter((pf) => pf.procTypes.some((t) => t === materialType))
-        .every((pf) =>
-          pf.filter(
-            action.entity.controller,
-            action.entity,
-            action,
-            materialInfos.map((info) => info.material)
-          )
-        );
-    };
   }
 
   public readonly toString = () => (this.entityType === "Card" ? `《${this.nm}》` : this.nm);
@@ -1060,7 +1090,7 @@ export class DuelEntity {
     actionOwner: Duelist,
     chooser?: Duelist
   ): Promise<void> => {
-    return DuelEntity.summonMany([{ entity: this, to, chooser: chooser ?? actionOwner, pos }], summonType, moveAs, movedBy, actionOwner);
+    return DuelEntity.summonMany([{ monster: this, dest: to, summoner: chooser ?? actionOwner, pos }], summonType, moveAs, movedBy, actionOwner);
   };
 
   private readonly moveAlone = async (
@@ -1122,7 +1152,7 @@ export class DuelEntity {
         await this.field.duel.view.waitAnimation({ entity: this, to: to, index: pos, count: 0 });
       }
       // セルから自分自身を取り除く
-      this.fieldCell.releaseEntities([this]);
+      this.fieldCell.releaseEntities(this);
 
       // 場を離れる場合の処理
       if (this.fieldCell.isPlayFieldCell && !to.isPlayFieldCell) {
@@ -1168,7 +1198,7 @@ export class DuelEntity {
       }
 
       // セルに自分を所属させる
-      to.acceptEntities([this], pos);
+      to.acceptEntities(this, pos);
 
       // ★情報のリセット、再セット
       //    後処理は後続で行う
@@ -1295,6 +1325,7 @@ export class DuelEntity {
       canDirectAttack: false,
       isSelectableForAttack: true,
       allowHandSyncro: false,
+      allowHandLink: false,
       maxCounterQty: {},
     };
   };

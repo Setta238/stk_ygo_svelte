@@ -59,7 +59,7 @@
   let canAcceptDrop = false;
   const onDragStart = (actions: ICardAction<unknown>[]) => {
     draggingActions = actions;
-    canAcceptDrop = actions.some((action) => action.validate(view.duel.priorityHolder, view.duel.chainBlockInfos)?.includes(cell)) || false;
+    canAcceptDrop = actions.some((action) => action.validate(view.duel.priorityHolder, view.duel.chainBlockInfos, false)?.includes(cell)) || false;
     onCellUpdate();
   };
   const onDragEnd = () => {
@@ -203,16 +203,19 @@
     if (actions[0].entity !== entities[0]) {
       return "Clickable";
     }
-    const tmp = actions[0].validate(view.duel.priorityHolder, view.duel.chainBlockInfos);
+    const tmp = actions[0].validate(view.duel.priorityHolder, view.duel.chainBlockInfos, false);
     return tmp && tmp.length > 0 ? "Draggable" : "Clickable";
   };
 </script>
 
-<td class={`duel_field_cell duel_field_cell_${cell.cellType}`} colspan={cell.cellType === "Hand" ? 7 : 1}>
+<td
+  class={`duel_field_cell duel_field_cell_${cell.cellType} ${cell.arrowheadSources.length === 0 ? "" : "duel_field_cell_linked"}`}
+  colspan={cell.cellType === "Hand" ? 7 : 1}
+>
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
   <div
-    class={`duel_card_wrapper ${cell.cellType} ${canAcceptDrop ? "can_accept_drop" : ""} ${canAction() ? "can_action" : ""}`}
+    class={`duel_card_wrapper ${cell.cellType} ${canAcceptDrop ? "can_accept_drop" : ""} ${canAction() ? "can_action" : ""} `}
     role="listitem"
     onclick={onCellClick}
     ondragover={(ev) => dragover(ev)}
@@ -339,6 +342,25 @@
     width: 12rem;
     padding: 0px;
     border: solid 1px #778ca3;
+  }
+  .duel_field_cell_linked {
+    background-color: #ffe9a7;
+    z-index: -1;
+    background-image:
+      linear-gradient(30deg, #ffc107 12%, transparent 12.5%, transparent 87%, #ffc107 87.5%, #ffc107),
+      linear-gradient(150deg, #ffc107 12%, transparent 12.5%, transparent 87%, #ffc107 87.5%, #ffc107),
+      linear-gradient(30deg, #ffc107 12%, transparent 12.5%, transparent 87%, #ffc107 87.5%, #ffc107),
+      linear-gradient(150deg, #ffc107 12%, transparent 12.5%, transparent 87%, #ffc107 87.5%, #ffc107),
+      linear-gradient(60deg, #ffc10777 25%, transparent 25.5%, transparent 75%, #ffc10777 75%, #ffc10777),
+      linear-gradient(60deg, #ffc10777 25%, transparent 25.5%, transparent 75%, #ffc10777 75%, #ffc10777);
+    background-size: 40px 70px;
+    background-position:
+      0 0,
+      0 0,
+      20px 35px,
+      20px 35px,
+      0 0,
+      20px 35px;
   }
   .duel_field_cell > div {
     padding: 0px;

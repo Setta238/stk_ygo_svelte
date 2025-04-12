@@ -4,7 +4,8 @@ import type { DuelEntity } from "./DuelEntity";
 import type { DuelField } from "./DuelField";
 import { type Duelist } from "./Duelist";
 export const deckCellTypes = ["Deck", "ExtraDeck"] as const;
-export const stackCellTypes = [...deckCellTypes, "Graveyard", "Banished"] as const;
+export const trashCellTypes = ["Graveyard", "Banished"] as const;
+export const stackCellTypes = [...deckCellTypes, ...trashCellTypes] as const;
 export const bundleCellTypes = [...stackCellTypes, "Hand"] as const;
 export type TBundleCellType = (typeof bundleCellTypes)[number];
 export const monsterZoneCellTypes = ["MonsterZone", "ExtraMonsterZone"] as const;
@@ -81,6 +82,15 @@ export class DuelFieldCell {
   public readonly column: number;
   public readonly cellType: DuelFieldCellType;
   public readonly owner: Duelist | undefined;
+  private _requiresRecalcArrowheads: boolean;
+  public get requiresRecalcArrowheads() {
+    return this._requiresRecalcArrowheads;
+  }
+
+  private _arrowheadSources: DuelEntity[];
+  public get arrowheadSources() {
+    return this._arrowheadSources;
+  }
   public get needsShuffle() {
     return this._needsShuffle;
   }
@@ -124,6 +134,26 @@ export class DuelFieldCell {
   public get isDisabledCell() {
     return disabledCellTypes.some((t) => t === this.cellType);
   }
+  public get neighbors() {
+    const rows = [this.row - 1, this.row, this.row + 1].filter((row) => row >= 0 && row <= 6);
+    const columns = [this.column - 1, this.column, this.column + 1].filter((column) => column >= 0 && column <= 6);
+    return rows
+      .flatMap((row) => columns.map((column) => this.field.cells[row][column]))
+      .filter((cell) => cell.isMonsterZoneLikeCell)
+      .filter((cell) => cell !== this);
+  }
+  public readonly recalcArrowheads = () => {
+    if (!this.isMonsterZoneLikeCell) {
+      return;
+    }
+    this._requiresRecalcArrowheads = false;
+
+    this._arrowheadSources = this.neighbors
+      .filter((cell) => cell.isMonsterZoneLikeCell)
+      .filter((cell) => cell.cardEntities.length)
+      .filter((cell) => cell.cardEntities[0].arrowheads.some((ah) => this.row === cell.row + ah.offsetRow && this.column === cell.column + ah.offsetColumn))
+      .map((cell) => cell.cardEntities[0]);
+  };
   private _entities: DuelEntity[];
   public constructor(duelField: DuelField, row: number, column: number, owner?: Duelist) {
     this.field = duelField;
@@ -132,17 +162,23 @@ export class DuelFieldCell {
     this.cellType = cellTypeMaster[row][column];
     this.owner = owner;
     this._entities = [];
+    this._arrowheadSources = [];
+    this._requiresRecalcArrowheads = false;
   }
-  public readonly releaseEntities = (entities: DuelEntity[]): DuelEntity[] => {
-    this._entities = this._entities.filter((e) => !entities.includes(e));
+  public readonly releaseEntities = (entity: DuelEntity): DuelEntity => {
+    this._entities = this._entities.filter((e) => e !== entity);
+    if (this.isMonsterZoneLikeCell && entity.origin.monsterCategories?.includes("Link")) {
+      this._requiresRecalcArrowheads = true;
+    }
+
     this.onUpdateEvent.trigger();
-    return entities;
+    return entity;
   };
-  public readonly acceptEntities = (entities: DuelEntity[], pos: TDuelEntityMovePos) => {
+  public readonly acceptEntities = (entity: DuelEntity, pos: TDuelEntityMovePos) => {
     if (pos === "Top") {
-      this._entities.unshift(...entities);
+      this._entities.unshift(entity);
     } else {
-      this._entities.push(...entities);
+      this._entities.push(entity);
     }
 
     if (pos === "Random") {
@@ -151,6 +187,11 @@ export class DuelFieldCell {
     this._entities.forEach((entity) => {
       entity.fieldCell = this;
     });
+
+    if (this.isMonsterZoneLikeCell && entity.origin.monsterCategories?.includes("Link")) {
+      this._requiresRecalcArrowheads = true;
+    }
+
     this.onUpdateEvent.trigger();
   };
   public readonly shuffle = (): void => {

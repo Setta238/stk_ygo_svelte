@@ -1,6 +1,6 @@
-import type { CardAction, CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
+import type { CardActionDefinition, CardActionDefinitionAttr } from "@ygo_duel/class/DuelCardAction";
 import type { Duelist } from "@ygo_duel/class/Duelist";
-import type { DuelEntity, TMaterialCauseReason, TSummonRuleCauseReason } from "@ygo_duel/class/DuelEntity";
+import type { DuelEntity, TDuelCauseReason } from "@ygo_duel/class/DuelEntity";
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
 import type { SubstituteEffectDefinition } from "@ygo_duel/class/DuelSubstituteEffect";
 import type { ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
@@ -25,6 +25,9 @@ import { createCardDefinitions_Blackwing_Monster } from "@ygo_duel/cards/tag_b/C
 import { createCardDefinitions_Resonator_Monster } from "@ygo_duel/cards/tag_r/CardDefinitions_Resonator_Monster";
 import { createCardDefinitions_Stardust_Monster } from "@ygo_duel/cards/tag_s/CardDefinitions_Stardust_Monster";
 import { createCardDefinitions_ContinuousTrap } from "./CardDefinitions_ContinuousTrap";
+import { createCardDefinitions_LinkMonster } from "./CardDefinitions_LinkMonster";
+import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
+import type { SummonFilter } from "@ygo_duel/class_continuous_effect/DuelSummonFilter";
 
 export type MaterialInfo = {
   material: DuelEntity;
@@ -37,24 +40,22 @@ export type CardDefinition = {
   name: string;
   actions: CardActionDefinition<unknown>[];
   continuousEffects?: ContinuousEffectBase<unknown>[];
-  canBeSummoned?: <T>(
-    activator: Duelist,
+  defaultSummonFilter?: (
+    filter: SummonFilter,
+    filterTarget: DuelEntity,
+    effectOwner: Duelist,
+    summoner: Duelist,
+    moveAs: TDuelCauseReason[],
+    actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
     monster: DuelEntity,
-    action: CardAction<T>,
-    summonType: TSummonRuleCauseReason,
-    pos: TBattlePosition,
     materialInfos: MaterialInfo[],
+    posList: Readonly<TBattlePosition[]>,
+    cells: DuelFieldCell[],
     ignoreSummoningConditions: boolean
-  ) => boolean;
-  canBeMaterial?: <T>(
-    activator: Duelist,
-    monster: DuelEntity,
-    action: CardAction<T>,
-    materialType: TMaterialCauseReason,
-    pos: TBattlePosition,
-    materialInfos: MaterialInfo[],
-    ignoreSummoningConditions: boolean
-  ) => boolean;
+  ) => {
+    posList: Readonly<TBattlePosition[]>;
+    cells: DuelFieldCell[];
+  };
   substituteEffects?: SubstituteEffectDefinition[];
 };
 
@@ -80,6 +81,7 @@ export const createCardDefinitions = (): CardDefinition[] => {
     ...createCardDefinitions_XyzMonster(),
     ...createCardDefinitions_Resonator_Monster(),
     ...createCardDefinitions_Stardust_Monster(),
+    ...createCardDefinitions_LinkMonster(),
   ];
   const names = hoge.map((def) => def.name);
   console.info(names);

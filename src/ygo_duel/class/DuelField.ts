@@ -8,9 +8,12 @@ import { ProcFilterPool } from "../class_continuous_effect/DuelProcFilter";
 import { NumericStateOperatorPool } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import { CardRelationPool } from "@ygo_duel/class_continuous_effect/DuelCardRelation";
 import { StatusOperatorPool } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
+import { SummonFilterPool } from "@ygo_duel/class_continuous_effect/DuelSummonFilter";
+import type { MaterialInfo } from "@ygo_duel/cards/CardDefinitions";
 export class DuelField {
   public readonly cells: DuelFieldCell[][];
   public readonly duel: Duel;
+  public readonly summonFilterPool: SummonFilterPool;
   public readonly procFilterPool: ProcFilterPool;
   public readonly numericStateOperatorPool: NumericStateOperatorPool;
   public readonly cardRelationPool: CardRelationPool;
@@ -28,6 +31,7 @@ export class DuelField {
         );
       }
     }
+    this.summonFilterPool = new SummonFilterPool();
     this.procFilterPool = new ProcFilterPool();
     this.numericStateOperatorPool = new NumericStateOperatorPool();
     this.cardRelationPool = new CardRelationPool();
@@ -40,6 +44,10 @@ export class DuelField {
 
   public readonly getCells = (...cellTypeList: Readonly<DuelFieldCellType[]>): DuelFieldCell[] => {
     return this.getAllCells().filter((cell) => cellTypeList.includes(cell.cellType));
+  };
+
+  public readonly getAvailableExtraMonsterZones = (): DuelFieldCell[] => {
+    return this.getCells("ExtraMonsterZone").filter((cell) => cell.isAvailable);
   };
   public readonly getAllEntities = (): DuelEntity[] => {
     return this.getAllCells()
@@ -67,6 +75,77 @@ export class DuelField {
     return this.getAllEntities().filter((entity) => entity.controller === duelist);
   };
 
+  public readonly recalcArrowheads = () => {
+    const monsterZones = this.getAllCells().filter((cell) => cell.isMonsterZoneLikeCell);
+
+    if (monsterZones.some((cell) => cell.recalcArrowheads)) {
+      monsterZones.forEach((cell) => cell.recalcArrowheads());
+    }
+  };
+
+  /**
+   * 新しくリンク召喚するモンスターでエクストラリンクを成立させることができるかどうか
+   * @param newLinkMonster
+   * @param materials
+   * @returns
+   */
+  public readonly canExtraLink = (newLinkMonster: DuelEntity, materialInfos: MaterialInfo[]): boolean => {
+    const materials = materialInfos.map((info) => info.material);
+    // 予定含む空のエクストラモンスターゾーンを抽出
+    const emptyExZoneCells = this.getCells("ExtraMonsterZone")
+      .filter((cell) => cell.isAvailable)
+      .filter((cell) => cell.isAvailable || materials.includes(cell.cardEntities[0]));
+
+    // 片方のみ埋まっている状態でなければならない
+    if (emptyExZoneCells.length !== 1) {
+      return false;
+    }
+
+    // 空いているEXモンスターゾーンを取得
+    const emptyExZoneCell = emptyExZoneCells[0];
+
+    // そのモンスターをリンク召喚師したときに、アローヘッドが向く先
+    const newArrowHeadDests = newLinkMonster.arrowheads.map((ah) => this.cells[emptyExZoneCell.row + ah.offsetRow][emptyExZoneCell.column + ah.offsetColumn]);
+
+    // 素材にするモンスター以外でそこにアローヘッドが向いているモンスターかつ、新しいリンクモンスターと相互リンクするモンスターを取得。
+    let coLinkedMonsters = emptyExZoneCell.arrowheadSources
+      .filter((monster) => !materials.includes(monster))
+      .filter((monster) => newArrowHeadDests.includes(monster.fieldCell));
+
+    // 上の条件のモンスターが存在しない場合、エクストラリンク不可
+    if (!coLinkedMonsters.length) {
+      return false;
+    }
+
+    // 無限ループ防止用
+    let previousLength = -1;
+
+    while (previousLength !== coLinkedMonsters.length) {
+      // 素材にするモンスター以外で、相互リンクモンスターをすべて拾う。
+      const _tmp = coLinkedMonsters.flatMap((monster) => monster.coLinkedEntities).filter((monster) => !materials.includes(monster));
+      // エクストラモンスターゾーンのものがいれば、エクストラリンク可能。
+      if (_tmp.some((monster) => monster.fieldCell.cellType === "ExtraMonsterZone")) {
+        return true;
+      }
+
+      // チェックしたものを配列に追加し、ユニークを取る
+      coLinkedMonsters = [...coLinkedMonsters, ..._tmp].getDistinct();
+      // 無限ループ防止用
+      previousLength = coLinkedMonsters.length;
+    }
+    return false;
+  };
+
+  /**
+   * @deprecated
+   * @param duelist1
+   * @param times1
+   * @param duelist2
+   * @param times2
+   * @param causedBy
+   * @param causedByWhome
+   * @returns
+   */
   public readonly drawAtSameTime = async (
     duelist1: Duelist,
     times1: number,
@@ -107,6 +186,18 @@ export class DuelField {
     throw new DuelEnd();
   };
 
+  /**
+   * @deprecated
+   * @param msg
+   * @param chooser
+   * @param choices
+   * @param qty
+   * @param validator
+   * @param moveAs
+   * @param causedBy
+   * @param cancelable
+   * @returns
+   */
   public readonly sendToGraveyard = async (
     msg: string,
     chooser: Duelist,

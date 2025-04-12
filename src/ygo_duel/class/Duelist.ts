@@ -1,7 +1,7 @@
 import { type IDuelistProfile } from "@ygo/class/DuelistProfile";
 import { type IDeckInfo } from "@ygo/class/DeckInfo";
 import { Duel, DuelEnd, SystemError, type TSeat } from "./Duel";
-import { DuelEntity, posToSummonPos, type TDuelCauseReason, type TSummonRuleCauseReason } from "./DuelEntity";
+import { DuelEntity, type SummonArg, type TDuelCauseReason, type TSummonRuleCauseReason } from "./DuelEntity";
 import type { DuelClock } from "./DuelClock";
 import type { DuelFieldCell } from "./DuelFieldCell";
 import { cardInfoDic } from "@ygo/class/CardInfo";
@@ -41,7 +41,59 @@ export type DuelistStatus = {
   canDiscardAsEffect: boolean;
 };
 
+export type SummonChoice = { summoner: Duelist; monster: DuelEntity; posList: Readonly<TBattlePosition[]>; cells: DuelFieldCell[] };
+
 export class Duelist {
+  public static readonly summonMany = async (
+    effectOwner: Duelist,
+    summonType: TSummonRuleCauseReason,
+    moveAs: TDuelCauseReason[],
+    actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
+    summonChoices: SummonChoice[],
+    materialInfos: MaterialInfo[],
+    ignoreSummoningConditions: boolean,
+    validator: (summoned: DuelEntity[]) => boolean,
+    cancelable: boolean,
+    msg: string = "特殊召喚するモンスターを選択。"
+  ) => {
+    const summoners = summonChoices.map((choice) => choice.summoner).getDistinct();
+    const summonArgs: SummonArg[] = [];
+    for (const summoner of summoners) {
+      summonArgs.push(
+        ...(await summoner.prepareToSummonMany(
+          effectOwner,
+          summonType,
+          moveAs,
+          actDefAttr,
+          summonChoices.filter((choice) => choice.summoner === summoner),
+          materialInfos,
+          ignoreSummoningConditions,
+          validator,
+          cancelable,
+          msg
+        ))
+      );
+    }
+
+    if (!summonArgs.length) {
+      return;
+    }
+
+    summonArgs.forEach((args) => args.monster.info.materials.reset(...materialInfos));
+
+    await DuelEntity.moveToXyzOwner(
+      summonArgs[0].dest,
+      materialInfos.map((info) => info.material).filter((monster) => monster.status.kind === "XyzMaterial"),
+      ["XyzMaterial", "Rule"],
+      summonArgs[0].monster,
+      effectOwner
+    );
+
+    await DuelEntity.summonMany(summonArgs, summonType, moveAs, actDefAttr.entity, effectOwner);
+
+    return summonArgs.map((arg) => arg.monster);
+  };
+
   public readonly duel: Duel;
   public readonly seat: TSeat;
   public get entity() {
@@ -142,39 +194,6 @@ export class Duelist {
     return true;
   };
 
-  public readonly canSummon = <T>(
-    activator: Duelist,
-    entity: DuelEntity,
-    action: CardAction<T>,
-    summonType: TSummonRuleCauseReason,
-    pos: TBattlePosition,
-    materialInfos: MaterialInfo[]
-  ): boolean => {
-    if (
-      !this.entity.procFilterBundle.operators
-        .filter((pf) => pf.procTypes.some((st) => st === summonType))
-        .every((pf) =>
-          pf.filter(
-            activator,
-            entity,
-            action,
-            materialInfos.map((info) => info.material)
-          )
-        )
-    ) {
-      return false;
-    }
-    return this.entity.procFilterBundle.operators
-      .filter((pf) => pf.procTypes.some((pt) => pt === posToSummonPos(pos)))
-      .every((pf) =>
-        pf.filter(
-          activator,
-          entity,
-          action,
-          materialInfos.map((info) => info.material)
-        )
-      );
-  };
   /**
    * 対象の耐性などを考慮せず、行為を行えるかどうかの判定
    * @param target
@@ -341,48 +360,193 @@ export class Duelist {
 
     return selectedList;
   };
-  public readonly summon = async (
-    entity: DuelEntity,
-    selectablePosList: TBattlePosition[],
-    selectableCells: DuelFieldCell[],
+
+  public readonly getEnableSummonList = (
+    effectOwner: Duelist,
     summonType: TSummonRuleCauseReason,
     moveAs: TDuelCauseReason[],
-    causedBy: DuelEntity,
-    cancelable: boolean = false
-  ): Promise<DuelEntity | undefined> => {
-    let pos: TBattlePosition = selectablePosList.randomPick();
-    let cell: DuelFieldCell = selectableCells.randomPick();
+    actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
+    summonChoices: Omit<SummonChoice, "summoner">[],
+    materialInfos: MaterialInfo[],
+    ignoreSummoningConditions: boolean
+  ): SummonChoice[] => {
+    const extraMonsterZones = this.duel.field.getCells("ExtraMonsterZone");
+    const onlyForExtraLinkCells: DuelFieldCell[] = [];
 
-    if (selectableCells.length > 1 || selectablePosList.length > 1) {
-      if (this.duelistType !== "NPC") {
-        const msg = selectableCells.length > 1 ? "カードを召喚先へドラッグ。" : "表示形式を選択。";
-        const dammyActions = selectablePosList.map((pos) => CardAction.createDammyAction(entity, pos, selectableCells, pos));
-        const p1 = this.duel.view.modalController.selectAction(this.duel.view, {
-          title: msg,
-          activator: this,
-          actions: dammyActions as ICardAction<unknown>[],
-          cancelable: false,
-        });
-        const p2 = this.duel.view.waitSubAction(this, dammyActions as ICardAction<unknown>[], msg, cancelable).then((res) => res.action);
+    const usedExtraMonsterZone = extraMonsterZones
+      .filter((cell) => cell.owner === this)
+      .filter((cell) => !materialInfos.map((info) => info.material).includes(cell.cardEntities[0]))
+      .filter((card) => card.owner === this);
 
-        const action = await Promise.any([p1, p2]);
-
-        if (!action && !cancelable) {
-          throw new SystemError("", action);
-        }
-        if (!action) {
-          return;
-        }
-        cell = action.cell || cell;
-        pos = action.pos || pos;
-      }
+    if (usedExtraMonsterZone.length) {
+      onlyForExtraLinkCells.push(...extraMonsterZones.filter((cell) => !usedExtraMonsterZone.includes(cell)).filter((cell) => cell.isAvailable));
     }
-
-    await entity.summon(cell, pos, summonType, moveAs, causedBy, this);
-
-    return entity;
+    return summonChoices
+      .map((item) => {
+        if (!this.duel.field.canExtraLink(item.monster, materialInfos)) {
+          item.cells = item.cells.filter((cell) => !onlyForExtraLinkCells.includes(cell));
+        }
+        return item;
+      })
+      .map((item) => {
+        return {
+          ...item,
+          cells: item.cells.filter((cell) => cell.cardEntities.length === 0 || materialInfos.some((info) => info.material === cell.cardEntities[0])),
+        };
+      })
+      .filter((item) => item.cells.length && item.posList.length)
+      .map((item) =>
+        this.entity.summonFilterBundle.filter(
+          effectOwner,
+          summonType,
+          moveAs,
+          actDefAttr,
+          { ...item, summoner: this },
+          materialInfos,
+          ignoreSummoningConditions
+        )
+      )
+      .filter((item) => item.cells.length && item.posList.length)
+      .map((item) =>
+        item.monster.summonFilterBundle.filter(
+          effectOwner,
+          summonType,
+          moveAs,
+          actDefAttr,
+          { ...item, summoner: this },
+          materialInfos,
+          ignoreSummoningConditions
+        )
+      )
+      .filter((item) => item.cells.length && item.posList.length)
+      .map((item) =>
+        materialInfos
+          .map((info) => info.material.summonFilterBundle)
+          .reduce(
+            (wip, bundle) => bundle.filter(effectOwner, summonType, moveAs, actDefAttr, { ...wip, summoner: this }, materialInfos, ignoreSummoningConditions),
+            item
+          )
+      )
+      .filter((item) => item.cells.length && item.posList.length)
+      .map((item) => {
+        return { ...item, summoner: this };
+      });
   };
 
+  private readonly prepareToSummonMany = async (
+    effectOwner: Duelist,
+    summonType: TSummonRuleCauseReason,
+    moveAs: TDuelCauseReason[],
+    actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
+    summonChoices: SummonChoice[],
+    materialInfos: MaterialInfo[],
+    ignoreSummoningConditions: boolean,
+    validator: (summoned: DuelEntity[]) => boolean,
+    cancelable: boolean,
+    msg: string = "特殊召喚するモンスターを選択。"
+  ): Promise<SummonArg[]> => {
+    const choices = this.getEnableSummonList(effectOwner, summonType, moveAs, actDefAttr, summonChoices, materialInfos, ignoreSummoningConditions);
+
+    if (!choices.length) {
+      return [];
+    }
+
+    let monsters = choices.map((item) => item.monster);
+
+    console.log(summonChoices, validator([]));
+
+    if (summonChoices.length !== 1 || validator([])) {
+      monsters = (await this.duel.view.waitSelectEntities(this, monsters, undefined, validator, msg, cancelable)) ?? [];
+    }
+
+    console.log(choices, monsters);
+
+    const summonArgs: SummonArg[] = [];
+    for (const choice of choices.filter((item) => monsters.includes(item.monster))) {
+      const selectableCells = choice.cells.filter((cell) => !summonArgs.map((arg) => arg.dest).includes(cell));
+      if (!selectableCells.length) {
+        continue;
+      }
+      let pos: TBattlePosition = [...choice.posList].randomPick();
+      let dest: DuelFieldCell = selectableCells.randomPick();
+
+      if (selectableCells.length > 1 || choice.posList.length > 1) {
+        if (this.duelistType !== "NPC") {
+          const msg = selectableCells.length > 1 ? "カードを召喚先へドラッグ。" : "表示形式を選択。";
+          const dammyActions = choice.posList.map((pos) => CardAction.createDammyAction(choice.monster, pos, selectableCells, pos));
+          const p1 = this.duel.view.modalController.selectAction(this.duel.view, {
+            title: msg,
+            activator: this,
+            actions: dammyActions as ICardAction<unknown>[],
+            cancelable: false,
+          });
+          const p2 = this.duel.view.waitSubAction(this, dammyActions as ICardAction<unknown>[], msg, cancelable).then((res) => res.action);
+
+          const action = await Promise.any([p1, p2]);
+
+          if (!action) {
+            throw new SystemError("想定されない状態", choices, monsters, summonArgs);
+          }
+          dest = action.cell || dest;
+          pos = action.pos || pos;
+        }
+      }
+      summonArgs.push({ summoner: this, monster: choice.monster, pos, dest });
+    }
+
+    return summonArgs;
+  };
+
+  public readonly summonAll = (
+    effectOwner: Duelist,
+    summonType: TSummonRuleCauseReason,
+    moveAs: TDuelCauseReason[],
+    actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
+    summonChoices: Omit<SummonChoice, "summoner">[],
+    materialInfos: MaterialInfo[],
+    ignoreSummoningConditions: boolean,
+    cancelable: boolean,
+    msg?: string
+  ) =>
+    this.summonMany(
+      effectOwner,
+      summonType,
+      moveAs,
+      actDefAttr,
+      summonChoices,
+      materialInfos,
+      ignoreSummoningConditions,
+      (summoned) => summoned.length === summonChoices.length,
+      cancelable,
+      msg
+    );
+
+  public readonly summonMany = (
+    effectOwner: Duelist,
+    summonType: TSummonRuleCauseReason,
+    moveAs: TDuelCauseReason[],
+    actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
+    summonChoices: Omit<SummonChoice, "summoner">[],
+    materialInfos: MaterialInfo[],
+    ignoreSummoningConditions: boolean,
+    validator: (summoned: DuelEntity[]) => boolean,
+    cancelable: boolean,
+    msg?: string
+  ) =>
+    Duelist.summonMany(
+      effectOwner,
+      summonType,
+      moveAs,
+      actDefAttr,
+      summonChoices.map((choice) => {
+        return { ...choice, summoner: this };
+      }),
+      materialInfos,
+      ignoreSummoningConditions,
+      validator,
+      cancelable,
+      msg
+    );
   public readonly selectAttackTargetForNPC = (attacker: DuelEntity, action: CardAction<unknown>): DuelEntity | undefined => {
     // 攻撃力と攻撃対象を抽出。
     const atk = attacker.atk ?? 0;

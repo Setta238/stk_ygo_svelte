@@ -1,3 +1,4 @@
+import {} from "@ygo_duel/class/DuelistShortHands";
 import { type IDeckInfo } from "@ygo/class/DeckInfo";
 import { Duelist, type TDuelistType } from "@ygo_duel/class/Duelist";
 import { type IDuelistProfile } from "@ygo/class/DuelistProfile";
@@ -152,6 +153,11 @@ export class Duel {
       }
 
       if (!this.field.numericStateOperatorPool.distributeAll(this)) {
+        continue;
+      }
+
+      // これは最後で良い。
+      if (!this.field.summonFilterPool.distributeAll(this)) {
         continue;
       }
       return;

@@ -1,14 +1,10 @@
 import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
-import {
-  defaultAttackAction,
-  defaultBattlePotisionChangeAction,
-  defaultCanBeSummoned,
-  getDefaultSyncroSummonAction,
-} from "@ygo_duel/cards/DefaultCardAction_Monster";
+import { defaultAttackAction, defaultBattlePotisionChangeAction, defaultSummonFilter } from "@ygo_duel/cards/DefaultCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardDefinition } from "./CardDefinitions";
 import { defaultPrepare } from "@ygo_duel/cards/DefaultCardAction";
+import { getDefaultSyncroSummonAction } from "./DefaultCardAction_SyncroMonster";
 
 export const createCardDefinitions_SyncroMonster = (): CardDefinition[] => {
   const result: CardDefinition[] = [];
@@ -17,7 +13,7 @@ export const createCardDefinitions_SyncroMonster = (): CardDefinition[] => {
     result.push({
       name: name,
       actions: [defaultAttackAction, defaultBattlePotisionChangeAction, getDefaultSyncroSummonAction()] as CardActionDefinition<unknown>[],
-      canBeSummoned: defaultCanBeSummoned,
+      defaultSummonFilter: defaultSummonFilter,
     })
   );
 
@@ -31,7 +27,7 @@ export const createCardDefinitions_SyncroMonster = (): CardDefinition[] => {
         (nonTuners) => nonTuners.length > 0 && nonTuners.every((nonTuner) => nonTuner.attr.some((a) => a === "Earth"))
       ),
     ] as CardActionDefinition<unknown>[],
-    canBeSummoned: defaultCanBeSummoned,
+    defaultSummonFilter: defaultSummonFilter,
   });
 
   result.push({
@@ -65,7 +61,7 @@ export const createCardDefinitions_SyncroMonster = (): CardDefinition[] => {
         settle: async () => true,
       },
     ],
-    canBeSummoned: defaultCanBeSummoned,
+    defaultSummonFilter: defaultSummonFilter,
   });
   return result;
 };

@@ -113,8 +113,8 @@ export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] =
           return spells.map((spell) => spell.fieldCell);
         },
         payCosts: async (myInfo, chainBlockInfos, cancelable) => paySpellCounters(myInfo, chainBlockInfos, cancelable, [1]),
-        prepare: async (myInfo, cell, chainBlockInfos, cancelable) => {
-          let target = cell?.cardEntities[0];
+        prepare: async (myInfo, chainBlockInfos, cancelable) => {
+          let target = myInfo.dest?.cardEntities[0];
 
           if (!target) {
             const spells = myInfo.action.entity.field

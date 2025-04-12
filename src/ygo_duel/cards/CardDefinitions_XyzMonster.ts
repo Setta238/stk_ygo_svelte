@@ -1,13 +1,9 @@
 import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
-import {
-  defaultAttackAction,
-  defaultBattlePotisionChangeAction,
-  defaultCanBeSummoned,
-  getDefaultXyzSummonAction,
-} from "@ygo_duel/cards/DefaultCardAction_Monster";
+import { defaultAttackAction, defaultBattlePotisionChangeAction, defaultSummonFilter } from "@ygo_duel/cards/DefaultCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardDefinition } from "./CardDefinitions";
+import { getDefaultXyzSummonAction } from "./DefaultCardAction_XyzMonster";
 export const createCardDefinitions_XyzMonster = (): CardDefinition[] => {
   const result: CardDefinition[] = [];
 
@@ -18,7 +14,7 @@ export const createCardDefinitions_XyzMonster = (): CardDefinition[] => {
     result.push({
       name: item.name,
       actions: [defaultAttackAction, defaultBattlePotisionChangeAction, getDefaultXyzSummonAction(item.qty, item.qty)] as CardActionDefinition<unknown>[],
-      canBeSummoned: defaultCanBeSummoned,
+      defaultSummonFilter: defaultSummonFilter,
     })
   );
   return result;

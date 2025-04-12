@@ -2,9 +2,8 @@ import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
 import {
   defaultAttackAction,
   defaultBattlePotisionChangeAction,
-  defaultCanBeSummoned,
-  defaultRebornExecute,
-  getDefaultSyncroSummonAction,
+  defaultSelfRebornExecute,
+  defaultSummonFilter,
 } from "@ygo_duel/cards/DefaultCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
@@ -13,6 +12,7 @@ import { duelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { defaultPrepare } from "@ygo_duel/cards/DefaultCardAction";
 import { duelFieldCellTypes } from "@ygo_duel/class/DuelFieldCell";
+import { getDefaultSyncroSummonAction } from "../DefaultCardAction_SyncroMonster";
 
 export const createCardDefinitions_Stardust_Monster = (): CardDefinition[] => {
   const result: CardDefinition[] = [];
@@ -43,7 +43,7 @@ export const createCardDefinitions_Stardust_Monster = (): CardDefinition[] => {
 
           return info.chainBlockTags.includes("DestroyOnField") ? [] : undefined;
         },
-        prepare: async (myInfo, cell, chainBlockInfos) => {
+        prepare: async (myInfo, chainBlockInfos) => {
           if (chainBlockInfos.length === 0) {
             return;
           }
@@ -96,16 +96,16 @@ export const createCardDefinitions_Stardust_Monster = (): CardDefinition[] => {
           return availableCells.length > 0 ? [] : undefined;
         },
         prepare: defaultPrepare,
-        execute: (myInfo) => defaultRebornExecute(myInfo),
+        execute: (myInfo) => defaultSelfRebornExecute(myInfo),
         settle: async () => true,
       },
     ],
-    canBeSummoned: defaultCanBeSummoned,
+    defaultSummonFilter: defaultSummonFilter,
   });
 
   result.push({
     name: "閃珖竜 スターダスト",
-    canBeSummoned: defaultCanBeSummoned,
+    defaultSummonFilter: defaultSummonFilter,
     actions: [
       defaultAttackAction as CardActionDefinition<unknown>,
       defaultBattlePotisionChangeAction as CardActionDefinition<unknown>,
@@ -131,10 +131,10 @@ export const createCardDefinitions_Stardust_Monster = (): CardDefinition[] => {
 
           return targets.map((target) => target.fieldCell);
         },
-        prepare: async (myInfo, cell, chainBlockInfos, cancelable) => {
-          if (cell) {
+        prepare: async (myInfo, chainBlockInfos, cancelable) => {
+          if (myInfo.dest) {
             return {
-              selectedEntities: cell.cardEntities,
+              selectedEntities: myInfo.dest.cardEntities,
               chainBlockTags: [],
               prepared: undefined,
             };

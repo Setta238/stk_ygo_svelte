@@ -68,7 +68,6 @@ export const defaultEquipSpellTrapValidate = <T>(
 
 export const defaultEquipSpellTrapPrepare = async <T>(
   myInfo: ChainBlockInfoBase<T>,
-  cell: DuelFieldCell | undefined,
   chainBlockInfos: Readonly<ChainBlockInfoPrepared<unknown>[]>,
   cancelable: boolean,
   chainBlockTags: TEffectTag[] | undefined,
@@ -103,6 +102,8 @@ export const defaultEquipSpellTrapExecute = async <T>(
   validateEquipOwner: (equipOwner: DuelEntity, equip: DuelEntity) => boolean = () => true
 ) => {
   const target = myInfo.selectedEntities[0];
+  myInfo.action.entity.info.equipedBy = target;
+  myInfo.action.entity.info.effectTargets[myInfo.action.seq] = [target];
   if (!validateEquipOwner(target, myInfo.action.entity)) {
     await myInfo.action.entity.ruleDestory();
     myInfo.activator.writeInfoLog(`${target.toString()}が装備条件を満たさなくなったため、${myInfo.action.entity.toString()}は破壊された。`);
@@ -126,7 +127,7 @@ export const getDefaultEquipSpellTrapAction = (filter: (monster: DuelEntity) => 
     executablePeriods: ["main1", "main2"],
     executableDuelistTypes: ["Controller"],
     validate: (myInfo, chainBlockInfos) => defaultEquipSpellTrapValidate(myInfo, chainBlockInfos, filter),
-    prepare: (myInfo, cell, chainBlockInfos, cancelable) => defaultEquipSpellTrapPrepare(myInfo, cell, chainBlockInfos, cancelable, [], undefined, filter),
+    prepare: (myInfo, chainBlockInfos, cancelable) => defaultEquipSpellTrapPrepare(myInfo, chainBlockInfos, cancelable, [], undefined, filter),
     execute: defaultEquipSpellTrapExecute,
     settle: async () => true,
   };

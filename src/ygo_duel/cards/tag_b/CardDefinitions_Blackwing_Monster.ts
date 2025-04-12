@@ -5,12 +5,11 @@ import {
   defaultRuleSpecialSummonExecute,
   defaultRuleSpecialSummonPrepare,
   defaultRuleSpecialSummonValidate,
-  type SummonPrepared,
 } from "@ygo_duel/cards/DefaultCardAction_Monster";
-import type { CardDefinition } from "../CardDefinitions";
+import type { CardDefinition, MaterialInfo } from "../CardDefinitions";
 import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
-import type { TEntityFlexibleNumericStatusKey } from "@ygo/class/YgoTypes";
+import { faceupBattlePositions, type TEntityFlexibleNumericStatusKey } from "@ygo/class/YgoTypes";
 import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
 
 export const createCardDefinitions_Blackwing_Monster = (): CardDefinition[] => {
@@ -40,10 +39,10 @@ export const createCardDefinitions_Blackwing_Monster = (): CardDefinition[] => {
 
           return defaultRuleSpecialSummonValidate(myInfo, ["Attack", "Defense"], []);
         },
-        prepare: (myInfo, cell, chainBlockInfos, cancelable) => defaultRuleSpecialSummonPrepare(myInfo, cell, ["Attack", "Defense"], [], cancelable),
-        execute: defaultRuleSpecialSummonExecute,
+        prepare: () => defaultRuleSpecialSummonPrepare([]),
+        execute: (myInfo) => defaultRuleSpecialSummonExecute(myInfo, faceupBattlePositions),
         settle: async () => true,
-      } as CardActionDefinition<SummonPrepared>,
+      } as CardActionDefinition<MaterialInfo[]>,
       {
         title: "②攻守半減",
         isMandatory: false,
@@ -66,8 +65,8 @@ export const createCardDefinitions_Blackwing_Monster = (): CardDefinition[] => {
 
           return enemies.length ? enemies : undefined;
         },
-        prepare: async (myInfo, cell, chainBlockInfos, cancelable) => {
-          let target = cell?.cardEntities[0];
+        prepare: async (myInfo, chainBlockInfos, cancelable) => {
+          let target = myInfo.dest?.cardEntities[0];
 
           if (!target) {
             const enemies = myInfo.activator

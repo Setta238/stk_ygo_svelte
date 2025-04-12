@@ -41,6 +41,9 @@ export const effectTags = [
   "AddToHandFromGraveyard", //わらし
   "ReturnToDeckFromGraveyard", //わらし
   "SpecialSummonFromGraveyard", //わらし
+  "SpecialSummonFromBanished", //
+  "ReturnToHandFromGraveyard", //
+  "ReturnToHandFromField", //
   "BanishFromField", //今のところない？
   "BanishFromHand", //今のところない？
   "Destroy",
@@ -88,6 +91,8 @@ export type ChainBlockInfoBase<T> = {
   isNegatedEffectBy?: CardAction<unknown>;
   costInfo: ActionCostInfo;
   state: "unloaded" | "ready" | "done" | "failed";
+  dest: DuelFieldCell | undefined;
+  ignoreCost: boolean;
 };
 
 export type ChainBlockInfoPrepared<T> = {
@@ -142,7 +147,6 @@ export type CardActionDefinition<T> = CardActionDefinitionAttr & {
    */
   prepare: (
     myInfo: ChainBlockInfoBase<T>,
-    cell: DuelFieldCell | undefined,
     chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
     cancelable: boolean
   ) => Promise<ChainBlockInfoPrepared<T> | undefined>;
@@ -317,6 +321,8 @@ export class CardAction<T> extends CardActionBase implements ICardAction<T> {
       isActivatedAt: this.duel.clock.getClone(),
       costInfo: {},
       state: "unloaded",
+      dest: undefined,
+      ignoreCost: false,
     };
 
     if (this.definition.canPayCosts && !ignoreCosts) {
@@ -398,6 +404,8 @@ export class CardAction<T> extends CardActionBase implements ICardAction<T> {
       isActivatedAt: this.duel.clock.getClone(),
       costInfo: {},
       state: "ready",
+      dest: cell,
+      ignoreCost: false,
     };
 
     if (this.definition.payCosts && !ignoreCosts) {
@@ -409,10 +417,11 @@ export class CardAction<T> extends CardActionBase implements ICardAction<T> {
     }
 
     // 準備
-    const prepared = await this.definition.prepare(myInfo, cell, chainBlockInfos, _cancelable);
+    const prepared = await this.definition.prepare(myInfo, chainBlockInfos, _cancelable);
     if (prepared === undefined) {
       return;
     }
+    console.log(this.entity.toString(), prepared);
     return { ...myInfo, ...prepared };
   };
 

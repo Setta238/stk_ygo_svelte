@@ -10,15 +10,17 @@ import {
   defaultRuleSpecialSummonExecute,
   defaultRuleSpecialSummonPrepare,
   defaultRuleSpecialSummonValidate,
-  type SummonPrepared,
+  defaultSelfRebornExecute,
 } from "@ygo_duel/cards/DefaultCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 
-import type { CardDefinition } from "./CardDefinitions";
+import type { CardDefinition, MaterialInfo } from "./CardDefinitions";
 import { createRegularProcFilterHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { ProcFilter } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
 import { damageStepPeriodKeys, duelPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
+import { faceupBattlePositions } from "@ygo/class/YgoTypes";
+import { defaultEffectSpecialSummonExecute } from "./DefaultCardAction";
 
 export const createCardDefinitions_Monster = (): CardDefinition[] => {
   const result: CardDefinition[] = [];
@@ -46,10 +48,10 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
 
             return defaultRuleSpecialSummonValidate(myInfo, ["Attack", "Defense"], []);
           },
-          prepare: (myInfo, cell, chainBlockInfos, cancelable) => defaultRuleSpecialSummonPrepare(myInfo, cell, ["Attack", "Defense"], [], cancelable),
-          execute: defaultRuleSpecialSummonExecute,
+          prepare: () => defaultRuleSpecialSummonPrepare([]),
+          execute: (myInfo) => defaultRuleSpecialSummonExecute(myInfo, faceupBattlePositions),
           settle: async () => true,
-        } as CardActionDefinition<SummonPrepared>,
+        } as CardActionDefinition<MaterialInfo[]>,
       ] as CardActionDefinition<unknown>[],
     })
   );
@@ -73,12 +75,12 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
             return;
           }
 
-          return defaultRuleSpecialSummonValidate(myInfo, ["Attack", "Defense"], []);
+          return defaultRuleSpecialSummonValidate(myInfo, faceupBattlePositions, []);
         },
-        prepare: (myInfo, cell, chainBlockInfos, cancelable) => defaultRuleSpecialSummonPrepare(myInfo, cell, ["Attack", "Defense"], [], cancelable),
-        execute: defaultRuleSpecialSummonExecute,
+        prepare: () => defaultRuleSpecialSummonPrepare([]),
+        execute: (myInfo) => defaultRuleSpecialSummonExecute(myInfo, faceupBattlePositions),
         settle: async () => true,
-      } as CardActionDefinition<SummonPrepared>,
+      } as CardActionDefinition<MaterialInfo[]>,
     ] as CardActionDefinition<unknown>[],
   };
 
@@ -117,20 +119,14 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
           return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromDeck"], prepared: undefined };
         },
         execute: async (myInfo) => {
-          const availableCells = myInfo.activator.getAvailableMonsterZones();
-          if (!availableCells.length) {
-            return false;
-          }
           const newOne = myInfo.activator.getDeckCell().cardEntities.find((card) => card.nm === "Ｄ－ＨＥＲＯ ディアボリックガイ");
           if (!newOne) {
             return false;
           }
-          await myInfo.activator.summon(newOne, ["Attack", "Defense"], availableCells, "SpecialSummon", ["Effect"], myInfo.action.entity, false);
-          myInfo.activator.getDeckCell().shuffle();
-          return true;
+          return defaultEffectSpecialSummonExecute(myInfo, [newOne]);
         },
         settle: async () => true,
-      } as CardActionDefinition<undefined>,
+      } as CardActionDefinition<unknown>,
     ] as CardActionDefinition<unknown>[],
   };
 
@@ -171,20 +167,11 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
           return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromGraveyard"], prepared: undefined };
         },
         execute: async (myInfo): Promise<boolean> => {
-          // 同一チェーン中に墓地を離れていたら不可
-          if (myInfo.action.entity.wasMovedAtCurrentChain) {
-            return false;
-          }
-          const availableCells = myInfo.activator.getAvailableMonsterZones();
-          if (availableCells.length === 0) {
-            return false;
-          }
-          await myInfo.activator.summon(myInfo.action.entity, ["Attack", "Defense"], availableCells, "SpecialSummon", ["Effect"], myInfo.action.entity, false);
-          myInfo.action.entity.info.willBeBanished = true;
-          return true;
+          myInfo.action.entity.info.willBeBanished = await defaultSelfRebornExecute(myInfo);
+          return myInfo.action.entity.info.willBeBanished;
         },
         settle: async () => true,
-      } as CardActionDefinition<undefined>,
+      } as CardActionDefinition<unknown>,
     ] as CardActionDefinition<unknown>[],
   };
 
@@ -215,22 +202,9 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromGraveyard"], prepared: undefined };
         },
-        execute: async (myInfo) => {
-          // 同一チェーン中に墓地を離れていたら不可
-          if (myInfo.action.entity.wasMovedAfter(myInfo.isActivatedAt)) {
-            await myInfo.action.entity.ruleDestory();
-            return false;
-          }
-
-          const availableCells = myInfo.activator.getAvailableMonsterZones();
-          if (availableCells.length === 0) {
-            return false;
-          }
-          await myInfo.activator.summon(myInfo.action.entity, ["Attack", "Defense"], availableCells, "SpecialSummon", ["Effect"], myInfo.action.entity);
-          return true;
-        },
+        execute: (myInfo) => defaultSelfRebornExecute(myInfo),
         settle: async () => true,
-      } as CardActionDefinition<undefined>,
+      } as CardActionDefinition<unknown>,
     ] as CardActionDefinition<unknown>[],
   };
 
@@ -403,27 +377,9 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromGraveyard"], prepared: undefined };
         },
-        execute: async (myInfo) => {
-          // 同一チェーン中に墓地を離れていたら不可
-          // 移動していた場合、処理を終了する。
-          if (myInfo.action.entity.wasMovedAfter(myInfo.isActivatedAt)) {
-            return false;
-          }
-          const availableCells = myInfo.activator.getAvailableMonsterZones();
-          if (!availableCells.length) {
-            return false;
-          }
-          if (myInfo.action.entity.fieldCell.cellType !== "Graveyard" && myInfo.action.entity.fieldCell.cellType !== "Banished") {
-            return false;
-          }
-          if (myInfo.action.entity.face === "FaceDown") {
-            return false;
-          }
-          await myInfo.activator.summon(myInfo.action.entity, ["Attack", "Defense"], availableCells, "SpecialSummon", ["Effect"], myInfo.action.entity);
-          return true;
-        },
+        execute: (myInfo) => defaultSelfRebornExecute(myInfo),
         settle: async () => true,
-      } as CardActionDefinition<undefined>,
+      } as CardActionDefinition<unknown>,
     ] as CardActionDefinition<unknown>[],
     canBeSummoned: () => true,
   };

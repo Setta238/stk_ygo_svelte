@@ -1,7 +1,7 @@
 import type { CardActionBase } from "./DuelCardActionBase";
 import type { DuelEntity } from "./DuelEntity";
 
-export const actualCounterNames = ["SpellCounter", "KaijuCounter", "NamelessCounter"] as const;
+export const actualCounterNames = ["SpellCounter", "KaijuCounter", "NamelessCounter", "IceCounter"] as const;
 export type TActualCounterName = (typeof actualCounterNames)[number];
 export const namedSystemCounterNames = ["SonicBarrier"] as const;
 export type TNamedSystemCounterName = (typeof namedSystemCounterNames)[number];
@@ -17,12 +17,14 @@ export const actualCounterDic: { [key in TActualCounterName]: string } = {
   SpellCounter: "魔力カウンター",
   KaijuCounter: "壊獣カウンター",
   NamelessCounter: "カウンター",
+  IceCounter: "アイスカウンター",
 };
 
 export const actualCounterEmojiDic: { [key in TActualCounterName]: string } = {
   SpellCounter: "🔮",
   KaijuCounter: "☢",
   NamelessCounter: "💠",
+  IceCounter: "❄",
 };
 
 export class CounterHolder {

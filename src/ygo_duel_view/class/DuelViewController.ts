@@ -298,11 +298,11 @@ export class DuelViewController {
     activator: Duelist,
     entity: DuelEntity,
     availableCells: DuelFieldCell[],
-    posList: TBattlePosition[],
+    posList: Readonly<TBattlePosition[]>,
     cancelable: boolean
   ): Promise<{ dest: DuelFieldCell; pos: TBattlePosition } | undefined> => {
     const msg = availableCells.length > 1 ? "カードを召喚先へドラッグ。" : "表示形式を選択。";
-    const dammyActions = (posList as TBattlePosition[]).map((pos) => CardAction.createDammyAction(entity, pos, availableCells, pos));
+    const dammyActions = posList.map((pos) => CardAction.createDammyAction(entity, pos, availableCells, pos));
     const p1 = this.modalController.selectAction(entity.field.duel.view, {
       title: msg,
       activator: activator,

@@ -12,17 +12,25 @@
 }.duel_card.Syncro {
   background-color: snow;
 }
-
 .duel_card.Syncro .duel_card_detail {
   background-color: snow;
 }
 .duel_card.Xyz {
-  background-color: black;color: white;
+  background-color: black;
+  color: white;
 }
-
 .duel_card.Xyz .duel_card_detail {
   background-color: black;
 }
+.duel_card.Link {
+  background-color: mediumblue;
+  color: white;
+}
+
+.duel_card.Link .duel_card_detail {
+  background-color: mediumblue;
+}
+
 .duel_card.Spell {
   background-color: forestgreen;
   color: white;

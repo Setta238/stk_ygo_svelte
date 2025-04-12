@@ -1,3 +1,5 @@
+import { faceupBattlePositions, type TBattlePosition } from "@ygo/class/YgoTypes";
+import { IllegalCancelError } from "@ygo_duel/class/Duel";
 import { type ActionCostInfo, type CardActionDefinition, type ChainBlockInfo, type ChainBlockInfoBase, type TEffectTag } from "@ygo_duel/class/DuelCardAction";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { duelFieldCellTypes } from "@ygo_duel/class/DuelFieldCell";
@@ -14,6 +16,83 @@ export const defaultPayLifePoint = async <T>(
   return { LifePoint: point };
 };
 
+export const defaultTargetMonstersRebornPrepare = async <T>(
+  myInfo: ChainBlockInfoBase<T>,
+  monsters: DuelEntity[],
+  posList: Readonly<TBattlePosition[]> = faceupBattlePositions,
+  validator: (selected: DuelEntity[]) => boolean = (selected) => selected.length === 1
+) => {
+  const cells = myInfo.activator.getMonsterZones();
+  const list = myInfo.activator.getEnableSummonList(
+    myInfo.activator,
+    "SpecialSummon",
+    ["Effect"],
+    myInfo.action,
+    monsters
+      .filter((card) => card.canBeTargetOfEffect(myInfo))
+      .map((monster) => {
+        return { monster, posList, cells };
+      }),
+    [],
+    false
+  );
+
+  const targets =
+    (await myInfo.action.entity.field.duel.view.waitSelectEntities(
+      myInfo.activator,
+      list.map((item) => item.monster),
+      1,
+      validator,
+      "特殊召喚するモンスターを選択",
+      false
+    )) ?? [];
+  if (!targets.length) {
+    throw new IllegalCancelError(myInfo);
+  }
+
+  const tags: TEffectTag[] = targets
+    .map((monster) => monster.fieldCell.cellType)
+    .getDistinct()
+    .filter((ct) => ct === "Graveyard" || ct === "Banished")
+    .map((ct) => (ct === "Graveyard" ? "SpecialSummonFromGraveyard" : "SpecialSummonFromBanished"));
+
+  return { selectedEntities: targets, chainBlockTags: tags, prepared: undefined };
+};
+
+export const defaultTargetMonstersRebornExecute = async <T>(
+  myInfo: ChainBlockInfo<T>,
+  posList: Readonly<TBattlePosition[]> = ["Attack", "Defense"],
+  allOrNothing: boolean = true
+) => {
+  const cells = myInfo.activator.getMonsterZones();
+  const list = myInfo.selectedEntities
+    .filter((monster) => !monster.wasMovedAfter(myInfo.isActivatedAt))
+    .map((monster) => {
+      return { monster, posList, cells };
+    });
+  if (allOrNothing) {
+    if (list.length !== myInfo.selectedEntities.length || cells.length < list.length) {
+      return false;
+    }
+  }
+  await myInfo.activator.summonAll(myInfo.activator, "SpecialSummon", ["Effect"], myInfo.action, list, [], false, false);
+
+  return true;
+};
+
+export const defaultEffectSpecialSummonExecute = async <T>(
+  myInfo: ChainBlockInfo<T>,
+  monsters: DuelEntity[],
+  posList: TBattlePosition[] = ["Attack", "Defense"]
+) => {
+  const cells = myInfo.activator.getMonsterZones();
+  const list = monsters.map((monster) => {
+    return { monster, posList, cells };
+  });
+  await myInfo.activator.summonAll(myInfo.activator, "SpecialSummon", ["Effect"], myInfo.action, list, [], false, false);
+
+  return true;
+};
 export const getSystemPeriodAction = (
   title: string,
   executablePeriods: Readonly<TDuelPeriodKey[]>,

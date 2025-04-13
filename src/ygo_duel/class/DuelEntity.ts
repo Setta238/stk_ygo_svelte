@@ -251,7 +251,7 @@ export class DuelEntity {
       if (movedAs.includes("FusionMaterial")) {
         activator.writeInfoLog(`${entities.map((entity) => entity.nm).join(" ")}を融合素材とし――、`);
       } else if (movedAs.includes("SyncroMaterial")) {
-        activator.writeInfoLog(`${entities.map((entity) => entity.nm).join(" ")}をシンクロ素材し――、`);
+        activator.writeInfoLog(`${entities.map((entity) => entity.nm).join(" ")}をシンクロと素材し――、`);
       } else if (movedAs.includes("LinkMaterial")) {
         activator.writeInfoLog(`${entities.map((entity) => entity.nm).join(" ")}をリンクマーカーにセッティング――、`);
       } else {

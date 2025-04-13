@@ -14,28 +14,30 @@
   cell.field.duel.view.onDuelUpdate.append(onCellUpdate);
 </script>
 
-<div class="duel_field_cell_info">
-  <div class="duel_field_cell_info_header item_btn">
-    <div>{cell.owner?.profile.name}</div>
-    <div>{cell.cellType}</div>
-  </div>
-  <div class="duel_field_cell_info_body">
-    {#each ["FaceUp", "FaceDown"] as TDuelEntityFace[] as face}
-      {#if getList(face).length}
-        <div class="duel_field_cell_info_box">
-          <div class="duel_field_cell_info_label">
-            {face === "FaceUp" ? "表向き" : "裏向き"}
-          </div>
-          {#each getList(face).toSorted(cardEntitySorter) as card}
-            <div class="duel_field_cell_info_item">
-              <DuelCard entity={card} isVisibleForcibly={cell.owner === cell.field.duel.duelists.Below} isWideMode={true} cardActionResolve={undefined} />
+{#if cell.field.duel.view.infoBoardState === "CellInfo"}
+  <div class="duel_field_cell_info">
+    <div class="duel_field_cell_info_header item_btn">
+      <div>{cell.owner?.profile.name}</div>
+      <div>{cell.cellType}</div>
+    </div>
+    <div class="duel_field_cell_info_body">
+      {#each ["FaceUp", "FaceDown"] as TDuelEntityFace[] as face}
+        {#if getList(face).length}
+          <div class="duel_field_cell_info_box">
+            <div class="duel_field_cell_info_label">
+              {face === "FaceUp" ? "表向き" : "裏向き"}
             </div>
-          {/each}
-        </div>
-      {/if}
-    {/each}
+            {#each getList(face).toSorted(cardEntitySorter) as card}
+              <div class="duel_field_cell_info_item">
+                <DuelCard entity={card} isVisibleForcibly={cell.owner === cell.field.duel.duelists.Below} isWideMode={true} cardActionResolve={undefined} />
+              </div>
+            {/each}
+          </div>
+        {/if}
+      {/each}
+    </div>
   </div>
-</div>
+{/if}
 
 <style>
   .duel_field_cell_info {

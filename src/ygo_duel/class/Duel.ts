@@ -173,14 +173,11 @@ export class Duel {
     this.coin = this.startMode === "PlayFirst" ? true : this.startMode === "DrawFirst" ? false : Math.random() > 0.5;
 
     this.priorityHolder = this.firstPlayer;
-    this.log.info("【デュエル開始】");
-    this.log.info(`先攻：${this.firstPlayer.profile.name}`);
 
     // 下の三行はまとめても良いが、ログ的に交互にやったほうがそれっぽいのでこのままにする。
-    Object.values(this.duelists).forEach((duelist) => duelist.pushDeck());
-    Object.values(this.duelists).forEach((duelist) => duelist.getDeckCell().shuffle());
-
-    Object.values(this.duelists).forEach((duelist) => {
+    for (const duelist of Object.values(this.duelists)) {
+      duelist.pushDeck();
+      duelist.getDeckCell().shuffle();
       if (duelist.initHand.length) {
         duelist.initHand.forEach((name) => {
           const card = duelist.getDeckCell().cardEntities.find((card) => card.origin.name === name);
@@ -192,10 +189,11 @@ export class Duel {
           this.log.info(`初手操作により${card.toString()}を手札に加えた`, duelist);
         });
       }
-    });
+      await duelist.draw(5 - duelist.getHandCell().cardEntities.length, undefined, undefined);
+    }
 
-    await Promise.all(Object.values(this.duelists).map((duelist) => duelist.draw(5 - duelist.getHandCell().cardEntities.length, undefined, undefined)));
-
+    this.log.info(`【デュエル開始】${this.firstPlayer.profile.name} V.S. ${this.secondPlayer.profile.name}`);
+    this.log.info(`先攻：${this.firstPlayer.profile.name} 後攻：${this.secondPlayer.profile.name}`);
     this.moveNextPhase("draw");
     this.view.requireUpdate();
 
@@ -439,7 +437,8 @@ export class Duel {
       throw new SystemError("想定されない状態", this.attackingMonster, this.targetForAttack);
     }
 
-    if (this.targetForAttack.entityType !== "Duelist" || !this.targetForAttack.isOnFieldAsMonster) {
+    if (this.targetForAttack.entityType !== "Duelist" && !this.targetForAttack.isOnFieldAsMonster) {
+      console.log("想定されない状態", this.attackingMonster, this.targetForAttack);
       throw new SystemError("想定されない状態", this.attackingMonster, this.targetForAttack);
     }
 

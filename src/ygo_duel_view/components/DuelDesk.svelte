@@ -127,11 +127,8 @@
     </div>
   </div>
   <div class=" duel_desk_right" style="text-align: left;">
-    {#if duel.view.infoBoardState === "Log"}
-      <DuelLog log={duel.log} />
-    {:else if duel.view.infoBoardState === "CellInfo"}
-      <DuelFieldCellInfo cell={duel.view.infoBoardCell} />
-    {/if}
+    <DuelLog log={duel.log} />
+    <DuelFieldCellInfo cell={duel.view.infoBoardCell} />
   </div>
 </div>
 

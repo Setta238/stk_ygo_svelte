@@ -1,5 +1,12 @@
 import { StkEvent } from "@stk_utils/class/StkEvent";
-import { duelPeriodDic, type TDuelPeriodKey, type TDuelPhase, type TDuelPhaseStep, type TDuelPhaseStepStage } from "@ygo_duel/class/DuelPeriod";
+import {
+  duelPeriodDic,
+  type DuelPeriod,
+  type TDuelPeriodKey,
+  type TDuelPhase,
+  type TDuelPhaseStep,
+  type TDuelPhaseStepStage,
+} from "@ygo_duel/class/DuelPeriod";
 import { Duel, SystemError } from "./Duel";
 
 const duelClockSubKeys = ["turn", "phaseSeq", "stepSeq", "stageSeq", "chainSeq", "chainBlockSeq", "procSeq"] as const;
@@ -9,9 +16,13 @@ export type TDuelClockSubKey = (typeof duelClockSubKeys)[number];
 const duelClockKeys = [...duelClockSubKeys, "totalProcSeq"] as const;
 type TDuelClockKey = (typeof duelClockKeys)[number];
 
-export type IDuelClock = Readonly<{
-  [key in TDuelClockKey]: number;
-}>;
+export type IDuelClock = Readonly<
+  {
+    [key in TDuelClockKey]: number;
+  } & {
+    period: DuelPeriod;
+  }
+>;
 
 export class DuelClock implements IDuelClock {
   private onClockChangeEvents: { [key in TDuelClockSubKey]: StkEvent<IDuelClock> } = {
@@ -124,7 +135,9 @@ export class DuelClock implements IDuelClock {
     }
 
     if (phase === "draw") {
-      duel.log.info(`ターン終了。`, duel.getTurnPlayer());
+      if (this.turn > 0) {
+        duel.log.info(`ターン終了。`, duel.getTurnPlayer());
+      }
       this._turn++;
       this._phaseSeq = 0;
     } else {
@@ -229,6 +242,7 @@ export class DuelClock implements IDuelClock {
       chainBlockSeq: this.chainBlockSeq,
       procSeq: this.procSeq,
       totalProcSeq: this.totalProcSeq,
+      period: this.period,
     };
   };
   public readonly isSameTurn = (other: IDuelClock): boolean => {

@@ -2,24 +2,30 @@ import { StkEvent } from "@stk_utils/class/StkEvent";
 import { SystemError } from "./Duel";
 import { Duel } from "./Duel";
 import { type Duelist } from "./Duelist";
-import type { DuelClock } from "./DuelClock";
-import type { TDuelPeriodKey } from "./DuelPeriod";
+import type { IDuelClock } from "./DuelClock";
+import type { DuelEntity } from "./DuelEntity";
+import type DuelFieldCell from "@ygo_duel_view/components/DuelFieldCell.svelte";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const logLevels = ["info", "warn", "error"] as const;
 type TLogLevel = (typeof logLevels)[number];
-
-type DuelLogRecord = {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const logTypes = ["System", "EntityMove", "LifePoint", "Message", "Others"] as const;
+type TLogType = (typeof logTypes)[number];
+export type DuelLogRecord = {
   seq: number;
   lvl: TLogLevel;
-  turn: number;
-  periodKey: TDuelPeriodKey;
-  clock: DuelClock;
+  type: TLogType;
+  clock: IDuelClock;
   duelist: Duelist | undefined;
   text: string;
+  mainEntity: DuelEntity | undefined;
+  subEntities: DuelEntity[];
+  from: DuelFieldCell | undefined;
+  to: DuelFieldCell | undefined;
 };
 export default class DuelLog {
-  private onUpdateEvent = new StkEvent<void>();
+  private onUpdateEvent = new StkEvent<number>();
   public get onUpdate() {
     return this.onUpdateEvent.expose();
   }
@@ -55,28 +61,47 @@ export default class DuelLog {
       lines.push("-- エラー型特定失敗 --");
       lines.push(JSON.stringify(error));
     }
-    this.write("error", lines);
+    this.write("error", "System", lines, undefined, undefined, undefined, undefined, undefined);
   };
 
   public readonly warn = (text: string) => {
-    this.write("warn", ["【注意】", text]);
+    this.write("warn", "System", ["【注意】", text], undefined, undefined, undefined, undefined, undefined);
   };
 
   public readonly info = (text: string, duelist?: Duelist) => {
-    this.write("info", [text], duelist);
+    this.write("info", "Others", [text], duelist, undefined, undefined, undefined, undefined);
   };
-  private readonly write = (lvl: TLogLevel, text: string[], duelist?: Duelist) => {
-    const _text = Array.isArray(text) ? text.join("\n") : text;
 
+  public readonly pushMoveLog = (duelist: Duelist | undefined, entity: DuelEntity, from: DuelFieldCell, to: DuelFieldCell) => {
+    this.write("info", "EntityMove", ["移動"], duelist, entity, undefined, from, to);
+  };
+
+  private readonly write = (
+    lvl: TLogLevel,
+    type: TLogType,
+    lines: string[],
+    duelist: Duelist | undefined,
+    mainEntity: DuelEntity | undefined,
+    subEntities: DuelEntity[] | undefined,
+    from: DuelFieldCell | undefined,
+    to: DuelFieldCell | undefined
+  ) => {
+    const text = lines.join("\n");
+
+    console.log(this.nextSeq);
     this.records.push({
       seq: this.nextSeq++,
-      lvl: lvl,
-      turn: this.duel.clock.turn,
-      periodKey: this.duel.clock.period.key,
-      clock: this.duel.clock,
-      duelist: duelist,
-      text: _text,
+      lvl,
+      type,
+      clock: this.duel.clock.getClone(),
+      text,
+      duelist,
+      mainEntity,
+      subEntities: subEntities ?? [],
+      from,
+      to,
     });
-    this.onUpdateEvent.trigger();
+    this.onUpdateEvent.trigger(this.nextSeq - 1);
+    console.log(this.nextSeq - 1);
   };
 }

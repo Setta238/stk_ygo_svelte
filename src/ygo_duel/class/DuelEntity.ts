@@ -37,7 +37,6 @@ import { CardAction, type CardActionDefinition, type ChainBlockInfo } from "./Du
 import { ProcFilterBundle } from "../class_continuous_effect/DuelProcFilter";
 import { ContinuousEffect, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { NumericStateOperatorBundle } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
-import { CardRelationBundle } from "@ygo_duel/class_continuous_effect/DuelCardRelation";
 import type { DuelField } from "./DuelField";
 import { EntityMoveLog } from "./DuelEntityMoveLog";
 import { CounterHolder, type TCounterName } from "./DuelCounter";
@@ -533,9 +532,6 @@ export class DuelEntity {
       // 取り出せたらアニメーションを全て待機
       await Promise.all(promises);
 
-      // 装備対象不在で破壊されるものを更新
-      duel.field.cardRelationPool.excludesExpired();
-
       // 新しく発生したものを検知（※ここまでのどこかでアニメーションしたものを除く）
       const newTargets = duel.field
         .getEntiteisOnField()
@@ -664,7 +660,6 @@ export class DuelEntity {
   public readonly summonFilterBundle: SummonFilterBundle;
   public readonly procFilterBundle: ProcFilterBundle;
   public readonly numericOprsBundle: NumericStateOperatorBundle;
-  public readonly cardRelationBundle: CardRelationBundle;
   public readonly statusOperatorBundle: StatusOperatorBundle;
   public readonly moveLog: EntityMoveLog;
   public readonly counterHolder: CounterHolder;
@@ -877,7 +872,7 @@ export class DuelEntity {
   }
 
   public get allStickyEffectOperators() {
-    return [...this.procFilterBundle.operators, ...this.numericOprsBundle.operators, ...this.cardRelationBundle.operators];
+    return [...this.procFilterBundle.operators, ...this.numericOprsBundle.operators];
   }
   /**
    *
@@ -937,7 +932,6 @@ export class DuelEntity {
     this.summonFilterBundle = new SummonFilterBundle(fieldCell.field.summonFilterPool, this);
     this.procFilterBundle = new ProcFilterBundle(fieldCell.field.procFilterPool, this);
     this.numericOprsBundle = new NumericStateOperatorBundle(fieldCell.field.numericStateOperatorPool, this);
-    this.cardRelationBundle = new CardRelationBundle(fieldCell.field.cardRelationPool, this);
     this.statusOperatorBundle = new StatusOperatorBundle(fieldCell.field.statusOperatorPool, this);
 
     fieldCell.acceptEntities(this, "Top");

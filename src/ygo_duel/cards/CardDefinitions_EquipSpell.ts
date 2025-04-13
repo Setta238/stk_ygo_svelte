@@ -153,40 +153,6 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
       },
       defaultSpellTrapSetAction,
     ] as CardActionDefinition<unknown>[],
-    // continuousEffects: [
-    //   createRegularEquipRelationHandler(
-    //     "EquipTarget",
-    //     "Spell",
-    //     () => true,
-    //     (source) => [
-    //       CardRelation.createRegularEquipRelation(
-    //         "EquipTarget",
-    //         () => true,
-    //         source,
-    //         {},
-    //         () => true,
-    //         (relation) => {
-    //           console.log(relation);
-    //           if (!relation.target.isOnField) {
-    //             console.log(relation);
-    //             return true;
-    //           }
-    //           if (relation.target.face === "FaceDown") {
-    //             console.log(relation);
-    //             return true;
-    //           }
-    //           if (relation.isSpawnedBy.moveLog.currentProcRecords.flatMap((rec) => rec.movedAs).union(["EffectDestroy", "RuleDestroy"]).length) {
-    //             console.log(relation);
-    //             // この場所では破壊マーキングまで実行。
-    //             relation.target.tryDestory("EffectDestroy", relation.effectOwner, relation.isSpawnedBy, {});
-    //           }
-
-    //           return true;
-    //         }
-    //       ),
-    //     ]
-    //   ),
-    // ] as ContinuousEffectBase<unknown>[],
   };
   result.push(def_早すぎた埋葬);
   result.push({

@@ -87,7 +87,6 @@ export class ProcFilter extends StickyEffectOperatorBase {
     expireds.forEach(entity.procFilterBundle.removeItem);
     expireds.forEach(entity.statusOperatorBundle.removeItem);
     expireds.forEach(entity.numericOprsBundle.removeItem);
-    expireds.forEach(entity.cardRelationBundle.removeItem);
 
     return expireds.length;
   };

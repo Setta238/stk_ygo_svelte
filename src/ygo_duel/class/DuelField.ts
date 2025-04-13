@@ -6,7 +6,6 @@ import {} from "@stk_utils/funcs/StkArrayUtils";
 import { cellTypeMaster, DuelFieldCell, monsterZoneCellTypes, playFieldCellTypes, type DuelFieldCellType } from "./DuelFieldCell";
 import { ProcFilterPool } from "../class_continuous_effect/DuelProcFilter";
 import { NumericStateOperatorPool } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
-import { CardRelationPool } from "@ygo_duel/class_continuous_effect/DuelCardRelation";
 import { StatusOperatorPool } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 import { SummonFilterPool } from "@ygo_duel/class_continuous_effect/DuelSummonFilter";
 import type { MaterialInfo } from "@ygo_duel/cards/CardDefinitions";
@@ -17,7 +16,6 @@ export class DuelField {
   public readonly summonFilterPool: SummonFilterPool;
   public readonly procFilterPool: ProcFilterPool;
   public readonly numericStateOperatorPool: NumericStateOperatorPool;
-  public readonly cardRelationPool: CardRelationPool;
   public readonly statusOperatorPool: StatusOperatorPool;
   public readonly moveLog: BroadEntityMoveLog;
 
@@ -37,7 +35,6 @@ export class DuelField {
     this.summonFilterPool = new SummonFilterPool();
     this.procFilterPool = new ProcFilterPool();
     this.numericStateOperatorPool = new NumericStateOperatorPool();
-    this.cardRelationPool = new CardRelationPool();
     this.statusOperatorPool = new StatusOperatorPool();
     this.moveLog = new BroadEntityMoveLog(this);
   }

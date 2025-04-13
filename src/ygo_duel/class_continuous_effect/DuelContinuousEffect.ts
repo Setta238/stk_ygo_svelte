@@ -5,7 +5,6 @@ import { SystemError } from "../class/Duel";
 import { type NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import type { IOperatorPool, StickyEffectOperatorBase, StickyEffectOperatorBundle } from "./DuelStickyEffectOperatorBase";
 import type { ProcFilter } from "./DuelProcFilter";
-import type { CardRelation } from "./DuelCardRelation";
 import type { StatusOperator } from "./DuelStatusOperator";
 import { duelPeriodKeys, type TDuelPeriodKey } from "@ygo_duel/class/DuelPeriod";
 
@@ -187,23 +186,6 @@ export const createRegularNumericStateOperatorHandler = (
   opeListCreater: (source: DuelEntity) => NumericStateOperator[]
 ) => {
   return createRegularOperatorHandler(title, kind, getTargets, canStart, opeListCreater, (entity: DuelEntity) => entity.numericOprsBundle);
-};
-export const createRegularEquipRelationHandler = (
-  title: string,
-  kind: TCardKind,
-  canStart: (source: DuelEntity) => boolean,
-  relartionsCreater: (source: DuelEntity) => CardRelation[]
-) => {
-  return createRegularOperatorHandler(
-    title,
-    kind,
-    (source: DuelEntity) => {
-      return source.info.equipedBy ? [source.info.equipedBy] : [];
-    },
-    canStart,
-    relartionsCreater,
-    (entity: DuelEntity) => entity.cardRelationBundle
-  );
 };
 
 export const createRegularStatusOperatorHandler = (

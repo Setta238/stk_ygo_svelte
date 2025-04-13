@@ -148,10 +148,6 @@ export class Duel {
         continue;
       }
 
-      if (!this.field.cardRelationPool.distributeAll(this)) {
-        continue;
-      }
-
       if (!this.field.numericStateOperatorPool.distributeAll(this)) {
         continue;
       }

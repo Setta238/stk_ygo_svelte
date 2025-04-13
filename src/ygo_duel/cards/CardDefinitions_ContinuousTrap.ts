@@ -66,6 +66,7 @@ export const createCardDefinitions_ContinuousTrap = (): CardDefinition[] => {
               myInfo.activator
                 .getGraveyard()
                 .cardEntities.filter((card) => card.status.kind === "Monster")
+                .filter(item.filter)
                 .filter((card) => card.canBeTargetOfEffect(myInfo))
                 .map((monster) => {
                   return { monster, posList: ["Attack"], cells };
@@ -84,6 +85,7 @@ export const createCardDefinitions_ContinuousTrap = (): CardDefinition[] => {
               myInfo.activator
                 .getGraveyard()
                 .cardEntities.filter((card) => card.status.kind === "Monster")
+                .filter(item.filter)
                 .filter((card) => card.canBeTargetOfEffect(myInfo)),
               ["Attack"]
             ),

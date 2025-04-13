@@ -226,7 +226,9 @@ export const defaultDeclareAttackPrepare = async (myInfo: ChainBlockInfoBase<und
 
   // 準備段階でセルを指定していた場合、エンティティに逆変換
   if (myInfo.dest?.targetForAttack) {
-    return { selectedEntities: myInfo.dest.cardEntities, chainBlockTags: [], prepared: undefined };
+    const opponent = myInfo.dest.entities.find((entity) => entity.entityType === "Duelist");
+
+    return { selectedEntities: opponent ? [opponent] : myInfo.dest.cardEntities, chainBlockTags: [], prepared: undefined };
   }
 
   const choices = myInfo.action.entity.getAttackTargets();

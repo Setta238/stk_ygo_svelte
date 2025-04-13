@@ -443,6 +443,10 @@ export class Duel {
       throw new SystemError("想定されない状態", this.attackingMonster, this.targetForAttack);
     }
 
+    if (this.targetForAttack.entityType !== "Duelist" || !this.targetForAttack.isOnFieldAsMonster) {
+      throw new SystemError("想定されない状態", this.attackingMonster, this.targetForAttack);
+    }
+
     await this.procBattlePhaseDamageStep1();
     await this.procBattlePhaseDamageStep2(this.attackingMonster, this.targetForAttack);
     await this.procBattlePhaseDamageStep3(chainBlockInfo, this.attackingMonster, this.targetForAttack);

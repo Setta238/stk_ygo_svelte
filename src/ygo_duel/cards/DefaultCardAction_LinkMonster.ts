@@ -10,7 +10,6 @@ export const defaultLinkMaterialsValidator = (
   materials: DuelEntity[],
   validator: (materials: DuelEntity[]) => boolean
 ): MaterialInfo[] | undefined => {
-  console.log(myInfo.action.entity);
   if (!myInfo.action.entity.origin.link) {
     return;
   }
@@ -164,12 +163,7 @@ export const defaultLinkSummonPrepare = async (
     materials = _materials;
   }
 
-  const availableCells = [
-    ...myInfo.activator.getAvailableMonsterZones().filter((cell) => cell.arrowheadSources.length),
-    ...myInfo.activator.getAvailableExtraZones(),
-  ];
-
-  const materialInfos = defaultLinkMaterialsValidator(myInfo, availableCells, materials, validator);
+  const materialInfos = defaultLinkMaterialsValidator(myInfo, cells, materials, validator);
   if (!materialInfos) {
     throw new SystemError("想定されない状態", myInfo, materials);
   }
@@ -188,6 +182,8 @@ export const defaultLinkSummonExecute = async (myInfo: ChainBlockInfo<MaterialIn
     ...myInfo.activator.getAvailableMonsterZones().filter((cell) => cell.arrowheadSources.length),
     ...myInfo.activator.duel.field.getAvailableExtraMonsterZones(),
   ];
+
+  console.log(availableCells);
 
   const monster = await myInfo.activator.summon("LinkSummon", movedAs, myInfo.action, myInfo.action.entity, ["Attack"], availableCells, myInfo.prepared, false);
 

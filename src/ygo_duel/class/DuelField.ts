@@ -10,6 +10,7 @@ import { CardRelationPool } from "@ygo_duel/class_continuous_effect/DuelCardRela
 import { StatusOperatorPool } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 import { SummonFilterPool } from "@ygo_duel/class_continuous_effect/DuelSummonFilter";
 import type { MaterialInfo } from "@ygo_duel/cards/CardDefinitions";
+import { BroadEntityMoveLog } from "./DuelEntityMoveLog";
 export class DuelField {
   public readonly cells: DuelFieldCell[][];
   public readonly duel: Duel;
@@ -18,6 +19,8 @@ export class DuelField {
   public readonly numericStateOperatorPool: NumericStateOperatorPool;
   public readonly cardRelationPool: CardRelationPool;
   public readonly statusOperatorPool: StatusOperatorPool;
+  public readonly moveLog: BroadEntityMoveLog;
+
   public constructor(duel: Duel) {
     this.duel = duel;
     this.cells = [...Array(7)].map(() => []) as DuelFieldCell[][];
@@ -36,6 +39,7 @@ export class DuelField {
     this.numericStateOperatorPool = new NumericStateOperatorPool();
     this.cardRelationPool = new CardRelationPool();
     this.statusOperatorPool = new StatusOperatorPool();
+    this.moveLog = new BroadEntityMoveLog(this);
   }
 
   public readonly getAllCells = (): DuelFieldCell[] => {
@@ -96,9 +100,7 @@ export class DuelField {
 
     const materials = materialInfos.map((info) => info.material);
     // 予定含む空のエクストラモンスターゾーンを抽出
-    const emptyExZoneCells = this.getCells("ExtraMonsterZone")
-      .filter((cell) => cell.isAvailable)
-      .filter((cell) => cell.isAvailable || materials.includes(cell.cardEntities[0]));
+    const emptyExZoneCells = this.getCells("ExtraMonsterZone").filter((cell) => cell.isAvailable || materials.includes(cell.cardEntities[0]));
 
     // 片方のみ埋まっている状態でなければならない
     if (emptyExZoneCells.length !== 1) {
@@ -127,6 +129,7 @@ export class DuelField {
     while (previousLength !== coLinkedMonsters.length) {
       // 素材にするモンスター以外で、相互リンクモンスターをすべて拾う。
       const _tmp = coLinkedMonsters.flatMap((monster) => monster.coLinkedEntities).filter((monster) => !materials.includes(monster));
+
       // エクストラモンスターゾーンのものがいれば、エクストラリンク可能。
       if (_tmp.some((monster) => monster.fieldCell.cellType === "ExtraMonsterZone")) {
         return true;

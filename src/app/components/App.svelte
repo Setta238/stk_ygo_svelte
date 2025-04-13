@@ -13,7 +13,6 @@
   import { StkIndexedDB } from "@stk_utils/class/StkIndexedDB";
   import timestampJson from "@stk_utils/json/timestamp.json";
   import { getKeys } from "@stk_utils/funcs/StkObjectUtils";
-  import { min } from "@stk_utils/funcs/StkMathUtils";
   const idb = new StkIndexedDB<TTblNames>("stk_ygo_svelte", currentVersion, tblNames);
 
   let duel: Duel | undefined;

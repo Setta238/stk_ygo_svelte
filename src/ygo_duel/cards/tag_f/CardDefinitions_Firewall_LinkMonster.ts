@@ -111,6 +111,22 @@ export const createCardDefinitions_Firewall_LinkMonster = (): CardDefinition[] =
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerTurn: 1,
         validate: (myInfo) => {
+          const wasMovedAt = myInfo.action.entity.moveLog.latestRecord.movedAt;
+          // 前のチェーンで移動したエンティティがどこから移動したかを取得。
+          const froms = myInfo.action.duel.field.moveLog
+            .getPriviousChainLog()
+            .filter((record) => record.entity.fieldCell.cellType === "Graveyard" || record.movedAs.includes("BattleDestroy"))
+            .filter((record) => record.movedAt.totalProcSeq > wasMovedAt.totalProcSeq)
+            .map((record) => record.entity.wasMovedFrom)
+            .toArray();
+
+          myInfo.action.duel.field.moveLog
+            .getPriviousChainLog()
+            .forEach((record) => console.log(record.entity.toString(), record.entity.wasMovedFrom, record.entity.fieldCell, wasMovedAt, record.movedAt));
+          if (!myInfo.action.entity.arrowheadDests.union(froms).length) {
+            return;
+          }
+
           const cells = myInfo.activator.getMonsterZones();
           const list = myInfo.activator.getEnableSummonList(
             myInfo.activator,

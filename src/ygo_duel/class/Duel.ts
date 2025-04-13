@@ -6,7 +6,7 @@ import { DuelField } from "./DuelField";
 import DuelLog from "@ygo_duel/class/DuelLog";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { DuelViewController } from "@ygo_duel_view/class/DuelViewController";
-import { DuelClock } from "./DuelClock";
+import { DuelClock, type IDuelClock } from "./DuelClock";
 import DuelChainBlockLog from "./DuelChainBlockLog";
 import {
   cardActionChainBlockTypes,
@@ -119,7 +119,7 @@ export class Duel {
     this.priorityHolder = this.firstPlayer;
     this._chainBlockInfos = [];
     this.field = new DuelField(this);
-    this.clock.onTotalProcSeqChange.append(this.distributeOperators);
+    this.clock.onProcSeqChange.append(this.distributeOperators);
     this.clock.onStageChange.append(this.executeSystemPeriodActions);
 
     this.view = new DuelViewController(this);
@@ -127,8 +127,8 @@ export class Duel {
     this.chainBlockLog = new DuelChainBlockLog(this);
   }
 
-  public readonly distributeOperators = (totalProcSeq: number) => {
-    console.info(`[totalProcSeq]:${totalProcSeq}`);
+  public readonly distributeOperators = (clock: IDuelClock) => {
+    console.info(`[totalProcSeq]:${clock.totalProcSeq}`);
     let loopCount = 0;
 
     while (true) {

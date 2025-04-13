@@ -1,32 +1,37 @@
 import { StkEvent } from "@stk_utils/class/StkEvent";
-import {
-  duelPeriodDic,
-  type DuelPeriod,
-  type TDuelPeriodKey,
-  type TDuelPhase,
-  type TDuelPhaseStep,
-  type TDuelPhaseStepStage,
-} from "@ygo_duel/class/DuelPeriod";
+import { duelPeriodDic, type TDuelPeriodKey, type TDuelPhase, type TDuelPhaseStep, type TDuelPhaseStepStage } from "@ygo_duel/class/DuelPeriod";
 import { Duel, SystemError } from "./Duel";
 
-export interface IDuelClock {
-  turn: number;
-  phaseSeq: number;
-  stepSeq: number;
-  stageSeq: number;
-  chainSeq: number;
-  chainBlockSeq: number;
-  procSeq: number;
-  totalProcSeq: number;
-}
+const duelClockSubKeys = ["turn", "phaseSeq", "stepSeq", "stageSeq", "chainSeq", "chainBlockSeq", "procSeq"] as const;
+export type TDuelClockSubKey = (typeof duelClockSubKeys)[number];
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const duelClockKeys = [...duelClockSubKeys, "totalProcSeq"] as const;
+type TDuelClockKey = (typeof duelClockKeys)[number];
+
+export type IDuelClock = Readonly<{
+  [key in TDuelClockKey]: number;
+}>;
+
 export class DuelClock implements IDuelClock {
-  private onTotalProcSeqChangeEvent = new StkEvent<number>();
-  public get onTotalProcSeqChange() {
-    return this.onTotalProcSeqChangeEvent.expose();
+  private onClockChangeEvents: { [key in TDuelClockSubKey]: StkEvent<IDuelClock> } = {
+    turn: new StkEvent<IDuelClock>(),
+    phaseSeq: new StkEvent<IDuelClock>(),
+    stepSeq: new StkEvent<IDuelClock>(),
+    stageSeq: new StkEvent<IDuelClock>(),
+    chainSeq: new StkEvent<IDuelClock>(),
+    chainBlockSeq: new StkEvent<IDuelClock>(),
+    procSeq: new StkEvent<IDuelClock>(),
+  };
+
+  public get onTurnChange() {
+    return this.onClockChangeEvents["turn"].expose();
   }
-  private onStageChangeEvent = new StkEvent<DuelPeriod>();
   public get onStageChange() {
-    return this.onStageChangeEvent.expose();
+    return this.onClockChangeEvents["stageSeq"].expose();
+  }
+  public get onProcSeqChange() {
+    return this.onClockChangeEvents["procSeq"].expose();
   }
   private _turn: number = 0;
   private _phaseSeq: number = 0;
@@ -35,8 +40,32 @@ export class DuelClock implements IDuelClock {
   private _chainSeq: number = 0;
   private _chainBlockSeq: number = 0;
   private _procSeq: number = 0;
-  private _procTotalSeq: number = 0;
+  private _totalProcSeq: number = 0;
   private _periodKey: TDuelPeriodKey;
+  private readonly _previousStartPoints: { [key in TDuelClockSubKey]: number } = {
+    turn: 0,
+    phaseSeq: 0,
+    stepSeq: 0,
+    stageSeq: 0,
+    chainSeq: 0,
+    chainBlockSeq: 0,
+    procSeq: 0,
+  };
+  private readonly _currentStartPoints: { [key in TDuelClockSubKey]: number } = {
+    turn: 0,
+    phaseSeq: 0,
+    stepSeq: 0,
+    stageSeq: 0,
+    chainSeq: 0,
+    chainBlockSeq: 0,
+    procSeq: 0,
+  };
+  public get previousStartPoints(): Readonly<{ [key in TDuelClockSubKey]: number }> {
+    return this._previousStartPoints;
+  }
+  public get currentStartPoints(): Readonly<{ [key in TDuelClockSubKey]: number }> {
+    return this._currentStartPoints;
+  }
   private set periodKey(periodKey: TDuelPeriodKey) {
     if (this._periodKey === periodKey) {
       return;
@@ -45,8 +74,6 @@ export class DuelClock implements IDuelClock {
     this._chainSeq = 0;
     this._chainBlockSeq = 0;
     this._procSeq = 0;
-
-    this.onStageChangeEvent.trigger(this.period);
     this.incrementTotalProcSeq();
   }
   private get periodKey() {
@@ -78,7 +105,7 @@ export class DuelClock implements IDuelClock {
     return this._procSeq;
   }
   public get totalProcSeq() {
-    return this._procTotalSeq;
+    return this._totalProcSeq;
   }
   public get isFirstChain() {
     return this.chainSeq === 0;
@@ -165,8 +192,29 @@ export class DuelClock implements IDuelClock {
     this.incrementTotalProcSeq();
   };
   public readonly incrementTotalProcSeq = () => {
-    this._procTotalSeq++;
-    this.onTotalProcSeqChangeEvent.trigger(this.totalProcSeq);
+    this._totalProcSeq++;
+
+    // 開始点のセット
+    let needsToSetStartPoint = false;
+    duelClockSubKeys.toReversed().forEach((key) => {
+      // 一つ下のレベルが0の場合、開始点として保存
+      if (needsToSetStartPoint) {
+        this._previousStartPoints[key] = this.currentStartPoints[key];
+        this._currentStartPoints[key] = this.totalProcSeq;
+      }
+      // 一つ上のレベルの開始点を保存するかどうかの判定。
+      needsToSetStartPoint = this[key] === 0;
+    });
+
+    // procSeqのイベントは毎回トリガする。
+    this.onClockChangeEvents["procSeq"].trigger(this);
+    duelClockSubKeys
+      .toReversed()
+      .filter((key) => (this._currentStartPoints[key] = this.totalProcSeq))
+      .forEach((key) => {
+        console.info(this.constructor.name, "event trigger", key, this.periodKey, this.totalProcSeq);
+        this.onClockChangeEvents[key].trigger(this);
+      });
   };
   public readonly toString = () => {
     return `${this.totalProcSeq}(t${this.turn}-phs${this.phaseSeq}-stp${this.stepSeq}-stg${this.stepSeq}-c${this.chainSeq}-cb${this.chainBlockSeq}-prc${this.procSeq})`;

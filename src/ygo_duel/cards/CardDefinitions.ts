@@ -28,6 +28,7 @@ import { createCardDefinitions_ContinuousTrap } from "./CardDefinitions_Continuo
 import { createCardDefinitions_LinkMonster } from "./CardDefinitions_LinkMonster";
 import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 import type { SummonFilter } from "@ygo_duel/class_continuous_effect/DuelSummonFilter";
+import { createCardDefinitions_Firewall_LinkMonster } from "./tag_f/CardDefinitions_Firewall_LinkMonster";
 
 export type MaterialInfo = {
   material: DuelEntity;
@@ -82,6 +83,7 @@ export const createCardDefinitions = (): CardDefinition[] => {
     ...createCardDefinitions_Resonator_Monster(),
     ...createCardDefinitions_Stardust_Monster(),
     ...createCardDefinitions_LinkMonster(),
+    ...createCardDefinitions_Firewall_LinkMonster(),
   ];
   const names = hoge.map((def) => def.name);
   console.info(names);

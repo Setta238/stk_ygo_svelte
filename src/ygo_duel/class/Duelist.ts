@@ -371,11 +371,14 @@ export class Duelist {
     ignoreSummoningConditions: boolean
   ): SummonChoice[] => {
     const extraMonsterZones = this.duel.field.getCells("ExtraMonsterZone");
-    const onlyForExtraLinkCells: DuelFieldCell[] = [];
 
+    // 自分が使用しているエクストラモンスターゾーンを抽出。
     const usedExtraMonsterZone = extraMonsterZones
       .filter((cell) => !materialInfos.map((info) => info.material).includes(cell.cardEntities[0]))
       .filter((cell) => cell.owner === this);
+
+    // エクストラリンクを成立させることができるときにのみ使用することができるセルを抽出。
+    const onlyForExtraLinkCells: DuelFieldCell[] = [];
 
     if (usedExtraMonsterZone.length) {
       onlyForExtraLinkCells.push(...extraMonsterZones.filter((cell) => !usedExtraMonsterZone.includes(cell)).filter((cell) => cell.isAvailable));
@@ -383,54 +386,37 @@ export class Duelist {
 
     return summonChoices
       .map((item) => {
+        return { ...item, summoner: this };
+      })
+      .map((item) => {
         if (!this.duel.field.canExtraLink(item.monster, materialInfos)) {
+          // エクストラリンクを成立させることができるときにのみ使用することができるセルを除外。
           item.cells = item.cells.filter((cell) => !onlyForExtraLinkCells.includes(cell));
+        }
+        if (item.monster.status.monsterCategories?.includes("Link")) {
+          // リンクモンスターは守備表示にできない。
+          item.posList = item.posList.filter((pos) => pos === "Attack");
         }
         return item;
       })
       .map((item) => {
+        // 空く予定がないセルを除外
         return {
           ...item,
           cells: item.cells.filter((cell) => cell.cardEntities.length === 0 || materialInfos.some((info) => info.material === cell.cardEntities[0])),
         };
       })
       .filter((item) => item.cells.length && item.posList.length)
-      .map((item) =>
-        this.entity.summonFilterBundle.filter(
-          effectOwner,
-          summonType,
-          moveAs,
-          actDefAttr,
-          { ...item, summoner: this },
-          materialInfos,
-          ignoreSummoningConditions
-        )
-      )
+      .map((item) => this.entity.summonFilterBundle.filter(effectOwner, summonType, moveAs, actDefAttr, item, materialInfos, ignoreSummoningConditions))
       .filter((item) => item.cells.length && item.posList.length)
-      .map((item) =>
-        item.monster.summonFilterBundle.filter(
-          effectOwner,
-          summonType,
-          moveAs,
-          actDefAttr,
-          { ...item, summoner: this },
-          materialInfos,
-          ignoreSummoningConditions
-        )
-      )
+      .map((item) => item.monster.summonFilterBundle.filter(effectOwner, summonType, moveAs, actDefAttr, item, materialInfos, ignoreSummoningConditions))
       .filter((item) => item.cells.length && item.posList.length)
       .map((item) =>
         materialInfos
           .map((info) => info.material.summonFilterBundle)
-          .reduce(
-            (wip, bundle) => bundle.filter(effectOwner, summonType, moveAs, actDefAttr, { ...wip, summoner: this }, materialInfos, ignoreSummoningConditions),
-            item
-          )
+          .reduce((wip, bundle) => bundle.filter(effectOwner, summonType, moveAs, actDefAttr, item, materialInfos, ignoreSummoningConditions), item)
       )
-      .filter((item) => item.cells.length && item.posList.length)
-      .map((item) => {
-        return { ...item, summoner: this };
-      });
+      .filter((item) => item.cells.length && item.posList.length);
   };
 
   private readonly prepareToSummonMany = async (

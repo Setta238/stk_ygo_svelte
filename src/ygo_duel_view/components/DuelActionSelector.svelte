@@ -50,7 +50,7 @@
       return "Disabled";
     }
 
-    const tmp = action.validate(activator, view.duel.chainBlockInfos);
+    const tmp = action.validate(activator, view.duel.chainBlockInfos, false);
     return tmp && tmp.length > 0 ? "Draggable" : "Clickable";
   };
 </script>
@@ -139,6 +139,8 @@
     bottom: 0px;
     pointer-events: initial;
     height: fit-content;
+    max-width: 90vw;
+    overflow-x: auto;
   }
   .duel_card_wrapper {
     font-size: 0.9rem;

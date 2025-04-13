@@ -39,7 +39,7 @@ import { ContinuousEffect, type ContinuousEffectBase } from "@ygo_duel/class_con
 import { NumericStateOperatorBundle } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import { CardRelationBundle } from "@ygo_duel/class_continuous_effect/DuelCardRelation";
 import type { DuelField } from "./DuelField";
-import { DuelEntityLog } from "./DuelEntityLog";
+import { EntityMoveLog } from "./DuelEntityMoveLog";
 import { CounterHolder, type TCounterName } from "./DuelCounter";
 import { StatusOperatorBundle } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 import { defaultAttackAction, defaultBattlePotisionChangeAction, defaultNormalSummonAction } from "@ygo_duel/cards/DefaultCardAction_Monster";
@@ -629,7 +629,7 @@ export class DuelEntity {
 
   private static readonly settleEntityMove = (duel: Duel) => {
     duel.field.recalcArrowheads();
-    duel.distributeOperators(duel.clock.totalProcSeq);
+    duel.distributeOperators(duel.clock);
     const entities = duel.field.getAllEntities().filter((entity) => entity.wasMovedAtCurrentProc);
     entities.filter((entity) => !entity.isOnField).forEach((entity) => entity.resetInfoIfLeavesTheField());
     entities
@@ -666,7 +666,7 @@ export class DuelEntity {
   public readonly numericOprsBundle: NumericStateOperatorBundle;
   public readonly cardRelationBundle: CardRelationBundle;
   public readonly statusOperatorBundle: StatusOperatorBundle;
-  public readonly moveLog: DuelEntityLog;
+  public readonly moveLog: EntityMoveLog;
   public readonly counterHolder: CounterHolder;
   public face: TDuelEntityFace;
   public get isUnderControl() {
@@ -766,12 +766,10 @@ export class DuelEntity {
     if (!this.isOnFieldAsMonster) {
       return [];
     }
-    return this.fieldCell.neighbors
-      .filter((cell) => cell.isMonsterZoneLikeCell)
-      .filter((cell) => cell.cardEntities.length)
-      .flatMap((cell) => cell.cardEntities[0].arrowheads.map((ah) => [cell.row + ah.offsetRow, cell.column + ah.offsetColumn]))
-      .filter(([row, column]) => this.fieldCell.row === row && this.fieldCell.column === column)
-      .map(([row, column]) => this.field.cells[row][column]);
+    return this.arrowheads
+      .map((ah) => [this.fieldCell.row + ah.offsetRow, this.fieldCell.column + ah.offsetColumn])
+      .map(([row, column]) => this.field.cells[row][column])
+      .filter((cell) => cell.isMonsterZoneLikeCell);
   }
 
   public get linkedEntities(): DuelEntity[] {
@@ -789,9 +787,16 @@ export class DuelEntity {
       return [];
     }
 
+    console.log(
+      this,
+      this.arrowheadDests,
+      this.arrowheadDests.map((cell) => cell.cardEntities[0]).filter((monster) => monster),
+      this.fieldCell.arrowheadSources
+    );
+
     return this.arrowheadDests
       .map((cell) => cell.cardEntities[0])
-      .map((monster) => monster)
+      .filter((monster) => monster)
       .union(this.fieldCell.arrowheadSources);
   }
 
@@ -936,7 +941,7 @@ export class DuelEntity {
     this.statusOperatorBundle = new StatusOperatorBundle(fieldCell.field.statusOperatorPool, this);
 
     fieldCell.acceptEntities(this, "Top");
-    this.moveLog = new DuelEntityLog(this);
+    this.moveLog = new EntityMoveLog(this);
     this.moveLog.pushForRuleAction(["Spawn"]);
 
     let actionBases: CardActionDefinition<unknown>[] = [];

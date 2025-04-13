@@ -62,10 +62,10 @@ DuelEntity.prototype.getAttackTargets = function (): DuelEntity[] {
   }
 
   // ダイレクトアタックを阻害しうるモンスターを抽出
-  const enemies = this.duel.field
+  const enemies = this.controller
+    .getOpponentPlayer()
     .getMonstersOnField()
-    .filter((enemy) => enemy.status.isSelectableForAttack)
-    .filter((enemy) => enemy.controller !== this.controller);
+    .filter((enemy) => enemy.status.isSelectableForAttack);
 
   if (this.status.canDirectAttack || !enemies.length) {
     enemies.push(this.controller.getOpponentPlayer().entity);

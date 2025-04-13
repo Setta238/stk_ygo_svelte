@@ -1,9 +1,12 @@
-import type { IDuelClock } from "./DuelClock";
+import type { IDuelClock, TDuelClockSubKey } from "./DuelClock";
 import type { DuelEntity, TDuelCauseReason, TDuelEntityFace, TDuelEntityOrientation } from "./DuelEntity";
 import type { Duelist } from "./Duelist";
-import type { DuelFieldCell } from "./DuelFieldCell";
+import { DuelFieldCell } from "./DuelFieldCell";
+import { getIndex } from "@stk_utils/funcs/StkMathUtils";
+import { DuelField } from "./DuelField";
 
-export type DuelEntityLogRecord = {
+export type EntityMoveLogRecord = {
+  entity: DuelEntity;
   cell: DuelFieldCell;
   face: TDuelEntityFace;
   orientation: TDuelEntityOrientation;
@@ -13,10 +16,36 @@ export type DuelEntityLogRecord = {
   actionOwner?: Duelist;
   chooser?: Duelist;
 };
-export class DuelEntityLog {
+
+export class BroadEntityMoveLog {
+  private readonly _field: DuelField;
+  private readonly _records: EntityMoveLogRecord[] = [];
+  constructor(field: DuelField) {
+    this._field = field;
+  }
+  private getIndexOfStartPoint = (totalProcSeq: number): number =>
+    getIndex(
+      this._records.map((record) => record.movedAt.totalProcSeq),
+      totalProcSeq
+    );
+  private *getTermLog(target: "Current" | "Previous", key: TDuelClockSubKey) {
+    const startPoint = target === "Current" ? this._field.duel.clock.currentStartPoints[key] : this._field.duel.clock.previousStartPoints[key];
+    for (let index = this.getIndexOfStartPoint(startPoint); index < this._records.length; index++) {
+      yield this._records[index];
+    }
+  }
+  public readonly push = (record: EntityMoveLogRecord) => {
+    this._records.push(record);
+  };
+  public readonly getCurrentTurnLog = () => this.getTermLog("Current", "turn");
+
+  public readonly getPriviousChainLog = () => this.getTermLog("Previous", "chainSeq");
+}
+
+export class EntityMoveLog {
   private readonly entity: DuelEntity;
-  private readonly _records: DuelEntityLogRecord[];
-  public get records(): Readonly<Readonly<DuelEntityLogRecord[]>> {
+  private readonly _records: EntityMoveLogRecord[];
+  public get records(): Readonly<EntityMoveLogRecord[]> {
     return this._records;
   }
 
@@ -35,8 +64,14 @@ export class DuelEntityLog {
     this._records = [];
   }
 
+  private readonly _push = (record: EntityMoveLogRecord) => {
+    this.entity.field.moveLog.push(record);
+    this._records.push(record);
+  };
+
   public readonly pushForRuleAction = (movedAs: TDuelCauseReason[]) => {
-    this._records.push({
+    this._push({
+      entity: this.entity,
       cell: this.entity.fieldCell,
       face: this.entity.face,
       orientation: this.entity.orientation,
@@ -53,7 +88,8 @@ export class DuelEntityLog {
       cell = this.entity.controller.getXyzMaterialZone();
     }
 
-    this._records.push({
+    this._push({
+      entity: this.entity,
       cell,
       face: this.entity.face,
       orientation: this.entity.orientation,

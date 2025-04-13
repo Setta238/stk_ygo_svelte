@@ -90,6 +90,10 @@ export class DuelField {
    * @returns
    */
   public readonly canExtraLink = (newLinkMonster: DuelEntity, materialInfos: MaterialInfo[]): boolean => {
+    if (!newLinkMonster.arrowheads.length) {
+      return false;
+    }
+
     const materials = materialInfos.map((info) => info.material);
     // 予定含む空のエクストラモンスターゾーンを抽出
     const emptyExZoneCells = this.getCells("ExtraMonsterZone")

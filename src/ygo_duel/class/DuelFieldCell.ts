@@ -81,7 +81,10 @@ export class DuelFieldCell {
   public readonly row: number;
   public readonly column: number;
   public readonly cellType: DuelFieldCellType;
-  public readonly owner: Duelist | undefined;
+  private readonly _owner: Duelist | undefined;
+  public get owner() {
+    return this._owner || this.cardEntities[0]?.owner;
+  }
   private _requiresRecalcArrowheads: boolean;
   public get requiresRecalcArrowheads() {
     return this._requiresRecalcArrowheads;
@@ -160,7 +163,7 @@ export class DuelFieldCell {
     this.row = row;
     this.column = column;
     this.cellType = cellTypeMaster[row][column];
-    this.owner = owner;
+    this._owner = owner;
     this._entities = [];
     this._arrowheadSources = [];
     this._requiresRecalcArrowheads = false;

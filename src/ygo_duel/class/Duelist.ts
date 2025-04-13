@@ -374,13 +374,13 @@ export class Duelist {
     const onlyForExtraLinkCells: DuelFieldCell[] = [];
 
     const usedExtraMonsterZone = extraMonsterZones
-      .filter((cell) => cell.owner === this)
       .filter((cell) => !materialInfos.map((info) => info.material).includes(cell.cardEntities[0]))
-      .filter((card) => card.owner === this);
+      .filter((cell) => cell.owner === this);
 
     if (usedExtraMonsterZone.length) {
       onlyForExtraLinkCells.push(...extraMonsterZones.filter((cell) => !usedExtraMonsterZone.includes(cell)).filter((cell) => cell.isAvailable));
     }
+
     return summonChoices
       .map((item) => {
         if (!this.duel.field.canExtraLink(item.monster, materialInfos)) {

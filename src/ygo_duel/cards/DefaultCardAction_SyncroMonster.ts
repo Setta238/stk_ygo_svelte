@@ -4,7 +4,7 @@ import { DuelEntity, type TDuelCauseReason } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 import type { MaterialInfo } from "./CardDefinitions";
 import { SystemError } from "@ygo_duel/class/Duel";
-export const defaultSyncroMaterialsValidator = (
+const defaultSyncroMaterialsValidator = (
   myInfo: ChainBlockInfoBase<MaterialInfo[]>,
   posList: Readonly<TBattlePosition[]>,
   cells: DuelFieldCell[],
@@ -94,25 +94,21 @@ const getEnableSyncroSummonPatterns = (
     .map((pattern) => defaultSyncroMaterialsValidator(myInfo, posList, cells, pattern, tunersValidator, nonTunersValidator) ?? [])
     .filter((materialInfos) => materialInfos.length);
 };
-export const defaultSyncroSummonValidate = (
+
+const defaultSyncroSummonPrepare = async (
   myInfo: ChainBlockInfoBase<MaterialInfo[]>,
-  tunersValidator: (tuners: DuelEntity[]) => boolean = (tuners) => tuners.length === 1,
-  nonTunersValidator: (nonTuners: DuelEntity[]) => boolean = (nonTuners) => nonTuners.length > 0
-): DuelFieldCell[] | undefined => {
-  return getEnableSyncroSummonPatterns(myInfo, tunersValidator, nonTunersValidator).length > 0 ? [] : undefined;
-};
-export const defaultSyncroSummonPrepare = async (
-  myInfo: ChainBlockInfoBase<MaterialInfo[]>,
-  cancelable?: boolean,
-  tunersValidator: (tuners: DuelEntity[]) => boolean = (tuners) => tuners.length === 1,
-  nonTunersValidator: (nonTuners: DuelEntity[]) => boolean = (nonTuners) => nonTuners.length > 0
+  cancelable?: boolean
 ): Promise<ChainBlockInfoPrepared<MaterialInfo[]> | undefined> => {
-  const patterns = getEnableSyncroSummonPatterns(myInfo, tunersValidator, nonTunersValidator);
+  // パターンを先に列挙しておく
+  const patterns = myInfo.action.getEnableMaterialPatterns(myInfo);
 
+  // 逆引きできるように準備
+  const entiteisPatterns = patterns.map((infos) => {
+    return { infos, materialSeqList: infos.map((info) => info.material.seq).sort() };
+  });
+
+  // 初期候補をセット
   let materials = patterns[0].map((info) => info.material);
-
-  const cells = [...myInfo.activator.getMonsterZones(), ...myInfo.activator.duel.field.getCells("ExtraMonsterZone")];
-  console.log(patterns, materials);
 
   if (patterns.length > 1) {
     const choices = patterns.flatMap((p) => p.map((info) => info.material)).getDistinct();
@@ -120,7 +116,13 @@ export const defaultSyncroSummonPrepare = async (
       myInfo.activator,
       choices,
       undefined,
-      (selected) => Boolean(defaultSyncroMaterialsValidator(myInfo, faceupBattlePositions, cells, selected, tunersValidator, nonTunersValidator)),
+      (selected) => {
+        //
+        const materialSeqList = selected.map((monster) => monster.seq).sort();
+        return entiteisPatterns.some(
+          (item) => materialSeqList.length === item.materialSeqList.length && materialSeqList.every((seq, index) => seq === item.materialSeqList[index])
+        );
+      },
       "シンクロ素材とするモンスターを選択",
       cancelable
     );
@@ -130,9 +132,14 @@ export const defaultSyncroSummonPrepare = async (
     }
     materials = _materials;
   }
+
   console.log(patterns, materials);
 
-  const materialInfos = defaultSyncroMaterialsValidator(myInfo, faceupBattlePositions, cells, materials, tunersValidator, nonTunersValidator);
+  const materialSeqList = materials.map((monster) => monster.seq).sort();
+  const materialInfos = entiteisPatterns.find(
+    (item) => materialSeqList.length === item.materialSeqList.length && materialSeqList.every((seq, index) => seq === item.materialSeqList[index])
+  )?.infos;
+
   if (!materialInfos) {
     throw new SystemError("想定されない状態", myInfo, materials);
   }
@@ -144,7 +151,7 @@ export const defaultSyncroSummonPrepare = async (
   );
   return { selectedEntities: [], chainBlockTags: [], prepared: materialInfos };
 };
-export const defaultSyncroSummonExecute = async (myInfo: ChainBlockInfo<MaterialInfo[]>): Promise<boolean> => {
+const defaultSyncroSummonExecute = async (myInfo: ChainBlockInfo<MaterialInfo[]>): Promise<boolean> => {
   const cells = [...myInfo.activator.getMonsterZones(), ...myInfo.activator.duel.field.getCells("ExtraMonsterZone")];
 
   const movedAs: TDuelCauseReason[] = ["Rule", "SpecialSummon", "SyncroSummon"];
@@ -175,9 +182,10 @@ export const getDefaultSyncroSummonAction = (
     executableCells: ["ExtraDeck"],
     executablePeriods: ["main1", "main2"],
     executableDuelistTypes: ["Controller"],
-    validate: (myInfo: ChainBlockInfoBase<MaterialInfo[]>) => defaultSyncroSummonValidate(myInfo, tunersValidator, nonTunersValidator),
+    getEnableMaterialPatterns: (myInfo) => getEnableSyncroSummonPatterns(myInfo, tunersValidator, nonTunersValidator),
+    validate: (myInfo: ChainBlockInfoBase<MaterialInfo[]>) => (myInfo.action.getEnableMaterialPatterns(myInfo).length ? [] : undefined),
     prepare: (myInfo: ChainBlockInfoBase<MaterialInfo[]>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, cancelable: boolean) =>
-      defaultSyncroSummonPrepare(myInfo, cancelable, tunersValidator, nonTunersValidator),
+      defaultSyncroSummonPrepare(myInfo, cancelable),
     execute: defaultSyncroSummonExecute,
     settle: async () => true,
   };

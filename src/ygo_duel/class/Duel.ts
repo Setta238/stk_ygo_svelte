@@ -710,6 +710,9 @@ export class Duel {
         // クイックエフェクトのループの先頭で反転する点に注意
         this.priorityHolder = chainBlock.activator;
         result = true;
+      } else {
+        // 誘発効果が選択されなかった場合、リストをリセットする。
+        _triggerEffets = [];
       }
     }
 
@@ -726,7 +729,7 @@ export class Duel {
           spellSpeeds.push("Quick");
         }
 
-        const msg = this.chainBlockInfos.length ? "" : "クイックエフェクト発動タイミング。効果を発動しますか？";
+        const msg = this.chainBlockInfos.length ? "※メッセージ考え中※" : "クイックエフェクト発動タイミング。効果を発動しますか？";
 
         const action = await this.view.waitQuickEffect(
           this.priorityHolder,
@@ -777,7 +780,7 @@ export class Duel {
       this.clock.incrementProcSeq();
       this.clock.incrementChainBlockSeq();
 
-      // 再帰実行
+      // ※※※※※ 再帰実行 ※※※※※
       await this.procChainBlock(
         undefined,
         _triggerEffets.filter((e) => e.action.seq !== chainBlock?.action.seq)
@@ -816,9 +819,7 @@ export class Duel {
 
         // 有効であれば、効果処理を行う。
         if (isEffective) {
-          console.log("piyo");
           await chainBlockInfo.action.execute(chainBlockInfo, this.chainBlockInfos);
-          console.log("piyo");
           chainBlockInfo.state = "done";
         } else {
           chainBlockInfo.state = "failed";

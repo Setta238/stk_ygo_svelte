@@ -4,6 +4,7 @@ import { type Duelist } from "./Duelist";
 import { DuelEntity } from "./DuelEntity";
 import { CardActionBase, type CardActionDefinitionBase } from "./DuelCardActionBase";
 import type { IDuelClock } from "./DuelClock";
+import type { MaterialInfo } from "@ygo_duel/cards/CardDefinitions";
 export const executableDuelistTypes = ["Controller", "Opponent"] as const;
 export type TExecutableDuelistType = (typeof executableDuelistTypes)[number];
 
@@ -127,6 +128,7 @@ export type CardActionDefinitionAttr = CardActionDefinitionBase & {
 };
 export type CardActionDefinition<T> = CardActionDefinitionAttr & {
   canPayCosts?: (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => boolean;
+  getEnableMaterialPatterns?: (myInfo: ChainBlockInfoBase<T>) => MaterialInfo[][];
 
   /**
    * 発動可能かどうかの検証
@@ -276,7 +278,7 @@ export class CardAction<T> extends CardActionBase implements ICardAction<T> {
   public readonly getClone = () => {
     return new CardAction<T>(this.seq, this.entity, this.definition);
   };
-
+  public readonly getEnableMaterialPatterns = (myInfo: ChainBlockInfoBase<T>) => this.definition.getEnableMaterialPatterns?.(myInfo) ?? [];
   public readonly validate = (activator: Duelist, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, ignoreCosts: boolean) => {
     // カードの発動はフィールド表側表示ではできない
     if (this.playType === "CardActivation" && this.entity.isOnField && this.entity.face === "FaceUp") {

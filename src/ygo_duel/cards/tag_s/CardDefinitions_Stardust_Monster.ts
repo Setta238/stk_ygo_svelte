@@ -3,6 +3,8 @@ import {
   defaultAttackAction,
   defaultBattlePotisionChangeAction,
   defaultSelfRebornExecute,
+  defaultSelfReleaseCanPayCosts,
+  defaultSelfReleasePayCosts,
   defaultSummonFilter,
 } from "@ygo_duel/cards/DefaultCardAction_Monster";
 
@@ -31,9 +33,7 @@ export const createCardDefinitions_Stardust_Monster = (): CardDefinition[] => {
         executableCells: ["MonsterZone", "ExtraMonsterZone"],
         executablePeriods: duelPeriodKeys,
         executableDuelistTypes: ["Controller"],
-        canPayCosts: (myInfo) =>
-          myInfo.activator.canRelease([myInfo.action.entity]) &&
-          myInfo.action.entity.canBeReleased(myInfo.activator, myInfo.action.entity, ["ReleaseAsCost"], myInfo.action),
+        canPayCosts: defaultSelfReleaseCanPayCosts,
         validate: (myInfo, chainBlockInfos) => {
           if (chainBlockInfos.length === 0) {
             return;
@@ -43,20 +43,16 @@ export const createCardDefinitions_Stardust_Monster = (): CardDefinition[] => {
 
           return info.chainBlockTags.includes("DestroyOnField") ? [] : undefined;
         },
+        payCosts: defaultSelfReleasePayCosts,
         prepare: async (myInfo, chainBlockInfos) => {
-          if (chainBlockInfos.length === 0) {
-            return;
-          }
-
           const info = chainBlockInfos.slice(-1)[0];
 
-          await myInfo.action.entity.release(["Cost"], myInfo.action.entity, myInfo.activator);
           return { selectedEntities: [], chainBlockTags: myInfo.action.calcChainBlockTagsForDestroy([info.action.entity]), prepared: undefined };
         },
         execute: async (myInfo, chainBlockInfos) => {
           const info = chainBlockInfos[myInfo.index - 1];
           info.isNegatedActivationBy = myInfo.action;
-          DuelEntityShortHands.tryDestroy([info.action.entity], myInfo);
+          await DuelEntityShortHands.tryDestroy([info.action.entity], myInfo);
           return true;
         },
         settle: async () => true,

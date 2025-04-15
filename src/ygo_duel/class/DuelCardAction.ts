@@ -4,15 +4,20 @@ import { type Duelist } from "./Duelist";
 import { DuelEntity } from "./DuelEntity";
 import { CardActionBase, type CardActionDefinitionBase } from "./DuelCardActionBase";
 import type { IDuelClock } from "./DuelClock";
-import type { MaterialInfo } from "@ygo_duel/cards/CardDefinitions";
+import { SystemError } from "./Duel";
+import { max } from "@stk_utils/funcs/StkMathUtils";
 export const executableDuelistTypes = ["Controller", "Opponent"] as const;
 export type TExecutableDuelistType = (typeof executableDuelistTypes)[number];
 
+export const cardActionRuleSummonTypes = ["NormalSummon", "SpecialSummon"] as const;
+export type TCardActionRuleSummonType = (typeof cardActionRuleSummonTypes)[number];
 export const cardActionChainBlockTypes = ["IgnitionEffect", "TriggerEffect", "QuickEffect", "CardActivation"] as const;
 export type TCardActionChainBlockType = (typeof cardActionChainBlockTypes)[number];
-export const cardActionNonChainBlockTypes = ["NormalSummon", "SpecialSummon", "ChangeBattlePosition", "Battle", "SpellTrapSet", "LingeringEffect"] as const;
+export const cardActionCreateChainTypes = [...cardActionRuleSummonTypes, ...cardActionChainBlockTypes] as const;
+export type TCardActionCreateChainTypes = (typeof cardActionCreateChainTypes)[number];
+export const cardActionNonChainBlockTypes = ["ChangeBattlePosition", "Battle", "SpellTrapSet", "LingeringEffect"] as const;
 export type TCardActionNonChainBlockType = (typeof cardActionNonChainBlockTypes)[number];
-export type TCardActionType = TCardActionChainBlockType | TCardActionNonChainBlockType | "Dammy" | "RuleDraw" | "SystemPeriodAction";
+export type TCardActionType = TCardActionCreateChainTypes | TCardActionNonChainBlockType | "Dammy" | "RuleDraw" | "SystemPeriodAction";
 
 export const effectActiovationTypes = ["CardActivation", "EffectActivation", "NonActivate"] as const;
 export type TEffectActiovationType = (typeof effectActiovationTypes)[number];
@@ -70,22 +75,43 @@ export const effectTags = [
   "BounceToHand", //リ・バウンド
   "NegateCardEffect",
   "NegateCardActivation",
+  "NegateNormalSummon",
+  "NegateSpecialSummon",
 ] as const;
 export type TEffectTag = (typeof effectTags)[number];
 
-export const NumericCostTypes = ["LifePoint", "XyzMaterial", "Counter"] as const;
+export type SummonMaterialInfo = {
+  material: DuelEntity;
+  level?: number;
+  link?: number;
+  isAsTuner?: boolean;
+  name?: string;
+};
+export const summonMaterialCostTypes = ["summonMaterialInfos"] as const;
+export type TSummonMaterialCostType = (typeof summonMaterialCostTypes)[number];
+export const NumericCostTypes = ["lifePoint", "xyzMaterial", "counter"] as const;
 export type TNumericCostType = (typeof NumericCostTypes)[number];
-export const EntityCostTypes = ["Discard", "Banish", "Release", "ReturnToDeck", "ReturnToHand", "SendToGraveyard"] as const;
+export const EntityCostTypes = ["discard", "banish", "release", "returnToDeck", "returnToHand", "sendToGraveyard"] as const;
 export type TEntityCostType = (typeof EntityCostTypes)[number];
-export const CostTypes = [...NumericCostTypes, ...EntityCostTypes] as const;
+export const CostTypes = [...NumericCostTypes, ...EntityCostTypes, ...summonMaterialCostTypes] as const;
 export type TCostType = (typeof CostTypes)[number];
 
-export type ActionCostInfo = { [key in TCostType]?: key extends TNumericCostType ? number : DuelEntity[] };
+export type ActionCostInfo = {
+  [key in TCostType]?: key extends TNumericCostType ? number : key extends TSummonMaterialCostType ? SummonMaterialInfo[] : DuelEntity[];
+};
 
 export type ChainBlockInfoBase<T> = {
+  /**
+   * 配列上のindex
+   */
   index: number;
+  /**
+   * 表示上の番号
+   */
+  chainNumber: number | undefined;
   action: CardAction<T>;
   activator: Duelist;
+  targetChainBlock: ChainBlockInfo<unknown> | undefined;
   isActivatedIn: DuelFieldCell;
   isActivatedAt: IDuelClock;
   isNegatedActivationBy?: CardAction<unknown>;
@@ -100,6 +126,7 @@ export type ChainBlockInfoPrepared<T> = {
   chainBlockTags: TEffectTag[];
   selectedEntities: DuelEntity[];
   prepared: T;
+  nextAction?: CardAction<unknown>;
 };
 export type ChainBlockInfo<T> = ChainBlockInfoBase<T> & ChainBlockInfoPrepared<T>;
 
@@ -122,13 +149,17 @@ export type CardActionDefinitionAttr = CardActionDefinitionBase & {
   negatePreviousBlock?: boolean;
 
   /**
+   * チェーンに乗らない召喚特殊召喚を無効にできるかどうか
+   */
+  negateSummon?: boolean;
+  /**
    * NPC用プロパティ
    */
   priorityForNPC?: number;
 };
 export type CardActionDefinition<T> = CardActionDefinitionAttr & {
+  getEnableMaterialPatterns?: (myInfo: ChainBlockInfoBase<T>) => SummonMaterialInfo[][];
   canPayCosts?: (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => boolean;
-  getEnableMaterialPatterns?: (myInfo: ChainBlockInfoBase<T>) => MaterialInfo[][];
 
   /**
    * 発動可能かどうかの検証
@@ -172,6 +203,7 @@ export interface ICardAction<T> {
   hasToTargetCards: boolean;
   isOnlyNTimesPerTurn: number;
   isOnlyNTimesPerDuel: number;
+  isOnlyNTimesPerChain: number;
   isLikeContinuousSpell: boolean;
   getClone: () => ICardAction<T>;
   /**
@@ -187,6 +219,7 @@ export interface ICardAction<T> {
   prepare: (
     activator: Duelist,
     cell: DuelFieldCell | undefined,
+    targetChainBlock: ChainBlockInfo<unknown> | undefined,
     chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
     cancelable: boolean,
     ignoreCosts: boolean
@@ -260,6 +293,10 @@ export class CardAction<T> extends CardActionBase implements ICardAction<T> {
     return this.definition.hasToTargetCards ?? false;
   }
 
+  public get isWithChainBlock() {
+    return cardActionChainBlockTypes.some((t) => t === this.playType);
+  }
+
   public get isLikeContinuousSpell() {
     return this.definition.isLikeContinuousSpell || (this.entity.isLikeContinuousSpell && this.playType === "CardActivation");
   }
@@ -271,14 +308,37 @@ export class CardAction<T> extends CardActionBase implements ICardAction<T> {
   public get negatePreviousBlock() {
     return this.definition.negatePreviousBlock ?? false;
   }
+
+  public get negateSummon() {
+    return this.definition.negateSummon ?? false;
+  }
+
   public get priorityForNPC() {
     return this.definition.priorityForNPC ?? Number.NaN;
   }
 
-  public readonly getClone = () => {
-    return new CardAction<T>(this.seq, this.entity, this.definition);
+  /**
+   * 素材情報に制限を加えて実行するときに使用する。
+   */
+  private readonly addhocMateriallimitation: (materialInfos: SummonMaterialInfo[]) => boolean;
+
+  protected constructor(
+    seq: "AutoSeq" | number,
+    entity: DuelEntity,
+    definition: CardActionDefinitionBase,
+    addhocMateriallimitation?: (materialInfos: SummonMaterialInfo[]) => boolean
+  ) {
+    super(seq, entity, definition);
+    this.addhocMateriallimitation = addhocMateriallimitation ?? (() => true);
+  }
+
+  public readonly getClone = (addhocMateriallimitation?: (materialInfos: SummonMaterialInfo[]) => boolean) => {
+    return new CardAction<T>(this.seq, this.entity, this.definition, addhocMateriallimitation);
   };
-  public readonly getEnableMaterialPatterns = (myInfo: ChainBlockInfoBase<T>) => this.definition.getEnableMaterialPatterns?.(myInfo) ?? [];
+
+  public readonly getEnableMaterialPatterns = (myInfo: ChainBlockInfoBase<T>) =>
+    this.definition.getEnableMaterialPatterns?.(myInfo).filter(this.addhocMateriallimitation) ?? [];
+
   public readonly validate = (activator: Duelist, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, ignoreCosts: boolean) => {
     // カードの発動はフィールド表側表示ではできない
     if (this.playType === "CardActivation" && this.entity.isOnField && this.entity.face === "FaceUp") {
@@ -307,18 +367,28 @@ export class CardAction<T> extends CardActionBase implements ICardAction<T> {
     }
     // このチェーン上で、同一の効果が発動している回数をカウント。
     const currentChainCount = chainBlockInfos.filter((info) => info.action.seq === this.seq).length;
+    if (this.isOnlyNTimesPerChain > 0 && currentChainCount >= this.isOnlyNTimesPerChain) {
+      return;
+    }
 
-    if (this.isOnlyNTimesPerTurnIfFaceup > 0 && this.entity.counterHolder.getActionCount(this) + currentChainCount >= this.isOnlyNTimesPerTurnIfFaceup) {
+    // このターンに発動した回数を加算
+    const count = currentChainCount + this.entity.counterHolder.getActionCount(this);
+
+    if (this.isOnlyNTimesPerTurnIfFaceup > 0 && count >= this.isOnlyNTimesPerTurnIfFaceup) {
       return;
     }
-    if (this.isOnlyNTimesIfFaceup > 0 && this.entity.counterHolder.getActionCount(this) + currentChainCount >= this.isOnlyNTimesIfFaceup) {
+    if (this.isOnlyNTimesIfFaceup > 0 && count >= this.isOnlyNTimesIfFaceup) {
       return;
     }
+
+    const maxChainNumber = max(...chainBlockInfos.map((info) => info.chainNumber ?? -1));
 
     const myInfo: ChainBlockInfoBase<T> = {
       index: chainBlockInfos.length,
+      chainNumber: this.isWithChainBlock ? maxChainNumber + 1 : undefined,
       action: this,
       activator: activator,
+      targetChainBlock: chainBlockInfos.slice(-1)[0],
       isActivatedIn: this.entity.fieldCell,
       isActivatedAt: this.duel.clock.getClone(),
       costInfo: {},
@@ -332,12 +402,12 @@ export class CardAction<T> extends CardActionBase implements ICardAction<T> {
         return;
       }
     }
-
     return this.definition.validate(myInfo, chainBlockInfos);
   };
   public readonly prepare = async (
     activator: Duelist,
     cell: DuelFieldCell | undefined,
+    targetChainBlock: ChainBlockInfo<unknown> | undefined,
     chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
     cancelable: boolean,
     ignoreCosts: boolean
@@ -397,11 +467,15 @@ export class CardAction<T> extends CardActionBase implements ICardAction<T> {
         _cancelable = false;
       }
     }
+
+    const maxChainNumber = max(...chainBlockInfos.map((info) => info.chainNumber ?? -1));
     // チェーンブロック情報の準備
     const myInfo: ChainBlockInfoBase<T> = {
       index: chainBlockInfos.length,
+      chainNumber: this.isWithChainBlock ? maxChainNumber + 1 : undefined,
       action: this,
       activator: activator,
+      targetChainBlock,
       isActivatedIn: this.entity.fieldCell,
       isActivatedAt: this.duel.clock.getClone(),
       costInfo: {},
@@ -452,6 +526,23 @@ export class CardAction<T> extends CardActionBase implements ICardAction<T> {
       this.entity.counterHolder.incrementActionCount(this);
     }
     return this.definition.settle(myInfo, chainBlockInfos);
+  };
+
+  /**
+   * 緊急同調など
+   * @param activator
+   * @param ignoreCost
+   * @returns
+   */
+  public readonly directExecute = async (activator: Duelist, ignoreCost: boolean) => {
+    // チェーンブロック情報の準備
+    const myInfo = await this.prepare(activator, undefined, undefined, [], false, ignoreCost);
+    if (!myInfo) {
+      throw new SystemError("想定されない状態", this, activator, ignoreCost);
+    }
+    const flg = await this.execute(myInfo, []);
+    this.settle(myInfo, []);
+    return flg;
   };
 
   public readonly isSame = (other: CardAction<unknown>) => this.entity.origin.name === other.entity.origin.name && this.title === other.title;

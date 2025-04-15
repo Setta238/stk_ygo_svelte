@@ -1,19 +1,19 @@
 import { faceupBattlePositions, type TBattlePosition } from "@ygo/class/YgoTypes";
-import type { ChainBlockInfoBase, ChainBlockInfoPrepared, ChainBlockInfo, CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
-import { DuelEntity, type TDuelCauseReason } from "@ygo_duel/class/DuelEntity";
+import type { ChainBlockInfoBase, ChainBlockInfo, CardActionDefinition, SummonMaterialInfo, ActionCostInfo } from "@ygo_duel/class/DuelCardAction";
+import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
-import type { MaterialInfo } from "./CardDefinitions";
 import { SystemError } from "@ygo_duel/class/Duel";
+import { defaultRuleSummonExecute, defaultRuleSummonPrepare } from "./DefaultCardAction_Monster";
 
-export const defaultXyzMaterialsValidator = (
-  myInfo: ChainBlockInfoBase<MaterialInfo[]>,
+const defaultXyzMaterialsValidator = (
+  myInfo: ChainBlockInfoBase<unknown>,
   posList: Readonly<TBattlePosition[]>,
   cells: DuelFieldCell[],
   materials: DuelEntity[],
   qtyLowerBound: number = 2,
   qtyUpperBound: number = 2,
   validator: (materials: DuelEntity[]) => boolean
-): MaterialInfo[] | undefined => {
+): SummonMaterialInfo[] | undefined => {
   if (!myInfo.action.entity.origin.rank) {
     return;
   }
@@ -48,8 +48,8 @@ export const defaultXyzMaterialsValidator = (
   if (
     !myInfo.activator.getEnableSummonList(
       myInfo.activator,
-      "SyncroSummon",
-      ["Rule", "SpecialSummon"],
+      "XyzSummon",
+      ["Rule", "XyzSummon", "SpecialSummon"],
       myInfo.action,
       [{ monster: myInfo.action.entity, posList, cells }],
       materialInfos,
@@ -62,11 +62,11 @@ export const defaultXyzMaterialsValidator = (
 };
 
 const getEnableXyzSummonPatterns = (
-  myInfo: ChainBlockInfoBase<MaterialInfo[]>,
+  myInfo: ChainBlockInfoBase<unknown>,
   qtyLowerBound: number = 2,
   qtyUpperBound: number = 2,
   validator: (materials: DuelEntity[]) => boolean = (materials) => materials.length > 1
-): MaterialInfo[][] => {
+): SummonMaterialInfo[][] => {
   // 場から全てのエクシーズ素材にできるモンスターを収集する。
   const materials = myInfo.activator.getMonstersOnField().filter((card) => card.battlePosition !== "Set");
 
@@ -85,26 +85,21 @@ const getEnableXyzSummonPatterns = (
     .filter((pattern) => pattern.length);
 };
 
-export const defaultXyzSummonValidate = (
-  myInfo: ChainBlockInfoBase<MaterialInfo[]>,
-  qtyLowerBound: number = 2,
-  qtyUpperBound: number = 2,
-  validator: (materials: DuelEntity[]) => boolean = (materials) => materials.length > 1
-): DuelFieldCell[] | undefined => {
-  return getEnableXyzSummonPatterns(myInfo, qtyLowerBound, qtyUpperBound, validator).length > 0 ? [] : undefined;
-};
-export const defaultXyzSummonPrepare = async (
-  myInfo: ChainBlockInfoBase<MaterialInfo[]>,
-  cancelable?: boolean,
-  qtyLowerBound: number = 2,
-  qtyUpperBound: number = 2,
-  validator: (materials: DuelEntity[]) => boolean = (materials) => materials.length > 1
-): Promise<ChainBlockInfoPrepared<MaterialInfo[]> | undefined> => {
-  const patterns = getEnableXyzSummonPatterns(myInfo, qtyLowerBound, qtyUpperBound, validator);
+const defaultXyzSummonPayCost = async (
+  myInfo: ChainBlockInfoBase<unknown>,
+  chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
+  cancelable: boolean
+): Promise<ActionCostInfo | undefined> => {
+  // パターンを先に列挙しておく
+  const patterns = myInfo.action.getEnableMaterialPatterns(myInfo);
 
+  // 逆引きできるように準備
+  const entiteisPatterns = patterns.map((infos) => {
+    return { infos, materialSeqList: infos.map((info) => info.material.seq).sort() };
+  });
+
+  // 初期候補をセット
   let materials = patterns[0].map((info) => info.material);
-
-  const cells = [...myInfo.activator.getMonsterZones(), ...myInfo.activator.duel.field.getCells("ExtraMonsterZone")];
 
   if (patterns.length > 1) {
     const choices = patterns.flatMap((p) => p.map((info) => info.material)).getDistinct();
@@ -112,22 +107,33 @@ export const defaultXyzSummonPrepare = async (
       myInfo.activator,
       choices,
       undefined,
-      (selected) => Boolean(defaultXyzMaterialsValidator(myInfo, faceupBattlePositions, cells, selected, qtyLowerBound, qtyUpperBound, validator)),
-      "XYZ素材とするモンスターを選択",
-      true
+      (selected) => {
+        //
+        const materialSeqList = selected.map((monster) => monster.seq).sort();
+        return entiteisPatterns.some(
+          (item) => materialSeqList.length === item.materialSeqList.length && materialSeqList.every((seq, index) => seq === item.materialSeqList[index])
+        );
+      },
+      "エクシーズ素材とするモンスターを選択",
+      cancelable
     );
-    //選択しなければキャンセル。
+    //墓地へ送らなければキャンセル。
     if (!_materials) {
       return;
     }
     materials = _materials;
   }
 
-  const materialInfos = defaultXyzMaterialsValidator(myInfo, faceupBattlePositions, cells, materials, qtyLowerBound, qtyUpperBound, validator);
+  console.log(patterns, materials);
+
+  const materialSeqList = materials.map((monster) => monster.seq).sort();
+  const materialInfos = entiteisPatterns.find(
+    (item) => materialSeqList.length === item.materialSeqList.length && materialSeqList.every((seq, index) => seq === item.materialSeqList[index])
+  )?.infos;
+
   if (!materialInfos) {
     throw new SystemError("想定されない状態", myInfo, materials);
   }
-
   await DuelEntity.convertManyToXyzMaterials(
     materialInfos.map((info) => info.material),
     ["XyzMaterial", "Rule", "Cost"],
@@ -135,45 +141,28 @@ export const defaultXyzSummonPrepare = async (
     myInfo.activator
   );
 
-  return { selectedEntities: [], chainBlockTags: [], prepared: materialInfos };
+  return { summonMaterialInfos: materialInfos };
 };
-
-export const defaultXyzSummonExecute = async (myInfo: ChainBlockInfo<MaterialInfo[]>): Promise<boolean> => {
-  const movedAs: TDuelCauseReason[] = ["Rule", "SpecialSummon", "XyzSummon"];
-  const cells = [...myInfo.activator.getMonsterZones(), ...myInfo.activator.duel.field.getCells("ExtraMonsterZone")];
-
-  const monster = await myInfo.activator.summon(
-    "XyzSummon",
-    movedAs,
-    myInfo.action,
-    myInfo.action.entity,
-    faceupBattlePositions,
-    cells,
-    myInfo.prepared,
-    false
-  );
-
-  return Boolean(monster);
-};
-
 export const getDefaultXyzSummonAction = (
   qtyLowerBound: number = 2,
   qtyUpperBound: number = 2,
   validator: (materials: DuelEntity[]) => boolean = (materials) => materials.length > 1
-): CardActionDefinition<MaterialInfo[]> => {
+): CardActionDefinition<unknown> => {
   return {
     title: "エクシーズ召喚",
     isMandatory: false,
-
     playType: "SpecialSummon",
     spellSpeed: "Normal",
     executableCells: ["ExtraDeck"],
     executablePeriods: ["main1", "main2"],
     executableDuelistTypes: ["Controller"],
-    validate: (myInfo: ChainBlockInfoBase<MaterialInfo[]>) => defaultXyzSummonValidate(myInfo, qtyLowerBound, qtyUpperBound, validator),
-    prepare: (myInfo: ChainBlockInfoBase<MaterialInfo[]>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, cancelable: boolean) =>
-      defaultXyzSummonPrepare(myInfo, cancelable, qtyLowerBound, qtyUpperBound, validator),
-    execute: defaultXyzSummonExecute,
+    getEnableMaterialPatterns: (myInfo) => getEnableXyzSummonPatterns(myInfo, qtyLowerBound, qtyUpperBound, validator),
+    canPayCosts: (myInfo) => myInfo.action.getEnableMaterialPatterns(myInfo).length > 0,
+    validate: (myInfo) =>
+      !myInfo.ignoreCost || myInfo.activator.getAvailableExtraZones().length + myInfo.activator.getAvailableMonsterZones().length > 0 ? [] : undefined,
+    payCosts: defaultXyzSummonPayCost,
+    prepare: (myInfo) => defaultRuleSummonPrepare(myInfo, "XyzSummon", ["Rule", "SpecialSummon", "XyzSummon"], ["Attack", "Defense"]),
+    execute: defaultRuleSummonExecute,
     settle: async () => true,
   };
 };

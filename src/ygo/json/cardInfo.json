@@ -19132,5 +19132,91 @@
     "arrowheadKeys": [
       "BottomCenter"
     ]
+  },
+  "フォーミュラ・シンクロン": {
+    "name": "フォーミュラ・シンクロン",
+    "nameKana": "",
+    "description": "チューナー＋チューナー以外のモンスター１体\n(1)：このカードがＳ召喚した時に発動できる。\n自分は１枚ドローする。\n(2)：相手メインフェイズに発動できる（同一チェーン上では１度まで）。\nこのカードを含む自分フィールドのモンスターを素材としてＳ召喚を行う。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Syncro",
+      "Tuner",
+      "Effect"
+    ],
+    "level": 2,
+    "attack": 200,
+    "defense": 1500,
+    "attributes": [
+      "Light"
+    ],
+    "types": [
+      "Machine"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%D5%A5%A9%A1%BC%A5%DF%A5%E5%A5%E9%A1%A6%A5%B7%A5%F3%A5%AF%A5%ED%A5%F3%A1%D5",
+    "nameTags": [
+      "シンクロン"
+    ]
+  },
+  "死霊騎士デスカリバー・ナイト": {
+    "name": "死霊騎士デスカリバー・ナイト",
+    "nameKana": "",
+    "description": "このカードは特殊召喚できない。\n(1)：モンスターの効果が発動した時、このカードをリリースして発動する。\nその発動を無効にし破壊する。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect",
+      "NormalSummonOnly"
+    ],
+    "level": 4,
+    "attack": 1900,
+    "defense": 1800,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Fiend"
+    ],
+    "wikiEncodedName": "%A1%D4%BB%E0%CE%EE%B5%B3%BB%CE%A5%C7%A5%B9%A5%AB%A5%EA%A5%D0%A1%BC%A1%A6%A5%CA%A5%A4%A5%C8%A1%D5"
+  },
+  "オリファンの角笛": {
+    "name": "オリファンの角笛",
+    "nameKana": "",
+    "description": "このカード名のカードは１ターンに１枚しか発動できない。\n(1)：以下の効果から１つを選択して発動できる。\n●自分のフィールド・墓地から装備魔法カード１枚を選んで除外する。\nその後、フィールドのカード１枚を選んで破壊できる。\n●自分フィールドの「ローラン」モンスター１体を選んで破壊する。\nその後、レベルの合計が９になるようにデッキから戦士族・炎属性モンスターを３体まで選んで\n効果を無効にして守備表示で特殊召喚する。\nこの効果の発動後、次の自分ターンの終了時まで自分は戦士族モンスターしか特殊召喚できない。",
+    "kind": "Trap",
+    "trapCategory": "Normal",
+    "wikiEncodedName": "%A1%D4%A5%AA%A5%EA%A5%D5%A5%A1%A5%F3%A4%CE%B3%D1%C5%AB%A1%D5"
+  },
+  "角笛砕き": {
+    "name": "角笛砕き",
+    "nameKana": "",
+    "description": "モンスターの召喚・特殊召喚を無効にする\nモンスターの効果・罠カードが発動した時に発動できる。\nその発動を無効にし破壊する。",
+    "kind": "Trap",
+    "trapCategory": "Counter",
+    "wikiEncodedName": "%A1%D4%B3%D1%C5%AB%BA%D5%A4%AD%A1%D5"
+  },
+  "昇天の角笛": {
+    "name": "昇天の角笛",
+    "nameKana": "",
+    "description": "自分フィールド上に存在するモンスター１体をリリースして発動する。\nモンスターの召喚・反転召喚・特殊召喚を無効にし破壊する。",
+    "kind": "Trap",
+    "trapCategory": "Counter",
+    "wikiEncodedName": "%A1%D4%BE%BA%C5%B7%A4%CE%B3%D1%C5%AB%A1%D5"
+  },
+  "昇天の剛角笛": {
+    "name": "昇天の剛角笛",
+    "nameKana": "",
+    "description": "(1)：相手メインフェイズに相手がモンスターを特殊召喚する際に発動できる。\nその特殊召喚を無効にし、そのモンスターを破壊する。\nその後、相手はデッキから１枚ドローし、相手メインフェイズを終了する。",
+    "kind": "Trap",
+    "trapCategory": "Counter",
+    "wikiEncodedName": "%A1%D4%BE%BA%C5%B7%A4%CE%B9%E4%B3%D1%C5%AB%A1%D5"
+  },
+  "昇天の黒角笛": {
+    "name": "昇天の黒角笛",
+    "nameKana": "",
+    "description": "(1)：相手がモンスター１体のみを特殊召喚する際に発動できる。\nその特殊召喚を無効にし、そのモンスターを破壊する。",
+    "kind": "Trap",
+    "trapCategory": "Counter",
+    "wikiEncodedName": "%A1%D4%BE%BA%C5%B7%A4%CE%B9%F5%B3%D1%C5%AB%A1%D5"
   }
 }

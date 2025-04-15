@@ -1,15 +1,15 @@
-import type { ChainBlockInfoBase, ChainBlockInfoPrepared, ChainBlockInfo, CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
-import { DuelEntity, type TDuelCauseReason } from "@ygo_duel/class/DuelEntity";
+import type { ChainBlockInfoBase, ChainBlockInfo, CardActionDefinition, SummonMaterialInfo, ActionCostInfo } from "@ygo_duel/class/DuelCardAction";
+import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
-import type { MaterialInfo } from "./CardDefinitions";
 import { SystemError } from "@ygo_duel/class/Duel";
+import { defaultRuleSummonExecute, defaultRuleSummonPrepare } from "./DefaultCardAction_Monster";
 
 export const defaultLinkMaterialsValidator = (
-  myInfo: ChainBlockInfoBase<MaterialInfo[]>,
+  myInfo: ChainBlockInfoBase<unknown>,
   cells: DuelFieldCell[],
   materials: DuelEntity[],
   validator: (materials: DuelEntity[]) => boolean
-): MaterialInfo[] | undefined => {
+): SummonMaterialInfo[] | undefined => {
   if (!myInfo.action.entity.origin.link) {
     return;
   }
@@ -107,9 +107,9 @@ export const defaultLinkMaterialsValidator = (
 };
 
 const getEnableLinkSummonPatterns = (
-  myInfo: ChainBlockInfoBase<MaterialInfo[]>,
+  myInfo: ChainBlockInfoBase<unknown>,
   validator: (materials: DuelEntity[]) => boolean = () => true
-): DuelEntity[][] => {
+): SummonMaterialInfo[][] => {
   // 手札と場から全てのリンク素材にできるモンスターを収集する。
   let materials = [
     ...myInfo.activator.getMonstersOnField().filter((card) => card.battlePosition !== "Set"),
@@ -128,31 +128,40 @@ const getEnableLinkSummonPatterns = (
 
   const cells = [...myInfo.activator.getMonsterZones(), ...myInfo.activator.duel.field.getAvailableExtraMonsterZones()];
   //全パターンを試し、リンク召喚可能なパターンを全て列挙する。
-  return materials.getAllOnOffPattern().filter((pattern) => defaultLinkMaterialsValidator(myInfo, cells, pattern, validator));
+  return materials
+    .getAllOnOffPattern()
+    .map((pattern) => defaultLinkMaterialsValidator(myInfo, cells, pattern, validator) ?? [])
+    .filter((materialInfos) => materialInfos.length);
 };
-export const defaultLinkSummonValidate = (
-  myInfo: ChainBlockInfoBase<MaterialInfo[]>,
-  validator: (materials: DuelEntity[]) => boolean = () => true
-): DuelFieldCell[] | undefined => {
-  return getEnableLinkSummonPatterns(myInfo, validator).length > 0 ? [] : undefined;
-};
-export const defaultLinkSummonPrepare = async (
-  myInfo: ChainBlockInfoBase<MaterialInfo[]>,
-  cancelable?: boolean,
-  validator: (materials: DuelEntity[]) => boolean = () => true
-): Promise<ChainBlockInfoPrepared<MaterialInfo[]> | undefined> => {
-  const patterns = getEnableLinkSummonPatterns(myInfo, validator);
-  const cells = [...myInfo.activator.getMonsterZones(), ...myInfo.activator.duel.field.getAvailableExtraMonsterZones()];
+const defaultLinkSummonPayCost = async (
+  myInfo: ChainBlockInfoBase<unknown>,
+  chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
+  cancelable: boolean
+): Promise<ActionCostInfo | undefined> => {
+  // パターンを先に列挙しておく
+  const patterns = myInfo.action.getEnableMaterialPatterns(myInfo);
 
-  let materials = patterns[0];
+  // 逆引きできるように準備
+  const entiteisPatterns = patterns.map((infos) => {
+    return { infos, materialSeqList: infos.map((info) => info.material.seq).sort() };
+  });
+
+  // 初期候補をセット
+  let materials = patterns[0].map((info) => info.material);
 
   if (patterns.length > 1) {
-    const choices = patterns.flatMap((p) => p).getDistinct();
+    const choices = patterns.flatMap((p) => p.map((info) => info.material)).getDistinct();
     const _materials = await myInfo.action.entity.duel.view.waitSelectEntities(
       myInfo.activator,
       choices,
       undefined,
-      (selected) => Boolean(defaultLinkMaterialsValidator(myInfo, cells, selected, validator)),
+      (selected) => {
+        //
+        const materialSeqList = selected.map((monster) => monster.seq).sort();
+        return entiteisPatterns.some(
+          (item) => materialSeqList.length === item.materialSeqList.length && materialSeqList.every((seq, index) => seq === item.materialSeqList[index])
+        );
+      },
       "リンク素材とするモンスターを選択",
       cancelable
     );
@@ -163,7 +172,13 @@ export const defaultLinkSummonPrepare = async (
     materials = _materials;
   }
 
-  const materialInfos = defaultLinkMaterialsValidator(myInfo, cells, materials, validator);
+  console.log(patterns, materials);
+
+  const materialSeqList = materials.map((monster) => monster.seq).sort();
+  const materialInfos = entiteisPatterns.find(
+    (item) => materialSeqList.length === item.materialSeqList.length && materialSeqList.every((seq, index) => seq === item.materialSeqList[index])
+  )?.infos;
+
   if (!materialInfos) {
     throw new SystemError("想定されない状態", myInfo, materials);
   }
@@ -173,24 +188,9 @@ export const defaultLinkSummonPrepare = async (
     myInfo.action.entity,
     myInfo.activator
   );
-  return { selectedEntities: [], chainBlockTags: [], prepared: materialInfos };
+  return { summonMaterialInfos: materialInfos };
 };
-export const defaultLinkSummonExecute = async (myInfo: ChainBlockInfo<MaterialInfo[]>): Promise<boolean> => {
-  const movedAs: TDuelCauseReason[] = ["Rule", "SpecialSummon", "LinkSummon"];
-
-  const availableCells = [
-    ...myInfo.activator.getAvailableMonsterZones().filter((cell) => cell.arrowheadSources.length),
-    ...myInfo.activator.duel.field.getAvailableExtraMonsterZones(),
-  ];
-
-  console.log(availableCells);
-
-  const monster = await myInfo.activator.summon("LinkSummon", movedAs, myInfo.action, myInfo.action.entity, ["Attack"], availableCells, myInfo.prepared, false);
-
-  return Boolean(monster);
-};
-
-export const getDefaultLinkSummonAction = (validator: (materials: DuelEntity[]) => boolean = () => true): CardActionDefinition<MaterialInfo[]> => {
+export const getDefaultLinkSummonAction = (validator: (materials: DuelEntity[]) => boolean = () => true): CardActionDefinition<unknown> => {
   return {
     title: "リンク召喚",
     isMandatory: false,
@@ -200,10 +200,13 @@ export const getDefaultLinkSummonAction = (validator: (materials: DuelEntity[]) 
     executableCells: ["ExtraDeck"],
     executablePeriods: ["main1", "main2"],
     executableDuelistTypes: ["Controller"],
-    validate: (myInfo: ChainBlockInfoBase<MaterialInfo[]>) => defaultLinkSummonValidate(myInfo, validator),
-    prepare: (myInfo: ChainBlockInfoBase<MaterialInfo[]>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, cancelable: boolean) =>
-      defaultLinkSummonPrepare(myInfo, cancelable, validator),
-    execute: defaultLinkSummonExecute,
+    getEnableMaterialPatterns: (myInfo) => getEnableLinkSummonPatterns(myInfo, validator),
+    canPayCosts: (myInfo) => myInfo.action.getEnableMaterialPatterns(myInfo).length > 0,
+    validate: (myInfo) =>
+      !myInfo.ignoreCost || myInfo.activator.getAvailableExtraZones().length + myInfo.activator.getAvailableMonsterZones().length > 0 ? [] : undefined,
+    payCosts: defaultLinkSummonPayCost,
+    prepare: (myInfo) => defaultRuleSummonPrepare(myInfo, "LinkSummon", ["Rule", "SpecialSummon", "LinkSummon"], ["Attack"]),
+    execute: defaultRuleSummonExecute,
     settle: async () => true,
   };
 };

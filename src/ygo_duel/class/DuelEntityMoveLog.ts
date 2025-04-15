@@ -50,13 +50,13 @@ export class EntityMoveLog {
   }
 
   public get latestRecord() {
-    return this._records.slice(-1)[0];
+    return this.records.slice(-1)[0];
   }
   public get previousPlaceRecord() {
-    return this._records.findLast((rec) => rec.cell.cellType !== this.entity.fieldCell.cellType) ?? this._records[0];
+    return this.records.findLast((rec) => rec.cell.cellType !== this.entity.fieldCell.cellType) ?? this._records[0];
   }
   public get currentProcRecords() {
-    return this._records.filter((rec) => rec.movedAt.totalProcSeq === this.entity.duel.clock.totalProcSeq);
+    return this.records.filter((rec) => rec.movedAt.totalProcSeq === this.entity.duel.clock.totalProcSeq);
   }
 
   public constructor(entity: DuelEntity) {
@@ -99,6 +99,14 @@ export class EntityMoveLog {
       actionOwner: actionOwner,
       chooser: chooser ?? actionOwner,
     });
+  };
+
+  public readonly negateSummon = (movedBy: DuelEntity, activator: Duelist) => {
+    const latestRecord = this.records.slice(-1)[0];
+    latestRecord.cell = this.entity.field.getCells("Disable")[0];
+    latestRecord.movedBy = movedBy;
+    latestRecord.movedAs = ["SummonNegated"];
+    latestRecord.actionOwner = activator;
   };
 
   // public readonly pushByChainBlockInfo = (chainBlockInfo: ChainBlockInfo<unknown>, movedAs: TDuelCauseReason[]) => {

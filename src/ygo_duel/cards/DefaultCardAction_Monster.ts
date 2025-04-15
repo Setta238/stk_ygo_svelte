@@ -3,20 +3,22 @@ import { type TBattlePosition } from "@ygo/class/YgoTypes";
 import { SystemError } from "@ygo_duel/class/Duel";
 import {
   CardAction,
+  type ActionCostInfo,
   type CardActionDefinition,
   type CardActionDefinitionAttr,
   type ChainBlockInfo,
   type ChainBlockInfoBase,
   type ChainBlockInfoPrepared,
+  type SummonMaterialInfo,
 } from "@ygo_duel/class/DuelCardAction";
-import { type TDuelCauseReason, DuelEntity, namedSummonRuleCauseReasons } from "@ygo_duel/class/DuelEntity";
+import { type TDuelCauseReason, type TSummonRuleCauseReason, DuelEntity, namedSummonRuleCauseReasons } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 import { defaultPrepare } from "./DefaultCardAction";
 import type { Duelist } from "@ygo_duel/class/Duelist";
-import type { MaterialInfo } from "./CardDefinitions";
 import type { SubstituteEffectDefinition } from "@ygo_duel/class/DuelSubstituteEffect";
 import type { SummonFilter } from "@ygo_duel/class_continuous_effect/DuelSummonFilter";
-export const defaultNormalSummonValidate = (myInfo: ChainBlockInfoBase<MaterialInfo[]>): DuelFieldCell[] | undefined => {
+
+const defaultNormalSummonValidate = (myInfo: ChainBlockInfoBase<unknown>): DuelFieldCell[] | undefined => {
   // 召喚権を使い切っていたら通常召喚不可。
   if (myInfo.activator.info.ruleNormalSummonCount >= myInfo.activator.info.maxRuleNormalSummonCount) {
     return;
@@ -81,76 +83,112 @@ export const defaultNormalSummonValidate = (myInfo: ChainBlockInfoBase<MaterialI
   // }
 };
 
-export const defaultNormalSummonPrepare = async (
-  myInfo: ChainBlockInfoBase<MaterialInfo[]>,
+const defaultNormalSummonPayCost = async (
+  myInfo: ChainBlockInfoBase<unknown>,
   chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
-  cancelable: boolean
-): Promise<ChainBlockInfoPrepared<MaterialInfo[]> | undefined> => {
+  cancelable?: boolean
+): Promise<ActionCostInfo | undefined> => {
   if (!myInfo.action.entity.lvl) {
     return;
   }
-  let _cancelable = cancelable;
-  let materialInfos: MaterialInfo[] = [];
 
-  if (myInfo.action.entity.lvl > 4) {
-    const availableCells = myInfo.activator.getAvailableMonsterZones();
-    const releasableMonsters = myInfo.activator.getReleasableMonsters();
-    const exZoneMonsters = myInfo.activator.getExtraMonsterZones();
-    const qty = myInfo.action.entity.lvl < 7 ? 1 : 2;
+  if (myInfo.action.entity.lvl < 5) {
+    return {};
+  }
+  const availableCells = myInfo.activator.getAvailableMonsterZones();
+  const releasableMonsters = myInfo.activator.getReleasableMonsters();
+  const exZoneMonsters = myInfo.activator.getExtraMonsterZones();
+  const qty = myInfo.action.entity.lvl < 7 ? 1 : 2;
 
-    if (exZoneMonsters.length >= qty) {
-      releasableMonsters.filter((monster) => monster.fieldCell.cellType !== "ExtraMonsterZone");
-    }
-
-    const materials =
-      (await myInfo.activator.duel.view.waitSelectEntities(
-        myInfo.activator,
-        myInfo.activator.getReleasableMonsters(),
-        qty,
-        (selected) =>
-          (_cancelable || selected.length > 0) &&
-          (qty < 0 || selected.length === qty) &&
-          (availableCells.length > 0 || selected.some((matetial) => matetial.fieldCell.cellType === "ExtraMonsterZone")),
-        "リリースするモンスターを選択",
-        cancelable
-      )) ?? [];
-
-    //リリースしなければキャンセル。
-    if (!materials.length) {
-      return;
-    }
-    // リリース後はキャンセル不可
-    _cancelable = false;
-
-    await DuelEntity.releaseManyForTheSameReason(materials, ["Cost", "AdvanceSummonRelease", "Rule"], myInfo.action.entity, myInfo.activator);
-
-    // 詰め直し
-    materialInfos = materials.map((material) => {
-      return { material };
-    });
+  if (exZoneMonsters.length >= qty) {
+    releasableMonsters.filter((monster) => monster.fieldCell.cellType !== "ExtraMonsterZone");
   }
 
-  return { selectedEntities: [], chainBlockTags: [], prepared: materialInfos };
+  const materials =
+    (await myInfo.activator.duel.view.waitSelectEntities(
+      myInfo.activator,
+      myInfo.activator.getReleasableMonsters(),
+      qty,
+      (selected) =>
+        (cancelable || selected.length > 0) &&
+        (qty < 0 || selected.length === qty) &&
+        (availableCells.length > 0 || selected.some((matetial) => matetial.fieldCell.cellType === "ExtraMonsterZone")),
+      "リリースするモンスターを選択",
+      cancelable
+    )) ?? [];
+
+  //リリースしなければキャンセル。
+  if (!materials.length) {
+    return;
+  }
+  await DuelEntity.releaseManyForTheSameReason(materials, ["Cost", "AdvanceSummonRelease", "Rule"], myInfo.action.entity, myInfo.activator);
+
+  // 詰め直し
+  const summonMaterialInfos = materials.map((material) => {
+    return { material };
+  });
+
+  return { summonMaterialInfos };
 };
 
-export const defaultNormalSummonExecute = async (myInfo: ChainBlockInfo<MaterialInfo[]>): Promise<boolean> => {
+const defaultNormalSummonPrepare = async (myInfo: ChainBlockInfoBase<unknown>): Promise<ChainBlockInfoPrepared<unknown> | undefined> => {
   const movedAs: TDuelCauseReason[] = ["Rule", "NormalSummon"];
   let summonRule: TDuelCauseReason = "NormalSummon";
-  if (myInfo.prepared.length > 0) {
+  if (myInfo.costInfo.summonMaterialInfos?.length) {
     summonRule = "AdvanceSummon";
     movedAs.push("AdvanceSummon");
   }
 
   const availableCells = myInfo.dest ? [myInfo.dest] : myInfo.activator.getAvailableMonsterZones();
+  return defaultRuleSummonPrepare(myInfo, summonRule, movedAs, ["Attack", "Set"], availableCells);
+};
+export const defaultRuleSummonPrepare = async (
+  myInfo: ChainBlockInfoBase<unknown>,
+  summonRule: TSummonRuleCauseReason,
+  movedAs: TDuelCauseReason[],
+  posList: Readonly<TBattlePosition[]>,
+  cells?: DuelFieldCell[]
+): Promise<ChainBlockInfoPrepared<unknown> | undefined> => {
+  let _cells = cells;
 
-  await myInfo.activator.summon(summonRule, movedAs, myInfo.action, myInfo.action.entity, ["Attack", "Set"], availableCells, myInfo.prepared, false);
+  if (!_cells) {
+    // セルを取得
+    _cells = myInfo.activator.getMonsterZones();
 
+    // エクストラデッキにいる場合、エクストラモンスターゾーンも使用可能
+    if (myInfo.action.entity.fieldCell.cellType === "ExtraDeck") {
+      _cells.push(...myInfo.activator.duel.field.getCells("ExtraMonsterZone"));
+    }
+  }
+
+  await myInfo.activator.summon(summonRule, movedAs, myInfo.action, myInfo.action.entity, posList, _cells, myInfo.costInfo.summonMaterialInfos ?? [], false);
+  return { selectedEntities: [], chainBlockTags: [], prepared: undefined };
+};
+export const defaultRuleSummonExecute = async (myInfo: ChainBlockInfo<unknown>): Promise<boolean> => {
+  myInfo.action.entity.info.isRebornable = true;
+  myInfo.action.entity.info.isPending = false;
   return true;
 };
-export const defaultRuleSpecialSummonValidate = (
-  myInfo: ChainBlockInfoBase<MaterialInfo[]>,
+
+export const defaultNormalSummonAction: CardActionDefinition<unknown> = {
+  title: "通常召喚",
+  isMandatory: false,
+  playType: "NormalSummon",
+  spellSpeed: "Normal",
+  executableCells: ["Hand"],
+  executablePeriods: ["main1", "main2"],
+  executableDuelistTypes: ["Controller"],
+  validate: defaultNormalSummonValidate,
+  payCosts: defaultNormalSummonPayCost,
+  prepare: defaultNormalSummonPrepare,
+  execute: defaultRuleSummonExecute,
+  settle: async () => true,
+};
+
+export const defaultRuleSpecialSummonValidate = <T>(
+  myInfo: ChainBlockInfoBase<T>,
   posList: Readonly<TBattlePosition[]>,
-  materials: MaterialInfo[]
+  materials: SummonMaterialInfo[]
 ): DuelFieldCell[] | undefined => {
   // セルを取得
   const cells = myInfo.activator.getMonsterZones();
@@ -176,11 +214,13 @@ export const defaultRuleSpecialSummonValidate = (
   return materials.length === 0 ? cells : [];
 };
 
-export const defaultRuleSpecialSummonPrepare = async (materialInfos: MaterialInfo[]): Promise<ChainBlockInfoPrepared<MaterialInfo[]> | undefined> => {
+export const defaultRuleSpecialSummonPrepare = async (
+  materialInfos: SummonMaterialInfo[]
+): Promise<ChainBlockInfoPrepared<SummonMaterialInfo[]> | undefined> => {
   return { selectedEntities: [], chainBlockTags: [], prepared: materialInfos };
 };
 
-export const defaultRuleSpecialSummonExecute = async (myInfo: ChainBlockInfo<MaterialInfo[]>, posList: Readonly<TBattlePosition[]>): Promise<boolean> => {
+export const defaultRuleSpecialSummonExecute = async (myInfo: ChainBlockInfo<SummonMaterialInfo[]>, posList: Readonly<TBattlePosition[]>): Promise<boolean> => {
   const movedAs: TDuelCauseReason[] = ["Rule", "SpecialSummon"];
 
   // セルを取得
@@ -193,21 +233,6 @@ export const defaultRuleSpecialSummonExecute = async (myInfo: ChainBlockInfo<Mat
   const monster = await myInfo.activator.summon("SpecialSummon", movedAs, myInfo.action, myInfo.action.entity, posList, cells, myInfo.prepared, false);
 
   return Boolean(monster);
-};
-
-export const defaultNormalSummonAction: CardActionDefinition<MaterialInfo[]> = {
-  title: "通常召喚",
-  isMandatory: false,
-
-  playType: "NormalSummon",
-  spellSpeed: "Normal",
-  executableCells: ["Hand"],
-  executablePeriods: ["main1", "main2"],
-  executableDuelistTypes: ["Controller"],
-  validate: defaultNormalSummonValidate,
-  prepare: defaultNormalSummonPrepare,
-  execute: defaultNormalSummonExecute,
-  settle: async () => true,
 };
 
 export const defaultDeclareAttackValidate = (myInfo: ChainBlockInfoBase<undefined>): DuelFieldCell[] | undefined => {
@@ -343,7 +368,7 @@ export const defaultNoLimitSummonFilter = (
   moveAs: TDuelCauseReason[],
   actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
   monster: DuelEntity,
-  materialInfos: MaterialInfo[],
+  materialInfos: SummonMaterialInfo[],
   posList: TBattlePosition[],
   cells: DuelFieldCell[]
 ): {
@@ -382,7 +407,7 @@ export const defaultSummonFilter = (
   moveAs: TDuelCauseReason[],
   actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
   monster: DuelEntity,
-  materialInfos: MaterialInfo[],
+  materialInfos: SummonMaterialInfo[],
   posList: Readonly<TBattlePosition[]>,
   cells: DuelFieldCell[],
   ignoreSummoningConditions: boolean
@@ -482,4 +507,13 @@ export const getSelfBattleSubstituteEffectDefinition = (times: number): Substitu
   }
 
   return _selfBattleSubstituteEffectDefinitionDic[times];
+};
+
+export const defaultSelfReleaseCanPayCosts = <T>(myInfo: ChainBlockInfoBase<T>) =>
+  myInfo.activator.canRelease([myInfo.action.entity]) &&
+  myInfo.action.entity.canBeReleased(myInfo.activator, myInfo.action.entity, ["ReleaseAsCost"], myInfo.action);
+
+export const defaultSelfReleasePayCosts = async <T>(myInfo: ChainBlockInfoBase<T>) => {
+  await myInfo.action.entity.release(["Cost"], myInfo.action.entity, myInfo.activator);
+  return { release: [myInfo.action.entity] };
 };

@@ -1,5 +1,4 @@
-import type { MaterialInfo } from "@ygo_duel/cards/CardDefinitions";
-import type { CardActionDefinitionAttr } from "./DuelCardAction";
+import type { CardActionDefinitionAttr, SummonMaterialInfo } from "./DuelCardAction";
 import { type TSummonRuleCauseReason, type TDuelCauseReason, DuelEntity } from "./DuelEntity";
 import { Duelist } from "./Duelist";
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
@@ -14,7 +13,7 @@ declare module "./Duelist" {
       monster: DuelEntity,
       posList: Readonly<TBattlePosition[]>,
       cells: DuelFieldCell[],
-      materialInfos: MaterialInfo[],
+      materialInfos: SummonMaterialInfo[],
       cancelable: boolean
     ): Promise<DuelEntity | undefined>;
   }
@@ -27,7 +26,7 @@ Duelist.prototype.summon = async function (
   monster: DuelEntity,
   posList: Readonly<TBattlePosition[]>,
   cells: DuelFieldCell[],
-  materialInfos: MaterialInfo[],
+  materialInfos: SummonMaterialInfo[],
   cancelable: boolean
 ): Promise<DuelEntity | undefined> {
   const monsters =

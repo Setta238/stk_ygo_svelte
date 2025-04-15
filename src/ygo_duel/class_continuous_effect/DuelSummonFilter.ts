@@ -1,8 +1,7 @@
-import type { CardActionDefinitionAttr } from "../class/DuelCardAction";
+import type { CardActionDefinitionAttr, SummonMaterialInfo } from "../class/DuelCardAction";
 import { StickyEffectOperatorBase, StickyEffectOperatorBundle, StickyEffectOperatorPool } from "./DuelStickyEffectOperatorBase";
 import { type DuelEntity, type TDuelCauseReason, type TSummonRuleCauseReason } from "../class/DuelEntity";
 import { type Duelist, type SummonChoice } from "../class/Duelist";
-import type { MaterialInfo } from "@ygo_duel/cards/CardDefinitions";
 import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
 
@@ -18,7 +17,7 @@ export class SummonFilterBundle extends StickyEffectOperatorBundle<SummonFilter>
     moveAs: TDuelCauseReason[],
     actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
     summonChoice: SummonChoice,
-    materialInfos: MaterialInfo[],
+    materialInfos: SummonMaterialInfo[],
     ignoreSummoningConditions: boolean
   ) =>
     this.operators
@@ -52,7 +51,7 @@ export class SummonFilter extends StickyEffectOperatorBase {
     moveAs: TDuelCauseReason[],
     actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
     monster: DuelEntity,
-    materialInfos: MaterialInfo[],
+    materialInfos: SummonMaterialInfo[],
     posList: Readonly<TBattlePosition[]>,
     cells: DuelFieldCell[],
     ignoreSummoningConditions: boolean
@@ -76,7 +75,7 @@ export class SummonFilter extends StickyEffectOperatorBase {
       moveAs: TDuelCauseReason[],
       actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
       monster: DuelEntity,
-      materialInfos: MaterialInfo[],
+      materialInfos: SummonMaterialInfo[],
       posList: Readonly<TBattlePosition[]>,
       cells: DuelFieldCell[],
       ignoreSummoningConditions: boolean

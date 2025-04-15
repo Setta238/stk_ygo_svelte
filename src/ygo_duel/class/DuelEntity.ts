@@ -33,7 +33,7 @@ import { type Duelist } from "./Duelist";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import { cardDefinitionDic, cardInfoDic } from "@ygo/class/CardInfo";
-import { CardAction, type CardActionDefinition, type ChainBlockInfo } from "./DuelCardAction";
+import { CardAction, type CardActionDefinition, type ChainBlockInfo, type SummonMaterialInfo } from "./DuelCardAction";
 import { ProcFilterBundle } from "../class_continuous_effect/DuelProcFilter";
 import { ContinuousEffect, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { NumericStateOperatorBundle } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
@@ -43,7 +43,7 @@ import { CounterHolder, type TCounterName } from "./DuelCounter";
 import { StatusOperatorBundle } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 import { defaultAttackAction, defaultBattlePotisionChangeAction, defaultNormalSummonAction } from "@ygo_duel/cards/DefaultCardAction_Monster";
 import { StkAsyncEvent } from "@stk_utils/class/StkEvent";
-import type { CardDefinition, MaterialInfo } from "@ygo_duel/cards/CardDefinitions";
+import type { CardDefinition } from "@ygo_duel/cards/CardDefinitions";
 import { SubstituteEffect } from "./DuelSubstituteEffect";
 import { SummonFilter, SummonFilterBundle } from "@ygo_duel/class_continuous_effect/DuelSummonFilter";
 export type EntityStatus = {
@@ -69,7 +69,7 @@ export type DuelEntityInfomation = {
   isVanished: boolean;
   isRebornable: boolean;
   isSettingSickness: boolean;
-  materials: MaterialInfo[];
+  materials: SummonMaterialInfo[];
   effectTargets: { [actionSeq: number]: DuelEntity[] };
   willBeBanished: boolean;
   willReturnToDeck: TDuelEntityMovePos | undefined;
@@ -134,7 +134,8 @@ export type TDuelCauseReason =
   | "FlipSummon"
   | "System"
   | "LostXyzOwner"
-  | "LostEquipOwner";
+  | "LostEquipOwner"
+  | "SummonNegated";
 
 export const duelEntityCardTypes = ["Card", "Token", "Avatar"] as const;
 export type TDuelEntityCardType = (typeof duelEntityCardTypes)[number];
@@ -212,7 +213,7 @@ export class DuelEntity {
   public static readonly waitCorpseDisposal = (duel: Duel) => {
     return DuelEntity.sendManyToGraveyard(
       duel.field
-        .getEntiteisOnField()
+        .getCardsOnField()
         .filter((entity) => entity.info.isDying)
         .map((entity) => {
           return {
@@ -476,7 +477,7 @@ export class DuelEntity {
       .filter(([entity, to]) => entity.fieldCell !== to)
       .map(([entity]) => entity)
       .filter((entity) => !(excludedList ?? []).includes(entity));
-    const _excludedList = [...entitiesWithAnimation, ...duel.field.getEntiteisOnField().filter((entity) => entity.info.isDying)];
+    const _excludedList = [...entitiesWithAnimation, ...duel.field.getCardsOnField().filter((entity) => entity.info.isDying)];
 
     // 目的地ごとに仕分ける
     const destMap = new Map<DuelFieldCell, [entity: DuelEntity, ...Parameters<typeof DuelEntity.prototype._move>][]>();
@@ -534,7 +535,7 @@ export class DuelEntity {
 
       // 新しく発生したものを検知（※ここまでのどこかでアニメーションしたものを除く）
       const newTargets = duel.field
-        .getEntiteisOnField()
+        .getCardsOnField()
         .filter((entity) => entity.info.isDying)
         .filter((newOne) => !_excludedList.includes(newOne))
         .map((newOne) => {
@@ -601,6 +602,12 @@ export class DuelEntity {
 
         // 移動処理
         const { face, orientation } = DuelEntity.splitBattlePos(pos);
+
+        // チェーンに乗らない召喚、特殊召喚は無効にされる可能性がある。
+        if (moveAs.includes("Rule")) {
+          entity.info.isPending = true;
+        }
+
         await entity._move(to, "Monster", face, orientation, "Top", [summonType, moveAsDic[pos], ...moveAs], movedBy, actionOwner, chooser);
       })
     );
@@ -619,6 +626,7 @@ export class DuelEntity {
           duelist.info.specialSummonCount++;
         }
       });
+
     // 色々更新処理
     DuelEntity.settleEntityMove(items[0].monster.duel);
   };
@@ -841,13 +849,13 @@ export class DuelEntity {
   }
 
   public get isOnField() {
-    return playFieldCellTypes.some((t) => t === this.fieldCell.cellType);
+    return playFieldCellTypes.some((t) => t === this.fieldCell.cellType) && !this.info.isPending && this.status.kind !== "XyzMaterial";
   }
   public get isOnFieldAsMonster() {
-    return monsterZoneCellTypes.some((t) => t === this.fieldCell.cellType);
+    return monsterZoneCellTypes.some((t) => t === this.fieldCell.cellType) && !this.info.isPending && this.status.kind !== "XyzMaterial";
   }
   public get isOnFieldAsSpellTrap() {
-    return spellTrapZoneCellTypes.some((t) => t === this.fieldCell.cellType);
+    return spellTrapZoneCellTypes.some((t) => t === this.fieldCell.cellType) && !this.info.isPending && this.status.kind !== "XyzMaterial";
   }
   public get isInTrashCell() {
     return trashCellTypes.some((t) => t === this.fieldCell.cellType);

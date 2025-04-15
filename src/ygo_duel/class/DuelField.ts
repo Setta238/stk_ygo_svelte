@@ -3,13 +3,13 @@ import { type TDuelCauseReason, DuelEntity } from "@ygo_duel/class/DuelEntity";
 
 import { type Duelist } from "./Duelist";
 import {} from "@stk_utils/funcs/StkArrayUtils";
-import { cellTypeMaster, DuelFieldCell, monsterZoneCellTypes, playFieldCellTypes, type DuelFieldCellType } from "./DuelFieldCell";
+import { cellTypeMaster, DuelFieldCell, playFieldCellTypes, type DuelFieldCellType } from "./DuelFieldCell";
 import { ProcFilterPool } from "../class_continuous_effect/DuelProcFilter";
 import { NumericStateOperatorPool } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import { StatusOperatorPool } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 import { SummonFilterPool } from "@ygo_duel/class_continuous_effect/DuelSummonFilter";
-import type { MaterialInfo } from "@ygo_duel/cards/CardDefinitions";
 import { BroadEntityMoveLog } from "./DuelEntityMoveLog";
+import type { SummonMaterialInfo } from "./DuelCardAction";
 export class DuelField {
   public readonly cells: DuelFieldCell[][];
   public readonly duel: Duel;
@@ -60,18 +60,25 @@ export class DuelField {
       .map((cell) => cell.cardEntities)
       .flat();
   };
-  public readonly getMonstersOnField = (): DuelEntity[] => {
-    return this.getCells(...monsterZoneCellTypes)
+  public readonly getCardsOnField = (): DuelEntity[] => {
+    return this.getCells(...playFieldCellTypes)
       .map((cell) => cell.cardEntities)
       .filter((entities) => entities.length > 0)
-      .map((entities) => entities[0]);
+      .map((entities) => entities[0])
+      .filter((card) => card.isOnField);
   };
-  public readonly getEntiteisOnField = (): DuelEntity[] => {
+
+  public readonly getMonstersOnField = (): DuelEntity[] => this.getCardsOnField().filter((monster) => monster.isOnFieldAsMonster);
+
+  public readonly getPendingCardsOnField = (): DuelEntity[] => {
     return this.getCells(...playFieldCellTypes)
-      .map((cell) => cell.entities)
+      .map((cell) => cell.cardEntities)
       .filter((entities) => entities.length > 0)
-      .map((entities) => entities[0]);
+      .map((entities) => entities[0])
+      .filter((card) => card.info.isPending);
   };
+  public readonly getPendingMonstersOnField = (): DuelEntity[] => this.getPendingCardsOnField().filter((monster) => monster.status.kind === "Monster");
+
   public readonly getEntities = (duelist: Duelist): DuelEntity[] => {
     return this.getAllEntities().filter((entity) => entity.controller === duelist);
   };
@@ -90,7 +97,7 @@ export class DuelField {
    * @param materials
    * @returns
    */
-  public readonly canExtraLink = (newLinkMonster: DuelEntity, materialInfos: MaterialInfo[]): boolean => {
+  public readonly canExtraLink = (newLinkMonster: DuelEntity, materialInfos: SummonMaterialInfo[]): boolean => {
     if (!newLinkMonster.arrowheads.length) {
       return false;
     }

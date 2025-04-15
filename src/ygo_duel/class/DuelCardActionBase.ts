@@ -13,6 +13,7 @@ export type CardActionDefinitionBase = {
   isOnlyNTimesPerTurn?: number;
   isOnlyNTimesPerDuel?: number;
   isOnlyNTimesPerTurnIfFaceup?: number;
+  isOnlyNTimesPerChain?: number;
   isOnlyNTimesIfFaceup?: number;
   actionGroupNamePerTurn?: string;
 };
@@ -52,6 +53,9 @@ export class CardActionBase {
   }
   public get isOnlyNTimesIfFaceup() {
     return this.definition.isOnlyNTimesIfFaceup ?? 0;
+  }
+  public get isOnlyNTimesPerChain() {
+    return this.definition.isOnlyNTimesPerChain ?? 0;
   }
   public get duel() {
     return this.entity.duel;

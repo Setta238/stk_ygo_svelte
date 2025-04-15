@@ -51,7 +51,7 @@ export const paySpellCounters = <T>(
   // TODO 取り除く個数が選べる場合
   const qty = qtyList[0];
   myInfo.action.entity.counterHolder.remove("SpellCounter", qty);
-  return { Counter: qty };
+  return { counter: qty };
 };
 
 export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] => {
@@ -149,7 +149,7 @@ export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] =
           return true;
         },
         settle: async () => true,
-      } as CardActionDefinition<unknown>,
+      },
     ] as CardActionDefinition<unknown>[],
     continuousEffects: [
       createSpellCounterCommonEffect("Monster", 1),

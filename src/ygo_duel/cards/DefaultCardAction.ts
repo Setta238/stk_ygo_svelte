@@ -13,7 +13,7 @@ export const defaultPayLifePoint = async <T>(
   point: number
 ): Promise<ActionCostInfo> => {
   myInfo.activator.payLp(point, myInfo.action.entity);
-  return { LifePoint: point };
+  return { lifePoint: point };
 };
 
 export const defaultTargetMonstersRebornPrepare = async <T>(

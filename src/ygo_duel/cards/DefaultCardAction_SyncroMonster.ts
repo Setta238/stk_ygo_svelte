@@ -1,17 +1,17 @@
-import { faceupBattlePositions, type TBattlePosition } from "@ygo/class/YgoTypes";
-import type { ChainBlockInfoBase, ChainBlockInfoPrepared, ChainBlockInfo, CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
-import { DuelEntity, type TDuelCauseReason } from "@ygo_duel/class/DuelEntity";
+import { type TBattlePosition } from "@ygo/class/YgoTypes";
+import type { ChainBlockInfoBase, ChainBlockInfo, CardActionDefinition, SummonMaterialInfo, ActionCostInfo } from "@ygo_duel/class/DuelCardAction";
+import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
-import type { MaterialInfo } from "./CardDefinitions";
 import { SystemError } from "@ygo_duel/class/Duel";
+import { defaultRuleSummonExecute, defaultRuleSummonPrepare } from "./DefaultCardAction_Monster";
 const defaultSyncroMaterialsValidator = (
-  myInfo: ChainBlockInfoBase<MaterialInfo[]>,
+  myInfo: ChainBlockInfoBase<unknown>,
   posList: Readonly<TBattlePosition[]>,
   cells: DuelFieldCell[],
   materials: DuelEntity[],
   tunersValidator: (tuners: DuelEntity[]) => boolean,
   nonTunersValidator: (nonTuners: DuelEntity[]) => boolean
-): MaterialInfo[] | undefined => {
+): SummonMaterialInfo[] | undefined => {
   if (!myInfo.action.entity.origin.level) {
     return;
   }
@@ -66,10 +66,10 @@ const defaultSyncroMaterialsValidator = (
 };
 
 const getEnableSyncroSummonPatterns = (
-  myInfo: ChainBlockInfoBase<MaterialInfo[]>,
+  myInfo: ChainBlockInfoBase<unknown>,
   tunersValidator: (tuners: DuelEntity[]) => boolean = (tuners) => tuners.length === 1,
   nonTunersValidator: (nonTuners: DuelEntity[]) => boolean = (nonTuners) => nonTuners.length > 0
-): MaterialInfo[][] => {
+): SummonMaterialInfo[][] => {
   // 手札と場から全てのシンクロ素材にできるモンスターを収集する。
   let materials = [
     ...myInfo.activator.getMonstersOnField().filter((card) => card.battlePosition !== "Set"),
@@ -95,10 +95,11 @@ const getEnableSyncroSummonPatterns = (
     .filter((materialInfos) => materialInfos.length);
 };
 
-const defaultSyncroSummonPrepare = async (
-  myInfo: ChainBlockInfoBase<MaterialInfo[]>,
-  cancelable?: boolean
-): Promise<ChainBlockInfoPrepared<MaterialInfo[]> | undefined> => {
+const defaultSyncroSummonPayCost = async (
+  myInfo: ChainBlockInfoBase<unknown>,
+  chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
+  cancelable: boolean
+): Promise<ActionCostInfo | undefined> => {
   // パターンを先に列挙しておく
   const patterns = myInfo.action.getEnableMaterialPatterns(myInfo);
 
@@ -149,44 +150,28 @@ const defaultSyncroSummonPrepare = async (
     myInfo.action.entity,
     myInfo.activator
   );
-  return { selectedEntities: [], chainBlockTags: [], prepared: materialInfos };
-};
-const defaultSyncroSummonExecute = async (myInfo: ChainBlockInfo<MaterialInfo[]>): Promise<boolean> => {
-  const cells = [...myInfo.activator.getMonsterZones(), ...myInfo.activator.duel.field.getCells("ExtraMonsterZone")];
-
-  const movedAs: TDuelCauseReason[] = ["Rule", "SpecialSummon", "SyncroSummon"];
-  const monster = await myInfo.activator.summon(
-    "SyncroSummon",
-    movedAs,
-    myInfo.action,
-    myInfo.action.entity,
-    faceupBattlePositions,
-    cells,
-    myInfo.prepared,
-    false
-  );
-
-  return Boolean(monster);
+  return { summonMaterialInfos: materialInfos };
 };
 
 export const getDefaultSyncroSummonAction = (
   tunersValidator: (tuners: DuelEntity[]) => boolean = (tuners) => tuners.length === 1,
   nonTunersValidator: (nonTuners: DuelEntity[]) => boolean = (nonTuners) => nonTuners.length > 0
-): CardActionDefinition<MaterialInfo[]> => {
+): CardActionDefinition<unknown> => {
   return {
     title: "シンクロ召喚",
     isMandatory: false,
-
     playType: "SpecialSummon",
     spellSpeed: "Normal",
     executableCells: ["ExtraDeck"],
     executablePeriods: ["main1", "main2"],
     executableDuelistTypes: ["Controller"],
     getEnableMaterialPatterns: (myInfo) => getEnableSyncroSummonPatterns(myInfo, tunersValidator, nonTunersValidator),
-    validate: (myInfo: ChainBlockInfoBase<MaterialInfo[]>) => (myInfo.action.getEnableMaterialPatterns(myInfo).length ? [] : undefined),
-    prepare: (myInfo: ChainBlockInfoBase<MaterialInfo[]>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, cancelable: boolean) =>
-      defaultSyncroSummonPrepare(myInfo, cancelable),
-    execute: defaultSyncroSummonExecute,
+    canPayCosts: (myInfo) => myInfo.action.getEnableMaterialPatterns(myInfo).length > 0,
+    validate: (myInfo) =>
+      !myInfo.ignoreCost || myInfo.activator.getAvailableExtraZones().length + myInfo.activator.getAvailableMonsterZones().length > 0 ? [] : undefined,
+    payCosts: defaultSyncroSummonPayCost,
+    prepare: (myInfo) => defaultRuleSummonPrepare(myInfo, "SyncroSummon", ["Rule", "SpecialSummon", "SyncroSummon"], ["Attack", "Defense"]),
+    execute: defaultRuleSummonExecute,
     settle: async () => true,
   };
 };

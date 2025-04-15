@@ -1,4 +1,4 @@
-import type { CardActionDefinition, CardActionDefinitionAttr } from "@ygo_duel/class/DuelCardAction";
+import type { CardActionDefinition, CardActionDefinitionAttr, SummonMaterialInfo } from "@ygo_duel/class/DuelCardAction";
 import type { Duelist } from "@ygo_duel/class/Duelist";
 import type { DuelEntity, TDuelCauseReason } from "@ygo_duel/class/DuelEntity";
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
@@ -29,14 +29,9 @@ import { createCardDefinitions_LinkMonster } from "./CardDefinitions_LinkMonster
 import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 import type { SummonFilter } from "@ygo_duel/class_continuous_effect/DuelSummonFilter";
 import { createCardDefinitions_Firewall_LinkMonster } from "./tag_f/CardDefinitions_Firewall_LinkMonster";
+import { createCardDefinitions_Earth_Cyberse_lvl1_Monster } from "./type_Cyberse/CardDefinitions_Earth_Cyberse_lvl1_Monster";
+import { createCardDefinitions_CounterTrap } from "./CardDefinitions_CounterTrap";
 
-export type MaterialInfo = {
-  material: DuelEntity;
-  level?: number;
-  link?: number;
-  isAsTuner?: boolean;
-  name?: string;
-};
 export type CardDefinition = {
   name: string;
   actions: CardActionDefinition<unknown>[];
@@ -49,7 +44,7 @@ export type CardDefinition = {
     moveAs: TDuelCauseReason[],
     actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
     monster: DuelEntity,
-    materialInfos: MaterialInfo[],
+    materialInfos: SummonMaterialInfo[],
     posList: Readonly<TBattlePosition[]>,
     cells: DuelFieldCell[],
     ignoreSummoningConditions: boolean
@@ -84,6 +79,8 @@ export const createCardDefinitions = (): CardDefinition[] => {
     ...createCardDefinitions_Stardust_Monster(),
     ...createCardDefinitions_LinkMonster(),
     ...createCardDefinitions_Firewall_LinkMonster(),
+    ...createCardDefinitions_Earth_Cyberse_lvl1_Monster(),
+    ...createCardDefinitions_CounterTrap(),
   ];
   const names = hoge.map((def) => def.name);
   console.info(names);

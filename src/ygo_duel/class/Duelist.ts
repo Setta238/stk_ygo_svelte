@@ -7,10 +7,16 @@ import type { DuelFieldCell } from "./DuelFieldCell";
 import { cardInfoDic } from "@ygo/class/CardInfo";
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
-import { CardAction, type CardActionDefinitionAttr, type ChainBlockInfo, type ICardAction, type TCardActionType } from "./DuelCardAction";
+import {
+  CardAction,
+  type CardActionDefinitionAttr,
+  type ChainBlockInfo,
+  type ICardAction,
+  type SummonMaterialInfo,
+  type TCardActionType,
+} from "./DuelCardAction";
 import { max, min } from "@stk_utils/funcs/StkMathUtils";
 import type { TBanishProcType } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
-import type { MaterialInfo } from "@ygo_duel/cards/CardDefinitions";
 
 type TLifeLogReason = "BattleDamage" | "EffectDamage" | "Heal" | "Lost" | "Pay" | "Set";
 export type TDuelistType = "NPC" | "Player";
@@ -50,7 +56,7 @@ export class Duelist {
     moveAs: TDuelCauseReason[],
     actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
     summonChoices: SummonChoice[],
-    materialInfos: MaterialInfo[],
+    materialInfos: SummonMaterialInfo[],
     ignoreSummoningConditions: boolean,
     validator: (summoned: DuelEntity[]) => boolean,
     cancelable: boolean,
@@ -79,6 +85,7 @@ export class Duelist {
       return;
     }
 
+    // 召喚素材をエンティティにセット
     summonArgs.forEach((args) => args.monster.info.materials.reset(...materialInfos));
 
     await DuelEntity.moveToXyzOwner(
@@ -291,7 +298,7 @@ export class Duelist {
     return this.duel.field.getMonstersOnField().filter((monster) => monster.controller === this);
   };
   public readonly getEntiteisOnField = (): DuelEntity[] => {
-    return this.duel.field.getEntiteisOnField().filter((card) => card.controller === this);
+    return this.duel.field.getCardsOnField().filter((card) => card.controller === this);
   };
 
   public readonly pushDeck = (): void => {
@@ -367,7 +374,7 @@ export class Duelist {
     moveAs: TDuelCauseReason[],
     actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
     summonChoices: Omit<SummonChoice, "summoner">[],
-    materialInfos: MaterialInfo[],
+    materialInfos: SummonMaterialInfo[],
     ignoreSummoningConditions: boolean
   ): SummonChoice[] => {
     const extraMonsterZones = this.duel.field.getCells("ExtraMonsterZone");
@@ -425,7 +432,7 @@ export class Duelist {
     moveAs: TDuelCauseReason[],
     actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
     summonChoices: SummonChoice[],
-    materialInfos: MaterialInfo[],
+    materialInfos: SummonMaterialInfo[],
     ignoreSummoningConditions: boolean,
     validator: (summoned: DuelEntity[]) => boolean,
     cancelable: boolean,
@@ -489,7 +496,7 @@ export class Duelist {
     moveAs: TDuelCauseReason[],
     actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
     summonChoices: Omit<SummonChoice, "summoner">[],
-    materialInfos: MaterialInfo[],
+    materialInfos: SummonMaterialInfo[],
     ignoreSummoningConditions: boolean,
     cancelable: boolean,
     msg?: string
@@ -513,7 +520,7 @@ export class Duelist {
     moveAs: TDuelCauseReason[],
     actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
     summonChoices: Omit<SummonChoice, "summoner">[],
-    materialInfos: MaterialInfo[],
+    materialInfos: SummonMaterialInfo[],
     ignoreSummoningConditions: boolean,
     validator: (summoned: DuelEntity[]) => boolean,
     cancelable: boolean,

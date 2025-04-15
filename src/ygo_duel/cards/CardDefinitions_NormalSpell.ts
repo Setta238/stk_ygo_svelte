@@ -319,7 +319,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
 
           await DuelEntity.sendManyToGraveyardForTheSameReason(cost, ["Cost"], myInfo.action.entity, myInfo.activator);
 
-          return { SendToGraveyard: cost };
+          return { sendToGraveyard: cost };
         },
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"], prepared: undefined };
@@ -514,7 +514,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
 
           await DuelEntity.sendManyToGraveyardForTheSameReason(costs, ["Cost"], myInfo.action.entity, myInfo.activator);
 
-          return { SendToGraveyard: costs };
+          return { sendToGraveyard: costs };
         },
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromDeck"], prepared: undefined };

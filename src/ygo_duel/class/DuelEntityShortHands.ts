@@ -308,6 +308,12 @@ export class DuelEntityShortHands {
     return _cards.filter((card) => card.fieldCell.cellType === "Banished").filter((card) => card.moveLog.latestRecord.movedBy === chainBlockInfo.action.entity);
   };
 
+  public static readonly negateSummonMany = (movedBy: DuelEntity, activator: Duelist): DuelEntity[] => {
+    const monsters = activator.duel.field.getPendingMonstersOnField();
+    monsters.forEach((monster) => monster.moveLog.negateSummon(movedBy, activator));
+    activator.writeInfoLog(`${monsters.map((monster) => monster.toString()).join(" ")}.の召喚は無効にされた。`);
+    return monsters;
+  };
   private constructor() {}
 }
 

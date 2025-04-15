@@ -120,7 +120,7 @@ const getLikeTradeInAction = (filter: (card: DuelEntity) => boolean): CardAction
     payCosts: async (myInfo) => {
       const cost = await myInfo.activator.discard(1, ["Discard", "Cost"], myInfo.action.entity, myInfo.activator, filter);
 
-      return { Discard: cost };
+      return { discard: cost };
     },
     prepare: async () => {
       return { selectedEntities: [], chainBlockTags: ["Draw"], prepared: undefined };

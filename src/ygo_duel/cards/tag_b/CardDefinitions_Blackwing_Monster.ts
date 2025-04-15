@@ -2,11 +2,11 @@ import {
   defaultAttackAction,
   defaultBattlePotisionChangeAction,
   defaultNormalSummonAction,
-  defaultRuleSpecialSummonExecute,
-  defaultRuleSpecialSummonPrepare,
   defaultRuleSpecialSummonValidate,
+  defaultRuleSummonExecute,
+  defaultRuleSummonPrepare,
 } from "@ygo_duel/cards/DefaultCardAction_Monster";
-import type { CardDefinition, MaterialInfo } from "../CardDefinitions";
+import type { CardDefinition } from "../CardDefinitions";
 import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import { faceupBattlePositions, type TEntityFlexibleNumericStatusKey } from "@ygo/class/YgoTypes";
@@ -39,10 +39,10 @@ export const createCardDefinitions_Blackwing_Monster = (): CardDefinition[] => {
 
           return defaultRuleSpecialSummonValidate(myInfo, ["Attack", "Defense"], []);
         },
-        prepare: () => defaultRuleSpecialSummonPrepare([]),
-        execute: (myInfo) => defaultRuleSpecialSummonExecute(myInfo, faceupBattlePositions),
+        prepare: (myInfo) => defaultRuleSummonPrepare(myInfo, "SpecialSummon", ["SpecialSummon", "Rule"], faceupBattlePositions),
+        execute: defaultRuleSummonExecute,
         settle: async () => true,
-      } as CardActionDefinition<MaterialInfo[]>,
+      } as CardActionDefinition<unknown>,
       {
         title: "②攻守半減",
         isMandatory: false,

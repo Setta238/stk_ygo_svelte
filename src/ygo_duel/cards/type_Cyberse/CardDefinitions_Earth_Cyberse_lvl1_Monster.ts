@@ -8,7 +8,7 @@ import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardDefinition } from "@ygo_duel/cards/CardDefinitions";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 
-export const createCardDefinitions_CyberseMonster = (): CardDefinition[] => {
+export const createCardDefinitions_Earth_Cyberse_lvl1_Monster = (): CardDefinition[] => {
   const result: CardDefinition[] = [];
   result.push({
     name: "ドットスケーパー",

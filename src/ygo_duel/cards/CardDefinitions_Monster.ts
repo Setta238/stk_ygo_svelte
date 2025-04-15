@@ -7,15 +7,15 @@ import {
   defaultAttackAction,
   defaultBattlePotisionChangeAction,
   defaultNormalSummonAction,
-  defaultRuleSpecialSummonExecute,
-  defaultRuleSpecialSummonPrepare,
   defaultRuleSpecialSummonValidate,
+  defaultRuleSummonExecute,
+  defaultRuleSummonPrepare,
   defaultSelfRebornExecute,
 } from "@ygo_duel/cards/DefaultCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 
-import type { CardDefinition, MaterialInfo } from "./CardDefinitions";
+import type { CardDefinition } from "./CardDefinitions";
 import { createRegularProcFilterHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { ProcFilter } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
 import { damageStepPeriodKeys, duelPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
@@ -48,10 +48,10 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
 
             return defaultRuleSpecialSummonValidate(myInfo, ["Attack", "Defense"], []);
           },
-          prepare: () => defaultRuleSpecialSummonPrepare([]),
-          execute: (myInfo) => defaultRuleSpecialSummonExecute(myInfo, faceupBattlePositions),
+          prepare: (myInfo) => defaultRuleSummonPrepare(myInfo, "SpecialSummon", ["SpecialSummon", "Rule"], faceupBattlePositions),
+          execute: defaultRuleSummonExecute,
           settle: async () => true,
-        } as CardActionDefinition<MaterialInfo[]>,
+        } as CardActionDefinition<unknown>,
       ] as CardActionDefinition<unknown>[],
     })
   );
@@ -77,10 +77,10 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
 
           return defaultRuleSpecialSummonValidate(myInfo, faceupBattlePositions, []);
         },
-        prepare: () => defaultRuleSpecialSummonPrepare([]),
-        execute: (myInfo) => defaultRuleSpecialSummonExecute(myInfo, faceupBattlePositions),
+        prepare: (myInfo) => defaultRuleSummonPrepare(myInfo, "SpecialSummon", ["SpecialSummon", "Rule"], faceupBattlePositions),
+        execute: defaultRuleSummonExecute,
         settle: async () => true,
-      } as CardActionDefinition<MaterialInfo[]>,
+      } as CardActionDefinition<unknown>,
     ] as CardActionDefinition<unknown>[],
   };
 
@@ -113,7 +113,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
         },
         payCosts: async (myInfo) => {
           await myInfo.action.entity.banish(["Cost"], myInfo.action.entity, myInfo.activator);
-          return { Banish: [myInfo.action.entity] };
+          return { banish: [myInfo.action.entity] };
         },
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromDeck"], prepared: undefined };
@@ -126,7 +126,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
           return defaultEffectSpecialSummonExecute(myInfo, [newOne]);
         },
         settle: async () => true,
-      } as CardActionDefinition<unknown>,
+      },
     ] as CardActionDefinition<unknown>[],
   };
 
@@ -161,7 +161,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
             throw new IllegalCancelError(myInfo);
           }
           await cost[0].returnToDeck("Top", ["Cost"], myInfo.action.entity, myInfo.activator);
-          return { ReturnToDeck: cost };
+          return { returnToDeck: cost };
         },
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromGraveyard"], prepared: undefined };
@@ -197,7 +197,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
         payCosts: async (myInfo) => {
           const cost = myInfo.activator.getDeckCell().cardEntities[0];
           await myInfo.activator.getDeckCell().cardEntities[0].sendToGraveyard(["Cost"], myInfo.action.entity, myInfo.activator);
-          return { SendToGraveyard: [cost] };
+          return { sendToGraveyard: [cost] };
         },
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromGraveyard"], prepared: undefined };
@@ -469,7 +469,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
           },
           payCosts: async (myInfo) => {
             await myInfo.action.entity.discard(["Cost"], myInfo.action.entity, myInfo.activator);
-            return { selectedEntities: [myInfo.action.entity] };
+            return { sendToGraveyard: [myInfo.action.entity] };
           },
           prepare: async () => {
             return { selectedEntities: [], chainBlockTags: ["NegateCardEffect"], prepared: undefined };

@@ -1,6 +1,11 @@
 import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
-import { defaultAttackAction, defaultBattlePotisionChangeAction, defaultNormalSummonAction } from "@ygo_duel/cards/DefaultCardAction_Monster";
+import {
+  defaultAttackAction,
+  defaultBattlePotisionChangeAction,
+  defaultFlipSummonAction,
+  defaultNormalSummonAction,
+} from "@ygo_duel/cards/DefaultCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 

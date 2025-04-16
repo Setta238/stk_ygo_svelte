@@ -13,7 +13,6 @@ import {
 } from "@ygo_duel/class/DuelCardAction";
 import { type TDuelCauseReason, type TSummonRuleCauseReason, DuelEntity, namedSummonRuleCauseReasons } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
-import { defaultPrepare } from "./DefaultCardAction";
 import type { Duelist } from "@ygo_duel/class/Duelist";
 import type { SubstituteEffectDefinition } from "@ygo_duel/class/DuelSubstituteEffect";
 import type { SummonFilter } from "@ygo_duel/class_continuous_effect/DuelSummonFilter";
@@ -235,7 +234,7 @@ export const defaultRuleSpecialSummonExecute = async (myInfo: ChainBlockInfo<Sum
   return Boolean(monster);
 };
 
-export const defaultDeclareAttackValidate = (myInfo: ChainBlockInfoBase<undefined>): DuelFieldCell[] | undefined => {
+const defaultDeclareAttackValidate = (myInfo: ChainBlockInfoBase<unknown>): DuelFieldCell[] | undefined => {
   if (!myInfo.activator.isTurnPlayer) {
     return undefined;
   }
@@ -244,7 +243,7 @@ export const defaultDeclareAttackValidate = (myInfo: ChainBlockInfoBase<undefine
   // 攻撃対象をダイレクトアタック含めて抽出し、セルに変換
   return targets.length ? targets.map((e) => e.fieldCell) : undefined;
 };
-export const defaultDeclareAttackPrepare = async (myInfo: ChainBlockInfoBase<undefined>): Promise<ChainBlockInfoPrepared<undefined> | undefined> => {
+const defaultDeclareAttackPrepare = async (myInfo: ChainBlockInfoBase<unknown>): Promise<ChainBlockInfoPrepared<unknown> | undefined> => {
   if (myInfo.action.entity.info.attackCount > 0 || myInfo.action.entity.battlePosition !== "Attack") {
     return;
   }
@@ -289,13 +288,13 @@ export const defaultDeclareAttackPrepare = async (myInfo: ChainBlockInfoBase<und
 
   return { selectedEntities: targets, chainBlockTags: [], prepared: undefined };
 };
-export const defaultDeclareAttackExecute = async (myInfo: ChainBlockInfo<undefined>): Promise<boolean> => {
+const defaultDeclareAttackExecute = async (myInfo: ChainBlockInfo<unknown>): Promise<boolean> => {
   myInfo.action.entity.field.duel.declareAnAttack(myInfo.action.entity, myInfo.selectedEntities[0]);
 
   return true;
 };
 
-export const defaultAttackAction: CardActionDefinition<undefined> = {
+export const defaultAttackAction: CardActionDefinition<unknown> = {
   title: "攻撃宣言",
   isMandatory: false,
 
@@ -310,18 +309,10 @@ export const defaultAttackAction: CardActionDefinition<undefined> = {
   settle: async () => true,
 };
 
-export const defaultBattlePotisionChangeValidate = (myInfo: ChainBlockInfoBase<undefined>): DuelFieldCell[] | undefined => {
-  if (myInfo.action.entity.info.battlePotisionChangeCount > 0 || myInfo.action.entity.info.attackCount > 0 || !myInfo.activator.isTurnPlayer) {
-    return undefined;
-  }
-  return [];
-};
-
-export const defaultBattlePotisionChangeExecute = async (myInfo: ChainBlockInfo<undefined>): Promise<boolean> => {
+const defaultBattlePotisionChangePrepare = async (myInfo: ChainBlockInfoBase<unknown>): Promise<ChainBlockInfoPrepared<unknown> | undefined> => {
   if (myInfo.action.entity.info.battlePotisionChangeCount > 0 || !myInfo.activator.isTurnPlayer) {
-    return false;
+    return;
   }
-
   await myInfo.action.entity.setBattlePosition(
     myInfo.action.entity.battlePosition === "Attack" ? "Defense" : "Attack",
     ["Rule"],
@@ -329,13 +320,34 @@ export const defaultBattlePotisionChangeExecute = async (myInfo: ChainBlockInfo<
     myInfo.activator
   );
 
-  console.log(myInfo.action.entity.toString());
-
   myInfo.action.entity.info.battlePotisionChangeCount++;
-  return true;
+  myInfo.action.entity.info.isPending = false;
+  return { selectedEntities: [], chainBlockTags: [], prepared: undefined };
 };
 
-export const defaultBattlePotisionChangeAction: CardActionDefinition<undefined> = {
+export const defaultFlipSummonAction: CardActionDefinition<unknown> = {
+  title: "反転召喚",
+  isMandatory: false,
+  playType: "FlipSummon",
+  spellSpeed: "Normal",
+  executableCells: ["MonsterZone", "ExtraMonsterZone"],
+  executablePeriods: ["main1", "main2"],
+  executableDuelistTypes: ["Controller"],
+  validate: (myInfo) =>
+    myInfo.action.entity.info.battlePotisionChangeCount === 0 &&
+    myInfo.action.entity.info.attackCount === 0 &&
+    myInfo.activator.isTurnPlayer &&
+    myInfo.action.entity.face === "FaceDown"
+      ? []
+      : undefined,
+  prepare: defaultBattlePotisionChangePrepare,
+  execute: async (myInfo) => {
+    myInfo.action.entity.info.isPending = false;
+    return true;
+  },
+  settle: async () => true,
+};
+export const defaultBattlePotisionChangeAction: CardActionDefinition<unknown> = {
   title: "表示形式変更",
   isMandatory: false,
 
@@ -344,9 +356,18 @@ export const defaultBattlePotisionChangeAction: CardActionDefinition<undefined> 
   executableCells: ["MonsterZone", "ExtraMonsterZone"],
   executablePeriods: ["main1", "main2"],
   executableDuelistTypes: ["Controller"],
-  validate: defaultBattlePotisionChangeValidate,
-  prepare: defaultPrepare,
-  execute: defaultBattlePotisionChangeExecute,
+  validate: (myInfo) =>
+    myInfo.action.entity.info.battlePotisionChangeCount === 0 &&
+    myInfo.action.entity.info.attackCount === 0 &&
+    myInfo.activator.isTurnPlayer &&
+    myInfo.action.entity.face === "FaceUp"
+      ? []
+      : undefined,
+  prepare: defaultBattlePotisionChangePrepare,
+  execute: async (myInfo) => {
+    myInfo.action.entity.info.isPending = false;
+    return true;
+  },
   settle: async () => true,
 };
 

@@ -9,7 +9,7 @@ import { max } from "@stk_utils/funcs/StkMathUtils";
 export const executableDuelistTypes = ["Controller", "Opponent"] as const;
 export type TExecutableDuelistType = (typeof executableDuelistTypes)[number];
 
-export const cardActionRuleSummonTypes = ["NormalSummon", "SpecialSummon"] as const;
+export const cardActionRuleSummonTypes = ["NormalSummon", "SpecialSummon", "FlipSummon"] as const;
 export type TCardActionRuleSummonType = (typeof cardActionRuleSummonTypes)[number];
 export const cardActionChainBlockTypes = ["IgnitionEffect", "TriggerEffect", "QuickEffect", "CardActivation"] as const;
 export type TCardActionChainBlockType = (typeof cardActionChainBlockTypes)[number];
@@ -239,9 +239,6 @@ export interface ICardAction<T> {
   dragAndDropOnly?: boolean;
 }
 
-export const convertCardActionToString = (action: ICardAction<unknown>) =>
-  action.playType === "CardActivation" ? action.entity.nm : `${action.entity.nm}«${action.title}»`;
-
 export class CardAction<T> extends CardActionBase implements ICardAction<T> {
   public static readonly createNew = <T>(entity: DuelEntity, definition: CardActionDefinition<T>) => {
     return new CardAction<T>("AutoSeq", entity, definition);
@@ -317,6 +314,8 @@ export class CardAction<T> extends CardActionBase implements ICardAction<T> {
     return this.definition.priorityForNPC ?? Number.NaN;
   }
 
+  public readonly toString = () => (this.isWithChainBlock ? ` «${this.title}»` : this.title);
+
   /**
    * 素材情報に制限を加えて実行するときに使用する。
    */
@@ -380,8 +379,7 @@ export class CardAction<T> extends CardActionBase implements ICardAction<T> {
     if (this.isOnlyNTimesIfFaceup > 0 && count >= this.isOnlyNTimesIfFaceup) {
       return;
     }
-
-    const maxChainNumber = max(...chainBlockInfos.map((info) => info.chainNumber ?? -1));
+    const maxChainNumber = max(0, ...chainBlockInfos.map((info) => info.chainNumber ?? -1));
 
     const myInfo: ChainBlockInfoBase<T> = {
       index: chainBlockInfos.length,
@@ -415,6 +413,14 @@ export class CardAction<T> extends CardActionBase implements ICardAction<T> {
     let _cancelable = cancelable;
     if (this.isLikeContinuousSpell) {
       this.entity.info.isPending = true;
+    }
+
+    const chainNumber = this.isWithChainBlock ? max(0, ...chainBlockInfos.map((info) => info.chainNumber ?? -1)) + 1 : undefined;
+
+    let logText = "";
+
+    if (chainNumber !== undefined) {
+      logText += `チェーン${chainNumber}: `;
     }
 
     if (this.playType === "CardActivation" || this.playType === "SpellTrapSet") {
@@ -453,6 +459,15 @@ export class CardAction<T> extends CardActionBase implements ICardAction<T> {
           dest = _dest;
         }
 
+        logText += `手札から`;
+        if (this.playType === "SpellTrapSet") {
+          logText += "魔法・罠カードをセット。";
+        } else {
+          logText += `${this.entity.toString()}を発動。`;
+        }
+
+        activator.writeInfoLog(logText);
+
         if (this.entity.status.monsterCategories?.includes("Pendulum")) {
           await this.entity.activateAsPendulumScale(dest, ["CardActivation"], this.entity, activator);
         } else if (this.playType === "CardActivation") {
@@ -462,17 +477,24 @@ export class CardAction<T> extends CardActionBase implements ICardAction<T> {
         }
         _cancelable = false;
       } else if (this.entity.isOnFieldAsSpellTrap && this.entity.face === "FaceDown") {
+        logText += `セットされていた${this.entity.toString()}を発動。`;
+
+        activator.writeInfoLog(logText);
+
         // セット状態からの発動ならば、表にする。
         await this.entity.setNonFieldMonsterPosition(this.entity.origin.kind, "FaceUp", ["Rule"]);
         _cancelable = false;
       }
+    } else if (chainNumber !== undefined) {
+      logText += `${this.entity.toString()}の効果、${this.toString()}を発動。`;
+
+      activator.writeInfoLog(logText);
     }
 
-    const maxChainNumber = max(...chainBlockInfos.map((info) => info.chainNumber ?? -1));
     // チェーンブロック情報の準備
     const myInfo: ChainBlockInfoBase<T> = {
       index: chainBlockInfos.length,
-      chainNumber: this.isWithChainBlock ? maxChainNumber + 1 : undefined,
+      chainNumber,
       action: this,
       activator: activator,
       targetChainBlock,

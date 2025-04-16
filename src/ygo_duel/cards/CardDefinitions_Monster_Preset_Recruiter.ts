@@ -2,7 +2,12 @@ import type { TBattlePosition } from "@ygo/class/YgoTypes";
 import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
 import { DuelEntity, type TDestoryCauseReason } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
-import { defaultAttackAction, defaultBattlePotisionChangeAction, defaultNormalSummonAction } from "@ygo_duel/cards/DefaultCardAction_Monster";
+import {
+  defaultAttackAction,
+  defaultBattlePotisionChangeAction,
+  defaultFlipSummonAction,
+  defaultNormalSummonAction,
+} from "@ygo_duel/cards/DefaultCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardDefinition } from "./CardDefinitions";
@@ -28,26 +33,24 @@ const getDefalutRecruiterAction = (
         console.log(myInfo.action.entity.toString(), myInfo);
         return;
       }
-      if (!myInfo.action.entity.moveLog.latestRecord.movedAs.union(destoryTypes).length) {
-        console.log(myInfo.action.entity.toString(), myInfo);
-        return;
-      }
-      const monsters = myInfo.activator.getDeckCell().cardEntities.filter(monsterFilter);
-      if (monsters.length === 0) {
-        console.log(myInfo.action.entity.toString(), myInfo);
-        return;
-      }
-
-      if (
-        !monsters.some((monster) =>
-          posList.some(
-            (pos) =>
-              myInfo.activator.canSummon(myInfo.activator, monster, myInfo.action, "SpecialSummon", pos, []) &&
-              monster.canBeSummoned(myInfo.activator, myInfo.action, "SpecialSummon", pos, [], false)
-          )
-        )
-      ) {
-        console.log(myInfo.action.entity.toString(), myInfo);
+      const cells = myInfo.activator.getMonsterZones();
+      const list = myInfo.activator.getEnableSummonList(
+        myInfo.activator,
+        "SpecialSummon",
+        ["Effect"],
+        myInfo.action,
+        myInfo.activator
+          .getDeckCell()
+          .cardEntities.filter(monsterFilter)
+          .filter((card) => card.status.kind === "Monster")
+          .filter((card) => card.canBeTargetOfEffect(myInfo))
+          .map((monster) => {
+            return { monster, posList, cells };
+          }),
+        [],
+        false
+      );
+      if (!list.length) {
         return;
       }
       return [];
@@ -57,29 +60,23 @@ const getDefalutRecruiterAction = (
     },
     execute: async (myInfo) => {
       const monsters = myInfo.activator.getDeckCell().cardEntities.filter(monsterFilter);
-      if (monsters.length === 0) {
-        return false;
-      }
-      const selectedList = await myInfo.action.entity.field.duel.view.waitSelectEntities(
+
+      const cells = myInfo.activator.getMonsterZones();
+      const monster = myInfo.activator.summonMany(
         myInfo.activator,
-        monsters,
-        qtyList.length === 1 ? qtyList[0] : -1,
-        (list) => qtyList.includes(list.length),
-        "特殊召喚するモンスターを選択",
+        "SpecialSummon",
+        ["Effect"],
+        myInfo.action,
+        monsters.map((lvl1) => {
+          return { monster: lvl1, posList, cells };
+        }),
+        [],
+        false,
+        (summoned) => summoned.length === 1,
         false
       );
 
-      if (!selectedList) {
-        throw new Error("illegal state");
-      }
-
-      for (const monster of selectedList) {
-        await myInfo.activator.summon(monster, posList, myInfo.activator.getAvailableMonsterZones(), "SpecialSummon", ["Effect"], myInfo.action.entity, false);
-      }
-
-      myInfo.activator.getDeckCell().shuffle();
-
-      return true;
+      return Boolean(monster);
     },
     settle: async () => true,
   };
@@ -288,6 +285,7 @@ export const createCardDefinitions_Monster_Preset_Recruiter = (): CardDefinition
         getDefalutRecruiterAction(item.filter, item.qtyList, item.posList, item.destoryTypes, item.executableCells),
         defaultAttackAction,
         defaultBattlePotisionChangeAction,
+        defaultFlipSummonAction,
         defaultNormalSummonAction,
       ] as CardActionDefinition<unknown>[],
     });

@@ -1,7 +1,13 @@
 import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
 import {} from "@ygo_duel/class/DuelEntityShortHands";
 
-import { defaultAttackAction, defaultBattlePotisionChangeAction, defaultSelfRebornExecute } from "@ygo_duel/cards/DefaultCardAction_Monster";
+import {
+  defaultAttackAction,
+  defaultBattlePotisionChangeAction,
+  defaultFlipSummonAction,
+  defaultNormalSummonAction,
+  defaultSelfRebornExecute,
+} from "@ygo_duel/cards/DefaultCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 
@@ -15,6 +21,8 @@ export const createCardDefinitions_Earth_Cyberse_lvl1_Monster = (): CardDefiniti
     actions: [
       defaultAttackAction,
       defaultBattlePotisionChangeAction,
+      defaultNormalSummonAction,
+      defaultFlipSummonAction,
       {
         title: "①自己再生",
         isMandatory: false,

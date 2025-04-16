@@ -1,5 +1,10 @@
 import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
-import { defaultAttackAction, defaultBattlePotisionChangeAction, defaultSummonFilter } from "@ygo_duel/cards/DefaultCardAction_Monster";
+import {
+  defaultAttackAction,
+  defaultBattlePotisionChangeAction,
+  defaultFlipSummonAction,
+  defaultSummonFilter,
+} from "@ygo_duel/cards/DefaultCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardDefinition } from "./CardDefinitions";
@@ -13,7 +18,12 @@ export const createCardDefinitions_XyzMonster = (): CardDefinition[] => {
   ].forEach((item) =>
     result.push({
       name: item.name,
-      actions: [defaultAttackAction, defaultBattlePotisionChangeAction, getDefaultXyzSummonAction(item.qty, item.qty)] as CardActionDefinition<unknown>[],
+      actions: [
+        defaultAttackAction,
+        defaultBattlePotisionChangeAction,
+        defaultFlipSummonAction,
+        getDefaultXyzSummonAction(item.qty, item.qty),
+      ] as CardActionDefinition<unknown>[],
       defaultSummonFilter: defaultSummonFilter,
     })
   );

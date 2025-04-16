@@ -76,17 +76,24 @@ const getEnableSyncroSummonPatterns = (
     ...myInfo.activator.getHandCell().cardEntities.filter((card) => card.origin.kind === "Monster"),
   ];
 
+  console.log(myInfo.action.entity.toString());
+
   // 手札シンクロを許容するカードがない場合、手札のカードを排除する。
   if (materials.every((m) => !m.status.allowHandSyncro)) {
     materials = materials.filter((m) => m.fieldCell.isPlayFieldCell);
   }
+  console.log(myInfo.action.entity.toString());
 
   // 二枚以下はシンクロ召喚不可
   if (materials.length < 2) {
     return [];
   }
+  console.log(myInfo.action.entity.toString());
+
   const cells = [...myInfo.activator.getMonsterZones(), ...myInfo.activator.duel.field.getCells("ExtraMonsterZone")];
   const posList: TBattlePosition[] = ["Attack", "Defense"];
+
+  console.log(myInfo.action.entity.toString());
 
   //全パターンを試し、シンクロ召喚可能なパターンを全て列挙する。
   return materials

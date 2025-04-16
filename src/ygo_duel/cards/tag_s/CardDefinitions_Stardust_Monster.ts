@@ -2,6 +2,7 @@ import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
 import {
   defaultAttackAction,
   defaultBattlePotisionChangeAction,
+  defaultFlipSummonAction,
   defaultSelfRebornExecute,
   defaultSelfReleaseCanPayCosts,
   defaultSelfReleasePayCosts,
@@ -10,10 +11,10 @@ import {
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardDefinition } from "@ygo_duel/cards/CardDefinitions";
-import { duelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
+import { duelPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import { defaultPrepare } from "@ygo_duel/cards/DefaultCardAction";
-import { duelFieldCellTypes } from "@ygo_duel/class/DuelFieldCell";
+import { defaultEffectSpecialSummonExecute, defaultPrepare } from "@ygo_duel/cards/DefaultCardAction";
+import { duelFieldCellTypes, monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import { getDefaultSyncroSummonAction } from "../DefaultCardAction_SyncroMonster";
 
 export const createCardDefinitions_Stardust_Monster = (): CardDefinition[] => {
@@ -22,9 +23,10 @@ export const createCardDefinitions_Stardust_Monster = (): CardDefinition[] => {
   result.push({
     name: "スターダスト・ドラゴン",
     actions: [
-      defaultAttackAction as CardActionDefinition<unknown>,
-      defaultBattlePotisionChangeAction as CardActionDefinition<unknown>,
-      getDefaultSyncroSummonAction() as CardActionDefinition<unknown>,
+      defaultAttackAction,
+      defaultBattlePotisionChangeAction,
+      defaultFlipSummonAction,
+      getDefaultSyncroSummonAction(),
       {
         title: "①ヴィクテム・サンクチュアリ",
         isMandatory: false,
@@ -111,7 +113,7 @@ export const createCardDefinitions_Stardust_Monster = (): CardDefinition[] => {
         isMandatory: false,
         playType: "QuickEffect",
         spellSpeed: "Quick",
-        executableCells: ["MonsterZone", "ExtraMonsterZone"],
+        executableCells: monsterZoneCellTypes,
         executablePeriods: duelPeriodKeys,
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerTurnIfFaceup: 1,
@@ -194,5 +196,155 @@ export const createCardDefinitions_Stardust_Monster = (): CardDefinition[] => {
     ],
   });
 
+  result.push({
+    name: "真閃珖竜 スターダスト・クロニクル",
+    defaultSummonFilter: defaultSummonFilter,
+    actions: [
+      defaultAttackAction,
+      defaultBattlePotisionChangeAction,
+      getDefaultSyncroSummonAction(
+        (tuners) => tuners.length === 1 && tuners.every((tuner) => tuner.status.monsterCategories?.includes("Syncro")),
+        (tuners) => tuners.length > 0 && tuners.every((tuner) => tuner.status.monsterCategories?.includes("Syncro"))
+      ),
+    ],
+  });
+  result.push({
+    name: "聖珖神竜 スターダスト・シフル",
+    defaultSummonFilter: defaultSummonFilter,
+    actions: [
+      defaultAttackAction,
+      defaultBattlePotisionChangeAction,
+      getDefaultSyncroSummonAction(
+        (tuners) => tuners.length === 1 && tuners.every((tuner) => tuner.status.monsterCategories?.includes("Syncro")),
+        (tuners) => tuners.length > 1 && tuners.every((tuner) => tuner.status.monsterCategories?.includes("Syncro"))
+      ),
+      {
+        title: "②珖波動反撃",
+        isMandatory: false,
+        playType: "QuickEffect",
+        spellSpeed: "Quick",
+        executableCells: ["Hand"],
+        executablePeriods: freeChainDuelPeriodKeys,
+        executableDuelistTypes: ["Controller"],
+        isOnlyNTimesPerTurnIfFaceup: 1,
+        negatePreviousBlock: true,
+        validate: (myInfo) => {
+          if (!myInfo.targetChainBlock) {
+            return;
+          }
+          if (myInfo.activator === myInfo.targetChainBlock.activator) {
+            return;
+          }
+          if (myInfo.targetChainBlock.action.entity.status.kind !== "Monster") {
+            return;
+          }
+          if (!myInfo.targetChainBlock.action.isWithChainBlock) {
+            return;
+          }
+
+          return [];
+        },
+        prepare: async () => {
+          return { selectedEntities: [], chainBlockTags: ["NegateCardEffect", "DestroyOnField"], prepared: undefined };
+        },
+        execute: async (myInfo): Promise<boolean> => {
+          if (!myInfo.targetChainBlock) {
+            return false;
+          }
+          const info = myInfo.targetChainBlock;
+          info.isNegatedEffectBy = myInfo.action;
+
+          const selected =
+            (await myInfo.activator.duel.view.waitSelectEntities(
+              myInfo.activator,
+              myInfo.action.duel.field.getCardsOnField(),
+              1,
+              (selected) => selected.length === 1,
+              "破壊するカードを選択。",
+              false
+            )) ?? [];
+
+          const destroyed = await DuelEntityShortHands.tryDestroy(selected, myInfo);
+
+          return destroyed.length > 0;
+        },
+        settle: async () => true,
+      } as CardActionDefinition<unknown>,
+      {
+        title: "③蘇生",
+        isMandatory: false,
+        playType: "IgnitionEffect",
+        spellSpeed: "Normal",
+        executableCells: ["Graveyard"],
+        executablePeriods: ["main1", "main2"],
+        executableDuelistTypes: ["Controller"],
+        priorityForNPC: 10,
+        canPayCosts: () => true,
+        validate: (myInfo) => {
+          if (
+            myInfo.activator
+              .getBanished()
+              .cardEntities.filter((card) => card.status.nameTags?.includes("スターダスト"))
+              .filter((card) => card.status.monsterCategories?.includes("Syncro")).length === 0
+          ) {
+            return;
+          }
+          const availableCells = myInfo.activator.getAvailableMonsterZones();
+          return availableCells.length > 0 ? [] : undefined;
+        },
+        payCosts: async (myInfo) => {
+          await myInfo.action.entity.banish(["Cost"], myInfo.action.entity, myInfo.activator);
+          return { banish: [myInfo.action.entity] };
+        },
+        prepare: async () => {
+          return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromGraveyard"], prepared: undefined };
+        },
+        execute: async (myInfo) => {
+          const selected =
+            (await myInfo.activator.duel.view.waitSelectEntities(
+              myInfo.activator,
+              myInfo.activator
+                .getBanished()
+                .cardEntities.filter((card) => card.status.nameTags?.includes("スターダスト"))
+                .filter((card) => card.status.monsterCategories?.includes("Syncro")),
+              1,
+              (selected) => selected.length === 1,
+              "蘇生するスターダストを選択。",
+              false
+            )) ?? [];
+
+          return defaultEffectSpecialSummonExecute(myInfo, selected);
+        },
+        settle: async () => true,
+      },
+    ],
+    substituteEffects: [
+      {
+        title: `波動聖句`,
+        isMandatory: true,
+        executableCells: ["MonsterZone"],
+        executablePeriods: duelPeriodKeys,
+        executableDuelistTypes: ["Controller"],
+        isApplicableTo: (effect, destroyType, targets) => {
+          return targets
+            .filter((target) => target.controller === effect.entity.controller)
+            .filter((target) => target.counterHolder.getQty("SonicVerse", effect.entity) === 0);
+        },
+        substitute: async (effect, destroyType, targets) => {
+          if (!effect.entity.isEffective) {
+            return [];
+          }
+          const _targets = targets
+            .filter((target) => target.controller === effect.entity.controller)
+            .filter((target) => target.counterHolder.getQty("SonicVerse", effect.entity) === 0);
+          _targets.forEach((target) => {
+            target.counterHolder.add("SonicVerse", 1, effect.entity);
+            effect.entity.controller.writeInfoLog(`${effect.entity.toString()}の効果により${target.toString()}は１ターンに１度だけ戦闘では破壊されない。`);
+          });
+          return _targets;
+        },
+      },
+    ],
+  });
   return result;
 };

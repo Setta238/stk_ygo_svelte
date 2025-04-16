@@ -19218,5 +19218,27 @@
     "kind": "Trap",
     "trapCategory": "Counter",
     "wikiEncodedName": "%A1%D4%BE%BA%C5%B7%A4%CE%B9%F5%B3%D1%C5%AB%A1%D5"
+  },
+  "聖珖神竜 スターダスト・シフル": {
+    "name": "聖珖神竜 スターダスト・シフル",
+    "nameKana": "",
+    "description": "Ｓモンスターのチューナー＋チューナー以外のＳモンスター２体以上\nこのカードはＳ召喚でしか特殊召喚できない。\n(1)：自分フィールドのカードはそれぞれ１ターンに１度だけ戦闘・効果では破壊されない。\n(2)：１ターンに１度、相手がモンスターの効果を発動した時に発動できる。\nその効果を無効にし、フィールドのカード１枚を破壊する。\n(3)：墓地のこのカードを除外し、自分の墓地のレベル８以下の「スターダスト」モンスター１体を対象として発動できる。\nそのモンスターを特殊召喚する。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Syncro",
+      "SpecialSummon",
+      "Effect"
+    ],
+    "level": 12,
+    "attack": 4000,
+    "defense": 4000,
+    "attributes": [
+      "Light"
+    ],
+    "types": [
+      "Dragon"
+    ],
+    "wikiEncodedName": "%A1%D4%C0%BB%A4%B3%A4%A6%BF%C0%CE%B5+%A5%B9%A5%BF%A1%BC%A5%C0%A5%B9%A5%C8%A1%A6%A5%B7%A5%D5%A5%EB%A1%D5"
   }
 }

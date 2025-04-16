@@ -4,6 +4,8 @@ import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import {
   defaultAttackAction,
   defaultBattlePotisionChangeAction,
+  defaultFlipSummonAction,
+  defaultNormalSummonAction,
   defaultSelfReleaseCanPayCosts,
   defaultSelfReleasePayCosts,
 } from "@ygo_duel/cards/DefaultCardAction_Monster";
@@ -13,13 +15,15 @@ import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardDefinition } from "@ygo_duel/cards/CardDefinitions";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 
-export const createCardDefinitions_Earth_Cyberse_Monster = (): CardDefinition[] => {
+export const createCardDefinitions_Dark_Fiend_lvl4_Monster = (): CardDefinition[] => {
   const result: CardDefinition[] = [];
   result.push({
     name: "死霊騎士デスカリバー・ナイト",
     actions: [
       defaultAttackAction,
       defaultBattlePotisionChangeAction,
+      defaultNormalSummonAction,
+      defaultFlipSummonAction,
       {
         title: "①モンスター効果無効",
         isMandatory: true,

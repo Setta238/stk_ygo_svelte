@@ -1,5 +1,10 @@
 import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
-import { defaultAttackAction, defaultBattlePotisionChangeAction, defaultSummonFilter } from "@ygo_duel/cards/DefaultCardAction_Monster";
+import {
+  defaultAttackAction,
+  defaultBattlePotisionChangeAction,
+  defaultFlipSummonAction,
+  defaultSummonFilter,
+} from "@ygo_duel/cards/DefaultCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardDefinition } from "./CardDefinitions";
@@ -12,7 +17,12 @@ export const createCardDefinitions_SyncroMonster = (): CardDefinition[] => {
   ["大地の騎士ガイアナイト", "スクラップ・デスデーモン"].forEach((name) =>
     result.push({
       name: name,
-      actions: [defaultAttackAction, defaultBattlePotisionChangeAction, getDefaultSyncroSummonAction()] as CardActionDefinition<unknown>[],
+      actions: [
+        defaultAttackAction,
+        defaultBattlePotisionChangeAction,
+        defaultFlipSummonAction,
+        getDefaultSyncroSummonAction(),
+      ] as CardActionDefinition<unknown>[],
       defaultSummonFilter: defaultSummonFilter,
     })
   );
@@ -22,6 +32,7 @@ export const createCardDefinitions_SyncroMonster = (): CardDefinition[] => {
     actions: [
       defaultAttackAction,
       defaultBattlePotisionChangeAction,
+      defaultFlipSummonAction,
       getDefaultSyncroSummonAction(
         (tuners) => tuners.length === 1 && tuners.every((tuner) => tuner.attr.some((a) => a === "Earth")),
         (nonTuners) => nonTuners.length > 0 && nonTuners.every((nonTuner) => nonTuner.attr.some((a) => a === "Earth"))
@@ -33,9 +44,10 @@ export const createCardDefinitions_SyncroMonster = (): CardDefinition[] => {
   result.push({
     name: "マジカル・アンドロイド",
     actions: [
-      defaultAttackAction as CardActionDefinition<unknown>,
-      defaultBattlePotisionChangeAction as CardActionDefinition<unknown>,
-      getDefaultSyncroSummonAction() as CardActionDefinition<unknown>,
+      defaultAttackAction,
+      defaultBattlePotisionChangeAction,
+      defaultFlipSummonAction,
+      getDefaultSyncroSummonAction(),
       {
         title: "回復",
         isMandatory: true,

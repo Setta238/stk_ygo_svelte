@@ -1,5 +1,10 @@
-import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
-import { defaultAttackAction, defaultBattlePotisionChangeAction, defaultSummonFilter } from "@ygo_duel/cards/DefaultCardAction_Monster";
+import type { CardActionDefinition, ChainBlockInfoBase } from "@ygo_duel/class/DuelCardAction";
+import {
+  defaultAttackAction,
+  defaultBattlePotisionChangeAction,
+  defaultFlipSummonAction,
+  defaultSummonFilter,
+} from "@ygo_duel/cards/DefaultCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardDefinition } from "@ygo_duel/cards/CardDefinitions";
@@ -15,9 +20,10 @@ export const createCardDefinitions_Synchron_SyncroMonster = (): CardDefinition[]
   result.push({
     name: "フォーミュラ・シンクロン",
     actions: [
-      defaultAttackAction as CardActionDefinition<unknown>,
-      defaultBattlePotisionChangeAction as CardActionDefinition<unknown>,
-      getDefaultSyncroSummonAction() as CardActionDefinition<unknown>,
+      defaultAttackAction,
+      defaultBattlePotisionChangeAction,
+      defaultFlipSummonAction,
+      getDefaultSyncroSummonAction(),
       {
         title: "①ドロー",
         isMandatory: false,
@@ -39,7 +45,7 @@ export const createCardDefinitions_Synchron_SyncroMonster = (): CardDefinition[]
           return { selectedEntities: [], chainBlockTags: ["Draw"], prepared: undefined };
         },
         execute: async (myInfo): Promise<boolean> => {
-          await myInfo.activator.draw(2, myInfo.action.entity, myInfo.activator);
+          await myInfo.activator.draw(1, myInfo.action.entity, myInfo.activator);
           return true;
         },
         settle: async () => true,
@@ -62,11 +68,31 @@ export const createCardDefinitions_Synchron_SyncroMonster = (): CardDefinition[]
             .cardEntities.filter((monster) => monster.status.monsterCategories?.includes("Syncro"))
             .flatMap((monster) => monster.actions)
             .filter((action) => action.playType === "SpecialSummon")
-            .some((action) =>
-              action
-                .getEnableMaterialPatterns(myInfo)
-                .flatMap((infos) => infos)
-                .some((info) => info.material === myInfo.action.entity)
+            .map((action) => {
+              return {
+                index: -1,
+                chainNumber: undefined,
+                action,
+                activator: myInfo.activator,
+                targetChainBlock: undefined,
+                isActivatedIn: action.entity.fieldCell,
+                isActivatedAt: myInfo.isActivatedAt,
+                costInfo: {},
+                state: "unloaded",
+                dest: undefined,
+                ignoreCost: false,
+              } as ChainBlockInfoBase<unknown>;
+            })
+            .some((childInfo) =>
+              childInfo.action.getEnableMaterialPatterns(childInfo).some((infos) => {
+                const materials = infos.map((info) => info.material);
+                //全て自分フィールド上のモンスターかつ、このカード自身を含む必要がある。
+                return (
+                  materials.every((material) => material.controller === myInfo.activator) &&
+                  materials.every((material) => material.isOnFieldAsMonster) &&
+                  materials.includes(myInfo.action.entity)
+                );
+              })
             );
           return flg ? [] : undefined;
         },
@@ -88,8 +114,23 @@ export const createCardDefinitions_Synchron_SyncroMonster = (): CardDefinition[]
             .cardEntities.filter((monster) => monster.status.monsterCategories?.includes("Syncro"))
             .flatMap((monster) => monster.actions)
             .filter((action) => action.playType === "SpecialSummon")
-            .filter((action) =>
-              action.getEnableMaterialPatterns(myInfo).some((infos) => {
+            .map((action) => {
+              return {
+                index: -1,
+                chainNumber: undefined,
+                action,
+                activator: myInfo.activator,
+                targetChainBlock: undefined,
+                isActivatedIn: action.entity.fieldCell,
+                isActivatedAt: myInfo.isActivatedAt,
+                costInfo: {},
+                state: "unloaded",
+                dest: undefined,
+                ignoreCost: false,
+              } as ChainBlockInfoBase<unknown>;
+            })
+            .filter((childInfo) =>
+              childInfo.action.getEnableMaterialPatterns(childInfo).some((infos) => {
                 const materials = infos.map((info) => info.material);
                 //全て自分フィールド上のモンスターかつ、このカード自身を含む必要がある。
                 return (
@@ -99,7 +140,7 @@ export const createCardDefinitions_Synchron_SyncroMonster = (): CardDefinition[]
                 );
               })
             )
-            .map((action) => action.entity)
+            .map((childInfo) => childInfo.action.entity)
             .getDistinct();
 
           if (!syncroMonsters.length) {

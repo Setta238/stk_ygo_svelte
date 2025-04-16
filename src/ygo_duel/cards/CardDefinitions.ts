@@ -31,6 +31,8 @@ import type { SummonFilter } from "@ygo_duel/class_continuous_effect/DuelSummonF
 import { createCardDefinitions_Firewall_LinkMonster } from "./tag_f/CardDefinitions_Firewall_LinkMonster";
 import { createCardDefinitions_Earth_Cyberse_lvl1_Monster } from "./type_Cyberse/CardDefinitions_Earth_Cyberse_lvl1_Monster";
 import { createCardDefinitions_CounterTrap } from "./CardDefinitions_CounterTrap";
+import { createCardDefinitions_Synchron_SyncroMonster } from "./tag_s/CardDefinitions_Synchron_SyncroMonster";
+import { createCardDefinitions_Dark_Fiend_lvl4_Monster } from "./type_Fiend/CardDefinitions_Dark_Fiend_lvl4_Monster";
 
 export type CardDefinition = {
   name: string;
@@ -81,6 +83,8 @@ export const createCardDefinitions = (): CardDefinition[] => {
     ...createCardDefinitions_Firewall_LinkMonster(),
     ...createCardDefinitions_Earth_Cyberse_lvl1_Monster(),
     ...createCardDefinitions_CounterTrap(),
+    ...createCardDefinitions_Synchron_SyncroMonster(),
+    ...createCardDefinitions_Dark_Fiend_lvl4_Monster(),
   ];
   const names = hoge.map((def) => def.name);
   console.info(names);

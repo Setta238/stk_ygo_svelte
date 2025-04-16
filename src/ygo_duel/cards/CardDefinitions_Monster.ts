@@ -6,6 +6,7 @@ import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 import {
   defaultAttackAction,
   defaultBattlePotisionChangeAction,
+  defaultFlipSummonAction,
   defaultNormalSummonAction,
   defaultRuleSpecialSummonValidate,
   defaultRuleSummonExecute,
@@ -31,6 +32,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
         defaultNormalSummonAction,
         defaultAttackAction,
         defaultBattlePotisionChangeAction,
+        defaultFlipSummonAction,
         {
           title: "特殊召喚",
           isMandatory: false,
@@ -62,6 +64,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
       defaultNormalSummonAction,
       defaultAttackAction,
       defaultBattlePotisionChangeAction,
+      defaultFlipSummonAction,
       {
         title: "特殊召喚",
         isMandatory: false,
@@ -92,6 +95,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
       defaultNormalSummonAction,
       defaultAttackAction,
       defaultBattlePotisionChangeAction,
+      defaultFlipSummonAction,
       {
         title: "①リクルート",
         isMandatory: false,
@@ -138,6 +142,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
       defaultNormalSummonAction,
       defaultAttackAction,
       defaultBattlePotisionChangeAction,
+      defaultFlipSummonAction,
       {
         title: "①自己再生",
         isMandatory: false,
@@ -183,6 +188,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
       defaultNormalSummonAction,
       defaultAttackAction,
       defaultBattlePotisionChangeAction,
+      defaultFlipSummonAction,
       {
         title: "①自己再生",
         isMandatory: false,
@@ -215,6 +221,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
       defaultNormalSummonAction,
       defaultAttackAction,
       defaultBattlePotisionChangeAction,
+      defaultFlipSummonAction,
       {
         title: "①墓地送り",
         isMandatory: false,
@@ -272,6 +279,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
       defaultNormalSummonAction,
       defaultAttackAction,
       defaultBattlePotisionChangeAction,
+      defaultFlipSummonAction,
       {
         title: "①墓地送り",
         isMandatory: false,
@@ -355,6 +363,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
     actions: [
       defaultAttackAction,
       defaultBattlePotisionChangeAction,
+      defaultFlipSummonAction,
       {
         title: "①自己再生",
         isMandatory: true,
@@ -390,6 +399,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
     actions: [
       defaultAttackAction,
       defaultBattlePotisionChangeAction,
+      defaultFlipSummonAction,
       defaultNormalSummonAction,
       {
         title: "①サーチ",
@@ -446,6 +456,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
       actions: [
         defaultAttackAction,
         defaultBattlePotisionChangeAction,
+        defaultFlipSummonAction,
         defaultNormalSummonAction,
         {
           title: "①無効化",
@@ -488,7 +499,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
   ["翻弄するエルフの剣士", "ロードランナー", "氷結界の修験者"].forEach((name) => {
     result.push({
       name: name,
-      actions: [defaultAttackAction, defaultBattlePotisionChangeAction, defaultNormalSummonAction] as CardActionDefinition<unknown>[],
+      actions: [defaultAttackAction, defaultBattlePotisionChangeAction, defaultFlipSummonAction, defaultNormalSummonAction] as CardActionDefinition<unknown>[],
       continuousEffects: [
         createRegularProcFilterHandler(
           "①戦闘破壊耐性",

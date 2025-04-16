@@ -41,7 +41,12 @@ import type { DuelField } from "./DuelField";
 import { EntityMoveLog } from "./DuelEntityMoveLog";
 import { CounterHolder, type TCounterName } from "./DuelCounter";
 import { StatusOperatorBundle } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
-import { defaultAttackAction, defaultBattlePotisionChangeAction, defaultNormalSummonAction } from "@ygo_duel/cards/DefaultCardAction_Monster";
+import {
+  defaultAttackAction,
+  defaultBattlePotisionChangeAction,
+  defaultFlipSummonAction,
+  defaultNormalSummonAction,
+} from "@ygo_duel/cards/DefaultCardAction_Monster";
 import { StkAsyncEvent } from "@stk_utils/class/StkEvent";
 import type { CardDefinition } from "@ygo_duel/cards/CardDefinitions";
 import { SubstituteEffect } from "./DuelSubstituteEffect";
@@ -597,6 +602,8 @@ export class DuelEntity {
           }
           chooser.info.specialSummonCountQty++;
         }
+
+        console.log("hoge");
         // 召喚ターンには表示形式の変更ができない
         entity.info.battlePotisionChangeCount = 1;
 
@@ -635,7 +642,7 @@ export class DuelEntity {
     duel.field.recalcArrowheads();
     duel.distributeOperators(duel.clock);
     const entities = duel.field.getAllEntities().filter((entity) => entity.wasMovedAtCurrentProc);
-    entities.filter((entity) => !entity.isOnField).forEach((entity) => entity.resetInfoIfLeavesTheField());
+    entities.filter((entity) => !entity.isOnField && !entity.info.isPending).forEach((entity) => entity.resetInfoIfLeavesTheField());
     entities
       .filter((entity) => entity.face === "FaceDown")
       .filter((entity) => entity.fieldCell === entity.isBelongTo)
@@ -950,7 +957,12 @@ export class DuelEntity {
     let continuousEffectBases: ContinuousEffectBase<unknown>[] = [];
 
     if (this.origin.kind === "Monster" && this.origin.monsterCategories?.includes("Normal")) {
-      actionBases = [defaultNormalSummonAction, defaultAttackAction, defaultBattlePotisionChangeAction] as CardActionDefinition<unknown>[];
+      actionBases = [
+        defaultNormalSummonAction,
+        defaultAttackAction,
+        defaultBattlePotisionChangeAction,
+        defaultFlipSummonAction,
+      ] as CardActionDefinition<unknown>[];
     } else if (cardDefinition) {
       actionBases = cardDefinition.actions;
       continuousEffectBases = cardDefinition.continuousEffects ?? [];
@@ -984,6 +996,8 @@ export class DuelEntity {
 
     // 反転召喚の判定
     if (this.battlePosition === "Set") {
+      //反転召喚は無効にされる可能性がある。
+      this.info.isPending = true;
       _movedAs.push("Flip");
       if (movedAs.includes("Rule")) {
         logText = `${this.toString()}を反転召喚`;
@@ -1025,7 +1039,6 @@ export class DuelEntity {
     movedBy: DuelEntity,
     actionOwner: Duelist
   ): Promise<void> => {
-    actionOwner.writeInfoLog(`${this.toString()}をセット（${movedAs}）。`);
     await this.moveAlone(to, kind, "FaceDown", "Vertical", "Top", [...movedAs, "SpellTrapSet"], movedBy, actionOwner, actionOwner);
   };
   public readonly activateSpellTrapFromHand = async (
@@ -1035,12 +1048,10 @@ export class DuelEntity {
     movedBy: DuelEntity,
     actionOwner: Duelist
   ): Promise<void> => {
-    actionOwner.writeInfoLog(`手札から${this.toString()}を発動。`);
     await this.moveAlone(to, kind, "FaceUp", "Vertical", "Top", [...movedAs, "CardActivation"], movedBy, actionOwner, actionOwner);
   };
 
   public readonly activateSpellTrapOnField = async (kind: TCardKind, movedAs: TDuelCauseReason[], movedBy: DuelEntity, actionOwner: Duelist): Promise<void> => {
-    actionOwner?.writeInfoLog(`セットカードをオープン、${this.toString()}を発動。`);
     await this.moveAlone(this.fieldCell, kind, "FaceUp", "Vertical", "Top", [...movedAs, "CardActivation"], movedBy, actionOwner, actionOwner);
   };
 
@@ -1255,6 +1266,7 @@ export class DuelEntity {
     return to;
   };
   public readonly initForTurn = () => {
+    console.log("hoge");
     this.info.isSettingSickness = false;
     this.info.attackCount = 0;
     this.info.battlePotisionChangeCount = 0;
@@ -1263,6 +1275,7 @@ export class DuelEntity {
   };
 
   private readonly resetInfoIfLeavesTheField = () => {
+    console.log("hoge");
     this._info = {
       ...this._info,
       isDying: false,
@@ -1283,6 +1296,7 @@ export class DuelEntity {
   };
 
   private readonly resetInfoAll = () => {
+    console.log("hoge");
     this._info = {
       isDying: false,
       isPending: false,

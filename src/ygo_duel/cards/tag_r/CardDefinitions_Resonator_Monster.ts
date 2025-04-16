@@ -1,6 +1,7 @@
 import {
   defaultAttackAction,
   defaultBattlePotisionChangeAction,
+  defaultFlipSummonAction,
   defaultNormalSummonAction,
   getSelfBattleSubstituteEffectDefinition,
 } from "@ygo_duel/cards/DefaultCardAction_Monster";
@@ -12,7 +13,7 @@ export const createCardDefinitions_Resonator_Monster = (): CardDefinition[] => {
 
   result.push({
     name: "ダーク・リゾネーター",
-    actions: [defaultAttackAction, defaultBattlePotisionChangeAction, defaultNormalSummonAction] as CardActionDefinition<unknown>[],
+    actions: [defaultAttackAction, defaultBattlePotisionChangeAction, defaultFlipSummonAction, defaultNormalSummonAction] as CardActionDefinition<unknown>[],
     substituteEffects: [getSelfBattleSubstituteEffectDefinition(1)],
   });
 

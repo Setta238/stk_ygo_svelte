@@ -12,7 +12,6 @@ import {
   cardActionChainBlockTypes,
   cardActionNonChainBlockTypes,
   cardActionRuleSummonTypes,
-  convertCardActionToString,
   type CardAction,
   type ChainBlockInfo,
   type ICardAction,
@@ -290,7 +289,7 @@ export class Duel {
       const response = await this.view.waitFieldAction(
         this.getEnableActions(
           this.priorityHolder,
-          ["NormalSummon", "SpellTrapSet", "SpecialSummon", "ChangeBattlePosition", "IgnitionEffect", "QuickEffect", "CardActivation"],
+          ["NormalSummon", "SpellTrapSet", "SpecialSummon", "FlipSummon", "ChangeBattlePosition", "IgnitionEffect", "QuickEffect", "CardActivation"],
           ["Normal", "Quick", "Counter"],
           []
         )
@@ -770,19 +769,10 @@ export class Duel {
         throw new IllegalCancelError(chainBlock);
       }
 
-      if (chainBlockInfo?.chainNumber) {
-        this.log.info(`チェーン${chainBlockInfo?.chainNumber}: ${convertCardActionToString(chainBlock.action)}を発動`, activator);
-      }
-
       this.chainBlockLog.push(chainBlockInfo);
 
       // エフェクト・ヴェーラーなどに発動場所を参照する無効を処理するため、この時点の情報をコピー
       const enableCellTypes = [...chainBlockInfo.action.entity.info.isEffectiveIn];
-
-      // 対象に取っていた場合、ログを出力
-      if (chainBlockInfo.selectedEntities.length) {
-        this.log.info(`対象⇒${chainBlockInfo.selectedEntities.map((e) => e.toString()).join(" ")}`, chainBlockInfo.activator);
-      }
 
       this._chainBlockInfos.push(chainBlockInfo);
 
@@ -794,7 +784,7 @@ export class Duel {
       await this.procChainBlock(undefined, _triggerEffets.length ? _triggerEffets.filter((e) => e.action.seq !== chainBlock?.action.seq) : undefined);
 
       if (chainBlockInfo.chainNumber) {
-        this.log.info(`チェーン${chainBlockInfo.chainNumber}: ${convertCardActionToString(chainBlockInfo.action)}の効果処理。`, activator);
+        this.log.info(`チェーン${chainBlockInfo.chainNumber}: ${chainBlockInfo.action.toString()}の効果処理。`, activator);
       }
 
       // 有効無効判定
@@ -802,7 +792,7 @@ export class Duel {
         // 発動無効時は全ての処理を行わない
         if (chainBlockInfo.chainNumber) {
           this.log.info(
-            `チェーン${chainBlockInfo.chainNumber}: ${convertCardActionToString(chainBlock.action)}を${convertCardActionToString(chainBlockInfo.isNegatedActivationBy)}によって発動を無効にした。`,
+            `チェーン${chainBlockInfo.chainNumber}: ${chainBlockInfo.action.toString()}を${chainBlockInfo.action.toString()}によって発動を無効にした。`,
             chainBlockInfo.activator
           );
         }
@@ -818,7 +808,7 @@ export class Duel {
         if (isEffective) {
           if (chainBlockInfo.isNegatedEffectBy) {
             // うららなどの効果処理のみ無効にするタイプ
-            nagationText = `チェーン${chainBlockInfo.chainNumber}: ${convertCardActionToString(chainBlockInfo.action)}を${convertCardActionToString(chainBlockInfo.isNegatedEffectBy)}によって効果を無効にした。`;
+            nagationText = `チェーン${chainBlockInfo.chainNumber}: ${chainBlockInfo.action.toString()}を${chainBlockInfo.action.toString()}によって効果を無効にした。`;
             isEffective = false;
           } else if (!enableCellTypes.includes(chainBlockInfo.isActivatedIn.cellType)) {
             // 発動時にエフェクト・ヴェーラーなどに発動場所を参照する無効が適用されていた場合、移動ログを検索する。
@@ -839,7 +829,7 @@ export class Duel {
           if (chainBlockInfo.chainNumber) {
             nagationText =
               nagationText ||
-              `チェーン${chainBlockInfo.chainNumber}: カードの効果が無効となっているため${convertCardActionToString(chainBlock.action)}の効果処理を行えない。`;
+              `チェーン${chainBlockInfo.chainNumber}: カードの効果が無効となっているため${chainBlockInfo.action.toString()}の効果処理を行えない。`;
           }
 
           this.log.info(nagationText, chainBlockInfo.activator);

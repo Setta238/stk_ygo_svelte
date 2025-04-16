@@ -1,6 +1,7 @@
 import {
   defaultAttackAction,
   defaultBattlePotisionChangeAction,
+  defaultFlipSummonAction,
   defaultNormalSummonAction,
   defaultRuleSpecialSummonValidate,
   defaultRuleSummonExecute,
@@ -20,6 +21,7 @@ export const createCardDefinitions_Blackwing_Monster = (): CardDefinition[] => {
       defaultNormalSummonAction,
       defaultAttackAction,
       defaultBattlePotisionChangeAction,
+      defaultFlipSummonAction,
       {
         title: "①特殊召喚",
         isMandatory: false,

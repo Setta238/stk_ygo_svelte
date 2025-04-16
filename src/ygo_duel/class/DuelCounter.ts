@@ -6,7 +6,7 @@ export type TActualCounterName = (typeof actualCounterNames)[number];
 export const namedSystemCounterNames = ["SonicBarrier"] as const;
 export type TNamedSystemCounterName = (typeof namedSystemCounterNames)[number];
 
-export const stickyTemporaryCounterNames = ["CycleFlip", "SonicBarrier"] as const;
+export const stickyTemporaryCounterNames = ["CycleFlip", "SonicBarrier", "SonicVerse"] as const;
 export type TStickyTemporaryCounterName = (typeof stickyTemporaryCounterNames)[number];
 export const stickyCounterNames = ["GoldSarcophagus"] as const;
 export type TStickyCounterName = (typeof stickyCounterNames)[number];

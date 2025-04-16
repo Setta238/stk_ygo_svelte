@@ -1,4 +1,9 @@
-import { defaultAttackAction, defaultBattlePotisionChangeAction, defaultNormalSummonAction } from "@ygo_duel/cards/DefaultCardAction_Monster";
+import {
+  defaultAttackAction,
+  defaultBattlePotisionChangeAction,
+  defaultFlipSummonAction,
+  defaultNormalSummonAction,
+} from "@ygo_duel/cards/DefaultCardAction_Monster";
 import type { CardDefinition } from "../CardDefinitions";
 import type { CardActionDefinition, ChainBlockInfo, ChainBlockInfoBase } from "@ygo_duel/class/DuelCardAction";
 import {
@@ -62,6 +67,7 @@ export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] =
     actions: [
       defaultAttackAction,
       defaultBattlePotisionChangeAction,
+      defaultFlipSummonAction,
       defaultNormalSummonAction,
       {
         title: "①魔力充填",

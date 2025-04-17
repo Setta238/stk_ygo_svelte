@@ -1,6 +1,6 @@
 import type { CardActionDefinition, CardActionDefinitionAttr, SummonMaterialInfo } from "@ygo_duel/class/DuelCardAction";
 import type { Duelist } from "@ygo_duel/class/Duelist";
-import type { DuelEntity, TDuelCauseReason } from "@ygo_duel/class/DuelEntity";
+import type { DuelEntity, EntityStatus, TDuelCauseReason } from "@ygo_duel/class/DuelEntity";
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
 import type { SubstituteEffectDefinition } from "@ygo_duel/class/DuelSubstituteEffect";
 import type { ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
@@ -33,6 +33,12 @@ import { createCardDefinitions_Earth_Cyberse_lvl1_Monster } from "./type_Cyberse
 import { createCardDefinitions_CounterTrap } from "./CardDefinitions_CounterTrap";
 import { createCardDefinitions_Synchron_SyncroMonster } from "./tag_s/CardDefinitions_Synchron_SyncroMonster";
 import { createCardDefinitions_Dark_Fiend_lvl4_Monster } from "./type_Fiend/CardDefinitions_Dark_Fiend_lvl4_Monster";
+import { createCardDefinitions_Light_Fairy_lvl8_SyncroMonster } from "./type_Fairy/CardDefinitions_Light_Fairy_lvl8_SyncroMonster";
+import { createCardDefinitions_WorldChalice_Monster } from "./tag_w/CardDefinitions_WorldChalice_Monster";
+import { createCardDefinitions_Crystron_LinkMonster } from "./tag_c/CardDefinitions_Crystron_LinkMonster";
+import { createCardDefinitions_Wind_Spellcaster_lvl3_Monster } from "./type_Spellcaster/CardDefinitions_Wind_Spellcaster_lvl3_Monster";
+import { createCardDefinitions_Yusei_SyncroTunerMonster } from "./character_yusei/CardDefinitions_Yusei_SyncroTunerMonster";
+import { createCardDefinitions_Junk_Monster } from "./tag_j/CardDefinitions_Junk_Monster";
 
 export type CardDefinition = {
   name: string;
@@ -55,6 +61,7 @@ export type CardDefinition = {
     cells: DuelFieldCell[];
   };
   substituteEffects?: SubstituteEffectDefinition[];
+  defaultStatus?: Partial<EntityStatus>;
 };
 
 export const createCardDefinitions = (): CardDefinition[] => {
@@ -85,6 +92,12 @@ export const createCardDefinitions = (): CardDefinition[] => {
     ...createCardDefinitions_CounterTrap(),
     ...createCardDefinitions_Synchron_SyncroMonster(),
     ...createCardDefinitions_Dark_Fiend_lvl4_Monster(),
+    ...createCardDefinitions_Light_Fairy_lvl8_SyncroMonster(),
+    ...createCardDefinitions_WorldChalice_Monster(),
+    ...createCardDefinitions_Crystron_LinkMonster(),
+    ...createCardDefinitions_Wind_Spellcaster_lvl3_Monster(),
+    ...createCardDefinitions_Yusei_SyncroTunerMonster(),
+    ...createCardDefinitions_Junk_Monster(),
   ];
   const names = hoge.map((def) => def.name);
   console.info(names);

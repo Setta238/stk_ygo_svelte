@@ -328,7 +328,6 @@ export class NumericStateOperator extends StickyEffectOperatorBase {
     isContinuous: boolean,
     isSpawnedBy: DuelEntity,
     actionAttr: Partial<CardActionDefinitionAttr>,
-
     isApplicableTo: (operator: StickyEffectOperatorBase, target: DuelEntity) => boolean,
     targetState: TEntityFlexibleNumericStatusKey,
     targetStateGen: TEntityFlexibleNumericStatusGen,

@@ -72,7 +72,7 @@ const getDefalutRecruiterAction = (
         }),
         [],
         false,
-        (summoned) => summoned.length === 1,
+        (summoned) => qtyList.includes(summoned.length),
         false
       );
 

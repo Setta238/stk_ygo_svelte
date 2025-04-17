@@ -1,5 +1,4 @@
 import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
-import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 
 import {
   defaultAttackAction,
@@ -14,6 +13,7 @@ import {} from "@stk_utils/funcs/StkArrayUtils";
 
 import type { CardDefinition } from "@ygo_duel/cards/CardDefinitions";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
+import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 
 export const createCardDefinitions_Dark_Fiend_lvl4_Monster = (): CardDefinition[] => {
   const result: CardDefinition[] = [];

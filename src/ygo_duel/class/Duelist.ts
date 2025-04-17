@@ -1,7 +1,7 @@
 import { type IDuelistProfile } from "@ygo/class/DuelistProfile";
 import { type IDeckInfo } from "@ygo/class/DeckInfo";
 import { Duel, DuelEnd, SystemError, type TSeat } from "./Duel";
-import { DuelEntity, type SummonArg, type TDuelCauseReason, type TSummonRuleCauseReason } from "./DuelEntity";
+import { DuelEntity, type SummonArg, type TDuelCauseReason, type TSummonKindCauseReason } from "./DuelEntity";
 import type { DuelClock } from "./DuelClock";
 import type { DuelFieldCell } from "./DuelFieldCell";
 import { cardInfoDic } from "@ygo/class/CardInfo";
@@ -17,6 +17,7 @@ import {
 } from "./DuelCardAction";
 import { max, min } from "@stk_utils/funcs/StkMathUtils";
 import type { TBanishProcType } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
+import { DuelEntityShortHands } from "./DuelEntityShortHands";
 
 type TLifeLogReason = "BattleDamage" | "EffectDamage" | "Heal" | "Lost" | "Pay" | "Set";
 export type TDuelistType = "NPC" | "Player";
@@ -52,7 +53,7 @@ export type SummonChoice = { summoner: Duelist; monster: DuelEntity; posList: Re
 export class Duelist {
   public static readonly summonMany = async (
     effectOwner: Duelist,
-    summonType: TSummonRuleCauseReason,
+    summonType: TSummonKindCauseReason,
     moveAs: TDuelCauseReason[],
     actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
     summonChoices: SummonChoice[],
@@ -64,21 +65,23 @@ export class Duelist {
   ) => {
     const summoners = summonChoices.map((choice) => choice.summoner).getDistinct();
     const summonArgs: SummonArg[] = [];
+    console.log(summonArgs);
     for (const summoner of summoners) {
-      summonArgs.push(
-        ...(await summoner.prepareToSummonMany(
-          effectOwner,
-          summonType,
-          moveAs,
-          actDefAttr,
-          summonChoices.filter((choice) => choice.summoner === summoner),
-          materialInfos,
-          ignoreSummoningConditions,
-          validator,
-          cancelable,
-          msg
-        ))
+      const selected = await summoner.prepareToSummonMany(
+        effectOwner,
+        summonType,
+        moveAs,
+        actDefAttr,
+        summonChoices.filter((choice) => choice.summoner === summoner),
+        materialInfos,
+        ignoreSummoningConditions,
+        validator,
+        cancelable,
+        msg
       );
+      console.log(selected);
+
+      summonArgs.push(...selected);
     }
 
     if (!summonArgs.length) {
@@ -88,7 +91,7 @@ export class Duelist {
     // 召喚素材をエンティティにセット
     summonArgs.forEach((args) => args.monster.info.materials.reset(...materialInfos));
 
-    await DuelEntity.moveToXyzOwner(
+    await DuelEntityShortHands.moveToXyzOwner(
       summonArgs[0].dest,
       materialInfos.map((info) => info.material).filter((monster) => monster.status.kind === "XyzMaterial"),
       ["XyzMaterial", "Rule"],
@@ -363,14 +366,14 @@ export class Duelist {
     }
     this.writeInfoLog(`手札からカードを${selectedList.length}枚捨てた。${selectedList.map((e) => e.origin?.name)}。`);
 
-    await DuelEntity.discardManyForTheSameReason(selectedList, ["Discard", ...moveAs], causedBy, causedByWhome);
+    await DuelEntityShortHands.discardManyForTheSameReason(selectedList, ["Discard", ...moveAs], causedBy, causedByWhome);
 
     return selectedList;
   };
 
   public readonly getEnableSummonList = (
     effectOwner: Duelist,
-    summonType: TSummonRuleCauseReason,
+    summonType: TSummonKindCauseReason,
     moveAs: TDuelCauseReason[],
     actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
     summonChoices: Omit<SummonChoice, "summoner">[],
@@ -428,7 +431,7 @@ export class Duelist {
 
   private readonly prepareToSummonMany = async (
     effectOwner: Duelist,
-    summonType: TSummonRuleCauseReason,
+    summonType: TSummonKindCauseReason,
     moveAs: TDuelCauseReason[],
     actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
     summonChoices: SummonChoice[],
@@ -449,7 +452,11 @@ export class Duelist {
     console.log(summonChoices, validator([]));
 
     if (summonChoices.length !== 1 || validator([])) {
-      monsters = (await this.duel.view.waitSelectEntities(this, monsters, undefined, validator, msg, cancelable)) ?? [];
+      console.log(summonChoices, validator);
+      const hoge = await this.duel.view.waitSelectEntities(this, monsters, undefined, validator, msg, cancelable);
+      console.log(hoge);
+      monsters = hoge ?? [];
+      console.log(summonChoices, validator);
     }
 
     console.log(choices, monsters);
@@ -492,7 +499,7 @@ export class Duelist {
 
   public readonly summonAll = (
     effectOwner: Duelist,
-    summonType: TSummonRuleCauseReason,
+    summonType: TSummonKindCauseReason,
     moveAs: TDuelCauseReason[],
     actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
     summonChoices: Omit<SummonChoice, "summoner">[],
@@ -516,7 +523,7 @@ export class Duelist {
 
   public readonly summonMany = (
     effectOwner: Duelist,
-    summonType: TSummonRuleCauseReason,
+    summonType: TSummonKindCauseReason,
     moveAs: TDuelCauseReason[],
     actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
     summonChoices: Omit<SummonChoice, "summoner">[],

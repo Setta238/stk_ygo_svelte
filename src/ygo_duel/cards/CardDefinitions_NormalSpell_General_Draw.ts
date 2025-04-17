@@ -1,10 +1,10 @@
-import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/cards/DefaultCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import { type CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
 
 import type { CardDefinition } from "./CardDefinitions";
+import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 
 export const createCardDefinitions_NormalSpell_General_Draw = (): CardDefinition[] => {
   const result: CardDefinition[] = [];
@@ -103,7 +103,7 @@ export const createCardDefinitions_NormalSpell_General_Draw = (): CardDefinition
           }
 
           //デッキorエクストラデッキに戻す
-          await DuelEntity.returnManyToDeckForTheSameReason("Random", myInfo.selectedEntities, ["Effect"], myInfo.action.entity, myInfo.activator);
+          await DuelEntityShortHands.returnManyToDeckForTheSameReason("Random", myInfo.selectedEntities, ["Effect"], myInfo.action.entity, myInfo.activator);
 
           await myInfo.activator.draw(2, myInfo.action.entity, myInfo.activator);
 
@@ -220,7 +220,7 @@ export const createCardDefinitions_NormalSpell_General_Draw = (): CardDefinition
           const h1 = myInfo.activator.getHandCell().cardEntities.length;
           const h2 = myInfo.activator.getOpponentPlayer().getHandCell().cardEntities.length;
 
-          await DuelEntity.sendManyToGraveyardForTheSameReason(
+          await DuelEntityShortHands.sendManyToGraveyardForTheSameReason(
             myInfo.action.entity.field.getCells("Hand").flatMap((hand) => hand.cardEntities),
             ["Effect", "Discard"],
             myInfo.action.entity,

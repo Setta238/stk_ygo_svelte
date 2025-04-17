@@ -200,16 +200,19 @@ export class DuelViewController {
    */
   public readonly waitSelectEntities = async (
     chooser: Duelist,
-    choises: DuelEntity[],
+    choices: DuelEntity[],
     qty: number | undefined,
     validator: (selected: DuelEntity[]) => boolean,
     message: string,
     cancelable: boolean = false
   ): Promise<DuelEntity[] | undefined> => {
+    if (!choices.length) {
+      return;
+    }
     let selected: DuelEntity[] = [];
 
-    if (qty && choises.length === qty) {
-      return [...choises];
+    if (qty && choices.length === qty) {
+      return [...choices];
     }
 
     if (chooser.duelistType === "NPC") {
@@ -217,19 +220,21 @@ export class DuelViewController {
 
       while (!validator(selected)) {
         // 一個も選択しないパターンは最初にチェックするので、それ以外をランダムに試行する。
-        const _qty = qty && qty > 0 ? qty : Math.floor(Math.random() * choises.length) + 1;
-        selected = choises.randomPickMany(_qty);
+        const _qty = qty && qty > 0 ? qty : Math.floor(Math.random() * choices.length) + 1;
+        selected = choices.randomPickMany(_qty);
       }
       return selected;
     }
 
-    this.waitMode = choises.every(
+    this.waitMode = choices.every(
       (e) => (e.fieldCell.isPlayFieldCell && e.getIndexInCell() === 0) || (e.fieldCell.cellType === "Hand" && e.controller === chooser)
     )
       ? "SelectFieldEntities"
       : "SelectEntities";
+    console.log(choices);
 
-    const actions = await this._waitDuelistAction(chooser, [], this.waitMode, message, choises, qty, validator, cancelable);
+    const actions = await this._waitDuelistAction(chooser, [], this.waitMode, message, choices, qty, validator, cancelable);
+    console.log(actions);
 
     return [...(actions.selectedEntities ?? [])];
   };

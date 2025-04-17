@@ -36,7 +36,7 @@ const createSpellCounterCommonEffect = (kind: TCardKind, maxQty?: number) => {
           (operator, target) => operator.isSpawnedBy === target,
           (ope, wip) => {
             wip.maxCounterQty.SpellCounter = maxQty ?? Number.MAX_VALUE;
-            return wip;
+            return { maxCounterQty: wip.maxCounterQty };
           }
         ),
       ];

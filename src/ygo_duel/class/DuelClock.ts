@@ -266,6 +266,9 @@ export class DuelClock implements IDuelClock {
       this.chainSeq === other.chainSeq + 1
     );
   };
+  public readonly isPreviousTurn = (other: IDuelClock): boolean => {
+    return this.turn === other.turn + 1;
+  };
   public readonly isPreviousProc = (other: IDuelClock): boolean => {
     return this.totalProcSeq === other.totalProcSeq + 1;
   };

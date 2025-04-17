@@ -4,6 +4,7 @@ import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 import { SystemError } from "@ygo_duel/class/Duel";
 import { defaultRuleSummonExecute, defaultRuleSummonPrepare } from "./DefaultCardAction_Monster";
+import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 const defaultSyncroMaterialsValidator = (
   myInfo: ChainBlockInfoBase<unknown>,
   posList: Readonly<TBattlePosition[]>,
@@ -143,7 +144,7 @@ const defaultSyncroSummonPayCost = async (
   if (!materialInfos) {
     throw new SystemError("想定されない状態", myInfo, materials);
   }
-  await DuelEntity.sendManyToGraveyardForTheSameReason(
+  await DuelEntityShortHands.sendManyToGraveyardForTheSameReason(
     materials,
     ["SyncroMaterial", "Cost", "Rule", "SpecialSummonMaterial"],
     myInfo.action.entity,

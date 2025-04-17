@@ -1,5 +1,5 @@
 import type { CardActionDefinitionAttr, SummonMaterialInfo } from "./DuelCardAction";
-import { type TSummonRuleCauseReason, type TDuelCauseReason, DuelEntity } from "./DuelEntity";
+import { type TSummonKindCauseReason, type TDuelCauseReason, DuelEntity } from "./DuelEntity";
 import { Duelist } from "./Duelist";
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
 import type { DuelFieldCell } from "./DuelFieldCell";
@@ -7,7 +7,7 @@ import type { DuelFieldCell } from "./DuelFieldCell";
 declare module "./Duelist" {
   interface Duelist {
     summon(
-      summonType: TSummonRuleCauseReason,
+      summonKind: TSummonKindCauseReason,
       moveAs: TDuelCauseReason[],
       actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
       monster: DuelEntity,
@@ -16,11 +16,19 @@ declare module "./Duelist" {
       materialInfos: SummonMaterialInfo[],
       cancelable: boolean
     ): Promise<DuelEntity | undefined>;
+    waitSelectEntities(
+      choises: DuelEntity[],
+      qty: number | undefined,
+      validator: (selected: DuelEntity[]) => boolean,
+      message: string,
+      cancelable: boolean
+    ): Promise<DuelEntity[] | undefined>;
+    waitSelectEntity(choises: DuelEntity[], message: string, cancelable: boolean): Promise<DuelEntity | undefined>;
   }
 }
 
 Duelist.prototype.summon = async function (
-  summonType: TSummonRuleCauseReason,
+  summonKind: TSummonKindCauseReason,
   moveAs: TDuelCauseReason[],
   actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
   monster: DuelEntity,
@@ -32,7 +40,7 @@ Duelist.prototype.summon = async function (
   const monsters =
     (await this.summonMany(
       this,
-      summonType,
+      summonKind,
       moveAs,
       actDefAttr,
       [{ monster, posList, cells }],
@@ -42,4 +50,19 @@ Duelist.prototype.summon = async function (
       cancelable
     )) ?? [];
   return monsters[0];
+};
+
+Duelist.prototype.waitSelectEntities = function (
+  choices: DuelEntity[],
+  qty: number | undefined,
+  validator: (selected: DuelEntity[]) => boolean,
+  message: string,
+  cancelable: boolean = false
+): Promise<DuelEntity[] | undefined> {
+  return this.duel.view.waitSelectEntities(this, choices, qty, validator, message, cancelable);
+};
+
+Duelist.prototype.waitSelectEntity = async function (choices: DuelEntity[], message: string, cancelable: boolean = false): Promise<DuelEntity | undefined> {
+  const selected = await this.waitSelectEntities(choices, 1, (selected) => selected.length === 1, message, cancelable);
+  return selected ? selected[0] : undefined;
 };

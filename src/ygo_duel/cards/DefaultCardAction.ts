@@ -2,10 +2,11 @@ import { faceupBattlePositions, type TBattlePosition } from "@ygo/class/YgoTypes
 import { IllegalCancelError } from "@ygo_duel/class/Duel";
 import { type ActionCostInfo, type CardActionDefinition, type ChainBlockInfo, type ChainBlockInfoBase, type TEffectTag } from "@ygo_duel/class/DuelCardAction";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
+import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { duelFieldCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import type { TDuelPeriodKey } from "@ygo_duel/class/DuelPeriod";
-export const defaultPrepare = async () => {
-  return { selectedEntities: [] as DuelEntity[], chainBlockTags: [] as TEffectTag[], prepared: undefined };
+export const defaultPrepare = async <T>() => {
+  return { selectedEntities: [] as DuelEntity[], chainBlockTags: [] as TEffectTag[], prepared: undefined as T };
 };
 export const defaultPayLifePoint = async <T>(
   myInfo: ChainBlockInfoBase<T>,
@@ -16,15 +17,35 @@ export const defaultPayLifePoint = async <T>(
   return { lifePoint: point };
 };
 
-export const defaultSelfBanishCanPayCosts = <T>(myInfo: ChainBlockInfoBase<T>) =>
+export const defaultCanPaySelfBanishCosts = <T>(myInfo: ChainBlockInfoBase<T>) =>
   myInfo.activator.canTryBanish(myInfo.action.entity, "BanishAsCost", myInfo.action) &&
   myInfo.action.entity.canBeBanished("BanishAsCost", myInfo.activator, myInfo.action.entity, myInfo.action);
 
-export const defaultSelfBanishPayCosts = async <T>(myInfo: ChainBlockInfoBase<T>) => {
+export const defaultPaySelfBanishCosts = async <T>(myInfo: ChainBlockInfoBase<T>) => {
   await myInfo.action.entity.banish(["Cost"], myInfo.action.entity, myInfo.activator);
   return { banish: [myInfo.action.entity] };
 };
 
+export const defaultCanPayBanishCosts = <T>(myInfo: ChainBlockInfoBase<T>, cards: DuelEntity[], minQty: number = 1) =>
+  cards
+    .filter((card) => myInfo.activator.canTryBanish(card, "BanishAsCost", myInfo.action))
+    .filter((card) => card.canBeBanished("BanishAsCost", myInfo.activator, myInfo.action.entity, myInfo.action)).length >= minQty;
+
+export const defaultPayBanishCosts = async <T>(
+  myInfo: ChainBlockInfoBase<T>,
+  cards: DuelEntity[],
+  validator: (selected: DuelEntity[]) => boolean,
+  qty?: number
+) => {
+  const choises = cards
+    .filter((card) => myInfo.activator.canTryBanish(card, "BanishAsCost", myInfo.action))
+    .filter((card) => card.canBeBanished("BanishAsCost", myInfo.activator, myInfo.action.entity, myInfo.action));
+
+  const cost =
+    (await myInfo.activator.duel.view.waitSelectEntities(myInfo.activator, choises, qty, validator, "コストとして除外するカードを選択", false)) ?? [];
+  await DuelEntityShortHands.banishManyForTheSameReason(cost, ["Cost"], myInfo.action.entity, myInfo.activator);
+  return { banish: cost };
+};
 export const defaultTargetMonstersRebornPrepare = async <T>(
   myInfo: ChainBlockInfoBase<T>,
   monsters: DuelEntity[],

@@ -68,6 +68,7 @@ export abstract class StickyEffectOperatorPool<OPE extends StickyEffectOperatorB
     return this.bundles
       .filter((bundle) => bundle.operators.every((_ope) => _ope.seq !== ope.seq))
       .filter((bundle) => ope.isApplicableTo(bundle.entity))
+      .filter((bundle) => bundle.entity.canBeEffected(ope.effectOwner, ope.isSpawnedBy, ope.actionAttr))
       .map((bundle) => {
         bundle.push(ope);
         return bundle;

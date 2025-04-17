@@ -21,7 +21,7 @@ import { createRegularProcFilterHandler, type ContinuousEffectBase } from "@ygo_
 import { ProcFilter } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
 import { damageStepPeriodKeys, duelPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
-import { defaultEffectSpecialSummonExecute, defaultSelfBanishCanPayCosts, defaultSelfBanishPayCosts } from "./DefaultCardAction";
+import { defaultEffectSpecialSummonExecute, defaultCanPaySelfBanishCosts, defaultPaySelfBanishCosts } from "./DefaultCardAction";
 
 export const createCardDefinitions_Monster = (): CardDefinition[] => {
   const result: CardDefinition[] = [];
@@ -105,7 +105,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         priorityForNPC: 10,
-        canPayCosts: defaultSelfBanishCanPayCosts,
+        canPayCosts: defaultCanPaySelfBanishCosts,
         validate: (myInfo) => {
           if (myInfo.activator.getDeckCell().cardEntities.filter((card) => card.nm === "Ｄ－ＨＥＲＯ ディアボリックガイ").length === 0) {
             return;
@@ -114,7 +114,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
           const availableCells = myInfo.activator.getAvailableMonsterZones();
           return availableCells.length > 0 ? [] : undefined;
         },
-        payCosts: defaultSelfBanishPayCosts,
+        payCosts: defaultPaySelfBanishCosts,
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromDeck"], prepared: undefined };
         },

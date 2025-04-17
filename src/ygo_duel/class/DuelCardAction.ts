@@ -6,6 +6,8 @@ import { CardActionBase, type CardActionDefinitionBase } from "./DuelCardActionB
 import type { IDuelClock } from "./DuelClock";
 import { SystemError } from "./Duel";
 import { max } from "@stk_utils/funcs/StkMathUtils";
+import { DuelEntityShortHands } from "./DuelEntityShortHands";
+
 export const executableDuelistTypes = ["Controller", "Opponent"] as const;
 export type TExecutableDuelistType = (typeof executableDuelistTypes)[number];
 
@@ -339,6 +341,11 @@ export class CardAction<T> extends CardActionBase implements ICardAction<T> {
     if (this.playType === "CardActivation" && this.entity.isOnField && this.entity.face === "FaceUp") {
       return;
     }
+
+    if (ignoreCosts && this.needsToPayCost) {
+      return;
+    }
+
     if (this.isOnlyNTimesPerDuel > 0) {
       if (
         this.entity.field.duel.chainBlockLog.records
@@ -432,7 +439,7 @@ export class CardAction<T> extends CardActionBase implements ICardAction<T> {
           const olds = activator.getFieldZone().cardEntities;
           if (olds.length) {
             const oldOne = olds[0];
-            await DuelEntity.sendManyToGraveyardForTheSameReason(activator.getFieldZone().cardEntities, ["Rule"], this.entity, activator);
+            await DuelEntityShortHands.sendManyToGraveyardForTheSameReason(activator.getFieldZone().cardEntities, ["Rule"], this.entity, activator);
             activator.writeInfoLog(`フィールド魔法の上書きにより、${oldOne.toString()}は墓地に送られた。`);
             _cancelable = false;
           }

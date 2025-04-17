@@ -20,6 +20,7 @@ import {
 } from "./DuelCardAction";
 import type { TDuelPhase } from "./DuelPeriod";
 import { DuelEntityShortHands } from "./DuelEntityShortHands";
+
 export const duelStartModes = ["PlayFirst", "DrawFirst", "Random"] as const;
 export type TDuelStartMode = (typeof duelStartModes)[number];
 export const duelStartModeDic: { [key in TDuelStartMode]: string } = {
@@ -532,7 +533,7 @@ export class Duel {
     this.clock.setStage(this, "end");
     console.log(this.clock.period.key, this.clock.toString());
     // 戦闘破壊・墓地送り実施
-    await DuelEntity.waitCorpseDisposal(this);
+    await DuelEntityShortHands.waitCorpseDisposal(this);
     console.log(this.clock.period.key, this.clock.toString());
 
     // チェーン番号を加算
@@ -845,7 +846,7 @@ export class Duel {
 
       if (isStartPoint) {
         // このチェーンでカードの発動を行った、永続類ではない魔法罠を全て墓地送りにする。
-        await DuelEntity.sendManyToGraveyardForTheSameReason(
+        await DuelEntityShortHands.sendManyToGraveyardForTheSameReason(
           this._chainBlockInfos
             .filter((info) => info.action.playType === "CardActivation")
             .filter((info) => !info.action.isLikeContinuousSpell)

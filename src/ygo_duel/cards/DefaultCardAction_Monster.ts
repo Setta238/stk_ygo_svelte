@@ -11,11 +11,13 @@ import {
   type ChainBlockInfoPrepared,
   type SummonMaterialInfo,
 } from "@ygo_duel/class/DuelCardAction";
-import { type TDuelCauseReason, type TSummonRuleCauseReason, DuelEntity, namedSummonRuleCauseReasons } from "@ygo_duel/class/DuelEntity";
-import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
+import { type TDuelCauseReason, type TSummonKindCauseReason, DuelEntity, namedSummonKindCauseReasons } from "@ygo_duel/class/DuelEntity";
+import { monsterZoneCellTypes, type DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 import type { Duelist } from "@ygo_duel/class/Duelist";
 import type { SubstituteEffectDefinition } from "@ygo_duel/class/DuelSubstituteEffect";
 import type { SummonFilter } from "@ygo_duel/class_continuous_effect/DuelSummonFilter";
+import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
+import { defaultPrepare } from "./DefaultCardAction";
 
 const defaultNormalSummonValidate = (myInfo: ChainBlockInfoBase<unknown>): DuelFieldCell[] | undefined => {
   // 召喚権を使い切っていたら通常召喚不可。
@@ -120,7 +122,7 @@ const defaultNormalSummonPayCost = async (
   if (!materials.length) {
     return;
   }
-  await DuelEntity.releaseManyForTheSameReason(materials, ["Cost", "AdvanceSummonRelease", "Rule"], myInfo.action.entity, myInfo.activator);
+  await DuelEntityShortHands.releaseManyForTheSameReason(materials, ["Cost", "AdvanceSummonRelease", "Rule"], myInfo.action.entity, myInfo.activator);
 
   // 詰め直し
   const summonMaterialInfos = materials.map((material) => {
@@ -132,18 +134,18 @@ const defaultNormalSummonPayCost = async (
 
 const defaultNormalSummonPrepare = async (myInfo: ChainBlockInfoBase<unknown>): Promise<ChainBlockInfoPrepared<unknown> | undefined> => {
   const movedAs: TDuelCauseReason[] = ["Rule", "NormalSummon"];
-  let summonRule: TDuelCauseReason = "NormalSummon";
+  let summonKind: TDuelCauseReason = "NormalSummon";
   if (myInfo.costInfo.summonMaterialInfos?.length) {
-    summonRule = "AdvanceSummon";
+    summonKind = "AdvanceSummon";
     movedAs.push("AdvanceSummon");
   }
 
   const availableCells = myInfo.dest ? [myInfo.dest] : myInfo.activator.getAvailableMonsterZones();
-  return defaultRuleSummonPrepare(myInfo, summonRule, movedAs, ["Attack", "Set"], availableCells);
+  return defaultRuleSummonPrepare(myInfo, summonKind, movedAs, ["Attack", "Set"], availableCells);
 };
 export const defaultRuleSummonPrepare = async (
   myInfo: ChainBlockInfoBase<unknown>,
-  summonRule: TSummonRuleCauseReason,
+  summonKind: TSummonKindCauseReason,
   movedAs: TDuelCauseReason[],
   posList: Readonly<TBattlePosition[]>,
   cells?: DuelFieldCell[]
@@ -160,7 +162,7 @@ export const defaultRuleSummonPrepare = async (
     }
   }
 
-  await myInfo.activator.summon(summonRule, movedAs, myInfo.action, myInfo.action.entity, posList, _cells, myInfo.costInfo.summonMaterialInfos ?? [], false);
+  await myInfo.activator.summon(summonKind, movedAs, myInfo.action, myInfo.action.entity, posList, _cells, myInfo.costInfo.summonMaterialInfos ?? [], false);
   return { selectedEntities: [], chainBlockTags: [], prepared: undefined };
 };
 export const defaultRuleSummonExecute = async (myInfo: ChainBlockInfo<unknown>): Promise<boolean> => {
@@ -476,7 +478,7 @@ export const defaultSummonFilter = (
   }
 
   // 名前のある召喚方法は可
-  if (moveAs.union(namedSummonRuleCauseReasons).length) {
+  if (moveAs.union(namedSummonKindCauseReasons).length) {
     return ok;
   }
 
@@ -537,4 +539,143 @@ export const defaultSelfReleaseCanPayCosts = <T>(myInfo: ChainBlockInfoBase<T>) 
 export const defaultSelfReleasePayCosts = async <T>(myInfo: ChainBlockInfoBase<T>) => {
   await myInfo.action.entity.release(["Cost"], myInfo.action.entity, myInfo.activator);
   return { release: [myInfo.action.entity] };
+};
+
+export const getDefaultAccelSyncroACtion = <T>(options: Partial<CardActionDefinition<T>>): CardActionDefinition<T> => {
+  return {
+    title: "シンクロ召喚",
+    isMandatory: false,
+    playType: "QuickEffect",
+    spellSpeed: "Quick",
+    executableCells: monsterZoneCellTypes,
+    executablePeriods: ["main1", "main2"],
+    executableDuelistTypes: ["Controller"],
+    isOnlyNTimesPerChain: 1,
+    validate: (myInfo) => {
+      if (myInfo.activator.isTurnPlayer) {
+        return;
+      }
+      const flg = myInfo.activator
+        .getExtraDeck()
+        .cardEntities.filter((monster) => monster.status.monsterCategories?.includes("Syncro"))
+        .flatMap((monster) => monster.actions)
+        .filter((action) => action.playType === "SpecialSummon")
+        .map((action) => {
+          return {
+            index: -1,
+            chainNumber: undefined,
+            action,
+            activator: myInfo.activator,
+            targetChainBlock: undefined,
+            isActivatedIn: action.entity.fieldCell,
+            isActivatedAt: myInfo.isActivatedAt,
+            costInfo: {},
+            state: "unloaded",
+            dest: undefined,
+            ignoreCost: false,
+          } as ChainBlockInfoBase<unknown>;
+        })
+        .some((childInfo) =>
+          childInfo.action.getEnableMaterialPatterns(childInfo).some((infos) => {
+            const materials = infos.map((info) => info.material);
+            //全て自分フィールド上のモンスターかつ、このカード自身を含む必要がある。
+            return (
+              materials.every((material) => material.controller === myInfo.activator) &&
+              materials.every((material) => material.isOnFieldAsMonster) &&
+              materials.includes(myInfo.action.entity)
+            );
+          })
+        );
+      return flg ? [] : undefined;
+    },
+    prepare: defaultPrepare,
+    execute: async (myInfo): Promise<boolean> => {
+      // 「このカードを含む自分フィールド上のモンスター」であるため、コントロール奪取をされていた場合不可
+      if (myInfo.activator !== myInfo.action.entity.controller) {
+        return false;
+      }
+
+      // レベルを持つモンスターが２体いない場合不可
+      if (myInfo.activator.getMonstersOnField().filter((monster) => monster.lvl !== undefined).length < 2) {
+        return false;
+      }
+
+      // シンクロ召喚できるシンクロモンスターを抜き出し
+      const syncroMonsters = myInfo.activator
+        .getExtraDeck()
+        .cardEntities.filter((monster) => monster.status.monsterCategories?.includes("Syncro"))
+        .flatMap((monster) => monster.actions)
+        .filter((action) => action.playType === "SpecialSummon")
+        .map((action) => {
+          return {
+            index: -1,
+            chainNumber: undefined,
+            action,
+            activator: myInfo.activator,
+            targetChainBlock: undefined,
+            isActivatedIn: action.entity.fieldCell,
+            isActivatedAt: myInfo.isActivatedAt,
+            costInfo: {},
+            state: "unloaded",
+            dest: undefined,
+            ignoreCost: false,
+          } as ChainBlockInfoBase<unknown>;
+        })
+        .filter((childInfo) =>
+          childInfo.action.getEnableMaterialPatterns(childInfo).some((infos) => {
+            const materials = infos.map((info) => info.material);
+            //全て自分フィールド上のモンスターかつ、このカード自身を含む必要がある。
+            return (
+              materials.every((material) => material.controller === myInfo.activator) &&
+              materials.every((material) => material.isOnFieldAsMonster) &&
+              materials.includes(myInfo.action.entity)
+            );
+          })
+        )
+        .map((childInfo) => childInfo.action.entity)
+        .getDistinct();
+
+      if (!syncroMonsters.length) {
+        return false;
+      }
+
+      const selected =
+        (await myInfo.activator.duel.view.waitSelectEntities(
+          myInfo.activator,
+          syncroMonsters,
+          1,
+          (selected) => selected.length === 1,
+          "シンクロ召喚するモンスターを選択。",
+          false
+        )) ?? [];
+
+      if (!selected.length) {
+        throw new SystemError("想定されない状態", myInfo);
+      }
+
+      const syncroSummonAction = selected[0].actions.find((action) => action.playType === "SpecialSummon");
+
+      if (!syncroSummonAction) {
+        throw new SystemError("想定されない状態", myInfo);
+      }
+
+      // 「このカードを含む自分フィールド上のモンスター」という制約を付加したダミーアクションを作成する。
+      const dammySyncroSummonAction = syncroSummonAction.getClone((infos) => {
+        const materials = infos.map((info) => info.material);
+        //全て自分フィールド上のモンスターかつ、このカード自身を含む必要がある。
+        return (
+          materials.every((material) => material.controller === myInfo.activator) &&
+          materials.every((material) => material.isOnFieldAsMonster) &&
+          materials.includes(myInfo.action.entity)
+        );
+      });
+
+      // 次に行うアクションとして設定。
+      myInfo.nextAction = dammySyncroSummonAction;
+
+      return true;
+    },
+    settle: async () => true,
+    ...options,
+  };
 };

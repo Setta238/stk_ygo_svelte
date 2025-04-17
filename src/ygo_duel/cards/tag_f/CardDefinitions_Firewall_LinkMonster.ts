@@ -12,6 +12,7 @@ import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import { defaultSpellTrapValidate } from "../DefaultCardAction_Spell";
 import { defaultTargetMonstersRebornExecute, defaultTargetMonstersRebornPrepare } from "../DefaultCardAction";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
+import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 
 export const createCardDefinitions_Firewall_LinkMonster = (): CardDefinition[] => {
   const result: CardDefinition[] = [];
@@ -82,7 +83,7 @@ export const createCardDefinitions_Firewall_LinkMonster = (): CardDefinition[] =
           const targets = myInfo.selectedEntities
             .filter((card) => card.isOnField || card.fieldCell.cellType === "Graveyard")
             .filter((card) => card.canBeEffected(myInfo.activator, myInfo.action.entity, myInfo.action));
-          await DuelEntity.returnManyToHandForTheSameReason(targets, ["Effect"], myInfo.action.entity, myInfo.activator);
+          await DuelEntityShortHands.returnManyToHandForTheSameReason(targets, ["Effect"], myInfo.action.entity, myInfo.activator);
 
           const qty = targets.filter((card) => card.fieldCell.cellType === "Hand" || card.fieldCell.cellType === "ExtraDeck").length;
 

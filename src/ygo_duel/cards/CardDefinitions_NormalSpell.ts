@@ -57,7 +57,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           if (!target) {
             throw new IllegalCancelError(myInfo);
           }
-          await DuelEntity.sendManyToGraveyardForTheSameReason(target, ["Effect"], myInfo.action.entity, myInfo.activator);
+          await DuelEntityShortHands.sendManyToGraveyardForTheSameReason(target, ["Effect"], myInfo.action.entity, myInfo.activator);
           await myInfo.activator.getDeckCell().shuffle();
           return true;
         },
@@ -108,7 +108,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           if (!target) {
             throw new IllegalCancelError(myInfo);
           }
-          await DuelEntity.sendManyToGraveyardForTheSameReason(target, ["Effect"], myInfo.action.entity, myInfo.activator);
+          await DuelEntityShortHands.sendManyToGraveyardForTheSameReason(target, ["Effect"], myInfo.action.entity, myInfo.activator);
           await myInfo.activator.getDeckCell().shuffle();
           return true;
         },
@@ -279,7 +279,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
             .flatMap((cell) => cell.cardEntities)
             .filter((card) => !activatedCards.includes(card));
 
-          await DuelEntity.returnManyToHandForTheSameReason(cards, ["Effect"], myInfo.action.entity, myInfo.activator);
+          await DuelEntityShortHands.returnManyToHandForTheSameReason(cards, ["Effect"], myInfo.action.entity, myInfo.activator);
           return true;
         },
         settle: async () => true,
@@ -317,7 +317,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         payCosts: async (myInfo) => {
           const cost = myInfo.activator.getDeckCell().cardEntities.slice(0, 3);
 
-          await DuelEntity.sendManyToGraveyardForTheSameReason(cost, ["Cost"], myInfo.action.entity, myInfo.activator);
+          await DuelEntityShortHands.sendManyToGraveyardForTheSameReason(cost, ["Cost"], myInfo.action.entity, myInfo.activator);
 
           return { sendToGraveyard: cost };
         },
@@ -512,7 +512,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
             return;
           }
 
-          await DuelEntity.sendManyToGraveyardForTheSameReason(costs, ["Cost"], myInfo.action.entity, myInfo.activator);
+          await DuelEntityShortHands.sendManyToGraveyardForTheSameReason(costs, ["Cost"], myInfo.action.entity, myInfo.activator);
 
           return { sendToGraveyard: costs };
         },
@@ -526,7 +526,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           ];
 
           const cells = myInfo.activator.getMonsterZones();
-          const monster = myInfo.activator.summonMany(
+          const monster = await myInfo.activator.summonMany(
             myInfo.activator,
             "SpecialSummon",
             ["Effect"],

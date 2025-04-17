@@ -12,18 +12,21 @@ import {
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardDefinition } from "@ygo_duel/cards/CardDefinitions";
 import { damageStepPeriodKeys, duelPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
-import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import {
   defaultEffectSpecialSummonExecute,
   defaultPrepare,
-  defaultSelfBanishCanPayCosts,
-  defaultSelfBanishPayCosts,
+  defaultCanPaySelfBanishCosts,
+  defaultPaySelfBanishCosts,
   defaultTargetMonstersRebornExecute,
   defaultTargetMonstersRebornPrepare,
+  defaultPayBanishCosts,
+  defaultCanPayBanishCosts,
 } from "@ygo_duel/cards/DefaultCardAction";
 import { duelFieldCellTypes, monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import { getDefaultSyncroSummonAction } from "../DefaultCardAction_SyncroMonster";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
+import { ProcFilter } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
+import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 
 export const createCardDefinitions_Stardust_Monster = (): CardDefinition[] => {
   const result: CardDefinition[] = [];
@@ -122,7 +125,7 @@ export const createCardDefinitions_Stardust_Monster = (): CardDefinition[] => {
         playType: "QuickEffect",
         spellSpeed: "Quick",
         executableCells: monsterZoneCellTypes,
-        executablePeriods: duelPeriodKeys,
+        executablePeriods: freeChainDuelPeriodKeys,
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerTurnIfFaceup: 1,
         hasToTargetCards: true,
@@ -214,6 +217,46 @@ export const createCardDefinitions_Stardust_Monster = (): CardDefinition[] => {
         (tuners) => tuners.length === 1 && tuners.every((tuner) => tuner.status.monsterCategories?.includes("Syncro")),
         (tuners) => tuners.length > 0 && tuners.every((tuner) => tuner.status.monsterCategories?.includes("Syncro"))
       ),
+      {
+        title: "波動護魂",
+        isMandatory: false,
+        playType: "QuickEffect",
+        spellSpeed: "Quick",
+        executableCells: monsterZoneCellTypes,
+        executablePeriods: freeChainDuelPeriodKeys,
+        executableDuelistTypes: ["Controller"],
+        isOnlyNTimesPerTurnIfFaceup: 1,
+        canPayCosts: (myInfo) =>
+          defaultCanPayBanishCosts(
+            myInfo,
+            myInfo.activator.getGraveyard().cardEntities.filter((card) => card.status.monsterCategories?.includes("Syncro"))
+          ),
+        validate: () => [],
+        payCosts: (myInfo) =>
+          defaultPayBanishCosts(
+            myInfo,
+            myInfo.activator.getGraveyard().cardEntities.filter((card) => card.status.monsterCategories?.includes("Syncro")),
+            (selected) => selected.length === 1,
+            1
+          ),
+        prepare: defaultPrepare,
+        execute: async (myInfo) => {
+          myInfo.action.entity.procFilterBundle.push(
+            ProcFilter.createLingering(
+              myInfo.action.title,
+              (operator) => operator.effectOwner.duel.clock.isSameTurn(operator.isSpawnedAt),
+              myInfo.action.entity,
+              myInfo.action,
+              () => true,
+              ["Effect"],
+              () => false
+            )
+          );
+
+          return true;
+        },
+        settle: async () => true,
+      },
       {
         title: "②蘇生",
         isMandatory: false,
@@ -338,7 +381,7 @@ export const createCardDefinitions_Stardust_Monster = (): CardDefinition[] => {
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         priorityForNPC: 10,
-        canPayCosts: defaultSelfBanishCanPayCosts,
+        canPayCosts: defaultCanPaySelfBanishCosts,
         validate: (myInfo) => {
           if (
             myInfo.activator
@@ -351,7 +394,7 @@ export const createCardDefinitions_Stardust_Monster = (): CardDefinition[] => {
           const availableCells = myInfo.activator.getAvailableMonsterZones();
           return availableCells.length > 0 ? [] : undefined;
         },
-        payCosts: defaultSelfBanishPayCosts,
+        payCosts: defaultPaySelfBanishCosts,
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromGraveyard"], prepared: undefined };
         },

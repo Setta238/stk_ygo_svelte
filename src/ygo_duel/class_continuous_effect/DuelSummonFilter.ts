@@ -1,6 +1,6 @@
 import type { CardActionDefinitionAttr, SummonMaterialInfo } from "../class/DuelCardAction";
 import { StickyEffectOperatorBase, StickyEffectOperatorBundle, StickyEffectOperatorPool } from "./DuelStickyEffectOperatorBase";
-import { type DuelEntity, type TDuelCauseReason, type TSummonRuleCauseReason } from "../class/DuelEntity";
+import { type DuelEntity, type TDuelCauseReason, type TSummonKindCauseReason } from "../class/DuelEntity";
 import { type Duelist, type SummonChoice } from "../class/Duelist";
 import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
@@ -13,7 +13,7 @@ export class SummonFilterBundle extends StickyEffectOperatorBundle<SummonFilter>
   protected beforePush = () => {};
   public readonly filter = (
     effectOwner: Duelist,
-    summonType: TSummonRuleCauseReason,
+    summonKind: TSummonKindCauseReason,
     moveAs: TDuelCauseReason[],
     actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
     summonChoice: SummonChoice,
@@ -21,7 +21,7 @@ export class SummonFilterBundle extends StickyEffectOperatorBundle<SummonFilter>
     ignoreSummoningConditions: boolean
   ) =>
     this.operators
-      .filter((ope) => ope.summonTypes.includes(summonType))
+      .filter((ope) => ope.summonKinds.includes(summonKind))
       .reduce((wip, ope) => {
         return {
           ...wip,
@@ -43,7 +43,7 @@ export class SummonFilterBundle extends StickyEffectOperatorBundle<SummonFilter>
 
 export class SummonFilter extends StickyEffectOperatorBase {
   public beforeRemove: () => void = () => {};
-  public readonly summonTypes: Readonly<TSummonRuleCauseReason[]>;
+  public readonly summonKinds: Readonly<TSummonKindCauseReason[]>;
   public readonly filter: (
     filterTarget: DuelEntity,
     effectOwner: Duelist,
@@ -66,7 +66,7 @@ export class SummonFilter extends StickyEffectOperatorBase {
     isSpawnedBy: DuelEntity,
     actionAttr: Partial<CardActionDefinitionAttr>,
     isApplicableTo: (operator: StickyEffectOperatorBase, target: DuelEntity) => boolean,
-    summonTypes: Readonly<TSummonRuleCauseReason[]>,
+    summonKinds: Readonly<TSummonKindCauseReason[]>,
     filter: (
       filter: SummonFilter,
       filterTarget: DuelEntity,
@@ -85,7 +85,7 @@ export class SummonFilter extends StickyEffectOperatorBase {
     }
   ) {
     super(title, validateAlive, isContinuous, isSpawnedBy, actionAttr, isApplicableTo);
-    this.summonTypes = summonTypes;
+    this.summonKinds = summonKinds;
     this.filter = (...args) => filter(this, ...args);
   }
 }

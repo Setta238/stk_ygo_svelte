@@ -1,217 +1,271 @@
-import type { TBattlePosition } from "@ygo/class/YgoTypes";
-import { SystemError } from "./Duel";
-import { type CardActionDefinitionAttr, CardAction, type ChainBlockInfo, type ICardAction, type ChainBlockInfoBase } from "./DuelCardAction";
-import { DuelEntity, type TSummonRuleCauseReason, destoryCauseReasonDic, posToSummonPos } from "./DuelEntity";
+import { Duel, SystemError } from "./Duel";
+import { CardAction, type ChainBlockInfo, type ICardAction } from "./DuelCardAction";
+import { DuelEntity, type TDuelCauseReason, type TDuelEntityFace, type TDuelEntityOrientation, destoryCauseReasonDic } from "./DuelEntity";
 import type { Duelist } from "./Duelist";
-import type { TBanishProcType, TProcType } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
-import type { IDuelClock } from "./DuelClock";
-
-declare module "./DuelEntity" {
-  interface DuelEntity {
-    hasBeenSummonedNow(summonRules: (TSummonRuleCauseReason | "FlipSummon")[], posList?: TBattlePosition[]): boolean;
-    getAttackTargets(): DuelEntity[];
-    /**
-     * 相手側の状態を考慮せず、攻撃できる状態か判定
-     */
-    hasAttackRight(): boolean;
-    /**
-     * モンスターへ攻撃できる状態かどうか判定
-     */
-    canAttackToMonster(): boolean;
-    /**
-     * 直接攻撃できる状態かどうか判定
-     */
-    canDirectAttack(): boolean;
-    canBeEffected(activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionDefinitionAttr>): boolean;
-    canBeBanished(procType: TBanishProcType, activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionDefinitionAttr>): boolean;
-    canBeTargetOfEffect<T>(chainBlockInfo: ChainBlockInfoBase<T>): boolean;
-    canBeTargetOfBattle(activator: Duelist, entity: DuelEntity): boolean;
-    validateDestory(destroyType: TDestoryCauseReason, activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionDefinitionAttr>): boolean;
-    getIndexInCell(): number;
-    getXyzMaterials(): DuelEntity[];
-    wasMovedAfter(clock: IDuelClock): boolean;
-  }
-  interface DuelEntityConstructor {
-    isEmpty(value: string): boolean;
-  }
-}
-
-DuelEntity.prototype.hasBeenSummonedNow = function (
-  summonRules: (TSummonRuleCauseReason | "FlipSummon")[],
-  posList: TBattlePosition[] = ["Attack", "Defense"]
-): boolean {
-  const entity = this as DuelEntity;
-  const _posList = posList.map(posToSummonPos);
-  const movedAs = entity.moveLog.latestRecord.movedAs;
-
-  if (!entity.wasMovedAtPreviousChain) {
-    return false;
-  }
-  if (!movedAs.union(summonRules).length) {
-    return false;
-  }
-  if (!movedAs.union(_posList).length) {
-    return false;
-  }
-  return true;
-};
-
-DuelEntity.prototype.getAttackTargets = function (): DuelEntity[] {
-  if (!this.hasAttackRight()) {
-    return [];
-  }
-
-  // ダイレクトアタックを阻害しうるモンスターを抽出
-  const enemies = this.controller
-    .getOpponentPlayer()
-    .getMonstersOnField()
-    .filter((enemy) => enemy.status.isSelectableForAttack);
-
-  if (this.status.canDirectAttack || !enemies.length) {
-    enemies.push(this.controller.getOpponentPlayer().entity);
-  }
-
-  // 自分、相手ともにフィルタリングが必要。
-  return enemies
-    .filter((enemy) => enemy.canBeTargetOfBattle(this.controller, this))
-    .filter((enemy) =>
-      this.procFilterBundle.operators.filter((pf) => pf.procTypes.includes("BattleTarget")).every((pf) => pf.filter(this.controller, this, {}, [enemy]))
-    );
-};
-DuelEntity.prototype.canDirectAttack = function (): boolean {
-  return this.getAttackTargets().some((enemy) => enemy.entityType === "Duelist");
-};
-
-DuelEntity.prototype.canAttackToMonster = function (): boolean {
-  return this.getAttackTargets().some((enemy) => enemy.entityType !== "Duelist");
-};
-
-DuelEntity.prototype.hasAttackRight = function (): boolean {
-  // TODO 連続攻撃モンスター、絶対防御将軍などの考慮
-  return this.battlePosition === "Attack" && this.info.attackCount === 0 && this.status.canAttack;
-};
-
-DuelEntity.prototype.canBeEffected = function (activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionDefinitionAttr>): boolean {
-  const entity = this as DuelEntity;
-  return entity.procFilterBundle.operators
-    .filter((pf) => pf.procTypes.some((t) => t === "Effect"))
-    .every((pf) => pf.filter(activator, causedBy, action, [this]));
-};
-
-const _canBeDoneSomethingByEffect = (
-  entity: DuelEntity,
-  procType: TProcType,
-  activator: Duelist,
-  causedBy: DuelEntity,
-  action: Partial<CardActionDefinitionAttr>
-): boolean => {
-  return (
-    entity.canBeEffected(activator, causedBy, action) &&
-    entity.procFilterBundle.operators.filter((pf) => pf.procTypes.some((t) => t === procType)).every((pf) => pf.filter(activator, causedBy, action, [entity]))
-  );
-};
-
-DuelEntity.prototype.canBeTargetOfEffect = function <T>(chainBlockInfo: ChainBlockInfoBase<T>): boolean {
-  return _canBeDoneSomethingByEffect(this, "EffectTarget", chainBlockInfo.activator, chainBlockInfo.action.entity, chainBlockInfo.action);
-};
-
-DuelEntity.prototype.canBeBanished = function (
-  procType: TBanishProcType,
-  activator: Duelist,
-  causedBy: DuelEntity,
-  action: Partial<CardActionDefinitionAttr>
-): boolean {
-  if (this.fieldCell.cellType === "Banished") {
-    return false;
-  }
-  return _canBeDoneSomethingByEffect(this, procType, activator, causedBy, action);
-};
-
-DuelEntity.prototype.canBeTargetOfBattle = function (activator: Duelist, causedBy: DuelEntity): boolean {
-  const entity = this as DuelEntity;
-  return entity.procFilterBundle.operators
-    .filter((pf) => pf.procTypes.some((t) => t === "BattleTarget"))
-    .every((pf) => pf.filter(activator, causedBy, {}, [entity]));
-};
-
-DuelEntity.prototype.validateDestory = function (
-  destroyType: "BattleDestroy" | "EffectDestroy",
-  activator: Duelist,
-  causedBy: DuelEntity,
-  action: Partial<CardActionDefinitionAttr>
-): boolean {
-  const entity = this as DuelEntity;
-  let flg = entity.procFilterBundle.operators
-    .filter((pf) => pf.procTypes.includes(destroyType))
-    .every((pf) => pf.filter(activator, causedBy, action ?? {}, [entity]));
-
-  if (flg && destroyType === "EffectDestroy") {
-    flg = entity.canBeEffected(activator, causedBy, action);
-  }
-
-  return flg;
-};
-
-DuelEntity.prototype.getIndexInCell = function (): number {
-  const entity = this as DuelEntity;
-
-  if (entity.info.isVanished) {
-    return -1;
-  }
-
-  const index = entity.fieldCell.cardEntities.indexOf(entity);
-
-  if (index < 0) {
-    throw new SystemError("エンティティとセルの状態が矛盾している。", [entity, entity.fieldCell]);
-  }
-
-  return index;
-};
-
-DuelEntity.prototype.getXyzMaterials = function (): DuelEntity[] {
-  const entity = this as DuelEntity;
-
-  return (entity.status.monsterCategories ?? []).includes("Xyz") ? entity.fieldCell.xyzMaterials : [];
-};
-DuelEntity.prototype.wasMovedAfter = function (clock: IDuelClock): boolean {
-  console.log(this.toString(), this.moveLog.latestRecord.movedAt.totalProcSeq, clock.totalProcSeq);
-  return this.moveLog.latestRecord.movedAt.totalProcSeq > clock.totalProcSeq;
-};
-
-const _tryMarkForDestory = (entity: DuelEntity, chainBlockInfo: ChainBlockInfo<unknown>): boolean => {
-  if (entity.info.isDying) {
-    return false;
-  }
-  if (entity.status.kind === "XyzMaterial") {
-    return false;
-  }
-  if (!entity.isOnField && entity.fieldCell.cellType !== "Deck" && entity.fieldCell.cellType !== "Hand") {
-    return false;
-  }
-
-  const destroyType = chainBlockInfo.action.playType === "Battle" ? "BattleDestroy" : "EffectDestroy";
-  const movedBy =
-    destroyType === "BattleDestroy" && chainBlockInfo.action.entity === entity ? chainBlockInfo.selectedEntities[0] : chainBlockInfo.action.entity;
-  entity.info.isDying = entity.validateDestory(destroyType, chainBlockInfo.activator, movedBy, chainBlockInfo.action);
-  if (entity.info.isDying) {
-    entity.info.causeOfDeath = [destroyType];
-    entity.info.isKilledBy = movedBy;
-    entity.info.isKilledByWhom = chainBlockInfo.activator;
-    // 戦闘破壊のみ、情報を書き換え。
-    if (destroyType === "BattleDestroy") {
-      entity.info.isKilledByWhom = movedBy.controller;
-    }
-  }
-  return entity.info.isDying;
-};
+import type { TBanishProcType } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
+import type { DuelFieldCell, TBundleCellType, TDuelEntityMovePos } from "./DuelFieldCell";
 
 export class DuelEntityShortHands {
+  private static readonly _tryMarkForDestory = (entity: DuelEntity, chainBlockInfo: ChainBlockInfo<unknown>): boolean => {
+    if (entity.info.isDying) {
+      return false;
+    }
+    if (entity.status.kind === "XyzMaterial") {
+      return false;
+    }
+    if (!entity.isOnField && entity.fieldCell.cellType !== "Deck" && entity.fieldCell.cellType !== "Hand") {
+      return false;
+    }
+
+    const destroyType = chainBlockInfo.action.playType === "Battle" ? "BattleDestroy" : "EffectDestroy";
+    const movedBy =
+      destroyType === "BattleDestroy" && chainBlockInfo.action.entity === entity ? chainBlockInfo.selectedEntities[0] : chainBlockInfo.action.entity;
+    entity.info.isDying = entity.validateDestory(destroyType, chainBlockInfo.activator, movedBy, chainBlockInfo.action);
+    if (entity.info.isDying) {
+      entity.info.causeOfDeath = [destroyType];
+      entity.info.isKilledBy = movedBy;
+      entity.info.isKilledByWhom = chainBlockInfo.activator;
+      // 戦闘破壊のみ、情報を書き換え。
+      if (destroyType === "BattleDestroy") {
+        entity.info.isKilledByWhom = movedBy.controller;
+      }
+    }
+    return entity.info.isDying;
+  };
+
+  public static readonly releaseManyForTheSameReason = (
+    entities: DuelEntity[],
+    movedAs: TDuelCauseReason[],
+    movedBy: DuelEntity,
+    activator: Duelist
+  ): Promise<void> => {
+    if (!entities.length) {
+      return Promise.resolve();
+    }
+    if (movedAs.includes("Cost")) {
+      activator.writeInfoLog(`${entities.map((entity) => entity.nm).join(" ")}をリリースし――、`);
+    }
+    return DuelEntityShortHands.bringManyToSameCellForTheSameReason(
+      "Graveyard",
+      "Top",
+      entities,
+      "FaceUp",
+      "Vertical",
+      ["Release", ...movedAs],
+      movedBy,
+      activator
+    );
+  };
+  public static readonly sendManyToGraveyardForTheSameReason = (
+    entities: DuelEntity[],
+    movedAs: TDuelCauseReason[],
+    movedBy: DuelEntity | undefined,
+    activator: Duelist | undefined
+  ): Promise<void> => {
+    if (!entities.length) {
+      return Promise.resolve();
+    }
+    if (activator && movedAs.includes("Cost")) {
+      if (movedAs.includes("FusionMaterial")) {
+        activator.writeInfoLog(`${entities.map((entity) => entity.nm).join(" ")}を融合素材とし――、`);
+      } else if (movedAs.includes("SyncroMaterial")) {
+        activator.writeInfoLog(`${entities.map((entity) => entity.nm).join(" ")}をシンクロと素材し――、`);
+      } else if (movedAs.includes("LinkMaterial")) {
+        activator.writeInfoLog(`${entities.map((entity) => entity.nm).join(" ")}をリンクマーカーにセッティング――、`);
+      } else {
+        activator.writeInfoLog(`${entities.map((entity) => entity.nm).join(" ")}を墓地に送り――、`);
+      }
+    }
+    return DuelEntityShortHands.bringManyToSameCellForTheSameReason("Graveyard", "Top", entities, "FaceUp", "Vertical", movedAs, movedBy, activator);
+  };
+  public static readonly addManyToHand = (
+    entities: DuelEntity[],
+    movedAs: TDuelCauseReason[],
+    movedBy: DuelEntity | undefined,
+    activator: Duelist | undefined
+  ): Promise<void> => {
+    if (!entities.length) {
+      return Promise.resolve();
+    }
+    if (activator && movedAs.includes("Cost")) {
+      activator.writeInfoLog(`${entities.map((entity) => entity.nm).join(" ")}を手札から捨て――、`);
+    }
+    return DuelEntityShortHands.bringManyToSameCellForTheSameReason("Hand", "Bottom", entities, "FaceDown", "Vertical", movedAs, movedBy, activator);
+  };
+  public static readonly discardManyForTheSameReason = (
+    entities: DuelEntity[],
+    movedAs: TDuelCauseReason[],
+    movedBy: DuelEntity | undefined,
+    activator: Duelist | undefined
+  ): Promise<void> => {
+    if (!entities.length) {
+      return Promise.resolve();
+    }
+    if (activator && movedAs.includes("Cost")) {
+      activator.writeInfoLog(`${entities.map((entity) => entity.nm).join(" ")}を手札から捨て――、`);
+    }
+    return DuelEntityShortHands.bringManyToSameCellForTheSameReason(
+      "Graveyard",
+      "Top",
+      entities,
+      "FaceUp",
+      "Vertical",
+      ["Discard", ...movedAs],
+      movedBy,
+      activator
+    );
+  };
+  public static readonly banishManyForTheSameReason = (
+    entities: DuelEntity[],
+    movedAs: TDuelCauseReason[],
+    movedBy: DuelEntity | undefined,
+    activator: Duelist | undefined
+  ): Promise<void> => {
+    if (!entities.length) {
+      return Promise.resolve();
+    }
+    if (activator && movedAs.includes("Cost")) {
+      activator.writeInfoLog(`${entities.map((entity) => entity.nm).join(" ")}をゲームから除外し――、`);
+    }
+    return DuelEntityShortHands.bringManyToSameCellForTheSameReason("Banished", "Top", entities, "FaceUp", "Vertical", movedAs, movedBy, activator);
+  };
+  public static readonly returnManyToDeckForTheSameReason = (
+    pos: TDuelEntityMovePos,
+    entities: DuelEntity[],
+    movedAs: TDuelCauseReason[],
+    movedBy: DuelEntity | undefined,
+    activator: Duelist | undefined
+  ): Promise<void> => {
+    if (!entities.length) {
+      return Promise.resolve();
+    }
+    if (activator && movedAs.includes("Cost")) {
+      activator.writeInfoLog(`${entities.map((entity) => entity.nm).join(" ")}をデッキに戻し――、`);
+    }
+    return DuelEntityShortHands.bringManyToSameCellForTheSameReason("Deck", pos, entities, "FaceDown", "Vertical", movedAs, movedBy, activator);
+  };
+
+  public static readonly returnManyToHandForTheSameReason = (
+    entities: DuelEntity[],
+    movedAs: TDuelCauseReason[],
+    movedBy: DuelEntity | undefined,
+    activator: Duelist | undefined
+  ): Promise<void> => {
+    if (!entities.length) {
+      return Promise.resolve();
+    }
+    if (activator && movedAs.includes("Cost")) {
+      activator.writeInfoLog(`${entities.map((entity) => entity.nm).join(" ")}を手札に戻し――、`);
+    }
+    return DuelEntityShortHands.bringManyToSameCellForTheSameReason("Hand", "Bottom", entities, "FaceDown", "Vertical", movedAs, movedBy, activator);
+  };
+
+  public static readonly convertManyToXyzMaterials = (
+    entities: DuelEntity[],
+    movedAs: TDuelCauseReason[],
+    movedBy: DuelEntity,
+    activator: Duelist
+  ): Promise<void> => {
+    if (!entities.length) {
+      return Promise.resolve();
+    }
+    if (activator && movedAs.includes("Cost")) {
+      activator.writeInfoLog(`${entities.map((entity) => entity.nm).join(" ")}によって、オーバーレイネットワークを構築――、`);
+    }
+    return DuelEntity.moveMany(
+      entities.map((entity) => [entity, entity.fieldCell, "XyzMaterial", "FaceUp", "Vertical", "Top", movedAs, movedBy, activator, activator])
+    );
+  };
+  public static readonly moveToXyzOwner = (
+    dest: DuelFieldCell,
+    xyzMaterials: DuelEntity[],
+    movedAs: TDuelCauseReason[],
+    movedBy: DuelEntity,
+    activator: Duelist
+  ): Promise<void> => {
+    if (!xyzMaterials.length) {
+      return Promise.resolve();
+    }
+    if (movedAs.includes("Effect")) {
+      activator.writeInfoLog(`${xyzMaterials.map((entity) => entity.nm).join(" ")}をXYZ素材として吸収。`);
+    }
+    return DuelEntity.moveMany(
+      xyzMaterials.map((entity) => [entity, dest, "XyzMaterial", "FaceUp", "Vertical", "Top", movedAs, movedBy, activator, activator])
+    );
+  };
+
+  /**
+   *
+   * @param items
+   * @param excludedList 再帰処理時のみ指定する想定
+   */
+  public static readonly banishMany = (
+    items: {
+      entity: DuelEntity;
+      causedAs: TDuelCauseReason[];
+      causedBy: DuelEntity | undefined;
+      activator: Duelist | undefined;
+    }[],
+    excludedList?: DuelEntity[]
+  ): Promise<void> => {
+    return DuelEntity.bringManyToSameCell(
+      "Banished",
+      "Top",
+      items.map((item) => {
+        return { ...item, face: "FaceUp", orientation: "Vertical" };
+      }),
+      excludedList
+    );
+  };
+
+  public static readonly bringManyToSameCellForTheSameReason = (
+    to: TBundleCellType,
+    pos: TDuelEntityMovePos,
+    entities: DuelEntity[],
+    face: TDuelEntityFace,
+    orientation: TDuelEntityOrientation,
+    movedAs: TDuelCauseReason[],
+    movedBy: DuelEntity | undefined,
+    activator: Duelist | undefined
+  ): Promise<void> => {
+    return DuelEntity.bringManyToSameCell(
+      to,
+      pos,
+      entities.map((entity) => {
+        return {
+          entity: entity,
+          face: face,
+          orientation: orientation,
+          causedAs: movedAs,
+          causedBy: movedBy,
+          activator: activator,
+        };
+      })
+    );
+  };
+
   public static readonly tryDestroy = async (cards: DuelEntity[], chainBlockInfo: ChainBlockInfo<unknown>): Promise<DuelEntity[]> => {
     const result = await DuelEntityShortHands.tryMarkForDestory(cards, chainBlockInfo);
 
-    await DuelEntity.waitCorpseDisposal(chainBlockInfo.activator.duel);
+    await DuelEntityShortHands.waitCorpseDisposal(chainBlockInfo.activator.duel);
 
     return result;
+  };
+
+  public static readonly waitCorpseDisposal = (duel: Duel) => {
+    return DuelEntity.sendManyToGraveyard(
+      duel.field
+        .getCardsOnField()
+        .filter((entity) => entity.info.isDying)
+        .map((entity) => {
+          return {
+            entity: entity,
+            causedAs: entity.info.causeOfDeath ?? [],
+            causedBy: entity.info.isKilledBy,
+            activator: entity.info.isKilledByWhom,
+          };
+        })
+    );
   };
   /**
    * 処理イメージ：最初に破壊可能な対象全てにマーキング。身代わり効果でマーキングを剥がす。最終的に破壊マーキングが残ったものを返す。
@@ -221,7 +275,7 @@ export class DuelEntityShortHands {
    */
   public static readonly tryMarkForDestory = async (cards: DuelEntity[], chainBlockInfo: ChainBlockInfo<unknown>): Promise<DuelEntity[]> => {
     // 破壊できるもののみ一旦マーキング
-    let _cards = cards.filter((card) => _tryMarkForDestory(card, chainBlockInfo));
+    let _cards = cards.filter((card) => DuelEntityShortHands._tryMarkForDestory(card, chainBlockInfo));
     if (!_cards.length) {
       return [];
     }
@@ -309,13 +363,18 @@ export class DuelEntityShortHands {
 
   public static readonly tryBanish = async (procType: TBanishProcType, cards: DuelEntity[], chainBlockInfo: ChainBlockInfo<unknown>): Promise<DuelEntity[]> => {
     const _cards = cards.filter((card) => card.canBeBanished(procType, chainBlockInfo.activator, chainBlockInfo.action.entity, chainBlockInfo.action));
-    await DuelEntity.banishManyForTheSameReason(_cards, ["Effect"], chainBlockInfo.action.entity, chainBlockInfo.activator);
+    await DuelEntityShortHands.banishManyForTheSameReason(_cards, ["Effect"], chainBlockInfo.action.entity, chainBlockInfo.activator);
     return _cards.filter((card) => card.fieldCell.cellType === "Banished").filter((card) => card.moveLog.latestRecord.movedBy === chainBlockInfo.action.entity);
   };
 
   public static readonly negateSummonMany = (movedBy: DuelEntity, activator: Duelist): DuelEntity[] => {
     const monsters = activator.duel.field.getPendingMonstersOnField();
-    monsters.forEach((monster) => monster.moveLog.negateSummon(movedBy, activator));
+    monsters.forEach((monster) => {
+      monster.info.summonKinds = [];
+      monster.info.materials = [];
+      monster.moveLog.negateSummon(movedBy, activator);
+    });
+
     activator.writeInfoLog(`${monsters.map((monster) => monster.toString()).join(" ")}.の召喚は無効にされた。`);
     return monsters;
   };

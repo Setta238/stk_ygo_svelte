@@ -4,6 +4,7 @@ import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 import { SystemError } from "@ygo_duel/class/Duel";
 import { defaultRuleSummonExecute, defaultRuleSummonPrepare } from "./DefaultCardAction_Monster";
+import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 
 const defaultXyzMaterialsValidator = (
   myInfo: ChainBlockInfoBase<unknown>,
@@ -134,7 +135,7 @@ const defaultXyzSummonPayCost = async (
   if (!materialInfos) {
     throw new SystemError("想定されない状態", myInfo, materials);
   }
-  await DuelEntity.convertManyToXyzMaterials(
+  await DuelEntityShortHands.convertManyToXyzMaterials(
     materialInfos.map((info) => info.material),
     ["XyzMaterial", "Rule", "Cost"],
     myInfo.action.entity,

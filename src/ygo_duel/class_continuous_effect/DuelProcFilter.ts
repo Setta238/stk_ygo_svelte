@@ -52,6 +52,28 @@ export class ProcFilterBundle extends StickyEffectOperatorBundle<ProcFilter> {
   protected readonly beforePush = (pf: ProcFilter) => pf.eraseOperators(this.entity);
 }
 export class ProcFilter extends StickyEffectOperatorBase {
+  public static readonly createContinuous = (
+    title: string,
+    validateAlive: (operator: StickyEffectOperatorBase) => boolean,
+    isSpawnedBy: DuelEntity,
+    actionAttr: Partial<CardActionDefinitionAttr>,
+    isApplicableTo: (operator: StickyEffectOperatorBase, target: DuelEntity) => boolean,
+    procTypes: TProcType[],
+    filter: (activator: Duelist, entity: DuelEntity, actionAttr: Partial<CardActionDefinitionAttr>, effectedEntites: DuelEntity[] | undefined) => boolean
+  ) => {
+    return new ProcFilter(title, validateAlive, true, isSpawnedBy, actionAttr, isApplicableTo, procTypes, filter);
+  };
+  public static readonly createLingering = (
+    title: string,
+    validateAlive: (operator: StickyEffectOperatorBase) => boolean,
+    isSpawnedBy: DuelEntity,
+    actionAttr: Partial<CardActionDefinitionAttr>,
+    isApplicableTo: (operator: StickyEffectOperatorBase, target: DuelEntity) => boolean,
+    procTypes: TProcType[],
+    filter: (activator: Duelist, entity: DuelEntity, actionAttr: Partial<CardActionDefinitionAttr>, effectedEntites: DuelEntity[] | undefined) => boolean
+  ) => {
+    return new ProcFilter(title, validateAlive, false, isSpawnedBy, actionAttr, isApplicableTo, procTypes, filter);
+  };
   public beforeRemove: () => void = () => {};
   public readonly procTypes: TProcType[];
   public readonly filter: (activator: Duelist, entity: DuelEntity, actionAttr: Partial<CardActionDefinitionAttr>, effectedEntites: DuelEntity[]) => boolean;
@@ -61,7 +83,6 @@ export class ProcFilter extends StickyEffectOperatorBase {
     isContinuous: boolean,
     isSpawnedBy: DuelEntity,
     actionAttr: Partial<CardActionDefinitionAttr>,
-
     isApplicableTo: (operator: StickyEffectOperatorBase, target: DuelEntity) => boolean,
     procTypes: TProcType[],
     filter: (activator: Duelist, entity: DuelEntity, actionAttr: Partial<CardActionDefinitionAttr>, effectedEntites: DuelEntity[] | undefined) => boolean

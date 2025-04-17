@@ -23,7 +23,7 @@ export const createCardDefinitions_TestMonster = (): CardDefinition[] => {
 
   const def_にせアバター = {
     name: "にせアバター",
-    actions: [defaultNormalSummonAction, defaultAttackAction, defaultBattlePotisionChangeAction] as CardActionDefinition<unknown>[],
+    actions: [defaultNormalSummonAction, defaultAttackAction, defaultBattlePotisionChangeAction, defaultFlipSummonAction] as CardActionDefinition<unknown>[],
     continuousEffects: [
       createRegularNumericStateOperatorHandler(
         "THE_DEVILS_AVATAR",
@@ -52,7 +52,7 @@ export const createCardDefinitions_TestMonster = (): CardDefinition[] => {
 
   const def_にせドレッド・ルート = {
     name: "にせドレッド・ルート",
-    actions: [defaultNormalSummonAction, defaultAttackAction, defaultBattlePotisionChangeAction] as CardActionDefinition<unknown>[],
+    actions: [defaultNormalSummonAction, defaultAttackAction, defaultBattlePotisionChangeAction, defaultFlipSummonAction] as CardActionDefinition<unknown>[],
     continuousEffects: [
       createBroadRegularNumericStateOperatorHandler(
         "THE_DEVILS_DREAD-ROOT",

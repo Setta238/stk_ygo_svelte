@@ -196,18 +196,18 @@ export const createCardDefinitions_Stardust_Monster = (): CardDefinition[] => {
     ],
   });
 
-  result.push({
-    name: "真閃珖竜 スターダスト・クロニクル",
-    defaultSummonFilter: defaultSummonFilter,
-    actions: [
-      defaultAttackAction,
-      defaultBattlePotisionChangeAction,
-      getDefaultSyncroSummonAction(
-        (tuners) => tuners.length === 1 && tuners.every((tuner) => tuner.status.monsterCategories?.includes("Syncro")),
-        (tuners) => tuners.length > 0 && tuners.every((tuner) => tuner.status.monsterCategories?.includes("Syncro"))
-      ),
-    ],
-  });
+  // result.push({
+  //   name: "真閃珖竜 スターダスト・クロニクル",
+  //   defaultSummonFilter: defaultSummonFilter,
+  //   actions: [
+  //     defaultAttackAction,
+  //     defaultBattlePotisionChangeAction,
+  //     getDefaultSyncroSummonAction(
+  //       (tuners) => tuners.length === 1 && tuners.every((tuner) => tuner.status.monsterCategories?.includes("Syncro")),
+  //       (tuners) => tuners.length > 0 && tuners.every((tuner) => tuner.status.monsterCategories?.includes("Syncro"))
+  //     ),
+  //   ],
+  // });
   result.push({
     name: "聖珖神竜 スターダスト・シフル",
     defaultSummonFilter: defaultSummonFilter,

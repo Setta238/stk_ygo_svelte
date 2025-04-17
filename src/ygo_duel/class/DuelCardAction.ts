@@ -298,10 +298,6 @@ export class CardAction<T> extends CardActionBase implements ICardAction<T> {
     return this.definition.isLikeContinuousSpell || (this.entity.isLikeContinuousSpell && this.playType === "CardActivation");
   }
 
-  public get actionGroupNamePerTurn() {
-    return this.definition.actionGroupNamePerTurn;
-  }
-
   public get negatePreviousBlock() {
     return this.definition.negatePreviousBlock ?? false;
   }
@@ -347,7 +343,7 @@ export class CardAction<T> extends CardActionBase implements ICardAction<T> {
       if (
         this.entity.field.duel.chainBlockLog.records
           .filter((rec) => !rec.chainBlockInfo.isNegatedActivationBy)
-          .filter((rec) => this.isSame(rec.chainBlockInfo.action))
+          .filter((rec) => this.isSameGroupPerTurn(rec.chainBlockInfo.action))
           .filter((rec) => rec.chainBlockInfo.activator === activator).length >= this.isOnlyNTimesPerDuel
       ) {
         return;

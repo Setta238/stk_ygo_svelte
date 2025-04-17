@@ -1221,4 +1221,10 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 モンスターの召喚・反転召喚・特殊召喚を無効にし破壊する。`,kind:"Trap",trapCategory:"Counter",wikiEncodedName:"%A1%D4%BE%BA%C5%B7%A4%CE%B3%D1%C5%AB%A1%D5"},昇天の剛角笛:{name:"昇天の剛角笛",nameKana:"",description:`(1)：相手メインフェイズに相手がモンスターを特殊召喚する際に発動できる。
 その特殊召喚を無効にし、そのモンスターを破壊する。
 その後、相手はデッキから１枚ドローし、相手メインフェイズを終了する。`,kind:"Trap",trapCategory:"Counter",wikiEncodedName:"%A1%D4%BE%BA%C5%B7%A4%CE%B9%E4%B3%D1%C5%AB%A1%D5"},昇天の黒角笛:{name:"昇天の黒角笛",nameKana:"",description:`(1)：相手がモンスター１体のみを特殊召喚する際に発動できる。
-その特殊召喚を無効にし、そのモンスターを破壊する。`,kind:"Trap",trapCategory:"Counter",wikiEncodedName:"%A1%D4%BE%BA%C5%B7%A4%CE%B9%F5%B3%D1%C5%AB%A1%D5"}};export{e as j};
+その特殊召喚を無効にし、そのモンスターを破壊する。`,kind:"Trap",trapCategory:"Counter",wikiEncodedName:"%A1%D4%BE%BA%C5%B7%A4%CE%B9%F5%B3%D1%C5%AB%A1%D5"},"聖珖神竜 スターダスト・シフル":{name:"聖珖神竜 スターダスト・シフル",nameKana:"",description:`Ｓモンスターのチューナー＋チューナー以外のＳモンスター２体以上
+このカードはＳ召喚でしか特殊召喚できない。
+(1)：自分フィールドのカードはそれぞれ１ターンに１度だけ戦闘・効果では破壊されない。
+(2)：１ターンに１度、相手がモンスターの効果を発動した時に発動できる。
+その効果を無効にし、フィールドのカード１枚を破壊する。
+(3)：墓地のこのカードを除外し、自分の墓地のレベル８以下の「スターダスト」モンスター１体を対象として発動できる。
+そのモンスターを特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","SpecialSummon","Effect"],level:12,attack:4e3,defense:4e3,attributes:["Light"],types:["Dragon"],wikiEncodedName:"%A1%D4%C0%BB%A4%B3%A4%A6%BF%C0%CE%B5+%A5%B9%A5%BF%A1%BC%A5%C0%A5%B9%A5%C8%A1%A6%A5%B7%A5%D5%A5%EB%A1%D5"}};export{e as j};

@@ -29,7 +29,7 @@ export const createCardDefinitions_Synchron_SyncroMonster = (): CardDefinition[]
         isMandatory: false,
         playType: "TriggerEffect",
         spellSpeed: "Normal",
-        executableCells: ["MonsterZone"],
+        executableCells: monsterZoneCellTypes,
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
         validate: (myInfo) => {

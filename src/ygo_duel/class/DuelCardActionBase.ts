@@ -57,6 +57,10 @@ export class CardActionBase {
   public get isOnlyNTimesPerChain() {
     return this.definition.isOnlyNTimesPerChain ?? 0;
   }
+  public get actionGroupNamePerTurn() {
+    return this.definition.actionGroupNamePerTurn;
+  }
+
   public get duel() {
     return this.entity.duel;
   }

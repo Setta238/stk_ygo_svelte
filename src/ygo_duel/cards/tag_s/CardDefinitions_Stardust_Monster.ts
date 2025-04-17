@@ -11,11 +11,19 @@ import {
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardDefinition } from "@ygo_duel/cards/CardDefinitions";
-import { duelPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
+import { damageStepPeriodKeys, duelPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import { defaultEffectSpecialSummonExecute, defaultPrepare, defaultSelfBanishCanPayCosts, defaultSelfBanishPayCosts } from "@ygo_duel/cards/DefaultCardAction";
+import {
+  defaultEffectSpecialSummonExecute,
+  defaultPrepare,
+  defaultSelfBanishCanPayCosts,
+  defaultSelfBanishPayCosts,
+  defaultTargetMonstersRebornExecute,
+  defaultTargetMonstersRebornPrepare,
+} from "@ygo_duel/cards/DefaultCardAction";
 import { duelFieldCellTypes, monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import { getDefaultSyncroSummonAction } from "../DefaultCardAction_SyncroMonster";
+import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 
 export const createCardDefinitions_Stardust_Monster = (): CardDefinition[] => {
   const result: CardDefinition[] = [];
@@ -196,18 +204,69 @@ export const createCardDefinitions_Stardust_Monster = (): CardDefinition[] => {
     ],
   });
 
-  // result.push({
-  //   name: "真閃珖竜 スターダスト・クロニクル",
-  //   defaultSummonFilter: defaultSummonFilter,
-  //   actions: [
-  //     defaultAttackAction,
-  //     defaultBattlePotisionChangeAction,
-  //     getDefaultSyncroSummonAction(
-  //       (tuners) => tuners.length === 1 && tuners.every((tuner) => tuner.status.monsterCategories?.includes("Syncro")),
-  //       (tuners) => tuners.length > 0 && tuners.every((tuner) => tuner.status.monsterCategories?.includes("Syncro"))
-  //     ),
-  //   ],
-  // });
+  result.push({
+    name: "真閃珖竜 スターダスト・クロニクル",
+    defaultSummonFilter: defaultSummonFilter,
+    actions: [
+      defaultAttackAction,
+      defaultBattlePotisionChangeAction,
+      getDefaultSyncroSummonAction(
+        (tuners) => tuners.length === 1 && tuners.every((tuner) => tuner.status.monsterCategories?.includes("Syncro")),
+        (tuners) => tuners.length > 0 && tuners.every((tuner) => tuner.status.monsterCategories?.includes("Syncro"))
+      ),
+      {
+        title: "②蘇生",
+        isMandatory: false,
+        playType: "TriggerEffect",
+        spellSpeed: "Normal",
+        executableCells: ["Banished"],
+        executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
+        executableDuelistTypes: ["Controller"],
+        validate: (myInfo) => {
+          if (!myInfo.action.entity.wasMovedAtPreviousChain) {
+            console.log(myInfo.action.entity.toString(), myInfo);
+            return;
+          }
+          const cells = myInfo.activator.getMonsterZones();
+          const list = myInfo.activator.getEnableSummonList(
+            myInfo.activator,
+            "SpecialSummon",
+            ["Effect"],
+            myInfo.action,
+            myInfo.activator
+              .getBanished()
+              .cardEntities.filter((card) => card.status.kind === "Monster")
+              .filter((card) => card.face === "FaceUp")
+              .filter((card) => card.types.includes("Dragon"))
+              .filter((card) => card.status.monsterCategories?.includes("Syncro"))
+              .filter((card) => card.canBeTargetOfEffect(myInfo))
+              .map((monster) => {
+                return { monster, posList: faceupBattlePositions, cells };
+              }),
+            [],
+            false
+          );
+          if (!list.length) {
+            return;
+          }
+          return [];
+        },
+        prepare: (myInfo) =>
+          defaultTargetMonstersRebornPrepare(
+            myInfo,
+            myInfo.activator
+              .getBanished()
+              .cardEntities.filter((card) => card.status.kind === "Monster")
+              .filter((card) => card.face === "FaceUp")
+              .filter((card) => card.types.includes("Dragon"))
+              .filter((card) => card.status.monsterCategories?.includes("Syncro"))
+              .filter((card) => card.canBeTargetOfEffect(myInfo))
+          ),
+        execute: async (myInfo) => defaultTargetMonstersRebornExecute(myInfo),
+        settle: async () => true,
+      },
+    ],
+  });
   result.push({
     name: "聖珖神竜 スターダスト・シフル",
     defaultSummonFilter: defaultSummonFilter,

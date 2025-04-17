@@ -587,7 +587,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
             throw new Error("illegal state");
           }
 
-          const salvageables = await DuelEntityShortHands.tryBanish(selectedList, myInfo);
+          const salvageables = await DuelEntityShortHands.tryBanish("BanishAsEffect", selectedList, myInfo);
 
           //回収可能な場合、一旦既存の封印の黄金櫃カウンターを全て取り除く
           salvageables.forEach((card) => card.counterHolder.removeAll("GoldSarcophagus"));

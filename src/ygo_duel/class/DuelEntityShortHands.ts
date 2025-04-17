@@ -3,7 +3,7 @@ import { SystemError } from "./Duel";
 import { type CardActionDefinitionAttr, CardAction, type ChainBlockInfo, type ICardAction, type ChainBlockInfoBase } from "./DuelCardAction";
 import { DuelEntity, type TSummonRuleCauseReason, destoryCauseReasonDic, posToSummonPos } from "./DuelEntity";
 import type { Duelist } from "./Duelist";
-import type { TProcType } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
+import type { TBanishProcType, TProcType } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
 import type { IDuelClock } from "./DuelClock";
 
 declare module "./DuelEntity" {
@@ -23,7 +23,7 @@ declare module "./DuelEntity" {
      */
     canDirectAttack(): boolean;
     canBeEffected(activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionDefinitionAttr>): boolean;
-    canBeBanished(activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionDefinitionAttr>): boolean;
+    canBeBanished(procType: TBanishProcType, activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionDefinitionAttr>): boolean;
     canBeTargetOfEffect<T>(chainBlockInfo: ChainBlockInfoBase<T>): boolean;
     canBeTargetOfBattle(activator: Duelist, entity: DuelEntity): boolean;
     validateDestory(destroyType: TDestoryCauseReason, activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionDefinitionAttr>): boolean;
@@ -115,11 +115,16 @@ DuelEntity.prototype.canBeTargetOfEffect = function <T>(chainBlockInfo: ChainBlo
   return _canBeDoneSomethingByEffect(this, "EffectTarget", chainBlockInfo.activator, chainBlockInfo.action.entity, chainBlockInfo.action);
 };
 
-DuelEntity.prototype.canBeBanished = function (activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionDefinitionAttr>): boolean {
+DuelEntity.prototype.canBeBanished = function (
+  procType: TBanishProcType,
+  activator: Duelist,
+  causedBy: DuelEntity,
+  action: Partial<CardActionDefinitionAttr>
+): boolean {
   if (this.fieldCell.cellType === "Banished") {
     return false;
   }
-  return _canBeDoneSomethingByEffect(this, "BanishAsEffect", activator, causedBy, action);
+  return _canBeDoneSomethingByEffect(this, procType, activator, causedBy, action);
 };
 
 DuelEntity.prototype.canBeTargetOfBattle = function (activator: Duelist, causedBy: DuelEntity): boolean {
@@ -302,8 +307,8 @@ export class DuelEntityShortHands {
     return result;
   };
 
-  public static readonly tryBanish = async (cards: DuelEntity[], chainBlockInfo: ChainBlockInfo<unknown>): Promise<DuelEntity[]> => {
-    const _cards = cards.filter((card) => card.canBeBanished(chainBlockInfo.activator, chainBlockInfo.action.entity, chainBlockInfo.action));
+  public static readonly tryBanish = async (procType: TBanishProcType, cards: DuelEntity[], chainBlockInfo: ChainBlockInfo<unknown>): Promise<DuelEntity[]> => {
+    const _cards = cards.filter((card) => card.canBeBanished(procType, chainBlockInfo.activator, chainBlockInfo.action.entity, chainBlockInfo.action));
     await DuelEntity.banishManyForTheSameReason(_cards, ["Effect"], chainBlockInfo.action.entity, chainBlockInfo.activator);
     return _cards.filter((card) => card.fieldCell.cellType === "Banished").filter((card) => card.moveLog.latestRecord.movedBy === chainBlockInfo.action.entity);
   };

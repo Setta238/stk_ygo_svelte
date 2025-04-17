@@ -13,7 +13,7 @@ import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardDefinition } from "@ygo_duel/cards/CardDefinitions";
 import { duelPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import { defaultEffectSpecialSummonExecute, defaultPrepare } from "@ygo_duel/cards/DefaultCardAction";
+import { defaultEffectSpecialSummonExecute, defaultPrepare, defaultSelfBanishCanPayCosts, defaultSelfBanishPayCosts } from "@ygo_duel/cards/DefaultCardAction";
 import { duelFieldCellTypes, monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import { getDefaultSyncroSummonAction } from "../DefaultCardAction_SyncroMonster";
 
@@ -279,23 +279,20 @@ export const createCardDefinitions_Stardust_Monster = (): CardDefinition[] => {
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         priorityForNPC: 10,
-        canPayCosts: () => true,
+        canPayCosts: defaultSelfBanishCanPayCosts,
         validate: (myInfo) => {
           if (
             myInfo.activator
               .getBanished()
               .cardEntities.filter((card) => card.status.nameTags?.includes("スターダスト"))
-              .filter((card) => card.status.monsterCategories?.includes("Syncro")).length === 0
+              .filter((card) => (card.lvl ?? 12) < 9).length === 0
           ) {
             return;
           }
           const availableCells = myInfo.activator.getAvailableMonsterZones();
           return availableCells.length > 0 ? [] : undefined;
         },
-        payCosts: async (myInfo) => {
-          await myInfo.action.entity.banish(["Cost"], myInfo.action.entity, myInfo.activator);
-          return { banish: [myInfo.action.entity] };
-        },
+        payCosts: defaultSelfBanishPayCosts,
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromGraveyard"], prepared: undefined };
         },
@@ -306,10 +303,10 @@ export const createCardDefinitions_Stardust_Monster = (): CardDefinition[] => {
               myInfo.activator
                 .getBanished()
                 .cardEntities.filter((card) => card.status.nameTags?.includes("スターダスト"))
-                .filter((card) => card.status.monsterCategories?.includes("Syncro")),
+                .filter((card) => (card.lvl ?? 12) < 9),
               1,
               (selected) => selected.length === 1,
-              "蘇生するスターダストを選択。",
+              "蘇生するモンスターを選択。",
               false
             )) ?? [];
 
@@ -339,7 +336,7 @@ export const createCardDefinitions_Stardust_Monster = (): CardDefinition[] => {
             .filter((target) => target.counterHolder.getQty("SonicVerse", effect.entity) === 0);
           _targets.forEach((target) => {
             target.counterHolder.add("SonicVerse", 1, effect.entity);
-            effect.entity.controller.writeInfoLog(`${effect.entity.toString()}の効果により${target.toString()}は１ターンに１度だけ戦闘では破壊されない。`);
+            effect.entity.controller.writeInfoLog(`${effect.entity.toString()}の効果により${target.toString()}は１ターンに１度だけ破壊されない。`);
           });
           return _targets;
         },

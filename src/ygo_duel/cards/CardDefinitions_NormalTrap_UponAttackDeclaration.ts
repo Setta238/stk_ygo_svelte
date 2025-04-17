@@ -60,7 +60,7 @@ export const createCardDefinitions_NormalTrap_UponAttackDeclaration = (): CardDe
             if (name === "炸裂装甲") {
               await DuelEntityShortHands.tryDestroy(myInfo.selectedEntities, myInfo);
             } else {
-              await DuelEntityShortHands.tryBanish(myInfo.selectedEntities, myInfo);
+              await DuelEntityShortHands.tryBanish("BanishAsEffect", myInfo.selectedEntities, myInfo);
             }
 
             return true;

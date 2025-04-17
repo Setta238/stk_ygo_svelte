@@ -16,6 +16,15 @@ export const defaultPayLifePoint = async <T>(
   return { lifePoint: point };
 };
 
+export const defaultSelfBanishCanPayCosts = <T>(myInfo: ChainBlockInfoBase<T>) =>
+  myInfo.activator.canTryBanish(myInfo.action.entity, "BanishAsCost", myInfo.action) &&
+  myInfo.action.entity.canBeBanished("BanishAsCost", myInfo.activator, myInfo.action.entity, myInfo.action);
+
+export const defaultSelfBanishPayCosts = async <T>(myInfo: ChainBlockInfoBase<T>) => {
+  await myInfo.action.entity.banish(["Cost"], myInfo.action.entity, myInfo.activator);
+  return { banish: [myInfo.action.entity] };
+};
+
 export const defaultTargetMonstersRebornPrepare = async <T>(
   myInfo: ChainBlockInfoBase<T>,
   monsters: DuelEntity[],

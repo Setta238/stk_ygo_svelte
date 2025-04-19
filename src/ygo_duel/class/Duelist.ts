@@ -54,7 +54,7 @@ export class Duelist {
   public static readonly summonMany = async (
     effectOwner: Duelist,
     summonType: TSummonKindCauseReason,
-    moveAs: TDuelCauseReason[],
+    movedAs: TDuelCauseReason[],
     actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
     summonChoices: SummonChoice[],
     materialInfos: SummonMaterialInfo[],
@@ -70,7 +70,7 @@ export class Duelist {
       const selected = await summoner.prepareToSummonMany(
         effectOwner,
         summonType,
-        moveAs,
+        movedAs,
         actDefAttr,
         summonChoices.filter((choice) => choice.summoner === summoner),
         materialInfos,
@@ -99,7 +99,7 @@ export class Duelist {
       effectOwner
     );
 
-    await DuelEntity.summonMany(summonArgs, summonType, moveAs, actDefAttr.entity, effectOwner);
+    await DuelEntity.summonMany(summonArgs, summonType, movedAs, actDefAttr.entity, effectOwner);
 
     return summonArgs.map((arg) => arg.monster);
   };
@@ -344,7 +344,7 @@ export class Duelist {
 
   public readonly discard = async (
     qty: number,
-    moveAs: TDuelCauseReason[],
+    movedAs: TDuelCauseReason[],
     causedBy?: DuelEntity,
     chooser?: Duelist,
     filter?: (entity: DuelEntity) => boolean,
@@ -366,7 +366,7 @@ export class Duelist {
     }
     this.writeInfoLog(`手札からカードを${selectedList.length}枚捨てた。${selectedList.map((e) => e.origin?.name)}。`);
 
-    await DuelEntityShortHands.discardManyForTheSameReason(selectedList, ["Discard", ...moveAs], causedBy, causedByWhome);
+    await DuelEntityShortHands.discardManyForTheSameReason(selectedList, ["Discard", ...movedAs], causedBy, causedByWhome);
 
     return selectedList;
   };
@@ -374,7 +374,7 @@ export class Duelist {
   public readonly getEnableSummonList = (
     effectOwner: Duelist,
     summonType: TSummonKindCauseReason,
-    moveAs: TDuelCauseReason[],
+    movedAs: TDuelCauseReason[],
     actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
     summonChoices: Omit<SummonChoice, "summoner">[],
     materialInfos: SummonMaterialInfo[],
@@ -417,14 +417,14 @@ export class Duelist {
         };
       })
       .filter((item) => item.cells.length && item.posList.length)
-      .map((item) => this.entity.summonFilterBundle.filter(effectOwner, summonType, moveAs, actDefAttr, item, materialInfos, ignoreSummoningConditions))
+      .map((item) => this.entity.summonFilterBundle.filter(effectOwner, summonType, movedAs, actDefAttr, item, materialInfos, ignoreSummoningConditions))
       .filter((item) => item.cells.length && item.posList.length)
-      .map((item) => item.monster.summonFilterBundle.filter(effectOwner, summonType, moveAs, actDefAttr, item, materialInfos, ignoreSummoningConditions))
+      .map((item) => item.monster.summonFilterBundle.filter(effectOwner, summonType, movedAs, actDefAttr, item, materialInfos, ignoreSummoningConditions))
       .filter((item) => item.cells.length && item.posList.length)
       .map((item) =>
         materialInfos
           .map((info) => info.material.summonFilterBundle)
-          .reduce((wip, bundle) => bundle.filter(effectOwner, summonType, moveAs, actDefAttr, item, materialInfos, ignoreSummoningConditions), item)
+          .reduce((wip, bundle) => bundle.filter(effectOwner, summonType, movedAs, actDefAttr, item, materialInfos, ignoreSummoningConditions), item)
       )
       .filter((item) => item.cells.length && item.posList.length);
   };
@@ -432,7 +432,7 @@ export class Duelist {
   private readonly prepareToSummonMany = async (
     effectOwner: Duelist,
     summonType: TSummonKindCauseReason,
-    moveAs: TDuelCauseReason[],
+    movedAs: TDuelCauseReason[],
     actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
     summonChoices: SummonChoice[],
     materialInfos: SummonMaterialInfo[],
@@ -441,7 +441,7 @@ export class Duelist {
     cancelable: boolean,
     msg: string = "特殊召喚するモンスターを選択。"
   ): Promise<SummonArg[]> => {
-    const choices = this.getEnableSummonList(effectOwner, summonType, moveAs, actDefAttr, summonChoices, materialInfos, ignoreSummoningConditions);
+    const choices = this.getEnableSummonList(effectOwner, summonType, movedAs, actDefAttr, summonChoices, materialInfos, ignoreSummoningConditions);
 
     if (!choices.length) {
       return [];
@@ -500,7 +500,7 @@ export class Duelist {
   public readonly summonAll = (
     effectOwner: Duelist,
     summonType: TSummonKindCauseReason,
-    moveAs: TDuelCauseReason[],
+    movedAs: TDuelCauseReason[],
     actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
     summonChoices: Omit<SummonChoice, "summoner">[],
     materialInfos: SummonMaterialInfo[],
@@ -511,7 +511,7 @@ export class Duelist {
     this.summonMany(
       effectOwner,
       summonType,
-      moveAs,
+      movedAs,
       actDefAttr,
       summonChoices,
       materialInfos,
@@ -524,7 +524,7 @@ export class Duelist {
   public readonly summonMany = (
     effectOwner: Duelist,
     summonType: TSummonKindCauseReason,
-    moveAs: TDuelCauseReason[],
+    movedAs: TDuelCauseReason[],
     actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
     summonChoices: Omit<SummonChoice, "summoner">[],
     materialInfos: SummonMaterialInfo[],
@@ -536,7 +536,7 @@ export class Duelist {
     Duelist.summonMany(
       effectOwner,
       summonType,
-      moveAs,
+      movedAs,
       actDefAttr,
       summonChoices.map((choice) => {
         return { ...choice, summoner: this };

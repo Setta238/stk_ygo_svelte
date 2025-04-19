@@ -793,7 +793,7 @@ export class Duel {
         // 発動無効時は全ての処理を行わない
         if (chainBlockInfo.chainNumber) {
           this.log.info(
-            `チェーン${chainBlockInfo.chainNumber}: ${chainBlockInfo.action.toString()}を${chainBlockInfo.action.toString()}によって発動を無効にした。`,
+            `チェーン${chainBlockInfo.chainNumber}: ${chainBlockInfo.action.toString()}を${chainBlockInfo.isNegatedActivationBy.toString()}によって発動を無効にした。`,
             chainBlockInfo.activator
           );
         }
@@ -809,7 +809,7 @@ export class Duel {
         if (isEffective) {
           if (chainBlockInfo.isNegatedEffectBy) {
             // うららなどの効果処理のみ無効にするタイプ
-            nagationText = `チェーン${chainBlockInfo.chainNumber}: ${chainBlockInfo.action.toString()}を${chainBlockInfo.action.toString()}によって効果を無効にした。`;
+            nagationText = `チェーン${chainBlockInfo.chainNumber}: ${chainBlockInfo.action.toString()}を${chainBlockInfo.isNegatedEffectBy.toString()}によって効果を無効にした。`;
             isEffective = false;
           } else if (!enableCellTypes.includes(chainBlockInfo.isActivatedIn.cellType)) {
             // 発動時にエフェクト・ヴェーラーなどに発動場所を参照する無効が適用されていた場合、移動ログを検索する。

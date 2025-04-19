@@ -131,6 +131,7 @@ const getEnableLinkSummonPatterns = (
   //全パターンを試し、リンク召喚可能なパターンを全て列挙する。
   return materials
     .getAllOnOffPattern()
+    .filter((pattern) => pattern.some((monster) => monster.status.allowHandLink) || pattern.every((monster) => monster.isOnFieldAsMonster))
     .map((pattern) => defaultLinkMaterialsValidator(myInfo, cells, pattern, validator) ?? [])
     .filter((materialInfos) => materialInfos.length);
 };

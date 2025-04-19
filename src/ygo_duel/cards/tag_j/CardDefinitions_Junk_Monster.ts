@@ -30,7 +30,7 @@ export const createCardDefinitions_Junk_Monster = (): CardDefinition[] => {
         executablePeriods: freeChainDuelPeriodKeys,
         executableDuelistTypes: ["Controller"],
         canPayCosts: (myInfo) => {
-          myInfo.activator
+          const traps = myInfo.activator
             .getGraveyard()
             .cardEntities.filter((card) => card.status.kind === "Trap")
             .filter((card) => card.status.trapCategory === "Normal")
@@ -38,8 +38,11 @@ export const createCardDefinitions_Junk_Monster = (): CardDefinition[] => {
             .filter((card) => card.canBeBanished("BanishAsCost", myInfo.activator, myInfo.action.entity, myInfo.action))
             .flatMap((card) => card.actions)
             .filter((action) => action.playType === "CardActivation")
-            .filter((action) => action.needsToPayCost)
+            .filter((action) => !action.needsToPayCost)
             .filter((action) => action.validate(myInfo.activator, [], true));
+          if (!traps.length) {
+            return false;
+          }
 
           return defaultCanPaySelfBanishCosts(myInfo);
         },

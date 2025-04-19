@@ -332,7 +332,7 @@ export class DuelEntity {
   public static readonly summonMany = async (
     items: SummonArg[],
     summonKind: TSummonKindCauseReason,
-    moveAs: TDuelCauseReason[],
+    movedAs: TDuelCauseReason[],
     movedBy: DuelEntity,
     actionOwner: Duelist
   ): Promise<void> => {
@@ -340,7 +340,7 @@ export class DuelEntity {
       return;
     }
 
-    const moveAsDic: { [pos in TBattlePosition]: TDuelCauseReason } = {
+    const movedAsDic: { [pos in TBattlePosition]: TDuelCauseReason } = {
       Attack: "AttackSummon",
       Defense: "DefenseSummon",
       Set: "SetSummon",
@@ -357,7 +357,7 @@ export class DuelEntity {
           } else {
             entity.duel.log.info(`${entity.toString()}を${advance}セット`, chooser);
           }
-          if (moveAs.includes("Rule")) {
+          if (movedAs.includes("Rule")) {
             chooser.info.ruleNormalSummonCountQty++;
           } else {
             chooser.info.effectNormalSummonCountQty++;
@@ -381,11 +381,11 @@ export class DuelEntity {
         const { face, orientation } = DuelEntity.splitBattlePos(pos);
 
         // チェーンに乗らない召喚、特殊召喚は無効にされる可能性がある。
-        if (moveAs.includes("Rule")) {
+        if (movedAs.includes("Rule")) {
           entity.info.isPending = true;
         }
 
-        await entity._move(to, "Monster", face, orientation, "Top", [summonKind, moveAsDic[pos], ...moveAs], movedBy, actionOwner, chooser);
+        await entity._move(to, "Monster", face, orientation, "Top", [summonKind, movedAsDic[pos], ...movedAs], movedBy, actionOwner, chooser);
       })
     );
 
@@ -394,7 +394,7 @@ export class DuelEntity {
       .map((item) => item.summoner)
       .forEach((duelist) => {
         if (summonKind === "NormalSummon" || summonKind === "AdvanceSummon") {
-          if (moveAs.includes("Rule")) {
+          if (movedAs.includes("Rule")) {
             duelist.info.ruleNormalSummonCount++;
           } else {
             duelist.info.effectNormalSummonCount++;
@@ -535,6 +535,14 @@ export class DuelEntity {
     activator: Duelist,
     causedBy: DuelEntity,
     causedAs: (TMaterialCauseReason | "ReleaseAsCost" | "ReleaseAsEffect")[],
+    action: CardAction<T>
+  ): boolean => {
+    return this.procFilterBundle.operators.filter((pf) => pf.procTypes.union(causedAs).length).every((pf) => pf.filter(activator, causedBy, action, [this]));
+  };
+  public readonly canBeSentToGraveyard = <T>(
+    activator: Duelist,
+    causedBy: DuelEntity,
+    causedAs: ("SendToGraveyardAsEffect" | "SendToGraveyardAsCost")[],
     action: CardAction<T>
   ): boolean => {
     return this.procFilterBundle.operators.filter((pf) => pf.procTypes.union(causedAs).length).every((pf) => pf.filter(activator, causedBy, action, [this]));
@@ -718,6 +726,8 @@ export class DuelEntity {
   public get allStickyEffectOperators() {
     return [...this.procFilterBundle.operators, ...this.numericOprsBundle.operators];
   }
+
+  private readonly cardDefinition: CardDefinition | undefined;
   /**
    *
    * @param owner
@@ -739,7 +749,7 @@ export class DuelEntity {
   ) {
     this.seq = DuelEntity.nextEntitySeq++;
     this.counterHolder = new CounterHolder();
-
+    this.cardDefinition = cardDefinition;
     this.owner = owner;
     this.fieldCell = fieldCell;
     this.entityType = entityType;
@@ -832,6 +842,17 @@ export class DuelEntity {
 
   public readonly toString = () => (this.entityType === "Card" ? `《${this.nm}》` : this.nm);
 
+  public readonly onUsedAsMaterial = (chainBlockInfo: ChainBlockInfo<unknown>, monster: DuelEntity) => {
+    if (!this.cardDefinition) {
+      return;
+    }
+    if (!this.cardDefinition.onUsedAsMaterial) {
+      return;
+    }
+
+    this.cardDefinition.onUsedAsMaterial(chainBlockInfo, monster);
+  };
+
   public readonly setBattlePosition = async (pos: TBattlePosition, movedAs: TDuelCauseReason[], movedBy?: DuelEntity, actionOwner?: Duelist): Promise<void> => {
     // ログテキストを準備
     let logText = `表示形式の変更：${this.toString()}（${this.battlePositionName}⇒${battlePositionDic[pos]}）`;
@@ -840,9 +861,9 @@ export class DuelEntity {
     // 反転召喚の判定
     if (this.battlePosition === "Set") {
       //反転召喚は無効にされる可能性がある。
-      this.info.isPending = true;
       _movedAs.push("Flip");
       if (movedAs.includes("Rule")) {
+        this.info.isPending = true;
         logText = `${this.toString()}を反転召喚`;
         this.info.summonKinds.push("FlipSummon");
         _movedAs.push("FlipSummon");
@@ -900,11 +921,11 @@ export class DuelEntity {
   };
 
   public readonly draw = async (
-    moveAs: TDuelCauseReason[],
+    movedAs: TDuelCauseReason[],
     movedBy: DuelEntity | undefined,
     actionOwner: Duelist | undefined
   ): Promise<DuelFieldCell | undefined> => {
-    return await this.addToHand([...moveAs, "Draw"], movedBy, actionOwner);
+    return await this.addToHand([...movedAs, "Draw"], movedBy, actionOwner);
   };
   public readonly addToHand = async (
     movedAs: TDuelCauseReason[],
@@ -917,12 +938,12 @@ export class DuelEntity {
     to: DuelFieldCell,
     pos: TBattlePosition,
     summonKind: TSummonKindCauseReason,
-    moveAs: TDuelCauseReason[],
+    movedAs: TDuelCauseReason[],
     movedBy: DuelEntity,
     actionOwner: Duelist,
     chooser?: Duelist
   ): Promise<void> => {
-    return DuelEntity.summonMany([{ monster: this, dest: to, summoner: chooser ?? actionOwner, pos }], summonKind, moveAs, movedBy, actionOwner);
+    return DuelEntity.summonMany([{ monster: this, dest: to, summoner: chooser ?? actionOwner, pos }], summonKind, movedAs, movedBy, actionOwner);
   };
 
   private readonly moveAlone = async (
@@ -1022,14 +1043,21 @@ export class DuelEntity {
           // 数値ステータスをリセット
           // FIXME 情報リセットを一箇所に集約する
           this.resetNumericStatus();
+          this.info.willBeBanished = false;
+          this.info.willReturnToDeck = undefined;
+          this.info.isEffectiveIn.push(...playFieldCellTypes);
         }
       }
 
       // 魔法罠を離れる時の処理
       if (this.fieldCell.cellType === "SpellAndTrapZone" && to.cellType !== "SpellAndTrapZone") {
         // 装備解除
+        // FIXME 情報リセットを一箇所に集約する
         this.info.equipedBy = undefined;
         this.info.equipedAs = undefined;
+        this.info.willBeBanished = false;
+        this.info.willReturnToDeck = undefined;
+        this.info.isEffectiveIn.push(...playFieldCellTypes);
       }
 
       // セルに自分を所属させる
@@ -1038,6 +1066,7 @@ export class DuelEntity {
       // ★情報のリセット、再セット
       //    後処理は後続で行う
       if (to === this.isBelongTo || to.cellType === "Hand" || (to.cellType === "Banished" && this.face === "FaceDown")) {
+        // FIXME 情報リセットを一箇所に集約する
         // 非公開情報になった場合、全ての情報をリセット
         this.counterHolder.clear();
         this.resetInfoAll();
@@ -1207,7 +1236,7 @@ declare module "./DuelEntity" {
     getIndexInCell(): number;
     getXyzMaterials(): DuelEntity[];
     wasMovedAfter(clock: IDuelClock): boolean;
-    release(moveAs: TDuelCauseReason[], movedBy: DuelEntity | undefined, movedByWhom: Duelist | undefined): Promise<DuelFieldCell | undefined>;
+    release(movedAs: TDuelCauseReason[], movedBy: DuelEntity | undefined, movedByWhom: Duelist | undefined): Promise<DuelFieldCell | undefined>;
     ruleDestory(): Promise<DuelFieldCell | undefined>;
     sendToGraveyard(movedAs: TDuelCauseReason[], movedBy: DuelEntity | undefined, activator: Duelist | undefined): Promise<void>;
     discard(movedAs: TDuelCauseReason[], movedBy: DuelEntity | undefined, activator: Duelist | undefined): Promise<void>;
@@ -1375,11 +1404,11 @@ DuelEntity.prototype.wasMovedAfter = function (clock: IDuelClock): boolean {
 };
 
 DuelEntity.prototype.release = async function (
-  moveAs: TDuelCauseReason[],
+  movedAs: TDuelCauseReason[],
   movedBy: DuelEntity | undefined,
   movedByWhom: Duelist | undefined
 ): Promise<DuelFieldCell | undefined> {
-  await this.sendToGraveyard([...moveAs, "Release"], movedBy, movedByWhom);
+  await this.sendToGraveyard([...movedAs, "Release"], movedBy, movedByWhom);
   return this.info.isVanished ? undefined : this.fieldCell;
 };
 DuelEntity.prototype.ruleDestory = async function (): Promise<DuelFieldCell | undefined> {

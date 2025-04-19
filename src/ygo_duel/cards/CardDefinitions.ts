@@ -1,4 +1,4 @@
-import type { CardActionDefinition, CardActionDefinitionAttr, SummonMaterialInfo } from "@ygo_duel/class/DuelCardAction";
+import type { CardActionDefinition, CardActionDefinitionAttr, ChainBlockInfo, SummonMaterialInfo } from "@ygo_duel/class/DuelCardAction";
 import type { Duelist } from "@ygo_duel/class/Duelist";
 import type { DuelEntity, EntityStatus, TDuelCauseReason } from "@ygo_duel/class/DuelEntity";
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
@@ -49,7 +49,7 @@ export type CardDefinition = {
     filterTarget: DuelEntity,
     effectOwner: Duelist,
     summoner: Duelist,
-    moveAs: TDuelCauseReason[],
+    movedAs: TDuelCauseReason[],
     actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
     monster: DuelEntity,
     materialInfos: SummonMaterialInfo[],
@@ -62,6 +62,7 @@ export type CardDefinition = {
   };
   substituteEffects?: SubstituteEffectDefinition[];
   defaultStatus?: Partial<EntityStatus>;
+  onUsedAsMaterial?: (chainBlockInfo: ChainBlockInfo<unknown>, monster: DuelEntity) => void;
 };
 
 export const createCardDefinitions = (): CardDefinition[] => {

@@ -1,8 +1,8 @@
-import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
 import {
   defaultAttackAction,
   defaultBattlePotisionChangeAction,
   defaultFlipSummonAction,
+  defaultNormalSummonAction,
   defaultSelfReleaseCanPayCosts,
   defaultSelfReleasePayCosts,
 } from "@ygo_duel/cards/DefaultCardAction_Monster";
@@ -10,7 +10,6 @@ import {
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardDefinition } from "@ygo_duel/cards/CardDefinitions";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
-import { getDefaultSyncroSummonAction } from "../DefaultCardAction_SyncroMonster";
 import { SystemError } from "@ygo_duel/class/Duel";
 import { defaultCanPaySelfBanishCosts, defaultPaySelfBanishCosts, defaultPrepare } from "../DefaultCardAction";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
@@ -25,7 +24,7 @@ export const createCardDefinitions_WorldChalice_Monster = (): CardDefinition[] =
       defaultAttackAction,
       defaultBattlePotisionChangeAction,
       defaultFlipSummonAction,
-      getDefaultSyncroSummonAction(),
+      defaultNormalSummonAction,
       {
         title: "①サーチ",
         isMandatory: false,
@@ -69,7 +68,46 @@ export const createCardDefinitions_WorldChalice_Monster = (): CardDefinition[] =
           return true;
         },
         settle: async () => true,
-      } as CardActionDefinition<unknown>,
+      },
+      {
+        title: "②自己サルベージ",
+        isMandatory: false,
+        playType: "IgnitionEffect",
+        spellSpeed: "Normal",
+        executableCells: ["Graveyard"],
+        executablePeriods: ["main1", "main2"],
+        executableDuelistTypes: ["Controller"],
+        isOnlyNTimesPerTurn: 1,
+        canPayCosts: (myInfo) =>
+          myInfo.activator
+            .getMonstersOnField()
+            .some((monster) => monster.canBeSentToGraveyard(myInfo.activator, myInfo.action.entity, ["SendToGraveyardAsCost"], myInfo.action)),
+        validate: () => [],
+        payCosts: async (myInfo) => {
+          const choices = myInfo.activator
+            .getMonstersOnField()
+            .filter((monster) => monster.canBeSentToGraveyard(myInfo.activator, myInfo.action.entity, ["SendToGraveyardAsCost"], myInfo.action));
+          const cost = await myInfo.activator.waitSelectEntity(choices, "墓地に送るモンスターを選択。", true);
+          if (!cost) {
+            return;
+          }
+          await cost.sendToGraveyard(["Cost"], myInfo.action.entity, myInfo.activator);
+          return { sendToGraveyard: [cost] };
+        },
+        prepare: async () => {
+          return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"], prepared: undefined };
+        },
+        execute: async (myInfo) => {
+          if (myInfo.action.entity.wasMovedAfter(myInfo.isActivatedAt)) {
+            return false;
+          }
+
+          await myInfo.action.entity.addToHand(["Effect"], myInfo.action.entity, myInfo.activator);
+
+          return true;
+        },
+        settle: async () => true,
+      },
     ],
   });
   result.push({
@@ -78,7 +116,7 @@ export const createCardDefinitions_WorldChalice_Monster = (): CardDefinition[] =
       defaultAttackAction,
       defaultBattlePotisionChangeAction,
       defaultFlipSummonAction,
-      getDefaultSyncroSummonAction(),
+      defaultNormalSummonAction,
       {
         title: "①墓地送り",
         isMandatory: false,
@@ -196,7 +234,7 @@ export const createCardDefinitions_WorldChalice_Monster = (): CardDefinition[] =
         executableDuelistTypes: ["Controller"],
         canPayCosts: defaultCanPaySelfBanishCosts,
         validate: (myInfo) => {
-          if (myInfo.action.entity.wasMovedAtCurrentChain) {
+          if (myInfo.action.entity.wasMovedAtCurrentTurn) {
             return;
           }
           return myInfo.activator.getDeckCell().cardEntities.filter((card) => card.status.nameTags?.includes("星遺物")).length > 0 ? [] : undefined;

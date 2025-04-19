@@ -25,6 +25,11 @@ export const createCardDefinitions_Wind_Spellcaster_lvl3_Monster = (): CardDefin
         return ok;
       }
 
+      if (!me.isOnFieldAsMonster) {
+        // TODO 要確認：エキセントリックボーイが手札でシンクロできる可能性。
+        return notAllowed;
+      }
+
       if (materials.length !== 2) {
         return notAllowed;
       }
@@ -32,6 +37,15 @@ export const createCardDefinitions_Wind_Spellcaster_lvl3_Monster = (): CardDefin
       return materials.filter((material) => material !== me).every((material) => material.fieldCell.cellType === "Hand") ? ok : notAllowed;
     },
     defaultStatus: { allowHandSyncro: true },
+    onUsedAsMaterial: (myInfo, monster) => {
+      if (!monster.info.summonKinds.includes("SyncroSummon")) {
+        return;
+      }
+      monster.info.willBeBanished = true;
+      monster.info.isEffectiveIn = monster.info.isEffectiveIn
+        .filter((cellType) => cellType !== "ExtraMonsterZone")
+        .filter((cellType) => cellType !== "MonsterZone");
+    },
   });
 
   return result;

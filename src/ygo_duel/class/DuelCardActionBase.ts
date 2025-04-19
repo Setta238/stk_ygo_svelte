@@ -15,7 +15,7 @@ export type CardActionDefinitionBase = {
   isOnlyNTimesPerTurnIfFaceup?: number;
   isOnlyNTimesPerChain?: number;
   isOnlyNTimesIfFaceup?: number;
-  actionGroupNamePerTurn?: string;
+  actionGroupName?: string;
 };
 
 export class CardActionBase {
@@ -57,8 +57,8 @@ export class CardActionBase {
   public get isOnlyNTimesPerChain() {
     return this.definition.isOnlyNTimesPerChain ?? 0;
   }
-  public get actionGroupNamePerTurn() {
-    return this.definition.actionGroupNamePerTurn;
+  public get actionGroupName() {
+    return this.definition.actionGroupName;
   }
 
   public get duel() {

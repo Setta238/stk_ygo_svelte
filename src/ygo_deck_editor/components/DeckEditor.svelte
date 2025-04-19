@@ -27,6 +27,20 @@
     type TTrapCategory,
   } from "@ygo/class/YgoTypes";
   import {} from "@stk_utils/funcs/StkDateUtils";
+  import { isString } from "@stk_utils/funcs/StkStringUtils";
+
+  const seachConditionDefaultValues = {
+    name: "" as string,
+    cardKinds: cardKinds.filter((kind) => kind !== "XyzMaterial") as TCardKind[],
+    monsterCategories: [...monsterCategories],
+    monsterAttributes: [...monsterAttributes],
+    monsterTypes: [...monsterTypes],
+    spellCategories: [...spellCategories],
+    trapCategories: [...trapCategories],
+    isForTest: false,
+  };
+
+  const seachCondition = structuredClone(seachConditionDefaultValues);
 
   const onClearSearchConditionClick = async () => {
     seachCondition.name = "";
@@ -79,17 +93,6 @@
 
   let cardInfo: CardInfoJson = cardInfoDic["ゾンビーノ"];
 
-  const seachCondition = {
-    name: "" as string,
-    cardKinds: [...cardKinds] as Omit<TCardKind, "XyzMaterial">[],
-    monsterCategories: [...monsterCategories].filter((cat) => cat !== "Normal" && cat !== "Token") as TMonsterCategory[],
-    monsterAttributes: [...monsterAttributes],
-    monsterTypes: [...monsterTypes],
-    spellCategories: [...spellCategories] as TSpellCategory[],
-    trapCategories: [...trapCategories] as TTrapCategory[],
-    isForTest: false,
-  };
-
   const getCardList = () => {
     return Object.values(cardInfoDic).filter((cardInfo) => {
       if (!seachCondition.cardKinds.includes(cardInfo.kind)) {
@@ -138,6 +141,12 @@
     return deckInfo;
   };
 
+  const onResetSeachCondition = async (key: keyof typeof seachCondition) => {
+    if (Array.isArray(seachCondition[key]) && Array.isArray(seachConditionDefaultValues[key])) {
+      seachCondition[key] = seachCondition[key].length ? [] : [...seachConditionDefaultValues[key]];
+    }
+  };
+
   const onSaveDeckClick = async () => {
     const deckInfo = await getSelectedDeck();
     await deckInfo.saveDeckInfo({
@@ -184,7 +193,7 @@
           </div>
         </div>
         <div class="deck_editor_search_box_row">
-          <div>種類</div>
+          <div><button class="search_condition_title black_button" on:click={() => onResetSeachCondition("cardKinds")}>種類</button></div>
           <div>
             {#each cardKinds.filter((kind) => kind !== "XyzMaterial") as key}
               <label>
@@ -195,7 +204,7 @@
           </div>
         </div>
         <div class="deck_editor_search_box_row">
-          <div>モンスター</div>
+          <div><button class="search_condition_title black_button" on:click={() => onResetSeachCondition("monsterCategories")}>モンスター</button></div>
           <div>
             {#each monsterCategories as key}
               <label>
@@ -206,7 +215,7 @@
           </div>
         </div>
         <div class="deck_editor_search_box_row">
-          <div>属性</div>
+          <div><button class="search_condition_title black_button" on:click={() => onResetSeachCondition("monsterAttributes")}>属性</button></div>
           <div>
             {#each monsterAttributes as key}
               <label>
@@ -218,7 +227,7 @@
           </div>
         </div>
         <div class="deck_editor_search_box_row">
-          <div>種族</div>
+          <div><button class="search_condition_title black_button" on:click={() => onResetSeachCondition("monsterTypes")}>種族</button></div>
           <div>
             {#each monsterTypes as key}
               <label>
@@ -230,7 +239,7 @@
           </div>
         </div>
         <div class="deck_editor_search_box_row">
-          <div>魔法</div>
+          <div><button class="search_condition_title black_button" on:click={() => onResetSeachCondition("spellCategories")}>魔法</button></div>
           <div>
             {#each spellCategories as key}
               <label>
@@ -241,7 +250,7 @@
           </div>
         </div>
         <div class="deck_editor_search_box_row">
-          <div>罠</div>
+          <div><button class="search_condition_title black_button" on:click={() => onResetSeachCondition("trapCategories")}>罠</button></div>
           <div>
             {#each trapCategories as key}
               <label>
@@ -360,6 +369,35 @@
     border-radius: 0.5rem;
     padding: 0.2rem;
   }
+  .black_button {
+    border: 2px solid #000;
+    border-radius: 0;
+    background: #fff;
+    -webkit-transform-style: preserve-3d;
+    transform-style: preserve-3d;
+    width: 90%;
+    padding: 0.1rem 0rem 0.1rem 0.5rem;
+  }
+  .black_button:before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 5px;
+    height: 100%;
+    content: "";
+    -webkit-transition: all 0.3s;
+    transition: all 0.3s;
+    background: #000;
+  }
+
+  .black_button:hover {
+    color: #fff;
+    background: #000;
+  }
+
+  .black_button:hover:before {
+    background: #fff;
+  }
   .white_button {
     background-color: #ffffff;
     display: inline-block;
@@ -383,7 +421,7 @@
   .deck_editor_search_box_row > div:first-child {
     margin: auto 0rem;
     text-wrap-mode: nowrap;
-    min-width: 4rem;
+    min-width: 5rem;
   }
   .deck_editor_search_box_row > div:last-child {
     flex-grow: 1;

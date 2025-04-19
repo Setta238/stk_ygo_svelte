@@ -8,7 +8,7 @@ declare module "./Duelist" {
   interface Duelist {
     summon(
       summonKind: TSummonKindCauseReason,
-      moveAs: TDuelCauseReason[],
+      movedAs: TDuelCauseReason[],
       actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
       monster: DuelEntity,
       posList: Readonly<TBattlePosition[]>,
@@ -29,7 +29,7 @@ declare module "./Duelist" {
 
 Duelist.prototype.summon = async function (
   summonKind: TSummonKindCauseReason,
-  moveAs: TDuelCauseReason[],
+  movedAs: TDuelCauseReason[],
   actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
   monster: DuelEntity,
   posList: Readonly<TBattlePosition[]>,
@@ -41,7 +41,7 @@ Duelist.prototype.summon = async function (
     (await this.summonMany(
       this,
       summonKind,
-      moveAs,
+      movedAs,
       actDefAttr,
       [{ monster, posList, cells }],
       materialInfos,

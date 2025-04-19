@@ -168,6 +168,7 @@ export const defaultRuleSummonPrepare = async (
 export const defaultRuleSummonExecute = async (myInfo: ChainBlockInfo<unknown>): Promise<boolean> => {
   myInfo.action.entity.info.isRebornable = true;
   myInfo.action.entity.info.isPending = false;
+  myInfo.costInfo.summonMaterialInfos?.map((info) => info.material).forEach((material) => material.onUsedAsMaterial(myInfo, myInfo.action.entity));
   return true;
 };
 
@@ -377,7 +378,7 @@ export const defaultBattlePotisionChangeAction: CardActionDefinition<unknown> = 
  *
  * @param effectOwner
  * @param summoner
- * @param moveAs
+ * @param movedAs
  * @param actDefAttr
  * @param monster
  * @param materialInfos
@@ -388,7 +389,7 @@ export const defaultBattlePotisionChangeAction: CardActionDefinition<unknown> = 
 export const defaultNoLimitSummonFilter = (
   effectOwner: Duelist,
   summoner: Duelist,
-  moveAs: TDuelCauseReason[],
+  movedAs: TDuelCauseReason[],
   actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
   monster: DuelEntity,
   materialInfos: SummonMaterialInfo[],
@@ -414,7 +415,7 @@ export const defaultSelfRebornExecute = async <T>(myInfo: ChainBlockInfo<T>, pos
  * 通常の特殊召喚モンスター用
  * @param effectOwner
  * @param summoner
- * @param moveAs
+ * @param movedAs
  * @param actDefAttr
  * @param monster
  * @param materialInfos
@@ -427,7 +428,7 @@ export const defaultSummonFilter = (
   filterTarget: DuelEntity,
   effectOwner: Duelist,
   summoner: Duelist,
-  moveAs: TDuelCauseReason[],
+  movedAs: TDuelCauseReason[],
   actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
   monster: DuelEntity,
   materialInfos: SummonMaterialInfo[],
@@ -458,7 +459,7 @@ export const defaultSummonFilter = (
 
   // 特殊召喚できないモンスター（※神、スピリットなど）
   if (monster.origin.monsterCategories.includes("NormalSummonOnly")) {
-    if (moveAs.includes("NormalSummon") || moveAs.includes("AdvanceSummon")) {
+    if (movedAs.includes("NormalSummon") || movedAs.includes("AdvanceSummon")) {
       return ok;
     }
     return notAllowed;
@@ -478,7 +479,7 @@ export const defaultSummonFilter = (
   }
 
   // 名前のある召喚方法は可
-  if (moveAs.union(namedSummonKindCauseReasons).length) {
+  if (movedAs.union(namedSummonKindCauseReasons).length) {
     return ok;
   }
 

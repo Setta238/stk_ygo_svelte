@@ -32,7 +32,7 @@ export const createCardDefinitions_Earth_Cyberse_lvl1_Monster = (): CardDefiniti
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerDuel: 1,
-        actionGroupNamePerTurn: "ドットスケーパー",
+        actionGroupName: "ドットスケーパー",
         validate: (myInfo) => {
           // 前回のチェーンで動いたかどうか
           if (!myInfo.action.entity.wasMovedAtPreviousChain) {
@@ -41,7 +41,7 @@ export const createCardDefinitions_Earth_Cyberse_lvl1_Monster = (): CardDefiniti
           return myInfo.activator.getAvailableMonsterZones().length > 0 ? [] : undefined;
         },
         prepare: async (myInfo) => {
-          console.log(myInfo.action.actionGroupNamePerTurn);
+          console.log(myInfo.action.actionGroupName);
           return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromGraveyard"], prepared: undefined };
         },
         execute: (myInfo) => defaultSelfRebornExecute(myInfo),
@@ -56,7 +56,7 @@ export const createCardDefinitions_Earth_Cyberse_lvl1_Monster = (): CardDefiniti
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerDuel: 1,
-        actionGroupNamePerTurn: "ドットスケーパー",
+        actionGroupName: "ドットスケーパー",
         validate: (myInfo) => {
           // 前回のチェーンで動いたかどうか
           if (!myInfo.action.entity.wasMovedAtPreviousChain) {
@@ -65,7 +65,7 @@ export const createCardDefinitions_Earth_Cyberse_lvl1_Monster = (): CardDefiniti
           return myInfo.activator.getAvailableMonsterZones().length > 0 ? [] : undefined;
         },
         prepare: async (myInfo) => {
-          console.log(myInfo.action.actionGroupNamePerTurn);
+          console.log(myInfo.action.actionGroupName);
           return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromBanished"], prepared: undefined };
         },
         execute: (myInfo) => defaultSelfRebornExecute(myInfo),

@@ -93,6 +93,7 @@ const getEnableSyncroSummonPatterns = (
   //全パターンを試し、シンクロ召喚可能なパターンを全て列挙する。
   return materials
     .getAllOnOffPattern()
+    .filter((pattern) => pattern.some((monster) => monster.status.allowHandSyncro) || pattern.every((monster) => monster.isOnFieldAsMonster))
     .map((pattern) => defaultSyncroMaterialsValidator(myInfo, posList, cells, pattern, tunersValidator, nonTunersValidator) ?? [])
     .filter((materialInfos) => materialInfos.length);
 };

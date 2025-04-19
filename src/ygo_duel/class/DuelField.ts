@@ -204,7 +204,7 @@ export class DuelField {
    * @param choices
    * @param qty
    * @param validator
-   * @param moveAs
+   * @param movedAs
    * @param causedBy
    * @param cancelable
    * @returns
@@ -215,7 +215,7 @@ export class DuelField {
     choices: DuelEntity[],
     qty: number,
     validator: (entites: DuelEntity[]) => boolean,
-    moveAs: TDuelCauseReason[],
+    movedAs: TDuelCauseReason[],
     causedBy?: DuelEntity,
     cancelable?: boolean
   ) => {
@@ -232,14 +232,14 @@ export class DuelField {
       targets.map((target) => {
         return {
           entity: target,
-          causedAs: moveAs,
+          causedAs: movedAs,
           causedBy: causedBy,
           activator: chooser,
         };
       })
     );
 
-    this.duel.log.info(`${targets.map((e) => e.status.name).join(", ")}を墓地に送った（${moveAs.getDistinct().join(", ")}）。`, chooser);
+    this.duel.log.info(`${targets.map((e) => e.status.name).join(", ")}を墓地に送った（${movedAs.getDistinct().join(", ")}）。`, chooser);
     return targets;
   };
 }

@@ -266,6 +266,28 @@ export class NumericStateOperator extends StickyEffectOperatorBase {
   ) => {
     return new NumericStateOperator(title, validateAlive, true, isSpawnedBy, {}, isApplicableTo, targetState, targetStateGen, stateOperationType, calcValue);
   };
+  private static readonly createLingering = (
+    title: string,
+    validateAlive: (operator: StickyEffectOperatorBase) => boolean,
+    isSpawnedBy: DuelEntity,
+    actionAttr: Partial<CardActionDefinitionAttr>,
+    targetState: TEntityFlexibleNumericStatusKey,
+    stateOperationType: TStateOperationType,
+    calcValue: (spawner: DuelEntity, target: DuelEntity, current: number) => number
+  ) => {
+    return new NumericStateOperator(
+      title,
+      validateAlive,
+      false,
+      isSpawnedBy,
+      actionAttr,
+      (operator, target) => target.isOnFieldAsMonster,
+      targetState,
+      "wip",
+      stateOperationType,
+      calcValue
+    );
+  };
   public static readonly createLingeringFixation = (
     title: string,
     validateAlive: (operator: StickyEffectOperatorBase) => boolean,
@@ -274,7 +296,7 @@ export class NumericStateOperator extends StickyEffectOperatorBase {
     targetState: TEntityFlexibleNumericStatusKey,
     calcValue: (spawner: DuelEntity, target: DuelEntity, current: number) => number
   ) => {
-    return new NumericStateOperator(title, validateAlive, false, isSpawnedBy, actionAttr, () => true, targetState, "wip", "Fixation", calcValue);
+    return NumericStateOperator.createLingering(title, validateAlive, isSpawnedBy, actionAttr, targetState, "Fixation", calcValue);
   };
 
   public static readonly createLingeringAddition = (
@@ -285,7 +307,7 @@ export class NumericStateOperator extends StickyEffectOperatorBase {
     targetState: TEntityFlexibleNumericStatusKey,
     calcValue: (spawner: DuelEntity, target: DuelEntity, current: number) => number
   ) => {
-    return new NumericStateOperator(title, validateAlive, false, isSpawnedBy, actionAttr, () => true, targetState, "wip", "Addition", calcValue);
+    return NumericStateOperator.createLingering(title, validateAlive, isSpawnedBy, actionAttr, targetState, "Addition", calcValue);
   };
 
   public readonly targetState: TEntityFlexibleNumericStatusKey;
@@ -322,7 +344,7 @@ export class NumericStateOperator extends StickyEffectOperatorBase {
     throw new SystemError("矛盾したプロパティ", this);
   }
 
-  protected constructor(
+  public constructor(
     title: string,
     validateAlive: (operator: StickyEffectOperatorBase) => boolean,
     isContinuous: boolean,

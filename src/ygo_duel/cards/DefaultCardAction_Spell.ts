@@ -44,7 +44,7 @@ export const defaultSpellTrapValidate = <T>(myInfo: ChainBlockInfoBase<T>): Duel
   if (spellTrapZoneCellTypes.some((ct) => ct === myInfo.action.entity.fieldCell.cellType)) {
     return myInfo.action.entity.face === "FaceDown" ? [] : undefined;
   }
-  if (!myInfo.activator.isTurnPlayer) {
+  if (myInfo.action.spellSpeed === "Normal" && !myInfo.activator.isTurnPlayer) {
     return;
   }
   if (myInfo.action.entity.status.spellCategory === "Field") {

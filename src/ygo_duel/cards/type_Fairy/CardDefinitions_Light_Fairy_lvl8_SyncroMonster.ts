@@ -9,7 +9,6 @@ import {
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardDefinition } from "@ygo_duel/cards/CardDefinitions";
-import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { getDefaultSyncroSummonAction } from "../DefaultCardAction_SyncroMonster";
 import { createRegularNumericStateOperatorHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
@@ -27,13 +26,13 @@ export const createCardDefinitions_Light_Fairy_lvl8_SyncroMonster = (): CardDefi
       {
         title: "②自己帰還",
         isMandatory: true,
-        playType: "TriggerEffect",
+        playType: "IgnitionEffect",
         spellSpeed: "Normal",
         executableCells: ["Banished"],
-        executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
+        executablePeriods: ["stanby"],
         executableDuelistTypes: ["Controller"],
         validate: (myInfo) => {
-          // 前回のチェーンで動いたかどうか
+          // 前回のターンで動いたかどうか
           if (!myInfo.action.entity.wasMovedAtPreviousTurn) {
             return;
           }

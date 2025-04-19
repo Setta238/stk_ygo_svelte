@@ -19,7 +19,7 @@ export const cardActionCreateChainTypes = [...cardActionRuleSummonTypes, ...card
 export type TCardActionCreateChainTypes = (typeof cardActionCreateChainTypes)[number];
 export const cardActionNonChainBlockTypes = ["ChangeBattlePosition", "Battle", "SpellTrapSet", "LingeringEffect"] as const;
 export type TCardActionNonChainBlockType = (typeof cardActionNonChainBlockTypes)[number];
-export type TCardActionType = TCardActionCreateChainTypes | TCardActionNonChainBlockType | "Dammy" | "RuleDraw" | "SystemPeriodAction";
+export type TCardActionType = TCardActionCreateChainTypes | TCardActionNonChainBlockType | "Dammy" | "RuleDraw" | "SystemPeriodAction" | "AfterChainBlock";
 
 export const effectActiovationTypes = ["CardActivation", "EffectActivation", "NonActivate"] as const;
 export type TEffectActiovationType = (typeof effectActiovationTypes)[number];
@@ -312,7 +312,12 @@ export class CardAction<T> extends CardActionBase implements ICardAction<T> {
     return this.definition.priorityForNPC ?? Number.NaN;
   }
 
-  public readonly toString = () => (this.isWithChainBlock ? ` «${this.title}»` : this.title);
+  public readonly toString = () => {
+    if (this.isWithChainBlock && this.playType !== "CardActivation") {
+      return `${this.entity.toString()}の«${this.title}»`;
+    }
+    return `${this.entity.toString()}の${this.title}`;
+  };
 
   /**
    * 素材情報に制限を加えて実行するときに使用する。
@@ -342,6 +347,10 @@ export class CardAction<T> extends CardActionBase implements ICardAction<T> {
       return;
     }
 
+    if (this.isWithChainBlock && !this.entity.status.canActivateEffect) {
+      return;
+    }
+
     if (ignoreCosts && this.needsToPayCost) {
       return;
     }
@@ -350,7 +359,7 @@ export class CardAction<T> extends CardActionBase implements ICardAction<T> {
       if (
         this.entity.field.duel.chainBlockLog.records
           .filter((rec) => !rec.chainBlockInfo.isNegatedActivationBy)
-          .filter((rec) => this.isSameGroupPerTurn(rec.chainBlockInfo.action))
+          .filter((rec) => this.isSameGroup(rec.chainBlockInfo.action))
           .filter((rec) => rec.chainBlockInfo.activator === activator).length >= this.isOnlyNTimesPerDuel
       ) {
         return;
@@ -360,7 +369,7 @@ export class CardAction<T> extends CardActionBase implements ICardAction<T> {
       if (
         this.entity.field.duel.chainBlockLog.records
           .filter((rec) => !rec.chainBlockInfo.isNegatedActivationBy)
-          .filter((rec) => this.isSameGroupPerTurn(rec.chainBlockInfo.action))
+          .filter((rec) => this.isSameGroup(rec.chainBlockInfo.action))
           .filter((rec) => rec.clock.turn === this.entity.field.duel.clock.turn)
           .filter((rec) => rec.chainBlockInfo.activator === activator).length >= this.isOnlyNTimesPerTurn
       ) {
@@ -571,10 +580,8 @@ export class CardAction<T> extends CardActionBase implements ICardAction<T> {
   };
 
   public readonly isSame = (other: CardAction<unknown>) => this.entity.origin.name === other.entity.origin.name && this.title === other.title;
-  public readonly isSameGroupPerTurn = (other: CardAction<unknown>) =>
-    this.actionGroupNamePerTurn
-      ? this.entity.origin.name === other.entity.origin.name && this.actionGroupNamePerTurn === other.actionGroupNamePerTurn
-      : this.isSame(other);
+  public readonly isSameGroup = (other: CardAction<unknown>) =>
+    this.actionGroupName ? this.entity.origin.name === other.entity.origin.name && this.actionGroupName === other.actionGroupName : this.isSame(other);
 
   public readonly calcChainBlockTagsForDestroy = (entites: DuelEntity[]): TEffectTag[] => {
     if (!effectTags.length) {

@@ -83,6 +83,10 @@
 
     console.log(npc);
     duel = new Duel(userProfile, "Player", await getSelectedDeckInfo(), [], npc, "NPC", npcDeck, [], userProfile.previousStartMode);
+    duel.onDuelEnd.append(() => {
+      duel = duel;
+      return "RemoveMe";
+    });
   };
   const onEditClick = async () => {
     await Promise.all([saveUserProfile(), prepareSampleDeck()]);
@@ -96,6 +100,9 @@
       userProfile.save();
     }
   };
+  const onReturnToTopClick = () => {
+    duel = undefined;
+  };
   prepareSampleDeck();
 </script>
 
@@ -106,6 +113,9 @@
     <a href="https://posfie.com/@ninja_no/p/Lx7FLj3" target="_blank" rel="noopener noreferrer" title="posfie">posfie(toggeter)</a>
   </div>
   <div class="link link_right">
+    <!-- svelte-ignore a11y_missing_attribute -->
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <a class="a_button" role="button" tabindex="0" on:click={onReturnToTopClick}>TOPへ戻る</a>
     <a href="/stk_ygo_svelte/note.html" target="_blank" rel="noopener noreferrer" title="repository">現時点とこの先のこと</a>
   </div>
   {#if duel}
@@ -163,6 +173,20 @@
     <span>build at: {timestampJson.timestamp}</span>
     <span class="screen_info"></span>
   </div>
+  {#if duel && duel.isEnded}
+    <div class="result">
+      {#if duel.winner}
+        {#if duel.winner.seat === "Below"}
+          <div class="result_title result_win">YOU WIN</div>
+        {:else if duel.winner.seat === "Above"}
+          <div class="result_title result_lose">YOU LOSE</div>
+        {/if}
+      {:else}
+        <div class="result_title result_draw">DRAW</div>
+      {/if}
+      <button class="white_button" on:click={onReturnToTopClick}>TOPへ戻る</button>
+    </div>
+  {/if}
 </main>
 
 <style>
@@ -202,6 +226,9 @@
   .link a {
     margin: 0rem 1rem;
   }
+  .a_button {
+    cursor: pointer;
+  }
   .debug_info {
     position: absolute;
     right: 1rem;
@@ -228,6 +255,60 @@
 
   .btn:hover {
     background: #00bcd4;
+    color: white;
+  }
+
+  .result {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+    opacity: 0.8;
+    background-color: #555555;
+    display: flex;
+    flex-direction: column;
+  }
+  .result > div {
+    margin: 2.3rem;
+  }
+  .result > .result_title {
+    font-size: 5rem;
+    font-weight: bold;
+    background-color: beige;
+    padding: 1rem 3rem;
+    line-height: normal;
+  }
+  .result > .result_win {
+    color: blue;
+  }
+  .result > .result_lose {
+    color: red;
+  }
+  .result > .result_draw {
+    color: black;
+  }
+  .white_button {
+    background-color: #ffffff;
+    display: inline-block;
+    padding: 0em 1em;
+    text-decoration: none;
+    color: #67c5ff;
+    border: solid 0.2rem #67c5ff;
+    border-radius: 3px;
+    transition: 0.4s;
+    margin: 0.1rem 0.3rem;
+    line-height: 1.3;
+    pointer-events: initial;
+    font-size: 2rem;
+  }
+
+  .white_button:hover {
+    background: #67c5ff;
     color: white;
   }
 </style>

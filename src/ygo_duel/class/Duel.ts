@@ -20,6 +20,7 @@ import {
 } from "./DuelCardAction";
 import type { TDuelPhase } from "./DuelPeriod";
 import { DuelEntityShortHands } from "./DuelEntityShortHands";
+import { StkEvent } from "@stk_utils/class/StkEvent";
 
 export const duelStartModes = ["PlayFirst", "DrawFirst", "Random"] as const;
 export type TDuelStartMode = (typeof duelStartModes)[number];
@@ -63,6 +64,10 @@ export class IllegalCancelError extends SystemError {
   }
 }
 export class Duel {
+  private onDuelEndEvent = new StkEvent<void>();
+  public get onDuelEnd() {
+    return this.onDuelEndEvent.expose();
+  }
   public readonly view: DuelViewController;
   public readonly log: DuelLog;
   public readonly chainBlockLog: DuelChainBlockLog;
@@ -197,7 +202,6 @@ export class Duel {
     this.log.info(`【デュエル開始】${this.firstPlayer.profile.name} V.S. ${this.secondPlayer.profile.name}`);
     this.log.info(`先攻：${this.firstPlayer.profile.name} 後攻：${this.secondPlayer.profile.name}`);
     this.moveNextPhase("draw");
-    this.view.requireUpdate();
 
     try {
       while (!this.isEnded) {
@@ -226,11 +230,11 @@ export class Duel {
         this.isEnded = true;
         this.winner = error.winner;
         this.log.info(error.winner ? `デュエル終了。勝者${error.winner.profile.name}` : "引き分け");
+        this.onDuelEndEvent.trigger();
       } else if (error instanceof Error) {
         this.log.error(error);
       }
     } finally {
-      this.view.requireUpdate();
       this.log.dispose();
     }
   };

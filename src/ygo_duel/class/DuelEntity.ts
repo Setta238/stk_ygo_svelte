@@ -537,7 +537,10 @@ export class DuelEntity {
     causedAs: (TMaterialCauseReason | "ReleaseAsCost" | "ReleaseAsEffect")[],
     action: CardAction<T>
   ): boolean => {
-    return this.procFilterBundle.operators.filter((pf) => pf.procTypes.union(causedAs).length).every((pf) => pf.filter(activator, causedBy, action, [this]));
+    return (
+      !this.isInTrashCell &&
+      this.procFilterBundle.operators.filter((pf) => pf.procTypes.union(causedAs).length).every((pf) => pf.filter(activator, causedBy, action, [this]))
+    );
   };
   public readonly canBeSentToGraveyard = <T>(
     activator: Duelist,

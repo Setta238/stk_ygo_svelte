@@ -133,6 +133,18 @@
 </div>
 
 <div style="position:absolute;left:0;bottom:0">{duel.clock.toString()}</div>
+{#if duel.isEnded}<div class="result">
+    {#if duel.winner}
+      {#if duel.winner.seat === "Below"}
+        <div class="result_win">YOU WIN</div>
+      {:else if duel.winner.seat === "Above"}
+        <div class="result_lose">YOU LOSE</div>
+      {/if}
+    {:else}
+      <div class="result_draw">DRAW</div>
+    {/if}
+  </div>
+{/if}
 <ModalContainer modalController={duel.view.modalController} />
 
 <style>
@@ -227,5 +239,34 @@
   .duel_field_header_buttons button:hover {
     color: #fff;
     background: #000;
+  }
+  .result {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+    opacity: 0.8;
+    background-color: #555555;
+  }
+  .result > div {
+    font-size: 5rem;
+    font-weight: bold;
+    background-color: beige;
+    padding: 1rem 3rem;
+    line-height: normal;
+  }
+  .result > .result_win {
+    color: blue;
+  }
+  .result > .result_lose {
+    color: red;
+  }
+  .result > .result_draw {
+    color: black;
   }
 </style>

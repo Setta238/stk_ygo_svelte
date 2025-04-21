@@ -14,6 +14,7 @@ import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardDefinition } from "@ygo_duel/cards/CardDefinitions";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
+import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 
 export const createCardDefinitions_Dark_Fiend_lvl4_Monster = (): CardDefinition[] => {
   const result: CardDefinition[] = [];
@@ -29,7 +30,7 @@ export const createCardDefinitions_Dark_Fiend_lvl4_Monster = (): CardDefinition[
         isMandatory: true,
         playType: "TriggerEffect",
         spellSpeed: "Quick",
-        executableCells: ["Graveyard"],
+        executableCells: monsterZoneCellTypes,
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
         negatePreviousBlock: true,

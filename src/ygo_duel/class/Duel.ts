@@ -96,6 +96,7 @@ export class Duel {
   public priorityHolder: Duelist;
 
   public isEnded: boolean;
+  public winner: Duelist | undefined;
   private coin = false;
   private readonly startMode: TDuelStartMode;
   public constructor(
@@ -223,13 +224,13 @@ export class Duel {
       if (error instanceof DuelEnd) {
         console.info(error);
         this.isEnded = true;
+        this.winner = error.winner;
         this.log.info(error.winner ? `デュエル終了。勝者${error.winner.profile.name}` : "引き分け");
       } else if (error instanceof Error) {
         this.log.error(error);
       }
     } finally {
       this.view.requireUpdate();
-      this.view.dispose();
       this.log.dispose();
     }
   };

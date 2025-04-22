@@ -13,8 +13,8 @@ import {
   type EntityNumericStatus,
   cardSorter,
   type TCardKind,
-  arrowheadDic,
-  type Arrowhead,
+  linkArrowDic,
+  type LinkArrow,
 } from "@ygo/class/YgoTypes";
 import { Duel, SystemError } from "./Duel";
 import {
@@ -457,7 +457,7 @@ export class DuelEntity {
     );
   };
   private static readonly settleEntityMove = (duel: Duel) => {
-    duel.field.recalcArrowheads();
+    duel.field.recalcLinkArrows();
     duel.distributeOperators(duel.clock);
     const entities = duel.field.getAllEntities().filter((entity) => entity.wasMovedAtCurrentProc);
     entities.filter((entity) => !entity.isOnFieldStrictly && !entity.info.isPending).forEach((entity) => entity.resetInfoIfLeavesTheField());
@@ -590,26 +590,26 @@ export class DuelEntity {
   public get psR() {
     return this._numericStatus.calculated.pendulumScaleR;
   }
-  public get arrowheads() {
-    let _arrowheads = (this.origin.arrowheadKeys ?? []).map((key) => arrowheadDic[key].arrowhead);
+  public get linkArrows() {
+    let _linkArrows = (this.origin.linkArrowKeys ?? []).map((key) => linkArrowDic[key].linkArrow);
 
     if (this.controller.seat === "Above") {
-      _arrowheads = _arrowheads.map((origin) => {
-        return { offsetColumn: origin.offsetColumn * -1, offsetRow: origin.offsetRow * -1 } as Arrowhead;
+      _linkArrows = _linkArrows.map((origin) => {
+        return { offsetColumn: origin.offsetColumn * -1, offsetRow: origin.offsetRow * -1 } as LinkArrow;
       });
     }
 
-    return _arrowheads;
+    return _linkArrows;
   }
 
-  public get arrowheadDests() {
+  public get linkArrowDests() {
     if (!this.origin.monsterCategories?.includes("Link")) {
       return [];
     }
     if (!this.isOnFieldAsMonsterStrictly) {
       return [];
     }
-    return this.arrowheads
+    return this.linkArrows
       .map((ah) => [this.fieldCell.row + ah.offsetRow, this.fieldCell.column + ah.offsetColumn])
       .map(([row, column]) => this.field.cells[row][column])
       .filter((cell) => cell.isMonsterZoneLikeCell);
@@ -620,7 +620,7 @@ export class DuelEntity {
       return [];
     }
 
-    return [...this.arrowheadDests.map((cell) => cell.cardEntities[0]).map((monster) => monster), ...this.fieldCell.arrowheadSources].getDistinct();
+    return [...this.linkArrowDests.map((cell) => cell.cardEntities[0]).map((monster) => monster), ...this.fieldCell.linkArrowSources].getDistinct();
   }
   public get coLinkedEntities(): DuelEntity[] {
     if (!this.isOnFieldAsMonsterStrictly) {
@@ -630,10 +630,10 @@ export class DuelEntity {
       return [];
     }
 
-    return this.arrowheadDests
+    return this.linkArrowDests
       .map((cell) => cell.cardEntities[0])
       .filter((monster) => monster)
-      .union(this.fieldCell.arrowheadSources);
+      .union(this.fieldCell.linkArrowSources);
   }
 
   public get isEffective() {

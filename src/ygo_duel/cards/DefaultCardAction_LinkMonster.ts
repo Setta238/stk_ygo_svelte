@@ -91,7 +91,7 @@ export const defaultLinkMaterialsValidator = (
   if (
     myInfo.activator
       .getMonsterZones()
-      .flatMap((cell) => cell.arrowheadSources)
+      .flatMap((cell) => cell.linkArrowSources)
       .some((linkMonster) => !materials.includes(linkMonster))
   ) {
     // 自分メインモンスターゾーンに向いたアローヘッドが残るならば、リンク召喚可能

@@ -85,14 +85,14 @@ export class DuelFieldCell {
   public get owner() {
     return this._owner || this.cardEntities[0]?.owner;
   }
-  private _requiresRecalcArrowheads: boolean;
-  public get requiresRecalcArrowheads() {
-    return this._requiresRecalcArrowheads;
+  private _requiresRecalcLinkArrows: boolean;
+  public get requiresRecalcLinkArrows() {
+    return this._requiresRecalcLinkArrows;
   }
 
-  private _arrowheadSources: DuelEntity[];
-  public get arrowheadSources() {
-    return this._arrowheadSources;
+  private _linkArrowSources: DuelEntity[];
+  public get linkArrowSources() {
+    return this._linkArrowSources;
   }
   public get needsShuffle() {
     return this._needsShuffle;
@@ -148,16 +148,16 @@ export class DuelFieldCell {
       .filter((cell) => cell.isMonsterZoneLikeCell)
       .filter((cell) => cell !== this);
   }
-  public readonly recalcArrowheads = () => {
+  public readonly recalcLinkArrows = () => {
     if (!this.isMonsterZoneLikeCell) {
       return;
     }
-    this._requiresRecalcArrowheads = false;
+    this._requiresRecalcLinkArrows = false;
 
-    this._arrowheadSources = this.neighbors
+    this._linkArrowSources = this.neighbors
       .filter((cell) => cell.isMonsterZoneLikeCell)
       .filter((cell) => cell.cardEntities.length)
-      .filter((cell) => cell.cardEntities[0].arrowheads.some((ah) => this.row === cell.row + ah.offsetRow && this.column === cell.column + ah.offsetColumn))
+      .filter((cell) => cell.cardEntities[0].linkArrows.some((ah) => this.row === cell.row + ah.offsetRow && this.column === cell.column + ah.offsetColumn))
       .map((cell) => cell.cardEntities[0]);
   };
   private _entities: DuelEntity[];
@@ -168,13 +168,13 @@ export class DuelFieldCell {
     this.cellType = cellTypeMaster[row][column];
     this._owner = owner;
     this._entities = [];
-    this._arrowheadSources = [];
-    this._requiresRecalcArrowheads = false;
+    this._linkArrowSources = [];
+    this._requiresRecalcLinkArrows = false;
   }
   public readonly releaseEntities = (entity: DuelEntity): DuelEntity => {
     this._entities = this._entities.filter((e) => e !== entity);
     if (this.isMonsterZoneLikeCell && entity.origin.monsterCategories?.includes("Link")) {
-      this._requiresRecalcArrowheads = true;
+      this._requiresRecalcLinkArrows = true;
     }
 
     this.onUpdateEvent.trigger();
@@ -195,7 +195,7 @@ export class DuelFieldCell {
     });
 
     if (this.isMonsterZoneLikeCell && entity.origin.monsterCategories?.includes("Link")) {
-      this._requiresRecalcArrowheads = true;
+      this._requiresRecalcLinkArrows = true;
     }
 
     this.onUpdateEvent.trigger();

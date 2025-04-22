@@ -20341,7 +20341,7 @@
       "Cyberse"
     ],
     "wikiEncodedName": "%A1%D4%A3%CC%A3%C1%A3%CE%A5%D5%A5%A9%A5%EA%A5%F3%A5%AF%A5%B9%A1%D5",
-    "arrowheadKeys": [
+    "linkArrowKeys": [
       "BottomLeft",
       "BottomRight"
     ],
@@ -20367,7 +20367,7 @@
       "Cyberse"
     ],
     "wikiEncodedName": "%A1%D4%A5%C8%A5%E9%A5%D5%A5%A3%A5%C3%A5%AF%A5%B4%A1%BC%A5%B9%A5%C8%A1%D5",
-    "arrowheadKeys": [
+    "linkArrowKeys": [
       "BottomLeft",
       "BottomCenter",
       "BottomRight"
@@ -20392,7 +20392,7 @@
       "Wyrm"
     ],
     "wikiEncodedName": "%A1%D4%C5%B7%B0%D2%A4%CE%B5%B4%BF%C0%A1%D5",
-    "arrowheadKeys": [
+    "linkArrowKeys": [
       "TopCenter",
       "TopRight",
       "BottomRight"
@@ -20419,7 +20419,7 @@
       "Wyrm"
     ],
     "wikiEncodedName": "%A1%D4%C5%B7%B0%D2%A4%CE%B7%FD%C1%CE%A1%D5",
-    "arrowheadKeys": [
+    "linkArrowKeys": [
       "BottomCenter"
     ],
     "link": 1,
@@ -20444,7 +20444,7 @@
       "Machine"
     ],
     "wikiEncodedName": "%A1%D4%C5%C5%B1%C6%A4%CE%B5%B3%BB%CE%A5%AC%A5%A4%A5%A2%A5%BB%A5%A4%A5%D0%A1%BC%A1%D5",
-    "arrowheadKeys": [
+    "linkArrowKeys": [
       "MiddleLeft",
       "MiddleRight",
       "BottomCenter"
@@ -20473,7 +20473,7 @@
       "Cyberse"
     ],
     "wikiEncodedName": "%A1%D4%A5%D5%A5%A1%A5%A4%A5%A2%A5%A6%A5%A9%A1%BC%A5%EB%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%A6%A5%B7%A5%F3%A5%AE%A5%E5%A5%E9%A5%EA%A5%C6%A5%A3%A1%D5",
-    "arrowheadKeys": [
+    "linkArrowKeys": [
       "TopLeft",
       "TopCenter",
       "TopRight",
@@ -20504,7 +20504,7 @@
       "Cyberse"
     ],
     "wikiEncodedName": "%A1%D4%A5%EA%A5%F3%A5%AF%A5%EA%A5%DC%A1%BC%A1%D5",
-    "arrowheadKeys": [
+    "linkArrowKeys": [
       "BottomCenter"
     ],
     "nameTags": [
@@ -20648,7 +20648,7 @@
       "Machine"
     ],
     "wikiEncodedName": "%A1%D4%BF%E5%BE%BD%B5%A1%B9%AA%A1%DD%A5%CF%A5%EA%A5%D5%A5%A1%A5%A4%A5%D0%A1%BC%A1%D5",
-    "arrowheadKeys": [
+    "linkArrowKeys": [
       "BottomLeft",
       "BottomRight"
     ],
@@ -20724,7 +20724,7 @@
       "Cyberse"
     ],
     "wikiEncodedName": "%A1%D4%C0%B1%C7%D5%B7%F5%BB%CE%A5%A2%A5%A6%A5%E9%A5%E0%A1%D5",
-    "arrowheadKeys": [
+    "linkArrowKeys": [
       "BottomLeft",
       "BottomRight"
     ],
@@ -20751,7 +20751,7 @@
       "Spellcaster"
     ],
     "wikiEncodedName": "%A1%D4%C0%B1%C7%D5%BF%C0%B3%DA%A5%A4%A5%F4%A1%D5",
-    "arrowheadKeys": [
+    "linkArrowKeys": [
       "MiddleLeft",
       "MiddleRight"
     ],
@@ -20778,7 +20778,7 @@
       "Warrior"
     ],
     "wikiEncodedName": "%A1%D4%C0%B1%C7%D5%C0%EF%BB%CE%A5%CB%A5%F3%A5%AE%A5%EB%A5%B9%A1%D5",
-    "arrowheadKeys": [
+    "linkArrowKeys": [
       "TopCenter",
       "MiddleLeft",
       "MiddleRight"
@@ -20806,7 +20806,7 @@
       "Dragon"
     ],
     "wikiEncodedName": "%A1%D4%C0%B1%C7%D5%CE%B5%A5%A4%A5%E0%A5%C9%A5%A5%A1%BC%A5%AF%A1%D5",
-    "arrowheadKeys": [
+    "linkArrowKeys": [
       "TopCenter"
     ],
     "nameTags": [

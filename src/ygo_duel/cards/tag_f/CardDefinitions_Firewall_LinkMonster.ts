@@ -121,10 +121,7 @@ export const createCardDefinitions_Firewall_LinkMonster = (): CardDefinition[] =
             .map((record) => record.entity.wasMovedFrom)
             .toArray();
 
-          myInfo.action.duel.field.moveLog
-            .getPriviousChainLog()
-            .forEach((record) => 
-          if (!myInfo.action.entity.arrowheadDests.union(froms).length) {
+          if (!myInfo.action.entity.linkArrowDests.union(froms).length) {
             return;
           }
 

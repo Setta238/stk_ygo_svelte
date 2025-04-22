@@ -83,11 +83,11 @@ export class DuelField {
     return this.getAllEntities().filter((entity) => entity.controller === duelist);
   };
 
-  public readonly recalcArrowheads = () => {
+  public readonly recalcLinkArrows = () => {
     const monsterZones = this.getAllCells().filter((cell) => cell.isMonsterZoneLikeCell);
 
-    if (monsterZones.some((cell) => cell.recalcArrowheads)) {
-      monsterZones.forEach((cell) => cell.recalcArrowheads());
+    if (monsterZones.some((cell) => cell.recalcLinkArrows)) {
+      monsterZones.forEach((cell) => cell.recalcLinkArrows());
     }
   };
 
@@ -98,7 +98,7 @@ export class DuelField {
    * @returns
    */
   public readonly canExtraLink = (newLinkMonster: DuelEntity, materialInfos: SummonMaterialInfo[]): boolean => {
-    if (!newLinkMonster.arrowheads.length) {
+    if (!newLinkMonster.linkArrows.length) {
       return false;
     }
 
@@ -115,12 +115,12 @@ export class DuelField {
     const emptyExZoneCell = emptyExZoneCells[0];
 
     // そのモンスターをリンク召喚師したときに、アローヘッドが向く先
-    const newArrowHeadDests = newLinkMonster.arrowheads.map((ah) => this.cells[emptyExZoneCell.row + ah.offsetRow][emptyExZoneCell.column + ah.offsetColumn]);
+    const newLinkArrowDests = newLinkMonster.linkArrows.map((ah) => this.cells[emptyExZoneCell.row + ah.offsetRow][emptyExZoneCell.column + ah.offsetColumn]);
 
     // 素材にするモンスター以外でそこにアローヘッドが向いているモンスターかつ、新しいリンクモンスターと相互リンクするモンスターを取得。
-    let coLinkedMonsters = emptyExZoneCell.arrowheadSources
+    let coLinkedMonsters = emptyExZoneCell.linkArrowSources
       .filter((monster) => !materials.includes(monster))
-      .filter((monster) => newArrowHeadDests.includes(monster.fieldCell));
+      .filter((monster) => newLinkArrowDests.includes(monster.fieldCell));
 
     // 上の条件のモンスターが存在しない場合、エクストラリンク不可
     if (!coLinkedMonsters.length) {

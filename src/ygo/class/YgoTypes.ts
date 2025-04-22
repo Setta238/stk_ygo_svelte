@@ -204,7 +204,7 @@ export type EntityStatusBase = {
   nameTags?: Array<string>;
   attributes?: TMonsterAttribute[];
   types?: TMonsterType[];
-  arrowheadKeys?: TArrowheadKey[];
+  linkArrowKeys?: TLinkArrowKey[];
 } & EntityStaticStatus &
   Partial<TEntityFlexibleNumericStatus> & { wikiEncodedName: string };
 export type EntityNumericStatus = { [key in TEntityFlexibleNumericStatusGen]: TEntityFlexibleNumericStatus };
@@ -296,67 +296,76 @@ export const monsterTypeEmojiDic = {
   Zombie: "🦴",
 } as { [key in TMonsterType]: string };
 
-export const arrowheadKeys = ["TopLeft", "TopCenter", "TopRight", "MiddleLeft", "MiddleRight", "BottomLeft", "BottomCenter", "BottomRight"] as const;
-export type TArrowheadKey = (typeof arrowheadKeys)[number];
-export type Arrowhead = { offsetRow: 1 | 0 | -1; offsetColumn: 1 | 0 | -1 };
-export const arrowheadDic: { [key in TArrowheadKey]: { name: string; arrowhead: Arrowhead } } = {
+export const linkArrowKeys = ["TopLeft", "TopCenter", "TopRight", "MiddleLeft", "MiddleRight", "BottomLeft", "BottomCenter", "BottomRight"] as const;
+export type TLinkArrowKey = (typeof linkArrowKeys)[number];
+export type LinkArrow = { offsetRow: 1 | 0 | -1; offsetColumn: 1 | 0 | -1 };
+
+export const linkArrowDic: { [key in TLinkArrowKey]: { name: string; linkArrow: LinkArrow } } = {
   TopLeft: {
     name: "左上",
-    arrowhead: {
+    linkArrow: {
       offsetRow: -1,
       offsetColumn: -1,
     },
   },
   TopCenter: {
     name: "上",
-    arrowhead: {
+    linkArrow: {
       offsetRow: -1,
       offsetColumn: 0,
     },
   },
   TopRight: {
     name: "右上",
-    arrowhead: {
+    linkArrow: {
       offsetRow: -1,
       offsetColumn: 1,
     },
   },
   MiddleLeft: {
     name: "左",
-    arrowhead: {
+    linkArrow: {
       offsetRow: 0,
       offsetColumn: -1,
     },
   },
   MiddleRight: {
     name: "右",
-    arrowhead: {
+    linkArrow: {
       offsetRow: 0,
       offsetColumn: 1,
     },
   },
   BottomLeft: {
     name: "左下",
-    arrowhead: {
+    linkArrow: {
       offsetRow: 1,
       offsetColumn: -1,
     },
   },
   BottomCenter: {
     name: "下",
-    arrowhead: {
+    linkArrow: {
       offsetRow: 1,
       offsetColumn: 0,
     },
   },
   BottomRight: {
     name: "右下",
-    arrowhead: {
+    linkArrow: {
       offsetRow: 1,
       offsetColumn: 1,
     },
   },
 } as const;
+
+export const linkArrowNameDic = linkArrowKeys.reduce(
+  (wip, key) => {
+    wip[linkArrowDic[key].name] = key;
+    return wip;
+  },
+  {} as { [name in string]: TLinkArrowKey }
+);
 
 export const getMonsterType = (text: string): TMonsterType | undefined => {
   return (Object.entries(monsterTypeDic) as [TMonsterType, string][]).find((entry) => entry[1] === text)?.[0] || undefined;

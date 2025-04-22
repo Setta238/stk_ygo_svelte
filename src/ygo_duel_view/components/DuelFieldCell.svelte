@@ -209,7 +209,7 @@
 </script>
 
 <td
-  class={`duel_field_cell duel_field_cell_${cell.cellType} ${cell.arrowheadSources.length === 0 ? "" : "duel_field_cell_linked"}`}
+  class={`duel_field_cell duel_field_cell_${cell.cellType} ${cell.linkArrowSources.length === 0 ? "" : "duel_field_cell_linked"}`}
   colspan={cell.cellType === "Hand" ? 7 : 1}
 >
   <!-- svelte-ignore a11y_click_events_have_key_events -->

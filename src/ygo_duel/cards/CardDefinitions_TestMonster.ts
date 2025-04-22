@@ -29,14 +29,14 @@ export const createCardDefinitions_TestMonster = (): CardDefinition[] => {
         "THE_DEVILS_AVATAR",
         "Monster",
         (source: DuelEntity) => [source],
-        (source: DuelEntity) => source.isOnField && source.face === "FaceUp",
+        (source: DuelEntity) => source.isOnFieldStrictly && source.face === "FaceUp",
         (entity: DuelEntity) => {
           return (["attack", "defense"] as TEntityFlexibleNumericStatusKey[]).map((targetState) =>
             NumericStateOperator.createContinuous(
               "THE_DEVILS_AVATAR",
-              (operator) => operator.isSpawnedBy.isOnField && operator.isSpawnedBy.face === "FaceUp",
+              (operator) => operator.isSpawnedBy.isOnFieldStrictly && operator.isSpawnedBy.face === "FaceUp",
               entity,
-              (operator, target) => target.isOnField && target.face === "FaceUp",
+              (operator, target) => target.isOnFieldStrictly && target.face === "FaceUp",
               targetState,
               "calculated",
               "THE_DEVILS_AVATAR",
@@ -57,14 +57,14 @@ export const createCardDefinitions_TestMonster = (): CardDefinition[] => {
       createBroadRegularNumericStateOperatorHandler(
         "THE_DEVILS_DREAD-ROOT",
         "Monster",
-        (source: DuelEntity) => source.isOnField && source.face === "FaceUp",
+        (source: DuelEntity) => source.isOnFieldStrictly && source.face === "FaceUp",
         (entity: DuelEntity) => {
           return (["attack", "defense"] as TEntityFlexibleNumericStatusKey[]).map((targetState) =>
             NumericStateOperator.createContinuous(
               "THE_DEVILS_DREAD-ROOT",
-              (operator) => operator.isSpawnedBy.isOnField && operator.isSpawnedBy.face === "FaceUp",
+              (operator) => operator.isSpawnedBy.isOnFieldStrictly && operator.isSpawnedBy.face === "FaceUp",
               entity,
-              (operator, target) => target.status.kind === "Monster" && target.isOnField && target.face === "FaceUp" && target !== operator.isSpawnedBy,
+              (operator, target) => target.status.kind === "Monster" && target.isOnFieldStrictly && target.face === "FaceUp" && target !== operator.isSpawnedBy,
               targetState,
               "calculated",
               "THE_DEVILS_DREAD-ROOT",

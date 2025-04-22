@@ -33,15 +33,18 @@ export const createCardDefinitions_ContinuousSpell_Preset = (): CardDefinition[]
       createBroadRegularNumericStateOperatorHandler(
         "発動",
         "Spell",
-        (entity) => entity.isOnField && entity.face === "FaceUp",
+        (entity) => entity.isOnFieldStrictly && entity.face === "FaceUp",
         (entity) => {
           return [
             NumericStateOperator.createContinuous(
               "発動",
-              (operator) => operator.isSpawnedBy.isOnField && operator.isSpawnedBy.face === "FaceUp",
+              (operator) => operator.isSpawnedBy.isOnFieldStrictly && operator.isSpawnedBy.face === "FaceUp",
               entity,
               (operator, target) =>
-                target.controller === operator.isSpawnedBy.controller && target.types.includes("Warrior") && target.isOnField && target.face === "FaceUp",
+                target.controller === operator.isSpawnedBy.controller &&
+                target.types.includes("Warrior") &&
+                target.isOnFieldStrictly &&
+                target.face === "FaceUp",
               "attack",
               "wip",
               "Addition",

@@ -59,6 +59,7 @@ export const defaultTargetMonstersRebornPrepare = async <T>(
     ["Effect"],
     myInfo.action,
     monsters
+      .filter((card) => card.status.kind === "Monster")
       .filter((card) => card.canBeTargetOfEffect(myInfo))
       .map((monster) => {
         return { monster, posList, cells };

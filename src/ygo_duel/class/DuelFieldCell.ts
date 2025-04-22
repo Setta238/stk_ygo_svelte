@@ -137,6 +137,9 @@ export class DuelFieldCell {
   public get isDisabledCell() {
     return disabledCellTypes.some((t) => t === this.cellType);
   }
+  public get isTrashCell() {
+    return trashCellTypes.some((t) => t === this.cellType);
+  }
   public get neighbors() {
     const rows = [this.row - 1, this.row, this.row + 1].filter((row) => row >= 0 && row <= 6);
     const columns = [this.column - 1, this.column, this.column + 1].filter((column) => column >= 0 && column <= 6);

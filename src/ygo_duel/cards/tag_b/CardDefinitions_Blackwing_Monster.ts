@@ -96,7 +96,7 @@ export const createCardDefinitions_Blackwing_Monster = (): CardDefinition[] => {
         },
         execute: async (myInfo) => {
           const target = myInfo.selectedEntities
-            .filter((target) => target.isOnFieldAsMonster)
+            .filter((target) => target.isOnFieldAsMonsterStrictly)
             .filter((target) => target.face === "FaceUp")
             .find((target) => target.canBeEffected(myInfo.activator, myInfo.action.entity, myInfo.action));
           // フィールドにいなければ効果なし

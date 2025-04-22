@@ -102,6 +102,7 @@
   };
   const onReturnToTopClick = () => {
     duel = undefined;
+    mode = "None";
   };
   prepareSampleDeck();
 </script>

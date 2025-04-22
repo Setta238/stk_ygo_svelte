@@ -343,7 +343,7 @@ export class CardAction<T> extends CardActionBase implements ICardAction<T> {
 
   public readonly validate = (activator: Duelist, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, ignoreCosts: boolean) => {
     // カードの発動はフィールド表側表示ではできない
-    if (this.playType === "CardActivation" && this.entity.isOnField && this.entity.face === "FaceUp") {
+    if (this.playType === "CardActivation" && this.entity.isOnFieldStrictly && this.entity.face === "FaceUp") {
       return;
     }
 
@@ -488,7 +488,7 @@ export class CardAction<T> extends CardActionBase implements ICardAction<T> {
           await this.entity.setAsSpellTrap(dest, this.entity.status.kind, ["SpellTrapSet"], this.entity, activator);
         }
         _cancelable = false;
-      } else if (this.entity.isOnFieldAsSpellTrap && this.entity.face === "FaceDown") {
+      } else if (this.entity.isOnFieldAsSpellTrapStrictly && this.entity.face === "FaceDown") {
         logText += `セットされていた${this.entity.toString()}を発動。`;
 
         activator.writeInfoLog(logText);
@@ -593,7 +593,7 @@ export class CardAction<T> extends CardActionBase implements ICardAction<T> {
       tags.push("DestroyMultiple");
     }
 
-    const cardsOnFields = entites.filter((card) => card.isOnField);
+    const cardsOnFields = entites.filter((card) => card.isOnFieldStrictly);
 
     if (cardsOnFields.length) {
       tags.push("DestroyOnField");

@@ -128,7 +128,7 @@ export const createCardDefinitions_Resonator_Monster = (): CardDefinition[] => {
         execute: async (myInfo) => {
           const lp = myInfo.activator.lp;
           myInfo.selectedEntities
-            .filter((monster) => monster.isOnFieldAsMonster)
+            .filter((monster) => monster.isOnFieldAsMonsterStrictly)
             .forEach((monster) => myInfo.activator.heal(monster.atk ?? 0, myInfo.action.entity));
           return myInfo.activator.lp !== lp;
         },

@@ -23,7 +23,7 @@ export const createCardDefinitions_ContinuousTrap = (): CardDefinition[] => {
         pos: "Attack",
         filter: (monster) => (monster.atk ?? 9999) <= 1000,
         onMonsterAfterMove: async (myInfo, monster) => {
-          if (!monster.isOnFieldAsMonster || monster.face === "FaceDown") {
+          if (!monster.isOnFieldAsMonsterStrictly || monster.face === "FaceDown") {
             return "RemoveMe";
           }
           if (!myInfo.action.entity.isEffective) {
@@ -103,7 +103,7 @@ export const createCardDefinitions_ContinuousTrap = (): CardDefinition[] => {
             myInfo.action.entity.info.effectTargets[myInfo.action.seq] = myInfo.selectedEntities;
             // 自身が場を離れる場合のイベント
             myInfo.action.entity.onBeforeMove.append(async (data) => {
-              if (data.entity.face !== "FaceUp" || !data.entity.isOnFieldAsSpellTrap) {
+              if (data.entity.face !== "FaceUp" || !data.entity.isOnFieldAsSpellTrapStrictly) {
                 return "RemoveMe";
               }
 
@@ -116,7 +116,7 @@ export const createCardDefinitions_ContinuousTrap = (): CardDefinition[] => {
 
               const target = targets[0];
 
-              if (target.isOnField && target.face === "FaceUp" && data.entity.isEffective && !to.isSpellTrapZoneLikeCell) {
+              if (target.isOnFieldStrictly && target.face === "FaceUp" && data.entity.isEffective && !to.isSpellTrapZoneLikeCell) {
                 console.log(myInfo.action.entity.toString());
                 // この場所では破壊マーキングまで実行。
                 data.entity.controller.writeInfoLog(`${myInfo.action.entity.toString()}がフィールドを離れたため、対象モンスター${target.toString()}を破壊。`);
@@ -129,7 +129,7 @@ export const createCardDefinitions_ContinuousTrap = (): CardDefinition[] => {
             const target = myInfo.selectedEntities[0];
             // 対象が破壊される場合のイベント
             target.onBeforeMove.append(async (data) => {
-              if (data.entity.face !== "FaceUp" || !data.entity.isOnFieldAsMonster) {
+              if (data.entity.face !== "FaceUp" || !data.entity.isOnFieldAsMonsterStrictly) {
                 return "RemoveMe";
               }
               console.log(data.entity.toString(), data.entity);
@@ -137,7 +137,7 @@ export const createCardDefinitions_ContinuousTrap = (): CardDefinition[] => {
               const [, , , , , movedAs] = data.args;
 
               if (
-                myInfo.action.entity.isOnField &&
+                myInfo.action.entity.isOnFieldStrictly &&
                 myInfo.action.entity.face === "FaceUp" &&
                 data.entity.isEffective &&
                 movedAs.union(["EffectDestroy", "RuleDestroy"]).length

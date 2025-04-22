@@ -582,7 +582,7 @@ export const getDefaultAccelSyncroACtion = <T>(options: Partial<CardActionDefini
             //全て自分フィールド上のモンスターかつ、このカード自身を含む必要がある。
             return (
               materials.every((material) => material.controller === myInfo.activator) &&
-              materials.every((material) => material.isOnFieldAsMonster) &&
+              materials.every((material) => material.isOnFieldAsMonsterStrictly) &&
               materials.includes(myInfo.action.entity)
             );
           })
@@ -628,7 +628,7 @@ export const getDefaultAccelSyncroACtion = <T>(options: Partial<CardActionDefini
             //全て自分フィールド上のモンスターかつ、このカード自身を含む必要がある。
             return (
               materials.every((material) => material.controller === myInfo.activator) &&
-              materials.every((material) => material.isOnFieldAsMonster) &&
+              materials.every((material) => material.isOnFieldAsMonsterStrictly) &&
               materials.includes(myInfo.action.entity)
             );
           })
@@ -666,7 +666,7 @@ export const getDefaultAccelSyncroACtion = <T>(options: Partial<CardActionDefini
         //全て自分フィールド上のモンスターかつ、このカード自身を含む必要がある。
         return (
           materials.every((material) => material.controller === myInfo.activator) &&
-          materials.every((material) => material.isOnFieldAsMonster) &&
+          materials.every((material) => material.isOnFieldAsMonsterStrictly) &&
           materials.includes(myInfo.action.entity)
         );
       });

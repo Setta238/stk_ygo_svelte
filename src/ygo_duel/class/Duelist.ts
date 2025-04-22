@@ -696,7 +696,7 @@ export class Duelist {
         .filter((action) => action.playType === "NormalSummon")
         .filter((action) => (action.entity.atk ?? 0) > 2600 || ((action.entity.atk ?? 0) > 2300 && (action.entity.lvl ?? 12) < 7))
         .filter((action) => (action.entity.atk ?? 0) >= maxAllyAtk),
-      ..._enableActions.filter((action) => action.entity.face === "FaceUp").filter((action) => action.entity.isOnField),
+      ..._enableActions.filter((action) => action.entity.face === "FaceUp").filter((action) => action.entity.isOnFieldStrictly),
     ];
 
     if (effects.length) {

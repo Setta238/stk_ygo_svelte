@@ -55,7 +55,7 @@ export const createCardDefinitions_EquipSpell_Preset = (): CardDefinition[] => {
           item.name,
           "Spell",
           (source) => (source.info.equipedBy ? [source.info.equipedBy] : []),
-          (source) => source.isOnField && source.face === "FaceUp",
+          (source) => source.isOnFieldStrictly && source.face === "FaceUp",
           (entity) => {
             const targetStatus: [targetState: TEntityFlexibleNumericStatusKey, point: number][] = [];
             if (item.atk !== 0) {
@@ -67,10 +67,10 @@ export const createCardDefinitions_EquipSpell_Preset = (): CardDefinition[] => {
             return targetStatus.map(([targetState, point]) =>
               NumericStateOperator.createContinuous(
                 "発動",
-                (operator) => operator.isSpawnedBy.isOnField && operator.isSpawnedBy.face === "FaceUp",
+                (operator) => operator.isSpawnedBy.isOnFieldStrictly && operator.isSpawnedBy.face === "FaceUp",
                 entity,
                 (operator, target) =>
-                  target.isOnField &&
+                  target.isOnFieldStrictly &&
                   target.face === "FaceUp" &&
                   (!item.monType || target.types.includes(item.monType)) &&
                   (!item.attr || target.attr.includes(item.attr)),

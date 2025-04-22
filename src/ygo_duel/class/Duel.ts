@@ -399,7 +399,7 @@ export class Duel {
             throw new SystemError("想定されない状態");
           }
 
-          if (!this.attackingMonster.isOnField) {
+          if (!this.attackingMonster.isOnFieldStrictly) {
             this.log.info(`${this.attackingMonster.toString()}がフィールドにいなくなったため、戦闘が中断された。`);
             damageStepFlg = false;
           } else if (this.attackingMonster.face === "FaceDown") {
@@ -443,7 +443,7 @@ export class Duel {
       throw new SystemError("想定されない状態", this.attackingMonster, this.targetForAttack);
     }
 
-    if (this.targetForAttack.entityType !== "Duelist" && !this.targetForAttack.isOnFieldAsMonster) {
+    if (this.targetForAttack.entityType !== "Duelist" && !this.targetForAttack.isOnFieldAsMonsterStrictly) {
       console.log("想定されない状態", this.attackingMonster, this.targetForAttack);
       throw new SystemError("想定されない状態", this.attackingMonster, this.targetForAttack);
     }
@@ -856,7 +856,7 @@ export class Duel {
             .filter((info) => info.action.playType === "CardActivation")
             .filter((info) => !info.action.isLikeContinuousSpell)
             .map((info) => info.action.entity)
-            .filter((card) => card.isOnField)
+            .filter((card) => card.isOnFieldStrictly)
             .filter((card) => card.face === "FaceUp"),
           ["Rule"],
           undefined,

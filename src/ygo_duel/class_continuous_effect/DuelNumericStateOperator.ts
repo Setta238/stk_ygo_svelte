@@ -185,7 +185,7 @@ export class NumericStateOperatorBundle extends StickyEffectOperatorBundle<Numer
     }
 
     // レベル以外のステータスは、フィールドでのみ計算する。
-    if (targetState !== "level" && !this.entity.isOnField) {
+    if (targetState !== "level" && !this.entity.isOnFieldStrictly) {
       this.entity.numericStatus.origin[targetState] = this.entity.origin[targetState];
       this.entity.numericStatus.wip[targetState] = this.entity.origin[targetState];
       this.entity.numericStatus.calculated[targetState] = this.entity.origin[targetState];
@@ -281,7 +281,7 @@ export class NumericStateOperator extends StickyEffectOperatorBase {
       false,
       isSpawnedBy,
       actionAttr,
-      (operator, target) => target.isOnFieldAsMonster,
+      (operator, target) => target.isOnFieldAsMonsterStrictly,
       targetState,
       "wip",
       stateOperationType,

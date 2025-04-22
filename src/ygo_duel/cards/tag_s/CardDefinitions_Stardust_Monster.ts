@@ -171,7 +171,7 @@ export const createCardDefinitions_Stardust_Monster = (): CardDefinition[] => {
         },
         execute: async (myInfo) => {
           myInfo.selectedEntities
-            .filter((card) => card.isOnField)
+            .filter((card) => card.isOnFieldStrictly)
             .filter((card) => card.face === "FaceUp")
             .filter((card) => card.canBeEffected(myInfo.activator, myInfo.action.entity, myInfo.action))
             .forEach((card) => {

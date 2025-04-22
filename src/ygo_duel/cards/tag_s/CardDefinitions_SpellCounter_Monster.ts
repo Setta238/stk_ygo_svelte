@@ -146,7 +146,7 @@ export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] =
           return { selectedEntities: [target], chainBlockTags: myInfo.action.calcChainBlockTagsForDestroy([target]), prepared: undefined };
         },
         execute: async (myInfo) => {
-          if (myInfo.selectedEntities.every((target) => !target.isOnFieldAsSpellTrap)) {
+          if (myInfo.selectedEntities.every((target) => !target.isOnFieldAsSpellTrapStrictly)) {
             return;
           }
 

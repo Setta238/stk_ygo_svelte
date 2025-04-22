@@ -269,7 +269,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
             .map((info) => info.action)
             .filter((action) => action.playType === "CardActivation")
             .map((action) => action.entity)
-            .filter((entity) => entity.isOnField)
+            .filter((entity) => entity.isOnFieldStrictly)
             .filter((card) => card.face === "FaceUp")
             .filter((card) => !card.isLikeContinuousSpell);
 

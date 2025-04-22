@@ -20,10 +20,7 @@ import { Duel, SystemError } from "./Duel";
 import {
   deckCellTypes,
   duelFieldCellTypes,
-  monsterZoneCellTypes,
   playFieldCellTypes,
-  spellTrapZoneCellTypes,
-  trashCellTypes,
   type DuelFieldCell,
   type DuelFieldCellType,
   type TBundleCellType,
@@ -465,7 +462,7 @@ export class DuelEntity {
     duel.field.recalcArrowheads();
     duel.distributeOperators(duel.clock);
     const entities = duel.field.getAllEntities().filter((entity) => entity.wasMovedAtCurrentProc);
-    entities.filter((entity) => !entity.isOnField && !entity.info.isPending).forEach((entity) => entity.resetInfoIfLeavesTheField());
+    entities.filter((entity) => !entity.isOnFieldStrictly && !entity.info.isPending).forEach((entity) => entity.resetInfoIfLeavesTheField());
     entities
       .filter((entity) => entity.face === "FaceDown")
       .filter((entity) => entity.fieldCell === entity.isBelongTo)
@@ -607,7 +604,7 @@ export class DuelEntity {
     if (!this.origin.monsterCategories?.includes("Link")) {
       return [];
     }
-    if (!this.isOnFieldAsMonster) {
+    if (!this.isOnFieldAsMonsterStrictly) {
       return [];
     }
     return this.arrowheads
@@ -617,14 +614,14 @@ export class DuelEntity {
   }
 
   public get linkedEntities(): DuelEntity[] {
-    if (!this.isOnFieldAsMonster) {
+    if (!this.isOnFieldAsMonsterStrictly) {
       return [];
     }
 
     return [...this.arrowheadDests.map((cell) => cell.cardEntities[0]).map((monster) => monster), ...this.fieldCell.arrowheadSources].getDistinct();
   }
   public get coLinkedEntities(): DuelEntity[] {
-    if (!this.isOnFieldAsMonster) {
+    if (!this.isOnFieldAsMonsterStrictly) {
       return [];
     }
     if (!this.origin.monsterCategories?.includes("Link")) {
@@ -655,7 +652,7 @@ export class DuelEntity {
     return this.status.isEffective;
   }
   public get battlePosition() {
-    if (!this.isOnField) {
+    if (!this.isOnFieldStrictly) {
       return undefined;
     }
     if (this.status.kind !== "Monster") {
@@ -696,17 +693,21 @@ export class DuelEntity {
   }
 
   public get isOnField() {
-    return playFieldCellTypes.some((t) => t === this.fieldCell.cellType) && !this.info.isPending && this.status.kind !== "XyzMaterial";
+    return this.fieldCell.isPlayFieldCell;
   }
-  public get isOnFieldAsMonster() {
-    return monsterZoneCellTypes.some((t) => t === this.fieldCell.cellType) && !this.info.isPending && this.status.kind !== "XyzMaterial";
+  public get isOnFieldStrictly() {
+    return this.isOnField && !this.info.isPending && this.status.kind !== "XyzMaterial";
   }
-  public get isOnFieldAsSpellTrap() {
-    return spellTrapZoneCellTypes.some((t) => t === this.fieldCell.cellType) && !this.info.isPending && this.status.kind !== "XyzMaterial";
+  public get isOnFieldAsMonsterStrictly() {
+    return this.fieldCell.isMonsterZoneLikeCell && this.isOnFieldStrictly;
+  }
+  public get isOnFieldAsSpellTrapStrictly() {
+    return this.fieldCell.isSpellTrapZoneLikeCell && this.isOnFieldStrictly;
   }
   public get isInTrashCell() {
-    return trashCellTypes.some((t) => t === this.fieldCell.cellType);
+    return this.fieldCell.isTrashCell;
   }
+
   public get isLikeContinuousSpell() {
     return (
       this.status.spellCategory === "Continuous" ||
@@ -1030,7 +1031,7 @@ export class DuelEntity {
         if ((this.fieldCell.isMonsterZoneLikeCell && !to.isMonsterZoneLikeCell) || kind !== "Monster") {
           // 装備していたカードにマーキング
           this.info.equipEntities
-            .filter((equip) => equip.isOnFieldAsSpellTrap)
+            .filter((equip) => equip.isOnFieldAsSpellTrapStrictly)
             .forEach((equip) => {
               equip.info.isDying = true;
               equip.info.causeOfDeath = ["RuleDestroy"];
@@ -1077,7 +1078,7 @@ export class DuelEntity {
       }
     }
 
-    if ((this.isOnField && this.face === "FaceDown") || kind === "XyzMaterial") {
+    if ((this.isOnFieldStrictly && this.face === "FaceDown") || kind === "XyzMaterial") {
       // セット状態になった場合、またはエクシーズ素材になった場合。
 
       // 装備していたカードにマーキング

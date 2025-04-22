@@ -142,7 +142,7 @@ export const createCardDefinitions_WorldChalice_Monster = (): CardDefinition[] =
             .filter((record) => record.movedAs.includes("SpecialSummon"))
             .map((record) => record.entity)
             .filter((entity) => entity.wasMovedFrom.cellType === "ExtraDeck")
-            .filter((entity) => entity.isOnFieldAsMonster)
+            .filter((entity) => entity.isOnFieldAsMonsterStrictly)
             .filter((entity) => entity.canBeEffected(myInfo.activator, myInfo.action.entity, myInfo.action))
             .toArray();
 

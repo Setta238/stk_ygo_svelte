@@ -68,16 +68,16 @@ export const createCardDefinitions_FieldSpell_Preset = (): CardDefinition[] => {
         createBroadRegularNumericStateOperatorHandler(
           "発動",
           "Spell",
-          (source) => source.isOnField && source.face === "FaceUp",
+          (source) => source.isOnFieldStrictly && source.face === "FaceUp",
           (source) => {
             return (["attack", "defense"] as TEntityFlexibleNumericStatusKey[]).flatMap((state) => {
               return (["up", "down"] as const).map((updown) => {
                 return NumericStateOperator.createContinuous(
                   "発動",
-                  (operator) => operator.isSpawnedBy.isOnField && operator.isSpawnedBy.face === "FaceUp",
+                  (operator) => operator.isSpawnedBy.isOnFieldStrictly && operator.isSpawnedBy.face === "FaceUp",
                   source,
                   (operator, monster) =>
-                    monster.isOnField &&
+                    monster.isOnFieldStrictly &&
                     monster.face === "FaceUp" &&
                     (monster.status.monsterCategories ?? false) &&
                     item[updown].union(monster.types).length > 0,
@@ -151,14 +151,14 @@ export const createCardDefinitions_FieldSpell_Preset = (): CardDefinition[] => {
         createBroadRegularNumericStateOperatorHandler(
           "発動",
           "Spell",
-          (source) => source.isOnField && source.face === "FaceUp",
+          (source) => source.isOnFieldStrictly && source.face === "FaceUp",
           (source) => {
             return (["attack", "defense"] as TEntityFlexibleNumericStatusKey[]).flatMap((state) => {
               return NumericStateOperator.createContinuous(
                 "発動",
-                (operator) => operator.isSpawnedBy.isOnField && operator.isSpawnedBy.face === "FaceUp",
+                (operator) => operator.isSpawnedBy.isOnFieldStrictly && operator.isSpawnedBy.face === "FaceUp",
                 source,
-                (operator, monster) => monster.isOnField && monster.face === "FaceUp" && monster.attr.includes(item.attr),
+                (operator, monster) => monster.isOnFieldStrictly && monster.face === "FaceUp" && monster.attr.includes(item.attr),
                 state,
                 "wip",
                 "Addition",

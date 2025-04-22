@@ -98,7 +98,7 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
         execute: async (myInfo) => {
           const target = myInfo.selectedEntities[0];
           // フィールドにいなければ効果なし
-          if (!target.isOnFieldAsMonster) {
+          if (!target.isOnFieldAsMonsterStrictly) {
             return false;
           }
 
@@ -166,7 +166,7 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
         execute: async (myInfo) => {
           const target = myInfo.selectedEntities[0];
           // フィールドにいなければ効果なし
-          if (!target.isOnFieldAsMonster) {
+          if (!target.isOnFieldAsMonsterStrictly) {
             return false;
           }
 

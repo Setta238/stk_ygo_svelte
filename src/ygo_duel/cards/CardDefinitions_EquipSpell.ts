@@ -34,14 +34,14 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
           item.name,
           "Spell",
           (source) => (source.info.equipedBy ? [source.info.equipedBy] : []),
-          (source) => source.isOnField && source.face === "FaceUp",
+          (source) => source.isOnFieldStrictly && source.face === "FaceUp",
           (entity) => {
             return (["attack", "defense"] as TEntityFlexibleNumericStatusKey[]).map((targetState) =>
               NumericStateOperator.createContinuous(
                 "発動",
-                (operator) => operator.isSpawnedBy.isOnField && operator.isSpawnedBy.face === "FaceUp",
+                (operator) => operator.isSpawnedBy.isOnFieldStrictly && operator.isSpawnedBy.face === "FaceUp",
                 entity,
-                (operator, target) => target.isOnField && target.face === "FaceUp",
+                (operator, target) => target.isOnFieldStrictly && target.face === "FaceUp",
                 targetState,
                 "wip",
                 "Addition",
@@ -97,15 +97,9 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
         },
         payCosts: (myInfo, chainBlockInfos) => defaultPayLifePoint(myInfo, chainBlockInfos, 800),
         prepare: async (myInfo) => {
-          const result = await defaultTargetMonstersRebornPrepare(
-            myInfo,
-            myInfo.activator
-              .getGraveyard()
-              .cardEntities.filter((card) => card.status.kind === "Monster")
-              .filter((card) => card.canBeTargetOfEffect(myInfo)),
-            ["Attack"]
-          );
+          const result = await defaultTargetMonstersRebornPrepare(myInfo, myInfo.activator.getGraveyard().cardEntities, ["Attack"]);
           result.chainBlockTags.push("PayLifePoint");
+          console.log(result);
           return result;
         },
         execute: async (myInfo, chainBlockInfos) => {
@@ -124,7 +118,7 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
           }
 
           myInfo.action.entity.onBeforeMove.append(async (data) => {
-            if (data.entity.face !== "FaceUp" || !data.entity.isOnFieldAsSpellTrap) {
+            if (data.entity.face !== "FaceUp" || !data.entity.isOnFieldAsSpellTrapStrictly) {
               return "RemoveMe";
             }
             const target = data.entity.info.equipedBy;
@@ -135,7 +129,7 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
 
             const [, , , , , movedAs] = data.args;
 
-            if (target.isOnField && target.face === "FaceUp" && data.entity.isEffective && movedAs.union(["EffectDestroy", "RuleDestroy"]).length) {
+            if (target.isOnFieldStrictly && target.face === "FaceUp" && data.entity.isEffective && movedAs.union(["EffectDestroy", "RuleDestroy"]).length) {
               console.log(myInfo.action.entity.toString());
               // この場所では破壊マーキングまで実行。
               data.entity.controller.writeInfoLog(`${myInfo.action.entity.toString()}が破壊されたため、装備対象モンスター${target.toString()}を破壊。`);

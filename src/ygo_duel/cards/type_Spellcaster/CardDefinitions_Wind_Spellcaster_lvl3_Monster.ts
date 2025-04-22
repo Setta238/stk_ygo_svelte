@@ -25,7 +25,7 @@ export const createCardDefinitions_Wind_Spellcaster_lvl3_Monster = (): CardDefin
         return ok;
       }
 
-      if (!me.isOnFieldAsMonster) {
+      if (!me.isOnFieldAsMonsterStrictly) {
         // TODO 要確認：エキセントリックボーイが手札でシンクロできる可能性。
         return notAllowed;
       }

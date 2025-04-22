@@ -81,7 +81,7 @@ export const createCardDefinitions_Firewall_LinkMonster = (): CardDefinition[] =
         },
         execute: async (myInfo): Promise<boolean> => {
           const targets = myInfo.selectedEntities
-            .filter((card) => card.isOnField || card.fieldCell.cellType === "Graveyard")
+            .filter((card) => card.isOnFieldStrictly || card.fieldCell.cellType === "Graveyard")
             .filter((card) => card.canBeEffected(myInfo.activator, myInfo.action.entity, myInfo.action));
           await DuelEntityShortHands.returnManyToHandForTheSameReason(targets, ["Effect"], myInfo.action.entity, myInfo.activator);
 

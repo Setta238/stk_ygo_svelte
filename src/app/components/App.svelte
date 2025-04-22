@@ -46,7 +46,7 @@
 
   const saveUserProfile = async () => {
     const userProfile = await userProfilePromise;
-    console.log(userProfile);
+
     userProfile.save();
   };
   const reloadDeckInfos = () => {
@@ -81,7 +81,6 @@
       npcDeck = sampleDecks.find((info) => info.id === -1) ?? npcDeck;
     }
 
-    console.log(npc);
     duel = new Duel(userProfile, "Player", await getSelectedDeckInfo(), [], npc, "NPC", npcDeck, [], userProfile.previousStartMode);
     duel.onDuelEnd.append(() => {
       duel = duel;

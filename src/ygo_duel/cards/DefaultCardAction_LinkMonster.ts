@@ -174,8 +174,6 @@ const defaultLinkSummonPayCost = async (
     materials = _materials;
   }
 
-  console.log(patterns, materials);
-
   const materialSeqList = materials.map((monster) => monster.seq).sort();
   const materialInfos = entiteisPatterns.find(
     (item) => materialSeqList.length === item.materialSeqList.length && materialSeqList.every((seq, index) => seq === item.materialSeqList[index])

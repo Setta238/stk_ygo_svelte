@@ -53,7 +53,6 @@ export class DuelistProfile implements IDuelistProfile {
     return Number.MAX_VALUE;
   }
   private constructor(header: DuelistHeaderRecord) {
-    console.log(header);
     this.id = header.id;
     this.name = header.name;
     this.description = header.description;

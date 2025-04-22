@@ -513,7 +513,6 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
                 () => true,
                 ["BattleDestroy"],
                 (activator, enemy) => {
-                  console.log(activator, enemy);
                   if (!source.isEffective) {
                     return true;
                   }

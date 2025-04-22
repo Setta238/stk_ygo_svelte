@@ -99,7 +99,7 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
         prepare: async (myInfo) => {
           const result = await defaultTargetMonstersRebornPrepare(myInfo, myInfo.activator.getGraveyard().cardEntities, ["Attack"]);
           result.chainBlockTags.push("PayLifePoint");
-          console.log(result);
+
           return result;
         },
         execute: async (myInfo, chainBlockInfos) => {
@@ -125,12 +125,10 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
             if (!target) {
               return "RemoveMe";
             }
-            console.log(data.entity.toString(), data.entity);
 
             const [, , , , , movedAs] = data.args;
 
             if (target.isOnFieldStrictly && target.face === "FaceUp" && data.entity.isEffective && movedAs.union(["EffectDestroy", "RuleDestroy"]).length) {
-              console.log(myInfo.action.entity.toString());
               // この場所では破壊マーキングまで実行。
               data.entity.controller.writeInfoLog(`${myInfo.action.entity.toString()}が破壊されたため、装備対象モンスター${target.toString()}を破壊。`);
               DuelEntityShortHands.tryMarkForDestory([target], myInfo);

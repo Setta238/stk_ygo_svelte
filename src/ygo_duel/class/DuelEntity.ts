@@ -320,10 +320,9 @@ export class DuelEntity {
         await DuelEntity.sendManyToGraveyard(newTargets, _excludedList);
       }
     }
-    console.log(items.map(([entity]) => entity.toString()));
+
     // 色々更新処理
     DuelEntity.settleEntityMove(duel);
-    console.log(items.map(([entity]) => entity.toString()));
   };
 
   public static readonly summonMany = async (
@@ -370,7 +369,6 @@ export class DuelEntity {
         }
         entity.info.summonKinds = entity.info.summonKinds.getDistinct();
 
-        console.log("hoge");
         // 召喚ターンには表示形式の変更ができない
         entity.info.battlePotisionChangeCount = 1;
 
@@ -631,13 +629,6 @@ export class DuelEntity {
     if (!this.origin.monsterCategories?.includes("Link")) {
       return [];
     }
-
-    console.log(
-      this,
-      this.arrowheadDests,
-      this.arrowheadDests.map((cell) => cell.cardEntities[0]).filter((monster) => monster),
-      this.fieldCell.arrowheadSources
-    );
 
     return this.arrowheadDests
       .map((cell) => cell.cardEntities[0])
@@ -1114,13 +1105,11 @@ export class DuelEntity {
     // 移動ログ追加
     this.moveLog.push(movedAs, movedBy, actionOwner, chooser);
 
-    console.log(this.toString());
     await this.onAfterMoveEvent.trigger(this);
 
     return to;
   };
   public readonly initForTurn = () => {
-    console.log("hoge");
     this.info.isSettingSickness = false;
     this.info.attackCount = 0;
     this.info.battlePotisionChangeCount = 0;
@@ -1129,7 +1118,6 @@ export class DuelEntity {
   };
 
   private readonly resetInfoIfLeavesTheField = () => {
-    console.log("hoge");
     this._info = {
       ...this._info,
       isDying: false,
@@ -1151,7 +1139,6 @@ export class DuelEntity {
   };
 
   private readonly resetInfoAll = () => {
-    console.log("hoge");
     this._info = {
       isDying: false,
       isPending: false,
@@ -1407,7 +1394,6 @@ DuelEntity.prototype.getXyzMaterials = function (): DuelEntity[] {
   return (entity.status.monsterCategories ?? []).includes("Xyz") ? entity.fieldCell.xyzMaterials : [];
 };
 DuelEntity.prototype.wasMovedAfter = function (clock: IDuelClock): boolean {
-  console.log(this.toString(), this.moveLog.latestRecord.movedAt.totalProcSeq, clock.totalProcSeq);
   return this.moveLog.latestRecord.movedAt.totalProcSeq > clock.totalProcSeq;
 };
 

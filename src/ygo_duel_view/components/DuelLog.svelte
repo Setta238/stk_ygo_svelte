@@ -10,7 +10,7 @@
 
   const onlogUpdate = () => {
     const startIndex = (lastRecord?.seq ?? -1) + 1;
-    console.log(log, startIndex, logTree.length);
+
     log.records.slice(startIndex).forEach((record) => {
       if (!lastRecord) {
         logTree = [[[[record]]]];

@@ -35,16 +35,13 @@ export const createCardDefinitions_Yusei_SyncroTunerMonster = (): CardDefinition
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerTurn: 1,
         validate: (myInfo) => {
-          console.log(myInfo.action.entity.toString());
           if (!myInfo.action.entity.hasBeenSummonedNow(["SyncroSummon"])) {
-            console.log(myInfo.action.entity.toString());
             return;
           }
           if (!myInfo.activator.getDeckCell().cardEntities.some((card) => (card.lvl ?? 12) < (myInfo.action.entity.lvl ?? 0))) {
-            console.log(myInfo.action.entity.toString());
             return;
           }
-          console.log(myInfo.action.entity.toString());
+
           return [];
         },
         prepare: async () => {

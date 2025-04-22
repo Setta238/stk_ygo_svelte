@@ -88,7 +88,6 @@ export default class DuelLog {
   ) => {
     const text = lines.join("\n");
 
-    console.log(this.nextSeq);
     this.records.push({
       seq: this.nextSeq++,
       lvl,
@@ -102,6 +101,5 @@ export default class DuelLog {
       to,
     });
     this.onUpdateEvent.trigger(this.nextSeq - 1);
-    console.log(this.nextSeq - 1);
   };
 }

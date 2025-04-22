@@ -25,7 +25,6 @@ export class SubstituteEffect extends CardActionBase {
     return super.definition as SubstituteEffectDefinition;
   }
   public readonly isApplicableTo = (destroyType: "BattleDestroy" | "EffectDestroy", targets: DuelEntity[], chainBlockInfo: ChainBlockInfo<unknown>) => {
-    console.log(this.entity.toString(), this, destroyType, targets);
     const actionCount = this.entity.counterHolder.getActionCount(this);
     if (this.isOnlyNTimesPerTurnIfFaceup > 0 && actionCount >= this.isOnlyNTimesPerTurnIfFaceup) {
       this.entity.counterHolder.incrementActionCountPerTurn(this);

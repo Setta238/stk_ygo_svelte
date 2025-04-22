@@ -112,7 +112,6 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
             myInfo.activator.duel.log.info(`${target.toString()}は${myInfo.action.entity.toString()}の効果を受けない。`);
             return;
           }
-          console.log(target.toString(), target.info.equipEntities);
 
           // セット状態にする。
           await target.setBattlePosition("Set", ["Effect"], myInfo.action.entity, myInfo.activator);
@@ -159,7 +158,6 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
           if (!selected) {
             return;
           }
-          console.log(selected[0].toString(), selected[0].info.equipEntities);
 
           return { selectedEntities: selected, chainBlockTags: [], prepared: undefined };
         },

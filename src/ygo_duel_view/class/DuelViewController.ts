@@ -231,10 +231,8 @@ export class DuelViewController {
     )
       ? "SelectFieldEntities"
       : "SelectEntities";
-    console.log(choices);
 
     const actions = await this._waitDuelistAction(chooser, [], this.waitMode, message, choices, qty, validator, cancelable);
-    console.log(actions);
 
     return [...(actions.selectedEntities ?? [])];
   };

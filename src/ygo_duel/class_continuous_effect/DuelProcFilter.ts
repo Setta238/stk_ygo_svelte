@@ -97,8 +97,6 @@ export class ProcFilter extends StickyEffectOperatorBase {
       return 0;
     }
 
-    console.log("ここはまだ通らない想定");
-
     // 効果処理をフィルタリングする場合、既存の永続型でフィルタリング対象のオペレータを全て除去する
     const expireds = entity.allStickyEffectOperators
       .filter((ope) => ope.isContinuous)

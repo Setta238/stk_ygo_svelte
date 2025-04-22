@@ -30,7 +30,6 @@ const getDefalutRecruiterAction = (
     executableDuelistTypes: ["Controller"],
     validate: (myInfo) => {
       if (!myInfo.action.entity.wasMovedAtPreviousChain) {
-        console.log(myInfo.action.entity.toString(), myInfo);
         return;
       }
       const cells = myInfo.activator.getMonsterZones();

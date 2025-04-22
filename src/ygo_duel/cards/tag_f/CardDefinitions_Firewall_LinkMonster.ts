@@ -123,7 +123,7 @@ export const createCardDefinitions_Firewall_LinkMonster = (): CardDefinition[] =
 
           myInfo.action.duel.field.moveLog
             .getPriviousChainLog()
-            .forEach((record) => console.log(record.entity.toString(), record.entity.wasMovedFrom, record.entity.fieldCell, wasMovedAt, record.movedAt));
+            .forEach((record) => 
           if (!myInfo.action.entity.arrowheadDests.union(froms).length) {
             return;
           }

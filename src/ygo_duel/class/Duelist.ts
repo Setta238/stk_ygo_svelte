@@ -65,7 +65,7 @@ export class Duelist {
   ) => {
     const summoners = summonChoices.map((choice) => choice.summoner).getDistinct();
     const summonArgs: SummonArg[] = [];
-    console.log(summonArgs);
+
     for (const summoner of summoners) {
       const selected = await summoner.prepareToSummonMany(
         effectOwner,
@@ -79,7 +79,6 @@ export class Duelist {
         cancelable,
         msg
       );
-      console.log(selected);
 
       summonArgs.push(...selected);
     }
@@ -189,18 +188,18 @@ export class Duelist {
     this.info = { ...this.infoOrigin };
   };
   public readonly canDiscard = (entities: DuelEntity[]) => {
-    console.log(entities);
     // TODO
+    console.log(entities);
     return true;
   };
   public readonly canSendToGraveyard = (entities: DuelEntity[]) => {
-    console.log(entities);
     // TODO
+    console.log(entities);
     return true;
   };
   public readonly canRelease = (entities: DuelEntity[]) => {
-    console.log(entities);
     // TODO
+    console.log(entities);
     return true;
   };
 
@@ -449,17 +448,11 @@ export class Duelist {
 
     let monsters = choices.map((item) => item.monster);
 
-    console.log(summonChoices, validator([]));
-
     if (summonChoices.length !== 1 || validator([])) {
-      console.log(summonChoices, validator);
       const hoge = await this.duel.view.waitSelectEntities(this, monsters, undefined, validator, msg, cancelable);
-      console.log(hoge);
-      monsters = hoge ?? [];
-      console.log(summonChoices, validator);
-    }
 
-    console.log(choices, monsters);
+      monsters = hoge ?? [];
+    }
 
     const summonArgs: SummonArg[] = [];
     for (const choice of choices.filter((item) => monsters.includes(item.monster))) {

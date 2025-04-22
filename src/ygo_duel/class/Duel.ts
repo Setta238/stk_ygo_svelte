@@ -444,7 +444,6 @@ export class Duel {
     }
 
     if (this.targetForAttack.entityType !== "Duelist" && !this.targetForAttack.isOnFieldAsMonsterStrictly) {
-      console.log("想定されない状態", this.attackingMonster, this.targetForAttack);
       throw new SystemError("想定されない状態", this.attackingMonster, this.targetForAttack);
     }
 
@@ -536,14 +535,12 @@ export class Duel {
   };
   private readonly procBattlePhaseDamageStep5 = async () => {
     this.clock.setStage(this, "end");
-    console.log(this.clock.period.key, this.clock.toString());
+
     // 戦闘破壊・墓地送り実施
     await DuelEntityShortHands.waitCorpseDisposal(this);
-    console.log(this.clock.period.key, this.clock.toString());
 
     // チェーン番号を加算
     this.clock.incrementChainSeq();
-    console.log(this.clock.period.key, this.clock.toString());
 
     //ダメージステップ終了時
     // 戦闘破壊されて墓地に送られた場合の効果
@@ -845,9 +842,7 @@ export class Duel {
         await chainBlock.action.settle(chainBlockInfo, this.chainBlockInfos);
       }
 
-      console.log(this.clock.totalProcSeq);
       this.clock.incrementChainBlockSeq();
-      console.log(this.clock.totalProcSeq);
 
       if (isStartPoint) {
         // このチェーンでカードの発動を行った、永続類ではない魔法罠を全て墓地送りにする。

@@ -505,7 +505,6 @@ export const getSelfBattleSubstituteEffectDefinition = (times: number): Substitu
       executableDuelistTypes: ["Controller"],
       isOnlyNTimesPerTurnIfFaceup: times,
       isApplicableTo: (effect, destroyType, targets) => {
-        console.log(effect.entity.toString(), effect, destroyType, targets);
         if (!targets.includes(effect.entity)) {
           return [];
         }

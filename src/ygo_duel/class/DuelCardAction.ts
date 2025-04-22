@@ -531,7 +531,7 @@ export class CardAction<T> extends CardActionBase implements ICardAction<T> {
     if (prepared === undefined) {
       return;
     }
-    console.log(this.entity.toString(), prepared);
+
     return { ...myInfo, ...prepared };
   };
 

@@ -117,7 +117,6 @@ export const createCardDefinitions_ContinuousTrap = (): CardDefinition[] => {
               const target = targets[0];
 
               if (target.isOnFieldStrictly && target.face === "FaceUp" && data.entity.isEffective && !to.isSpellTrapZoneLikeCell) {
-                console.log(myInfo.action.entity.toString());
                 // この場所では破壊マーキングまで実行。
                 data.entity.controller.writeInfoLog(`${myInfo.action.entity.toString()}がフィールドを離れたため、対象モンスター${target.toString()}を破壊。`);
                 await DuelEntityShortHands.tryMarkForDestory([target], myInfo);
@@ -132,7 +131,6 @@ export const createCardDefinitions_ContinuousTrap = (): CardDefinition[] => {
               if (data.entity.face !== "FaceUp" || !data.entity.isOnFieldAsMonsterStrictly) {
                 return "RemoveMe";
               }
-              console.log(data.entity.toString(), data.entity);
 
               const [, , , , , movedAs] = data.args;
 
@@ -142,7 +140,6 @@ export const createCardDefinitions_ContinuousTrap = (): CardDefinition[] => {
                 data.entity.isEffective &&
                 movedAs.union(["EffectDestroy", "RuleDestroy"]).length
               ) {
-                console.log(myInfo.action.entity.toString());
                 // この場所では破壊マーキングまで実行。
                 myInfo.activator.writeInfoLog(`${data.entity.toString()}が破壊されたため、${myInfo.action.entity.toString()}を破壊。`);
                 await DuelEntityShortHands.tryMarkForDestory([target], myInfo);

@@ -74,7 +74,7 @@ export class NumericStateOperatorPool extends StickyEffectOperatorPool<NumericSt
               monster.numericStatus.calculated[ope.targetState] = maxAtk + 100;
               return;
             }
-            console.log(monster.toString(), monster.numericStatus.calculated[ope.targetState]);
+
             monster.numericStatus.calculated[ope.targetState] = ope.calcValue(monster, monster.numericStatus.calculated[ope.targetState] ?? 0);
             return;
           });
@@ -140,7 +140,7 @@ export class NumericStateOperatorBundle extends StickyEffectOperatorBundle<Numer
       // 発動型の固定値タイプのうち、現在値を書き換え(L-F)
       //   ※ゲイル、ブラックガーデンなどのタイプ。色々計算したあとの現在の値を書き換えるため、値が固定になる。
       //   ※多分この際に情報が破壊され、これが例外１と例外２の原因となったと思われる。
-      console.log(this.entity.toString(), currentState);
+
       this.entity.numericStatus["wip"][ope.targetState] = ope.calcValue(this.entity, currentState);
       return;
     }
@@ -231,7 +231,6 @@ export class NumericStateOperatorBundle extends StickyEffectOperatorBundle<Numer
       wipValue = opeList.filter((ope) => ope.stateOperationType === "Addition").reduce((wip, ope) => ope.calcValue(this.entity, wip), wipValue);
       this.entity.numericStatus.wip[targetState] = wipValue;
     } else {
-      console.log("hoge");
       // L-Fの場合、L-Fは計算せず、wipステータスを元にそれ以降を計算する。wipステータスは更新しない。
       let flg = false;
       wipValue = opeList

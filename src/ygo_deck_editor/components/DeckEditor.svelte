@@ -64,8 +64,8 @@
 
   const initDeck = () =>
     DeckInfo.getAllDeckInfo().then((deckInfos) => {
-      deckInfos.forEach((deckInfo) => console.log(deckInfo.id, deckInfo.lastUsedAt, deckInfo.lastUsedAt.getTime()));
-      console.log(Math.max(...deckInfos.map((deckInfo) => deckInfo.lastUsedAt.getTime())));
+      deckInfos.forEach((deckInfo) => 
+      
       selectedId = (
         deckInfos.find((deckInfo) => deckInfo.lastUsedAt.getTime() === Math.max(...deckInfos.map((deckInfo) => deckInfo.lastUsedAt.getTime()))) ?? deckInfos[0]
       ).id;

@@ -43,7 +43,7 @@ export class DuelEntityShortHands {
       return Promise.resolve();
     }
     if (movedAs.includes("Cost")) {
-      activator.writeInfoLog(`${entities.map((entity) => entity.nm).join(" ")}をリリースし――、`);
+      activator.writeInfoLog(`${entities.map((entity) => entity.toString()).join(" ")}をリリースし――、`);
     }
     return DuelEntityShortHands.bringManyToSameCellForTheSameReason(
       "Graveyard",
@@ -67,13 +67,13 @@ export class DuelEntityShortHands {
     }
     if (activator && movedAs.includes("Cost")) {
       if (movedAs.includes("FusionMaterial")) {
-        activator.writeInfoLog(`${entities.map((entity) => entity.nm).join(" ")}を融合素材とし――、`);
+        activator.writeInfoLog(`${entities.map((entity) => entity.toString()).join(" ")}を融合素材とし――、`);
       } else if (movedAs.includes("SyncroMaterial")) {
-        activator.writeInfoLog(`${entities.map((entity) => entity.nm).join(" ")}をシンクロと素材し――、`);
+        activator.writeInfoLog(`${entities.map((entity) => entity.toString()).join(" ")}をシンクロと素材し――、`);
       } else if (movedAs.includes("LinkMaterial")) {
-        activator.writeInfoLog(`${entities.map((entity) => entity.nm).join(" ")}をリンクマーカーにセッティング――、`);
+        activator.writeInfoLog(`${entities.map((entity) => entity.toString()).join(" ")}をリンクマーカーにセッティング――、`);
       } else {
-        activator.writeInfoLog(`${entities.map((entity) => entity.nm).join(" ")}を墓地に送り――、`);
+        activator.writeInfoLog(`${entities.map((entity) => entity.toString()).join(" ")}を墓地に送り――、`);
       }
     }
     return DuelEntityShortHands.bringManyToSameCellForTheSameReason("Graveyard", "Top", entities, "FaceUp", "Vertical", movedAs, movedBy, activator);
@@ -88,7 +88,7 @@ export class DuelEntityShortHands {
       return Promise.resolve();
     }
     if (activator && movedAs.includes("Cost")) {
-      activator.writeInfoLog(`${entities.map((entity) => entity.nm).join(" ")}を手札から捨て――、`);
+      activator.writeInfoLog(`${entities.map((entity) => entity.toString()).join(" ")}を手札から捨て――、`);
     }
     return DuelEntityShortHands.bringManyToSameCellForTheSameReason("Hand", "Bottom", entities, "FaceDown", "Vertical", movedAs, movedBy, activator);
   };
@@ -102,7 +102,7 @@ export class DuelEntityShortHands {
       return Promise.resolve();
     }
     if (activator && movedAs.includes("Cost")) {
-      activator.writeInfoLog(`${entities.map((entity) => entity.nm).join(" ")}を手札から捨て――、`);
+      activator.writeInfoLog(`${entities.map((entity) => entity.toString()).join(" ")}を手札から捨て――、`);
     }
     return DuelEntityShortHands.bringManyToSameCellForTheSameReason(
       "Graveyard",
@@ -125,7 +125,7 @@ export class DuelEntityShortHands {
       return Promise.resolve();
     }
     if (activator && movedAs.includes("Cost")) {
-      activator.writeInfoLog(`${entities.map((entity) => entity.nm).join(" ")}をゲームから除外し――、`);
+      activator.writeInfoLog(`${entities.map((entity) => entity.toString()).join(" ")}をゲームから除外し――、`);
     }
     return DuelEntityShortHands.bringManyToSameCellForTheSameReason("Banished", "Top", entities, "FaceUp", "Vertical", movedAs, movedBy, activator);
   };
@@ -140,7 +140,7 @@ export class DuelEntityShortHands {
       return Promise.resolve();
     }
     if (activator && movedAs.includes("Cost")) {
-      activator.writeInfoLog(`${entities.map((entity) => entity.nm).join(" ")}をデッキに戻し――、`);
+      activator.writeInfoLog(`${entities.map((entity) => entity.toString()).join(" ")}をデッキに戻し――、`);
     }
     return DuelEntityShortHands.bringManyToSameCellForTheSameReason("Deck", pos, entities, "FaceDown", "Vertical", movedAs, movedBy, activator);
   };
@@ -155,7 +155,7 @@ export class DuelEntityShortHands {
       return Promise.resolve();
     }
     if (activator && movedAs.includes("Cost")) {
-      activator.writeInfoLog(`${entities.map((entity) => entity.nm).join(" ")}を手札に戻し――、`);
+      activator.writeInfoLog(`${entities.map((entity) => entity.toString()).join(" ")}を手札に戻し――、`);
     }
     return DuelEntityShortHands.bringManyToSameCellForTheSameReason("Hand", "Bottom", entities, "FaceDown", "Vertical", movedAs, movedBy, activator);
   };
@@ -170,7 +170,7 @@ export class DuelEntityShortHands {
       return Promise.resolve();
     }
     if (activator && movedAs.includes("Cost")) {
-      activator.writeInfoLog(`${entities.map((entity) => entity.nm).join(" ")}によって、オーバーレイネットワークを構築――、`);
+      activator.writeInfoLog(`${entities.map((entity) => entity.toString()).join(" ")}によって、オーバーレイネットワークを構築――、`);
     }
     return DuelEntity.moveMany(
       entities.map((entity) => [entity, entity.fieldCell, "XyzMaterial", "FaceUp", "Vertical", "Top", movedAs, movedBy, activator, activator])
@@ -187,7 +187,7 @@ export class DuelEntityShortHands {
       return Promise.resolve();
     }
     if (movedAs.includes("Effect")) {
-      activator.writeInfoLog(`${xyzMaterials.map((entity) => entity.nm).join(" ")}をXYZ素材として吸収。`);
+      activator.writeInfoLog(`${xyzMaterials.map((entity) => entity.toString()).join(" ")}をXYZ素材として吸収。`);
     }
     return DuelEntity.moveMany(
       xyzMaterials.map((entity) => [entity, dest, "XyzMaterial", "FaceUp", "Vertical", "Top", movedAs, movedBy, activator, activator])

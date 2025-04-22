@@ -81,8 +81,9 @@ export const defaultLinkMaterialsValidator = (
     .filter((monster) => monster);
 
   if (
-    exZoneMonsters.filter((monster) => monster.controller === myInfo.activator).length > 0 &&
-    exZoneMonsters.length === materials.filter((material) => material.fieldCell.cellType === "ExtraMonsterZone").length
+    exZoneMonsters.filter((monster) => monster.controller === myInfo.activator).length &&
+    exZoneMonsters.filter((monster) => monster.controller === myInfo.activator).length ===
+      materials.filter((material) => material.fieldCell.cellType === "ExtraMonsterZone").length
   ) {
     // 自身のエクストラモンスターゾーンのモンスターを全て使用するなら、リンク召喚可能。
     return materialInfos;

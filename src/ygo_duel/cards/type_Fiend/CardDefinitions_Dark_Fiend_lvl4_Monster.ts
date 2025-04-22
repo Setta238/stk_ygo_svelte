@@ -36,7 +36,7 @@ export const createCardDefinitions_Dark_Fiend_lvl4_Monster = (): CardDefinition[
         negatePreviousBlock: true,
         canPayCosts: defaultSelfReleaseCanPayCosts,
         validate: (myInfo) =>
-          myInfo.targetChainBlock && myInfo.targetChainBlock.action.entity.status.kind !== "Monster" && myInfo.targetChainBlock.action.isWithChainBlock
+          myInfo.targetChainBlock && myInfo.targetChainBlock.action.entity.status.kind === "Monster" && myInfo.targetChainBlock.action.isWithChainBlock
             ? []
             : undefined,
         payCosts: defaultSelfReleasePayCosts,

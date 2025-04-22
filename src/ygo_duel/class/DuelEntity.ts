@@ -545,7 +545,11 @@ export class DuelEntity {
     causedAs: ("SendToGraveyardAsEffect" | "SendToGraveyardAsCost")[],
     action: CardAction<T>
   ): boolean => {
-    return this.procFilterBundle.operators.filter((pf) => pf.procTypes.union(causedAs).length).every((pf) => pf.filter(activator, causedBy, action, [this]));
+    return (
+      !this.info.willBeBanished &&
+      !this.info.willReturnToDeck &&
+      this.procFilterBundle.operators.filter((pf) => pf.procTypes.union(causedAs).length).every((pf) => pf.filter(activator, causedBy, action, [this]))
+    );
   };
   private _hasDisappeared = false;
   public get status() {

@@ -87,9 +87,6 @@ export class DuelEntityShortHands {
     if (!entities.length) {
       return Promise.resolve();
     }
-    if (activator && movedAs.includes("Cost")) {
-      activator.writeInfoLog(`${entities.map((entity) => entity.toString()).join(" ")}を手札から捨て――、`);
-    }
     return DuelEntityShortHands.bringManyToSameCellForTheSameReason("Hand", "Bottom", entities, "FaceDown", "Vertical", movedAs, movedBy, activator);
   };
   public static readonly discardManyForTheSameReason = (

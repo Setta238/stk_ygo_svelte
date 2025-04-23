@@ -993,7 +993,6 @@ export class DuelEntity {
       entity: this,
       args: [to, kind, face, orientation, pos, movedAs, movedBy, actionOwner, chooser],
     });
-    this._status.kind = kind;
     this.face = face;
     this.orientation = orientation;
 
@@ -1001,6 +1000,7 @@ export class DuelEntity {
     if (to !== this.fieldCell) {
       if (this.field.duel.clock.turn > 0) {
         this.duel.log.info(`移動：${this.toString()}  ${this.fieldCell.toString()} ⇒ ${to.toString()}`, actionOwner);
+        // ★★★★★ アニメーション ★★★★★
         await this.field.duel.view.waitAnimation({ entity: this, to: to, index: pos, count: 0 });
       }
       // セルから自分自身を取り除く
@@ -1102,8 +1102,9 @@ export class DuelEntity {
       // セットしたターンに発動できない制約を付与
       this.info.isSettingSickness = this.status.kind === "Trap" || this.status.spellCategory === "QuickPlay";
     }
+    this._status.kind = kind;
     // 移動ログ追加
-    this.moveLog.push(movedAs, movedBy, actionOwner, chooser);
+    this.moveLog.push(kind, movedAs, movedBy, actionOwner, chooser);
 
     await this.onAfterMoveEvent.trigger(this);
 

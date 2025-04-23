@@ -4,9 +4,11 @@ import type { Duelist } from "./Duelist";
 import { DuelFieldCell } from "./DuelFieldCell";
 import { getIndex } from "@stk_utils/funcs/StkMathUtils";
 import { DuelField } from "./DuelField";
+import type { TCardKind } from "@ygo/class/YgoTypes";
 
 export type EntityMoveLogRecord = {
   entity: DuelEntity;
+  kind: TCardKind;
   cell: DuelFieldCell;
   face: TDuelEntityFace;
   orientation: TDuelEntityOrientation;
@@ -72,6 +74,7 @@ export class EntityMoveLog {
   public readonly pushForRuleAction = (movedAs: TDuelCauseReason[]) => {
     this._push({
       entity: this.entity,
+      kind: this.entity.origin.kind,
       cell: this.entity.fieldCell,
       face: this.entity.face,
       orientation: this.entity.orientation,
@@ -80,7 +83,7 @@ export class EntityMoveLog {
     });
   };
 
-  public readonly push = (movedAs: TDuelCauseReason[], movedBy?: DuelEntity, actionOwner?: Duelist, chooser?: Duelist) => {
+  public readonly push = (kind: TCardKind, movedAs: TDuelCauseReason[], movedBy?: DuelEntity, actionOwner?: Duelist, chooser?: Duelist) => {
     let cell = this.entity.fieldCell;
 
     // XYZ素材のみ、ログ上「XYZ素材ゾーン」にいたことにする。
@@ -90,6 +93,7 @@ export class EntityMoveLog {
 
     this._push({
       entity: this.entity,
+      kind,
       cell,
       face: this.entity.face,
       orientation: this.entity.orientation,

@@ -546,8 +546,8 @@ export class CardAction<T> extends CardActionBase implements ICardAction<T> {
     // TODO 確認：永続魔法類の発動時の効果処理と適用開始はどちらが先か？
     // 一旦、早すぎた埋葬に便利なので、効果処理を先に行う。
     if (myInfo.action.isLikeContinuousSpell) {
+      this.entity.info.isPending = false;
       for (const ce of this.entity.continuousEffects) {
-        this.entity.info.isPending = false;
         await ce.updateState();
       }
     }

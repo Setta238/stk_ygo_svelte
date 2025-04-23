@@ -5,7 +5,7 @@ import {
   defaultNormalSummonAction,
 } from "@ygo_duel/cards/DefaultCardAction_Monster";
 import type { CardDefinition } from "../CardDefinitions";
-import type { CardActionDefinition, ChainBlockInfo, ChainBlockInfoBase } from "@ygo_duel/class/DuelCardAction";
+import type { ChainBlockInfo, ChainBlockInfoBase } from "@ygo_duel/class/DuelCardAction";
 import {
   createRegularNumericStateOperatorHandler,
   createRegularStatusOperatorHandler,
@@ -16,6 +16,8 @@ import { spellTrapZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 import type { TCardKind } from "@ygo/class/YgoTypes";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
+import { duelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
+import { defaultPrepare } from "../DefaultCardAction";
 
 const createSpellCounterCommonEffect = (kind: TCardKind, maxQty?: number) => {
   const title = maxQty ? `魔力充填可能(${maxQty})` : "魔力充填可能";
@@ -62,7 +64,7 @@ export const paySpellCounters = <T>(
 export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] => {
   const result: CardDefinition[] = [];
 
-  const def_魔導戦士ブレイカー = {
+  result.push({
     name: "魔導戦士 ブレイカー",
     actions: [
       defaultAttackAction,
@@ -96,7 +98,7 @@ export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] =
           return true;
         },
         settle: async () => true,
-      } as CardActionDefinition<undefined>,
+      },
       {
         title: "③マナブレイク",
         isMandatory: false,
@@ -147,7 +149,7 @@ export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] =
         },
         execute: async (myInfo) => {
           if (myInfo.selectedEntities.every((target) => !target.isOnFieldAsSpellTrapStrictly)) {
-            return;
+            return false;
           }
 
           await DuelEntityShortHands.tryDestroy(myInfo.selectedEntities, myInfo);
@@ -156,7 +158,7 @@ export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] =
         },
         settle: async () => true,
       },
-    ] as CardActionDefinition<unknown>[],
+    ],
     continuousEffects: [
       createSpellCounterCommonEffect("Monster", 1),
       createRegularNumericStateOperatorHandler(
@@ -185,8 +187,81 @@ export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] =
         }
       ),
     ] as ContinuousEffectBase<unknown>[],
-  };
-  result.push(def_魔導戦士ブレイカー);
+  });
+  result.push({
+    name: "王立魔法図書館",
+    actions: [
+      defaultAttackAction,
+      defaultBattlePotisionChangeAction,
+      defaultFlipSummonAction,
+      defaultNormalSummonAction,
+      {
+        title: "①魔力充填",
+        isMandatory: true,
+        playType: "AfterChainBlock",
+        spellSpeed: "Normal",
+        executableCells: ["MonsterZone"],
+        executablePeriods: duelPeriodKeys,
+        executableDuelistTypes: ["Controller"],
+        validate: (myInfo) => {
+          console.log(myInfo.action.entity.toString());
+          if (!myInfo.targetChainBlock) {
+            console.log(myInfo.action.entity.toString());
+            return;
+          }
+          if (myInfo.targetChainBlock.action.playType !== "CardActivation") {
+            console.log(myInfo.action.entity.toString());
+            return;
+          }
+          if (myInfo.targetChainBlock.action.entity.status.kind !== "Spell") {
+            console.log(myInfo.action.entity.toString());
+            return;
+          }
+          console.log(myInfo.action.entity.toString());
+          return [];
+        },
+        prepare: defaultPrepare,
+        execute: async (myInfo) => {
+          if (myInfo.action.entity.face === "FaceDown") {
+            return false;
+          }
+          if (!myInfo.action.entity.isOnFieldAsMonsterStrictly) {
+            return false;
+          }
+          if (!myInfo.action.entity.isEffective) {
+            return false;
+          }
+          myInfo.action.entity.counterHolder.add("SpellCounter", 1, myInfo.action.entity);
+          return true;
+        },
+        settle: async () => true,
+      },
+      {
+        title: "②ドロー",
+        isMandatory: false,
+        playType: "IgnitionEffect",
+        spellSpeed: "Normal",
+        executableCells: ["MonsterZone"],
+        executablePeriods: ["main1", "main2"],
+        executableDuelistTypes: ["Controller"],
+        canPayCosts: (myInfo, chainBlockInfos) => canPaySpellCounters(myInfo, chainBlockInfos, 3),
+        validate: (myInfo) => {
+          if (!myInfo.activator.getDeckCell().cardEntities.length) {
+            return;
+          }
+          return [];
+        },
+        payCosts: async (myInfo, chainBlockInfos, cancelable) => paySpellCounters(myInfo, chainBlockInfos, cancelable, [3]),
+        prepare: defaultPrepare,
+        execute: async (myInfo) => {
+          await myInfo.activator.draw(1, myInfo.action.entity, myInfo.activator);
+          return true;
+        },
+        settle: async () => true,
+      },
+    ],
+    continuousEffects: [createSpellCounterCommonEffect("Monster", 3)] as ContinuousEffectBase<unknown>[],
+  });
 
   return result;
 };

@@ -224,10 +224,7 @@ export class DuelClock implements IDuelClock {
     duelClockSubKeys
       .toReversed()
       .filter((key) => (this._currentStartPoints[key] = this.totalProcSeq))
-      .forEach((key) => {
-        console.info(this.constructor.name, "event trigger", key, this.periodKey, this.totalProcSeq);
-        this.onClockChangeEvents[key].trigger(this);
-      });
+      .forEach((key) => this.onClockChangeEvents[key].trigger(this));
   };
   public readonly toString = () => {
     return `${this.totalProcSeq}(t${this.turn}-phs${this.phaseSeq}-stp${this.stepSeq}-stg${this.stepSeq}-c${this.chainSeq}-cb${this.chainBlockSeq}-prc${this.procSeq})`;

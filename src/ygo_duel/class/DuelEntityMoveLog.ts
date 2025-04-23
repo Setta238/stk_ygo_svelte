@@ -5,6 +5,7 @@ import { DuelFieldCell } from "./DuelFieldCell";
 import { getIndex } from "@stk_utils/funcs/StkMathUtils";
 import { DuelField } from "./DuelField";
 import type { TCardKind } from "@ygo/class/YgoTypes";
+import { SystemError } from "./Duel";
 
 export type EntityMoveLogRecord = {
   entity: DuelEntity;
@@ -12,6 +13,7 @@ export type EntityMoveLogRecord = {
   cell: DuelFieldCell;
   face: TDuelEntityFace;
   orientation: TDuelEntityOrientation;
+  isPending: boolean;
   movedAt: IDuelClock;
   movedAs: TDuelCauseReason[];
   movedBy?: DuelEntity;
@@ -78,6 +80,7 @@ export class EntityMoveLog {
       cell: this.entity.fieldCell,
       face: this.entity.face,
       orientation: this.entity.orientation,
+      isPending: this.entity.info.isPending,
       movedAt: this.entity.duel.clock.getClone(),
       movedAs: [...movedAs, "Rule"],
     });
@@ -97,12 +100,23 @@ export class EntityMoveLog {
       cell,
       face: this.entity.face,
       orientation: this.entity.orientation,
+      isPending: this.entity.info.isPending,
       movedAt: this.entity.duel.clock.getClone(),
       movedAs: movedAs.getDistinct(),
       movedBy: movedBy,
       actionOwner: actionOwner,
       chooser: chooser ?? actionOwner,
     });
+  };
+
+  public readonly finalize = () => {
+    if (!this.latestRecord.isPending) {
+      throw new SystemError("想定されない状況");
+    }
+    if (this.entity.info.isPending) {
+      throw new SystemError("想定されない状況");
+    }
+    this._push({ ...this.latestRecord, isPending: false, movedAt: this.entity.duel.clock.getClone() });
   };
 
   public readonly negateSummon = (movedBy: DuelEntity, activator: Duelist) => {

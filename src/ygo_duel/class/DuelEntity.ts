@@ -960,6 +960,15 @@ export class DuelEntity {
     return this.fieldCell;
   };
 
+  public readonly determine = () => {
+    if (!this.info.isPending) {
+      return;
+    }
+    this.info.isPending = false;
+    this.moveLog.finalize();
+    this.continuousEffects.forEach((ce) => ce.updateState());
+  };
+
   /**
    * 移動の処理のみのため、直接呼び出す場合は後処理を忘れないこと
    * @param to

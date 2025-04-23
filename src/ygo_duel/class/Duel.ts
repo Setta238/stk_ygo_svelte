@@ -840,6 +840,14 @@ export class Duel {
 
         // 誓約効果などの適用
         await chainBlock.action.settle(chainBlockInfo, this.chainBlockInfos);
+
+        if (chainBlockInfo.state === "done") {
+          for (const duelist of [this.getTurnPlayer(), this.getNonTurnPlayer()]) {
+            for (const afterChainBlockEffect of this.getEnableActions(duelist, ["AfterChainBlock"], ["Normal"], [chainBlockInfo])) {
+              await afterChainBlockEffect.directExecute(duelist, chainBlockInfo, false);
+            }
+          }
+        }
       }
 
       this.clock.incrementChainBlockSeq();
@@ -870,7 +878,7 @@ export class Duel {
         this.clock.incrementChainSeq();
       } else if (chainBlockInfo.nextAction) {
         // ※ 緊急同調など、直後にチェーンに乗らない特殊召喚を行う場合
-        await chainBlockInfo.nextAction.directExecute(chainBlockInfo.activator, false);
+        await chainBlockInfo.nextAction.directExecute(chainBlockInfo.activator, undefined, false);
       }
     }
 

@@ -167,7 +167,7 @@ export const defaultRuleSummonPrepare = async (
 };
 export const defaultRuleSummonExecute = async (myInfo: ChainBlockInfo<unknown>): Promise<boolean> => {
   myInfo.action.entity.info.isRebornable = true;
-  myInfo.action.entity.info.isPending = false;
+  myInfo.action.entity.determine();
   myInfo.costInfo.summonMaterialInfos?.map((info) => info.material).forEach((material) => material.onUsedAsMaterial(myInfo, myInfo.action.entity));
   return true;
 };
@@ -324,7 +324,7 @@ const defaultBattlePotisionChangePrepare = async (myInfo: ChainBlockInfoBase<unk
   );
 
   myInfo.action.entity.info.battlePotisionChangeCount++;
-  myInfo.action.entity.info.isPending = false;
+
   return { selectedEntities: [], chainBlockTags: [], prepared: undefined };
 };
 
@@ -345,7 +345,8 @@ export const defaultFlipSummonAction: CardActionDefinition<unknown> = {
       : undefined,
   prepare: defaultBattlePotisionChangePrepare,
   execute: async (myInfo) => {
-    myInfo.action.entity.info.isPending = false;
+    myInfo.action.entity.determine();
+
     return true;
   },
   settle: async () => true,
@@ -368,7 +369,7 @@ export const defaultBattlePotisionChangeAction: CardActionDefinition<unknown> = 
       : undefined,
   prepare: defaultBattlePotisionChangePrepare,
   execute: async (myInfo) => {
-    myInfo.action.entity.info.isPending = false;
+    myInfo.action.entity.determine();
     return true;
   },
   settle: async () => true,

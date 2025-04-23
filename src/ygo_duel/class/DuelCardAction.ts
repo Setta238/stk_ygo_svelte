@@ -408,11 +408,11 @@ export class CardAction<T> extends CardActionBase implements ICardAction<T> {
     };
 
     if (this.definition.canPayCosts && !ignoreCosts) {
-      if (!this.definition.canPayCosts(myInfo, chainBlockInfos)) {
+      if (!this.definition.canPayCosts(myInfo, this.playType === "AfterChainBlock" ? [] : chainBlockInfos)) {
         return;
       }
     }
-    return this.definition.validate(myInfo, chainBlockInfos);
+    return this.definition.validate(myInfo, this.playType === "AfterChainBlock" ? [] : chainBlockInfos);
   };
   public readonly prepare = async (
     activator: Duelist,
@@ -545,12 +545,7 @@ export class CardAction<T> extends CardActionBase implements ICardAction<T> {
 
     // TODO 確認：永続魔法類の発動時の効果処理と適用開始はどちらが先か？
     // 一旦、早すぎた埋葬に便利なので、効果処理を先に行う。
-    if (myInfo.action.isLikeContinuousSpell) {
-      this.entity.info.isPending = false;
-      for (const ce of this.entity.continuousEffects) {
-        await ce.updateState();
-      }
-    }
+    this.entity.determine();
     return result;
   };
   public readonly settle = (myInfo: ChainBlockInfo<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => {
@@ -568,9 +563,9 @@ export class CardAction<T> extends CardActionBase implements ICardAction<T> {
    * @param ignoreCost
    * @returns
    */
-  public readonly directExecute = async (activator: Duelist, ignoreCost: boolean) => {
+  public readonly directExecute = async (activator: Duelist, targetChainBlock: ChainBlockInfo<unknown> | undefined, ignoreCost: boolean) => {
     // チェーンブロック情報の準備
-    const myInfo = await this.prepare(activator, undefined, undefined, [], false, ignoreCost);
+    const myInfo = await this.prepare(activator, undefined, targetChainBlock, [], false, ignoreCost);
     if (!myInfo) {
       throw new SystemError("想定されない状態", this, activator, ignoreCost);
     }

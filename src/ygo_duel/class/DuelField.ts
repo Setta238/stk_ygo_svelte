@@ -60,7 +60,7 @@ export class DuelField {
       .map((cell) => cell.cardEntities)
       .flat();
   };
-  public readonly getCardsOnField = (): DuelEntity[] => {
+  public readonly getCardsOnFieldStrictly = (): DuelEntity[] => {
     return this.getCells(...playFieldCellTypes)
       .map((cell) => cell.cardEntities)
       .filter((entities) => entities.length > 0)
@@ -68,7 +68,7 @@ export class DuelField {
       .filter((card) => card.isOnFieldStrictly);
   };
 
-  public readonly getMonstersOnField = (): DuelEntity[] => this.getCardsOnField().filter((monster) => monster.isOnFieldAsMonsterStrictly);
+  public readonly getMonstersOnFieldStrictly = (): DuelEntity[] => this.getCardsOnFieldStrictly().filter((monster) => monster.isOnFieldAsMonsterStrictly);
 
   public readonly getPendingCardsOnField = (): DuelEntity[] => {
     return this.getCells(...playFieldCellTypes)

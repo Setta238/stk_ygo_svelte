@@ -59,7 +59,7 @@ export const defaultEquipSpellTrapValidate = <T>(
   validateEquipOwner: (equipOwner: DuelEntity, equip: DuelEntity) => boolean = () => true
 ) => {
   const monsters = myInfo.action.entity.field
-    .getMonstersOnField()
+    .getMonstersOnFieldStrictly()
     .filter((monster) => monster.face === "FaceUp")
     .filter((monster) => monster.canBeTargetOfEffect(myInfo))
     .filter((monster) => validateEquipOwner(monster, myInfo.action.entity));
@@ -75,7 +75,7 @@ export const defaultEquipSpellTrapPrepare = async <T>(
   validateEquipOwner: (equipOwner: DuelEntity, equip: DuelEntity) => boolean = () => true
 ) => {
   const monsters = myInfo.action.entity.field
-    .getMonstersOnField()
+    .getMonstersOnFieldStrictly()
     .filter((monster) => monster.face === "FaceUp")
     .filter((monster) => monster.canBeTargetOfEffect(myInfo))
     .filter((monster) => validateEquipOwner(monster, myInfo.action.entity));

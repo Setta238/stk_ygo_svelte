@@ -74,14 +74,14 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
         executableDuelistTypes: ["Controller"],
         hasToTargetCards: true,
         validate: (myInfo) => {
-          const monsters = myInfo.action.entity.field.getMonstersOnField().filter((monster) => monster.canBeTargetOfEffect(myInfo));
+          const monsters = myInfo.action.entity.field.getMonstersOnFieldStrictly().filter((monster) => monster.canBeTargetOfEffect(myInfo));
           if (!monsters.length) {
             return;
           }
           return defaultSpellTrapValidate(myInfo);
         },
         prepare: async (myInfo, chainBlockInfos, cancelable) => {
-          const monsters = myInfo.action.entity.field.getMonstersOnField().filter((monster) => monster.canBeTargetOfEffect(myInfo));
+          const monsters = myInfo.action.entity.field.getMonstersOnFieldStrictly().filter((monster) => monster.canBeTargetOfEffect(myInfo));
           const selected = await myInfo.action.entity.duel.view.waitSelectEntities(
             myInfo.activator,
             monsters,
@@ -139,14 +139,14 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
         executableDuelistTypes: ["Controller"],
         hasToTargetCards: true,
         validate: (myInfo) => {
-          const monsters = myInfo.action.entity.field.getMonstersOnField().filter((monster) => monster.canBeTargetOfEffect(myInfo));
+          const monsters = myInfo.action.entity.field.getMonstersOnFieldStrictly().filter((monster) => monster.canBeTargetOfEffect(myInfo));
           if (!monsters.length) {
             return;
           }
           return defaultSpellTrapValidate(myInfo);
         },
         prepare: async (myInfo, chainBlockInfos, cancelable) => {
-          const monsters = myInfo.action.entity.field.getMonstersOnField().filter((monster) => monster.canBeTargetOfEffect(myInfo));
+          const monsters = myInfo.action.entity.field.getMonstersOnFieldStrictly().filter((monster) => monster.canBeTargetOfEffect(myInfo));
           const selected = await myInfo.action.entity.duel.view.waitSelectEntities(
             myInfo.activator,
             monsters,

@@ -245,7 +245,7 @@ export class DuelEntity {
       .filter(([entity, to]) => entity.fieldCell !== to)
       .map(([entity]) => entity)
       .filter((entity) => !(excludedList ?? []).includes(entity));
-    const _excludedList = [...entitiesWithAnimation, ...duel.field.getCardsOnField().filter((entity) => entity.info.isDying)];
+    const _excludedList = [...entitiesWithAnimation, ...duel.field.getCardsOnFieldStrictly().filter((entity) => entity.info.isDying)];
 
     // 目的地ごとに仕分ける
     const destMap = new Map<DuelFieldCell, [entity: DuelEntity, ...Parameters<typeof DuelEntity.prototype._move>][]>();
@@ -303,7 +303,7 @@ export class DuelEntity {
 
       // 新しく発生したものを検知（※ここまでのどこかでアニメーションしたものを除く）
       const newTargets = duel.field
-        .getCardsOnField()
+        .getCardsOnFieldStrictly()
         .filter((entity) => entity.info.isDying)
         .filter((newOne) => !_excludedList.includes(newOne))
         .map((newOne) => {

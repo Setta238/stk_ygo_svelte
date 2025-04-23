@@ -297,10 +297,10 @@ export class Duelist {
     return this.getMonstersOnField();
   };
   public readonly getMonstersOnField = (): DuelEntity[] => {
-    return this.duel.field.getMonstersOnField().filter((monster) => monster.controller === this);
+    return this.duel.field.getMonstersOnFieldStrictly().filter((monster) => monster.controller === this);
   };
   public readonly getEntiteisOnField = (): DuelEntity[] => {
-    return this.duel.field.getCardsOnField().filter((card) => card.controller === this);
+    return this.duel.field.getCardsOnFieldStrictly().filter((card) => card.controller === this);
   };
 
   public readonly pushDeck = (): void => {

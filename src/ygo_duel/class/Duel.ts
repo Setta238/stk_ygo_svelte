@@ -276,7 +276,7 @@ export class Duel {
     } else {
       await this.getTurnPlayer().draw(1, undefined, undefined);
     }
-    this.field.getCardsOnField().forEach((m) => m.initForTurn());
+    this.field.getCardsOnFieldStrictly().forEach((m) => m.initForTurn());
     // フェイズ強制処理
     await this.procSpellSpeed1();
     this.moveNextPhase("standby");

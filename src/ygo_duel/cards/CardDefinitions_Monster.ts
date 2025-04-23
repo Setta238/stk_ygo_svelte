@@ -43,7 +43,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
           executableDuelistTypes: ["Controller"],
           isOnlyNTimesPerDuel: name === "アンノウン・シンクロン" ? 1 : undefined,
           validate: (myInfo) => {
-            const monsters = myInfo.action.entity.field.getMonstersOnField();
+            const monsters = myInfo.action.entity.field.getMonstersOnFieldStrictly();
             if (monsters.length == 0 || monsters.some((m) => m.controller === myInfo.activator)) {
               return undefined;
             }

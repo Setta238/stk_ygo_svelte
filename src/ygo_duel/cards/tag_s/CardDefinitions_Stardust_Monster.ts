@@ -358,7 +358,7 @@ export const createCardDefinitions_Stardust_Monster = (): CardDefinition[] => {
           const selected =
             (await myInfo.activator.duel.view.waitSelectEntities(
               myInfo.activator,
-              myInfo.action.duel.field.getCardsOnField(),
+              myInfo.action.duel.field.getCardsOnFieldStrictly(),
               1,
               (selected) => selected.length === 1,
               "破壊するカードを選択。",

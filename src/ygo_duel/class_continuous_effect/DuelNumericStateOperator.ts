@@ -49,7 +49,7 @@ export class NumericStateOperatorPool extends StickyEffectOperatorPool<NumericSt
     // 邪神アバター類のみ最後に計算
     //    ※邪神ドレッド・ルートがいると全体再計算が必要
     const needsRecalc = duel.field
-      .getMonstersOnField()
+      .getMonstersOnFieldStrictly()
       .flatMap((monster) => monster.numericOprsBundle)
       .flatMap((bundle) => bundle.operators)
       .some((ope) => ope.targetStateGen === "calculated");
@@ -57,11 +57,11 @@ export class NumericStateOperatorPool extends StickyEffectOperatorPool<NumericSt
     if (needsRecalc) {
       // アバター類を一旦取り除いて最大値を出す。
       // ※少なくとも攻撃力はマイナスになるようマーキング済
-      const otherMonsters = duel.field.getMonstersOnField().filter((monster) => (monster.atk ?? 0) >= 0);
+      const otherMonsters = duel.field.getMonstersOnFieldStrictly().filter((monster) => (monster.atk ?? 0) >= 0);
       const maxAtk = otherMonsters.map((monster) => monster.atk ?? 0).reduce((wip, current) => (wip > current ? wip : current), 0);
 
       // フィールド上のモンスターのステータスを再計算
-      duel.field.getMonstersOnField().forEach((monster) => {
+      duel.field.getMonstersOnFieldStrictly().forEach((monster) => {
         // オペレータのうち、例外三種を順番に適用
         monster.numericOprsBundle.operators
           .filter((ope) => ope.targetStateGen === "calculated")

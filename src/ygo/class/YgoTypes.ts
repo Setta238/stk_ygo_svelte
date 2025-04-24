@@ -18,7 +18,7 @@ export const specialMonsterCategories = [...exMonsterCategories, "SpecialSummon"
 export type TMonsterSpecialSummonCategory = (typeof specialMonsterCategories)[number];
 export const monsterEffectCategories = ["Toon", "Spirit", "Union", "Gemini", "FlipEffect"] as const;
 export type TMonsterEffectCategory = (typeof monsterEffectCategories)[number];
-export const monsterOtherCategories = ["Tuner", "Effect", "Normal", "Pendulum", "Token", "NormalSummonOnly", "RegularSpecialSummonOnly"] as const;
+export const monsterOtherCategories = ["Tuner", "Effect", "Normal", "Pendulum", "Token", "FreeReborn", "NormalSummonOnly", "RegularSpecialSummonOnly"] as const;
 export type TMonsterOtherCategory = (typeof monsterOtherCategories)[number];
 export const monsterCategories = [...specialMonsterCategories, ...monsterEffectCategories, ...monsterOtherCategories] as const;
 export type TMonsterCategory = (typeof monsterCategories)[number];
@@ -39,8 +39,9 @@ export const monsterCategoryDic: { [key in TMonsterCategory]: string } = {
   Normal: "通常",
   Pendulum: "ペンデュラム",
   Token: "トークン",
+  FreeReborn: "特殊召喚モンスター（蘇生制限なし）",
   NormalSummonOnly: "特殊召喚不可",
-  RegularSpecialSummonOnly: "正規特殊召喚のみ",
+  RegularSpecialSummonOnly: "正規の方法以外での特殊召喚不可",
 };
 export const monsterCategoryEmojiDic: { [key in TMonsterCategory]: string } = {
   Syncro: "🎵",
@@ -59,6 +60,7 @@ export const monsterCategoryEmojiDic: { [key in TMonsterCategory]: string } = {
   Normal: "🔘",
   Pendulum: "💠",
   Token: "🐏",
+  FreeReborn: "🆓",
   NormalSummonOnly: "🔲",
   RegularSpecialSummonOnly: "❗",
 };

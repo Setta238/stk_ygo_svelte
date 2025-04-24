@@ -386,7 +386,6 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
         settle: async () => true,
       } as CardActionDefinition<unknown>,
     ] as CardActionDefinition<unknown>[],
-    canBeSummoned: () => true,
   };
   result.push(def_ライトロード・ビーストウォルフ);
 

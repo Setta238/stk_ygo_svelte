@@ -15476,6 +15476,7 @@
     "kind": "Monster",
     "monsterCategories": [
       "Xyz",
+      "SpecialSummon",
       "Effect"
     ],
     "attack": 2100,
@@ -15500,7 +15501,8 @@
     "kind": "Monster",
     "monsterCategories": [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     "attack": 2100,
     "defense": 1600,
@@ -15742,7 +15744,8 @@
     "kind": "Monster",
     "monsterCategories": [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     "attack": 2000,
     "defense": 0,
@@ -15900,7 +15903,8 @@
     "kind": "Monster",
     "monsterCategories": [
       "Syncro",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     "level": 6,
     "attack": 2400,
@@ -16018,7 +16022,8 @@
     "pendulumDescription": "",
     "kind": "Monster",
     "monsterCategories": [
-      "Syncro"
+      "Syncro",
+      "SpecialSummon"
     ],
     "level": 7,
     "attack": 2700,
@@ -16042,7 +16047,8 @@
     "pendulumDescription": "",
     "kind": "Monster",
     "monsterCategories": [
-      "Syncro"
+      "Syncro",
+      "SpecialSummon"
     ],
     "level": 6,
     "attack": 2600,
@@ -16063,7 +16069,8 @@
     "pendulumDescription": "",
     "kind": "Monster",
     "monsterCategories": [
-      "Syncro"
+      "Syncro",
+      "SpecialSummon"
     ],
     "level": 9,
     "attack": 3000,
@@ -16105,6 +16112,7 @@
     "kind": "Monster",
     "monsterCategories": [
       "Xyz",
+      "SpecialSummon",
       "Effect"
     ],
     "rank": 4,
@@ -16155,7 +16163,8 @@
     "monsterCategories": [
       "SpecialSummon",
       "Tuner",
-      "Effect"
+      "Effect",
+      "FreeReborn"
     ],
     "level": 4,
     "attack": 1100,
@@ -16180,7 +16189,9 @@
     "kind": "Monster",
     "monsterCategories": [
       "SpecialSummon",
-      "Effect"
+      "Effect",
+      "FreeReborn",
+      "RegularSpecialSummonOnly"
     ],
     "level": 4,
     "attack": 2100,
@@ -16418,7 +16429,8 @@
     "kind": "Monster",
     "monsterCategories": [
       "Syncro",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     "level": 8,
     "attack": 2800,
@@ -17484,7 +17496,8 @@
     "kind": "Monster",
     "monsterCategories": [
       "Fusion",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     "level": 10,
     "wikiEncodedName": "%A1%D4%A5%E6%A1%BC%A5%D5%A5%A9%A5%ED%A5%A4%A5%C9%A1%A6%A5%D5%A5%A1%A5%A4%A5%BF%A1%BC%A1%D5",
@@ -18114,7 +18127,9 @@
     "kind": "Monster",
     "monsterCategories": [
       "Fusion",
-      "Effect"
+      "Effect",
+      "RegularSpecialSummonOnly",
+      "SpecialSummon"
     ],
     "level": 8,
     "attack": 2800,
@@ -18139,7 +18154,8 @@
     "kind": "Monster",
     "monsterCategories": [
       "Fusion",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     "level": 6,
     "attack": 2200,
@@ -18161,7 +18177,8 @@
     "kind": "Monster",
     "monsterCategories": [
       "Fusion",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     "level": 8,
     "attack": 2000,
@@ -18321,7 +18338,8 @@
     "pendulumDescription": "",
     "kind": "Monster",
     "monsterCategories": [
-      "Xyz"
+      "Xyz",
+      "SpecialSummon"
     ],
     "rank": 4,
     "attack": 2950,
@@ -18435,7 +18453,8 @@
     "pendulumDescription": "",
     "kind": "Monster",
     "monsterCategories": [
-      "Effect"
+      "Effect",
+      "RegularSpecialSummonOnly"
     ],
     "level": 8,
     "attack": 3000,
@@ -19237,7 +19256,8 @@
     "kind": "Monster",
     "monsterCategories": [
       "Syncro",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     "level": 7,
     "attack": 2600,
@@ -19303,7 +19323,8 @@
     "kind": "Monster",
     "monsterCategories": [
       "Fusion",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     "level": 8,
     "attack": 3000,
@@ -19418,7 +19439,8 @@
     "kind": "Monster",
     "monsterCategories": [
       "Syncro",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     "level": 5,
     "attack": 2400,
@@ -19543,7 +19565,8 @@
     "kind": "Monster",
     "monsterCategories": [
       "Syncro",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     "level": 8,
     "attack": 2500,
@@ -19568,7 +19591,8 @@
     "kind": "Monster",
     "monsterCategories": [
       "Syncro",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     "level": 8,
     "attack": 2500,
@@ -19592,7 +19616,8 @@
     "kind": "Monster",
     "monsterCategories": [
       "SpecialSummon",
-      "Effect"
+      "Effect",
+      "RegularSpecialSummonOnly"
     ],
     "level": 8,
     "attack": 2500,
@@ -19617,7 +19642,8 @@
     "kind": "Monster",
     "monsterCategories": [
       "SpecialSummon",
-      "Effect"
+      "Effect",
+      "RegularSpecialSummonOnly"
     ],
     "level": 10,
     "attack": 3000,
@@ -19682,7 +19708,8 @@
     "pendulumDescription": "",
     "kind": "Monster",
     "monsterCategories": [
-      "Xyz"
+      "Xyz",
+      "SpecialSummon"
     ],
     "rank": 4,
     "attack": 2600,
@@ -19823,7 +19850,9 @@
     "kind": "Monster",
     "monsterCategories": [
       "Syncro",
-      "Effect"
+      "Effect",
+      "RegularSpecialSummonOnly",
+      "SpecialSummon"
     ],
     "level": 10,
     "attack": 3000,
@@ -19846,7 +19875,9 @@
     "pendulumDescription": "",
     "kind": "Monster",
     "monsterCategories": [
-      "Syncro"
+      "Effect",
+      "Syncro",
+      "SpecialSummon"
     ],
     "level": 8,
     "attack": 2500,
@@ -19870,7 +19901,8 @@
     "kind": "Monster",
     "monsterCategories": [
       "Syncro",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     "level": 9,
     "attack": 3200,
@@ -19896,7 +19928,8 @@
     "kind": "Monster",
     "monsterCategories": [
       "Syncro",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     "level": 10,
     "attack": 3500,
@@ -19921,7 +19954,8 @@
     "kind": "Monster",
     "monsterCategories": [
       "Syncro",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     "level": 8,
     "attack": 3000,
@@ -20331,7 +20365,8 @@
     "pendulumDescription": "",
     "kind": "Monster",
     "monsterCategories": [
-      "Link"
+      "Link",
+      "SpecialSummon"
     ],
     "attack": 1200,
     "attributes": [
@@ -20357,7 +20392,8 @@
     "pendulumDescription": "",
     "kind": "Monster",
     "monsterCategories": [
-      "Link"
+      "Link",
+      "SpecialSummon"
     ],
     "attack": 1800,
     "attributes": [
@@ -20382,7 +20418,8 @@
     "pendulumDescription": "",
     "kind": "Monster",
     "monsterCategories": [
-      "Link"
+      "Link",
+      "SpecialSummon"
     ],
     "attack": 3000,
     "attributes": [
@@ -20409,7 +20446,8 @@
     "pendulumDescription": "",
     "kind": "Monster",
     "monsterCategories": [
-      "Link"
+      "Link",
+      "SpecialSummon"
     ],
     "attack": 1000,
     "attributes": [
@@ -20434,7 +20472,8 @@
     "pendulumDescription": "",
     "kind": "Monster",
     "monsterCategories": [
-      "Link"
+      "Link",
+      "SpecialSummon"
     ],
     "attack": 2600,
     "attributes": [
@@ -20462,7 +20501,8 @@
     "kind": "Monster",
     "monsterCategories": [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     "link": 6,
     "attack": 3500,
@@ -20493,7 +20533,8 @@
     "kind": "Monster",
     "monsterCategories": [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     "link": 1,
     "attack": 300,
@@ -20520,7 +20561,8 @@
     "monsterCategories": [
       "Syncro",
       "Tuner",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     "level": 2,
     "attack": 200,
@@ -20613,7 +20655,8 @@
     "monsterCategories": [
       "Syncro",
       "SpecialSummon",
-      "Effect"
+      "Effect",
+      "RegularSpecialSummonOnly"
     ],
     "level": 12,
     "attack": 4000,
@@ -20637,7 +20680,8 @@
     "kind": "Monster",
     "monsterCategories": [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     "link": 2,
     "attack": 1500,
@@ -20665,7 +20709,8 @@
     "monsterCategories": [
       "Syncro",
       "Tuner",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     "level": 5,
     "attack": 1800,
@@ -20689,7 +20734,8 @@
     "kind": "Monster",
     "monsterCategories": [
       "Fusion",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     "level": 9,
     "attack": 3000,
@@ -20713,7 +20759,8 @@
     "kind": "Monster",
     "monsterCategories": [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     "link": 2,
     "attack": 2000,
@@ -20740,7 +20787,8 @@
     "kind": "Monster",
     "monsterCategories": [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     "link": 2,
     "attack": 1800,
@@ -20767,7 +20815,8 @@
     "kind": "Monster",
     "monsterCategories": [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     "link": 3,
     "attack": 2500,
@@ -20795,7 +20844,8 @@
     "kind": "Monster",
     "monsterCategories": [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     "link": 1,
     "attack": 800,
@@ -20962,7 +21012,8 @@
     "kind": "Monster",
     "monsterCategories": [
       "Syncro",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     "level": 8,
     "attack": 2800,
@@ -20985,7 +21036,8 @@
     "monsterCategories": [
       "Syncro",
       "SpecialSummon",
-      "Effect"
+      "Effect",
+      "RegularSpecialSummonOnly"
     ],
     "level": 12,
     "attack": 4000,
@@ -20996,7 +21048,8 @@
     "types": [
       "Dragon"
     ],
-    "wikiEncodedName": "%A1%D4%A5%B7%A5%E5%A1%BC%A5%C6%A5%A3%A5%F3%A5%B0%A1%A6%A5%AF%A5%A7%A1%BC%A5%B5%A1%BC%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5"
+    "wikiEncodedName": "%A1%D4%A5%B7%A5%E5%A1%BC%A5%C6%A5%A3%A5%F3%A5%B0%A1%A6%A5%AF%A5%A7%A1%BC%A5%B5%A1%BC%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5",
+    "nameTags": []
   },
   "シューティング・スター・ドラゴン・ＴＧ－ＥＸ": {
     "name": "シューティング・スター・ドラゴン・ＴＧ－ＥＸ",
@@ -21006,7 +21059,8 @@
     "kind": "Monster",
     "monsterCategories": [
       "Syncro",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     "level": 10,
     "attack": 3300,
@@ -21017,7 +21071,10 @@
     "types": [
       "Dragon"
     ],
-    "wikiEncodedName": "%A1%D4%A5%B7%A5%E5%A1%BC%A5%C6%A5%A3%A5%F3%A5%B0%A1%A6%A5%B9%A5%BF%A1%BC%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%A6%A3%D4%A3%C7%A1%DD%A3%C5%A3%D8%A1%D5"
+    "wikiEncodedName": "%A1%D4%A5%B7%A5%E5%A1%BC%A5%C6%A5%A3%A5%F3%A5%B0%A1%A6%A5%B9%A5%BF%A1%BC%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%A6%A3%D4%A3%C7%A1%DD%A3%C5%A3%D8%A1%D5",
+    "nameTags": [
+      "ＴＧ"
+    ]
   },
   "シューティング・スター・ドラゴン": {
     "name": "シューティング・スター・ドラゴン",
@@ -21027,7 +21084,8 @@
     "kind": "Monster",
     "monsterCategories": [
       "Syncro",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     "level": 10,
     "attack": 3300,
@@ -21038,7 +21096,8 @@
     "types": [
       "Dragon"
     ],
-    "wikiEncodedName": "%A1%D4%A5%B7%A5%E5%A1%BC%A5%C6%A5%A3%A5%F3%A5%B0%A1%A6%A5%B9%A5%BF%A1%BC%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5"
+    "wikiEncodedName": "%A1%D4%A5%B7%A5%E5%A1%BC%A5%C6%A5%A3%A5%F3%A5%B0%A1%A6%A5%B9%A5%BF%A1%BC%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5",
+    "nameTags": []
   },
   "シューティング・セイヴァー・スター・ドラゴン": {
     "name": "シューティング・セイヴァー・スター・ドラゴン",
@@ -21048,7 +21107,8 @@
     "kind": "Monster",
     "monsterCategories": [
       "Syncro",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     "level": 11,
     "attack": 4000,
@@ -21059,7 +21119,10 @@
     "types": [
       "Dragon"
     ],
-    "wikiEncodedName": "%A1%D4%A5%B7%A5%E5%A1%BC%A5%C6%A5%A3%A5%F3%A5%B0%A1%A6%A5%BB%A5%A4%A5%F4%A5%A1%A1%BC%A1%A6%A5%B9%A5%BF%A1%BC%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5"
+    "wikiEncodedName": "%A1%D4%A5%B7%A5%E5%A1%BC%A5%C6%A5%A3%A5%F3%A5%B0%A1%A6%A5%BB%A5%A4%A5%F4%A5%A1%A1%BC%A1%A6%A5%B9%A5%BF%A1%BC%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5",
+    "nameTags": [
+      "セイヴァー"
+    ]
   },
   "シューティング・ライザー・ドラゴン": {
     "name": "シューティング・ライザー・ドラゴン",
@@ -21070,7 +21133,8 @@
     "monsterCategories": [
       "Syncro",
       "Tuner",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     "level": 7,
     "attack": 2100,
@@ -21081,6 +21145,7 @@
     "types": [
       "Dragon"
     ],
-    "wikiEncodedName": "%A1%D4%A5%B7%A5%E5%A1%BC%A5%C6%A5%A3%A5%F3%A5%B0%A1%A6%A5%E9%A5%A4%A5%B6%A1%BC%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5"
+    "wikiEncodedName": "%A1%D4%A5%B7%A5%E5%A1%BC%A5%C6%A5%A3%A5%F3%A5%B0%A1%A6%A5%E9%A5%A4%A5%B6%A1%BC%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5",
+    "nameTags": []
   }
 }

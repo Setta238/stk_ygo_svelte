@@ -206,6 +206,7 @@
     display: flex;
     max-width: 100%;
     overflow: auto;
+    flex-wrap: wrap;
   }
   .duel_card_info_row * {
     max-width: 100%;

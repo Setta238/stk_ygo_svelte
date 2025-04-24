@@ -7,6 +7,7 @@ import {
   defaultNormalSummonAction,
   defaultSelfReleaseCanPayCosts,
   defaultSelfReleasePayCosts,
+  defaultSummonFilter,
 } from "@ygo_duel/cards/DefaultCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
@@ -71,6 +72,7 @@ export const createCardDefinitions_Dark_Fiend_lvl4_Monster = (): CardDefinition[
         settle: async () => true,
       } as CardActionDefinition<unknown>,
     ] as CardActionDefinition<unknown>[],
+    defaultSummonFilter: defaultSummonFilter,
   });
 
   return result;

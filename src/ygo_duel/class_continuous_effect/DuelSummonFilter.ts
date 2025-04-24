@@ -29,7 +29,7 @@ export class SummonFilterBundle extends StickyEffectOperatorBundle<SummonFilter>
             this.entity,
             effectOwner,
             summonChoice.summoner,
-            movedAs,
+            [summonKind, ...movedAs],
             actDefAttr,
             summonChoice.monster,
             materialInfos,

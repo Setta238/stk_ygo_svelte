@@ -41,6 +41,7 @@
   };
 
   const seachCondition = structuredClone(seachConditionDefaultValues);
+  let mode: "SearchCondition" | "CardDetail" = "SearchCondition";
 
   const onClearSearchConditionClick = async () => {
     seachCondition.name = "";
@@ -127,6 +128,7 @@
   };
 
   const onAttention = (_cardInfo: CardInfoJson) => {
+    mode = "CardDetail";
     cardInfo = _cardInfo;
   };
 
@@ -141,7 +143,7 @@
 
   const onResetSeachCondition = async (key: keyof typeof seachCondition) => {
     if (Array.isArray(seachCondition[key]) && Array.isArray(seachConditionDefaultValues[key])) {
-      seachCondition[key] = seachCondition[key].length ? [] : [...seachConditionDefaultValues[key]];
+      seachCondition[key] = seachCondition[key].length ? [] : ([...seachConditionDefaultValues[key]] as string[]);
     }
   };
 
@@ -179,7 +181,7 @@
   <div class="deck_editor_header"></div>
   <div class="deck_editor_body">
     <div class="deck_editor_body_left">
-      <div class="deck_editor_search_box">
+      <div role="contentinfo" class="deck_editor_search_box {mode === 'SearchCondition' ? '' : 'minimum'}" on:mouseenter={() => (mode = "SearchCondition")}>
         <div class="deck_editor_search_box_header">
           <div>検索条件</div>
           <div><button class="white_button" on:click={onClearSearchConditionClick}>条件クリア</button></div>
@@ -358,6 +360,20 @@
   }
   .deck_editor_body_left > div {
     flex-grow: 1;
+    -webkit-transition: all 0.3s;
+    transition: all 0.3s;
+  }
+  .deck_editor_search_box_title {
+    background-color: transparent;
+    display: block;
+    pointer-events: none;
+  }
+  .deck_editor_search_box.minimum .deck_editor_search_box_title {
+    pointer-events: initial;
+  }
+  .deck_editor_search_box.minimum {
+    height: 10rem;
+    flex-grow: 0;
   }
   .deck_editor_search_box_header {
     display: flex;

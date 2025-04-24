@@ -97,7 +97,6 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-
     flex-grow: 1;
   }
   .button_style_reset {
@@ -136,6 +135,7 @@
     display: flex;
     max-width: 100%;
     overflow: auto;
+    flex-wrap: wrap;
   }
   .duel_card_info_row * {
     max-width: 100%;

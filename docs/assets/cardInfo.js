@@ -572,14 +572,14 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 そのモンスターをこのカードのＸ素材とする。
 (3)：１ターンに１度、魔法・罠・モンスターの効果が発動した時、
 このカードのＸ素材を１つ取り除いて発動できる。
-その発動を無効にし破壊する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Xyz","Effect"],attack:2100,defense:1600,wikiEncodedName:"%A1%D4%A5%B5%A5%A4%A5%D0%A1%BC%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%A6%A5%A4%A5%F3%A5%D5%A5%A3%A5%CB%A5%C6%A5%A3%A1%D5",attributes:["Light"],types:["Machine"],nameTags:["サイバー","サイバー・ドラゴン"]},"サイバー・ドラゴン・ノヴァ":{name:"サイバー・ドラゴン・ノヴァ",nameKana:"",description:`機械族レベル５モンスター×２
+その発動を無効にし破壊する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Xyz","SpecialSummon","Effect"],attack:2100,defense:1600,wikiEncodedName:"%A1%D4%A5%B5%A5%A4%A5%D0%A1%BC%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%A6%A5%A4%A5%F3%A5%D5%A5%A3%A5%CB%A5%C6%A5%A3%A1%D5",attributes:["Light"],types:["Machine"],nameTags:["サイバー","サイバー・ドラゴン"]},"サイバー・ドラゴン・ノヴァ":{name:"サイバー・ドラゴン・ノヴァ",nameKana:"",description:`機械族レベル５モンスター×２
 (1)：１ターンに１度、このカードのＸ素材を１つ取り除き、自分の墓地の「サイバー・ドラゴン」１体を対象として発動できる。
 そのモンスターを特殊召喚する。
 (2)：自分・相手ターンに１度、自分の手札・フィールド（表側表示）から
 「サイバー・ドラゴン」１体を除外して発動できる。
 このカードの攻撃力はターン終了時まで２１００アップする。
 (3)：このカードが相手の効果で墓地へ送られた場合に発動できる。
-ＥＸデッキから機械族の融合モンスター１体を特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Xyz","Effect"],attack:2100,defense:1600,wikiEncodedName:"%A1%D4%A5%B5%A5%A4%A5%D0%A1%BC%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%A6%A5%CE%A5%F4%A5%A1%A1%D5",attributes:["Light"],types:["Machine"],nameTags:["サイバー","サイバー・ドラゴン"]},"トゥーン・サイバー・ドラゴン":{name:"トゥーン・サイバー・ドラゴン",nameKana:"",description:`(1)：相手フィールドにモンスターが存在し、自分フィールドにモンスターが存在しない場合、
+ＥＸデッキから機械族の融合モンスター１体を特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Xyz","Effect","SpecialSummon"],attack:2100,defense:1600,wikiEncodedName:"%A1%D4%A5%B5%A5%A4%A5%D0%A1%BC%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%A6%A5%CE%A5%F4%A5%A1%A1%D5",attributes:["Light"],types:["Machine"],nameTags:["サイバー","サイバー・ドラゴン"]},"トゥーン・サイバー・ドラゴン":{name:"トゥーン・サイバー・ドラゴン",nameKana:"",description:`(1)：相手フィールドにモンスターが存在し、自分フィールドにモンスターが存在しない場合、
 このカードは手札から特殊召喚できる。
 (2)：このカードは召喚・反転召喚・特殊召喚したターンには攻撃できない。
 (3)：自分フィールドに「トゥーン・ワールド」が存在し、
@@ -615,7 +615,7 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 自分のデッキ・墓地からこのカード以外の「サイバー・ドラゴン」１体を手札に加える。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:1,attack:100,defense:100,wikiEncodedName:"%A1%D4%A5%B5%A5%A4%A5%D0%A1%BC%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%A6%A5%D8%A5%EB%A5%C4%A1%D5",attributes:["Light"],types:["Machine"],nameTags:["サイバー","サイバー・ドラゴン"]},"サイバー・ドラゴン":{name:"サイバー・ドラゴン",nameKana:"",description:"(1)：相手フィールドにのみモンスターが存在する場合、このカードは手札から特殊召喚できる。",pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:5,attack:2100,defense:1600,wikiEncodedName:"%A1%D4%A5%B5%A5%A4%A5%D0%A1%BC%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5",attributes:["Light"],types:["Machine"],nameTags:["サイバー","サイバー・ドラゴン"]},"プロト・サイバー・ドラゴン":{name:"プロト・サイバー・ドラゴン",nameKana:"",description:"このカードのカード名は、フィールド上に表側表示で存在する限り「サイバー・ドラゴン」として扱う。",pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:3,attack:1100,defense:600,wikiEncodedName:"%A1%D4%A5%D7%A5%ED%A5%C8%A1%A6%A5%B5%A5%A4%A5%D0%A1%BC%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5",attributes:["Light"],types:["Machine"],nameTags:["サイバー","サイバー・ドラゴン"]},"Ｎｏ.１７ リバイス・ドラゴン":{name:"Ｎｏ.１７ リバイス・ドラゴン",nameKana:"",description:`レベル３モンスター×２
 (1)：Ｘ素材が無いこのカードは直接攻撃できない。
 (2)：１ターンに１度、このカードのＸ素材を１つ取り除いて発動できる。
-このカードの攻撃力は５００アップする。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Xyz","Effect"],attack:2e3,defense:0,wikiEncodedName:"%A1%D4%A3%CE%A3%EF.%A3%B1%A3%B7%20%A5%EA%A5%D0%A5%A4%A5%B9%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5",attributes:["Water"],types:["Dragon"],nameTags:["Ｎｏ.","Ｎ"]},"クリアー・バイス・ドラゴン":{name:"クリアー・バイス・ドラゴン",nameKana:"",description:`(1)：このカードがモンスターゾーンに存在する限り、自分に「クリアー・ワールド」の効果は適用されない。
+このカードの攻撃力は５００アップする。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Xyz","Effect","SpecialSummon"],attack:2e3,defense:0,wikiEncodedName:"%A1%D4%A3%CE%A3%EF.%A3%B1%A3%B7%20%A5%EA%A5%D0%A5%A4%A5%B9%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5",attributes:["Water"],types:["Dragon"],nameTags:["Ｎｏ.","Ｎ"]},"クリアー・バイス・ドラゴン":{name:"クリアー・バイス・ドラゴン",nameKana:"",description:`(1)：このカードがモンスターゾーンに存在する限り、自分に「クリアー・ワールド」の効果は適用されない。
 (2)：このカードの攻撃力は相手モンスターに攻撃するダメージ計算時のみ、
 その相手モンスターの攻撃力の倍になる。
 (3)：フィールドのこのカードが相手の効果で破壊される場合、
@@ -642,7 +642,7 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 １ターンに１度、相手フィールド上に表側表示で存在するモンスターを
 装備カード扱いとしてこのカードに１体のみ装備する事ができる。
 このカードが戦闘によって破壊される場合、
-代わりにこの効果で装備したモンスターを破壊する事ができる。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","Effect"],level:6,attack:2400,defense:1200,wikiEncodedName:"%A1%D4%C3%CF%C4%EC%A4%CE%A5%A2%A5%E9%A5%AF%A5%CD%A1%BC%A1%D5",attributes:["Earth"],types:["Insect"],nameTags:[]},強欲な壺の精霊:{name:"強欲な壺の精霊",nameKana:"",description:`(1)：「強欲な壺」が発動した場合に発動する。
+代わりにこの効果で装備したモンスターを破壊する事ができる。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","Effect","SpecialSummon"],level:6,attack:2400,defense:1200,wikiEncodedName:"%A1%D4%C3%CF%C4%EC%A4%CE%A5%A2%A5%E9%A5%AF%A5%CD%A1%BC%A1%D5",attributes:["Earth"],types:["Insect"],nameTags:[]},強欲な壺の精霊:{name:"強欲な壺の精霊",nameKana:"",description:`(1)：「強欲な壺」が発動した場合に発動する。
 その「強欲な壺」を発動したプレイヤーはデッキから１枚ドローできる。
 この効果はこのカードがモンスターゾーンに表側攻撃表示で存在する場合に発動と処理を行う。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:1,attack:100,defense:100,wikiEncodedName:"%A1%D4%B6%AF%CD%DF%A4%CA%D4%E4%A4%CE%C0%BA%CE%EE%A1%D5",attributes:["Light"],types:["Fairy"],nameTags:[]},強欲な壺:{name:"強欲な壺",nameKana:"",description:"(1)：自分はデッキから２枚ドローする。",kind:"Spell",spellCategory:"Normal",wikiEncodedName:"%A1%D4%B6%AF%CD%DF%A4%CA%D4%E4%A1%D5",nameTags:[]},天使の施し:{name:"天使の施し",nameKana:"",description:"自分のデッキからカードを３枚ドローし、その後手札を２枚選択して捨てる。",kind:"Spell",spellCategory:"Normal",wikiEncodedName:"%A1%D4%C5%B7%BB%C8%A4%CE%BB%DC%A4%B7%A1%D5",nameTags:[]},成金ゴブリン:{name:"成金ゴブリン",nameKana:"",description:`(1)：自分はデッキから１枚ドローする。
 その後、相手は１０００ＬＰ回復する。`,kind:"Spell",spellCategory:"Normal",wikiEncodedName:"%A1%D4%C0%AE%B6%E2%A5%B4%A5%D6%A5%EA%A5%F3%A1%D5",nameTags:["ゴブリン"]},おろかな埋葬:{name:"おろかな埋葬",nameKana:"",description:"(1)：デッキからモンスター１体を墓地へ送る。",kind:"Spell",spellCategory:"Normal",wikiEncodedName:"%A1%D4%A4%AA%A4%ED%A4%AB%A4%CA%CB%E4%C1%F2%A1%D5",nameTags:[]},増援:{name:"増援",nameKana:"",description:"(1)：デッキからレベル４以下の戦士族モンスター１体を手札に加える。",kind:"Spell",spellCategory:"Normal",wikiEncodedName:"%A1%D4%C1%FD%B1%E7%A1%D5",nameTags:[]},増援部隊:{name:"増援部隊",nameKana:"",description:`このカード名の(1)の効果は１ターンに１度しか使用できない。
@@ -651,7 +651,7 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 (1)：デッキから「サイバー・ドラゴン」モンスター
 または通常召喚できない機械族・光属性モンスター１体を手札に加える。
 (2)：相手によってこのカードの発動が無効になり、このカードが墓地へ送られた場合、手札を１枚捨てて発動できる。
-このカードを手札に加える。`,kind:"Spell",spellCategory:"Normal",wikiEncodedName:"%A1%D4%A5%A8%A5%DE%A1%BC%A5%B8%A5%A7%A5%F3%A5%B7%A1%BC%A1%A6%A5%B5%A5%A4%A5%D0%A1%BC%A1%D5",nameTags:["サイバー"]},"スクラップ・デスデーモン":{name:"スクラップ・デスデーモン",nameKana:"",description:"チューナー＋チューナー以外のモンスター１体以上",pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro"],level:7,attack:2700,defense:1800,wikiEncodedName:"%A1%D4%A5%B9%A5%AF%A5%E9%A5%C3%A5%D7%A1%A6%A5%C7%A5%B9%A5%C7%A1%BC%A5%E2%A5%F3%A1%D5",attributes:["Earth"],types:["Fiend"],nameTags:["スクラップ","デーモン"]},大地の騎士ガイアナイト:{name:"大地の騎士ガイアナイト",nameKana:"",description:"チューナー＋チューナー以外のモンスター１体以上",pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro"],level:6,attack:2600,defense:800,wikiEncodedName:"%A1%D4%C2%E7%C3%CF%A4%CE%B5%B3%BB%CE%A5%AC%A5%A4%A5%A2%A5%CA%A5%A4%A5%C8%A1%D5",attributes:["Earth"],types:["Warrior"],nameTags:[]},"ナチュル・ガオドレイク":{name:"ナチュル・ガオドレイク",nameKana:"",description:"地属性チューナー＋チューナー以外の地属性モンスター１体以上",pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro"],level:9,attack:3e3,defense:1800,wikiEncodedName:"%A1%D4%A5%CA%A5%C1%A5%E5%A5%EB%A1%A6%A5%AC%A5%AA%A5%C9%A5%EC%A5%A4%A5%AF%A1%D5",attributes:["Earth"],types:["Beast"],nameTags:["ナチュル"]},"マジックカード「死者蘇生」":{name:"マジックカード「死者蘇生」",nameKana:"",description:`このカード名のカードは１ターンに１枚しか発動できない。
+このカードを手札に加える。`,kind:"Spell",spellCategory:"Normal",wikiEncodedName:"%A1%D4%A5%A8%A5%DE%A1%BC%A5%B8%A5%A7%A5%F3%A5%B7%A1%BC%A1%A6%A5%B5%A5%A4%A5%D0%A1%BC%A1%D5",nameTags:["サイバー"]},"スクラップ・デスデーモン":{name:"スクラップ・デスデーモン",nameKana:"",description:"チューナー＋チューナー以外のモンスター１体以上",pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","SpecialSummon"],level:7,attack:2700,defense:1800,wikiEncodedName:"%A1%D4%A5%B9%A5%AF%A5%E9%A5%C3%A5%D7%A1%A6%A5%C7%A5%B9%A5%C7%A1%BC%A5%E2%A5%F3%A1%D5",attributes:["Earth"],types:["Fiend"],nameTags:["スクラップ","デーモン"]},大地の騎士ガイアナイト:{name:"大地の騎士ガイアナイト",nameKana:"",description:"チューナー＋チューナー以外のモンスター１体以上",pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","SpecialSummon"],level:6,attack:2600,defense:800,wikiEncodedName:"%A1%D4%C2%E7%C3%CF%A4%CE%B5%B3%BB%CE%A5%AC%A5%A4%A5%A2%A5%CA%A5%A4%A5%C8%A1%D5",attributes:["Earth"],types:["Warrior"],nameTags:[]},"ナチュル・ガオドレイク":{name:"ナチュル・ガオドレイク",nameKana:"",description:"地属性チューナー＋チューナー以外の地属性モンスター１体以上",pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","SpecialSummon"],level:9,attack:3e3,defense:1800,wikiEncodedName:"%A1%D4%A5%CA%A5%C1%A5%E5%A5%EB%A1%A6%A5%AC%A5%AA%A5%C9%A5%EC%A5%A4%A5%AF%A1%D5",attributes:["Earth"],types:["Beast"],nameTags:["ナチュル"]},"マジックカード「死者蘇生」":{name:"マジックカード「死者蘇生」",nameKana:"",description:`このカード名のカードは１ターンに１枚しか発動できない。
 (1)：自分か相手の墓地のモンスター１体を対象として発動できる。
 そのモンスターを自分フィールドに特殊召喚する。
 このターン、この効果で特殊召喚したモンスターは攻撃できず、その効果は発動できない。`,kind:"Spell",spellCategory:"QuickPlay",wikiEncodedName:"%A1%D4%A5%DE%A5%B8%A5%C3%A5%AF%A5%AB%A1%BC%A5%C9%A1%D6%BB%E0%BC%D4%C1%C9%C0%B8%A1%D7%A1%D5",nameTags:[]},死者蘇生:{name:"死者蘇生",nameKana:"",description:`(1)：自分か相手の墓地のモンスター１体を対象として発動できる。
@@ -662,7 +662,7 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 その中に「ライトロード」カードがあった場合、さらにその数だけ自分はドローする。
 (2)：このカードが戦闘または相手の効果で破壊された場合に発動できる。
 自分のデッキの上からカード３枚を墓地へ送る。
-その中に「ライトロード」カードがあった場合、さらにその数までフィールドのカードを破壊できる。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Xyz","Effect"],rank:4,attack:2e3,defense:800,nameTags:["ライトロード"],wikiEncodedName:"%A1%D4%A5%E9%A5%A4%A5%C8%A5%ED%A1%BC%A5%C9%A1%A6%A5%BB%A5%A4%A5%F3%A5%C8%20%A5%DF%A5%CD%A5%EB%A5%D0%A1%D5",attributes:["Light"],types:["Fairy"]},"ライトロード・アーク ミカエル":{name:"ライトロード・アーク ミカエル",nameKana:"",description:`チューナー＋チューナー以外の光属性モンスター１体以上
+その中に「ライトロード」カードがあった場合、さらにその数までフィールドのカードを破壊できる。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Xyz","SpecialSummon","Effect"],rank:4,attack:2e3,defense:800,nameTags:["ライトロード"],wikiEncodedName:"%A1%D4%A5%E9%A5%A4%A5%C8%A5%ED%A1%BC%A5%C9%A1%A6%A5%BB%A5%A4%A5%F3%A5%C8%20%A5%DF%A5%CD%A5%EB%A5%D0%A1%D5",attributes:["Light"],types:["Fairy"]},"ライトロード・アーク ミカエル":{name:"ライトロード・アーク ミカエル",nameKana:"",description:`チューナー＋チューナー以外の光属性モンスター１体以上
 (1)：１ターンに１度、１０００ＬＰを払い、フィールドのカード１枚を対象として発動できる。
 そのカードを除外する。
 (2)：このカードが破壊された時、
@@ -674,9 +674,9 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 このカードを特殊召喚する。
 (2)：このカードをリリースし、相手フィールドのモンスター１体を対象として発動できる。
 その相手モンスターを破壊する。
-その後、自分のデッキの上からカードを３枚墓地へ送る。`,pendulumDescription:"",kind:"Monster",monsterCategories:["SpecialSummon","Tuner","Effect"],level:4,attack:1100,defense:2e3,nameTags:["ライトロード"],canReborn:!0,wikiEncodedName:"%A1%D4%A5%E9%A5%A4%A5%C8%A5%ED%A1%BC%A5%C9%A1%A6%A5%A2%A1%BC%A5%C1%A5%E3%A1%BC%20%A5%D5%A5%A7%A5%EA%A5%B9%A1%D5",attributes:["Light"],types:["BeastWarrior"]},"ライトロード・ビースト ウォルフ":{name:"ライトロード・ビースト ウォルフ",nameKana:"",description:`このカードは通常召喚できず、カードの効果でのみ特殊召喚できる。
+その後、自分のデッキの上からカードを３枚墓地へ送る。`,pendulumDescription:"",kind:"Monster",monsterCategories:["SpecialSummon","Tuner","Effect","FreeReborn"],level:4,attack:1100,defense:2e3,nameTags:["ライトロード"],canReborn:!0,wikiEncodedName:"%A1%D4%A5%E9%A5%A4%A5%C8%A5%ED%A1%BC%A5%C9%A1%A6%A5%A2%A1%BC%A5%C1%A5%E3%A1%BC%20%A5%D5%A5%A7%A5%EA%A5%B9%A1%D5",attributes:["Light"],types:["BeastWarrior"]},"ライトロード・ビースト ウォルフ":{name:"ライトロード・ビースト ウォルフ",nameKana:"",description:`このカードは通常召喚できず、カードの効果でのみ特殊召喚できる。
 (1)：このカードがデッキから墓地へ送られた場合に発動する。
-このカードを特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["SpecialSummon","Effect"],level:4,attack:2100,defense:300,nameTags:["ライトロード"],canReborn:!0,wikiEncodedName:"%A1%D4%A5%E9%A5%A4%A5%C8%A5%ED%A1%BC%A5%C9%A1%A6%A5%D3%A1%BC%A5%B9%A5%C8%20%A5%A6%A5%A9%A5%EB%A5%D5%A1%D5",attributes:["Light"],types:["BeastWarrior"]},"ライトロード・シーフ ライニャン":{name:"ライトロード・シーフ ライニャン",nameKana:"",description:`リバース：自分の墓地に存在する「ライトロード」と名のついた
+このカードを特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["SpecialSummon","Effect","FreeReborn","RegularSpecialSummonOnly"],level:4,attack:2100,defense:300,nameTags:["ライトロード"],canReborn:!0,wikiEncodedName:"%A1%D4%A5%E9%A5%A4%A5%C8%A5%ED%A1%BC%A5%C9%A1%A6%A5%D3%A1%BC%A5%B9%A5%C8%20%A5%A6%A5%A9%A5%EB%A5%D5%A1%D5",attributes:["Light"],types:["BeastWarrior"]},"ライトロード・シーフ ライニャン":{name:"ライトロード・シーフ ライニャン",nameKana:"",description:`リバース：自分の墓地に存在する「ライトロード」と名のついた
 モンスター１体を選択してデッキに戻し、自分のデッキからカードを１枚ドローする。`,pendulumDescription:"",kind:"Monster",monsterCategories:["FlipEffect","Effect"],level:2,attack:100,defense:100,nameTags:["ライトロード"],wikiEncodedName:"%A1%D4%A5%E9%A5%A4%A5%C8%A5%ED%A1%BC%A5%C9%A1%A6%A5%B7%A1%BC%A5%D5%20%A5%E9%A5%A4%A5%CB%A5%E3%A5%F3%A1%D5",attributes:["Light"],types:["Beast"]},"ライトロード・ハンター ライコウ":{name:"ライトロード・ハンター ライコウ",nameKana:"",description:`(1)：このカードがリバースした場合に発動する。
 フィールドのカード１枚を選んで破壊できる。
 自分のデッキの上からカードを３枚墓地へ送る。`,pendulumDescription:"",kind:"Monster",monsterCategories:["FlipEffect","Effect"],level:2,attack:200,defense:100,nameTags:["ライトロード"],wikiEncodedName:"%A1%D4%A5%E9%A5%A4%A5%C8%A5%ED%A1%BC%A5%C9%A1%A6%A5%CF%A5%F3%A5%BF%A1%BC%20%A5%E9%A5%A4%A5%B3%A5%A6%A1%D5",attributes:["Light"],types:["Beast"]},"ライトロード・アサシン ライデン":{name:"ライトロード・アサシン ライデン",nameKana:"",description:`このカード名の(1)の効果は１ターンに１度しか使用できない。
@@ -714,7 +714,7 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 そのＳ素材とした「ライトロード」モンスターの数まで、デッキから「ライトロード」モンスターを墓地へ送る（同じ種族は１体まで）。
 (2)：自分フィールドの「ライトロード」モンスターは効果では除外できない。
 (3)：自分の墓地から「ライトロード」モンスターを４体まで除外して発動できる。
-除外した数だけ自分のデッキの上からカードを墓地へ送る。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","Effect"],level:8,attack:2800,defense:1800,nameTags:["ライトロード"],wikiEncodedName:"%A1%D4%A5%E9%A5%A4%A5%C8%A5%ED%A1%BC%A5%C9%A1%A6%A5%A2%A5%C6%A5%CA%20%A5%DF%A5%CD%A5%EB%A5%D0%A1%D5",attributes:["Light"],types:["Fairy"]},"ライトロード・ウォリアー ガロス":{name:"ライトロード・ウォリアー ガロス",nameKana:"",description:`「ライトロード・ウォリアー ガロス」以外の
+除外した数だけ自分のデッキの上からカードを墓地へ送る。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","Effect","SpecialSummon"],level:8,attack:2800,defense:1800,nameTags:["ライトロード"],wikiEncodedName:"%A1%D4%A5%E9%A5%A4%A5%C8%A5%ED%A1%BC%A5%C9%A1%A6%A5%A2%A5%C6%A5%CA%20%A5%DF%A5%CD%A5%EB%A5%D0%A1%D5",attributes:["Light"],types:["Fairy"]},"ライトロード・ウォリアー ガロス":{name:"ライトロード・ウォリアー ガロス",nameKana:"",description:`「ライトロード・ウォリアー ガロス」以外の
 自分フィールド上の「ライトロード」と名のついたモンスターの効果によって
 自分のデッキからカードが墓地へ送られた場合、自分のデッキの上からカードを２枚墓地へ送る。
 その後、この効果で墓地へ送られた「ライトロード」と名のついたモンスターの数だけ
@@ -831,7 +831,7 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 その闇属性モンスターを手札に加える。`,kind:"Spell",spellCategory:"Normal",wikiEncodedName:"%A1%D4%A5%C0%A1%BC%A5%AF%A1%A6%A5%D0%A1%BC%A5%B9%A5%C8%A1%D5",nameTags:[]},"ユーフォロイド・ファイター":{name:"ユーフォロイド・ファイター",nameKana:"",description:`「ユーフォロイド」＋戦士族モンスター
 このモンスターの融合召喚は、上記のカードでしか行えない。
 このカードの元々の攻撃力・守備力は、融合素材にした
-モンスター２体の元々の攻撃力を合計した数値になる。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Fusion","Effect"],level:10,wikiEncodedName:"%A1%D4%A5%E6%A1%BC%A5%D5%A5%A9%A5%ED%A5%A4%A5%C9%A1%A6%A5%D5%A5%A1%A5%A4%A5%BF%A1%BC%A1%D5",attributes:["Light"],types:["Machine"],nameTags:["ロイド"]},ＵＦＯタートル:{name:"ＵＦＯタートル",nameKana:"",description:"このカードが戦闘によって破壊され墓地へ送られた時、デッキから攻撃力１５００以下の炎属性モンスター１体を表側攻撃表示で特殊召喚できる。",pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:4,attack:1400,defense:1200,wikiEncodedName:"%A1%D4%A3%D5%A3%C6%A3%CF%A5%BF%A1%BC%A5%C8%A5%EB%A1%D5",attributes:["Fire"],types:["Machine"],nameTags:[]},"ＸＸ－セイバー エマーズブレイド":{name:"ＸＸ－セイバー エマーズブレイド",nameKana:"",description:`(1)：このカードが戦闘で破壊され墓地へ送られた時に発動できる。
+モンスター２体の元々の攻撃力を合計した数値になる。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Fusion","Effect","SpecialSummon"],level:10,wikiEncodedName:"%A1%D4%A5%E6%A1%BC%A5%D5%A5%A9%A5%ED%A5%A4%A5%C9%A1%A6%A5%D5%A5%A1%A5%A4%A5%BF%A1%BC%A1%D5",attributes:["Light"],types:["Machine"],nameTags:["ロイド"]},ＵＦＯタートル:{name:"ＵＦＯタートル",nameKana:"",description:"このカードが戦闘によって破壊され墓地へ送られた時、デッキから攻撃力１５００以下の炎属性モンスター１体を表側攻撃表示で特殊召喚できる。",pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:4,attack:1400,defense:1200,wikiEncodedName:"%A1%D4%A3%D5%A3%C6%A3%CF%A5%BF%A1%BC%A5%C8%A5%EB%A1%D5",attributes:["Fire"],types:["Machine"],nameTags:[]},"ＸＸ－セイバー エマーズブレイド":{name:"ＸＸ－セイバー エマーズブレイド",nameKana:"",description:`(1)：このカードが戦闘で破壊され墓地へ送られた時に発動できる。
 デッキからレベル４以下の「Ｘ－セイバー」モンスター１体を特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:3,attack:1300,defense:800,nameTags:["Ｘ－セイバー","セイバー"],wikiEncodedName:"%A1%D4%A3%D8%A3%D8%A1%DD%A5%BB%A5%A4%A5%D0%A1%BC%20%A5%A8%A5%DE%A1%BC%A5%BA%A5%D6%A5%EC%A5%A4%A5%C9%A1%D5",attributes:["Earth"],types:["Insect"]},グリズリーマザー:{name:"グリズリーマザー",nameKana:"",description:`(1)：このカードが戦闘で破壊され墓地へ送られた時に発動できる。
 デッキから攻撃力１５００以下の水属性モンスター１体を攻撃表示で特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:4,attack:1400,defense:1e3,wikiEncodedName:"%A1%D4%A5%B0%A5%EA%A5%BA%A5%EA%A1%BC%A5%DE%A5%B6%A1%BC%A1%D5",attributes:["Water"],types:["BeastWarrior"],nameTags:[]},シャインエンジェル:{name:"シャインエンジェル",nameKana:"",description:`このカードが戦闘によって破壊され墓地へ送られた時、デッキから攻撃力１５００以下の光属性モンスター１体を
 表側攻撃表示で特殊召喚できる。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:4,attack:1400,defense:800,wikiEncodedName:"%A1%D4%A5%B7%A5%E3%A5%A4%A5%F3%A5%A8%A5%F3%A5%B8%A5%A7%A5%EB%A1%D5",attributes:["Light"],types:["Fairy"],nameTags:[]},ゼンマイハニー:{name:"ゼンマイハニー",nameKana:"",description:"このカードが戦闘によって破壊され墓地へ送られた時、デッキからレベル４以下の「ゼンマイ」と名のついたモンスター１体を特殊召喚できる。",pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:1,attack:100,defense:300,nameTags:["ゼンマイ"],wikiEncodedName:"%A1%D4%A5%BC%A5%F3%A5%DE%A5%A4%A5%CF%A5%CB%A1%BC%A1%D5",attributes:["Earth"],types:["Insect"]},ドラゴンフライ:{name:"ドラゴンフライ",nameKana:"",description:`このカードが戦闘によって破壊され墓地へ送られた時、自分のデッキから攻撃力１５００以下の風属性モンスター１体を
@@ -876,9 +876,9 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 (1)：このカードは直接攻撃できる。
 その直接攻撃で相手に与える戦闘ダメージは半分になる。
 (2)：このカードが戦闘で相手モンスターを破壊し墓地へ送った時に発動できる。
-デッキから「チェンジ」速攻魔法カード１枚を手札に加える。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Fusion","Effect"],level:8,attack:2800,defense:1200,nameTags:["ＨＥＲＯ","Ｍ・ＨＥＲＯ"],wikiEncodedName:"%A1%D4%A3%CD%A1%A6%A3%C8%A3%C5%A3%D2%A3%CF%20%B0%C7%B5%B4%A1%D5",attributes:["Dark"],types:["Warrior"]},"闇魔界の竜騎士 ダークソード":{name:"闇魔界の竜騎士 ダークソード",nameKana:"",description:`「闇魔界の戦士 ダークソード」＋「漆黒の闘龍」
+デッキから「チェンジ」速攻魔法カード１枚を手札に加える。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Fusion","Effect","RegularSpecialSummonOnly","SpecialSummon"],level:8,attack:2800,defense:1200,nameTags:["ＨＥＲＯ","Ｍ・ＨＥＲＯ"],wikiEncodedName:"%A1%D4%A3%CD%A1%A6%A3%C8%A3%C5%A3%D2%A3%CF%20%B0%C7%B5%B4%A1%D5",attributes:["Dark"],types:["Warrior"]},"闇魔界の竜騎士 ダークソード":{name:"闇魔界の竜騎士 ダークソード",nameKana:"",description:`「闇魔界の戦士 ダークソード」＋「漆黒の闘龍」
 このカードが相手に戦闘ダメージを与える度に、相手の墓地から３枚までモンスターカードを選択し、
-ゲームから除外する事ができる。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Fusion","Effect"],level:6,attack:2200,defense:1500,wikiEncodedName:"%A1%D4%B0%C7%CB%E2%B3%A6%A4%CE%CE%B5%B5%B3%BB%CE%20%A5%C0%A1%BC%A5%AF%A5%BD%A1%BC%A5%C9%A1%D5",attributes:["Dark"],types:["Warrior"],nameTags:[]},"海造賊－双翼のリュース号":{name:"海造賊－双翼のリュース号",nameKana:"",description:`「海造賊」モンスター×２
+ゲームから除外する事ができる。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Fusion","Effect","SpecialSummon"],level:6,attack:2200,defense:1500,wikiEncodedName:"%A1%D4%B0%C7%CB%E2%B3%A6%A4%CE%CE%B5%B5%B3%BB%CE%20%A5%C0%A1%BC%A5%AF%A5%BD%A1%BC%A5%C9%A1%D5",attributes:["Dark"],types:["Warrior"],nameTags:[]},"海造賊－双翼のリュース号":{name:"海造賊－双翼のリュース号",nameKana:"",description:`「海造賊」モンスター×２
 このカード名の(1)(2)の効果はそれぞれ１ターンに１度しか使用できない。
 (1)：自分・相手のメインフェイズに発動できる。
 手札及び自分の魔法＆罠ゾーンの表側表示のカードの中から、「海造賊」モンスターカード１枚を選んで特殊召喚する。
@@ -886,11 +886,11 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 手札から「海造賊」カード１枚を捨てて発動できる。
 その発動を無効にし破壊する。
 このカードが「海造賊」カードを装備している場合、
-さらにデッキから「海造賊」カード１枚を手札に加える事ができる。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Fusion","Effect"],level:8,attack:2e3,defense:2e3,wikiEncodedName:"%A1%D4%B3%A4%C2%A4%C2%B1%A1%DD%C1%D0%CD%E3%A4%CE%A5%EA%A5%E5%A1%BC%A5%B9%B9%E6%A1%D5",attributes:["Light"],types:["Fiend"],nameTags:["海造賊"]},闇:{name:"闇",nameKana:"",description:`フィールド上に表側表示で存在する悪魔族・魔法使い族モンスターの攻撃力・守備力は２００ポイントアップする。
+さらにデッキから「海造賊」カード１枚を手札に加える事ができる。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Fusion","Effect","SpecialSummon"],level:8,attack:2e3,defense:2e3,wikiEncodedName:"%A1%D4%B3%A4%C2%A4%C2%B1%A1%DD%C1%D0%CD%E3%A4%CE%A5%EA%A5%E5%A1%BC%A5%B9%B9%E6%A1%D5",attributes:["Light"],types:["Fiend"],nameTags:["海造賊"]},闇:{name:"闇",nameKana:"",description:`フィールド上に表側表示で存在する悪魔族・魔法使い族モンスターの攻撃力・守備力は２００ポイントアップする。
 フィールド上に表側表示で存在する天使族モンスターの攻撃力・守備力は２００ポイントダウンする。`,kind:"Spell",spellCategory:"Field",wikiEncodedName:"%A1%D4%B0%C7%A1%D5",nameTags:[]},海:{name:"海",nameKana:"",description:`フィールド上に表側表示で存在する魚族・海竜族・雷族・水族モンスターの
 攻撃力・守備力は２００ポイントアップする。
 フィールド上に表側表示で存在する機械族・炎族モンスターの攻撃力・守備力は２００ポイントダウンする。`,kind:"Spell",spellCategory:"Field",wikiEncodedName:"%A1%D4%B3%A4%A1%D5",nameTags:[]},荒野:{name:"荒野",nameKana:"",description:"全ての恐竜・アンデット・岩石族モンスターの攻撃力と守備力は、２００ポイントアップする。",kind:"Spell",spellCategory:"Field",wikiEncodedName:"%A1%D4%B9%D3%CC%EE%A1%D5",nameTags:[]},山:{name:"山",nameKana:"",description:`フィールド上に表側表示で存在するドラゴン族・鳥獣族・雷族モンスターの
-攻撃力・守備力は２００ポイントアップする。`,kind:"Spell",spellCategory:"Field",wikiEncodedName:"%A1%D4%BB%B3%A1%D5",nameTags:[]},森:{name:"森",nameKana:"",description:"全ての昆虫・獣・植物・獣戦士族モンスターの攻撃力と守備力は、２００ポイントアップする。",kind:"Spell",spellCategory:"Field",wikiEncodedName:"%A1%D4%BF%B9%A1%D5",nameTags:[]},草原:{name:"草原",nameKana:"",description:"全ての戦士・獣戦士族モンスターの攻撃力と守備力は、２００ポイントアップする。",kind:"Spell",spellCategory:"Field",wikiEncodedName:"%A1%D4%C1%F0%B8%B6%A1%D5",nameTags:[]},連合軍:{name:"連合軍",nameKana:"",description:"自分フィールド上の戦士族モンスターの攻撃力は、自分フィールド上の戦士族・魔法使い族モンスターの数×２００ポイントアップする。",kind:"Spell",spellCategory:"Continuous",wikiEncodedName:"%A1%D4%CF%A2%B9%E7%B7%B3%A1%D5",nameTags:[]},団結の力:{name:"団結の力",nameKana:"",description:"(1)：装備モンスターの攻撃力・守備力は、自分フィールドの表側表示モンスターの数×８００アップする。",kind:"Spell",spellCategory:"Equip",wikiEncodedName:"%A1%D4%C3%C4%B7%EB%A4%CE%CE%CF%A1%D5",nameTags:[]},魔導師の力:{name:"魔導師の力",nameKana:"",description:"(1)：装備モンスターの攻撃力・守備力は、自分フィールドの魔法・罠カードの数×５００アップする。",kind:"Spell",spellCategory:"Equip",wikiEncodedName:"%A1%D4%CB%E2%C6%B3%BB%D5%A4%CE%CE%CF%A1%D5",nameTags:["魔導"]},ウォーターワールド:{name:"ウォーターワールド",nameKana:"",description:"フィールド上に表側表示で存在する水属性モンスターの攻撃力は５００ポイントアップし、守備力は４００ポイントダウンする。",kind:"Spell",spellCategory:"Field",wikiEncodedName:"%A1%D4%A5%A6%A5%A9%A1%BC%A5%BF%A1%BC%A5%EF%A1%BC%A5%EB%A5%C9%A1%D5",nameTags:[]},ガイアパワー:{name:"ガイアパワー",nameKana:"",description:"フィールド上に表側表示で存在する地属性モンスターの攻撃力は５００ポイントアップし、守備力は４００ポイントダウンする。",kind:"Spell",spellCategory:"Field",wikiEncodedName:"%A1%D4%A5%AC%A5%A4%A5%A2%A5%D1%A5%EF%A1%BC%A1%D5",nameTags:[]},シャインスパーク:{name:"シャインスパーク",nameKana:"",description:"フィールド上に表側表示で存在する光属性モンスターの攻撃力は５００ポイントアップし、守備力は４００ポイントダウンする。",kind:"Spell",spellCategory:"Field",wikiEncodedName:"%A1%D4%A5%B7%A5%E3%A5%A4%A5%F3%A5%B9%A5%D1%A1%BC%A5%AF%A1%D5",nameTags:[]},ダークゾーン:{name:"ダークゾーン",nameKana:"",description:"フィールド上に表側表示で存在する闇属性モンスターの攻撃力は５００ポイントアップし、守備力は４００ポイントダウンする。",kind:"Spell",spellCategory:"Field",wikiEncodedName:"%A1%D4%A5%C0%A1%BC%A5%AF%A5%BE%A1%BC%A5%F3%A1%D5",nameTags:[]},デザートストーム:{name:"デザートストーム",nameKana:"",description:"フィールド上に表側表示で存在する風属性モンスターの攻撃力は５００ポイントアップし、守備力は４００ポイントダウンする。",kind:"Spell",spellCategory:"Field",wikiEncodedName:"%A1%D4%A5%C7%A5%B6%A1%BC%A5%C8%A5%B9%A5%C8%A1%BC%A5%E0%A1%D5",nameTags:[]},バーニングブラッド:{name:"バーニングブラッド",nameKana:"",description:"フィールド上に表側表示で存在する炎属性モンスターの攻撃力は５００ポイントアップし、守備力は４００ポイントダウンする。",kind:"Spell",spellCategory:"Field",wikiEncodedName:"%A1%D4%A5%D0%A1%BC%A5%CB%A5%F3%A5%B0%A5%D6%A5%E9%A5%C3%A5%C9%A1%D5",nameTags:[]},"覚醒の勇士 ガガギゴ":{name:"覚醒の勇士 ガガギゴ",nameKana:"",description:"レベル４モンスター×３",pendulumDescription:"",kind:"Monster",monsterCategories:["Xyz"],rank:4,attack:2950,defense:2800,wikiEncodedName:"%A1%D4%B3%D0%C0%C3%A4%CE%CD%A6%BB%CE+%A5%AC%A5%AC%A5%AE%A5%B4%A1%D5",attributes:["Water"],types:["Reptile"],nameTags:[]},覚醒の魔導剣士:{name:"覚醒の魔導剣士",nameKana:"",description:`チューナー＋チューナー以外のモンスター１体以上
+攻撃力・守備力は２００ポイントアップする。`,kind:"Spell",spellCategory:"Field",wikiEncodedName:"%A1%D4%BB%B3%A1%D5",nameTags:[]},森:{name:"森",nameKana:"",description:"全ての昆虫・獣・植物・獣戦士族モンスターの攻撃力と守備力は、２００ポイントアップする。",kind:"Spell",spellCategory:"Field",wikiEncodedName:"%A1%D4%BF%B9%A1%D5",nameTags:[]},草原:{name:"草原",nameKana:"",description:"全ての戦士・獣戦士族モンスターの攻撃力と守備力は、２００ポイントアップする。",kind:"Spell",spellCategory:"Field",wikiEncodedName:"%A1%D4%C1%F0%B8%B6%A1%D5",nameTags:[]},連合軍:{name:"連合軍",nameKana:"",description:"自分フィールド上の戦士族モンスターの攻撃力は、自分フィールド上の戦士族・魔法使い族モンスターの数×２００ポイントアップする。",kind:"Spell",spellCategory:"Continuous",wikiEncodedName:"%A1%D4%CF%A2%B9%E7%B7%B3%A1%D5",nameTags:[]},団結の力:{name:"団結の力",nameKana:"",description:"(1)：装備モンスターの攻撃力・守備力は、自分フィールドの表側表示モンスターの数×８００アップする。",kind:"Spell",spellCategory:"Equip",wikiEncodedName:"%A1%D4%C3%C4%B7%EB%A4%CE%CE%CF%A1%D5",nameTags:[]},魔導師の力:{name:"魔導師の力",nameKana:"",description:"(1)：装備モンスターの攻撃力・守備力は、自分フィールドの魔法・罠カードの数×５００アップする。",kind:"Spell",spellCategory:"Equip",wikiEncodedName:"%A1%D4%CB%E2%C6%B3%BB%D5%A4%CE%CE%CF%A1%D5",nameTags:["魔導"]},ウォーターワールド:{name:"ウォーターワールド",nameKana:"",description:"フィールド上に表側表示で存在する水属性モンスターの攻撃力は５００ポイントアップし、守備力は４００ポイントダウンする。",kind:"Spell",spellCategory:"Field",wikiEncodedName:"%A1%D4%A5%A6%A5%A9%A1%BC%A5%BF%A1%BC%A5%EF%A1%BC%A5%EB%A5%C9%A1%D5",nameTags:[]},ガイアパワー:{name:"ガイアパワー",nameKana:"",description:"フィールド上に表側表示で存在する地属性モンスターの攻撃力は５００ポイントアップし、守備力は４００ポイントダウンする。",kind:"Spell",spellCategory:"Field",wikiEncodedName:"%A1%D4%A5%AC%A5%A4%A5%A2%A5%D1%A5%EF%A1%BC%A1%D5",nameTags:[]},シャインスパーク:{name:"シャインスパーク",nameKana:"",description:"フィールド上に表側表示で存在する光属性モンスターの攻撃力は５００ポイントアップし、守備力は４００ポイントダウンする。",kind:"Spell",spellCategory:"Field",wikiEncodedName:"%A1%D4%A5%B7%A5%E3%A5%A4%A5%F3%A5%B9%A5%D1%A1%BC%A5%AF%A1%D5",nameTags:[]},ダークゾーン:{name:"ダークゾーン",nameKana:"",description:"フィールド上に表側表示で存在する闇属性モンスターの攻撃力は５００ポイントアップし、守備力は４００ポイントダウンする。",kind:"Spell",spellCategory:"Field",wikiEncodedName:"%A1%D4%A5%C0%A1%BC%A5%AF%A5%BE%A1%BC%A5%F3%A1%D5",nameTags:[]},デザートストーム:{name:"デザートストーム",nameKana:"",description:"フィールド上に表側表示で存在する風属性モンスターの攻撃力は５００ポイントアップし、守備力は４００ポイントダウンする。",kind:"Spell",spellCategory:"Field",wikiEncodedName:"%A1%D4%A5%C7%A5%B6%A1%BC%A5%C8%A5%B9%A5%C8%A1%BC%A5%E0%A1%D5",nameTags:[]},バーニングブラッド:{name:"バーニングブラッド",nameKana:"",description:"フィールド上に表側表示で存在する炎属性モンスターの攻撃力は５００ポイントアップし、守備力は４００ポイントダウンする。",kind:"Spell",spellCategory:"Field",wikiEncodedName:"%A1%D4%A5%D0%A1%BC%A5%CB%A5%F3%A5%B0%A5%D6%A5%E9%A5%C3%A5%C9%A1%D5",nameTags:[]},"覚醒の勇士 ガガギゴ":{name:"覚醒の勇士 ガガギゴ",nameKana:"",description:"レベル４モンスター×３",pendulumDescription:"",kind:"Monster",monsterCategories:["Xyz","SpecialSummon"],rank:4,attack:2950,defense:2800,wikiEncodedName:"%A1%D4%B3%D0%C0%C3%A4%CE%CD%A6%BB%CE+%A5%AC%A5%AC%A5%AE%A5%B4%A1%D5",attributes:["Water"],types:["Reptile"],nameTags:[]},覚醒の魔導剣士:{name:"覚醒の魔導剣士",nameKana:"",description:`チューナー＋チューナー以外のモンスター１体以上
 「覚醒の魔導剣士」の(1)の効果は１ターンに１度しか使用できない。
 (1)：「魔術師」Ｐモンスターを素材としてこのカードがＳ召喚に成功した場合、自分の墓地の魔法カード１枚を対象として発動できる。
 そのカードを手札に加える。
@@ -910,7 +910,7 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 このターン通常のドローを行う代わりに、デッキから儀式魔法カード１枚を手札に加える。
 (2)：このカードがモンスターゾーンに存在する限り、自分バトルフェイズ中に相手は効果を発動できない。
 (3)：通常モンスターを使用して儀式召喚したこのカードの攻撃で相手モンスターを破壊した時に発動できる。
-相手フィールドのカードを全てデッキに戻す。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:8,attack:3e3,defense:2500,wikiEncodedName:"%A1%D4%C5%C1%C0%E2%A4%CE%B7%F5%C6%AE%BB%CE+%A5%AB%A5%AA%A5%B9%A1%A6%A5%BD%A5%EB%A5%B8%A5%E3%A1%BC%A1%D5",attributes:["Earth"],types:["Warrior"],nameTags:["カオス","カオス・ソルジャー"]},飛龍炎サラマンドラ:{name:"飛龍炎サラマンドラ",nameKana:"",description:`このカード名の(1)(3)の効果はそれぞれ１ターンに１度しか使用できない。
+相手フィールドのカードを全てデッキに戻す。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect","RegularSpecialSummonOnly"],level:8,attack:3e3,defense:2500,wikiEncodedName:"%A1%D4%C5%C1%C0%E2%A4%CE%B7%F5%C6%AE%BB%CE+%A5%AB%A5%AA%A5%B9%A1%A6%A5%BD%A5%EB%A5%B8%A5%E3%A1%BC%A1%D5",attributes:["Earth"],types:["Warrior"],nameTags:["カオス","カオス・ソルジャー"]},飛龍炎サラマンドラ:{name:"飛龍炎サラマンドラ",nameKana:"",description:`このカード名の(1)(3)の効果はそれぞれ１ターンに１度しか使用できない。
 (1)：このカードが手札・墓地に存在する場合、自分フィールドの戦士族モンスター１体を対象として発動できる。
 このカードを装備魔法カード扱いでその自分のモンスターに装備する。
 (2)：このカードが「炎の剣士」またはそのカード名が記されたモンスターに装備されている限り、
@@ -1036,7 +1036,7 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 自分フィールド上に特殊召喚する事ができる。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:2,attack:700,defense:300,wikiEncodedName:"%A1%D4%A5%B9%A5%EC%A5%A4%A5%D6%A1%A6%A5%A8%A5%A4%A5%D7%A1%D5",attributes:["Earth"],types:["Beast"],nameTags:[]},"ダイガスタ・イグルス":{name:"ダイガスタ・イグルス",nameKana:"",description:`チューナー＋チューナー以外の「ガスタ」と名のついたモンスター１体以上
 １ターンに１度、自分のエンドフェイズ時に
 自分の墓地の風属性モンスター１体をゲームから除外して発動できる。
-相手フィールド上にセットされたカード１枚を選択して破壊する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","Effect"],level:7,attack:2600,defense:1800,wikiEncodedName:"%A1%D4%A5%C0%A5%A4%A5%AC%A5%B9%A5%BF%A1%A6%A5%A4%A5%B0%A5%EB%A5%B9%A1%D5",nameTags:["ガスタ"],attributes:["Wind"],types:["Psychic"]},ハイエナ:{name:"ハイエナ",nameKana:"",description:`このカードが戦闘によって墓地へ送られた時、デッキから「ハイエナ」をフィールド上に特殊召喚する事ができる。
+相手フィールド上にセットされたカード１枚を選択して破壊する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","Effect","SpecialSummon"],level:7,attack:2600,defense:1800,wikiEncodedName:"%A1%D4%A5%C0%A5%A4%A5%AC%A5%B9%A5%BF%A1%A6%A5%A4%A5%B0%A5%EB%A5%B9%A1%D5",nameTags:["ガスタ"],attributes:["Wind"],types:["Psychic"]},ハイエナ:{name:"ハイエナ",nameKana:"",description:`このカードが戦闘によって墓地へ送られた時、デッキから「ハイエナ」をフィールド上に特殊召喚する事ができる。
 その後デッキをシャッフルする。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:3,attack:1e3,defense:300,wikiEncodedName:"%A1%D4%A5%CF%A5%A4%A5%A8%A5%CA%A1%D5",attributes:["Earth"],types:["Beast"],nameTags:[]},"ピラミッド・タートル":{name:"ピラミッド・タートル",nameKana:"",description:`(1)：このカードが戦闘で破壊され墓地へ送られた時に発動できる。
 デッキから守備力２０００以下のアンデット族モンスター１体を特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:4,attack:1200,defense:1400,wikiEncodedName:"%A1%D4%A5%D4%A5%E9%A5%DF%A5%C3%A5%C9%A1%A6%A5%BF%A1%BC%A5%C8%A5%EB%A1%D5",attributes:["Earth"],types:["Zombie"],nameTags:[]},"超魔導戦士－マスター・オブ・カオス":{name:"超魔導戦士－マスター・オブ・カオス",nameKana:"",description:`「ブラック・マジシャン」＋「カオス」儀式モンスター
 このカード名の(1)(2)(3)の効果はそれぞれ１ターンに１度しか使用できない。
@@ -1045,7 +1045,7 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 (2)：自分フィールドの光・闇属性モンスターを１体ずつリリースして発動できる。
 相手フィールドのモンスターを全て除外する。
 (3)：融合召喚したこのカードが戦闘・効果で破壊された場合、自分の墓地の魔法カード１枚を対象として発動できる。
-そのカードを手札に加える。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Fusion","Effect"],level:8,attack:3e3,defense:2500,wikiEncodedName:"%A1%D4%C4%B6%CB%E2%C6%B3%C0%EF%BB%CE%A1%DD%A5%DE%A5%B9%A5%BF%A1%BC%A1%A6%A5%AA%A5%D6%A1%A6%A5%AB%A5%AA%A5%B9%A1%D5",attributes:["Dark"],types:["Spellcaster"],nameTags:["カオス","魔導"]},"黒魔導戦士 ブレイカー":{name:"黒魔導戦士 ブレイカー",nameKana:"",description:`「黒魔導戦士 ブレイカー」の(4)の効果は１ターンに１度しか使用できない。
+そのカードを手札に加える。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Fusion","Effect","SpecialSummon"],level:8,attack:3e3,defense:2500,wikiEncodedName:"%A1%D4%C4%B6%CB%E2%C6%B3%C0%EF%BB%CE%A1%DD%A5%DE%A5%B9%A5%BF%A1%BC%A1%A6%A5%AA%A5%D6%A1%A6%A5%AB%A5%AA%A5%B9%A1%D5",attributes:["Dark"],types:["Spellcaster"],nameTags:["カオス","魔導"]},"黒魔導戦士 ブレイカー":{name:"黒魔導戦士 ブレイカー",nameKana:"",description:`「黒魔導戦士 ブレイカー」の(4)の効果は１ターンに１度しか使用できない。
 (1)：このカードが召喚に成功した場合に発動する。
 このカードに魔力カウンターを２つ置く。
 (2)：このカードがＰ召喚に成功した場合に発動する。
@@ -1063,7 +1063,7 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 このカードに魔力カウンターを１つ置く（最大３つまで）。
 (2)：このカードの魔力カウンターを３つ取り除いて発動できる。
 自分はデッキから１枚ドローする。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:4,attack:0,defense:2e3,attributes:["Light"],types:["Spellcaster"],wikiEncodedName:"%A1%D4%B2%A6%CE%A9%CB%E2%CB%A1%BF%DE%BD%F1%B4%DB%A1%D5",nameTags:[]},"マジカル・アンドロイド":{name:"マジカル・アンドロイド",nameKana:"",description:`チューナー＋チューナー以外のモンスター１体以上
-自分のエンドフェイズ時、自分フィールド上のサイキック族モンスター１体につき、自分は６００ライフポイント回復する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","Effect"],level:5,attack:2400,defense:1700,attributes:["Light"],types:["Psychic"],wikiEncodedName:"%A1%D4%A5%DE%A5%B8%A5%AB%A5%EB%A1%A6%A5%A2%A5%F3%A5%C9%A5%ED%A5%A4%A5%C9%A1%D5",nameTags:["ロイド"]},月の書:{name:"月の書",nameKana:"",description:`(1)：フィールドの表側表示モンスター１体を対象として発動できる。
+自分のエンドフェイズ時、自分フィールド上のサイキック族モンスター１体につき、自分は６００ライフポイント回復する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","Effect","SpecialSummon"],level:5,attack:2400,defense:1700,attributes:["Light"],types:["Psychic"],wikiEncodedName:"%A1%D4%A5%DE%A5%B8%A5%AB%A5%EB%A1%A6%A5%A2%A5%F3%A5%C9%A5%ED%A5%A4%A5%C9%A1%D5",nameTags:["ロイド"]},月の書:{name:"月の書",nameKana:"",description:`(1)：フィールドの表側表示モンスター１体を対象として発動できる。
 そのモンスターを裏側守備表示にする。`,kind:"Spell",spellCategory:"QuickPlay",wikiEncodedName:"%A1%D4%B7%EE%A4%CE%BD%F1%A1%D5",nameTags:[]},"生者の書－禁断の呪術－":{name:"生者の書－禁断の呪術－",nameKana:"",description:`(1)：自分の墓地のアンデット族モンスター１体と相手の墓地のモンスター１体を対象として発動できる。
 その自分のアンデット族モンスターを特殊召喚する。
 その相手のモンスターを除外する。`,kind:"Spell",spellCategory:"Normal",wikiEncodedName:"%A1%D4%C0%B8%BC%D4%A4%CE%BD%F1%A1%DD%B6%D8%C3%C7%A4%CE%BC%F6%BD%D1%A1%DD%A1%D5",nameTags:[]},太陽の書:{name:"太陽の書",nameKana:"",description:"フィールド上に裏側表示で存在するモンスター１体を選択し、表側攻撃表示にする。",kind:"Spell",spellCategory:"Normal",wikiEncodedName:"%A1%D4%C2%C0%CD%DB%A4%CE%BD%F1%A1%D5",nameTags:[]},暗黒界の書物:{name:"暗黒界の書物",nameKana:"",description:"自分のエンドフェイズ時に手札枚数制限によって手札を墓地に捨てた場合、その中にモンスターカードが含まれていれば１体のみ自分フィールド上に特殊召喚する事ができる。",kind:"Spell",spellCategory:"Continuous",wikiEncodedName:"%A1%D4%B0%C5%B9%F5%B3%A6%A4%CE%BD%F1%CA%AA%A1%D5",nameTags:["暗黒界"]},三賢者の書:{name:"三賢者の書",nameKana:"",description:`このカード名の(2)(3)の効果は１ターンに１度、いずれか１つしか使用できない。
@@ -1082,16 +1082,16 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 (2)：自分・相手のメインフェイズに、このカードをリリースして発動できる。
 ＥＸデッキから「スターダスト・ドラゴン」１体をＳ召喚扱いで特殊召喚する。
 その後、Ｓモンスター１体のＳ召喚を行う。
-この効果でＳ召喚したモンスターは、このターン相手が発動した効果を受けない。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","Effect"],level:8,attack:2500,defense:2e3,attributes:["Wind"],types:["Dragon"],wikiEncodedName:"%A1%D4%A5%A2%A5%AF%A5%BB%A5%EB%A5%B7%A5%F3%A5%AF%A5%ED%A1%A6%A5%B9%A5%BF%A1%BC%A5%C0%A5%B9%A5%C8%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5",nameTags:["シンクロ","スターダスト"]},"スターダスト・ドラゴン":{name:"スターダスト・ドラゴン",nameKana:"",description:`チューナー＋チューナー以外のモンスター１体以上
+この効果でＳ召喚したモンスターは、このターン相手が発動した効果を受けない。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","Effect","SpecialSummon"],level:8,attack:2500,defense:2e3,attributes:["Wind"],types:["Dragon"],wikiEncodedName:"%A1%D4%A5%A2%A5%AF%A5%BB%A5%EB%A5%B7%A5%F3%A5%AF%A5%ED%A1%A6%A5%B9%A5%BF%A1%BC%A5%C0%A5%B9%A5%C8%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5",nameTags:["シンクロ","スターダスト"]},"スターダスト・ドラゴン":{name:"スターダスト・ドラゴン",nameKana:"",description:`チューナー＋チューナー以外のモンスター１体以上
 (1)：フィールドのカードを破壊する魔法・罠・モンスターの効果が発動した時、このカードをリリースして発動できる。
 その発動を無効にし破壊する。
 (2)：このカードの(1)の効果を適用したターンのエンドフェイズに発動できる。
-その効果を発動するためにリリースしたこのカードを墓地から特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","Effect"],level:8,attack:2500,defense:2e3,attributes:["Wind"],types:["Dragon"],wikiEncodedName:"%A1%D4%A5%B9%A5%BF%A1%BC%A5%C0%A5%B9%A5%C8%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5",nameTags:["スターダスト"]},"Ｓｉｎ スターダスト・ドラゴン":{name:"Ｓｉｎ スターダスト・ドラゴン",nameKana:"",description:`このカードは通常召喚できない。
+その効果を発動するためにリリースしたこのカードを墓地から特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","Effect","SpecialSummon"],level:8,attack:2500,defense:2e3,attributes:["Wind"],types:["Dragon"],wikiEncodedName:"%A1%D4%A5%B9%A5%BF%A1%BC%A5%C0%A5%B9%A5%C8%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5",nameTags:["スターダスト"]},"Ｓｉｎ スターダスト・ドラゴン":{name:"Ｓｉｎ スターダスト・ドラゴン",nameKana:"",description:`このカードは通常召喚できない。
 ＥＸデッキから「スターダスト・ドラゴン」１体を除外した場合のみ特殊召喚できる。
 (1)：「Ｓｉｎ」モンスターはフィールドに１体しか表側表示で存在できない。
 (2)：このカードがモンスターゾーンに存在する限り、フィールドゾーンの表側表示のカードは効果では破壊されない。
 (3)：このカードがモンスターゾーンに存在する限り、他の自分のモンスターは攻撃宣言できない。
-(4)：フィールド魔法カードが表側表示で存在しない場合にこのカードは破壊される。`,pendulumDescription:"",kind:"Monster",monsterCategories:["SpecialSummon","Effect"],level:8,attack:2500,defense:2e3,attributes:["Dark"],types:["Dragon"],wikiEncodedName:"%A1%D4%A3%D3%A3%E9%A3%EE+%A5%B9%A5%BF%A1%BC%A5%C0%A5%B9%A5%C8%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5",nameTags:["Ｓｉｎ","スターダスト"]},"スターダスト・ドラゴン／バスター":{name:"スターダスト・ドラゴン／バスター",nameKana:"",description:`このカードは通常召喚できない。
+(4)：フィールド魔法カードが表側表示で存在しない場合にこのカードは破壊される。`,pendulumDescription:"",kind:"Monster",monsterCategories:["SpecialSummon","Effect","RegularSpecialSummonOnly"],level:8,attack:2500,defense:2e3,attributes:["Dark"],types:["Dragon"],wikiEncodedName:"%A1%D4%A3%D3%A3%E9%A3%EE+%A5%B9%A5%BF%A1%BC%A5%C0%A5%B9%A5%C8%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5",nameTags:["Ｓｉｎ","スターダスト"]},"スターダスト・ドラゴン／バスター":{name:"スターダスト・ドラゴン／バスター",nameKana:"",description:`このカードは通常召喚できない。
 「バスター・モード」の効果及び
 このカードの効果でのみ特殊召喚する事ができる。
 魔法・罠・効果モンスターの効果が発動した時、このカードをリリースする事でその発動を無効にし破壊する。
@@ -1099,9 +1099,9 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 この効果を発動するためにリリースされ墓地に存在するこのカードを、
 自分フィールド上に特殊召喚する事ができる。
 また、フィールド上に存在するこのカードが破壊された時、
-自分の墓地に存在する「スターダスト・ドラゴン」１体を特殊召喚する事ができる。`,pendulumDescription:"",kind:"Monster",monsterCategories:["SpecialSummon","Effect"],level:10,attack:3e3,defense:2500,attributes:["Wind"],types:["Dragon"],wikiEncodedName:"%A1%D4%A5%B9%A5%BF%A1%BC%A5%C0%A5%B9%A5%C8%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%BF%A5%D0%A5%B9%A5%BF%A1%BC%A1%D5",nameTags:["スターダスト","／バスター"]},"ジャンク・フォアード":{name:"ジャンク・フォアード",nameKana:"",description:"自分フィールド上にモンスターが存在しない場合、このカードは手札から特殊召喚する事ができる。",pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:3,attack:900,defense:1500,attributes:["Earth"],types:["Warrior"],wikiEncodedName:"%A1%D4%A5%B8%A5%E3%A5%F3%A5%AF%A1%A6%A5%D5%A5%A9%A5%A2%A1%BC%A5%C9%A1%D5",nameTags:["ジャンク"]},次元幽閉:{name:"次元幽閉",nameKana:"",description:`相手モンスターの攻撃宣言時、攻撃モンスター１体を選択して発動できる。
+自分の墓地に存在する「スターダスト・ドラゴン」１体を特殊召喚する事ができる。`,pendulumDescription:"",kind:"Monster",monsterCategories:["SpecialSummon","Effect","RegularSpecialSummonOnly"],level:10,attack:3e3,defense:2500,attributes:["Wind"],types:["Dragon"],wikiEncodedName:"%A1%D4%A5%B9%A5%BF%A1%BC%A5%C0%A5%B9%A5%C8%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%BF%A5%D0%A5%B9%A5%BF%A1%BC%A1%D5",nameTags:["スターダスト","／バスター"]},"ジャンク・フォアード":{name:"ジャンク・フォアード",nameKana:"",description:"自分フィールド上にモンスターが存在しない場合、このカードは手札から特殊召喚する事ができる。",pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:3,attack:900,defense:1500,attributes:["Earth"],types:["Warrior"],wikiEncodedName:"%A1%D4%A5%B8%A5%E3%A5%F3%A5%AF%A1%A6%A5%D5%A5%A9%A5%A2%A1%BC%A5%C9%A1%D5",nameTags:["ジャンク"]},次元幽閉:{name:"次元幽閉",nameKana:"",description:`相手モンスターの攻撃宣言時、攻撃モンスター１体を選択して発動できる。
 選択した攻撃モンスターをゲームから除外する。`,kind:"Trap",trapCategory:"Normal",wikiEncodedName:"%A1%D4%BC%A1%B8%B5%CD%A9%CA%C4%A1%D5",nameTags:[]},封印の黄金櫃:{name:"封印の黄金櫃",nameKana:"",description:`(1)：デッキからカード１枚を選んで除外する。
-このカードの発動後２回目の自分スタンバイフェイズに、この効果で除外されているカードを手札に加える。`,kind:"Spell",spellCategory:"Normal",wikiEncodedName:"%A1%D4%C9%F5%B0%F5%A4%CE%B2%AB%B6%E2%DD%A4%A1%D5",nameTags:[]},"ジェムナイト・パール":{name:"ジェムナイト・パール",nameKana:"",description:"レベル４モンスター×２",pendulumDescription:"",kind:"Monster",monsterCategories:["Xyz"],rank:4,attack:2600,defense:1900,attributes:["Earth"],types:["Rock"],wikiEncodedName:"%A1%D4%A5%B8%A5%A7%A5%E0%A5%CA%A5%A4%A5%C8%A1%A6%A5%D1%A1%BC%A5%EB%A1%D5",nameTags:["ジェム","ジェムナイト"]},"ＢＦ－疾風のゲイル":{name:"ＢＦ－疾風のゲイル",nameKana:"",description:`(1)：自分フィールドに「ＢＦ－疾風のゲイル」以外の「ＢＦ」モンスターが存在する場合、このカードは手札から特殊召喚できる。
+このカードの発動後２回目の自分スタンバイフェイズに、この効果で除外されているカードを手札に加える。`,kind:"Spell",spellCategory:"Normal",wikiEncodedName:"%A1%D4%C9%F5%B0%F5%A4%CE%B2%AB%B6%E2%DD%A4%A1%D5",nameTags:[]},"ジェムナイト・パール":{name:"ジェムナイト・パール",nameKana:"",description:"レベル４モンスター×２",pendulumDescription:"",kind:"Monster",monsterCategories:["Xyz","SpecialSummon"],rank:4,attack:2600,defense:1900,attributes:["Earth"],types:["Rock"],wikiEncodedName:"%A1%D4%A5%B8%A5%A7%A5%E0%A5%CA%A5%A4%A5%C8%A1%A6%A5%D1%A1%BC%A5%EB%A1%D5",nameTags:["ジェム","ジェムナイト"]},"ＢＦ－疾風のゲイル":{name:"ＢＦ－疾風のゲイル",nameKana:"",description:`(1)：自分フィールドに「ＢＦ－疾風のゲイル」以外の「ＢＦ」モンスターが存在する場合、このカードは手札から特殊召喚できる。
 (2)：１ターンに１度、相手フィールドの表側表示モンスター１体を対象として発動できる。その相手モンスターの攻撃力・守備力を半分にする。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Tuner","Effect"],level:3,attack:1300,defense:400,attributes:["Dark"],types:["WingedBeast"],wikiEncodedName:"%A1%D4%A3%C2%A3%C6%A1%DD%BC%C0%C9%F7%A4%CE%A5%B2%A5%A4%A5%EB%A1%D5",nameTags:["ＢＦ"]},"リミット・リバース":{name:"リミット・リバース",nameKana:"",description:`自分の墓地の攻撃力１０００以下のモンスター１体を選択し、表側攻撃表示で特殊召喚する。
 そのモンスターが守備表示になった時、そのモンスターとこのカードを破壊する。
 このカードがフィールド上から離れた時、そのモンスターを破壊する。
@@ -1120,23 +1120,23 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 このカードはターン終了時まで、他のカードの効果を受けない。
 この効果は相手ターンでも発動できる。
 (2)：このカードが相手によって破壊された場合、除外されている自分のドラゴン族Ｓモンスター１体を対象として発動できる。
-そのモンスターを特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","Effect"],level:10,attack:3e3,defense:2500,attributes:["Light"],types:["Dragon"],wikiEncodedName:"%A1%D4%BF%BF%C1%AE%A4%B3%A4%A6%CE%B5+%A5%B9%A5%BF%A1%BC%A5%C0%A5%B9%A5%C8%A1%A6%A5%AF%A5%ED%A5%CB%A5%AF%A5%EB%A1%D5",nameTags:["スターダスト"]},"閃珖竜 スターダスト":{name:"閃珖竜 スターダスト",nameKana:"",description:`チューナー＋チューナー以外のモンスター１体以上
+そのモンスターを特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","Effect","RegularSpecialSummonOnly","SpecialSummon"],level:10,attack:3e3,defense:2500,attributes:["Light"],types:["Dragon"],wikiEncodedName:"%A1%D4%BF%BF%C1%AE%A4%B3%A4%A6%CE%B5+%A5%B9%A5%BF%A1%BC%A5%C0%A5%B9%A5%C8%A1%A6%A5%AF%A5%ED%A5%CB%A5%AF%A5%EB%A1%D5",nameTags:["スターダスト"]},"閃珖竜 スターダスト":{name:"閃珖竜 スターダスト",nameKana:"",description:`チューナー＋チューナー以外のモンスター１体以上
 １ターンに１度、自分フィールド上に表側表示で存在するカード１枚を選択して発動できる。
 選択したカードは、このターンに１度だけ戦闘及びカードの効果では破壊されない。
-この効果は相手ターンでも発動できる。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro"],level:8,attack:2500,defense:2e3,attributes:["Light"],types:["Dragon"],wikiEncodedName:"%A1%D4%C1%AE%A4%B3%A4%A6%CE%B5+%A5%B9%A5%BF%A1%BC%A5%C0%A5%B9%A5%C8%A1%D5",nameTags:["スターダスト"]},"琰魔竜 レッド・デーモン・アビス":{name:"琰魔竜 レッド・デーモン・アビス",nameKana:"",description:`チューナー＋チューナー以外のドラゴン族・闇属性Ｓモンスター１体
+この効果は相手ターンでも発動できる。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect","Syncro","SpecialSummon"],level:8,attack:2500,defense:2e3,attributes:["Light"],types:["Dragon"],wikiEncodedName:"%A1%D4%C1%AE%A4%B3%A4%A6%CE%B5+%A5%B9%A5%BF%A1%BC%A5%C0%A5%B9%A5%C8%A1%D5",nameTags:["スターダスト"]},"琰魔竜 レッド・デーモン・アビス":{name:"琰魔竜 レッド・デーモン・アビス",nameKana:"",description:`チューナー＋チューナー以外のドラゴン族・闇属性Ｓモンスター１体
 このカード名の(1)(2)の効果はそれぞれ１ターンに１度しか使用できない。
 (1)：自分・相手ターンに、相手フィールドの表側表示カード１枚を対象として発動できる。
 そのカードの効果をターン終了時まで無効にする。
 (2)：このカードが相手に戦闘ダメージを与えた時、自分の墓地のチューナー１体を対象として発動できる。
-そのモンスターを守備表示で特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","Effect"],level:9,attack:3200,defense:2500,attributes:["Dark"],types:["Dragon"],wikiEncodedName:"%A1%D4%A4%A8%A4%F3%CB%E2%CE%B5+%A5%EC%A5%C3%A5%C9%A1%A6%A5%C7%A1%BC%A5%E2%A5%F3%A1%A6%A5%A2%A5%D3%A5%B9%A1%D5",nameTags:["アビス","デーモン","レッド・デーモン"]},"琰魔竜 レッド・デーモン・ベリアル":{name:"琰魔竜 レッド・デーモン・ベリアル",nameKana:"",description:`チューナー＋チューナー以外のドラゴン族・闇属性Ｓモンスター１体
+そのモンスターを守備表示で特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","Effect","SpecialSummon"],level:9,attack:3200,defense:2500,attributes:["Dark"],types:["Dragon"],wikiEncodedName:"%A1%D4%A4%A8%A4%F3%CB%E2%CE%B5+%A5%EC%A5%C3%A5%C9%A1%A6%A5%C7%A1%BC%A5%E2%A5%F3%A1%A6%A5%A2%A5%D3%A5%B9%A1%D5",nameTags:["アビス","デーモン","レッド・デーモン"]},"琰魔竜 レッド・デーモン・ベリアル":{name:"琰魔竜 レッド・デーモン・ベリアル",nameKana:"",description:`チューナー＋チューナー以外のドラゴン族・闇属性Ｓモンスター１体
 このカード名の(1)(2)の効果はそれぞれ１ターンに１度しか使用できない。
 (1)：自分フィールドのモンスター１体をリリースし、自分の墓地の「レッド・デーモン」モンスター１体を対象として発動できる。
 そのモンスターを特殊召喚する。
 (2)：このカードが相手に戦闘ダメージを与えた時に発動できる。
-自分のデッキ及び墓地から１体ずつ、レベルが同じチューナーを守備表示で特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","Effect"],level:10,attack:3500,defense:3e3,attributes:["Dark"],types:["Dragon"],wikiEncodedName:"%A1%D4%A4%A8%A4%F3%CB%E2%CE%B5+%A5%EC%A5%C3%A5%C9%A1%A6%A5%C7%A1%BC%A5%E2%A5%F3%A1%A6%A5%D9%A5%EA%A5%A2%A5%EB%A1%D5",nameTags:["デーモン","レッド・デーモン"]},"琰魔竜 レッド・デーモン":{name:"琰魔竜 レッド・デーモン",nameKana:"",description:`チューナー＋チューナー以外のモンスター１体以上
+自分のデッキ及び墓地から１体ずつ、レベルが同じチューナーを守備表示で特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","Effect","SpecialSummon"],level:10,attack:3500,defense:3e3,attributes:["Dark"],types:["Dragon"],wikiEncodedName:"%A1%D4%A4%A8%A4%F3%CB%E2%CE%B5+%A5%EC%A5%C3%A5%C9%A1%A6%A5%C7%A1%BC%A5%E2%A5%F3%A1%A6%A5%D9%A5%EA%A5%A2%A5%EB%A1%D5",nameTags:["デーモン","レッド・デーモン"]},"琰魔竜 レッド・デーモン":{name:"琰魔竜 レッド・デーモン",nameKana:"",description:`チューナー＋チューナー以外のモンスター１体以上
 １ターンに１度、自分のメインフェイズ１でのみ発動できる。
 このカード以外のフィールド上に表側攻撃表示で存在するモンスターを全て破壊する。
-この効果を発動するターン、このカード以外のモンスターは攻撃できない。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","Effect"],level:8,attack:3e3,defense:2e3,attributes:["Dark"],types:["Dragon"],wikiEncodedName:"%A1%D4%A4%A8%A4%F3%CB%E2%CE%B5+%A5%EC%A5%C3%A5%C9%A1%A6%A5%C7%A1%BC%A5%E2%A5%F3%A1%D5",nameTags:["デーモン","レッド・デーモン"]},"クリエイト・リゾネーター":{name:"クリエイト・リゾネーター",nameKana:"",description:"(1)：自分フィールドにレベル８以上のＳモンスターが存在する場合、このカードは手札から特殊召喚できる。",pendulumDescription:"",kind:"Monster",monsterCategories:["Tuner","Effect"],level:3,attack:800,defense:600,attributes:["Wind"],types:["Fiend"],wikiEncodedName:"%A1%D4%A5%AF%A5%EA%A5%A8%A5%A4%A5%C8%A1%A6%A5%EA%A5%BE%A5%CD%A1%BC%A5%BF%A1%BC%A1%D5",nameTags:["リゾネーター"]},"クリムゾン・リゾネーター":{name:"クリムゾン・リゾネーター",nameKana:"",description:`このカード名の(1)(2)の効果はそれぞれ１ターンに１度しか使用できず、この効果を発動するターン、自分はドラゴン族・闇属性ＳモンスターしかＥＸデッキから特殊召喚できない。
+この効果を発動するターン、このカード以外のモンスターは攻撃できない。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","Effect","SpecialSummon"],level:8,attack:3e3,defense:2e3,attributes:["Dark"],types:["Dragon"],wikiEncodedName:"%A1%D4%A4%A8%A4%F3%CB%E2%CE%B5+%A5%EC%A5%C3%A5%C9%A1%A6%A5%C7%A1%BC%A5%E2%A5%F3%A1%D5",nameTags:["デーモン","レッド・デーモン"]},"クリエイト・リゾネーター":{name:"クリエイト・リゾネーター",nameKana:"",description:"(1)：自分フィールドにレベル８以上のＳモンスターが存在する場合、このカードは手札から特殊召喚できる。",pendulumDescription:"",kind:"Monster",monsterCategories:["Tuner","Effect"],level:3,attack:800,defense:600,attributes:["Wind"],types:["Fiend"],wikiEncodedName:"%A1%D4%A5%AF%A5%EA%A5%A8%A5%A4%A5%C8%A1%A6%A5%EA%A5%BE%A5%CD%A1%BC%A5%BF%A1%BC%A1%D5",nameTags:["リゾネーター"]},"クリムゾン・リゾネーター":{name:"クリムゾン・リゾネーター",nameKana:"",description:`このカード名の(1)(2)の効果はそれぞれ１ターンに１度しか使用できず、この効果を発動するターン、自分はドラゴン族・闇属性ＳモンスターしかＥＸデッキから特殊召喚できない。
 (1)：自分フィールドにモンスターが存在しない場合に発動できる。
 このカードを手札から特殊召喚する。
 (2)：このカード以外の自分フィールドのモンスターがドラゴン族・闇属性Ｓモンスター１体のみの場合に発動できる。
@@ -1184,11 +1184,11 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 そのモンスターを守備表示で特殊召喚する。
 このカードがフィールドから離れた時にそのモンスターは破壊される。
 そのモンスターが破壊された時にこのカードは破壊される。`,kind:"Trap",trapCategory:"Continuous",wikiEncodedName:"%A1%D4%C1%C9%A4%EA%A4%B7%BA%B2%A1%D5",nameTags:[]},ＬＡＮフォリンクス:{name:"ＬＡＮフォリンクス",nameKana:"",description:`【リンクマーカー：左下/右下】
-モンスター２体`,pendulumDescription:"",kind:"Monster",monsterCategories:["Link"],attack:1200,attributes:["Light"],types:["Cyberse"],wikiEncodedName:"%A1%D4%A3%CC%A3%C1%A3%CE%A5%D5%A5%A9%A5%EA%A5%F3%A5%AF%A5%B9%A1%D5",linkArrowKeys:["BottomLeft","BottomRight"],link:2,nameTags:["Ｎ"]},トラフィックゴースト:{name:"トラフィックゴースト",nameKana:"",description:`【リンクマーカー：左下/下/右下】
-モンスター３体`,pendulumDescription:"",kind:"Monster",monsterCategories:["Link"],attack:1800,attributes:["Dark"],types:["Cyberse"],wikiEncodedName:"%A1%D4%A5%C8%A5%E9%A5%D5%A5%A3%A5%C3%A5%AF%A5%B4%A1%BC%A5%B9%A5%C8%A1%D5",linkArrowKeys:["BottomLeft","BottomCenter","BottomRight"],link:3,nameTags:[]},天威の鬼神:{name:"天威の鬼神",nameKana:"",description:`【リンクマーカー：上/右上/右下】
-リンクモンスターを含むモンスター２体以上`,pendulumDescription:"",kind:"Monster",monsterCategories:["Link"],attack:3e3,attributes:["Dark"],types:["Wyrm"],wikiEncodedName:"%A1%D4%C5%B7%B0%D2%A4%CE%B5%B4%BF%C0%A1%D5",linkArrowKeys:["TopCenter","TopRight","BottomRight"],link:3,nameTags:["天威"]},天威の拳僧:{name:"天威の拳僧",nameKana:"",description:`【リンクマーカー：下】
-リンクモンスター以外の「天威」モンスター１体`,pendulumDescription:"",kind:"Monster",monsterCategories:["Link"],attack:1e3,attributes:["Earth"],types:["Wyrm"],wikiEncodedName:"%A1%D4%C5%B7%B0%D2%A4%CE%B7%FD%C1%CE%A1%D5",linkArrowKeys:["BottomCenter"],link:1,nameTags:["天威"]},電影の騎士ガイアセイバー:{name:"電影の騎士ガイアセイバー",nameKana:"",description:`【リンクマーカー：左/右/下】
-モンスター２体以上`,pendulumDescription:"",kind:"Monster",monsterCategories:["Link"],attack:2600,attributes:["Earth"],types:["Machine"],wikiEncodedName:"%A1%D4%C5%C5%B1%C6%A4%CE%B5%B3%BB%CE%A5%AC%A5%A4%A5%A2%A5%BB%A5%A4%A5%D0%A1%BC%A1%D5",linkArrowKeys:["MiddleLeft","MiddleRight","BottomCenter"],link:3,nameTags:["セイバー"]},"ファイアウォール・ドラゴン・シンギュラリティ":{name:"ファイアウォール・ドラゴン・シンギュラリティ",nameKana:"",description:`【リンクマーカー：左上/上/右上/左/右/下】
+モンスター２体`,pendulumDescription:"",kind:"Monster",monsterCategories:["Link","SpecialSummon"],attack:1200,attributes:["Light"],types:["Cyberse"],wikiEncodedName:"%A1%D4%A3%CC%A3%C1%A3%CE%A5%D5%A5%A9%A5%EA%A5%F3%A5%AF%A5%B9%A1%D5",linkArrowKeys:["BottomLeft","BottomRight"],link:2,nameTags:["Ｎ"]},トラフィックゴースト:{name:"トラフィックゴースト",nameKana:"",description:`【リンクマーカー：左下/下/右下】
+モンスター３体`,pendulumDescription:"",kind:"Monster",monsterCategories:["Link","SpecialSummon"],attack:1800,attributes:["Dark"],types:["Cyberse"],wikiEncodedName:"%A1%D4%A5%C8%A5%E9%A5%D5%A5%A3%A5%C3%A5%AF%A5%B4%A1%BC%A5%B9%A5%C8%A1%D5",linkArrowKeys:["BottomLeft","BottomCenter","BottomRight"],link:3,nameTags:[]},天威の鬼神:{name:"天威の鬼神",nameKana:"",description:`【リンクマーカー：上/右上/右下】
+リンクモンスターを含むモンスター２体以上`,pendulumDescription:"",kind:"Monster",monsterCategories:["Link","SpecialSummon"],attack:3e3,attributes:["Dark"],types:["Wyrm"],wikiEncodedName:"%A1%D4%C5%B7%B0%D2%A4%CE%B5%B4%BF%C0%A1%D5",linkArrowKeys:["TopCenter","TopRight","BottomRight"],link:3,nameTags:["天威"]},天威の拳僧:{name:"天威の拳僧",nameKana:"",description:`【リンクマーカー：下】
+リンクモンスター以外の「天威」モンスター１体`,pendulumDescription:"",kind:"Monster",monsterCategories:["Link","SpecialSummon"],attack:1e3,attributes:["Earth"],types:["Wyrm"],wikiEncodedName:"%A1%D4%C5%B7%B0%D2%A4%CE%B7%FD%C1%CE%A1%D5",linkArrowKeys:["BottomCenter"],link:1,nameTags:["天威"]},電影の騎士ガイアセイバー:{name:"電影の騎士ガイアセイバー",nameKana:"",description:`【リンクマーカー：左/右/下】
+モンスター２体以上`,pendulumDescription:"",kind:"Monster",monsterCategories:["Link","SpecialSummon"],attack:2600,attributes:["Earth"],types:["Machine"],wikiEncodedName:"%A1%D4%C5%C5%B1%C6%A4%CE%B5%B3%BB%CE%A5%AC%A5%A4%A5%A2%A5%BB%A5%A4%A5%D0%A1%BC%A1%D5",linkArrowKeys:["MiddleLeft","MiddleRight","BottomCenter"],link:3,nameTags:["セイバー"]},"ファイアウォール・ドラゴン・シンギュラリティ":{name:"ファイアウォール・ドラゴン・シンギュラリティ",nameKana:"",description:`【リンクマーカー：左上/上/右上/左/右/下】
 効果モンスター３体以上
 このカード名の(1)(2)の効果はそれぞれ１ターンに１度しか使用できない。
 (1)：自分・相手ターンに、自分のフィールド・墓地のモンスターの種類（儀式・融合・Ｓ・Ｘ）の数まで、相手のフィールド・墓地のカードを対象として発動できる。
@@ -1196,17 +1196,17 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 このカードの攻撃力は戻した数×５００アップする。
 (2)：このカードのリンク先のモンスターが、戦闘で破壊された場合、または墓地へ送られた場合、
 自分の墓地のサイバース族モンスター１体を対象として発動できる。
-そのモンスターを特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Link","Effect"],link:6,attack:3500,attributes:["Dark"],types:["Cyberse"],wikiEncodedName:"%A1%D4%A5%D5%A5%A1%A5%A4%A5%A2%A5%A6%A5%A9%A1%BC%A5%EB%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%A6%A5%B7%A5%F3%A5%AE%A5%E5%A5%E9%A5%EA%A5%C6%A5%A3%A1%D5",linkArrowKeys:["TopLeft","TopCenter","TopRight","MiddleLeft","MiddleRight","BottomCenter"],nameTags:["ファイアウォール"]},リンクリボー:{name:"リンクリボー",nameKana:"",description:`【リンクマーカー：下】
+そのモンスターを特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Link","Effect","SpecialSummon"],link:6,attack:3500,attributes:["Dark"],types:["Cyberse"],wikiEncodedName:"%A1%D4%A5%D5%A5%A1%A5%A4%A5%A2%A5%A6%A5%A9%A1%BC%A5%EB%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%A6%A5%B7%A5%F3%A5%AE%A5%E5%A5%E9%A5%EA%A5%C6%A5%A3%A1%D5",linkArrowKeys:["TopLeft","TopCenter","TopRight","MiddleLeft","MiddleRight","BottomCenter"],nameTags:["ファイアウォール"]},リンクリボー:{name:"リンクリボー",nameKana:"",description:`【リンクマーカー：下】
 レベル１モンスター１体
 このカード名の(2)の効果は１ターンに１度しか使用できない。
 (1)：相手モンスターの攻撃宣言時、このカードをリリースして発動できる。
 その相手モンスターの攻撃力はターン終了時まで０になる。
 (2)：自分・相手ターンに、このカードが墓地に存在する場合、自分フィールドのレベル１モンスター１体をリリースして発動できる。
-このカードを特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Link","Effect"],link:1,attack:300,attributes:["Dark"],types:["Cyberse"],wikiEncodedName:"%A1%D4%A5%EA%A5%F3%A5%AF%A5%EA%A5%DC%A1%BC%A1%D5",linkArrowKeys:["BottomCenter"],nameTags:["クリボー"]},"フォーミュラ・シンクロン":{name:"フォーミュラ・シンクロン",nameKana:"",description:`チューナー＋チューナー以外のモンスター１体
+このカードを特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Link","Effect","SpecialSummon"],link:1,attack:300,attributes:["Dark"],types:["Cyberse"],wikiEncodedName:"%A1%D4%A5%EA%A5%F3%A5%AF%A5%EA%A5%DC%A1%BC%A1%D5",linkArrowKeys:["BottomCenter"],nameTags:["クリボー"]},"フォーミュラ・シンクロン":{name:"フォーミュラ・シンクロン",nameKana:"",description:`チューナー＋チューナー以外のモンスター１体
 (1)：このカードがＳ召喚した時に発動できる。
 自分は１枚ドローする。
 (2)：相手メインフェイズに発動できる（同一チェーン上では１度まで）。
-このカードを含む自分フィールドのモンスターを素材としてＳ召喚を行う。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","Tuner","Effect"],level:2,attack:200,defense:1500,attributes:["Light"],types:["Machine"],wikiEncodedName:"%A1%D4%A5%D5%A5%A9%A1%BC%A5%DF%A5%E5%A5%E9%A1%A6%A5%B7%A5%F3%A5%AF%A5%ED%A5%F3%A1%D5",nameTags:["シンクロ","シンクロン"]},"死霊騎士デスカリバー・ナイト":{name:"死霊騎士デスカリバー・ナイト",nameKana:"",description:`このカードは特殊召喚できない。
+このカードを含む自分フィールドのモンスターを素材としてＳ召喚を行う。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","Tuner","Effect","SpecialSummon"],level:2,attack:200,defense:1500,attributes:["Light"],types:["Machine"],wikiEncodedName:"%A1%D4%A5%D5%A5%A9%A1%BC%A5%DF%A5%E5%A5%E9%A1%A6%A5%B7%A5%F3%A5%AF%A5%ED%A5%F3%A1%D5",nameTags:["シンクロ","シンクロン"]},"死霊騎士デスカリバー・ナイト":{name:"死霊騎士デスカリバー・ナイト",nameKana:"",description:`このカードは特殊召喚できない。
 (1)：モンスターの効果が発動した時、このカードをリリースして発動する。
 その発動を無効にし破壊する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect","NormalSummonOnly"],level:4,attack:1900,defense:1800,attributes:["Dark"],types:["Fiend"],wikiEncodedName:"%A1%D4%BB%E0%CE%EE%B5%B3%BB%CE%A5%C7%A5%B9%A5%AB%A5%EA%A5%D0%A1%BC%A1%A6%A5%CA%A5%A4%A5%C8%A1%D5",nameTags:[]},オリファンの角笛:{name:"オリファンの角笛",nameKana:"",description:`このカード名のカードは１ターンに１枚しか発動できない。
 (1)：以下の効果から１つを選択して発動できる。
@@ -1227,38 +1227,38 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 (2)：１ターンに１度、相手がモンスターの効果を発動した時に発動できる。
 その効果を無効にし、フィールドのカード１枚を破壊する。
 (3)：墓地のこのカードを除外し、自分の墓地のレベル８以下の「スターダスト」モンスター１体を対象として発動できる。
-そのモンスターを特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","SpecialSummon","Effect"],level:12,attack:4e3,defense:4e3,attributes:["Light"],types:["Dragon"],wikiEncodedName:"%A1%D4%C0%BB%A4%B3%A4%A6%BF%C0%CE%B5+%A5%B9%A5%BF%A1%BC%A5%C0%A5%B9%A5%C8%A1%A6%A5%B7%A5%D5%A5%EB%A1%D5",nameTags:["スターダスト"]},"水晶機巧－ハリファイバー":{name:"水晶機巧－ハリファイバー",nameKana:"",description:`【リンクマーカー：左下/右下】
+そのモンスターを特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","SpecialSummon","Effect","RegularSpecialSummonOnly"],level:12,attack:4e3,defense:4e3,attributes:["Light"],types:["Dragon"],wikiEncodedName:"%A1%D4%C0%BB%A4%B3%A4%A6%BF%C0%CE%B5+%A5%B9%A5%BF%A1%BC%A5%C0%A5%B9%A5%C8%A1%A6%A5%B7%A5%D5%A5%EB%A1%D5",nameTags:["スターダスト"]},"水晶機巧－ハリファイバー":{name:"水晶機巧－ハリファイバー",nameKana:"",description:`【リンクマーカー：左下/右下】
 チューナーを含むモンスター２体
 このカード名の(1)(2)の効果はそれぞれ１ターンに１度しか使用できない。
 (1)：このカードがリンク召喚に成功した場合に発動できる。
 手札・デッキからレベル３以下のチューナー１体を守備表示で特殊召喚する。
 この効果で特殊召喚したモンスターは、このターン効果を発動できない。
 (2)：相手のメインフェイズ及びバトルフェイズにフィールドのこのカードを除外して発動できる。
-ＥＸデッキからＳモンスターのチューナー１体をＳ召喚扱いで特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Link","Effect"],link:2,attack:1500,attributes:["Water"],types:["Machine"],wikiEncodedName:"%A1%D4%BF%E5%BE%BD%B5%A1%B9%AA%A1%DD%A5%CF%A5%EA%A5%D5%A5%A1%A5%A4%A5%D0%A1%BC%A1%D5",linkArrowKeys:["BottomLeft","BottomRight"],nameTags:["クリストロン"]},星杯の神子イヴ:{name:"星杯の神子イヴ",nameKana:"",description:`チューナー＋チューナー以外のモンスター１体以上
+ＥＸデッキからＳモンスターのチューナー１体をＳ召喚扱いで特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Link","Effect","SpecialSummon"],link:2,attack:1500,attributes:["Water"],types:["Machine"],wikiEncodedName:"%A1%D4%BF%E5%BE%BD%B5%A1%B9%AA%A1%DD%A5%CF%A5%EA%A5%D5%A5%A1%A5%A4%A5%D0%A1%BC%A1%D5",linkArrowKeys:["BottomLeft","BottomRight"],nameTags:["クリストロン"]},星杯の神子イヴ:{name:"星杯の神子イヴ",nameKana:"",description:`チューナー＋チューナー以外のモンスター１体以上
 このカードをＳ召喚する場合、自分フィールドの「星杯」通常モンスター１体をチューナーとして扱う事ができる。
 このカード名の(1)(2)の効果はそれぞれ１ターンに１度しか使用できない。
 (1)：このカードがＳ召喚した場合に発動できる。
 デッキから「星遺物」カード１枚を手札に加える。
 (2)：Ｓ召喚したこのカードが墓地へ送られた場合に発動できる。
-自分のデッキ・墓地から「星杯の神子イヴ」以外の「星杯」モンスター１体を特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","Tuner","Effect"],level:5,attack:1800,defense:2100,attributes:["Water"],types:["Spellcaster"],wikiEncodedName:"%A1%D4%C0%B1%C7%D5%A4%CE%BF%C0%BB%D2%A5%A4%A5%F4%A1%D5",nameTags:["星杯"]},星杯の守護竜アルマドゥーク:{name:"星杯の守護竜アルマドゥーク",nameKana:"",description:`リンクモンスター×３
+自分のデッキ・墓地から「星杯の神子イヴ」以外の「星杯」モンスター１体を特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","Tuner","Effect","SpecialSummon"],level:5,attack:1800,defense:2100,attributes:["Water"],types:["Spellcaster"],wikiEncodedName:"%A1%D4%C0%B1%C7%D5%A4%CE%BF%C0%BB%D2%A5%A4%A5%F4%A1%D5",nameTags:["星杯"]},星杯の守護竜アルマドゥーク:{name:"星杯の守護竜アルマドゥーク",nameKana:"",description:`リンクモンスター×３
 このカードは融合召喚及び以下の方法でのみＥＸデッキから特殊召喚できる。
 ●自分フィールドの上記カードをリリースした場合にＥＸデッキから特殊召喚できる（「融合」は必要としない）。
 (1)：このカードは相手モンスター全てに１回ずつ攻撃できる。
 (2)：このカードが相手のリンクモンスターと戦闘を行う攻撃宣言時、その相手モンスターとリンクマーカーの数が同じリンクモンスターを
 自分のフィールド・墓地から１体除外して発動できる。
-その相手モンスターを破壊し、その元々の攻撃力分のダメージを相手に与える。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Fusion","Effect"],level:9,attack:3e3,defense:2600,attributes:["Wind"],types:["Dragon"],wikiEncodedName:"%A1%D4%C0%B1%C7%D5%A4%CE%BC%E9%B8%EE%CE%B5%A5%A2%A5%EB%A5%DE%A5%C9%A5%A5%A1%BC%A5%AF%A1%D5",nameTags:["星杯"]},星杯剣士アウラム:{name:"星杯剣士アウラム",nameKana:"",description:`【リンクマーカー：左下/右下】
+その相手モンスターを破壊し、その元々の攻撃力分のダメージを相手に与える。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Fusion","Effect","SpecialSummon"],level:9,attack:3e3,defense:2600,attributes:["Wind"],types:["Dragon"],wikiEncodedName:"%A1%D4%C0%B1%C7%D5%A4%CE%BC%E9%B8%EE%CE%B5%A5%A2%A5%EB%A5%DE%A5%C9%A5%A5%A1%BC%A5%AF%A1%D5",nameTags:["星杯"]},星杯剣士アウラム:{name:"星杯剣士アウラム",nameKana:"",description:`【リンクマーカー：左下/右下】
 「星杯」モンスター×２
 このカード名の(2)の効果は１ターンに１度しか使用できない。
 (1)：このカードの攻撃力は、自分の墓地の「星遺物」モンスターの種類×３００アップする。
 (2)：このカードのリンク先の自分の「星杯」モンスター１体をリリースし、そのモンスター以外の自分の墓地のモンスター１体を対象として発動できる。
 そのモンスターをこのカードのリンク先となる自分フィールドに特殊召喚する。
 (3)：このカードがフィールドから墓地へ送られた場合に発動できる。
-手札から「星杯」モンスター１体を特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Link","Effect"],link:2,attack:2e3,attributes:["Fire"],types:["Cyberse"],wikiEncodedName:"%A1%D4%C0%B1%C7%D5%B7%F5%BB%CE%A5%A2%A5%A6%A5%E9%A5%E0%A1%D5",linkArrowKeys:["BottomLeft","BottomRight"],nameTags:["星杯"]},星杯神楽イヴ:{name:"星杯神楽イヴ",nameKana:"",description:`【リンクマーカー：左/右】
+手札から「星杯」モンスター１体を特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Link","Effect","SpecialSummon"],link:2,attack:2e3,attributes:["Fire"],types:["Cyberse"],wikiEncodedName:"%A1%D4%C0%B1%C7%D5%B7%F5%BB%CE%A5%A2%A5%A6%A5%E9%A5%E0%A1%D5",linkArrowKeys:["BottomLeft","BottomRight"],nameTags:["星杯"]},星杯神楽イヴ:{name:"星杯神楽イヴ",nameKana:"",description:`【リンクマーカー：左/右】
 種族と属性が異なるモンスター２体
 (1)：リンク状態のこのカードは戦闘・効果では破壊されず、相手の効果の対象にならない。
 (2)：このカードのリンク先のモンスターが効果で破壊される場合、代わりにこのカードを墓地へ送る事ができる。
 (3)：このカードがフィールドから墓地へ送られた場合に発動できる。
-手札から「星杯」モンスター１体を特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Link","Effect"],link:2,attack:1800,attributes:["Water"],types:["Spellcaster"],wikiEncodedName:"%A1%D4%C0%B1%C7%D5%BF%C0%B3%DA%A5%A4%A5%F4%A1%D5",linkArrowKeys:["MiddleLeft","MiddleRight"],nameTags:["星杯"]},星杯戦士ニンギルス:{name:"星杯戦士ニンギルス",nameKana:"",description:`【リンクマーカー：上/左/右】
+手札から「星杯」モンスター１体を特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Link","Effect","SpecialSummon"],link:2,attack:1800,attributes:["Water"],types:["Spellcaster"],wikiEncodedName:"%A1%D4%C0%B1%C7%D5%BF%C0%B3%DA%A5%A4%A5%F4%A1%D5",linkArrowKeys:["MiddleLeft","MiddleRight"],nameTags:["星杯"]},星杯戦士ニンギルス:{name:"星杯戦士ニンギルス",nameKana:"",description:`【リンクマーカー：上/左/右】
 リンクモンスター２体以上
 このカード名の(1)の効果は１ターンに１度しか使用できない。
 (1)：このカードがリンク召喚に成功した場合に発動する。
@@ -1266,13 +1266,13 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 (2)：１ターンに１度、自分メインフェイズに発動できる。
 自分及び相手フィールドのカードを１枚ずつ選んで墓地へ送る。
 (3)：このカードがフィールドから墓地へ送られた場合に発動できる。
-手札から「星杯」モンスター１体を特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Link","Effect"],link:3,attack:2500,attributes:["Earth"],types:["Warrior"],wikiEncodedName:"%A1%D4%C0%B1%C7%D5%C0%EF%BB%CE%A5%CB%A5%F3%A5%AE%A5%EB%A5%B9%A1%D5",linkArrowKeys:["TopCenter","MiddleLeft","MiddleRight"],nameTags:["星杯"]},星杯竜イムドゥーク:{name:"星杯竜イムドゥーク",nameKana:"",description:`【リンクマーカー：上】
+手札から「星杯」モンスター１体を特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Link","Effect","SpecialSummon"],link:3,attack:2500,attributes:["Earth"],types:["Warrior"],wikiEncodedName:"%A1%D4%C0%B1%C7%D5%C0%EF%BB%CE%A5%CB%A5%F3%A5%AE%A5%EB%A5%B9%A1%D5",linkArrowKeys:["TopCenter","MiddleLeft","MiddleRight"],nameTags:["星杯"]},星杯竜イムドゥーク:{name:"星杯竜イムドゥーク",nameKana:"",description:`【リンクマーカー：上】
 トークン以外の通常モンスター１体
 (1)：このカードがモンスターゾーンに存在する限り、自分は通常召喚に加えて１度だけ、自分メインフェイズに「星杯」モンスター１体を召喚できる。
 (2)：このカードがこのカードのリンク先の相手モンスターと戦闘を行うダメージステップ開始時に発動できる。
 その相手モンスターを破壊する。
 (3)：このカードがフィールドから墓地へ送られた場合に発動できる。
-手札から「星杯」モンスター１体を特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Link","Effect"],link:1,attack:800,attributes:["Wind"],types:["Dragon"],wikiEncodedName:"%A1%D4%C0%B1%C7%D5%CE%B5%A5%A4%A5%E0%A5%C9%A5%A5%A1%BC%A5%AF%A1%D5",linkArrowKeys:["TopCenter"],nameTags:["星杯"]},"星遺物－『星杯』":{name:"星遺物－『星杯』",nameKana:"",description:`このカード名の(2)(3)の効果はそれぞれ１ターンに１度しか使用できない。
+手札から「星杯」モンスター１体を特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Link","Effect","SpecialSummon"],link:1,attack:800,attributes:["Wind"],types:["Dragon"],wikiEncodedName:"%A1%D4%C0%B1%C7%D5%CE%B5%A5%A4%A5%E0%A5%C9%A5%A5%A1%BC%A5%AF%A1%D5",linkArrowKeys:["TopCenter"],nameTags:["星杯"]},"星遺物－『星杯』":{name:"星遺物－『星杯』",nameKana:"",description:`このカード名の(2)(3)の効果はそれぞれ１ターンに１度しか使用できない。
 (1)：ＥＸデッキからモンスターが特殊召喚された場合、このカードをリリースして発動できる。
 そのモンスターを墓地へ送る。
 (2)：通常召喚した表側表示のこのカードがフィールドから離れた場合に発動できる。
@@ -1310,13 +1310,13 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 「ゼラの天使」の(2)の効果は１ターンに１度しか使用できない。
 (1)：このカードの攻撃力は除外されている相手のカードの数×１００アップする。
 (2)：このカードが除外された場合、次のターンのスタンバイフェイズに発動する。
-除外されているこのカードを特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","Effect"],level:8,attack:2800,defense:2300,attributes:["Light"],types:["Fairy"],wikiEncodedName:"%A1%D4%A5%BC%A5%E9%A4%CE%C5%B7%BB%C8%A1%D5",nameTags:[]},"シューティング・クェーサー・ドラゴン":{name:"シューティング・クェーサー・ドラゴン",nameKana:"",description:`Ｓモンスターのチューナー＋チューナー以外のＳモンスター２体以上
+除外されているこのカードを特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","Effect","SpecialSummon"],level:8,attack:2800,defense:2300,attributes:["Light"],types:["Fairy"],wikiEncodedName:"%A1%D4%A5%BC%A5%E9%A4%CE%C5%B7%BB%C8%A1%D5",nameTags:[]},"シューティング・クェーサー・ドラゴン":{name:"シューティング・クェーサー・ドラゴン",nameKana:"",description:`Ｓモンスターのチューナー＋チューナー以外のＳモンスター２体以上
 このカードはＳ召喚でしか特殊召喚できない。
 (1)：このカードは、そのＳ素材としたモンスターの内、チューナー以外のモンスターの数まで１度のバトルフェイズ中に攻撃できる。
 (2)：１ターンに１度、魔法・罠・モンスターの効果が発動した時に発動できる。
 その発動を無効にし破壊する。
 (3)：表側表示のこのカードがフィールドから離れた時に発動できる。
-ＥＸデッキから「シューティング・スター・ドラゴン」１体を特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","SpecialSummon","Effect"],level:12,attack:4e3,defense:4e3,attributes:["Light"],types:["Dragon"],wikiEncodedName:"%A1%D4%A5%B7%A5%E5%A1%BC%A5%C6%A5%A3%A5%F3%A5%B0%A1%A6%A5%AF%A5%A7%A1%BC%A5%B5%A1%BC%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5"},"シューティング・スター・ドラゴン・ＴＧ－ＥＸ":{name:"シューティング・スター・ドラゴン・ＴＧ－ＥＸ",nameKana:"",description:`Ｓモンスターのチューナー＋チューナー以外のＳモンスター１体以上
+ＥＸデッキから「シューティング・スター・ドラゴン」１体を特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","SpecialSummon","Effect","RegularSpecialSummonOnly"],level:12,attack:4e3,defense:4e3,attributes:["Light"],types:["Dragon"],wikiEncodedName:"%A1%D4%A5%B7%A5%E5%A1%BC%A5%C6%A5%A3%A5%F3%A5%B0%A1%A6%A5%AF%A5%A7%A1%BC%A5%B5%A1%BC%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5",nameTags:[]},"シューティング・スター・ドラゴン・ＴＧ－ＥＸ":{name:"シューティング・スター・ドラゴン・ＴＧ－ＥＸ",nameKana:"",description:`Ｓモンスターのチューナー＋チューナー以外のＳモンスター１体以上
 このカード名の(2)(3)の効果はそれぞれ１ターンに１度しか使用できない。
 (1)：自分フィールドのモンスターを対象とするモンスターの効果が発動した時、自分の墓地からチューナー１体を除外して発動できる。
 その発動を無効にし破壊する。
@@ -1324,7 +1324,7 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 その攻撃を無効にする。
 (3)：相手ターンに、このカードが墓地に存在する場合、
 自分フィールドのＳモンスター２体をリリースして発動できる。
-このカードを特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","Effect"],level:10,attack:3300,defense:2500,attributes:["Wind"],types:["Dragon"],wikiEncodedName:"%A1%D4%A5%B7%A5%E5%A1%BC%A5%C6%A5%A3%A5%F3%A5%B0%A1%A6%A5%B9%A5%BF%A1%BC%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%A6%A3%D4%A3%C7%A1%DD%A3%C5%A3%D8%A1%D5"},"シューティング・スター・ドラゴン":{name:"シューティング・スター・ドラゴン",nameKana:"",description:`Ｓモンスターのチューナー＋「スターダスト・ドラゴン」
+このカードを特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","Effect","SpecialSummon"],level:10,attack:3300,defense:2500,attributes:["Wind"],types:["Dragon"],wikiEncodedName:"%A1%D4%A5%B7%A5%E5%A1%BC%A5%C6%A5%A3%A5%F3%A5%B0%A1%A6%A5%B9%A5%BF%A1%BC%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%A6%A3%D4%A3%C7%A1%DD%A3%C5%A3%D8%A1%D5",nameTags:["ＴＧ"]},"シューティング・スター・ドラゴン":{name:"シューティング・スター・ドラゴン",nameKana:"",description:`Ｓモンスターのチューナー＋「スターダスト・ドラゴン」
 (1)：１ターンに１度、発動できる。
 自分のデッキの上から５枚めくってデッキに戻す。
 このターンこのカードはめくった中のチューナーの数まで攻撃できる。
@@ -1333,16 +1333,16 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 (3)：１ターンに１度、相手の攻撃宣言時に攻撃モンスターを対象として発動できる。
 フィールドのこのカードを除外し、その攻撃を無効にする。
 (4)：この(3)の効果で除外されたターンのエンドフェイズに発動する。
-このカードを特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","Effect"],level:10,attack:3300,defense:2500,attributes:["Wind"],types:["Dragon"],wikiEncodedName:"%A1%D4%A5%B7%A5%E5%A1%BC%A5%C6%A5%A3%A5%F3%A5%B0%A1%A6%A5%B9%A5%BF%A1%BC%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5"},"シューティング・セイヴァー・スター・ドラゴン":{name:"シューティング・セイヴァー・スター・ドラゴン",nameKana:"",description:`「救世竜 セイヴァー・ドラゴン」＋ドラゴン族Ｓモンスターを含むチューナー以外のモンスター１体以上
+このカードを特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","Effect","SpecialSummon"],level:10,attack:3300,defense:2500,attributes:["Wind"],types:["Dragon"],wikiEncodedName:"%A1%D4%A5%B7%A5%E5%A1%BC%A5%C6%A5%A3%A5%F3%A5%B0%A1%A6%A5%B9%A5%BF%A1%BC%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5",nameTags:[]},"シューティング・セイヴァー・スター・ドラゴン":{name:"シューティング・セイヴァー・スター・ドラゴン",nameKana:"",description:`「救世竜 セイヴァー・ドラゴン」＋ドラゴン族Ｓモンスターを含むチューナー以外のモンスター１体以上
 このカードはＳ召喚でのみＥＸデッキから特殊召喚できる。
 (1)：１ターンに１度、発動できる。
 相手フィールドの効果モンスター１体を選び、その効果を無効にする。
 (2)：このカードは通常の攻撃に加えて、自分の墓地の「スターダスト・ドラゴン」及びそのカード名が記されたＳモンスターの数まで攻撃できる。
 (3)：１ターンに１度、相手が効果を発動した時に発動できる。
-このカードをエンドフェイズまで除外し、その発動を無効にし除外する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","Effect"],level:11,attack:4e3,defense:3300,attributes:["Wind"],types:["Dragon"],wikiEncodedName:"%A1%D4%A5%B7%A5%E5%A1%BC%A5%C6%A5%A3%A5%F3%A5%B0%A1%A6%A5%BB%A5%A4%A5%F4%A5%A1%A1%BC%A1%A6%A5%B9%A5%BF%A1%BC%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5"},"シューティング・ライザー・ドラゴン":{name:"シューティング・ライザー・ドラゴン",nameKana:"",description:`チューナー＋チューナー以外のモンスター１体以上
+このカードをエンドフェイズまで除外し、その発動を無効にし除外する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","Effect","SpecialSummon"],level:11,attack:4e3,defense:3300,attributes:["Wind"],types:["Dragon"],wikiEncodedName:"%A1%D4%A5%B7%A5%E5%A1%BC%A5%C6%A5%A3%A5%F3%A5%B0%A1%A6%A5%BB%A5%A4%A5%F4%A5%A1%A1%BC%A1%A6%A5%B9%A5%BF%A1%BC%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5",nameTags:["セイヴァー"]},"シューティング・ライザー・ドラゴン":{name:"シューティング・ライザー・ドラゴン",nameKana:"",description:`チューナー＋チューナー以外のモンスター１体以上
 このカード名の(1)の効果は１ターンに１度しか使用できない。
 (1)：このカードがＳ召喚した場合に発動できる。
 フィールドのこのカードより低いレベルを持つモンスター１体をデッキから墓地へ送り、そのモンスターのレベル分だけこのカードのレベルを下げる。
 このターン、自分はそのモンスター及びその同名モンスターのモンスター効果を発動できない。
 (2)：相手メインフェイズに発動できる（同一チェーン上では１度まで）。
-このカードを含む自分フィールドのモンスターを素材としてＳ召喚を行う。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","Tuner","Effect"],level:7,attack:2100,defense:1700,attributes:["Light"],types:["Dragon"],wikiEncodedName:"%A1%D4%A5%B7%A5%E5%A1%BC%A5%C6%A5%A3%A5%F3%A5%B0%A1%A6%A5%E9%A5%A4%A5%B6%A1%BC%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5"}};export{e as j};
+このカードを含む自分フィールドのモンスターを素材としてＳ召喚を行う。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","Tuner","Effect","SpecialSummon"],level:7,attack:2100,defense:1700,attributes:["Light"],types:["Dragon"],wikiEncodedName:"%A1%D4%A5%B7%A5%E5%A1%BC%A5%C6%A5%A3%A5%F3%A5%B0%A1%A6%A5%E9%A5%A4%A5%B6%A1%BC%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5",nameTags:[]}};export{e as j};

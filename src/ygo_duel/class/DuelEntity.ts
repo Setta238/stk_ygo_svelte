@@ -50,6 +50,7 @@ import {
   defaultBattlePotisionChangeAction,
   defaultFlipSummonAction,
   defaultNormalSummonAction,
+  defaultSummonFilter,
 } from "@ygo_duel/cards/DefaultCardAction_Monster";
 import { StkAsyncEvent } from "@stk_utils/class/StkEvent";
 import type { CardDefinition } from "@ygo_duel/cards/CardDefinitions";
@@ -807,7 +808,7 @@ export class DuelEntity {
       continuousEffectBases = cardDefinition.continuousEffects ?? [];
       this.substituteEffects.push(...(cardDefinition.substituteEffects ?? []).map((base) => SubstituteEffect.createNew(this, base)));
 
-      if (cardDefinition.defaultSummonFilter) {
+      if (this.origin.kind === "Monster") {
         this.summonFilterBundle.push(
           new SummonFilter(
             "default",
@@ -817,7 +818,7 @@ export class DuelEntity {
             {},
             () => true,
             summonKindCauseReasons,
-            cardDefinition.defaultSummonFilter
+            cardDefinition.defaultSummonFilter ?? defaultSummonFilter
           )
         );
       }

@@ -166,7 +166,7 @@ export const defaultRuleSummonPrepare = async (
   return { selectedEntities: [], chainBlockTags: [], prepared: undefined };
 };
 export const defaultRuleSummonExecute = async (myInfo: ChainBlockInfo<unknown>): Promise<boolean> => {
-  myInfo.action.entity.info.isRebornable = true;
+  myInfo.action.entity.info.isRebornable = !myInfo.action.entity.origin.monsterCategories?.includes("RegularSpecialSummonOnly");
   myInfo.action.entity.determine();
   myInfo.costInfo.summonMaterialInfos?.map((info) => info.material).forEach((material) => material.onUsedAsMaterial(myInfo, myInfo.action.entity));
   return true;
@@ -442,7 +442,7 @@ export const defaultSummonFilter = (
 } => {
   const ok = { posList, cells };
   const notAllowed = { posList: [], cells: [] };
-
+  console.log(filterTarget.toString(), movedAs);
   // 素材は判定しない
   if (filterTarget !== monster) {
     return ok;
@@ -463,6 +463,7 @@ export const defaultSummonFilter = (
     if (movedAs.includes("NormalSummon") || movedAs.includes("AdvanceSummon")) {
       return ok;
     }
+    console.log(filterTarget.toString());
     return notAllowed;
   }
 
@@ -472,11 +473,15 @@ export const defaultSummonFilter = (
   }
 
   // 墓地に存在する場合、蘇生制限を満たしていれば可
-  if (monster.isInTrashCell) {
-    if (monster.info.isRebornable) {
-      return ok;
+  if (monster.isInTrashCell && !monster.origin.monsterCategories.includes("RegularSpecialSummonOnly")) {
+    return monster.info.isRebornable || monster.origin.monsterCategories.includes("FreeReborn") ? ok : notAllowed;
+  }
+
+  // カードの効果でのみ特殊召喚できる特殊召喚モンスターは、ペンデュラム召喚不可
+  if (movedAs.includes("PendulumSummon")) {
+    if (monster.origin.monsterCategories.includes("FreeReborn")) {
+      return notAllowed;
     }
-    return notAllowed;
   }
 
   // 名前のある召喚方法は可

@@ -375,34 +375,6 @@ export const defaultBattlePotisionChangeAction: CardActionDefinition<unknown> = 
   settle: async () => true,
 };
 
-/**
- *
- * @param effectOwner
- * @param summoner
- * @param movedAs
- * @param actDefAttr
- * @param monster
- * @param materialInfos
- * @param posList
- * @param cells
- * @returns
- */
-export const defaultNoLimitSummonFilter = (
-  effectOwner: Duelist,
-  summoner: Duelist,
-  movedAs: TDuelCauseReason[],
-  actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
-  monster: DuelEntity,
-  materialInfos: SummonMaterialInfo[],
-  posList: TBattlePosition[],
-  cells: DuelFieldCell[]
-): {
-  posList: TBattlePosition[];
-  cells: DuelFieldCell[];
-} => {
-  return { posList, cells };
-};
-
 export const defaultSelfRebornExecute = async <T>(myInfo: ChainBlockInfo<T>, posList: TBattlePosition[] = ["Attack", "Defense"]) => {
   const cells = myInfo.activator.getMonsterZones();
   if (myInfo.action.entity.wasMovedAfter(myInfo.isActivatedAt)) {

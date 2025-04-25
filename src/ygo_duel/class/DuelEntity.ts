@@ -261,12 +261,19 @@ export class DuelEntity {
         _to = entity.owner.getBanished();
         _face = "FaceUp";
         _orientation = "Vertical";
-      }
-      if (entity.info.willReturnToDeck) {
+      } else if (entity.info.willReturnToDeck) {
         _to = entity.isBelongTo;
         _face = "FaceDown";
         _pos = entity.info.willReturnToDeck;
         _orientation = "Vertical";
+      } else if (entity.status.monsterCategories?.includes("Pendulum") && entity.isOnFieldStrictly && entity.face === "FaceUp") {
+        _to = entity.owner.getExtraDeck();
+        _face = "FaceUp";
+        _pos = "Top";
+        _orientation = "Vertical";
+      }
+      if (_to.cellType === "ExtraDeck") {
+        _pos = _face === "FaceUp" ? "Top" : "Bottom";
       }
       if (entity.isBelongTo.cellType === "ExtraDeck") {
         if (_to.cellType === "Hand" || _to.cellType === "Deck") {

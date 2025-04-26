@@ -70,6 +70,12 @@ export class DuelField {
 
   public readonly getMonstersOnFieldStrictly = (): DuelEntity[] => this.getCardsOnFieldStrictly().filter((monster) => monster.isOnFieldAsMonsterStrictly);
 
+  public readonly getPendulumScalesOnFieldStrictly = (): DuelEntity[] =>
+    this.getCardsOnFieldStrictly()
+      .filter((card) => card.origin.monsterCategories?.includes("Pendulum"))
+      .filter((card) => card.isOnFieldAsSpellTrapStrictly)
+      .filter((card) => !card.status.spellCategory);
+
   public readonly getPendingCardsOnField = (): DuelEntity[] => {
     return this.getCells(...playFieldCellTypes)
       .map((cell) => cell.cardEntities)

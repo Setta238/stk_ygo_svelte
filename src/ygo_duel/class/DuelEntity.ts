@@ -266,7 +266,7 @@ export class DuelEntity {
         _face = "FaceDown";
         _pos = entity.info.willReturnToDeck;
         _orientation = "Vertical";
-      } else if (entity.status.monsterCategories?.includes("Pendulum") && entity.isOnFieldStrictly && entity.face === "FaceUp") {
+      } else if (entity.status.monsterCategories?.includes("Pendulum") && entity.isOnFieldStrictly && entity.face === "FaceUp" && to.isTrashCell) {
         _to = entity.owner.getExtraDeck();
         _face = "FaceUp";
         _pos = "Top";
@@ -695,6 +695,24 @@ export class DuelEntity {
     return this.moveLog.previousPlaceRecord.cell;
   }
 
+  public get isPendulumScale() {
+    if (!this.origin.monsterCategories?.includes("Pendulum")) {
+      return false;
+    }
+
+    if (!this.isOnField) {
+      return false;
+    }
+
+    if (!this.fieldCell.isSpellTrapZoneLikeCell) {
+      return false;
+    }
+    if (this.status.spellCategory) {
+      return false;
+    }
+    return true;
+  }
+
   public get isOnField() {
     return this.fieldCell.isPlayFieldCell;
   }
@@ -803,7 +821,7 @@ export class DuelEntity {
     let actionBases: CardActionDefinition<unknown>[] = [];
     let continuousEffectBases: ContinuousEffectBase<unknown>[] = [];
 
-    if (this.origin.kind === "Monster" && this.origin.monsterCategories?.includes("Normal")) {
+    if (this.origin.kind === "Monster" && this.origin.monsterCategories?.includes("Normal") && !this.origin.monsterCategories?.includes("Pendulum")) {
       actionBases = [
         defaultNormalSummonAction,
         defaultAttackAction,

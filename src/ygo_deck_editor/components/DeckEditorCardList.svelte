@@ -27,7 +27,10 @@
   };
   const filterCardList = (deckType?: TDeckTypes, kind?: TCardKind) =>
     (mode === "List" ? allCardInfos : deckCardInfos)
-      .filter((cardInfo) => cardDefinitionDic.has(cardInfo.name) || cardInfo.monsterCategories?.includes("Normal"))
+      .filter(
+        (cardInfo) =>
+          cardDefinitionDic.has(cardInfo.name) || (cardInfo.monsterCategories?.includes("Normal") && !cardInfo.monsterCategories?.includes("Pendulum"))
+      )
       .filter((cardInfo) => !kind || cardInfo.kind === kind)
       .filter(
         (cardInfo) =>

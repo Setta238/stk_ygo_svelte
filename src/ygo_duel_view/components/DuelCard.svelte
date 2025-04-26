@@ -127,7 +127,7 @@
 
 {#if entity.face === "FaceUp" || isVisibleForcibly || (entity.controller.duelistType === "Player" && entity.isUnderControl)}
   <button
-    class="duel_card button_style_reset {entity.status.kind} {entity.status.monsterCategories?.join(' ') || ''} {isSelected
+    class="duel_card button_style_reset {entity.origin.kind} {entity.status.monsterCategories?.join(' ') || ''} {isSelected
       ? 'duel_card_selected'
       : ''} {state} duel_card_{entity.orientation} {isDragging ? 'isDragging' : ''} {isWideMode
       ? 'duel_card_wide'
@@ -170,6 +170,12 @@
         <div class="duel_card_row">
           <div class={entity.psL !== entity.origin.pendulumScaleL ? "different_from_its_origin" : ""}>◀ {entity.psL}</div>
           <div class={entity.psR !== entity.origin.pendulumScaleR ? "different_from_its_origin" : ""}>{entity.psR} ▶</div>
+        </div>
+      {/if}
+      {#if entity.status.kind === "Spell" && entity.isPendulumScale}
+        <div class="duel_card_row">
+          <div></div>
+          <div>ペンデュラム</div>
         </div>
       {/if}
       {#if entity.status.kind === "Monster"}

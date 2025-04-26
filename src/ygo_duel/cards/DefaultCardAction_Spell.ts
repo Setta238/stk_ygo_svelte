@@ -8,7 +8,7 @@ import {
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { spellTrapZoneCellTypes, type DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 import { defaultPrepare } from "./DefaultCardAction";
-export const defaultSpellTrapSetValidate = (myInfo: ChainBlockInfoBase<undefined>): DuelFieldCell[] | undefined => {
+export const defaultSpellTrapSetValidate = (myInfo: ChainBlockInfoBase<unknown>): DuelFieldCell[] | undefined => {
   if (myInfo.action.entity.status.spellCategory === "Field") {
     const fieldZone = myInfo.activator.getFieldZone();
     // TODO 盆回しなど
@@ -17,7 +17,7 @@ export const defaultSpellTrapSetValidate = (myInfo: ChainBlockInfoBase<undefined
   const availableCells = myInfo.activator.getAvailableSpellTrapZones();
   return availableCells.length > 0 ? availableCells : undefined;
 };
-export const defaultSpellTrapSetAction: CardActionDefinition<undefined> = {
+export const defaultSpellTrapSetAction: CardActionDefinition<unknown> = {
   title: "セット",
   playType: "SpellTrapSet",
   spellSpeed: "Normal",
@@ -50,9 +50,30 @@ export const defaultSpellTrapValidate = <T>(myInfo: ChainBlockInfoBase<T>): Duel
   if (myInfo.action.entity.status.spellCategory === "Field") {
     return [myInfo.activator.getFieldZone()];
   }
-  const availableCells = myInfo.activator.getAvailableSpellTrapZones();
+
+  let availableCells = myInfo.activator.getAvailableSpellTrapZones();
+
+  if (myInfo.action.entity.status.monsterCategories?.includes("Pendulum")) {
+    // ペンデュラムの場合、発動先はペンデュラムゾーンのみ
+    availableCells = availableCells.filter((cell) => cell.isAvailableForPendulum);
+  }
   return availableCells.length > 0 ? availableCells : undefined;
 };
+
+export const defaultContinuousSpellCardActivateAction = {
+  title: "発動",
+  isMandatory: false,
+  playType: "CardActivation",
+  spellSpeed: "Normal",
+  executableCells: ["Hand", "SpellAndTrapZone"],
+  executablePeriods: ["main1", "main2"],
+  executableDuelistTypes: ["Controller"],
+  validate: defaultSpellTrapValidate,
+  prepare: defaultPrepare,
+  execute: async () => true,
+  settle: async () => true,
+} as CardActionDefinition<unknown>;
+
 export const defaultEquipSpellTrapValidate = <T>(
   myInfo: ChainBlockInfoBase<T>,
   chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,

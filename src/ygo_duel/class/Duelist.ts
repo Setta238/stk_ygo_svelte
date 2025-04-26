@@ -299,6 +299,12 @@ export class Duelist {
   public readonly getMonstersOnField = (): DuelEntity[] => {
     return this.duel.field.getMonstersOnFieldStrictly().filter((monster) => monster.controller === this);
   };
+  public readonly getPendulumScales = (): DuelEntity[] => {
+    return this.duel.field
+      .getCardsOnFieldStrictly()
+      .filter((card) => card.isPendulumScale)
+      .filter((card) => card.controller === this);
+  };
   public readonly getEntiteisOnField = (): DuelEntity[] => {
     return this.duel.field.getCardsOnFieldStrictly().filter((card) => card.controller === this);
   };

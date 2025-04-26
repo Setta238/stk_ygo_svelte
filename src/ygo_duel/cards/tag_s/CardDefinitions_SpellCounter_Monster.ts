@@ -107,6 +107,7 @@ export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] =
         executableCells: ["MonsterZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
+        hasToTargetCards: true,
         canPayCosts: (myInfo, chainBlockInfos) => canPaySpellCounters(myInfo, chainBlockInfos, 1),
         validate: (myInfo) => {
           const spells = myInfo.action.entity.field

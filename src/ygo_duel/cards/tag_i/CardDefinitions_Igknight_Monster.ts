@@ -39,7 +39,7 @@ export const createCardDefinitions_Igknight_Monster = (): CardDefinition[] => {
           executablePeriods: ["main1", "main2"],
           executableDuelistTypes: ["Controller"],
           validate: (myInfo) => {
-            const theOther = myInfo.activator.getPendulumScales().find((ps) => ps !== myInfo.action.entity);
+            const theOther = myInfo.activator.getPendulumScaleMonsters().find((ps) => ps !== myInfo.action.entity);
 
             if (!theOther) {
               return;
@@ -54,12 +54,12 @@ export const createCardDefinitions_Igknight_Monster = (): CardDefinition[] => {
           prepare: async (myInfo) => {
             return {
               selectedEntities: [],
-              chainBlockTags: ["SearchFromDeck", ...myInfo.action.calcChainBlockTagsForDestroy(myInfo.activator.getPendulumScales())],
+              chainBlockTags: ["SearchFromDeck", ...myInfo.action.calcChainBlockTagsForDestroy(myInfo.activator.getPendulumScaleMonsters())],
               prepared: undefined,
             };
           },
           execute: async (myInfo) => {
-            const destroyed = await DuelEntityShortHands.tryDestroy(myInfo.activator.getPendulumScales(), myInfo);
+            const destroyed = await DuelEntityShortHands.tryDestroy(myInfo.activator.getPendulumScaleMonsters(), myInfo);
 
             if (!destroyed.length) {
               return false;

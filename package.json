@@ -8,7 +8,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "predeploy": "powershell ./src/stk_utils/ps/EchoTimestamp.ps1 && vite build && robocopy dist docs /MIR /DCOPY:DAT",
+    "predeploy": "npm run check && powershell ./src/stk_utils/ps/EchoTimestamp.ps1  &&  vite build && robocopy dist docs /MIR /DCOPY:DAT",
     "deploy": "gh-pages -d docs",
     "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json"
   },
@@ -27,6 +27,7 @@
     "svelte-check": "^4.1.4",
     "typescript": "~5.7.2",
     "typescript-eslint": "^8.24.0",
-    "vite": "^6.1.0"
+    "vite": "^6.1.0",
+    "vite-plugin-checker": "^0.9.1"
   }
 }

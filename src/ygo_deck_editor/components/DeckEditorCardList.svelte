@@ -39,18 +39,26 @@
           (deckType === "ExtraDeck" && cardInfo?.monsterCategories?.union(exMonsterCategories).length)
       );
   const onPlusButtonClick = (ev: MouseEvent, cardInfo: CardInfoJson) => {
-    const currentQty = deckCardInfos.filter((_cardInfo) => _cardInfo.name === cardInfo.name).length;
-    if (currentQty > 2) {
-      return;
-    }
-    const qty = ev.shiftKey ? 3 - currentQty : 1;
-    if (qty < 1) {
-      return;
-    }
+    try {
+      if (ev.ctrlKey) {
+        deckCardInfos.push(cardInfo);
+        return;
+      }
+      const currentQty = deckCardInfos.filter((_cardInfo) => _cardInfo.name === cardInfo.name).length;
+      if (currentQty > 2) {
+        return;
+      }
 
-    deckCardInfos.push(...Array(qty).fill(cardInfo));
-    deckCardInfos.sort(cardSorter);
-    deckCardInfos = deckCardInfos;
+      const qty = ev.shiftKey ? 3 - currentQty : 1;
+      if (qty < 1) {
+        return;
+      }
+
+      deckCardInfos.push(...Array(qty).fill(cardInfo));
+    } finally {
+      deckCardInfos.sort(cardSorter);
+      deckCardInfos = deckCardInfos;
+    }
   };
   const onMinusButtonClick = (ev: MouseEvent, cardInfo: CardInfoJson) => {
     let count = 0;

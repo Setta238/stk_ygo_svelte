@@ -2,10 +2,17 @@ import { defineConfig } from "vite";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import path from "path";
 import { visualizer } from "rollup-plugin-visualizer";
+import checker from "vite-plugin-checker";
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [svelte(), visualizer()],
+  plugins: [
+    svelte(),
+    visualizer(),
+    checker({
+      typescript: true,
+    }),
+  ],
   base: process.env.DEV ? "/" : "/stk_ygo_svelte",
   resolve: {
     alias: {

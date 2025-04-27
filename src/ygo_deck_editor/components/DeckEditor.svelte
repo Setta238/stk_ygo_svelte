@@ -143,7 +143,7 @@
 
   const onResetSeachCondition = async (key: keyof typeof seachCondition) => {
     if (Array.isArray(seachCondition[key]) && Array.isArray(seachConditionDefaultValues[key])) {
-      seachCondition[key] = seachCondition[key].length ? [] : ([...seachConditionDefaultValues[key]] as string[]);
+      (seachCondition[key] as string[]) = seachCondition[key].length ? [] : ([...seachConditionDefaultValues[key]] as string[]);
     }
   };
 

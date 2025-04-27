@@ -17,6 +17,8 @@ export const cardActionChainBlockTypes = ["IgnitionEffect", "TriggerEffect", "Qu
 export type TCardActionChainBlockType = (typeof cardActionChainBlockTypes)[number];
 export const cardActionCreateChainTypes = [...cardActionRuleSummonTypes, ...cardActionChainBlockTypes] as const;
 export type TCardActionCreateChainTypes = (typeof cardActionCreateChainTypes)[number];
+export const cardActionDeclareTypes = ["Surrender", "ChangePhase"] as const;
+export type CardActionDeclareTypes = (typeof cardActionDeclareTypes)[number];
 export const cardActionNonChainBlockTypes = ["ChangeBattlePosition", "Battle", "SpellTrapSet", "LingeringEffect"] as const;
 export type TCardActionNonChainBlockType = (typeof cardActionNonChainBlockTypes)[number];
 export type TCardActionType = TCardActionCreateChainTypes | TCardActionNonChainBlockType | "Dammy" | "RuleDraw" | "SystemPeriodAction" | "AfterChainBlock";
@@ -128,7 +130,10 @@ export type ChainBlockInfoPrepared<T> = {
   chainBlockTags: TEffectTag[];
   selectedEntities: DuelEntity[];
   prepared: T;
+  /** 緊急同調など */
   nextAction?: CardAction<unknown>;
+  /** 超融合など */
+  nextChainBlockFilter?: (activator: Duelist, action: CardAction<unknown>) => boolean;
 };
 export type ChainBlockInfo<T> = ChainBlockInfoBase<T> & ChainBlockInfoPrepared<T>;
 
@@ -518,6 +523,8 @@ export class CardAction<T> extends CardActionBase implements ICardAction<T> {
       ignoreCost: false,
     };
 
+    console.log(this.definition.payCosts, ignoreCosts);
+
     if (this.definition.payCosts && !ignoreCosts) {
       const costInfo = await this.definition.payCosts(myInfo, chainBlockInfos, _cancelable);
       if (!costInfo) {
@@ -531,8 +538,13 @@ export class CardAction<T> extends CardActionBase implements ICardAction<T> {
     if (prepared === undefined) {
       return;
     }
+    const _prepared = { ...prepared };
+    if (cardActionRuleSummonTypes.some((type) => type === this.playType)) {
+      const tmpFilter = prepared.nextChainBlockFilter ?? (() => true);
+      _prepared.nextChainBlockFilter = (activator, action) => action.negateSummon && tmpFilter(activator, action);
+    }
 
-    return { ...myInfo, ...prepared };
+    return { ...myInfo, ..._prepared };
   };
 
   public readonly execute = async (myInfo: ChainBlockInfo<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => {

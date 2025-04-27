@@ -526,7 +526,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           ];
 
           const cells = myInfo.activator.getMonsterZones();
-          const monster = await myInfo.activator.summonMany(
+          const monster = await myInfo.activator.summonOne(
             myInfo.activator,
             "SpecialSummon",
             ["Effect"],
@@ -536,7 +536,6 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
             }),
             [],
             false,
-            (summoned) => summoned.length === 1,
             false
           );
 

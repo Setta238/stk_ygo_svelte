@@ -13,6 +13,8 @@
   import { StkIndexedDB } from "@stk_utils/class/StkIndexedDB";
   import timestampJson from "@stk_utils/json/timestamp.json";
   import { getKeys } from "@stk_utils/funcs/StkObjectUtils";
+  import { fade } from "svelte/transition";
+  import { delay } from "@stk_utils/funcs/StkPromiseUtil";
   const idb = new StkIndexedDB<TTblNames>("stk_ygo_svelte", currentVersion, tblNames);
 
   let duel: Duel | undefined;
@@ -174,7 +176,7 @@
     <span class="screen_info"></span>
   </div>
   {#if duel && duel.isEnded}
-    <div class="result">
+    <div class="result" transition:fade={{ delay: 200, duration: 2000 }}>
       {#if duel.winner}
         {#if duel.winner.seat === "Below"}
           <div class="result_title result_win">YOU WIN</div>

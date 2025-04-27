@@ -193,7 +193,6 @@ export const createCardDefinitions_WorldChalice_Monster = (): CardDefinition[] =
           );
           return list.length > 1 ? [] : undefined;
         },
-        payCosts: defaultSelfReleasePayCosts,
         prepare: defaultPrepare,
         execute: async (myInfo): Promise<boolean> => {
           const monsters = myInfo.activator
@@ -217,6 +216,7 @@ export const createCardDefinitions_WorldChalice_Monster = (): CardDefinition[] =
               }),
               [],
               false,
+              2,
               (summoned) => summoned.length == 2,
               false
             )) ?? [];

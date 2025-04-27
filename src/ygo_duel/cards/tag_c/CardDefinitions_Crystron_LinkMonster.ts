@@ -63,7 +63,7 @@ export const createCardDefinitions_Crystron_LinkMonster = (): CardDefinition[] =
 
           const cells = myInfo.activator.getMonsterZones();
           const summoned =
-            (await myInfo.activator.summonMany(
+            (await myInfo.activator.summonOne(
               myInfo.activator,
               "SpecialSummon",
               ["Effect"],
@@ -77,7 +77,6 @@ export const createCardDefinitions_Crystron_LinkMonster = (): CardDefinition[] =
               }),
               [],
               false,
-              (summoned) => summoned.length == 1,
               false
             )) ?? [];
           summoned.forEach((tuner) =>
@@ -139,7 +138,7 @@ export const createCardDefinitions_Crystron_LinkMonster = (): CardDefinition[] =
             .getExtraDeck()
             .cardEntities.filter((monster) => monster.status.monsterCategories?.includes("Syncro"))
             .filter((monster) => monster.status.monsterCategories?.includes("Tuner"));
-          await myInfo.activator.summonMany(
+          await myInfo.activator.summonOne(
             myInfo.activator,
             "SyncroSummon",
             ["SpecialSummon", "Effect"],
@@ -149,7 +148,6 @@ export const createCardDefinitions_Crystron_LinkMonster = (): CardDefinition[] =
             }),
             [],
             false,
-            (selected) => selected.length === 1,
             false
           );
 

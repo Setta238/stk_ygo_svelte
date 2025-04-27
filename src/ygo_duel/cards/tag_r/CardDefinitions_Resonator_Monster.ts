@@ -71,17 +71,7 @@ export const createCardDefinitions_Resonator_Monster = (): CardDefinition[] => {
               return { monster, posList: faceupBattlePositions, cells };
             });
 
-          const monster = await myInfo.activator.summonMany(
-            myInfo.activator,
-            "SpecialSummon",
-            ["Effect"],
-            myInfo.action,
-            summonArgs,
-            [],
-            false,
-            (summoned) => summoned.length === 1,
-            false
-          );
+          const monster = await myInfo.activator.summonOne(myInfo.activator, "SpecialSummon", ["Effect"], myInfo.action, summonArgs, [], false, false);
 
           return Boolean(monster);
         },

@@ -58,6 +58,7 @@ import { SubstituteEffect } from "./DuelSubstituteEffect";
 import { SummonFilter, SummonFilterBundle } from "@ygo_duel/class_continuous_effect/DuelSummonFilter";
 import { DuelEntityShortHands } from "./DuelEntityShortHands";
 import type { IDuelClock } from "./DuelClock";
+import { duelistActions } from "@ygo_duel/cards/DefaultCardAction_Duelist";
 export type EntityStatus = {
   canAttack: boolean;
   canDirectAttack: boolean;
@@ -202,7 +203,10 @@ export class DuelEntity {
       { name: duelist.profile.name, kind: "Monster", wikiEncodedName: "%A5%D7%A5%EC%A5%A4%A5%E4%A1%BC" },
       "FaceUp",
       "Vertical",
-      undefined
+      {
+        name: duelist.profile.name,
+        actions: [...duelistActions],
+      }
     );
   };
   public static readonly createCardEntity = (owner: Duelist, cardInfo: CardInfoJson): DuelEntity => {
@@ -350,8 +354,8 @@ export class DuelEntity {
       Set: "SetSummon",
     };
 
-    await Promise.all(
-      items.map(async ({ monster: entity, dest: to, pos, summoner: chooser }) => {
+    const promises = items
+      .map(({ monster: entity, dest: to, pos, summoner: chooser }) => {
         entity.info.summonKinds = [summonKind];
         if (summonKind === "NormalSummon" || summonKind === "AdvanceSummon") {
           entity.info.summonKinds.push("NormalSummon");
@@ -387,10 +391,21 @@ export class DuelEntity {
         if (movedAs.includes("Rule")) {
           entity.info.isPending = true;
         }
-
-        await entity._move(to, "Monster", face, orientation, "Top", [summonKind, movedAsDic[pos], ...movedAs], movedBy, actionOwner, chooser);
+        console.log("hoge");
+        return {
+          entity,
+          args: [to, "Monster", face, orientation, "Top", [summonKind, movedAsDic[pos], ...movedAs], movedBy, actionOwner, chooser] as Parameters<
+            typeof DuelEntity.prototype._move
+          >,
+        };
       })
-    );
+      .map((item) => {
+        console.log("fuga");
+
+        return item.entity._move(...item.args);
+      });
+
+    await Promise.all(promises);
 
     // 召喚回数を加算
     items
@@ -833,7 +848,7 @@ export class DuelEntity {
       continuousEffectBases = cardDefinition.continuousEffects ?? [];
       this.substituteEffects.push(...(cardDefinition.substituteEffects ?? []).map((base) => SubstituteEffect.createNew(this, base)));
 
-      if (this.origin.kind === "Monster") {
+      if (this.origin.kind === "Monster" && this.entityType === "Card") {
         this.summonFilterBundle.push(
           new SummonFilter(
             "default",

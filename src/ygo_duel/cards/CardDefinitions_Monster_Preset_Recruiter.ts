@@ -71,6 +71,7 @@ const getDefalutRecruiterAction = (
         }),
         [],
         false,
+        qtyList.length > 1 ? undefined : qtyList[0],
         (summoned) => qtyList.includes(summoned.length),
         false
       );

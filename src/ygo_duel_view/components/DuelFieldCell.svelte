@@ -32,14 +32,15 @@
   let responseResolve: (action: DuelistResponse) => void = () => {};
   let selectedEntitiesValidator: (selectedEntities: DuelEntity[]) => boolean = () => true;
   let selectableEntities: DuelEntity[];
-  let targetsInPreviousChainBlocks: DuelEntity[] = [];
+  let targetsInBuildingChain: DuelEntity[] = [];
   const onWaitStart: (args: WaitStartEventArg) => void = (args) => {
-    animationArg = undefined;
+    console.log("hoge");
+    animationArgs = [];
     selectedList.reset();
     activator = args.activator;
     responseResolve = args.resolve;
     enableActions = args.enableActions as ICardAction<unknown>[];
-    targetsInPreviousChainBlocks = args.chainBlockInfos.flatMap((info) => info.selectedEntities).getDistinct();
+    targetsInBuildingChain = args.chainBlockInfos.flatMap((info) => info.selectedEntities).getDistinct();
     selectableEntities = args.selectableEntities;
     selectedEntitiesValidator = args.entitiesValidator;
   };
@@ -51,7 +52,7 @@
     responseResolve = () => {};
     selectedEntitiesValidator = () => true;
     selectableEntities = [];
-    targetsInPreviousChainBlocks = [];
+    targetsInBuildingChain = [];
   };
 
   view.onWaitEnd.append(onWaitEnd);
@@ -71,15 +72,15 @@
   view.onDragEnd.append(onDragEnd);
   const [send, receive] = cardCrossFade;
 
-  let animationArg: AnimationStartEventArg | undefined = undefined;
+  let animationArgs: AnimationStartEventArg[] = [];
   const onCrossFade = (args: AnimationStartEventArg) => {
     activator = undefined;
     if (cell === args.to || cell.entities.includes(args.entity)) {
-      animationArg = args;
+      animationArgs = [...animationArgs, args];
       const resolve = args.resolve;
       cell = cell;
       setTimeout(() => {
-        animationArg = undefined;
+        animationArgs = animationArgs.filter((item) => item !== args);
         args.count++;
         if (args.count > 1) {
           resolve();
@@ -194,13 +195,13 @@
     if (actions.length === 0) {
       return "Disabled";
     }
-    if (actions.length > 1) {
-      return "Clickable";
-    }
     if (cell.isStackCell) {
       return "Clickable";
     }
     if (actions[0].entity !== entities[0]) {
+      return "Clickable";
+    }
+    if (actions.length > 1) {
       return "Clickable";
     }
     const tmp = actions[0].validate(view.duel.priorityHolder, view.duel.chainBlockInfos, false);
@@ -243,13 +244,14 @@
       {/if}
     {:else if cell.cellType === "Hand"}
       <!-- 手札の場合-->
-      {#if animationArg && animationArg.entity && animationArg.to === cell && animationArg.index === "Top"}
-        <div class="card_animation_receiver {cell.cellType}" in:receive={{ key: animationArg.entity.seq }}>
-          <DuelCard entity={animationArg.entity} state="Disabled" actions={[]} cardActionResolve={undefined} />
+      {@const args = animationArgs.find((args) => args.to === cell)}
+      {#if args && args.index === "Top"}
+        <div class="card_animation_receiver {cell.cellType}" in:receive={{ key: args.entity.seq }}>
+          <DuelCard entity={args.entity} state="Disabled" actions={[]} cardActionResolve={undefined} />
         </div>
       {/if}
       {#each cell.visibleEntities as entity}
-        {#if !animationArg || animationArg.entity.seq !== entity.seq}
+        {#if animationArgs.every((args) => args.entity.seq !== entity.seq)}
           <div out:send={{ key: entity.seq }}>
             <DuelCard
               {entity}
@@ -261,18 +263,18 @@
           </div>
         {/if}
       {/each}
-
-      {#if animationArg && animationArg.entity && animationArg.to === cell && animationArg.index !== "Top"}
-        <div class="card_animation_receiver {cell.cellType}" in:receive={{ key: animationArg.entity.seq }}>
-          <DuelCard entity={animationArg.entity} state="Disabled" actions={[]} cardActionResolve={undefined} />
+      {#if args && args.index !== "Top"}
+        <div class="card_animation_receiver {cell.cellType}" in:receive={{ key: args.entity.seq }}>
+          <DuelCard entity={args.entity} state="Disabled" actions={[]} cardActionResolve={undefined} />
         </div>
       {/if}
     {:else}
       <!-- それ以外のセルの場合-->
-      {#if animationArg && animationArg.entity && animationArg.to === cell && animationArg.index !== "Top"}
+      {@const args = animationArgs.find((args) => args.to === cell)}
+      {#if args && args.index !== "Top"}
         <!-- アニメーションの目的地-->
-        <div style="position: absolute;" class="card_animation_receiver" in:receive={{ key: animationArg.entity.seq }}>
-          <DuelCard entity={animationArg.entity} state="Disabled" actions={[]} cardActionResolve={undefined} />
+        <div style="position: absolute;" class="card_animation_receiver" in:receive={{ key: args.entity.seq }}>
+          <DuelCard entity={args.entity} state="Disabled" actions={[]} cardActionResolve={undefined} />
         </div>
       {/if}
       {#if cell.visibleEntities.length > 0}
@@ -283,8 +285,8 @@
             return { index, entity };
           })
           .toReversed() as item}
-          {#if !animationArg || animationArg.entity.seq !== item.entity.seq}
-            {#if targetsInPreviousChainBlocks.includes(item.entity)}
+          {#if animationArgs.every((args) => args.entity.seq !== item.entity.seq)}
+            {#if targetsInBuildingChain.includes(item.entity)}
               <div style="position: absolute; top:0rem">｛効果対象｝</div>
             {/if}
             <div style="position: absolute; display:flex;justify-content: center;" out:send={{ key: item.entity.seq }}>
@@ -317,10 +319,10 @@
         <!-- バッチ-->
         <div class="badge">{cell.visibleEntities.length}</div>
       {/if}
-      {#if animationArg && animationArg.entity && animationArg.to === cell && animationArg.index === "Top"}
+      {#if args && args.index === "Top"}
         <!-- アニメーションの目的地-->
-        <div class="card_animation_receiver" in:receive={{ key: animationArg.entity.seq }}>
-          <DuelCard entity={animationArg.entity} state="Disabled" actions={[]} cardActionResolve={undefined} />
+        <div class="card_animation_receiver" in:receive={{ key: args.entity.seq }}>
+          <DuelCard entity={args.entity} state="Disabled" actions={[]} cardActionResolve={undefined} />
         </div>
       {/if}
     {/if}
@@ -472,6 +474,7 @@
   }
   .duel_field_cell_Hand {
     background-color: aliceblue;
+    overflow-y: auto;
   }
   .duel_field_cell_Deck {
     background-color: sienna;

@@ -46,6 +46,7 @@ Duelist.prototype.summon = async function (
       [{ monster, posList, cells }],
       materialInfos,
       false,
+      1,
       (selected) => selected.length === 1,
       cancelable
     )) ?? [];

@@ -11,7 +11,6 @@ import DuelChainBlockLog from "./DuelChainBlockLog";
 import {
   cardActionChainBlockTypes,
   cardActionNonChainBlockTypes,
-  cardActionRuleSummonTypes,
   type CardAction,
   type ChainBlockInfo,
   type ICardAction,
@@ -21,7 +20,6 @@ import {
 import type { TDuelPhase } from "./DuelPeriod";
 import { DuelEntityShortHands } from "./DuelEntityShortHands";
 import { StkEvent } from "@stk_utils/class/StkEvent";
-
 export const duelStartModes = ["PlayFirst", "DrawFirst", "Random"] as const;
 export type TDuelStartMode = (typeof duelStartModes)[number];
 export const duelStartModeDic: { [key in TDuelStartMode]: string } = {
@@ -36,7 +34,6 @@ export type DuelistResponse = {
   selectedEntities?: DuelEntity[];
   sendMessage?: string;
   action?: ICardAction<unknown>;
-  attack?: [DuelEntity, DuelEntity | undefined];
   cancel?: boolean;
   surrender?: boolean;
 };
@@ -316,11 +313,12 @@ export class Duel {
           this.clock.incrementChainSeq();
         } else {
           //チェーンに積んで、チェーン処理へ
-          await this.procChainBlock({ activator: this.priorityHolder, action: response.action }, undefined);
+          const result = await this.procChainBlock({ activator: this.priorityHolder, action: response.action }, undefined);
+          if (result === "cancel") {
+            continue;
+          }
         }
-        while (await this.procChainBlock(undefined, undefined)) {
-          //
-        }
+        await this.procFreeChain();
         continue;
       }
 
@@ -328,24 +326,30 @@ export class Duel {
       // フェイズ移行前に、相手に優先権が移る。
       if (nextPhase) {
         this.priorityHolder = this.getNonTurnPlayer();
-        const action = await this.view.waitQuickEffect(
-          this.priorityHolder,
-          this.getEnableActions(this.priorityHolder, ["QuickEffect", "TriggerEffect"], ["Quick", "Counter"], []),
-          [],
-          "",
-          true
-        );
+        let result = "done" as "done" | "pass" | "cancel";
+        while (true) {
+          const action = await this.view.waitQuickEffect(
+            this.priorityHolder,
+            this.getEnableActions(this.priorityHolder, ["QuickEffect", "TriggerEffect"], ["Quick", "Counter"], []),
+            [],
+            "",
+            true
+          );
 
-        // 相手が行動した場合、フェイズ移行はキャンセル。
-        if (action) {
-          await this.procChainBlock({ activator: this.priorityHolder, action }, undefined);
-          while (await this.procChainBlock(undefined, undefined)) {
-            //
+          // 相手が行動した場合、フェイズ移行はキャンセル。
+          if (!action) {
+            this.moveNextPhase(nextPhase);
+            return;
           }
+          result = await this.procChainBlock({ activator: this.priorityHolder, action }, undefined);
+          if (result === "done") {
+            break;
+          }
+        }
+        if (result === "done") {
+          await this.procFreeChain();
           continue;
         }
-        this.moveNextPhase(nextPhase);
-        return;
       }
     }
   };
@@ -391,9 +395,7 @@ export class Duel {
             .map((monster) => [monster.seq, monster.moveLog.latestRecord.movedAt.totalProcSeq]) as [monSeq: number, procSec: number][];
 
           //フリーチェーン処理へ
-          while (await this.procChainBlock(undefined, undefined)) {
-            //
-          }
+          this.procFreeChain();
 
           if (!this.attackingMonster) {
             throw new SystemError("想定されない状態");
@@ -457,9 +459,7 @@ export class Duel {
     this.clock.setStage(this, "start");
     //ダメージステップ開始時 ※「ダメージ計算を行わずに」などと記載されたものなど
     //TODO エフェクト処理
-    while (await this.procChainBlock(undefined, undefined)) {
-      //
-    }
+    this.procFreeChain();
   };
   private readonly procBattlePhaseDamageStep2 = async (attacker: DuelEntity, defender: DuelEntity) => {
     this.clock.setStage(this, "beforeDmgCalc");
@@ -468,9 +468,7 @@ export class Duel {
       defender.setBattlePosition("Defense", ["Flip", "FlipByBattle"], attacker, attacker.controller);
     }
     //TODO 「ライトロード・モンク エイリン」「ドリルロイド」等、
-    while (await this.procChainBlock(undefined, undefined)) {
-      //
-    }
+    this.procFreeChain();
   };
   private readonly procBattlePhaseDamageStep3 = async (chainBlockInfo: ChainBlockInfo<unknown>, attacker: DuelEntity, defender: DuelEntity) => {
     if (attacker.atk === undefined) {
@@ -483,9 +481,7 @@ export class Duel {
 
     //ダメージ計算時②各種効果の発動 ※《プライドの咆哮》など
     // TODO １つ目のチェーンのみ、「ダメージ計算時」を条件とする効果を発動できる
-    while (await this.procChainBlock(undefined, undefined)) {
-      //
-    }
+    this.procFreeChain();
 
     //ダメージ計算時③ダメージ計算 ～ ④ダメージ数値確定 ～ ⑤戦闘ダメージの発生
     const atkPoint = attacker.atk;
@@ -529,9 +525,7 @@ export class Duel {
     this.clock.setStage(this, "afterDmgCalc");
     //ダメージ計算後
     // ダメージ発生、戦闘発生をトリガーとする効果、またはダメージ計算後を直接指定する効果
-    while (await this.procChainBlock(undefined, undefined)) {
-      //
-    }
+    this.procFreeChain();
   };
   private readonly procBattlePhaseDamageStep5 = async () => {
     this.clock.setStage(this, "end");
@@ -544,9 +538,7 @@ export class Duel {
 
     //ダメージステップ終了時
     // 戦闘破壊されて墓地に送られた場合の効果
-    while (await this.procChainBlock(undefined, undefined)) {
-      //
-    }
+    this.procFreeChain();
   };
   private readonly procBattlePhaseEndStep = async () => {
     this.clock.setStep(this, "end");
@@ -659,7 +651,7 @@ export class Duel {
 
   private readonly procFreeChain = async () => {
     // フリーチェーン処理
-    while (await this.procChainBlock(undefined, undefined)) {
+    while ((await this.procChainBlock(undefined, undefined)) !== "pass") {
       //
     }
   };
@@ -674,7 +666,7 @@ export class Duel {
   private readonly procChainBlock = async (
     firstBlock: { activator: Duelist; action: ICardAction<unknown> } | undefined,
     triggerEffects: { activator: Duelist; action: CardAction<unknown>; targetChainBlock: ChainBlockInfo<unknown> | undefined }[] | undefined
-  ): Promise<boolean> => {
+  ): Promise<"done" | "pass" | "cancel"> => {
     // チェーン開始判定
     const isStartPoint = this.chainBlockInfos.length === 0;
 
@@ -691,8 +683,6 @@ export class Duel {
           });
         }));
 
-    // 返却値 チェーンが発生したかどうか
-    let result = false;
     // この呼び出しで積むチェーンブロック
     let chainBlock: { activator: Duelist; action: ICardAction<unknown>; targetChainBlock: ChainBlockInfo<unknown> | undefined } | undefined;
 
@@ -700,7 +690,6 @@ export class Duel {
     if (firstBlock) {
       chainBlock = { ...firstBlock, targetChainBlock: undefined };
       this.priorityHolder = chainBlock.activator;
-      result = true;
     } else if (_triggerEffets.length > 0) {
       // 次にトリガーエフェクトが存在する場合、まずそちらからチェーンを積む
       const triggerEffect = await this.selectTriggerEffect(_triggerEffets);
@@ -712,7 +701,6 @@ export class Duel {
         // トリガーエフェクトは優先権を無視してチェーンブロックを積むが、その次のブロックは優先権に従うので都度更新しておく。
         // クイックエフェクトのループの先頭で反転する点に注意
         this.priorityHolder = chainBlock.activator;
-        result = true;
       } else {
         // トリガーエフェクトが選択されなかった場合、リストをリセットする。
         _triggerEffets = [];
@@ -720,7 +708,7 @@ export class Duel {
     }
 
     // ここまででチェーンブロックが積まれていない場合、任意効果のクイックエフェクト
-    if (!result) {
+    if (!chainBlock) {
       // 任意効果のクイックエフェクト
       let skipCount = 0;
       while (skipCount < 2) {
@@ -745,7 +733,6 @@ export class Duel {
         // どちらかのプレイヤーが効果を発動する場合、チェーン処理へ。
         if (action) {
           chainBlock = { activator: this.priorityHolder, action, targetChainBlock: this.chainBlockInfos.slice(-1)[0] };
-          result = true;
           // トリガーエフェクトが選択されなかった場合、リストをリセットする。
           break;
         }
@@ -764,12 +751,12 @@ export class Duel {
         chainBlock.action.cell,
         chainBlock.targetChainBlock,
         this.chainBlockInfos,
-        false,
+        isStartPoint,
         false
       );
 
       if (!chainBlockInfo) {
-        throw new IllegalCancelError(chainBlock);
+        return "cancel";
       }
 
       this.chainBlockLog.push(chainBlockInfo);
@@ -882,7 +869,7 @@ export class Duel {
       }
     }
 
-    return result;
+    return chainBlock ? "done" : "pass";
   };
   private readonly selectTriggerEffect = async (
     triggerEffects: { activator: Duelist; action: CardAction<unknown>; targetChainBlock: ChainBlockInfo<unknown> | undefined }[]
@@ -933,17 +920,17 @@ export class Duel {
     enableSpellSpeeds: TSpellSpeed[],
     chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>
   ): CardAction<unknown>[] => {
-    const negateSummonOnly = cardActionRuleSummonTypes.some((type) => type === chainBlockInfos.slice(-1)[0]?.action.playType);
+    const nextChainBlockFilter = chainBlockInfos.slice(-1)[0]?.nextChainBlockFilter ?? (() => true);
 
     return this.field
       .getAllCardEntities()
       .flatMap((entity) => entity.actions)
-      .filter((action) => action.negateSummon || !negateSummonOnly)
       .filter((action) => action.executableCells.includes(action.entity.fieldCell.cellType))
       .filter((action) => action.executablePeriods.includes(this.clock.period.key))
-      .filter((action) => enableCardPlayTypes.includes(action.playType))
       .filter((action) => enableSpellSpeeds.includes(action.spellSpeed))
       .filter((action) => action.validateDuelist(duelist))
+      .filter((action) => enableCardPlayTypes.includes(action.playType))
+      .filter((action) => nextChainBlockFilter(duelist, action))
       .filter((action) => action.validate(duelist, chainBlockInfos, false));
   };
 }

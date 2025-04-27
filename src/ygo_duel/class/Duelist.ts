@@ -59,6 +59,7 @@ export class Duelist {
     summonChoices: SummonChoice[],
     materialInfos: SummonMaterialInfo[],
     ignoreSummoningConditions: boolean,
+    qty: number | undefined,
     validator: (summoned: DuelEntity[]) => boolean,
     cancelable: boolean,
     msg: string = "特殊召喚するモンスターを選択。"
@@ -75,6 +76,7 @@ export class Duelist {
         summonChoices.filter((choice) => choice.summoner === summoner),
         materialInfos,
         ignoreSummoningConditions,
+        qty,
         validator,
         cancelable,
         msg
@@ -299,11 +301,36 @@ export class Duelist {
   public readonly getMonstersOnField = (): DuelEntity[] => {
     return this.duel.field.getMonstersOnFieldStrictly().filter((monster) => monster.controller === this);
   };
-  public readonly getPendulumScales = (): DuelEntity[] => {
+  public readonly getPendingMonstersOnField = (): DuelEntity[] => {
+    return this.duel.field.getPendingMonstersOnField().filter((monster) => monster.controller === this);
+  };
+  public readonly getPendulumScaleMonsters = (): DuelEntity[] => {
     return this.duel.field
       .getCardsOnFieldStrictly()
       .filter((card) => card.isPendulumScale)
       .filter((card) => card.controller === this);
+  };
+  public readonly getPendulumScales = () => {
+    const monsters = this.getPendulumScaleMonsters();
+    if (monsters.length < 2) {
+      return undefined;
+    }
+
+    const left = monsters.find((monster) => monster.fieldCell.column === (this.seat === "Below" ? 1 : 5));
+    const right = monsters.find((monster) => monster.fieldCell.column === (this.seat === "Below" ? 5 : 1));
+
+    if (!left || !right) {
+      throw new SystemError("想定されない状態", monsters);
+    }
+
+    const psL = left.psR;
+    const psR = left.psL;
+
+    if (psL === undefined || psR === undefined) {
+      throw new SystemError("想定されない状態", monsters);
+    }
+
+    return psL > psR ? { upperBound: psL, lowerBound: psR } : { upperBound: psR, lowerBound: psL };
   };
   public readonly getEntiteisOnField = (): DuelEntity[] => {
     return this.duel.field.getCardsOnFieldStrictly().filter((card) => card.controller === this);
@@ -404,7 +431,7 @@ export class Duelist {
         return { ...item, summoner: this };
       })
       .map((item) => {
-        if (!this.duel.field.canExtraLink(item.monster, materialInfos)) {
+        if (summonType !== "LinkSummon" || !this.duel.field.canExtraLink(item.monster, materialInfos)) {
           // エクストラリンクを成立させることができるときにのみ使用することができるセルを除外。
           item.cells = item.cells.filter((cell) => !onlyForExtraLinkCells.includes(cell));
         }
@@ -420,6 +447,27 @@ export class Duelist {
           ...item,
           cells: item.cells.filter((cell) => cell.cardEntities.length === 0 || materialInfos.some((info) => info.material === cell.cardEntities[0])),
         };
+      })
+      .map((item) => {
+        if (item.monster.fieldCell.cellType !== "ExtraDeck") {
+          //エクストラモンスターゾーンはエクストラデッキからの特殊召喚のみ使用可能
+          return {
+            ...item,
+            cells: item.cells.filter((cell) => cell.cellType !== "ExtraMonsterZone"),
+          };
+        }
+        if (item.monster.status.monsterCategories?.includes("Link") || summonType === "PendulumSummon") {
+          // リンク召喚またはペンデュラム召喚による特殊召喚の場合、エクストラモンスターゾーンまたはリンクマーカーの先にしか特殊召喚できない
+          return {
+            ...item,
+            cells: item.cells.filter(
+              (cell) =>
+                cell.cellType === "ExtraMonsterZone" ||
+                cell.linkArrowSources.filter((linkMonster) => !materialInfos.map((info) => info.material).includes(linkMonster)).length
+            ),
+          };
+        }
+        return item;
       })
       .filter((item) => item.cells.length && item.posList.length)
       .map((item) => this.entity.summonFilterBundle.filter(effectOwner, summonType, movedAs, actDefAttr, item, materialInfos, ignoreSummoningConditions))
@@ -442,6 +490,7 @@ export class Duelist {
     summonChoices: SummonChoice[],
     materialInfos: SummonMaterialInfo[],
     ignoreSummoningConditions: boolean,
+    qty: number | undefined,
     validator: (summoned: DuelEntity[]) => boolean,
     cancelable: boolean,
     msg: string = "特殊召喚するモンスターを選択。"
@@ -455,7 +504,7 @@ export class Duelist {
     let monsters = choices.map((item) => item.monster);
 
     if (summonChoices.length !== 1 || validator([])) {
-      const hoge = await this.duel.view.waitSelectEntities(this, monsters, undefined, validator, msg, cancelable);
+      const hoge = await this.duel.view.waitSelectEntities(this, monsters, qty, validator, msg, cancelable);
 
       monsters = hoge ?? [];
     }
@@ -515,7 +564,32 @@ export class Duelist {
       summonChoices,
       materialInfos,
       ignoreSummoningConditions,
+      summonChoices.length,
       (summoned) => summoned.length === summonChoices.length,
+      cancelable,
+      msg
+    );
+  public readonly summonOne = (
+    effectOwner: Duelist,
+    summonType: TSummonKindCauseReason,
+    movedAs: TDuelCauseReason[],
+    actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
+    summonChoices: Omit<SummonChoice, "summoner">[],
+    materialInfos: SummonMaterialInfo[],
+    ignoreSummoningConditions: boolean,
+    cancelable: boolean,
+    msg?: string
+  ) =>
+    this.summonMany(
+      effectOwner,
+      summonType,
+      movedAs,
+      actDefAttr,
+      summonChoices,
+      materialInfos,
+      ignoreSummoningConditions,
+      1,
+      (summoned) => summoned.length === 1,
       cancelable,
       msg
     );
@@ -528,6 +602,7 @@ export class Duelist {
     summonChoices: Omit<SummonChoice, "summoner">[],
     materialInfos: SummonMaterialInfo[],
     ignoreSummoningConditions: boolean,
+    qty: number | undefined,
     validator: (summoned: DuelEntity[]) => boolean,
     cancelable: boolean,
     msg?: string
@@ -542,6 +617,7 @@ export class Duelist {
       }),
       materialInfos,
       ignoreSummoningConditions,
+      qty,
       validator,
       cancelable,
       msg

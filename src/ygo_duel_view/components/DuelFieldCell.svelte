@@ -3,13 +3,14 @@
 
   import DuelCard, { type TCardState } from "@ygo_duel_view/components/DuelCard.svelte";
   import { DuelEntity } from "@ygo_duel/class/DuelEntity";
-  import type { AnimationStartEventArg, DuelViewController, WaitStartEventArg } from "@ygo_duel_view/class/DuelViewController";
+  import type { AnimationStartEventArg, DuelistResponseBase, DuelViewController, WaitStartEventArg } from "@ygo_duel_view/class/DuelViewController";
   import {} from "@stk_utils/funcs/StkArrayUtils";
   import { cardCrossFade } from "@ygo_duel_view/components/DuelDesk.svelte";
-  import { type ICardAction } from "@ygo_duel/class/DuelCardAction";
+  import { type DummyActionInfo, type ICardAction, type ValidatedActionInfo } from "@ygo_duel/class/DuelCardAction";
   import { actualCounterEmojiDic, type TActualCounterName } from "@ygo_duel/class/DuelCounter";
   import type { TDuelPhase } from "@ygo_duel/class/DuelPeriod";
   import type { Duelist } from "@ygo_duel/class/Duelist";
+  import type { TBattlePosition } from "@ygo/class/YgoTypes";
   export let view: DuelViewController;
 
   export let row: number;
@@ -28,8 +29,8 @@
   view.modalController.onUpdate.append(onCellUpdate);
 
   let activator: Duelist | undefined = undefined;
-  let enableActions: ICardAction<unknown>[] = [];
-  let responseResolve: (action: DuelistResponse) => void = () => {};
+  let dummyActionInfos: DummyActionInfo[] = [];
+  let responseResolve: (action: DuelistResponseBase) => void = () => {};
   let selectedEntitiesValidator: (selectedEntities: DuelEntity[]) => boolean = () => true;
   let selectableEntities: DuelEntity[];
   let targetsInBuildingChain: DuelEntity[] = [];
@@ -39,7 +40,7 @@
     selectedList.reset();
     activator = args.activator;
     responseResolve = args.resolve;
-    enableActions = args.enableActions as ICardAction<unknown>[];
+    dummyActionInfos = args.dummyActionInfos;
     targetsInBuildingChain = args.chainBlockInfos.flatMap((info) => info.selectedEntities).getDistinct();
     selectableEntities = args.selectableEntities;
     selectedEntitiesValidator = args.entitiesValidator;
@@ -48,7 +49,7 @@
 
   const onWaitEnd = () => {
     activator = undefined;
-    enableActions = [];
+    dummyActionInfos = [];
     responseResolve = () => {};
     selectedEntitiesValidator = () => true;
     selectableEntities = [];
@@ -56,15 +57,18 @@
   };
 
   view.onWaitEnd.append(onWaitEnd);
-  let draggingActions: ICardAction<unknown>[] | undefined;
   let canAcceptDrop = false;
-  const onDragStart = (actions: ICardAction<unknown>[]) => {
-    draggingActions = actions;
-    canAcceptDrop = actions.some((action) => action.validate(view.duel.priorityHolder, view.duel.chainBlockInfos, false)?.includes(cell)) || false;
+
+  let draggingDummyActionInfos: DummyActionInfo[] = [];
+  const onDragStart = (dummyActionInfos: DummyActionInfo[]) => {
+    // ドラッグされたアクションのうち、受け入れられるもののみを抽出
+    draggingDummyActionInfos = dummyActionInfos.filter((info) => info.dests.includes(cell));
+
+    canAcceptDrop = draggingDummyActionInfos.length > 0;
     onCellUpdate();
   };
   const onDragEnd = () => {
-    draggingActions = undefined;
+    dummyActionInfos = [];
     canAcceptDrop = false;
     onCellUpdate();
   };
@@ -98,7 +102,8 @@
 
   const canAction = () => {
     return (
-      cell.isStackCell && cell.entities.flatMap((e) => e.actions).filter((act) => enableActions.map((a) => a.seq).some((seq) => seq === act.seq)).length > 0
+      cell.isStackCell &&
+      cell.entities.flatMap((e) => e.actions).filter((act) => dummyActionInfos.map((info) => info.action.seq).some((seq) => seq === act.seq)).length > 0
     );
   };
 
@@ -109,9 +114,10 @@
       cell.field.duel.view.infoBoardState = "CellInfo";
       cell.field.duel.view.infoBoardCell = cell;
       cell.field.duel.view.requireUpdate();
-      const actions = cell.entities.flatMap((e) => e.actions).filter((act) => enableActions.map((a) => a.seq).some((seq) => seq === act.seq));
+      const cellActionSeqs = cell.entities.flatMap((e) => e.actions).map((action) => action.seq);
+      const cellActionInfos = dummyActionInfos.filter((info) => cellActionSeqs.includes(info.action.seq));
 
-      if (actions.length) {
+      if (cellActionInfos.length) {
         if (!activator) {
           return;
         }
@@ -121,13 +127,16 @@
           .selectAction(view, {
             title: "カードを選択。",
             activator,
-            actions: actions,
+            dummyActionInfos: cellActionInfos,
             cancelable: true,
           })
-          .then((_action) => {
-            responseResolve({
-              action: _action,
-            });
+          .then((_info) => {
+            console.log(_info);
+            if (_info) {
+              responseResolve({
+                actionInfo: _info,
+              });
+            }
           });
         return;
       }
@@ -144,29 +153,34 @@
   };
   const drop = (ev: DragEvent) => {
     ev.preventDefault();
-    console.info("drop", ev, canAcceptDrop, draggingActions);
+    console.info("drop", ev, canAcceptDrop, draggingDummyActionInfos);
     if (ev.dataTransfer) {
       ev.dataTransfer.dropEffect = "move";
     }
     try {
-      if (canAcceptDrop && draggingActions) {
-        console.info(draggingActions, cell);
-        if (draggingActions.length === 1) {
-          const action = draggingActions[0].getClone();
-          action.cell = cell;
-          action.pos = draggingActions[0].pos;
-          responseResolve({ action: action });
-        } else if (draggingActions.length > 1) {
+      if (canAcceptDrop && draggingDummyActionInfos) {
+        if (draggingDummyActionInfos.length === 1) {
+          const info = draggingDummyActionInfos[0];
+          responseResolve({ actionInfo: { ...info, dest: cell } });
+        } else if (draggingDummyActionInfos.length > 1) {
           if (!activator) {
             throw new SystemError("想定されない状態");
           }
           cell.field.duel.view.modalController.cancelAll();
-          cell.field.duel.view.modalController.selectAction(cell.field.duel.view, {
-            title: "選択",
-            activator,
-            actions: draggingActions,
-            cancelable: false,
-          });
+          cell.field.duel.view.modalController
+            .selectAction(cell.field.duel.view, {
+              title: "選択",
+              activator,
+              dummyActionInfos: draggingDummyActionInfos.map((info) => {
+                return { ...info, dest: cell };
+              }),
+              cancelable: false,
+            })
+            .then((_info) => {
+              responseResolve({
+                actionInfo: _info,
+              });
+            });
         }
       }
     } finally {
@@ -182,7 +196,7 @@
       return "Selectable";
     }
 
-    if (!enableActions || enableActions.length === 0) {
+    if (!dummyActionInfos || dummyActionInfos.length === 0) {
       return "Disabled";
     }
     if (view.waitMode !== "SelectFieldAction") {
@@ -191,21 +205,19 @@
     if (Object.values(view.modalController.states).some((stat) => stat === "Shown")) {
       return "Disabled";
     }
-    const actions = enableActions.filter((action) => entities.includes(action.entity));
+    const actions = dummyActionInfos.filter((info) => entities.includes(info.action.entity));
     if (actions.length === 0) {
       return "Disabled";
     }
     if (cell.isStackCell) {
       return "Clickable";
     }
-    if (actions[0].entity !== entities[0]) {
+    if (actions[0].action.entity !== entities[0]) {
       return "Clickable";
     }
-    if (actions.length > 1) {
-      return "Clickable";
-    }
-    const tmp = actions[0].validate(view.duel.priorityHolder, view.duel.chainBlockInfos, false);
-    return tmp && tmp.length > 0 ? "Draggable" : "Clickable";
+    console.log(actions);
+
+    return actions.some((info) => info.dests.length) ? "Draggable" : "Clickable";
   };
 </script>
 
@@ -247,7 +259,7 @@
       {@const args = animationArgs.find((args) => args.to === cell)}
       {#if args && args.index === "Top"}
         <div class="card_animation_receiver {cell.cellType}" in:receive={{ key: args.entity.seq }}>
-          <DuelCard entity={args.entity} state="Disabled" actions={[]} cardActionResolve={undefined} />
+          <DuelCard entity={args.entity} state="Disabled" dummyActionInfos={[]} cardActionResolve={undefined} />
         </div>
       {/if}
       {#each cell.visibleEntities as entity}
@@ -256,16 +268,17 @@
             <DuelCard
               {entity}
               state={validateActions(entity)}
-              actions={enableActions.filter((action) => action.entity === entity)}
+              dummyActionInfos={dummyActionInfos.filter((info) => info.action.entity === entity)}
               cardActionResolve={undefined}
               bind:selectedList
             />
           </div>
         {/if}
       {/each}
+
       {#if args && args.index !== "Top"}
         <div class="card_animation_receiver {cell.cellType}" in:receive={{ key: args.entity.seq }}>
-          <DuelCard entity={args.entity} state="Disabled" actions={[]} cardActionResolve={undefined} />
+          <DuelCard entity={args.entity} state="Disabled" dummyActionInfos={[]} cardActionResolve={undefined} />
         </div>
       {/if}
     {:else}
@@ -274,7 +287,7 @@
       {#if args && args.index !== "Top"}
         <!-- アニメーションの目的地-->
         <div style="position: absolute;" class="card_animation_receiver" in:receive={{ key: args.entity.seq }}>
-          <DuelCard entity={args.entity} state="Disabled" actions={[]} cardActionResolve={undefined} />
+          <DuelCard entity={args.entity} state="Disabled" dummyActionInfos={[]} cardActionResolve={undefined} />
         </div>
       {/if}
       {#if cell.visibleEntities.length > 0}
@@ -293,7 +306,7 @@
               <DuelCard
                 entity={item.entity}
                 state={!cell.isStackCell && item.index === 0 ? validateActions(...cell.visibleEntities) : undefined}
-                actions={item.index === 0 ? enableActions.filter((action) => cell.visibleEntities.includes(action.entity)) : undefined}
+                dummyActionInfos={item.index === 0 ? dummyActionInfos.filter((info) => cell.visibleEntities.includes(info.action.entity)) : undefined}
                 cardActionResolve={undefined}
                 bind:selectedList
               />
@@ -322,7 +335,7 @@
       {#if args && args.index === "Top"}
         <!-- アニメーションの目的地-->
         <div class="card_animation_receiver" in:receive={{ key: args.entity.seq }}>
-          <DuelCard entity={args.entity} state="Disabled" actions={[]} cardActionResolve={undefined} />
+          <DuelCard entity={args.entity} state="Disabled" dummyActionInfos={[]} cardActionResolve={undefined} />
         </div>
       {/if}
     {/if}

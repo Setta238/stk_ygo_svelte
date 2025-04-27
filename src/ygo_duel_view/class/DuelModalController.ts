@@ -2,9 +2,9 @@ import { StkEvent } from "@stk_utils/class/StkEvent";
 import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import type { CardActionSelectorArg } from "@ygo_duel_view/components/DuelActionSelector.svelte";
 import type { DuelEntitiesSelectorArg } from "@ygo_duel_view/components/DuelEntitiesSelector.svelte";
-import type { DuelViewController } from "./DuelViewController";
-import type { ICardAction } from "@ygo_duel/class/DuelCardAction";
+import type { DuelViewController, ResolvedDummyActionInfo } from "./DuelViewController";
 import type { DuelTextSelectorArg } from "@ygo_duel_view/components/DuelTextSelector.svelte";
+import type { ResponseActionInfo } from "@ygo_duel/class/Duel";
 
 const modalNames = ["DuelEntitiesSelector", "DuelActionSelector", "DuelTextSelector"] as const;
 export type TModalName = (typeof modalNames)[number];
@@ -58,24 +58,24 @@ export class DuelModalController {
   public cardActionSelectorArg: CardActionSelectorArg = {
     title: "カード操作を選択。",
     activator: undefined!,
-    actions: [],
+    dummyActionInfos: [],
     cancelable: false,
   };
-  public cardActionSelectorResolve: (action: ICardAction<unknown> | undefined) => void = () => {};
-  public cardActionSelectorValue: ICardAction<unknown> | undefined;
+  public cardActionSelectorResolve: (info: ResolvedDummyActionInfo | undefined) => void = () => {};
+  public cardActionSelectorValue: ResponseActionInfo | undefined;
 
-  public readonly selectAction = async (view: DuelViewController, arg: CardActionSelectorArg): Promise<ICardAction<unknown> | undefined> => {
+  public readonly selectAction = async (view: DuelViewController, arg: CardActionSelectorArg): Promise<ResolvedDummyActionInfo | undefined> => {
     this.cardActionSelectorArg = arg;
     this.states.DuelActionSelector = "Shown";
 
     view.onWaitEnd.append(this.cancelAll);
     this.onUpdateEvent.trigger();
     return new Promise((resolve) => {
-      this.cardActionSelectorResolve = (value: ICardAction<unknown> | undefined) => {
+      this.cardActionSelectorResolve = (info: ResolvedDummyActionInfo | undefined) => {
         this.states.DuelActionSelector = "Disable";
         view.onWaitEnd.remove(this.cancelAll);
         this.onUpdateEvent.trigger();
-        resolve(value);
+        resolve(info);
       };
     });
   };

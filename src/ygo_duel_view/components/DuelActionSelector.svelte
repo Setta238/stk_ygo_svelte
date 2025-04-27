@@ -1,10 +1,10 @@
 <script lang="ts" module>
   import { writable } from "svelte/store";
-  import type { CardAction, ICardAction } from "@ygo_duel/class/DuelCardAction";
+  import type { DummyActionInfo } from "@ygo_duel/class/DuelCardAction";
   export type CardActionSelectorArg = {
     title: string;
     activator: Duelist;
-    actions: ICardAction<unknown>[];
+    dummyActionInfos: DummyActionInfo[];
     dragAndDropOnly?: boolean;
     cancelable: boolean;
   };
@@ -16,20 +16,19 @@
 </script>
 
 <script lang="ts">
-  import DuelCard, { type TCardState } from "@ygo_duel_view/components/DuelCard.svelte";
-  import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
+  import DuelCard from "@ygo_duel_view/components/DuelCard.svelte";
   import type { DuelViewController } from "@ygo_duel_view/class/DuelViewController";
   import type { Duelist } from "@ygo_duel/class/Duelist";
   interface IProp {
     view: DuelViewController;
-    resolve: (action?: ICardAction<unknown>, cell?: DuelFieldCell) => void;
+    resolve: (action?: DummyActionInfo) => void;
     title: string;
     activator: Duelist;
-    actions: ICardAction<unknown>[];
+    dummyActionInfos: DummyActionInfo[];
     dragAndDropOnly: boolean;
     cancelable: boolean;
   }
-  let { view, resolve, title, activator, actions, dragAndDropOnly, cancelable }: IProp = $props();
+  let { view, resolve, title, activator, dummyActionInfos, dragAndDropOnly, cancelable }: IProp = $props();
 
   let isShown = true;
 
@@ -45,14 +44,6 @@
   const onDragEnd = () => isDragging.set(false);
   view.onDragStart.append(onDragStart);
   view.onDragEnd.append(onDragEnd);
-  const validateActions = (action: ICardAction<unknown>): TCardState => {
-    if (activator.duelistType === "NPC") {
-      return "Disabled";
-    }
-
-    const tmp = action.validate(activator, view.duel.chainBlockInfos, false);
-    return tmp && tmp.length > 0 ? "Draggable" : "Clickable";
-  };
 </script>
 
 {#if isShown}
@@ -61,16 +52,16 @@
     <div class={`window ${$isDragging ? "minimum_mode" : ""}`}>
       <div>{title}</div>
       <div class="flex">
-        {#each actions as action}
+        {#each dummyActionInfos as info}
           <div class="duel_card_wrapper">
             <DuelCard
-              entity={action.entity}
+              entity={info.action.entity}
               isVisibleForcibly={true}
-              state={validateActions(action)}
-              actions={dragAndDropOnly ? [] : [action]}
+              state={info.dests.length ? "Draggable" : "Clickable"}
+              dummyActionInfos={dragAndDropOnly ? [] : [info]}
               cardActionResolve={resolve}
             />
-            <div>«{action.title}»</div>
+            <div>«{info.action.title}»</div>
           </div>
         {/each}
       </div>

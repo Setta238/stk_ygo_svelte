@@ -4,7 +4,7 @@ import { type Duelist } from "./Duelist";
 import { DuelEntity } from "./DuelEntity";
 import { CardActionBase, type CardActionDefinitionBase } from "./DuelCardActionBase";
 import type { IDuelClock } from "./DuelClock";
-import { SystemError } from "./Duel";
+import { SystemError, type ResponseActionInfo } from "./Duel";
 import { max } from "@stk_utils/funcs/StkMathUtils";
 import { DuelEntityShortHands } from "./DuelEntityShortHands";
 
@@ -104,6 +104,13 @@ export type ActionCostInfo = {
   [key in TCostType]?: key extends TNumericCostType ? number : key extends TSummonMaterialCostType ? SummonMaterialInfo[] : DuelEntity[];
 };
 
+export type DummyActionInfo = {
+  action: ICardAction;
+  dests: DuelFieldCell[];
+  dest?: DuelFieldCell;
+  battlePosition?: TBattlePosition;
+  originSeq: number;
+};
 export type ChainBlockInfoBase<T> = {
   /**
    * 配列上のindex
@@ -131,7 +138,7 @@ export type ChainBlockInfoPrepared<T> = {
   selectedEntities: DuelEntity[];
   prepared: T;
   /** 緊急同調など */
-  nextAction?: CardAction<unknown>;
+  nextActionInfo?: ResponseActionInfo;
   /** 超融合など */
   nextChainBlockFilter?: (activator: Duelist, action: CardAction<unknown>) => boolean;
 };
@@ -201,52 +208,21 @@ export type CardActionDefinition<T> = CardActionDefinitionAttr & {
   execute: (myInfo: ChainBlockInfo<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => Promise<boolean>;
   settle: (myInfo: ChainBlockInfo<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => Promise<boolean>;
 };
-export interface ICardAction<T> {
+
+export type ValidatedActionInfo = {
+  action: CardAction<unknown>;
+  dests: DuelFieldCell[];
+  originSeq: number;
+};
+
+export interface ICardAction {
   title: string;
   entity: DuelEntity;
   seq: number;
-  playType: TCardActionType;
-  spellSpeed: TSpellSpeed;
-  hasToTargetCards: boolean;
-  isOnlyNTimesPerTurn: number;
-  isOnlyNTimesPerDuel: number;
-  isOnlyNTimesPerChain: number;
-  isLikeContinuousSpell: boolean;
-  getClone: () => ICardAction<T>;
-  /**
-   *
-   * @returns 発動時にドラッグ・アンド・ドロップ可能である場合、選択肢のcellが返る。
-   */
-  validate: (activator: Duelist, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, ignoreCosts: boolean) => DuelFieldCell[] | undefined;
-  /**
-   * チェーンに乗る処理の場合、コストの支払いや対象に取る処理までを行う。
-   * @param cell 効果発動時にドラッグ・アンド・ドロップなどで指定されたセルがある場合、値が入る。
-   * @returns 実行時に必要な任意の情報
-   */
-  prepare: (
-    activator: Duelist,
-    cell: DuelFieldCell | undefined,
-    targetChainBlock: ChainBlockInfo<unknown> | undefined,
-    chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
-    cancelable: boolean,
-    ignoreCosts: boolean
-  ) => Promise<ChainBlockInfo<T> | undefined>;
-  /**
-   *
-   * @param activator 効果発動時のコントローラー
-   * @param cell 効果発動時にドラッグ・アンド・ドロップなどで指定されたセルがある場合、値が入る。
-   * @param prepared 実行時に必要な任意の情報
-   * @returns 不発の場合、false
-   */
-  execute: (myInfo: ChainBlockInfo<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => Promise<boolean>;
-  settle: (myInfo: ChainBlockInfo<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => Promise<boolean>;
-  autoWord?: string;
-  cell?: DuelFieldCell;
-  pos?: TBattlePosition;
-  dragAndDropOnly?: boolean;
+  getClone: () => ICardAction;
 }
 
-export class CardAction<T> extends CardActionBase implements ICardAction<T> {
+export class CardAction<T> extends CardActionBase implements ICardAction {
   public static readonly createNew = <T>(entity: DuelEntity, definition: CardActionDefinition<T>) => {
     return new CardAction<T>("AutoSeq", entity, definition);
   };
@@ -258,8 +234,14 @@ export class CardAction<T> extends CardActionBase implements ICardAction<T> {
    * @param pos
    * @returns
    */
-  public static readonly createDammyAction = (entity: DuelEntity, title: string, cells: DuelFieldCell[], pos?: TBattlePosition): ICardAction<void> => {
-    const tmp = CardAction.createNew(entity, {
+  public static readonly createDammyAction = (
+    entity: DuelEntity,
+    title: string,
+    dests: DuelFieldCell[],
+    battlePosition?: TBattlePosition,
+    origin?: CardActionBase
+  ): DummyActionInfo => {
+    const action = CardAction.createNew(entity, {
       title: title,
       isMandatory: false,
       executableCells: [],
@@ -267,17 +249,15 @@ export class CardAction<T> extends CardActionBase implements ICardAction<T> {
       executableDuelistTypes: [],
       playType: "Dammy",
       spellSpeed: "Dammy",
-      validate: () => cells,
+      validate: () => dests,
       prepare: async () => undefined,
       execute: async () => false,
       settle: async () => false,
-    }) as ICardAction<void>;
+    }) as ICardAction;
 
-    tmp.pos = pos;
-    tmp.cell = cells[0];
-    tmp.dragAndDropOnly = cells.length > 1;
+    // TODO   tmp.dragAndDropOnly = cells.length > 1;
 
-    return tmp;
+    return { action, dests, battlePosition, originSeq: origin?.seq ?? -1 };
   };
   protected override get definition() {
     return super.definition as CardActionDefinition<T>;
@@ -346,7 +326,11 @@ export class CardAction<T> extends CardActionBase implements ICardAction<T> {
   public readonly getEnableMaterialPatterns = (myInfo: ChainBlockInfoBase<T>) =>
     this.definition.getEnableMaterialPatterns?.(myInfo).filter(this.addhocMateriallimitation) ?? [];
 
-  public readonly validate = (activator: Duelist, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, ignoreCosts: boolean) => {
+  public readonly validate = (
+    activator: Duelist,
+    chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
+    ignoreCosts: boolean
+  ): ValidatedActionInfo | undefined => {
     // カードの発動はフィールド表側表示ではできない
     if (this.playType === "CardActivation" && this.entity.isOnFieldStrictly && this.entity.face === "FaceUp") {
       return;
@@ -417,7 +401,11 @@ export class CardAction<T> extends CardActionBase implements ICardAction<T> {
         return;
       }
     }
-    return this.definition.validate(myInfo, this.playType === "AfterChainBlock" ? [] : chainBlockInfos);
+    const dests = this.definition.validate(myInfo, this.playType === "AfterChainBlock" ? [] : chainBlockInfos);
+    if (!dests) {
+      return;
+    }
+    return { action: this as CardAction<unknown>, dests, originSeq: this.seq };
   };
   public readonly prepare = async (
     activator: Duelist,

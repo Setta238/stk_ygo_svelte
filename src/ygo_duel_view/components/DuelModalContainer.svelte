@@ -3,7 +3,7 @@
   import DuelEntitiesSelector from "@ygo_duel_view/components/DuelEntitiesSelector.svelte";
   import DuelActionSelector from "@ygo_duel_view/components/DuelActionSelector.svelte";
   import { DuelModalController } from "@ygo_duel_view/class/DuelModalController";
-  import type { ICardAction } from "@ygo_duel/class/DuelCardAction";
+  import type { DummyActionInfo, ICardAction } from "@ygo_duel/class/DuelCardAction";
   import DuelTextSelector from "./DuelTextSelector.svelte";
   export let modalController: DuelModalController;
 
@@ -32,10 +32,10 @@
       view={modalController.view}
       title={modalController.cardActionSelectorArg.title}
       activator={modalController.cardActionSelectorArg.activator}
-      actions={modalController.cardActionSelectorArg.actions}
+      dummyActionInfos={modalController.cardActionSelectorArg.dummyActionInfos}
       dragAndDropOnly={modalController.cardActionSelectorArg.dragAndDropOnly ?? false}
       cancelable={modalController.cardActionSelectorArg.cancelable}
-      resolve={(action: ICardAction<unknown> | undefined) => {
+      resolve={(action?: DummyActionInfo) => {
         console.info(action);
         modalController.cardActionSelectorResolve(action);
       }}

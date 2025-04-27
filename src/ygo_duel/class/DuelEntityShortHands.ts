@@ -1,5 +1,5 @@
 import { Duel, SystemError } from "./Duel";
-import { CardAction, type ChainBlockInfo, type ICardAction } from "./DuelCardAction";
+import { CardAction, type ChainBlockInfo } from "./DuelCardAction";
 import { DuelEntity, type TDuelCauseReason, type TDuelEntityFace, type TDuelEntityOrientation, destoryCauseReasonDic } from "./DuelEntity";
 import type { Duelist } from "./Duelist";
 import type { TBanishProcType } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
@@ -316,7 +316,7 @@ export class DuelEntityShortHands {
       const items = substituteEffectItems.filter((item) => item.sacrifice.controller === chooser);
 
       // 入力待ちのためにdammyAction化
-      const dammyActions = items.map((item) => CardAction.createDammyAction(item.sacrifice, item.effect.title, []) as ICardAction<unknown>);
+      const dammyActions = items.map((item) => CardAction.createDammyAction(item.sacrifice, item.effect.title, [], undefined, item.effect));
 
       // 入力待ち
       const selected = await cards[0].duel.view.waitSubAction(chooser, dammyActions, "身代わり効果を適用する？", true);

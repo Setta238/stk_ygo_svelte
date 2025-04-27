@@ -649,7 +649,7 @@ export const getDefaultAccelSyncroACtion = <T>(options: Partial<CardActionDefini
       });
 
       // 次に行うアクションとして設定。
-      myInfo.nextAction = dammySyncroSummonAction;
+      myInfo.nextActionInfo = { action: dammySyncroSummonAction, originSeq: dammySyncroSummonAction.seq };
 
       return true;
     },

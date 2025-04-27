@@ -5,26 +5,23 @@
 <script lang="ts">
   import { monsterCategoryDic, monsterCategoryEmojiDic, monsterTypeDic, monsterTypeEmojiDic, spellCategoryDic, trapCategoryDic } from "@ygo/class/YgoTypes";
 
-  import { SystemError, type DuelistResponse } from "@ygo_duel/class/Duel";
-  import type { ICardAction } from "@ygo_duel/class/DuelCardAction";
-
   import { DuelEntity } from "@ygo_duel/class/DuelEntity";
-  import { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
-  import type { WaitStartEventArg } from "@ygo_duel_view/class/DuelViewController";
+  import type { DuelistResponseBase, WaitStartEventArg } from "@ygo_duel_view/class/DuelViewController";
   import type { TCardDetailMode } from "./DuelCardDetail.svelte";
   import type { Duelist } from "@ygo_duel/class/Duelist";
+  import type { DummyActionInfo } from "@ygo_duel/class/DuelCardAction";
   export let entity: DuelEntity;
   export let state: TCardState = "Disabled";
   export let selectedList = [] as DuelEntity[];
   export let isVisibleForcibly = false;
   export let isWideMode = false;
-  export let actions: ICardAction<unknown>[] = [];
-  export let cardActionResolve: ((action?: ICardAction<unknown>, cell?: DuelFieldCell) => void) | undefined;
+  export let dummyActionInfos: DummyActionInfo[] = [];
+  export let cardActionResolve: ((action?: DummyActionInfo) => void) | undefined;
   export let entitySelectResolve: ((entities: DuelEntity[]) => void) | undefined = () => {};
 
   let activator: Duelist | undefined = undefined;
   let isSelected = false;
-  let duelistResponseResolve: (res: DuelistResponse) => void = () => {};
+  let duelistResponseResolve: (res: DuelistResponseBase) => void = () => {};
   export let qty: number | undefined = undefined;
   const onWaitStart: (args: WaitStartEventArg) => void = (args) => {
     activator = args.activator;
@@ -70,20 +67,18 @@
       selectedList = isSelected ? [...selectedList, entity] : selectedList.filter((e) => e !== entity);
       return;
     }
-    if (actions.length === 0) {
+    if (dummyActionInfos.length === 0) {
       return;
     }
-    if (actions.length === 1) {
-      if (actions[0].dragAndDropOnly) {
-        return;
-      }
+    if (dummyActionInfos.length === 1) {
+      const actionInfo = dummyActionInfos[0];
       if (cardActionResolve) {
-        cardActionResolve(actions[0]);
+        cardActionResolve(actionInfo);
         return;
       }
 
       duelistResponseResolve({
-        action: actions[0],
+        actionInfo,
       });
       return;
     }
@@ -95,24 +90,27 @@
       .selectAction(view, {
         title: "行動を選択。",
         activator,
-        actions: actions,
+        dummyActionInfos,
         cancelable: true,
       })
       .then((_action) => {
+        if (!_action) {
+          return;
+        }
         duelistResponseResolve({
-          action: _action,
+          actionInfo: _action,
         });
       });
     return;
   };
 
   const dragStart = (ev: DragEvent) => {
-    console.info("drag start", ev, actions);
-    entity.field.duel.view.setDraggingActions(actions);
+    console.info("drag start", ev, dummyActionInfos);
+    entity.field.duel.view.setDraggingActions(dummyActionInfos);
     isDragging = true;
   };
   const dragEnd = (ev: DragEvent) => {
-    console.info("drag end", ev, actions);
+    console.info("drag end", ev, dummyActionInfos);
     entity.field.duel.view.removeDraggingActions();
     if (ev.dataTransfer) {
       isDragging = false;

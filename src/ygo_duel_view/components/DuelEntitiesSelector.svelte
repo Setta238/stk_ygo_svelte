@@ -14,58 +14,49 @@
 <script lang="ts">
   import { cardEntitySorter, type DuelEntity } from "../../ygo_duel/class/DuelEntity";
   import DuelCard from "@ygo_duel_view/components/DuelCard.svelte";
-  let {
-    resolve,
-    title,
-    entities,
-    validator,
-    qty,
-    cancelable,
-    chainBlockInfos,
-  }: DuelEntitiesSelectorArg & { resolve: (selected: DuelEntity[] | undefined) => void } = $props();
+  let { args, resolve }: { args: DuelEntitiesSelectorArg; resolve: (selected: DuelEntity[] | undefined) => void } = $props();
   let selectedList = $state([] as DuelEntity[]);
 
   let isShown = true;
-  let targetsInPreviousChainBlocks = chainBlockInfos.flatMap((info) => info.selectedEntities).getDistinct();
-
-  const close = () => {};
+  let targetsInPreviousChainBlocks = args.chainBlockInfos.flatMap((info) => info.selectedEntities).getDistinct();
+  const _resolve = () => {
+    console.log(selectedList);
+    resolve(selectedList);
+  };
 </script>
 
 {#if isShown}
-  <div class="base">
-    <button class="overlay" onclick={close}>☆</button>
-    <div class="window">
-      <div>{title}</div>
-      {#each entities.map((e) => e.controller.seat).getDistinct() as seat}
-        <div class="entities_list {seat}">
-          {#each entities.filter((e) => e.controller.seat === seat).toSorted(cardEntitySorter) as entity}
-            <div class="entities_list_item {targetsInPreviousChainBlocks.includes(entity) ? `effect_target` : ``}">
-              <DuelCard
-                {entity}
-                isVisibleForcibly={true}
-                state="Selectable"
-                entitySelectResolve={(selected: DuelEntity[]) => resolve(selected)}
-                {qty}
-                cardActionResolve={undefined}
-                bind:selectedList
-              />
-            </div>
-          {/each}
-        </div>
-      {/each}
-
-      <div>
-        <button disabled={!validator(selectedList)} onclick={() => resolve(selectedList)}>OK</button>
-        {#if cancelable}
-          <button onclick={() => resolve(undefined)}>Cancel</button>
-        {/if}
+  <div class="modal_window">
+    <div>{args.title}</div>
+    {#each args.entities.map((e) => e.controller.seat).getDistinct() as seat}
+      <div class="entities_list {seat}">
+        {#each args.entities.filter((e) => e.controller.seat === seat).toSorted(cardEntitySorter) as entity}
+          <div class="entities_list_item {targetsInPreviousChainBlocks.includes(entity) ? `effect_target` : ``}">
+            <DuelCard
+              {entity}
+              isVisibleForcibly={true}
+              state="Selectable"
+              entitySelectResolve={(selected: DuelEntity[]) => resolve(selected)}
+              qty={args.qty}
+              cardActionResolve={undefined}
+              bind:selectedList
+            />
+          </div>
+        {/each}
       </div>
+    {/each}
+
+    <div>
+      <button disabled={!args.validator(selectedList)} onclick={_resolve}>OK</button>
+      {#if args.cancelable}
+        <button onclick={() => resolve(undefined)}>Cancel</button>
+      {/if}
     </div>
   </div>
 {/if}
 
 <style>
-  .window {
+  .modal_window {
     display: block;
     background-color: white;
     opacity: 0.9;
@@ -93,29 +84,7 @@
     visibility: initial;
   }
 
-  .base {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    pointer-events: initial;
-  }
-  .overlay {
-    display: block;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: gray;
-    opacity: 0.5;
-    border-radius: 0%;
-  }
-  .window button {
+  .modal_window button {
     background-color: #ffffff;
     display: inline-block;
     padding: 0em 1em;
@@ -125,9 +94,10 @@
     border-radius: 3px;
     transition: 0.4s;
     margin: 0.1rem 0.3rem;
+    pointer-events: initial;
   }
 
-  .window button:hover {
+  .modal_window button:hover {
     background: #67c5ff;
     color: white;
   }

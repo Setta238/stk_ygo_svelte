@@ -1,54 +1,33 @@
 <script lang="ts">
-  import { DuelEntity } from "@ygo_duel/class/DuelEntity";
   import DuelEntitiesSelector from "@ygo_duel_view/components/DuelEntitiesSelector.svelte";
   import DuelActionSelector from "@ygo_duel_view/components/DuelActionSelector.svelte";
   import { DuelModalController } from "@ygo_duel_view/class/DuelModalController";
-  import type { DummyActionInfo, ICardAction } from "@ygo_duel/class/DuelCardAction";
   import DuelTextSelector from "./DuelTextSelector.svelte";
   export let modalController: DuelModalController;
 
   const onModalControllerUpdate = () => {
     modalController = modalController;
   };
+
+  const close = () => {
+    modalController.modals.forEach((modal) => modal.cancel());
+  };
+
   modalController?.onUpdate?.append(onModalControllerUpdate);
 </script>
 
-<div class="base">
-  {#if modalController.states.DuelEntitiesSelector === "Shown"}
-    <DuelEntitiesSelector
-      title={modalController.duelEntitiesSelectorArg.title}
-      entities={modalController.duelEntitiesSelectorArg.entities}
-      validator={modalController.duelEntitiesSelectorArg.validator}
-      qty={modalController.duelEntitiesSelectorArg.qty}
-      cancelable={modalController.duelEntitiesSelectorArg.cancelable}
-      chainBlockInfos={modalController.duelEntitiesSelectorArg.chainBlockInfos}
-      resolve={(selectedList: DuelEntity[] | undefined) => {
-        modalController.duelEntitiesSelectorResolve(selectedList);
-      }}
-    />
-  {/if}
-  {#if modalController.states.DuelActionSelector === "Shown"}
-    <DuelActionSelector
-      view={modalController.view}
-      title={modalController.cardActionSelectorArg.title}
-      activator={modalController.cardActionSelectorArg.activator}
-      dummyActionInfos={modalController.cardActionSelectorArg.dummyActionInfos}
-      dragAndDropOnly={modalController.cardActionSelectorArg.dragAndDropOnly ?? false}
-      cancelable={modalController.cardActionSelectorArg.cancelable}
-      resolve={(action?: DummyActionInfo) => {
-        console.info(action);
-        modalController.cardActionSelectorResolve(action);
-      }}
-    />
-  {/if}
-  {#if modalController.states.DuelTextSelector === "Shown"}
-    <DuelTextSelector
-      arg={modalController.duelTextSelectorArg}
-      resolve={(action: number | undefined) => {
-        console.info(action);
-        modalController.duelTextSelectorResolve(action);
-      }}
-    />
+<div role="button" class="base">
+  {#if modalController.modals.some((modal) => modal.state === "Shown")}
+    <button class="overlay" onclick={close}>☆</button>
+    {#if modalController.entitySelector.state === "Shown"}
+      <DuelEntitiesSelector args={modalController.entitySelector.args} resolve={modalController.entitySelector.resolve} />
+    {/if}
+    {#if modalController.actionSelector.state === "Shown"}
+      <DuelActionSelector view={modalController.view} args={modalController.actionSelector.args} resolve={modalController.actionSelector.resolve} />
+    {/if}
+    {#if modalController.textSelector.state === "Shown"}
+      <DuelTextSelector arg={modalController.textSelector.args} resolve={modalController.textSelector.resolve} />
+    {/if}
   {/if}
 </div>
 
@@ -63,5 +42,16 @@
     justify-content: center;
     align-items: center;
     pointer-events: none;
+  }
+  .overlay {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: gray;
+    opacity: 0.5;
+    border-radius: 0%;
   }
 </style>

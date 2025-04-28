@@ -52,6 +52,7 @@ export default class DuelLog {
         lines.push(error.message);
         lines.push("-- 関連オブジェクト --");
         error.items.forEach((item) => lines.push(JSON.stringify(item)));
+        console.error(error.items);
       }
       lines.push("-- エラー名称 --");
       lines.push(error.name || "エラー名称取得失敗");

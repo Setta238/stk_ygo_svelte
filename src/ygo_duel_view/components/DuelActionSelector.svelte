@@ -1,7 +1,7 @@
 <script lang="ts" module>
   import { writable } from "svelte/store";
   import type { DummyActionInfo } from "@ygo_duel/class/DuelCardAction";
-  export type CardActionSelectorArg = {
+  export type CardActionSelectorArgs = {
     title: string;
     activator: Duelist;
     dummyActionInfos: DummyActionInfo[];
@@ -17,26 +17,13 @@
 
 <script lang="ts">
   import DuelCard from "@ygo_duel_view/components/DuelCard.svelte";
-  import type { DuelViewController } from "@ygo_duel_view/class/DuelViewController";
+  import type { DuelViewController, ResolvedDummyActionInfo } from "@ygo_duel_view/class/DuelViewController";
   import type { Duelist } from "@ygo_duel/class/Duelist";
-  interface IProp {
-    view: DuelViewController;
-    resolve: (action?: DummyActionInfo) => void;
-    title: string;
-    activator: Duelist;
-    dummyActionInfos: DummyActionInfo[];
-    dragAndDropOnly: boolean;
-    cancelable: boolean;
-  }
-  let { view, resolve, title, activator, dummyActionInfos, dragAndDropOnly, cancelable }: IProp = $props();
+  export let view: DuelViewController;
+  export let args: CardActionSelectorArgs;
+  export let resolve: (selected?: ResolvedDummyActionInfo) => void;
 
   let isShown = true;
-
-  const close = () => {
-    if (cancelable) {
-      resolve(undefined);
-    }
-  };
 
   let isDragging = writable(false);
 
@@ -47,30 +34,27 @@
 </script>
 
 {#if isShown}
-  <div class={`modal_base ${$isDragging ? "minimum_mode" : ""}`}>
-    <button class={`overlay ${$isDragging ? "minimum_mode" : ""}`} onclick={close}>★</button>
-    <div class={`modal_window ${$isDragging ? "minimum_mode" : ""}`}>
-      <div>{title}</div>
-      <div class="flex">
-        {#each dummyActionInfos as info}
-          <div class="duel_card_wrapper">
-            <DuelCard
-              entity={info.action.entity}
-              isVisibleForcibly={true}
-              state={info.dests.length ? "Draggable" : "Clickable"}
-              dummyActionInfos={dragAndDropOnly ? [] : [info]}
-              cardActionResolve={resolve}
-            />
-            <div>«{info.action.title}»</div>
-          </div>
-        {/each}
-      </div>
-      {#if cancelable}
-        <div>
-          <button class="cancel_button" onclick={() => resolve()}>Cancel</button>
+  <div class={`modal_window ${$isDragging ? "minimum_mode" : ""}`}>
+    <div>{args.title}</div>
+    <div class="flex">
+      {#each args.dummyActionInfos as info}
+        <div class="duel_card_wrapper">
+          <DuelCard
+            entity={info.action.entity}
+            isVisibleForcibly={true}
+            state={info.dests.length ? "Draggable" : "Clickable"}
+            dummyActionInfos={args.dragAndDropOnly ? [] : [info]}
+            cardActionResolve={resolve}
+          />
+          <div>«{info.action.title}»</div>
         </div>
-      {/if}
+      {/each}
     </div>
+    {#if args.cancelable}
+      <div>
+        <button class="cancel_button" onclick={() => resolve()}>Cancel</button>
+      </div>
+    {/if}
   </div>
 {/if}
 
@@ -95,32 +79,6 @@
     border-color: steelblue;
     border-radius: 0.4rem;
     outline: 1rem slategrey;
-  }
-  .modal_base {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    pointer-events: none;
-  }
-  .overlay {
-    pointer-events: initial;
-    display: block;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: gray;
-    opacity: 0.5;
-    border-radius: 0%;
-  }
-  .overlay.minimum_mode {
-    display: none;
   }
   .modal_window {
     display: block;

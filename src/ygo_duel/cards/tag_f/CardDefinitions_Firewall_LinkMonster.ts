@@ -116,7 +116,10 @@ export const createCardDefinitions_Firewall_LinkMonster = (): CardDefinition[] =
           // 前のチェーンで移動したエンティティがどこから移動したかを取得。
           const froms = myInfo.action.duel.field.moveLog
             .getPriviousChainLog()
-            .filter((record) => record.entity.fieldCell.cellType === "Graveyard" || record.movedAs.includes("BattleDestroy"))
+            .filter((record) => {
+              console.log(record, record.entity.fieldCell.cellType === "Graveyard", record.movedAs.includes("BattleDestroy"));
+              return record.entity.fieldCell.cellType === "Graveyard" || record.movedAs.includes("BattleDestroy");
+            })
             .filter((record) => record.movedAt.totalProcSeq > wasMovedAt.totalProcSeq)
             .map((record) => record.entity.wasMovedFrom)
             .toArray();
@@ -157,7 +160,7 @@ export const createCardDefinitions_Firewall_LinkMonster = (): CardDefinition[] =
               .filter((card) => card.canBeTargetOfEffect(myInfo)),
             faceupBattlePositions
           ),
-        execute: async (myInfo) => defaultTargetMonstersRebornExecute(myInfo, faceupBattlePositions),
+        execute: (myInfo) => defaultTargetMonstersRebornExecute(myInfo, faceupBattlePositions),
         settle: async () => true,
       } as CardActionDefinition<unknown>,
     ] as CardActionDefinition<unknown>[],

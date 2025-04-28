@@ -30,7 +30,7 @@
     selectedEntitiesValidator = args.entitiesValidator;
     selectableEntities = args.selectableEntities;
     if (args.duelEntitiesSelectorArg) {
-      duel.view.modalController.selectDuelEntities(args.duelEntitiesSelectorArg).then((selected) => {
+      duel.view.modalController.entitySelector.show(args.duelEntitiesSelectorArg).then((selected) => {
         response({
           selectedEntities: selected,
         });

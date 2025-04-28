@@ -1,5 +1,4 @@
 <script lang="ts">
-  import type { DuelViewController } from "@ygo_duel_view/class/DuelViewController";
   import DuelCard from "./DuelCard.svelte";
   import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
   import { cardEntitySorter, type TDuelEntityFace } from "@ygo_duel/class/DuelEntity";

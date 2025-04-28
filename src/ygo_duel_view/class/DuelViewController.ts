@@ -4,7 +4,7 @@ import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { DuelFieldCell, type TDuelEntityMovePos } from "@ygo_duel/class/DuelFieldCell";
 import { type Duelist } from "@ygo_duel/class/Duelist";
 import { DuelModalController } from "./DuelModalController";
-import type { CardActionSelectorArg } from "@ygo_duel_view/components/DuelActionSelector.svelte";
+import type { CardActionSelectorArgs } from "@ygo_duel_view/components/DuelActionSelector.svelte";
 import type { DuelEntitiesSelectorArg } from "@ygo_duel_view/components/DuelEntitiesSelector.svelte";
 import { CardAction, type ChainBlockInfo, type DummyActionInfo, type ICardAction, type ValidatedActionInfo } from "@ygo_duel/class/DuelCardAction";
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
@@ -38,7 +38,7 @@ export type WaitStartEventArg = {
   selectableEntities: DuelEntity[];
   entitiesValidator: (selectedEntities: DuelEntity[]) => boolean;
   chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>;
-  cardActionSelectorArg?: CardActionSelectorArg; //TODO 要判断
+  cardActionSelectorArg?: CardActionSelectorArgs; //TODO 要判断
   duelEntitiesSelectorArg?: DuelEntitiesSelectorArg; //TODO 要判断
 };
 
@@ -167,8 +167,8 @@ export class DuelViewController {
     const promiseList: Promise<ResponseActionInfo | undefined>[] = [];
 
     promiseList.push(
-      this.modalController
-        .selectAction(this, {
+      this.modalController.actionSelector
+        .show({
           title: message,
           activator: activator,
           dummyActionInfos: validatedActionInfos,
@@ -312,9 +312,9 @@ export class DuelViewController {
 
     // 待機開始を通知
     this.onWaitStartEvent.trigger(args);
-
     // 待機開始
     const userAction: DuelistResponseBase = await promiseSweet.promise;
+    this.modalController.terminateAll();
 
     this.waitMode = "None";
     this.onWaitEndEvent.trigger();
@@ -330,7 +330,7 @@ export class DuelViewController {
   };
 
   public readonly waitSelectText = async (choises: { seq: number; text: string }[], msg: string, cancelable: boolean = false): Promise<number | undefined> => {
-    return this.duel.view.modalController.selectText(this.duel.view, {
+    return this.modalController.textSelector.show({
       title: msg,
       choises: choises,
       cancelable: cancelable,
@@ -438,7 +438,7 @@ export class DuelViewController {
 
     if (chooser.duelistType !== "NPC") {
       const promises = [
-        this.duel.view.modalController.selectAction(this.duel.view, {
+        this.modalController.actionSelector.show({
           title: message,
           activator: chooser,
           dummyActionInfos,
@@ -448,7 +448,7 @@ export class DuelViewController {
       ];
       const act = await Promise.any(promises);
       if (!act && !cancelable) {
-        throw new IllegalCancelError(act);
+        throw new IllegalCancelError(act, promises);
       }
       if (!act) {
         return;

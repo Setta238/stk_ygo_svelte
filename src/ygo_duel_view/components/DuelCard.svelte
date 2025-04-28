@@ -86,8 +86,8 @@
       return;
     }
     const view = entity.field.duel.view;
-    view.modalController
-      .selectAction(view, {
+    view.modalController.actionSelector
+      .show({
         title: "行動を選択。",
         activator,
         dummyActionInfos,

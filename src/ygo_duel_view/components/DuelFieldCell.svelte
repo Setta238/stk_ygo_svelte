@@ -1,16 +1,15 @@
 <script lang="ts">
-  import { SystemError, type DuelistResponse } from "@ygo_duel/class/Duel";
+  import { SystemError } from "@ygo_duel/class/Duel";
 
   import DuelCard, { type TCardState } from "@ygo_duel_view/components/DuelCard.svelte";
   import { DuelEntity } from "@ygo_duel/class/DuelEntity";
   import type { AnimationStartEventArg, DuelistResponseBase, DuelViewController, WaitStartEventArg } from "@ygo_duel_view/class/DuelViewController";
   import {} from "@stk_utils/funcs/StkArrayUtils";
   import { cardCrossFade } from "@ygo_duel_view/components/DuelDesk.svelte";
-  import { type DummyActionInfo, type ICardAction, type ValidatedActionInfo } from "@ygo_duel/class/DuelCardAction";
+  import { type DummyActionInfo } from "@ygo_duel/class/DuelCardAction";
   import { actualCounterEmojiDic, type TActualCounterName } from "@ygo_duel/class/DuelCounter";
   import type { TDuelPhase } from "@ygo_duel/class/DuelPeriod";
   import type { Duelist } from "@ygo_duel/class/Duelist";
-  import type { TBattlePosition } from "@ygo/class/YgoTypes";
   export let view: DuelViewController;
 
   export let row: number;
@@ -122,8 +121,8 @@
         }
 
         const view = cell.field.duel.view;
-        view.modalController
-          .selectAction(view, {
+        view.modalController.actionSelector
+          .show({
             title: "カードを選択。",
             activator,
             dummyActionInfos: cellActionInfos,
@@ -164,9 +163,9 @@
           if (!activator) {
             throw new SystemError("想定されない状態");
           }
-          cell.field.duel.view.modalController.cancelAll();
-          cell.field.duel.view.modalController
-            .selectAction(cell.field.duel.view, {
+          cell.field.duel.view.modalController.terminateAll();
+          cell.field.duel.view.modalController.actionSelector
+            .show({
               title: "選択",
               activator,
               dummyActionInfos: draggingDummyActionInfos.map((info) => {
@@ -200,7 +199,7 @@
     if (view.waitMode !== "SelectFieldAction") {
       return "Disabled";
     }
-    if (Object.values(view.modalController.states).some((stat) => stat === "Shown")) {
+    if (Object.values(view.modalController.modals).some((motal) => motal.state === "Shown")) {
       return "Disabled";
     }
     const actions = dummyActionInfos.filter((info) => entities.includes(info.action.entity));

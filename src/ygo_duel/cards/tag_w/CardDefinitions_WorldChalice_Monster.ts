@@ -79,14 +79,15 @@ export const createCardDefinitions_WorldChalice_Monster = (): CardDefinition[] =
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerTurn: 1,
         canPayCosts: (myInfo) =>
-          myInfo.activator
-            .getMonstersOnField()
-            .some((monster) => monster.canBeSentToGraveyard(myInfo.activator, myInfo.action.entity, ["SendToGraveyardAsCost"], myInfo.action)),
+          [...myInfo.activator.getMonstersOnField(), ...myInfo.activator.getHandCell().cardEntities.filter((card) => card.status.kind === "Monster")].some(
+            (monster) => monster.canBeSentToGraveyard(myInfo.activator, myInfo.action.entity, ["SendToGraveyardAsCost"], myInfo.action)
+          ),
         validate: () => [],
         payCosts: async (myInfo) => {
-          const choices = myInfo.activator
-            .getMonstersOnField()
-            .filter((monster) => monster.canBeSentToGraveyard(myInfo.activator, myInfo.action.entity, ["SendToGraveyardAsCost"], myInfo.action));
+          const choices = [
+            ...myInfo.activator.getMonstersOnField(),
+            ...myInfo.activator.getHandCell().cardEntities.filter((card) => card.status.kind === "Monster"),
+          ].filter((monster) => monster.canBeSentToGraveyard(myInfo.activator, myInfo.action.entity, ["SendToGraveyardAsCost"], myInfo.action));
           const cost = await myInfo.activator.waitSelectEntity(choices, "墓地に送るモンスターを選択。", true);
           if (!cost) {
             return;

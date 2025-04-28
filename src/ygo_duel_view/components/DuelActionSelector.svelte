@@ -132,6 +132,7 @@
     height: fit-content;
     max-width: 90vw;
     overflow-x: auto;
+    width: fit-content;
   }
   .duel_card_wrapper {
     font-size: 0.9rem;

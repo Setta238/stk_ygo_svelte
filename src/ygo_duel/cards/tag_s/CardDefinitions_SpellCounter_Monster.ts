@@ -5,7 +5,7 @@ import {
   defaultNormalSummonAction,
 } from "@ygo_duel/cards/DefaultCardAction_Monster";
 import type { CardDefinition } from "../CardDefinitions";
-import type { ChainBlockInfo, ChainBlockInfoBase } from "@ygo_duel/class/DuelCardAction";
+import type { CardActionDefinition, ChainBlockInfo, ChainBlockInfoBase } from "@ygo_duel/class/DuelCardAction";
 import {
   createRegularNumericStateOperatorHandler,
   createRegularStatusOperatorHandler,
@@ -44,6 +44,51 @@ const createSpellCounterCommonEffect = (kind: TCardKind, maxQty?: number) => {
       ];
     }
   );
+};
+
+const _spellCounterChargeEffectDic: { [qty: number]: CardActionDefinition<unknown> } = {};
+
+const createSpellCounterChargeEffect = (titlePrefix: string, qty: number = 1): CardActionDefinition<unknown> => {
+  if (!_spellCounterChargeEffectDic[qty]) {
+    _spellCounterChargeEffectDic[qty] = {
+      title: `魔力回収(${qty})`,
+      isMandatory: true,
+      playType: "AfterChainBlock",
+      spellSpeed: "Normal",
+      executableCells: ["MonsterZone"],
+      executablePeriods: duelPeriodKeys,
+      executableDuelistTypes: ["Controller"],
+      validate: (myInfo) => {
+        if (!myInfo.targetChainBlock) {
+          return;
+        }
+        if (myInfo.targetChainBlock.action.playType !== "CardActivation") {
+          return;
+        }
+        if (myInfo.targetChainBlock.action.entity.status.kind !== "Spell") {
+          return;
+        }
+        return [];
+      },
+      prepare: defaultPrepare,
+      execute: async (myInfo) => {
+        if (myInfo.action.entity.face === "FaceDown") {
+          return false;
+        }
+        if (!myInfo.action.entity.isOnFieldAsMonsterStrictly) {
+          return false;
+        }
+        if (!myInfo.action.entity.isEffective) {
+          return false;
+        }
+        myInfo.action.entity.counterHolder.add("SpellCounter", qty, myInfo.action.entity);
+        return true;
+      },
+      settle: async () => true,
+    };
+  }
+
+  return { ..._spellCounterChargeEffectDic[qty], title: `${titlePrefix}魔力回収(${qty})` };
 };
 
 export const canPaySpellCounters = <T>(myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, minQty: number) =>
@@ -196,47 +241,7 @@ export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] =
       defaultBattlePotisionChangeAction,
       defaultFlipSummonAction,
       defaultNormalSummonAction,
-      {
-        title: "①魔力充填",
-        isMandatory: true,
-        playType: "AfterChainBlock",
-        spellSpeed: "Normal",
-        executableCells: ["MonsterZone"],
-        executablePeriods: duelPeriodKeys,
-        executableDuelistTypes: ["Controller"],
-        validate: (myInfo) => {
-          console.log(myInfo.action.entity.toString());
-          if (!myInfo.targetChainBlock) {
-            console.log(myInfo.action.entity.toString());
-            return;
-          }
-          if (myInfo.targetChainBlock.action.playType !== "CardActivation") {
-            console.log(myInfo.action.entity.toString());
-            return;
-          }
-          if (myInfo.targetChainBlock.action.entity.status.kind !== "Spell") {
-            console.log(myInfo.action.entity.toString());
-            return;
-          }
-          console.log(myInfo.action.entity.toString());
-          return [];
-        },
-        prepare: defaultPrepare,
-        execute: async (myInfo) => {
-          if (myInfo.action.entity.face === "FaceDown") {
-            return false;
-          }
-          if (!myInfo.action.entity.isOnFieldAsMonsterStrictly) {
-            return false;
-          }
-          if (!myInfo.action.entity.isEffective) {
-            return false;
-          }
-          myInfo.action.entity.counterHolder.add("SpellCounter", 1, myInfo.action.entity);
-          return true;
-        },
-        settle: async () => true,
-      },
+      { ...createSpellCounterChargeEffect("①", 1) },
       {
         title: "②ドロー",
         isMandatory: false,

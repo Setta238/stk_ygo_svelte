@@ -43,6 +43,7 @@
     background-color: white;
     opacity: 0.9;
     max-width: 50%;
+    width: fit-content;
   }
   .text_list {
     padding: 0.2rem;

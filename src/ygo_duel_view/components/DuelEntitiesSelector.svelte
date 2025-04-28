@@ -71,6 +71,7 @@
     opacity: 0.9;
     max-width: 50%;
     padding: 0.5rem;
+    width: fit-content;
   }
   .entities_list {
     display: flex;

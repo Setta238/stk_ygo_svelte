@@ -94,6 +94,8 @@
   }
   .duel_card_wrapper {
     font-size: 0.9rem;
+    height: fit-content;
+    width: fit-content;
   }
   .modal_window.minimum_mode {
     opacity: 0.5;

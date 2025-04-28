@@ -216,6 +216,8 @@
     padding: 0.1rem;
     border: solid 1px #778ca3;
     font-size: 0.7rem;
+    height: fit-content;
+    width: fit-content;
   }
   .duel_card_wide {
     width: 100%;

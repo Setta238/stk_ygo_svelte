@@ -35,7 +35,6 @@
   let selectableEntities: DuelEntity[];
   let targetsInBuildingChain: DuelEntity[] = [];
   const onWaitStart: (args: WaitStartEventArg) => void = (args) => {
-    console.log("hoge");
     animationArgs = [];
     selectedList.reset();
     activator = args.activator;
@@ -68,7 +67,7 @@
     onCellUpdate();
   };
   const onDragEnd = () => {
-    dummyActionInfos = [];
+    draggingDummyActionInfos = [];
     canAcceptDrop = false;
     onCellUpdate();
   };
@@ -131,7 +130,6 @@
             cancelable: true,
           })
           .then((_info) => {
-            console.log(_info);
             if (_info) {
               responseResolve({
                 actionInfo: _info,

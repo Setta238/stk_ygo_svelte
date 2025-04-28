@@ -1,5 +1,5 @@
-import { Duel, SystemError } from "./Duel";
-import { CardAction, type ChainBlockInfo } from "./DuelCardAction";
+import { Duel } from "./Duel";
+import { type ChainBlockInfo } from "./DuelCardAction";
 import { DuelEntity, type TDuelCauseReason, type TDuelEntityFace, type TDuelEntityOrientation, destoryCauseReasonDic } from "./DuelEntity";
 import type { Duelist } from "./Duelist";
 import type { TBanishProcType } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
@@ -315,25 +315,23 @@ export class DuelEntityShortHands {
       // 自分の使用できる身代わり効果を抽出
       const items = substituteEffectItems.filter((item) => item.sacrifice.controller === chooser);
 
-      // 入力待ちのためにdammyAction化
-      const dammyActions = items.map((item) => CardAction.createDammyAction(item.sacrifice, item.effect.title, [], undefined, item.effect));
-
       // 入力待ち
-      const selected = await cards[0].duel.view.waitSubAction(chooser, dammyActions, "身代わり効果を適用する？", true);
+      const substituteEffect = await chooser.duel.view.waitSelectAction(
+        chooser,
+        items.map((item) => {
+          return { entity: item.sacrifice, title: item.effect.title, origin: item.effect };
+        }),
+        "身代わり効果を適用する？",
+        true
+      );
 
       // キャンセルした場合、次のプレイヤーへ
-      if (!selected || !selected.action) {
+      if (!substituteEffect) {
         continue;
       }
 
-      // 選択されたdammyActionから身代わり効果に戻す。
-      const pair = items.filter((pair) => pair.effect.title === selected.action?.title).find((pair) => pair.sacrifice === selected.action?.entity);
-      if (!pair) {
-        throw new SystemError("想定されない状態", selected, dammyActions, _cards);
-      }
-
       // 身代わりを実施し、破壊フラグをリセット。
-      (await pair.effect.substitute(destroyType, _cards, chainBlockInfo)).forEach((survivor) => {
+      (await substituteEffect.substitute(destroyType, _cards, chainBlockInfo)).forEach((survivor) => {
         survivor.resetCauseOfDeath();
       });
 

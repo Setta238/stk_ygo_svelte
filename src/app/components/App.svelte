@@ -14,7 +14,7 @@
   import timestampJson from "@stk_utils/json/timestamp.json";
   import { getKeys } from "@stk_utils/funcs/StkObjectUtils";
   import { fade } from "svelte/transition";
-  import { delay } from "@stk_utils/funcs/StkPromiseUtil";
+  import { userAgentInfo } from "@stk_utils/class/StkUserAgentInfo";
   const idb = new StkIndexedDB<TTblNames>("stk_ygo_svelte", currentVersion, tblNames);
 
   let duel: Duel | undefined;
@@ -173,6 +173,7 @@
   {/if}
   <div class="debug_info">
     <span>build at: {timestampJson.timestamp}</span>
+    <span class="user_agent_info">{userAgentInfo.text}</span>
     <span class="screen_info"></span>
   </div>
   {#if duel && duel.isEnded}
@@ -232,6 +233,9 @@
     cursor: pointer;
   }
   .debug_info {
+    display: flex;
+    flex-direction: column;
+    text-align: right;
     position: absolute;
     right: 1rem;
     bottom: 1rem;

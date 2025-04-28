@@ -307,6 +307,7 @@ export class Duel {
           []
         )
       );
+      console.info("response", response);
 
       // ユーザー入力がカードアクションだった場合、チェーンブロックを作るか作らないかで処理を分ける
       if (response && response.actionInfo) {
@@ -774,7 +775,6 @@ export class Duel {
         isStartPoint,
         false
       );
-
       if (!chainBlockInfo) {
         return "cancel";
       }

@@ -519,24 +519,14 @@ export class Duelist {
       let dest: DuelFieldCell = selectableCells.randomPick();
 
       if (selectableCells.length > 1 || choice.posList.length > 1) {
+        // TODO NPCの場合
         if (this.duelistType !== "NPC") {
-          const msg = selectableCells.length > 1 ? "カードを召喚先へドラッグ。" : "表示形式を選択。";
-          const dummyActionInfos = choice.posList.map((pos) => CardAction.createDammyAction(choice.monster, pos, selectableCells, pos));
-          const p1 = this.duel.view.modalController.selectAction(this.duel.view, {
-            title: msg,
-            activator: this,
-            dummyActionInfos,
-            cancelable: false,
-          });
-          const p2 = this.duel.view.waitSubAction(this, dummyActionInfos, msg, cancelable);
-
-          const action = await Promise.any([p1, p2]);
-
-          if (!action) {
-            throw new SystemError("想定されない状態", choices, monsters, summonArgs);
+          const item = await this.duel.view.waitSelectSummonDestination(choice.summoner, choice.monster, choice.cells, choice.posList, cancelable);
+          if (!item) {
+            return [];
           }
-          dest = action.dest || dest;
-          pos = action.battlePosition || pos;
+          dest = item.dest;
+          pos = item.battlePosition;
         }
       }
       summonArgs.push({ summoner: this, monster: choice.monster, pos, dest });

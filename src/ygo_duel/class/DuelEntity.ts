@@ -391,7 +391,6 @@ export class DuelEntity {
         if (movedAs.includes("Rule")) {
           entity.info.isPending = true;
         }
-        console.log("hoge");
         return {
           entity,
           args: [to, "Monster", face, orientation, "Top", [summonKind, movedAsDic[pos], ...movedAs], movedBy, actionOwner, chooser] as Parameters<
@@ -399,11 +398,7 @@ export class DuelEntity {
           >,
         };
       })
-      .map((item) => {
-        console.log("fuga");
-
-        return item.entity._move(...item.args);
-      });
+      .map((item) => item.entity._move(...item.args));
 
     await Promise.all(promises);
 

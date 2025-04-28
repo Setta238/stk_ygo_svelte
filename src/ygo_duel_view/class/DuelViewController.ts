@@ -11,6 +11,7 @@ import type { TBattlePosition } from "@ygo/class/YgoTypes";
 import { createPromiseSweet } from "@stk_utils/funcs/StkPromiseUtil";
 import type { TCardDetailMode } from "@ygo_duel_view/components/DuelCardDetail.svelte";
 import type { TDuelPhase } from "@ygo_duel/class/DuelPeriod";
+import type { CardActionBase } from "@ygo_duel/class/DuelCardActionBase";
 export type TDuelWaitMode = "None" | "SelectFieldAction" | "SelectAction" | "SelectFieldEntities" | "SelectEntities" | "Animation";
 
 export type ResolvedDummyActionInfo = {
@@ -49,6 +50,7 @@ export type AnimationStartEventArg = {
   count: number;
 };
 export type TDuelDeskInfoBoardState = "Log" | "CellInfo";
+
 export class DuelViewController {
   private onDuelUpdateEvent = new StkEvent<void>();
   public get onDuelUpdate() {
@@ -327,40 +329,6 @@ export class DuelViewController {
     return userAction;
   };
 
-  public readonly waitSelectSummonDest = async (
-    activator: Duelist,
-    entity: DuelEntity,
-    availableCells: DuelFieldCell[],
-    posList: Readonly<TBattlePosition[]>,
-    cancelable: boolean
-  ): Promise<{ dest: DuelFieldCell; battlePosition: TBattlePosition } | undefined> => {
-    const msg = availableCells.length > 1 ? "カードを召喚先へドラッグ。" : "表示形式を選択。";
-    const dammyActions = posList.map((pos) => CardAction.createDammyAction(entity, pos, availableCells, pos));
-    const p1 = this.modalController.selectAction(entity.field.duel.view, {
-      title: msg,
-      activator: activator,
-      dummyActionInfos: dammyActions,
-      cancelable: false,
-    });
-    const p2 = this.waitSubAction(entity.controller, dammyActions, msg, cancelable);
-
-    const action = await Promise.any([p1, p2]);
-
-    if (!action && !cancelable) {
-      throw new SystemError("キャンセル不可のアクションがキャンセルされた。", action);
-    }
-    if (!action) {
-      return;
-    }
-    if (!action.dest) {
-      throw new SystemError("召喚先のセルが指定されなかった。", action);
-    }
-    if (!action.battlePosition) {
-      throw new SystemError("表示形式が指定されなかった。", action);
-    }
-    return { dest: action.dest, battlePosition: action.battlePosition };
-  };
-
   public readonly waitSelectText = async (choises: { seq: number; text: string }[], msg: string, cancelable: boolean = false): Promise<number | undefined> => {
     return this.duel.view.modalController.selectText(this.duel.view, {
       title: msg,
@@ -385,7 +353,56 @@ export class DuelViewController {
     this.onDragEndEvent.trigger();
   };
 
-  public readonly waitDammyActions = async (
+  public readonly waitSelectAction = async <T extends CardActionBase>(
+    chooser: Duelist,
+    items: { entity: DuelEntity; title: string; origin: T }[],
+    message: string,
+    cancelable: boolean
+  ): Promise<T | undefined> => {
+    // 入力待ちのためにdammyAction化
+    const dummyActionInfos = items.map((item) => CardAction.createDummyAction(item.entity, item.title, [], undefined, item.origin));
+    const actionInfo = await this._waitDammyAction(chooser, dummyActionInfos, message, cancelable);
+    if (!actionInfo) {
+      return;
+    }
+    const result = items.find((item) => item.origin.seq === actionInfo.originSeq)?.origin;
+    if (!result) {
+      throw new SystemError("想定されない状態", items, actionInfo);
+    }
+    return result;
+  };
+
+  public readonly waitSelectSummonDestination = async (
+    summoner: Duelist,
+    entity: DuelEntity,
+    availableCells: DuelFieldCell[],
+    posList: Readonly<TBattlePosition[]>,
+    cancelable: boolean
+  ): Promise<{ dest: DuelFieldCell; battlePosition: TBattlePosition } | undefined> => {
+    const message = availableCells.length > 1 ? "カードを召喚先へドラッグ。" : "表示形式を選択。";
+
+    if (!availableCells.length && !posList.length) {
+      if (cancelable) {
+        return;
+      }
+      throw new SystemError("想定されない状態", summoner, entity, availableCells, posList, cancelable);
+    }
+
+    const result = { dest: availableCells.randomPick(), battlePosition: posList[0] };
+
+    const dummyActionInfos = posList.map((pos) => CardAction.createDummyAction(entity, pos, availableCells, pos));
+
+    const act = await this._waitDammyAction(summoner, dummyActionInfos, message, cancelable);
+    if (!act) {
+      return;
+    }
+    result.dest = act.dest ?? result.dest;
+    result.battlePosition = act.battlePosition ?? result.battlePosition;
+
+    return result;
+  };
+
+  public readonly waitSelectDestination = async (
     chooser: Duelist,
     entity: DuelEntity,
     selectableCells: DuelFieldCell[],
@@ -393,26 +410,52 @@ export class DuelViewController {
     actionTitle: string,
     cancelable: boolean = false
   ): Promise<DuelFieldCell | undefined> => {
+    if (!selectableCells.length) {
+      return;
+    }
     let dest: DuelFieldCell = selectableCells.randomPick();
-    if (selectableCells.length > 1) {
-      if (chooser.duelistType !== "NPC") {
-        const dummyActionInfos = [CardAction.createDammyAction(entity, actionTitle, selectableCells, undefined)];
+    const dummyActionInfos = [CardAction.createDummyAction(entity, actionTitle, selectableCells, undefined)];
+    const act = await this._waitDammyAction(chooser, dummyActionInfos, message, cancelable);
+    if (!act) {
+      return;
+    }
+    dest = act.dest ?? dest;
+    return dest;
+  };
+  private readonly _waitDammyAction = async (
+    chooser: Duelist,
+    dummyActionInfos: DummyActionInfo[],
+    message: string,
+    cancelable: boolean = false
+  ): Promise<ResolvedDummyActionInfo | undefined> => {
+    if (!dummyActionInfos.length) {
+      return;
+    }
+
+    const sample = dummyActionInfos.randomPick();
+
+    let result: ResolvedDummyActionInfo = { ...sample, dest: sample.dest ?? sample.dests.randomPick() };
+
+    if (chooser.duelistType !== "NPC") {
+      const promises = [
         this.duel.view.modalController.selectAction(this.duel.view, {
           title: message,
           activator: chooser,
           dummyActionInfos,
           cancelable: false,
-        });
-        const dAct = await this.duel.view.waitSubAction(chooser, dummyActionInfos, message, cancelable);
-        if (!dAct && !cancelable) {
-          throw new IllegalCancelError("", dAct);
-        }
-        if (!dAct) {
-          return;
-        }
-        dest = dAct.dest ?? dest;
+        }),
+        this.duel.view.waitSubAction(chooser, dummyActionInfos, message, cancelable),
+      ];
+      const act = await Promise.any(promises);
+      if (!act && !cancelable) {
+        throw new IllegalCancelError(act);
       }
+      if (!act) {
+        return;
+      }
+      result = act ?? result;
     }
-    return dest;
+
+    return result;
   };
 }

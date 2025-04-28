@@ -105,6 +105,9 @@
   };
 
   const dragStart = (ev: DragEvent) => {
+    if (window.getSelection) {
+      window.getSelection()?.removeAllRanges();
+    }
     console.info("drag start", ev, dummyActionInfos);
     entity.field.duel.view.setDraggingActions(dummyActionInfos);
     isDragging = true;

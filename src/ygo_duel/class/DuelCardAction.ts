@@ -234,7 +234,7 @@ export class CardAction<T> extends CardActionBase implements ICardAction {
    * @param pos
    * @returns
    */
-  public static readonly createDammyAction = (
+  public static readonly createDummyAction = (
     entity: DuelEntity,
     title: string,
     dests: DuelFieldCell[],
@@ -457,7 +457,14 @@ export class CardAction<T> extends CardActionBase implements ICardAction {
         if (availableCells.length > 1) {
           dest = availableCells.randomPick();
           const actionTitle = this.playType === "SpellTrapSet" ? "セット" : "カードの発動";
-          const _dest = await this.duel.view.waitDammyActions(activator, this.entity, availableCells, "カードを移動先へドラッグ", actionTitle, _cancelable);
+          const _dest = await this.duel.view.waitSelectDestination(
+            activator,
+            this.entity,
+            availableCells,
+            "カードを移動先へドラッグ",
+            actionTitle,
+            _cancelable
+          );
           if (!_dest) {
             return;
           }

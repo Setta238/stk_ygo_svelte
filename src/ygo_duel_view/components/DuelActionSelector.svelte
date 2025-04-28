@@ -76,13 +76,15 @@
     background-color: white;
     opacity: 0.9;
     position: absolute;
-    bottom: 0px;
+    bottom: 0;
     pointer-events: initial;
-    height: fit-content;
-    max-width: 90vw;
-    max-height: 40vh;
-    overflow-x: auto;
     width: fit-content;
+    max-width: 90vw;
+    min-width: 10vw;
+    height: fit-content;
+    max-height: 40vh;
+    min-height: 10vh;
+    overflow-x: auto;
   }
   .duel_card_wrapper {
     font-size: 0.9rem;

@@ -34,7 +34,7 @@
 </script>
 
 {#if isShown}
-  <div class={`modal_window ${$isDragging ? "minimum_mode" : ""}`}>
+  <div class="modal_window">
     <div>{args.title}</div>
     <div class="flex">
       {#each args.dummyActionInfos as info}
@@ -62,15 +62,6 @@
   .flex {
     display: flex;
   }
-  .button_style_reset {
-    display: block;
-    border-radius: 0%;
-    padding: 0px;
-    outline: none;
-    font: inherit;
-    color: inherit;
-    background: none;
-  }
   .cancel_button {
     background-color: aliceblue;
     margin: 0.3rem;
@@ -97,8 +88,5 @@
     font-size: 0.9rem;
     height: fit-content;
     width: fit-content;
-  }
-  .modal_window.minimum_mode {
-    opacity: 0.5;
   }
 </style>

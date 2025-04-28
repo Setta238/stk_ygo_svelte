@@ -16,9 +16,9 @@
   modalController?.onUpdate?.append(onModalControllerUpdate);
 </script>
 
-<div role="button" class="base">
+<div class="base">
   {#if modalController.modals.some((modal) => modal.state === "Shown")}
-    <button class="overlay" onclick={close}>☆</button>
+    <div class="overlay" onclick={close}>☆</div>
     {#if modalController.entitySelector.state === "Shown"}
       <DuelEntitiesSelector args={modalController.entitySelector.args} resolve={modalController.entitySelector.resolve} />
     {/if}

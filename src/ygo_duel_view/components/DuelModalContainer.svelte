@@ -18,7 +18,7 @@
 
 <div class="base">
   {#if modalController.modals.some((modal) => modal.state === "Shown")}
-    <div class="overlay" onclick={close}>☆</div>
+    <button class="overlay" onclick={close}>☆</button>
     {#if modalController.entitySelector.state === "Shown"}
       <DuelEntitiesSelector args={modalController.entitySelector.args} resolve={modalController.entitySelector.resolve} />
     {/if}

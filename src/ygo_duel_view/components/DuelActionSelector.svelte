@@ -89,6 +89,7 @@
     pointer-events: initial;
     height: fit-content;
     max-width: 90vw;
+    max-height: 40vh;
     overflow-x: auto;
     width: fit-content;
   }

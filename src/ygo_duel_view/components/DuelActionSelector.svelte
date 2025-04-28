@@ -47,9 +47,9 @@
 </script>
 
 {#if isShown}
-  <div class={`base ${$isDragging ? "minimum_mode" : ""}`}>
+  <div class={`modal_base ${$isDragging ? "minimum_mode" : ""}`}>
     <button class={`overlay ${$isDragging ? "minimum_mode" : ""}`} onclick={close}>★</button>
-    <div class={`window ${$isDragging ? "minimum_mode" : ""}`}>
+    <div class={`modal_window ${$isDragging ? "minimum_mode" : ""}`}>
       <div>{title}</div>
       <div class="flex">
         {#each dummyActionInfos as info}
@@ -96,7 +96,7 @@
     border-radius: 0.4rem;
     outline: 1rem slategrey;
   }
-  .base {
+  .modal_base {
     position: fixed;
     top: 0;
     left: 0;
@@ -122,7 +122,7 @@
   .overlay.minimum_mode {
     display: none;
   }
-  .window {
+  .modal_window {
     display: block;
     background-color: white;
     opacity: 0.9;
@@ -137,7 +137,7 @@
   .duel_card_wrapper {
     font-size: 0.9rem;
   }
-  .window.minimum_mode {
+  .modal_window.minimum_mode {
     opacity: 0.5;
   }
 </style>

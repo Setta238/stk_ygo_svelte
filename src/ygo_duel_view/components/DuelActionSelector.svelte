@@ -36,7 +36,7 @@
 {#if isShown}
   <div class="modal_window">
     <div>{args.title}</div>
-    <div class="flex">
+    <div class="flex" style="display: flex;">
       {#each args.dummyActionInfos as info}
         <div class="duel_card_wrapper">
           <DuelCard

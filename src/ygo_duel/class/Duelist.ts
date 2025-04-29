@@ -324,7 +324,7 @@ export class Duelist {
     }
 
     const psL = left.psR;
-    const psR = left.psL;
+    const psR = right.psL;
 
     if (psL === undefined || psR === undefined) {
       throw new SystemError("想定されない状態", monsters);

@@ -968,8 +968,7 @@ export class Duel {
   ): ValidatedActionInfo[] => {
     const nextChainBlockFilter = chainBlockInfos.slice(-1)[0]?.nextChainBlockFilter ?? (() => true);
 
-    return this.field
-      .getAllCardEntities()
+    return [...this.field.getAllCardEntities(), duelist.entity]
       .flatMap((entity) => entity.actions)
       .filter((action) => action.executableCells.includes(action.entity.fieldCell.cellType))
       .filter((action) => action.executablePeriods.includes(this.clock.period.key))

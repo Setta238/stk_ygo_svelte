@@ -52,8 +52,6 @@ export class StkAsyncEvent<T> {
       })
     );
 
-    console.log(items);
-
     items
       .filter((item) => item.result === "RemoveMe")
       .map((item) => item.h)

@@ -8,25 +8,30 @@
 
 <script lang="ts">
   import DuelFieldCell from "./DuelFieldCell.svelte";
-  import { Duel, type DuelistResponse } from "../../ygo_duel/class/Duel";
+  import { Duel } from "../../ygo_duel/class/Duel";
   import DuelLog from "./DuelLog.svelte";
   import DuelDuelist from "./DuelDuelist.svelte";
   import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
-  import type { WaitStartEventArg } from "@ygo_duel_view/class/DuelViewController";
+  import type { DuelistResponseBase, WaitStartEventArg } from "@ygo_duel_view/class/DuelViewController";
   import {} from "@stk_utils/funcs/StkArrayUtils";
   import ModalContainer from "@ygo_duel_view/components/DuelModalContainer.svelte";
   import DuelCardDetail, { type TCardDetailMode } from "./DuelCardDetail.svelte";
   import DuelFieldCellInfo from "./DuelFieldCellInfo.svelte";
+  import type { DummyActionInfo } from "@ygo_duel/class/DuelCardAction";
 
   export let duel: Duel;
 
   let retryFlg = false;
-  let response: (Action: DuelistResponse) => void = () => {};
+  let response: (response: DuelistResponseBase) => void = () => {};
+  let userActionInfos: DummyActionInfo[] = [];
   let selectedEntitiesValidator: (selectedEntities: DuelEntity[]) => boolean = () => true;
   let selectableEntities: DuelEntity[] = [];
 
   const onWaitStart: (args: WaitStartEventArg) => void = (args) => {
     response = args.resolve;
+    userActionInfos = args.dummyActionInfos
+      .filter((info) => info.action.entity.entityType === "Duelist")
+      .filter((info) => info.action.entity.controller.seat === "Below");
     selectedEntitiesValidator = args.entitiesValidator;
     selectableEntities = args.selectableEntities;
     if (args.duelEntitiesSelectorArg) {
@@ -66,6 +71,9 @@
     if (selectedEntitiesValidator(selectedList)) {
       response({ selectedEntities: selectedList });
     }
+  };
+  const onActionButtonClick = (actionInfo: DummyActionInfo) => {
+    response({ actionInfo });
   };
 
   const onRetryButtonClick = () => {
@@ -117,9 +125,13 @@
       {/if}
     </div>
     <div class="duel_field_footer">
-      {#if selectableEntities && selectableEntities.length > 0}
+      {#if selectableEntities && selectableEntities.length}
         <button on:click={onOkClick} disabled={!selectedEntitiesValidator(selectedList)}>OK</button>
         <!-- <button on:click={onCancelClick}>cancel</button> -->
+      {:else if userActionInfos && userActionInfos.length}
+        {#each userActionInfos as actionInfo}
+          <button on:click={() => onActionButtonClick(actionInfo)}>{actionInfo.action.title}</button>
+        {/each}
       {/if}
     </div>
   </div>

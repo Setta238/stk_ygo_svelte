@@ -21,7 +21,7 @@ const pendulumSummonAction = {
     }
 
     const monsters = [
-      ...myInfo.activator.getExtraDeck().cardEntities,
+      ...myInfo.activator.getHandCell().cardEntities.filter((card) => card.status.kind === "Monster"),
       ...myInfo.activator.getExtraDeck().cardEntities.filter((monster) => monster.face === "FaceUp"),
     ]
       .filter((card) => card.status.kind === "Monster")
@@ -33,6 +33,7 @@ const pendulumSummonAction = {
     }
 
     const cells = [...myInfo.activator.getMonsterZones(), ...myInfo.activator.getEmptyExtraZones()];
+
     const list = myInfo.activator.getEnableSummonList(
       myInfo.activator,
       "PendulumSummon",
@@ -48,7 +49,7 @@ const pendulumSummonAction = {
       [],
       false
     );
-    return list.length > 1 ? [] : undefined;
+    return list.length ? [] : undefined;
   },
   prepare: async (myInfo) => {
     const scales = myInfo.activator.getPendulumScales();
@@ -60,7 +61,7 @@ const pendulumSummonAction = {
     }
 
     const monsters = [
-      ...myInfo.activator.getExtraDeck().cardEntities,
+      ...myInfo.activator.getHandCell().cardEntities.filter((card) => card.status.kind === "Monster"),
       ...myInfo.activator.getExtraDeck().cardEntities.filter((monster) => monster.face === "FaceUp"),
     ]
       .filter((card) => card.status.kind === "Monster")

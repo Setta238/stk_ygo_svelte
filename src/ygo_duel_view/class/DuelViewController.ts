@@ -31,7 +31,7 @@ export type DuelistResponseBase = {
 };
 
 export type WaitStartEventArg = {
-  resolve: (action: DuelistResponseBase) => void;
+  resolve: (response: DuelistResponseBase) => void;
   activator: Duelist;
   dummyActionInfos: DummyActionInfo[];
   qty: number | undefined;

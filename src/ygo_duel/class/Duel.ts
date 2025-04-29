@@ -789,12 +789,14 @@ export class Duel {
       this.clock.incrementProcSeq();
       this.clock.incrementChainBlockSeq();
 
+      // 誘発効果のプールから、今回選んだものと、それによって回数超過するものを除外
+      //   ※星杯の妖精リースを同時に特殊召喚した場合など
+      _triggerEffets = _triggerEffets
+        .filter((e) => e.actionInfo.action.seq !== chainBlock?.action.seq)
+        .filter((e) => e.actionInfo.action.validateCount(e.activator, this.chainBlockInfos));
+
       // ★★★★★ 再帰実行 ★★★★★
-      //   ※
-      await this.procChainBlock(
-        undefined,
-        _triggerEffets.length ? _triggerEffets.filter((e) => e.actionInfo.action.seq !== chainBlock?.action.seq) : undefined
-      );
+      await this.procChainBlock(undefined, _triggerEffets.length ? _triggerEffets : undefined);
 
       if (chainBlockInfo.chainNumber) {
         this.log.info(`チェーン${chainBlockInfo.chainNumber}: ${chainBlockInfo.action.toString()}の効果処理。`, activator);

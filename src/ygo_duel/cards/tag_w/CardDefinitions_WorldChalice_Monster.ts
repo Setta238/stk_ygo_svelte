@@ -33,6 +33,7 @@ export const createCardDefinitions_WorldChalice_Monster = (): CardDefinition[] =
         executableCells: ["MonsterZone"],
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
+        isOnlyNTimesPerTurn: 1,
         validate: (myInfo) => {
           if (!myInfo.action.entity.hasBeenSummonedNow(["NormalSummon", "SpecialSummon"])) {
             return;

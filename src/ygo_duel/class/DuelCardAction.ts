@@ -307,16 +307,16 @@ export class CardAction<T> extends CardActionBase implements ICardAction {
   /**
    * 素材情報に制限を加えて実行するときに使用する。
    */
-  private readonly addhocMateriallimitation: (materialInfos: SummonMaterialInfo[]) => boolean;
+  private readonly addhocMaterialLimitation: (materialInfos: SummonMaterialInfo[]) => boolean;
 
   protected constructor(
     seq: "AutoSeq" | number,
     entity: DuelEntity,
     definition: CardActionDefinitionBase,
-    addhocMateriallimitation?: (materialInfos: SummonMaterialInfo[]) => boolean
+    addhocMaterialLimitation?: (materialInfos: SummonMaterialInfo[]) => boolean
   ) {
     super(seq, entity, definition);
-    this.addhocMateriallimitation = addhocMateriallimitation ?? (() => true);
+    this.addhocMaterialLimitation = addhocMaterialLimitation ?? (() => true);
   }
 
   public readonly getClone = (addhocMateriallimitation?: (materialInfos: SummonMaterialInfo[]) => boolean) => {
@@ -324,7 +324,54 @@ export class CardAction<T> extends CardActionBase implements ICardAction {
   };
 
   public readonly getEnableMaterialPatterns = (myInfo: ChainBlockInfoBase<T>) =>
-    this.definition.getEnableMaterialPatterns?.(myInfo).filter(this.addhocMateriallimitation) ?? [];
+    this.definition.getEnableMaterialPatterns?.(myInfo).filter(this.addhocMaterialLimitation) ?? [];
+
+  public readonly validateCount = (activator: Duelist, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>): boolean => {
+    // このチェーン上で、同一の効果が発動している回数をカウント。
+    const currentChainCount = chainBlockInfos.filter((info) => this.isSameGroup(info.action)).length;
+
+    console.log(this.entity.toString(), chainBlockInfos, currentChainCount);
+
+    if (this.isOnlyNTimesPerDuel > 0) {
+      if (
+        this.entity.field.duel.chainBlockLog.records
+          .filter((rec) => !rec.chainBlockInfo.isNegatedActivationBy)
+          .filter((rec) => this.isSameGroup(rec.chainBlockInfo.action))
+          .filter((rec) => rec.chainBlockInfo.activator === activator).length +
+          currentChainCount >=
+        this.isOnlyNTimesPerDuel
+      ) {
+        return false;
+      }
+    }
+    if (this.isOnlyNTimesPerTurn > 0) {
+      if (
+        this.entity.field.duel.chainBlockLog.records
+          .filter((rec) => !rec.chainBlockInfo.isNegatedActivationBy)
+          .filter((rec) => this.isSameGroup(rec.chainBlockInfo.action))
+          .filter((rec) => rec.clock.turn === this.entity.field.duel.clock.turn)
+          .filter((rec) => rec.chainBlockInfo.activator === activator).length +
+          currentChainCount >=
+        this.isOnlyNTimesPerTurn
+      ) {
+        return false;
+      }
+    }
+    if (this.isOnlyNTimesPerChain > 0 && currentChainCount >= this.isOnlyNTimesPerChain) {
+      return false;
+    }
+
+    // このターンに発動した回数を加算
+    const count = currentChainCount + this.entity.counterHolder.getActionCount(this);
+
+    if (this.isOnlyNTimesPerTurnIfFaceup > 0 && count >= this.isOnlyNTimesPerTurnIfFaceup) {
+      return false;
+    }
+    if (this.isOnlyNTimesIfFaceup > 0 && count >= this.isOnlyNTimesIfFaceup) {
+      return false;
+    }
+    return true;
+  };
 
   public readonly validate = (
     activator: Duelist,
@@ -344,42 +391,10 @@ export class CardAction<T> extends CardActionBase implements ICardAction {
       return;
     }
 
-    if (this.isOnlyNTimesPerDuel > 0) {
-      if (
-        this.entity.field.duel.chainBlockLog.records
-          .filter((rec) => !rec.chainBlockInfo.isNegatedActivationBy)
-          .filter((rec) => this.isSameGroup(rec.chainBlockInfo.action))
-          .filter((rec) => rec.chainBlockInfo.activator === activator).length >= this.isOnlyNTimesPerDuel
-      ) {
-        return;
-      }
-    }
-    if (this.isOnlyNTimesPerTurn > 0) {
-      if (
-        this.entity.field.duel.chainBlockLog.records
-          .filter((rec) => !rec.chainBlockInfo.isNegatedActivationBy)
-          .filter((rec) => this.isSameGroup(rec.chainBlockInfo.action))
-          .filter((rec) => rec.clock.turn === this.entity.field.duel.clock.turn)
-          .filter((rec) => rec.chainBlockInfo.activator === activator).length >= this.isOnlyNTimesPerTurn
-      ) {
-        return;
-      }
-    }
-    // このチェーン上で、同一の効果が発動している回数をカウント。
-    const currentChainCount = chainBlockInfos.filter((info) => info.action.seq === this.seq).length;
-    if (this.isOnlyNTimesPerChain > 0 && currentChainCount >= this.isOnlyNTimesPerChain) {
+    if (!this.validateCount(activator, chainBlockInfos)) {
       return;
     }
 
-    // このターンに発動した回数を加算
-    const count = currentChainCount + this.entity.counterHolder.getActionCount(this);
-
-    if (this.isOnlyNTimesPerTurnIfFaceup > 0 && count >= this.isOnlyNTimesPerTurnIfFaceup) {
-      return;
-    }
-    if (this.isOnlyNTimesIfFaceup > 0 && count >= this.isOnlyNTimesIfFaceup) {
-      return;
-    }
     const maxChainNumber = max(0, ...chainBlockInfos.map((info) => info.chainNumber ?? -1));
 
     const myInfo: ChainBlockInfoBase<T> = {

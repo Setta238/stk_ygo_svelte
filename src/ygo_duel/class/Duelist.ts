@@ -521,7 +521,7 @@ export class Duelist {
       if (selectableCells.length > 1 || choice.posList.length > 1) {
         // TODO NPCの場合
         if (this.duelistType !== "NPC") {
-          const item = await this.duel.view.waitSelectSummonDestination(choice.summoner, choice.monster, choice.cells, choice.posList, cancelable);
+          const item = await this.duel.view.waitSelectSummonDestination(choice.summoner, choice.monster, selectableCells, choice.posList, cancelable);
           if (!item) {
             return [];
           }

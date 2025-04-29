@@ -66,7 +66,7 @@ const defaultNormalSummonValidate = (myInfo: ChainBlockInfoBase<unknown>): DuelF
             myInfo.action,
             [{ monster: myInfo.action.entity, posList: ["Attack", "Set"], cells: myInfo.activator.getMonsterZones() }],
             pattern.map((material) => {
-              return { material };
+              return { material, cell: material.fieldCell };
             }),
             false
           ).length
@@ -126,7 +126,7 @@ const defaultNormalSummonPayCost = async (
 
   // 詰め直し
   const summonMaterialInfos = materials.map((material) => {
-    return { material };
+    return { material, cell: material.fieldCell };
   });
 
   return { summonMaterialInfos };

@@ -43,7 +43,7 @@ const defaultXyzMaterialsValidator = (
   }
 
   const materialInfos = materials.map((material) => {
-    return { material, level: material.status.level };
+    return { material, cell: material.fieldCell, level: material.status.level };
   });
 
   if (

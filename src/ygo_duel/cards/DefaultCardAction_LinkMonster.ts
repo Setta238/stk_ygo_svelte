@@ -21,7 +21,7 @@ export const defaultLinkMaterialsValidator = (
 
   // 素材情報作成
   let materialInfos = materials.map((material) => {
-    return { material, link: 1 };
+    return { material, cell: material.fieldCell, link: 1 };
   });
 
   if (myInfo.action.entity.origin.link > materials.length) {
@@ -36,7 +36,7 @@ export const defaultLinkMaterialsValidator = (
       .filter((material) => (material.origin.link ?? 1) > 1)
       .forEach((monster) => {
         [...patterns].forEach((pattern) => {
-          patterns.push([...pattern.filter((m) => m.material !== monster), { material: monster, link: monster.origin.link ?? 1 }]);
+          patterns.push([...pattern.filter((m) => m.material !== monster), { material: monster, cell: monster.fieldCell, link: monster.origin.link ?? 1 }]);
         });
       });
 

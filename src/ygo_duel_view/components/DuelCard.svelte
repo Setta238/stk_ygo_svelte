@@ -142,7 +142,7 @@
     on:contextmenu={onRightClick}
     title={entity.nm}
   >
-    <div class="duel_card duel_card_visible">
+    <div class="duel_card_body">
       <div class="duel_card_row" style="position:relative">
         <div>{entity.nm}</div>
         <div></div>
@@ -222,7 +222,7 @@
   .duel_card_wide {
     width: 100%;
   }
-  .duel_card_visible {
+  .duel_card_body {
     display: flex;
     flex-direction: column;
     height: 4.3rem;
@@ -232,10 +232,14 @@
     min-width: 5rem;
     max-width: 8rem;
   }
+  .duel_card_wide {
+    width: 100%;
+  }
+
   .duel_card.duel_card_FaceDown.duel_card_is_on_field {
     filter: grayscale(0.5);
   }
-  .duel_card_wide .duel_card_visible {
+  .duel_card_wide .duel_card_body {
     max-width: initial;
   }
 

@@ -86,6 +86,7 @@ export type TEffectTag = (typeof effectTags)[number];
 
 export type SummonMaterialInfo = {
   material: DuelEntity;
+  cell: DuelFieldCell;
   level?: number;
   link?: number;
   isAsTuner?: boolean;

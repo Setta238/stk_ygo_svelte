@@ -18,25 +18,22 @@ export const createCardDefinitions_Wind_Spellcaster_lvl3_Monster = (): CardDefin
       if (!movedAs.includes("SyncroSummon")) {
         return ok;
       }
-      const materials = materialInfos.map((info) => info.material);
-      const me = materials.find((material) => material === filter.isSpawnedBy);
+      const myInfo = materialInfos.find((info) => info.material === filter.isSpawnedBy);
 
-      if (!me) {
+      if (!myInfo) {
         return ok;
       }
-      console.log(me.toString(), materials);
 
-      if (!me.isOnFieldAsMonsterStrictly) {
+      if (!myInfo.cell.isMonsterZoneLikeCell) {
         // TODO 要確認：エキセントリックボーイが手札でシンクロできる可能性。
-        console.log(me.toString(), materials);
         return notAllowed;
       }
 
-      if (materials.length !== 2) {
+      if (materialInfos.length !== 2) {
         return notAllowed;
       }
 
-      return materials.filter((material) => material !== me).every((material) => material.fieldCell.cellType === "Hand") ? ok : notAllowed;
+      return materialInfos.filter((info) => info !== myInfo).every((info) => info.cell.cellType === "Hand") ? ok : notAllowed;
     },
     defaultStatus: { allowHandSyncro: true },
     onUsedAsMaterial: (myInfo, monster) => {

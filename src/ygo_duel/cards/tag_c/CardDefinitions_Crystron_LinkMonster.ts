@@ -125,7 +125,7 @@ export const createCardDefinitions_Crystron_LinkMonster = (): CardDefinition[] =
             syncroTuners.map((monster) => {
               return { monster, cells, posList: faceupBattlePositions };
             }),
-            [{ material: myInfo.action.entity }],
+            [{ material: myInfo.action.entity, cell: myInfo.action.entity.fieldCell }],
             false
           );
           return list.length ? [] : undefined;

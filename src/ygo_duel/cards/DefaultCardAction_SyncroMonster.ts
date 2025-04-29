@@ -43,10 +43,10 @@ const defaultSyncroMaterialsValidator = (
 
   const materialInfos = [
     ...tuners.map((tuner) => {
-      return { material: tuner, isAsTuner: true };
+      return { material: tuner, cell: tuner.fieldCell, isAsTuner: true };
     }),
     ...nonTuners.map((nonTuner) => {
-      return { material: nonTuner, isAsTuner: false };
+      return { material: nonTuner, cell: nonTuner.fieldCell, isAsTuner: false };
     }),
   ];
 

@@ -50,10 +50,11 @@ export type DuelistResponse = {
 
 export class DuelEnd extends Error {
   public readonly winner: Duelist | undefined;
-  public constructor(winner?: Duelist) {
-    const message = winner ? `デュエルが終了した。勝者：${winner.profile.name}` : "デュエルが終了した。ドロー。";
-    super(message);
+  public readonly message: string;
+  public constructor(winner: Duelist | undefined, message: string) {
+    super(winner ? `デュエルが終了した。勝者：${winner.profile.name}` : "デュエルが終了した。ドロー。");
     this.winner = winner;
+    this.message = message;
   }
 }
 export class SystemError extends Error {
@@ -211,6 +212,12 @@ export class Duel {
     this.moveNextPhase("draw");
 
     try {
+      // エクゾディア判定
+      for (const duelist of Object.values(this.duelists)) {
+        for (const afterChainBlockEffect of this.getEnableActions(duelist, ["Exodia"], ["Normal"], [])) {
+          await afterChainBlockEffect.action.directExecute(duelist, undefined, false);
+        }
+      }
       while (!this.isEnded) {
         if (this.clock.period.phase === "draw") {
           await this.procDrawPhase();
@@ -233,10 +240,11 @@ export class Duel {
       }
     } catch (error) {
       if (error instanceof DuelEnd) {
+        this.clock.incrementChainSeq();
         console.info(error);
         this.isEnded = true;
         this.winner = error.winner;
-        this.log.info(error.winner ? `デュエル終了。勝者${error.winner.profile.name}` : "引き分け");
+        this.log.info(error.winner ? `デュエル終了。勝者${error.winner.profile.name}。${error.message}` : `デュエル終了。引き分け。${error.message}`);
         this.onDuelEndEvent.trigger();
       } else if (error instanceof Error) {
         this.log.error(error);
@@ -282,6 +290,10 @@ export class Duel {
       this.log.info("先攻プレイヤーはドローできない。", this.getTurnPlayer());
     } else {
       await this.getTurnPlayer().draw(1, undefined, undefined);
+      // エクゾディア判定
+      for (const afterChainBlockEffect of this.getEnableActions(this.getTurnPlayer(), ["Exodia"], ["Normal"], [])) {
+        await afterChainBlockEffect.action.directExecute(this.getTurnPlayer(), undefined, false);
+      }
     }
     this.field.getCardsOnFieldStrictly().forEach((m) => m.initForTurn());
     // フェイズ強制処理
@@ -524,12 +536,11 @@ export class Duel {
 
     const losers = Object.values(this.duelists).filter((duelist) => duelist.lp <= 0);
 
-    if (losers.length > 0) {
-      throw new DuelEnd(
-        Object.values(this.duelists)
-          .filter((duelist) => !losers.includes(duelist))
-          .pop()
-      );
+    if (losers.length) {
+      if (losers.length === 1) {
+        throw new DuelEnd(losers[0].getOpponentPlayer(), "戦闘ダメージによって、相手のライフポイントをゼロにした。");
+      }
+      throw new DuelEnd(undefined, "戦闘ダメージによって、お互いのライフポイントがゼロになった。");
     }
   };
   private readonly procBattlePhaseDamageStep4 = async () => {
@@ -855,8 +866,16 @@ export class Duel {
 
         if (chainBlockInfo.state === "done") {
           for (const duelist of [this.getTurnPlayer(), this.getNonTurnPlayer()]) {
+            // エクゾディア判定
+            for (const afterChainBlockEffect of this.getEnableActions(duelist, ["Exodia"], ["Normal"], [chainBlockInfo])) {
+              await afterChainBlockEffect.action.directExecute(duelist, chainBlockInfo, false);
+            }
             for (const afterChainBlockEffect of this.getEnableActions(duelist, ["AfterChainBlock"], ["Normal"], [chainBlockInfo])) {
               await afterChainBlockEffect.action.directExecute(duelist, chainBlockInfo, false);
+              // エクゾディア判定
+              for (const afterChainBlockEffect of this.getEnableActions(duelist, ["Exodia"], ["Normal"], [chainBlockInfo])) {
+                await afterChainBlockEffect.action.directExecute(duelist, chainBlockInfo, false);
+              }
             }
           }
         }

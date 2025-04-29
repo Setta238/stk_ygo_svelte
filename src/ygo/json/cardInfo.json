@@ -21147,5 +21147,29 @@
     ],
     "wikiEncodedName": "%A1%D4%A5%B7%A5%E5%A1%BC%A5%C6%A5%A3%A5%F3%A5%B0%A1%A6%A5%E9%A5%A4%A5%B6%A1%BC%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5",
     "nameTags": []
+  },
+  "封印されしエクゾディア": {
+    "name": "封印されしエクゾディア",
+    "nameKana": "",
+    "description": "このカードと「封印されし者の右腕」「封印されし者の左腕」「封印されし者の右足」「封印されし者の左足」が\n手札に全て揃った時、自分はデュエルに勝利する。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "level": 3,
+    "attack": 1000,
+    "defense": 1000,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Spellcaster"
+    ],
+    "wikiEncodedName": "%A1%D4%C9%F5%B0%F5%A4%B5%A4%EC%A4%B7%A5%A8%A5%AF%A5%BE%A5%C7%A5%A3%A5%A2%A1%D5",
+    "nameTags": [
+      "エクゾディア",
+      "封印されし"
+    ]
   }
 }

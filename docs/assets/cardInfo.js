@@ -1345,4 +1345,5 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 フィールドのこのカードより低いレベルを持つモンスター１体をデッキから墓地へ送り、そのモンスターのレベル分だけこのカードのレベルを下げる。
 このターン、自分はそのモンスター及びその同名モンスターのモンスター効果を発動できない。
 (2)：相手メインフェイズに発動できる（同一チェーン上では１度まで）。
-このカードを含む自分フィールドのモンスターを素材としてＳ召喚を行う。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","Tuner","Effect","SpecialSummon"],level:7,attack:2100,defense:1700,attributes:["Light"],types:["Dragon"],wikiEncodedName:"%A1%D4%A5%B7%A5%E5%A1%BC%A5%C6%A5%A3%A5%F3%A5%B0%A1%A6%A5%E9%A5%A4%A5%B6%A1%BC%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5",nameTags:[]}};export{e as j};
+このカードを含む自分フィールドのモンスターを素材としてＳ召喚を行う。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Syncro","Tuner","Effect","SpecialSummon"],level:7,attack:2100,defense:1700,attributes:["Light"],types:["Dragon"],wikiEncodedName:"%A1%D4%A5%B7%A5%E5%A1%BC%A5%C6%A5%A3%A5%F3%A5%B0%A1%A6%A5%E9%A5%A4%A5%B6%A1%BC%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5",nameTags:[]},封印されしエクゾディア:{name:"封印されしエクゾディア",nameKana:"",description:`このカードと「封印されし者の右腕」「封印されし者の左腕」「封印されし者の右足」「封印されし者の左足」が
+手札に全て揃った時、自分はデュエルに勝利する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:3,attack:1e3,defense:1e3,attributes:["Dark"],types:["Spellcaster"],wikiEncodedName:"%A1%D4%C9%F5%B0%F5%A4%B5%A4%EC%A4%B7%A5%A8%A5%AF%A5%BE%A5%C7%A5%A3%A5%A2%A1%D5",nameTags:["エクゾディア","封印されし"]}};export{e as j};

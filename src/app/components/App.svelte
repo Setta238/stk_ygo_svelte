@@ -32,6 +32,7 @@
     selectedDeckId = (
       deckInfos.find((deckInfo) => deckInfo.lastUsedAt.getTime() === Math.max(...deckInfos.map((deckInfo) => deckInfo.lastUsedAt.getTime()))) ?? deckInfos[0]
     ).id;
+
     return deckInfos;
   });
 
@@ -48,7 +49,6 @@
 
   const saveUserProfile = async () => {
     const userProfile = await userProfilePromise;
-
     userProfile.save();
   };
   const reloadDeckInfos = () => {
@@ -73,17 +73,19 @@
     await Promise.all([saveUserProfile(), prepareSampleDeck()]);
     const selectedDeck = await getSelectedDeckInfo();
     const userProfile = await userProfilePromise;
-    selectedDeck.updateTimestamp();
+    await selectedDeck.updateTimestamp();
     const npc = nonPlayerCharacters.find((npc) => npc.id === userProfile.previousNpcId);
     let npcDeck = sampleDecks.slice(-1)[0];
     if (!npc) {
       return;
     }
-    if (npc.id === -1) {
+    if (userProfile.previousNpcDeckId > -1) {
+      npcDeck = (await userDecksPromise).find((info) => info.id === userProfile.previousNpcDeckId) ?? npcDeck;
+    } else if (npc.id === -1) {
       npcDeck = sampleDecks.find((info) => info.id === -1) ?? npcDeck;
     }
 
-    duel = new Duel(userProfile, "Player", await getSelectedDeckInfo(), [], npc, "NPC", npcDeck, [], userProfile.previousStartMode);
+    duel = new Duel(userProfile, "Player", selectedDeck, [], npc, "NPC", npcDeck, [], userProfile.previousStartMode);
     duel.onDuelEnd.append(() => {
       duel = duel;
       return "RemoveMe";
@@ -153,6 +155,15 @@
               {/each}
             </select>
             <div>※{nonPlayerCharacters.find((npc) => npc.id === userProfile.previousNpcId)?.description}</div>
+          </div>
+          <div>
+            <label for="npc_deck_selector" class="deck_selector">対戦相手のデッキ：</label>
+            <select id="npc_deck_selector" class="deck_selector" bind:value={userProfile.previousNpcDeckId}>
+              <option value={Number.MIN_SAFE_INTEGER}>デフォルト</option>
+              {#each userDecks as userDeck}
+                <option value={userDeck.id}>{userDeck.name}</option>
+              {/each}
+            </select>
           </div>
           <div>
             <label for="npc_selector" class="npc_selector">先攻後攻：</label>

@@ -21,7 +21,14 @@ export const cardActionDeclareTypes = ["Surrender", "ChangePhase"] as const;
 export type CardActionDeclareTypes = (typeof cardActionDeclareTypes)[number];
 export const cardActionNonChainBlockTypes = ["ChangeBattlePosition", "Battle", "SpellTrapSet", "LingeringEffect"] as const;
 export type TCardActionNonChainBlockType = (typeof cardActionNonChainBlockTypes)[number];
-export type TCardActionType = TCardActionCreateChainTypes | TCardActionNonChainBlockType | "Dammy" | "RuleDraw" | "SystemPeriodAction" | "AfterChainBlock";
+export type TCardActionType =
+  | TCardActionCreateChainTypes
+  | TCardActionNonChainBlockType
+  | "Dammy"
+  | "RuleDraw"
+  | "SystemPeriodAction"
+  | "AfterChainBlock"
+  | "Exodia";
 
 export const effectActiovationTypes = ["CardActivation", "EffectActivation", "NonActivate"] as const;
 export type TEffectActiovationType = (typeof effectActiovationTypes)[number];
@@ -590,8 +597,10 @@ export class CardAction<T> extends CardActionBase implements ICardAction {
     if (!myInfo) {
       throw new SystemError("想定されない状態", this, activator, ignoreCost);
     }
+    console.log(this.entity.toString());
     const flg = await this.execute(myInfo, []);
-    this.settle(myInfo, []);
+    console.log(this.entity.toString());
+    await this.settle(myInfo, []);
     return flg;
   };
 

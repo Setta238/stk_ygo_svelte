@@ -980,6 +980,17 @@ export class DuelEntity {
   ): Promise<void> => {
     return DuelEntity.summonMany([{ monster: this, dest: to, summoner: chooser ?? actionOwner, pos }], summonKind, movedAs, movedBy, actionOwner);
   };
+  public readonly moveForcibly = async (
+    to: DuelFieldCell,
+    face: TDuelEntityFace,
+    orientation: TDuelEntityOrientation,
+    pos: TDuelEntityMovePos,
+    movedAs: TDuelCauseReason[],
+    movedBy: DuelEntity,
+    actionOwner: Duelist
+  ): Promise<void> => {
+    await this.moveAlone(to, this.origin.kind, face, orientation, pos, ["Rule", ...movedAs], movedBy, actionOwner, actionOwner);
+  };
 
   private readonly moveAlone = async (
     to: DuelFieldCell,

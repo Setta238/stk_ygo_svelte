@@ -5,6 +5,7 @@ import { duelStartModes, type TDuelStartMode } from "@ygo_duel/class/Duel";
 import { min } from "@stk_utils/funcs/StkMathUtils";
 export type DuelistHeaderRecord = IStkDataRecord & {
   previousNpcId: number;
+  previousNpcDeckId: number;
   previousStartMode: TDuelStartMode;
 };
 export interface IDuelistHeaderRecord {
@@ -12,6 +13,7 @@ export interface IDuelistHeaderRecord {
   name: string;
   description: string;
   previousNpcId: number;
+  previousNpcDeckId: number;
   previousStartMode: TDuelStartMode;
 }
 export interface IDuelistProfile {
@@ -31,6 +33,7 @@ export class DuelistProfile implements IDuelistProfile {
     const headers = await DuelistProfile.tblHeader.getAll();
 
     if (headers.length) {
+      console.log(headers[0].previousNpcDeckId);
       return new DuelistProfile(headers[0]);
     }
 
@@ -38,6 +41,7 @@ export class DuelistProfile implements IDuelistProfile {
       name: "あなた",
       description: "ここの文字列を何に使うかは未定。",
       previousNpcId: 0,
+      previousNpcDeckId: Number.MIN_SAFE_INTEGER,
       previousStartMode: "Random",
     });
 
@@ -48,6 +52,7 @@ export class DuelistProfile implements IDuelistProfile {
   public readonly name: string;
   public readonly description: string;
   public readonly previousNpcId: number;
+  public readonly previousNpcDeckId: number;
   public readonly previousStartMode: TDuelStartMode;
   public get npcLvl() {
     return Number.MAX_VALUE;
@@ -58,17 +63,21 @@ export class DuelistProfile implements IDuelistProfile {
     this.description = header.description;
     this.previousNpcId = nonPlayerCharacters.find((npc) => npc.id === header.previousNpcId)?.id ?? min(...nonPlayerCharacters.map((npc) => npc.id));
     this.previousStartMode = duelStartModes.includes(header.previousStartMode) ? header.previousStartMode : "Random";
+    this.previousNpcDeckId = header.previousNpcDeckId;
   }
 
   public save = async (newInfo?: IDuelistHeaderRecord): Promise<DuelistProfile> => {
+    console.log(this.previousNpcDeckId, Number.MIN_SAFE_INTEGER);
     const _newInfo = newInfo ?? {
       id: this.id,
       name: this.name,
       description: this.description,
       previousNpcId: this.previousNpcId,
       previousStartMode: this.previousStartMode,
+      previousNpcDeckId: this.previousNpcDeckId > -1 ? this.previousNpcDeckId : Number.MIN_SAFE_INTEGER,
     };
 
+    console.log(this.previousNpcDeckId, Number.MIN_SAFE_INTEGER, _newInfo);
     //ヘッダ情報更新
     const newRecord = await DuelistProfile.tblHeader.update(this.id, (info) => {
       return {
@@ -76,6 +85,7 @@ export class DuelistProfile implements IDuelistProfile {
         ..._newInfo,
       };
     });
+    console.log(this.previousNpcDeckId, Number.MIN_SAFE_INTEGER, _newInfo, newRecord);
 
     return new DuelistProfile(newRecord);
   };

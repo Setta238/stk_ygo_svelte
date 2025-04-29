@@ -40,6 +40,7 @@ import { createCardDefinitions_Wind_Spellcaster_lvl3_Monster } from "./type_Spel
 import { createCardDefinitions_Yusei_SyncroTunerMonster } from "./character_yusei/CardDefinitions_Yusei_SyncroTunerMonster";
 import { createCardDefinitions_Junk_Monster } from "./tag_j/CardDefinitions_Junk_Monster";
 import { createCardDefinitions_Igknight_Monster } from "./tag_i/CardDefinitions_Igknight_Monster";
+import { createCardDefinitions_Exodia_Monster } from "./tag_e/CardDefinitions_Exodia_Monster";
 
 export type CardDefinition = {
   name: string;
@@ -101,6 +102,7 @@ export const createCardDefinitions = (): CardDefinition[] => {
     ...createCardDefinitions_Yusei_SyncroTunerMonster(),
     ...createCardDefinitions_Junk_Monster(),
     ...createCardDefinitions_Igknight_Monster(),
+    ...createCardDefinitions_Exodia_Monster(),
   ];
   const names = hoge.map((def) => def.name);
   console.info(names);

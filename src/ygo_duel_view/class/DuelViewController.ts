@@ -319,7 +319,7 @@ export class DuelViewController {
     this.waitMode = "None";
     this.onWaitEndEvent.trigger();
     if (userAction.surrender) {
-      throw new DuelEnd(this.duel.duelists.Above);
+      throw new DuelEnd(activator.getOpponentPlayer(), `${activator.profile.name}がサレンダーした。`);
     }
     if (!cancelable && userAction.cancel) {
       throw new SystemError("キャンセル不可のアクションがキャンセルされた。", userAction, dummyActionInfos, waitMode, selectableEntities);

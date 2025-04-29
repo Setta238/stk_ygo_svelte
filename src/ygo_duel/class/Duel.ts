@@ -406,7 +406,7 @@ export class Duel {
             .map((monster) => [monster.seq, monster.moveLog.latestRecord.movedAt.totalProcSeq]) as [monSeq: number, procSec: number][];
 
           //フリーチェーン処理へ
-          this.procFreeChain();
+          await this.procFreeChain();
 
           if (!this.attackingMonster) {
             throw new SystemError("想定されない状態");
@@ -470,7 +470,7 @@ export class Duel {
     this.clock.setStage(this, "start");
     //ダメージステップ開始時 ※「ダメージ計算を行わずに」などと記載されたものなど
     //TODO エフェクト処理
-    this.procFreeChain();
+    await this.procFreeChain();
   };
   private readonly procBattlePhaseDamageStep2 = async (attacker: DuelEntity, defender: DuelEntity) => {
     this.clock.setStage(this, "beforeDmgCalc");
@@ -479,7 +479,7 @@ export class Duel {
       defender.setBattlePosition("Defense", ["Flip", "FlipByBattle"], attacker, attacker.controller);
     }
     //TODO 「ライトロード・モンク エイリン」「ドリルロイド」等、
-    this.procFreeChain();
+    await this.procFreeChain();
   };
   private readonly procBattlePhaseDamageStep3 = async (chainBlockInfo: ChainBlockInfo<unknown>, attacker: DuelEntity, defender: DuelEntity) => {
     if (attacker.atk === undefined) {
@@ -492,7 +492,7 @@ export class Duel {
 
     //ダメージ計算時②各種効果の発動 ※《プライドの咆哮》など
     // TODO １つ目のチェーンのみ、「ダメージ計算時」を条件とする効果を発動できる
-    this.procFreeChain();
+    await this.procFreeChain();
 
     //ダメージ計算時③ダメージ計算 ～ ④ダメージ数値確定 ～ ⑤戦闘ダメージの発生
     const atkPoint = attacker.atk;
@@ -536,7 +536,7 @@ export class Duel {
     this.clock.setStage(this, "afterDmgCalc");
     //ダメージ計算後
     // ダメージ発生、戦闘発生をトリガーとする効果、またはダメージ計算後を直接指定する効果
-    this.procFreeChain();
+    await this.procFreeChain();
   };
   private readonly procBattlePhaseDamageStep5 = async () => {
     this.clock.setStage(this, "end");
@@ -549,7 +549,7 @@ export class Duel {
 
     //ダメージステップ終了時
     // 戦闘破壊されて墓地に送られた場合の効果
-    this.procFreeChain();
+    await this.procFreeChain();
   };
   private readonly procBattlePhaseEndStep = async () => {
     this.clock.setStep(this, "end");

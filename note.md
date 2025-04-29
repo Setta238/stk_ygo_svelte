@@ -100,3 +100,10 @@
 
   - 効果処理後にバトルフェイズを発生させ、戦闘後にまた元に戻るという極めて異質なカード
   - きみはジョジョのラスボスかなにか？
+
+### メモ
+
+- iPhoneデバック用のURLとコマンド
+
+  - chrome://inspect/#devices
+  - remotedebug_ios_webkit_adapter --port=9000

@@ -477,7 +477,7 @@ export class Duelist {
       .map((item) =>
         materialInfos
           .map((info) => info.material.summonFilterBundle)
-          .reduce((wip, bundle) => bundle.filter(effectOwner, summonType, movedAs, actDefAttr, item, materialInfos, ignoreSummoningConditions), item)
+          .reduce((wip, bundle) => bundle.filter(effectOwner, summonType, movedAs, actDefAttr, wip, materialInfos, ignoreSummoningConditions), item)
       )
       .filter((item) => item.cells.length && item.posList.length);
   };

@@ -862,8 +862,6 @@ export class Duel {
         }
       }
 
-      this.clock.incrementChainBlockSeq();
-
       if (isStartPoint) {
         // このチェーンでカードの発動を行った、永続類ではない魔法罠を全て墓地送りにする。
         await DuelEntityShortHands.sendManyToGraveyardForTheSameReason(
@@ -888,9 +886,13 @@ export class Duel {
         }
         // チェーン番号を加算。
         this.clock.incrementChainSeq();
-      } else if (chainBlockInfo.nextActionInfo) {
-        // ※ 緊急同調など、直後にチェーンに乗らない特殊召喚を行う場合
-        await chainBlockInfo.nextActionInfo.action.directExecute(chainBlockInfo.activator, undefined, false);
+      } else {
+        if (chainBlockInfo.nextActionInfo) {
+          // ※ 緊急同調など、直後にチェーンに乗らない特殊召喚を行う場合
+          await chainBlockInfo.nextActionInfo.action.directExecute(chainBlockInfo.activator, undefined, false);
+        }
+        // チェーンブロック番号を加算。
+        this.clock.incrementChainBlockSeq();
       }
     }
 

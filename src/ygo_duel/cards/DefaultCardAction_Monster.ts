@@ -414,7 +414,6 @@ export const defaultSummonFilter = (
 } => {
   const ok = { posList, cells };
   const notAllowed = { posList: [], cells: [] };
-  console.log(filterTarget.toString(), movedAs);
   // 素材は判定しない
   if (filterTarget !== monster) {
     return ok;
@@ -435,7 +434,6 @@ export const defaultSummonFilter = (
     if (movedAs.includes("NormalSummon") || movedAs.includes("AdvanceSummon")) {
       return ok;
     }
-    console.log(filterTarget.toString());
     return notAllowed;
   }
 

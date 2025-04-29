@@ -40,7 +40,7 @@ export const createCardDefinitions_Earth_Cyberse_lvl1_Monster = (): CardDefiniti
           }
           return myInfo.activator.getAvailableMonsterZones().length > 0 ? [] : undefined;
         },
-        prepare: async (myInfo) => {
+        prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromGraveyard"], prepared: undefined };
         },
         execute: (myInfo) => defaultSelfRebornExecute(myInfo),
@@ -63,7 +63,7 @@ export const createCardDefinitions_Earth_Cyberse_lvl1_Monster = (): CardDefiniti
           }
           return myInfo.activator.getAvailableMonsterZones().length > 0 ? [] : undefined;
         },
-        prepare: async (myInfo) => {
+        prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromBanished"], prepared: undefined };
         },
         execute: (myInfo) => defaultSelfRebornExecute(myInfo),

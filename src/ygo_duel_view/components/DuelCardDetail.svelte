@@ -28,7 +28,6 @@
     mode = mode === "Normal" ? "Debug" : "Normal";
     return true;
   };
-  const encoding = "EUC-JP"; // 文字コード
 </script>
 
 {#if entity}
@@ -131,7 +130,7 @@
             <div>"lastMoveLogRecord" :{"{"}</div>
             <div>"movedBy":"{entity.moveLog.latestRecord.movedBy?.toString()}",</div>
             <div>"movedAs":"{entity.moveLog.latestRecord.movedAs.join(" ")}",</div>
-            <div>"movedAt":"{entity.moveLog.latestRecord.movedAt}",</div>
+            <div>"movedAt":"{entity.moveLog.latestRecord.movedAt.totalProcSeq}",</div>
             <div>{"},"}</div>
           </div>
         </div>

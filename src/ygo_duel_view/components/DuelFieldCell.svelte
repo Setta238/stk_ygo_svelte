@@ -212,7 +212,6 @@
     if (actions[0].action.entity !== entities[0]) {
       return "Clickable";
     }
-    console.log(actions);
 
     return actions.some((info) => info.dests.length) ? "Draggable" : "Clickable";
   };

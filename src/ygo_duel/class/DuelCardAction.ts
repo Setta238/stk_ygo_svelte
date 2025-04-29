@@ -331,8 +331,6 @@ export class CardAction<T> extends CardActionBase implements ICardAction {
     // このチェーン上で、同一の効果が発動している回数をカウント。
     const currentChainCount = chainBlockInfos.filter((info) => this.isSameGroup(info.action)).length;
 
-    console.log(this.entity.toString(), chainBlockInfos, currentChainCount);
-
     if (this.isOnlyNTimesPerDuel > 0) {
       if (
         this.entity.field.duel.chainBlockLog.records
@@ -514,7 +512,7 @@ export class CardAction<T> extends CardActionBase implements ICardAction {
         _cancelable = false;
       }
     } else if (chainNumber !== undefined) {
-      logText += `${this.entity.toString()}の効果、${this.toString()}を発動。`;
+      logText += `${this.toString()}を発動。`;
 
       activator.writeInfoLog(logText);
     }

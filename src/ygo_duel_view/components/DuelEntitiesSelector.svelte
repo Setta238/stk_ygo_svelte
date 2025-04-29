@@ -20,7 +20,6 @@
   let isShown = true;
   let targetsInPreviousChainBlocks = args.chainBlockInfos.flatMap((info) => info.selectedEntities).getDistinct();
   const _resolve = () => {
-    console.log(selectedList);
     resolve(selectedList);
   };
 </script>

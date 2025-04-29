@@ -102,6 +102,7 @@
     }
   };
   const onReturnToTopClick = () => {
+    userDecksPromise = reloadDeckInfos();
     duel = undefined;
     mode = "None";
   };

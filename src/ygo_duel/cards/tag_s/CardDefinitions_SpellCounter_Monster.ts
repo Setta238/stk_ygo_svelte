@@ -68,6 +68,21 @@ const createSpellCounterChargeEffect = (titlePrefix: string, qty: number = 1): C
         if (myInfo.targetChainBlock.action.entity.status.kind !== "Spell") {
           return;
         }
+        if (!myInfo.action.entity.isEffective) {
+          return;
+        }
+        if (myInfo.action.entity.face === "FaceDown") {
+          return;
+        }
+        const maxQty = myInfo.action.entity.status.maxCounterQty.SpellCounter ?? 0;
+        const qty = myInfo.action.entity.counterHolder.getQty("SpellCounter");
+        if (qty >= maxQty) {
+          return;
+        }
+
+        if (myInfo.action.entity.hadArrivedToFieldAt().totalProcSeq > myInfo.targetChainBlock.isActivatedAt.totalProcSeq) {
+          return;
+        }
         return [];
       },
       prepare: defaultPrepare,

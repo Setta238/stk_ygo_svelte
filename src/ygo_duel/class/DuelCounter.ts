@@ -30,13 +30,20 @@ export const actualCounterEmojiDic: { [key in TActualCounterName]: string } = {
 export class CounterHolder {
   private readonly dic: { [name: string]: DuelEntity[] };
   private readonly temporaryCounterNames: string[];
-  constructor() {
+  private readonly entity: DuelEntity;
+  constructor(entity: DuelEntity) {
     this.dic = {};
     this.temporaryCounterNames = [];
+    this.entity = entity;
   }
 
   public readonly add = (name: TCounterName, qty: number = 1, by: DuelEntity) => {
     this.dic[name] = [...(this.dic[name] ?? []), ...Array(qty).fill(by)];
+    const maxQty = this.entity.status.maxCounterQty[name] ?? 0;
+    if (maxQty) {
+      this.dic[name] = this.dic[name].slice(0, maxQty);
+    }
+
     return this.dic[name];
   };
   public readonly setQty = (name: TCounterName, qty: number = 1, by: DuelEntity) => {

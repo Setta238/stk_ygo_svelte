@@ -783,7 +783,7 @@ export class DuelEntity {
     cardDefinition: CardDefinition | undefined
   ) {
     this.seq = DuelEntity.nextEntitySeq++;
-    this.counterHolder = new CounterHolder();
+    this.counterHolder = new CounterHolder(this);
     this.cardDefinition = cardDefinition;
     this.owner = owner;
     this.fieldCell = fieldCell;
@@ -1288,6 +1288,7 @@ declare module "./DuelEntity" {
     getIndexInCell(): number;
     getXyzMaterials(): DuelEntity[];
     wasMovedAfter(clock: IDuelClock): boolean;
+    hadArrivedToFieldAt(): IDuelClock;
     release(movedAs: TDuelCauseReason[], movedBy: DuelEntity | undefined, movedByWhom: Duelist | undefined): Promise<DuelFieldCell | undefined>;
     ruleDestory(): Promise<DuelFieldCell | undefined>;
     sendToGraveyard(movedAs: TDuelCauseReason[], movedBy: DuelEntity | undefined, activator: Duelist | undefined): Promise<void>;
@@ -1452,6 +1453,27 @@ DuelEntity.prototype.getXyzMaterials = function (): DuelEntity[] {
 };
 DuelEntity.prototype.wasMovedAfter = function (clock: IDuelClock): boolean {
   return this.moveLog.latestRecord.movedAt.totalProcSeq > clock.totalProcSeq;
+};
+DuelEntity.prototype.hadArrivedToFieldAt = function (): IDuelClock {
+  let result = this.moveLog.latestRecord.movedAt;
+  this.moveLog.records.findLast((record) => {
+    if (!record.cell.isPlayFieldCell) {
+      return true;
+    }
+    if (record.isPending) {
+      return true;
+    }
+    if (record.kind !== this.status.kind) {
+      return true;
+    }
+    if (record.face === "FaceDown") {
+      return true;
+    }
+
+    result = record.movedAt;
+    return false;
+  });
+  return result;
 };
 
 DuelEntity.prototype.release = async function (

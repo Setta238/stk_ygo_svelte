@@ -509,7 +509,7 @@ export class CardAction<T> extends CardActionBase implements ICardAction {
           await this.entity.setAsSpellTrap(dest, this.entity.status.kind, ["SpellTrapSet"], this.entity, activator);
         }
         _cancelable = false;
-      } else if (this.entity.isOnFieldAsSpellTrapStrictly && this.entity.face === "FaceDown") {
+      } else if (this.entity.isOnField && this.entity.face === "FaceDown") {
         logText += `セットされていた${this.entity.toString()}を発動。`;
 
         activator.writeInfoLog(logText);
@@ -597,9 +597,7 @@ export class CardAction<T> extends CardActionBase implements ICardAction {
     if (!myInfo) {
       throw new SystemError("想定されない状態", this, activator, ignoreCost);
     }
-    console.log(this.entity.toString());
     const flg = await this.execute(myInfo, []);
-    console.log(this.entity.toString());
     await this.settle(myInfo, []);
     return flg;
   };

@@ -29,7 +29,7 @@ import {
 import { type Duelist } from "./Duelist";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
-import { cardDefinitionDic, cardInfoDic } from "@ygo/class/CardInfo";
+import { cardDefinitionDic } from "@ygo/class/CardInfo";
 import {
   CardAction,
   type CardActionDefinition,
@@ -209,24 +209,21 @@ export class DuelEntity {
       }
     );
   };
-  public static readonly createCardEntity = (owner: Duelist, cardInfo: CardInfoJson): DuelEntity => {
+  public static readonly createCardEntity = (owner: Duelist, cardInfo: CardInfoJson): DuelEntity | undefined => {
     // cardはデッキまたはEXデッキに生成
     const fieldCell = cardInfo.monsterCategories && cardInfo.monsterCategories.union(exMonsterCategories).length ? owner.getExtraDeck() : owner.getDeckCell();
 
-    const newCard = new DuelEntity(
-      owner,
-      fieldCell,
-      "Card",
-      getSubsetAsEntityStatusBase(cardInfo),
-      "FaceDown",
-      "Vertical",
-      cardDefinitionDic.get(cardInfo.name)
-    );
-    if (!Object.hasOwn(cardInfoDic, newCard.origin.name)) {
-      owner.duel.log.info(`未実装カード${cardInfo.name}がデッキに投入された。`, owner);
-    }
+    const statusBase = getSubsetAsEntityStatusBase(cardInfo);
+    const definition = cardDefinitionDic.get(cardInfo.name);
 
-    return newCard;
+    if (
+      (statusBase.kind === "Monster" && statusBase.monsterCategories?.includes("Normal") && !statusBase.monsterCategories?.includes("Pendulum")) ||
+      definition
+    ) {
+      return new DuelEntity(owner, fieldCell, "Card", getSubsetAsEntityStatusBase(cardInfo), "FaceDown", "Vertical", definition);
+    }
+    console.info(`${cardInfo.name}のカード効果が未定義のため、デッキに投入されなかった。`);
+    return;
   };
 
   /**
@@ -1454,6 +1451,7 @@ DuelEntity.prototype.getXyzMaterials = function (): DuelEntity[] {
 DuelEntity.prototype.wasMovedAfter = function (clock: IDuelClock): boolean {
   return this.moveLog.latestRecord.movedAt.totalProcSeq > clock.totalProcSeq;
 };
+
 DuelEntity.prototype.hadArrivedToFieldAt = function (): IDuelClock {
   let result = this.moveLog.latestRecord.movedAt;
   this.moveLog.records.findLast((record) => {

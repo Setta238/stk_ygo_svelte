@@ -224,6 +224,7 @@ export class DuelClock implements IDuelClock {
     duelClockSubKeys
       .toReversed()
       .filter((key) => (this._currentStartPoints[key] = this.totalProcSeq))
+      .filter((key) => key !== "procSeq")
       .forEach((key) => this.onClockChangeEvents[key].trigger(this));
   };
   public readonly toString = () => {

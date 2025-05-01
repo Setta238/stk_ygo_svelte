@@ -60,7 +60,7 @@ Duelist.prototype.waitSelectEntities = function (
   message: string,
   cancelable: boolean = false
 ): Promise<DuelEntity[] | undefined> {
-  return this.duel.view.waitSelectEntities(this, choices, qty, validator, message, cancelable);
+  return this.duel.view.waitSelectEntities(this, { choices, qty, validator, cancelable }, message);
 };
 
 Duelist.prototype.waitSelectEntity = async function (choices: DuelEntity[], message: string, cancelable: boolean = false): Promise<DuelEntity | undefined> {

@@ -41,8 +41,7 @@ export const defaultPayBanishCosts = async <T>(
     .filter((card) => myInfo.activator.canTryBanish(card, "BanishAsCost", myInfo.action))
     .filter((card) => card.canBeBanished("BanishAsCost", myInfo.activator, myInfo.action.entity, myInfo.action));
 
-  const cost =
-    (await myInfo.activator.duel.view.waitSelectEntities(myInfo.activator, choises, qty, validator, "コストとして除外するカードを選択", false)) ?? [];
+  const cost = (await myInfo.activator.waitSelectEntities(choises, qty, validator, "コストとして除外するカードを選択", false)) ?? [];
   await DuelEntityShortHands.banishManyForTheSameReason(cost, ["Cost"], myInfo.action.entity, myInfo.activator);
   return { banish: cost };
 };
@@ -50,7 +49,8 @@ export const defaultTargetMonstersRebornPrepare = async <T>(
   myInfo: ChainBlockInfoBase<T>,
   monsters: DuelEntity[],
   posList: Readonly<TBattlePosition[]> = faceupBattlePositions,
-  validator: (selected: DuelEntity[]) => boolean = (selected) => selected.length === 1
+  validator: (selected: DuelEntity[]) => boolean = (selected) => selected.length === 1,
+  qty: number = 1
 ) => {
   const cells = myInfo.activator.getMonsterZones();
   const list = myInfo.activator.getEnableSummonList(
@@ -69,10 +69,9 @@ export const defaultTargetMonstersRebornPrepare = async <T>(
   );
 
   const targets =
-    (await myInfo.action.entity.field.duel.view.waitSelectEntities(
-      myInfo.activator,
+    (await myInfo.activator.waitSelectEntities(
       list.map((item) => item.monster),
-      1,
+      qty,
       validator,
       "特殊召喚するモンスターを選択",
       false

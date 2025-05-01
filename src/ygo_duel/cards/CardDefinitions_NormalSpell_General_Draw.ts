@@ -79,8 +79,7 @@ export const createCardDefinitions_NormalSpell_General_Draw = (): CardDefinition
           return defaultSpellTrapValidate(myInfo);
         },
         prepare: async (myInfo) => {
-          const targets = await myInfo.action.entity.field.duel.view.waitSelectEntities(
-            myInfo.activator,
+          const targets = await myInfo.activator.waitSelectEntities(
             myInfo.activator
               .getGraveyard()
               .cardEntities.filter((card) => card.status.kind === "Monster")

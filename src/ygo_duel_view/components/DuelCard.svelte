@@ -24,9 +24,12 @@
   let duelistResponseResolve: (res: DuelistResponseBase) => void = () => {};
   export let qty: number | undefined = undefined;
   const onWaitStart: (args: WaitStartEventArg) => void = (args) => {
+    if (!args.entitiesChoices) {
+      return;
+    }
     activator = args.activator;
     isSelected = false;
-    qty = args.qty;
+    qty = args.entitiesChoices.qty;
     duelistResponseResolve = args.resolve;
   };
   entity.field.duel.view.onWaitStart.append(onWaitStart);

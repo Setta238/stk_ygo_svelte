@@ -104,8 +104,7 @@ const defaultXyzSummonPayCost = async (
 
   if (patterns.length > 1) {
     const choices = patterns.flatMap((p) => p.map((info) => info.material)).getDistinct();
-    const _materials = await myInfo.action.entity.duel.view.waitSelectEntities(
-      myInfo.activator,
+    const _materials = await myInfo.activator.waitSelectEntities(
       choices,
       undefined,
       (selected) => {

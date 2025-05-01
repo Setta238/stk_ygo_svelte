@@ -3,17 +3,16 @@
 
   export type DuelEntitiesSelectorArg = {
     title: string;
-    entities: DuelEntity[];
-    validator: (entities: DuelEntity[]) => boolean;
-    qty: number;
-    cancelable: boolean;
+    entitiesChoices: ChoicesSweet<DuelEntity>;
     chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>;
+    cancelable: boolean;
   };
 </script>
 
 <script lang="ts">
   import { cardEntitySorter, type DuelEntity } from "../../ygo_duel/class/DuelEntity";
   import DuelCard from "@ygo_duel_view/components/DuelCard.svelte";
+  import type { ChoicesSweet } from "@ygo_duel/class/DuelUtilTypes";
   let { args, resolve }: { args: DuelEntitiesSelectorArg; resolve: (selected: DuelEntity[] | undefined) => void } = $props();
   let selectedList = $state([] as DuelEntity[]);
 
@@ -27,16 +26,16 @@
 {#if isShown}
   <div class="modal_window">
     <div>{args.title}</div>
-    {#each args.entities.map((e) => e.controller.seat).getDistinct() as seat}
+    {#each args.entitiesChoices.choices.map((e) => e.controller.seat).getDistinct() as seat}
       <div class="entities_list {seat}">
-        {#each args.entities.filter((e) => e.controller.seat === seat).toSorted(cardEntitySorter) as entity}
+        {#each args.entitiesChoices.choices.filter((e) => e.controller.seat === seat).toSorted(cardEntitySorter) as entity}
           <div class="entities_list_item {targetsInPreviousChainBlocks.includes(entity) ? `effect_target` : ``}">
             <DuelCard
               {entity}
               isVisibleForcibly={true}
               state="Selectable"
               entitySelectResolve={(selected: DuelEntity[]) => resolve(selected)}
-              qty={args.qty}
+              qty={args.entitiesChoices.qty}
               cardActionResolve={undefined}
               bind:selectedList
             />
@@ -46,8 +45,8 @@
     {/each}
 
     <div>
-      <button disabled={!args.validator(selectedList)} onclick={_resolve}>OK</button>
-      {#if args.cancelable}
+      <button disabled={!args.entitiesChoices.validator(selectedList)} onclick={_resolve}>OK</button>
+      {#if args.entitiesChoices.cancelable}
         <button onclick={() => resolve(undefined)}>Cancel</button>
       {/if}
     </div>

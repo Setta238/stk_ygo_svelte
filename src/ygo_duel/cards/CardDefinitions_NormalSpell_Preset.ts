@@ -32,20 +32,14 @@ const getDefaultSearchSpellAction = (filter: (card: DuelEntity) => boolean): Car
     },
     execute: async (myInfo) => {
       const monsters = myInfo.activator.getDeckCell().cardEntities.filter(filter);
-      if (monsters.length === 0) {
+      if (!monsters.length) {
         return false;
       }
-      const target = await myInfo.action.entity.field.duel.view.waitSelectEntities(
-        myInfo.activator,
-        monsters,
-        1,
-        (list) => list.length === 1,
-        "手札に加えるカードを選択",
-        false
-      );
-      for (const monster of target ?? []) {
-        await monster.addToHand(["Effect"], myInfo.action.entity, myInfo.activator);
+      const target = await myInfo.activator.waitSelectEntity(monsters, "手札に加えるカードを選択", false);
+      if (!target) {
+        return false;
       }
+      await target.addToHand(["Effect"], myInfo.action.entity, myInfo.activator);
 
       myInfo.activator.getDeckCell().shuffle();
       return true;
@@ -80,14 +74,7 @@ const getDefaultSalvageSpellAction = (filter: (card: DuelEntity) => boolean, qty
       if (monsters.length === 0) {
         return false;
       }
-      const target = await myInfo.action.entity.field.duel.view.waitSelectEntities(
-        myInfo.activator,
-        monsters,
-        qty,
-        (list) => list.length === qty,
-        "手札に加えるカードを選択",
-        false
-      );
+      const target = await myInfo.activator.waitSelectEntities(monsters, qty, (list) => list.length === qty, "手札に加えるカードを選択", false);
       for (const monster of target ?? []) {
         await monster.addToHand(["Effect"], myInfo.action.entity, myInfo.activator);
       }

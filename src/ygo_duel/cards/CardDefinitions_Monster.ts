@@ -149,20 +149,14 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
         executableDuelistTypes: ["Controller"],
         canPayCosts: (myInfo) => myInfo.activator.getHandCell().cardEntities.length > 0,
         validate: (myInfo) => (myInfo.activator.getAvailableMonsterZones().length > 0 ? [] : undefined),
-        payCosts: async (myInfo) => {
+        payCosts: async (myInfo, chainBlockInfos, cancelable) => {
           const hands = myInfo.activator.getHandCell().cardEntities;
-          const cost = await myInfo.activator.duel.view.waitSelectEntities(
-            myInfo.activator,
-            hands,
-            1,
-            (list) => list.length === 1,
-            "デッキトップに戻すカードを一枚選択。"
-          );
+          const cost = await myInfo.activator.waitSelectEntity(hands, "デッキトップに戻すカードを一枚選択。", cancelable);
           if (!cost) {
             throw new IllegalCancelError(myInfo);
           }
-          await cost[0].returnToDeck("Top", ["Cost"], myInfo.action.entity, myInfo.activator);
-          return { returnToDeck: cost };
+          await cost.returnToDeck("Top", ["Cost"], myInfo.action.entity, myInfo.activator);
+          return { returnToDeck: [cost] };
         },
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromGraveyard"], prepared: undefined };

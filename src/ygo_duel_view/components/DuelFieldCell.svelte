@@ -10,6 +10,7 @@
   import { actualCounterEmojiDic, type TActualCounterName } from "@ygo_duel/class/DuelCounter";
   import type { TDuelPhase } from "@ygo_duel/class/DuelPeriod";
   import type { Duelist } from "@ygo_duel/class/Duelist";
+  import type { ChoicesSweet } from "@ygo_duel/class/DuelUtilTypes";
   export let view: DuelViewController;
 
   export let row: number;
@@ -30,8 +31,7 @@
   let activator: Duelist | undefined = undefined;
   let dummyActionInfos: DummyActionInfo[] = [];
   let responseResolve: (action: DuelistResponseBase) => void = () => {};
-  let selectedEntitiesValidator: (selectedEntities: DuelEntity[]) => boolean = () => true;
-  let selectableEntities: DuelEntity[];
+  let entitiesChoices: ChoicesSweet<DuelEntity> | undefined;
   let targetsInBuildingChain: DuelEntity[] = [];
   const onWaitStart: (args: WaitStartEventArg) => void = (args) => {
     animationArgs = [];
@@ -40,8 +40,7 @@
     responseResolve = args.resolve;
     dummyActionInfos = args.dummyActionInfos;
     targetsInBuildingChain = args.chainBlockInfos.flatMap((info) => info.selectedEntities).getDistinct();
-    selectableEntities = args.selectableEntities;
-    selectedEntitiesValidator = args.entitiesValidator;
+    entitiesChoices = args.entitiesChoices;
   };
   view.onWaitStart.append(onWaitStart);
 
@@ -49,8 +48,7 @@
     activator = undefined;
     dummyActionInfos = [];
     responseResolve = () => {};
-    selectedEntitiesValidator = () => true;
-    selectableEntities = [];
+    entitiesChoices = undefined;
     targetsInBuildingChain = [];
   };
 
@@ -189,14 +187,14 @@
       return "Disabled";
     }
 
-    if (selectableEntities && selectableEntities.find((e1) => entities.find((e2) => e1 === e2))) {
+    if (entitiesChoices && entitiesChoices.choices.find((e1) => entities.find((e2) => e1 === e2))) {
       return "Selectable";
     }
 
     if (!dummyActionInfos || dummyActionInfos.length === 0) {
       return "Disabled";
     }
-    if (view.waitMode !== "SelectFieldAction") {
+    if (view.waitMode !== "Free") {
       return "Disabled";
     }
     if (Object.values(view.modalController.modals).some((motal) => motal.state === "Shown")) {
@@ -241,7 +239,7 @@
             <div>{cell.field.duel.duelists.Below.lp}</div>
           </div>
         {:else if cell.column === 5}
-          {#if view.waitMode === "SelectFieldAction"}
+          {#if view.waitMode === "Free"}
             {#if !view.duel.isEnded}
               {#each view.duel.nextPhaseList as phase}
                 <div><button class="phase_button" onclick={() => onPhaseButtonClick(phase)}>{phase.toUpperCase()}</button></div>

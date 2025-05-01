@@ -82,18 +82,11 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
         },
         prepare: async (myInfo, chainBlockInfos, cancelable) => {
           const monsters = myInfo.action.entity.field.getMonstersOnFieldStrictly().filter((monster) => monster.canBeTargetOfEffect(myInfo));
-          const selected = await myInfo.action.entity.duel.view.waitSelectEntities(
-            myInfo.activator,
-            monsters,
-            1,
-            (selected) => selected.length === 1,
-            "対象とするモンスターを選択",
-            cancelable
-          );
+          const selected = await myInfo.activator.waitSelectEntity(monsters, "対象とするモンスターを選択", cancelable);
           if (!selected) {
             return;
           }
-          return { selectedEntities: selected, chainBlockTags: [], prepared: undefined };
+          return { selectedEntities: [selected], chainBlockTags: [], prepared: undefined };
         },
         execute: async (myInfo) => {
           const target = myInfo.selectedEntities[0];
@@ -147,19 +140,12 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
         },
         prepare: async (myInfo, chainBlockInfos, cancelable) => {
           const monsters = myInfo.action.entity.field.getMonstersOnFieldStrictly().filter((monster) => monster.canBeTargetOfEffect(myInfo));
-          const selected = await myInfo.action.entity.duel.view.waitSelectEntities(
-            myInfo.activator,
-            monsters,
-            1,
-            (selected) => selected.length === 1,
-            "対象とするモンスターを選択",
-            cancelable
-          );
+          const selected = await myInfo.activator.waitSelectEntity(monsters, "対象とするモンスターを選択", cancelable);
           if (!selected) {
             return;
           }
 
-          return { selectedEntities: selected, chainBlockTags: [], prepared: undefined };
+          return { selectedEntities: [selected], chainBlockTags: [], prepared: undefined };
         },
         execute: async (myInfo) => {
           const target = myInfo.selectedEntities[0];

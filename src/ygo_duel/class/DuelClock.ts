@@ -219,13 +219,13 @@ export class DuelClock implements IDuelClock {
       needsToSetStartPoint = this[key] === 0;
     });
 
-    // procSeqのイベントは毎回トリガする。
-    this.onClockChangeEvents["procSeq"].trigger(this);
     duelClockSubKeys
       .toReversed()
       .filter((key) => (this._currentStartPoints[key] = this.totalProcSeq))
       .filter((key) => key !== "procSeq")
       .forEach((key) => this.onClockChangeEvents[key].trigger(this));
+    // procSeqのイベントは毎回トリガする。
+    this.onClockChangeEvents["procSeq"].trigger(this);
   };
   public readonly toString = () => {
     return `${this.totalProcSeq}(t${this.turn}-phs${this.phaseSeq}-stp${this.stepSeq}-stg${this.stepSeq}-c${this.chainSeq}-cb${this.chainBlockSeq}-prc${this.procSeq})`;

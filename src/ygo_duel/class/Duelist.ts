@@ -394,7 +394,11 @@ export class Duelist {
       selectedList = choices.randomPickMany(qty);
     } else {
       selectedList =
-        (await this.duel.view.waitSelectEntities(chooser || this, choices, qty, (list) => list.length === qty, `${qty}枚カードを捨てる。`, false)) || [];
+        (await this.duel.view.waitSelectEntities(
+          chooser || this,
+          { choices, qty, validator: (list) => list.length === qty, cancelable: false },
+          `${qty}枚カードを捨てる。`
+        )) || [];
     }
     this.writeInfoLog(`手札からカードを${selectedList.length}枚捨てた。${selectedList.map((e) => e.origin?.name)}。`);
 
@@ -504,7 +508,7 @@ export class Duelist {
     let monsters = choices.map((item) => item.monster);
 
     if (summonChoices.length !== 1 || validator([])) {
-      const hoge = await this.duel.view.waitSelectEntities(this, monsters, qty, validator, msg, cancelable);
+      const hoge = await this.duel.view.waitSelectEntities(this, { choices: monsters, qty, validator, cancelable }, msg);
 
       monsters = hoge ?? [];
     }

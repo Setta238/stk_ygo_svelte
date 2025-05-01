@@ -76,20 +76,13 @@ export const createCardDefinitions_Blackwing_Monster = (): CardDefinition[] => {
               .getMonstersOnField()
               .filter((enemy) => enemy.face === "FaceUp")
               .filter((enemy) => enemy.canBeTargetOfEffect(myInfo));
-            const _targets = await myInfo.action.entity.duel.view.waitSelectEntities(
-              myInfo.activator,
-              enemies,
-              1,
-              (selected) => selected.length === 1,
-              "効果対象を選択。",
-              cancelable
-            );
+            const _target = await myInfo.activator.waitSelectEntity(enemies, "効果対象を選択。", cancelable);
 
-            if (!_targets || !_targets.length) {
+            if (!_target) {
               return;
             }
 
-            target = _targets[0];
+            target = _target;
           }
 
           return { selectedEntities: [target], chainBlockTags: [], prepared: undefined };

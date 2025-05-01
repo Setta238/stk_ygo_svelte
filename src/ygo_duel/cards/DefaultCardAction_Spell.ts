@@ -100,21 +100,14 @@ export const defaultEquipSpellTrapPrepare = async <T>(
     .filter((monster) => monster.face === "FaceUp")
     .filter((monster) => monster.canBeTargetOfEffect(myInfo))
     .filter((monster) => validateEquipOwner(monster, myInfo.action.entity));
-  const targets = await myInfo.action.entity.duel.view.waitSelectEntities(
-    myInfo.activator,
-    monsters,
-    1,
-    (seleceted) => seleceted.length === 1,
-    "装備対象モンスターを選択",
-    cancelable
-  );
-  if (!targets) {
+  const target = await myInfo.activator.waitSelectEntity(monsters, "装備対象モンスターを選択", cancelable);
+  if (!target) {
     return undefined;
   }
 
-  myInfo.action.entity.info.equipedBy = targets[0];
-  myInfo.action.entity.info.effectTargets[myInfo.action.seq] = targets;
-  return { chainBlockTags: chainBlockTags ?? [], selectedEntities: targets, prepared };
+  myInfo.action.entity.info.equipedBy = target;
+  myInfo.action.entity.info.effectTargets[myInfo.action.seq] = [target];
+  return { chainBlockTags: chainBlockTags ?? [], selectedEntities: [target], prepared };
 };
 
 export const defaultEquipSpellTrapExecute = async <T>(

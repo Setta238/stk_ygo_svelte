@@ -228,7 +228,11 @@ export class DuelField {
     if (qty > 0 && choices.length < qty) {
       return;
     }
-    const targets: DuelEntity[] | undefined = await this.duel.view.waitSelectEntities(chooser, choices, qty, validator, msg, cancelable);
+    const targets: DuelEntity[] | undefined = await this.duel.view.waitSelectEntities(
+      chooser,
+      { choices, qty, validator, cancelable: cancelable ?? false },
+      msg
+    );
 
     if (!targets) {
       return;

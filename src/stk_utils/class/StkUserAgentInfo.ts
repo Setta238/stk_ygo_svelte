@@ -41,6 +41,7 @@ export const userAgentInfo = {
   userAgent,
   osName,
   browserName,
-  mobileTerminalTypeName: terminalTypeName,
+  terminalTypeName,
+  canDragElement: terminalTypeName === "PC",
   text: `${terminalTypeName} ${osName} ${browserName}`,
 };

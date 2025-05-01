@@ -106,8 +106,7 @@ const defaultNormalSummonPayCost = async (
   }
 
   const materials =
-    (await myInfo.activator.duel.view.waitSelectEntities(
-      myInfo.activator,
+    (await myInfo.activator.waitSelectEntities(
       myInfo.activator.getReleasableMonsters(),
       qty,
       (selected) =>
@@ -115,7 +114,7 @@ const defaultNormalSummonPayCost = async (
         (qty < 0 || selected.length === qty) &&
         (availableCells.length > 0 || selected.some((matetial) => matetial.fieldCell.cellType === "ExtraMonsterZone")),
       "リリースするモンスターを選択",
-      cancelable
+      cancelable ?? false
     )) ?? [];
 
   //リリースしなければキャンセル。
@@ -276,20 +275,13 @@ const defaultDeclareAttackPrepare = async (myInfo: ChainBlockInfoBase<unknown>):
     return { selectedEntities: [target], chainBlockTags: [], prepared: undefined };
   }
 
-  const targets = await myInfo.action.entity.field.duel.view.waitSelectEntities(
-    myInfo.activator,
-    choices,
-    1,
-    (list) => list.length === 1,
-    "攻撃対象を選択。",
-    true
-  );
+  const target = await myInfo.activator.waitSelectEntity(choices, "攻撃対象を選択。", true);
 
-  if (!targets) {
+  if (!target) {
     return;
   }
 
-  return { selectedEntities: targets, chainBlockTags: [], prepared: undefined };
+  return { selectedEntities: [target], chainBlockTags: [], prepared: undefined };
 };
 const defaultDeclareAttackExecute = async (myInfo: ChainBlockInfo<unknown>): Promise<boolean> => {
   myInfo.action.entity.field.duel.declareAnAttack(myInfo.action.entity, myInfo.selectedEntities[0]);
@@ -616,14 +608,7 @@ export const getDefaultAccelSyncroACtion = <T>(options: Partial<CardActionDefini
       }
 
       const selected =
-        (await myInfo.activator.duel.view.waitSelectEntities(
-          myInfo.activator,
-          syncroMonsters,
-          1,
-          (selected) => selected.length === 1,
-          "シンクロ召喚するモンスターを選択。",
-          false
-        )) ?? [];
+        (await myInfo.activator.waitSelectEntities(syncroMonsters, 1, (selected) => selected.length === 1, "シンクロ召喚するモンスターを選択。", false)) ?? [];
 
       if (!selected.length) {
         throw new SystemError("想定されない状態", myInfo);

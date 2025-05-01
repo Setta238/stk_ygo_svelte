@@ -46,18 +46,11 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           if (monsters.length === 0) {
             return false;
           }
-          const target = await myInfo.action.entity.field.duel.view.waitSelectEntities(
-            myInfo.activator,
-            monsters,
-            1,
-            (list) => list.length === 1,
-            "墓地に送るモンスターを選択",
-            false
-          );
+          const target = await myInfo.activator.waitSelectEntity(monsters, "墓地に送るモンスターを選択", false);
           if (!target) {
             throw new IllegalCancelError(myInfo);
           }
-          await DuelEntityShortHands.sendManyToGraveyardForTheSameReason(target, ["Effect"], myInfo.action.entity, myInfo.activator);
+          await target.sendToGraveyard(["Effect"], myInfo.action.entity, myInfo.activator);
           await myInfo.activator.getDeckCell().shuffle();
           return true;
         },
@@ -97,19 +90,11 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           if (monsters.length === 0) {
             return false;
           }
-          const target = await myInfo.action.entity.field.duel.view.waitSelectEntities(
-            myInfo.activator,
-            monsters,
-            1,
-            (list) => list.length === 1,
-            "墓地に送る魔法罠を選択",
-            false
-          );
+          const target = await myInfo.activator.waitSelectEntity(monsters, "墓地に送る魔法罠を選択", false);
           if (!target) {
             throw new IllegalCancelError(myInfo);
           }
-          await DuelEntityShortHands.sendManyToGraveyardForTheSameReason(target, ["Effect"], myInfo.action.entity, myInfo.activator);
-          await myInfo.activator.getDeckCell().shuffle();
+          await target.sendToGraveyard(["Effect"], myInfo.action.entity, myInfo.activator);
           return true;
         },
         settle: async () => true,
@@ -333,18 +318,11 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           if (monsters.length === 0) {
             return false;
           }
-          const target = await myInfo.action.entity.field.duel.view.waitSelectEntities(
-            myInfo.activator,
-            monsters,
-            1,
-            (list) => list.length === 1,
-            "手札に加えるモンスターを選択",
-            false
-          );
-          for (const monster of target ?? []) {
-            await monster.addToHand(["Effect"], myInfo.action.entity, myInfo.activator);
+          const target = await myInfo.activator.waitSelectEntity(monsters, "手札に加えるモンスターを選択", false);
+          if (!target) {
+            throw new IllegalCancelError(myInfo);
           }
-          myInfo.activator.getDeckCell().shuffle();
+          await target.addToHand(["Effect"], myInfo.action.entity, myInfo.activator);
 
           return true;
         },
@@ -395,19 +373,17 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           if (monsters.length === 0) {
             return false;
           }
-          const target = await myInfo.action.entity.field.duel.view.waitSelectEntities(
-            myInfo.activator,
-            monsters,
-            1,
-            (list) => list.length === 1,
-            "手札に加えるモンスターを選択",
-            false
-          );
-          for (const monster of target ?? []) {
-            await monster.addToHand(["Effect"], myInfo.action.entity, myInfo.activator);
+          const target = await myInfo.activator.waitSelectEntity(monsters, "手札に加えるモンスターを選択", false);
+          if (!target) {
+            throw new IllegalCancelError(myInfo);
           }
-          myInfo.activator.duel.clock.incrementProcSeq();
+
+          await target.addToHand(["Effect"], myInfo.action.entity, myInfo.activator);
+
           myInfo.activator.getDeckCell().shuffle();
+
+          // この墓地送りはタイミングのがさせる要因になる。
+          myInfo.activator.duel.clock.incrementProcSeq();
 
           await myInfo.activator.getDeckCell().cardEntities[0].sendToGraveyard(["Effect"], myInfo.action.entity, myInfo.activator);
 
@@ -499,22 +475,14 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
             choices = choices.filter((monster) => !list.map((item) => item.monster).includes(monster));
           }
 
-          const costs =
-            (await myInfo.activator.duel.view.waitSelectEntities(
-              myInfo.activator,
-              choices,
-              1,
-              (selected) => selected.length === 1,
-              "墓地へ送るモンスターを選択",
-              cancelable
-            )) ?? [];
-          if (!costs.length) {
-            return;
+          const cost = await myInfo.activator.waitSelectEntity(choices, "墓地へ送るモンスターを選択", cancelable);
+          if (!cost) {
+            throw new IllegalCancelError(myInfo);
           }
 
-          await DuelEntityShortHands.sendManyToGraveyardForTheSameReason(costs, ["Cost"], myInfo.action.entity, myInfo.activator);
+          await cost.sendToGraveyard(["Cost"], myInfo.action.entity, myInfo.activator);
 
-          return { sendToGraveyard: costs };
+          return { sendToGraveyard: [cost] };
         },
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromDeck"], prepared: undefined };
@@ -573,20 +541,13 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         },
         execute: async (myInfo) => {
           const cards = myInfo.activator.getDeckCell().cardEntities.filter((card) => myInfo.activator.canTryBanish(card, "BanishAsEffect", myInfo.action));
-          const selectedList = await myInfo.action.entity.field.duel.view.waitSelectEntities(
-            myInfo.activator,
-            cards,
-            1,
-            (list) => list.length === 1,
-            "除外するカードを選択。",
-            false
-          );
+          const selected = await myInfo.activator.waitSelectEntity(cards, "除外するカードを選択。", false);
 
-          if (!selectedList) {
-            throw new Error("illegal state");
+          if (!selected) {
+            throw new IllegalCancelError(myInfo);
           }
 
-          const salvageables = await DuelEntityShortHands.tryBanish("BanishAsEffect", selectedList, myInfo);
+          const salvageables = await DuelEntityShortHands.tryBanish("BanishAsEffect", [selected], myInfo);
 
           //回収可能な場合、一旦既存の封印の黄金櫃カウンターを全て取り除く
           salvageables.forEach((card) => card.counterHolder.removeAll("GoldSarcophagus"));
@@ -652,19 +613,12 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           let card = cards[0];
 
           if (cards.length > 1) {
-            const selectedList = await myInfo.action.entity.field.duel.view.waitSelectEntities(
-              myInfo.activator,
-              cards,
-              1,
-              (list) => list.length === 1,
-              "回収するカードを選択。",
-              false
-            );
-            if (!selectedList || !selectedList.length) {
-              throw new SystemError("想定されない状態", myInfo, selectedList);
+            const selected = await myInfo.activator.waitSelectEntity(cards, "回収するカードを選択。", false);
+            if (!selected) {
+              throw new IllegalCancelError(myInfo);
             }
 
-            card = selectedList[0];
+            card = selected;
           }
 
           await card.addToHand(["Effect"], myInfo.action.entity, myInfo.activator);

@@ -13,7 +13,6 @@ import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardDefinition } from "@ygo_duel/cards/CardDefinitions";
 import { damageStepPeriodKeys, duelPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import {
-  defaultEffectSpecialSummonExecute,
   defaultPrepare,
   defaultCanPaySelfBanishCosts,
   defaultPaySelfBanishCosts,
@@ -156,18 +155,11 @@ export const createCardDefinitions_Stardust_Monster = (): CardDefinition[] => {
           if (!targets.length) {
             return;
           }
-          const selected = await myInfo.action.entity.duel.view.waitSelectEntities(
-            myInfo.activator,
-            targets,
-            1,
-            (selected) => selected.length === 1,
-            "対象とするカードを選択",
-            cancelable
-          );
+          const selected = await myInfo.activator.waitSelectEntity(targets, "対象とするカードを選択", cancelable);
           if (!selected) {
             return;
           }
-          return { selectedEntities: selected, chainBlockTags: [], prepared: undefined };
+          return { selectedEntities: [selected], chainBlockTags: [], prepared: undefined };
         },
         execute: async (myInfo) => {
           myInfo.selectedEntities
@@ -355,17 +347,9 @@ export const createCardDefinitions_Stardust_Monster = (): CardDefinition[] => {
           const info = myInfo.targetChainBlock;
           info.isNegatedEffectBy = myInfo.action;
 
-          const selected =
-            (await myInfo.activator.duel.view.waitSelectEntities(
-              myInfo.activator,
-              myInfo.action.duel.field.getCardsOnFieldStrictly(),
-              1,
-              (selected) => selected.length === 1,
-              "破壊するカードを選択。",
-              false
-            )) ?? [];
+          const selected = await myInfo.activator.waitSelectEntity(myInfo.action.duel.field.getCardsOnFieldStrictly(), "破壊するカードを選択。", false);
 
-          const destroyed = await DuelEntityShortHands.tryDestroy(selected, myInfo);
+          const destroyed = await DuelEntityShortHands.tryDestroy(selected ? [selected] : [], myInfo);
 
           return destroyed.length > 0;
         },
@@ -394,25 +378,17 @@ export const createCardDefinitions_Stardust_Monster = (): CardDefinition[] => {
           return availableCells.length > 0 ? [] : undefined;
         },
         payCosts: defaultPaySelfBanishCosts,
-        prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromGraveyard"], prepared: undefined };
-        },
-        execute: async (myInfo) => {
-          const selected =
-            (await myInfo.activator.duel.view.waitSelectEntities(
-              myInfo.activator,
-              myInfo.activator
-                .getBanished()
-                .cardEntities.filter((card) => card.status.nameTags?.includes("スターダスト"))
-                .filter((card) => (card.lvl ?? 12) < 9),
-              1,
-              (selected) => selected.length === 1,
-              "蘇生するモンスターを選択。",
-              false
-            )) ?? [];
-
-          return defaultEffectSpecialSummonExecute(myInfo, selected);
-        },
+        prepare: (myInfo) =>
+          defaultTargetMonstersRebornPrepare(
+            myInfo,
+            myInfo.activator
+              .getBanished()
+              .cardEntities.filter((card) => card.status.nameTags?.includes("スターダスト"))
+              .filter((card) => (card.lvl ?? 12) < 9),
+            faceupBattlePositions,
+            (selected) => selected.length === 1
+          ),
+        execute: (myInfo) => defaultTargetMonstersRebornExecute(myInfo, faceupBattlePositions),
         settle: async () => true,
       },
     ],

@@ -190,20 +190,13 @@ export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] =
               .getCells(...spellTrapZoneCellTypes)
               .flatMap((cell) => cell.cardEntities)
               .filter((card) => card.canBeTargetOfEffect(myInfo));
-            const _targets = await myInfo.action.entity.duel.view.waitSelectEntities(
-              myInfo.activator,
-              spells,
-              1,
-              (selected) => selected.length === 1,
-              "破壊する対象を選択。",
-              cancelable
-            );
+            const _target = await myInfo.activator.waitSelectEntity(spells, "破壊する対象を選択。", cancelable);
 
-            if (!_targets || !_targets.length) {
+            if (!_target) {
               return;
             }
 
-            target = _targets[0];
+            target = _target;
           }
 
           return { selectedEntities: [target], chainBlockTags: myInfo.action.calcChainBlockTagsForDestroy([target]), prepared: undefined };

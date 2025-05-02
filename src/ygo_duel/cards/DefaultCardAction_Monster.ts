@@ -18,6 +18,8 @@ import type { SubstituteEffectDefinition } from "@ygo_duel/class/DuelSubstituteE
 import type { SummonFilter } from "@ygo_duel/class_continuous_effect/DuelSummonFilter";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { defaultPrepare } from "./DefaultCardAction";
+import { createRegularStatusOperatorHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
+import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 
 const defaultNormalSummonValidate = (myInfo: ChainBlockInfoBase<unknown>): DuelFieldCell[] | undefined => {
   // 召喚権を使い切っていたら通常召喚不可。
@@ -640,3 +642,25 @@ export const getDefaultAccelSyncroACtion = <T>(options: Partial<CardActionDefini
     ...options,
   };
 };
+
+export const defaultDirectAtackEffect = createRegularStatusOperatorHandler(
+  "直接攻撃",
+  "Monster",
+  (source) => [source],
+  () => true,
+  (source) => {
+    return [
+      new StatusOperator(
+        "直接攻撃",
+        () => true,
+        true,
+        source,
+        {},
+        (operator, target) => operator.isSpawnedBy === target,
+        (ope, wip) => {
+          return { ...wip, canDirectAttack: true };
+        }
+      ),
+    ];
+  }
+) as ContinuousEffectBase<unknown>;

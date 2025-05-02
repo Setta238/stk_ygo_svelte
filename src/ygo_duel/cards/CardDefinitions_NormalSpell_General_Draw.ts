@@ -9,7 +9,7 @@ import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 export const createCardDefinitions_NormalSpell_General_Draw = (): CardDefinition[] => {
   const result: CardDefinition[] = [];
 
-  const def_強欲な壺 = {
+  result.push({
     name: "強欲な壺",
     actions: [
       {
@@ -41,12 +41,10 @@ export const createCardDefinitions_NormalSpell_General_Draw = (): CardDefinition
           return true;
         },
         settle: async () => true,
-      } as CardActionDefinition<unknown>,
-      defaultSpellTrapSetAction as CardActionDefinition<unknown>,
+      },
+      defaultSpellTrapSetAction,
     ],
-  };
-
-  result.push(def_強欲な壺);
+  });
 
   const def_貪欲な壺 = {
     name: "貪欲な壺",

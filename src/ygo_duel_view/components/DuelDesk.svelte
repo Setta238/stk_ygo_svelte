@@ -25,12 +25,12 @@
   let selectedEntities = [] as DuelEntity[];
   let selectedCells = [] as FieldCell[];
 
-  let retryFlg = false;
   let response: (response: DuelistResponseBase) => void = () => {};
   let userActionInfos: DummyActionInfo[] = [];
   let entitiesChoices: ChoicesSweet<DuelEntity> | undefined;
   let cellsChoices: ChoicesSweet<FieldCell> | undefined;
   let validator: () => boolean = () => false;
+  let cancelable = false;
 
   const onWaitStart: (args: WaitStartEventArg) => void = (args) => {
     response = args.resolve;
@@ -41,13 +41,17 @@
     cellsChoices = undefined;
     selectedCells = [];
     selectedEntities = [];
+    cancelable = false;
     if (args.entitiesChoices) {
       entitiesChoices = args.entitiesChoices;
       validator = () => args.entitiesChoices?.validator(selectedEntities) ?? false;
-
+      cancelable = args.entitiesChoices.cancelable;
       if (
         !entitiesChoices.selectables.every(
-          (e) => (e.fieldCell.isPlayFieldCell && e.getIndexInCell() === 0) || (e.fieldCell.cellType === "Hand" && e.controller.duelistType === "Player")
+          (e) =>
+            (e.fieldCell.isPlayFieldCell && e.getIndexInCell() === 0) ||
+            (e.fieldCell.cellType === "Hand" && e.controller.duelistType === "Player") ||
+            e.entityType === "Duelist"
         )
       ) {
         // エンティティの選択肢が可視範囲外にあるとき、モーダルウィンドウを表示する。
@@ -64,9 +68,11 @@
             });
           });
       }
-    } else if (args.cellsChoices) {
+    }
+    if (args.cellsChoices) {
       cellsChoices = args.cellsChoices;
       validator = () => args.cellsChoices?.validator(selectedCells) ?? false;
+      cancelable = args.cellsChoices.cancelable;
     }
   };
   duel.view.onWaitStart.append(onWaitStart);
@@ -78,6 +84,7 @@
     selectedCells = [];
     selectedEntities = [];
     validator = () => false;
+    cancelable = false;
   };
 
   duel.view.onWaitEnd.append(onWaitEnd);
@@ -103,6 +110,9 @@
     if (cellsChoices && cellsChoices.validator(selectedCells)) {
       response({ selectedCells });
     }
+  };
+  const onCancelClick = () => {
+    response({});
   };
   const onActionButtonClick = (actionInfo: DummyActionInfo) => {
     response({ actionInfo });
@@ -152,7 +162,9 @@
     <div class="duel_field_footer">
       {#if (entitiesChoices && entitiesChoices.selectables.length) || (cellsChoices && cellsChoices.selectables)}
         <button on:click={onOkClick} disabled={!validator()}>OK</button>
-        <!-- <button on:click={onCancelClick}>cancel</button> -->
+        {#if cancelable}
+          <button on:click={onCancelClick}>cancel</button>
+        {/if}
       {:else if userActionInfos && userActionInfos.length}
         {#each userActionInfos as actionInfo}
           <button on:click={() => onActionButtonClick(actionInfo)}>{actionInfo.action.title}</button>

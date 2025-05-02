@@ -69,6 +69,7 @@ export class DuelField {
   };
 
   public readonly getMonstersOnFieldStrictly = (): DuelEntity[] => this.getCardsOnFieldStrictly().filter((monster) => monster.isOnFieldAsMonsterStrictly);
+  public readonly getSpellTrapsOnFieldStrictly = (): DuelEntity[] => this.getCardsOnFieldStrictly().filter((monster) => monster.isOnFieldAsSpellTrapStrictly);
 
   public readonly getPendulumScalesOnFieldStrictly = (): DuelEntity[] =>
     this.getCardsOnFieldStrictly()

@@ -245,9 +245,20 @@ export class DuelViewController {
       return randomChoice(entitiesChoices);
     }
 
-    const actions = await this._waitDuelistAction(chooser, [], "Modal", message, entitiesChoices, undefined, entitiesChoices.cancelable);
+    let cellsChoices: ChoicesSweet<DuelFieldCell> | undefined = undefined;
 
-    return [...(actions.selectedEntities ?? [])];
+    if (entitiesChoices.selectables.some((e) => e.entityType === "Duelist")) {
+      cellsChoices = {
+        ...entitiesChoices,
+        selectables: entitiesChoices.selectables.filter((e) => e.entityType === "Duelist").map((e) => e.fieldCell),
+        qty: 1,
+        validator: (selected) => selected.length === 1,
+      };
+    }
+
+    const response = await this._waitDuelistAction(chooser, [], "Modal", message, entitiesChoices, cellsChoices, entitiesChoices.cancelable);
+
+    return [...(response.selectedEntities ?? []), ...(response.selectedCells ?? []).flatMap((cell) => cell.entities).filter((e) => e.entityType === "Duelist")];
   };
 
   public readonly waitSelectText = (choises: { seq: number; text: string }[], msg: string, cancelable: boolean = false): Promise<number | undefined> =>
@@ -332,7 +343,7 @@ export class DuelViewController {
         _posList = [act.battlePosition];
       }
 
-      if (!act.dest) {
+      if (availableCells.length > 1 && !act.dest) {
         continue;
       }
 

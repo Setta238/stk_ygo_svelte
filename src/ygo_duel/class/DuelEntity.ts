@@ -1342,6 +1342,8 @@ DuelEntity.prototype.getAttackTargets = function (): DuelEntity[] {
     .getMonstersOnField()
     .filter((enemy) => enemy.status.isSelectableForAttack);
 
+  console.log(this.toString(), this.status.canDirectAttack);
+
   if (this.status.canDirectAttack || !enemies.length) {
     enemies.push(this.controller.getOpponentPlayer().entity);
   }

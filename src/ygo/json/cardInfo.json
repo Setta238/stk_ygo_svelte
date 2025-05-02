@@ -2486,7 +2486,6 @@
     "description": "常に太い竹を一本持っており、性格は非常に凶暴である。",
     "cardType": "Monster",
     "monsterCategories": [
-      "Effect",
       "Normal"
     ],
     "level": 4,
@@ -21170,6 +21169,179 @@
     "nameTags": [
       "エクゾディア",
       "封印されし"
+    ]
+  },
+  "ラージマウス": {
+    "name": "ラージマウス",
+    "nameKana": "",
+    "description": "このカードは相手プレイヤーを直接攻撃する事ができる。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "level": 1,
+    "attack": 300,
+    "defense": 250,
+    "attributes": [
+      "Water"
+    ],
+    "types": [
+      "Aqua"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%E9%A1%BC%A5%B8%A5%DE%A5%A6%A5%B9%A1%D5",
+    "nameTags": []
+  },
+  "レッグル": {
+    "name": "レッグル",
+    "nameKana": "",
+    "description": "このカードは相手プレイヤーを直接攻撃する事ができる。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "level": 1,
+    "attack": 300,
+    "defense": 350,
+    "attributes": [
+      "Earth"
+    ],
+    "types": [
+      "Insect"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%EC%A5%C3%A5%B0%A5%EB%A1%D5",
+    "nameTags": []
+  },
+  "異形の従者": {
+    "name": "異形の従者",
+    "nameKana": "",
+    "description": "このカードは相手プレイヤーに直接攻撃をする事ができる。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "level": 3,
+    "attack": 700,
+    "defense": 500,
+    "attributes": [
+      "Light"
+    ],
+    "types": [
+      "Aqua"
+    ],
+    "wikiEncodedName": "%A1%D4%B0%DB%B7%C1%A4%CE%BD%BE%BC%D4%A1%D5",
+    "nameTags": []
+  },
+  "女王の影武者": {
+    "name": "女王の影武者",
+    "nameKana": "",
+    "description": "このカードは相手プレイヤーを直接攻撃する事ができる。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "level": 1,
+    "attack": 350,
+    "defense": 300,
+    "attributes": [
+      "Earth"
+    ],
+    "types": [
+      "Warrior"
+    ],
+    "wikiEncodedName": "%A1%D4%BD%F7%B2%A6%A4%CE%B1%C6%C9%F0%BC%D4%A1%D5",
+    "nameTags": []
+  },
+  "人造人間７号": {
+    "name": "人造人間７号",
+    "nameKana": "",
+    "description": "このカードは相手プレイヤーを直接攻撃する事ができる。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "level": 2,
+    "attack": 500,
+    "defense": 400,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Machine"
+    ],
+    "wikiEncodedName": "%A1%D4%BF%CD%C2%A4%BF%CD%B4%D6%A3%B7%B9%E6%A1%D5",
+    "nameTags": [
+      "人造人間"
+    ]
+  },
+  "黄金色の竹光": {
+    "name": "黄金色の竹光",
+    "nameKana": "",
+    "description": "(1)：自分フィールドに「竹光」装備魔法カードが存在する場合に発動できる。\n自分はデッキから２枚ドローする。",
+    "kind": "Spell",
+    "spellCategory": "Normal",
+    "wikiEncodedName": "%A1%D4%B2%AB%B6%E2%BF%A7%A4%CE%C3%DD%B8%F7%A1%D5",
+    "nameTags": [
+      "竹光"
+    ]
+  },
+  "魂を吸う竹光": {
+    "name": "魂を吸う竹光",
+    "nameKana": "",
+    "description": "「竹光」と名のついた装備魔法カードを装備したモンスター１体を選択して発動できる。\n選択したモンスターが相手ライフに戦闘ダメージを与えた場合、次の相手のドローフェイズをスキップする。\nこのカードは発動後２回目の自分のスタンバイフェイズ時に破壊される。",
+    "kind": "Spell",
+    "spellCategory": "Continuous",
+    "wikiEncodedName": "%A1%D4%BA%B2%A4%F2%B5%DB%A4%A6%C3%DD%B8%F7%A1%D5",
+    "nameTags": [
+      "竹光"
+    ]
+  },
+  "燃え竹光": {
+    "name": "燃え竹光",
+    "nameKana": "",
+    "description": "(1)：このカードが既に魔法＆罠ゾーンに存在する状態で、自分が「竹光」カードを発動した場合に発動できる。\n次の相手メインフェイズ１をスキップする。",
+    "kind": "Spell",
+    "spellCategory": "Continuous",
+    "wikiEncodedName": "%A1%D4%C7%B3%A4%A8%C3%DD%B8%F7%A1%D5",
+    "nameTags": [
+      "竹光"
+    ]
+  },
+  "真刀竹光": {
+    "name": "真刀竹光",
+    "nameKana": "",
+    "description": "(1)：装備モンスターの攻撃力は０アップする。\n(2)：装備モンスターが直接攻撃で戦闘ダメージを与えた時に発動できる。\n相手フィールドのモンスターを全て破壊する。\n(3)：装備されているこのカードを墓地へ送って発動できる。\nデッキから「真刀竹光」以外の「竹光」装備魔法カード１枚を選び、フィールドの表側表示モンスター１体に装備する。",
+    "kind": "Spell",
+    "spellCategory": "Equip",
+    "wikiEncodedName": "%A1%D4%BF%BF%C5%E1%C3%DD%B8%F7%A1%D5",
+    "nameTags": [
+      "竹光"
+    ]
+  },
+  "折れ竹光": {
+    "name": "折れ竹光",
+    "nameKana": "",
+    "description": "(1)：装備モンスターの攻撃力は０アップする。",
+    "kind": "Spell",
+    "spellCategory": "Equip",
+    "wikiEncodedName": "%A1%D4%C0%DE%A4%EC%C3%DD%B8%F7%A1%D5",
+    "nameTags": [
+      "竹光"
+    ]
+  },
+  "妖刀竹光": {
+    "name": "妖刀竹光",
+    "nameKana": "",
+    "description": "このカード名の(2)の効果は１ターンに１度しか使用できない。\n(1)：装備モンスターの攻撃力は０アップする。\n(2)：このカード以外の自分フィールドの「竹光」カード１枚を対象として発動できる。\nそのカードを持ち主の手札に戻し、装備モンスターはこのターン相手に直接攻撃できる。\n(3)：このカードが墓地へ送られた場合に発動できる。\nデッキから「妖刀竹光」以外の「竹光」カード１枚を手札に加える。",
+    "kind": "Spell",
+    "spellCategory": "Equip",
+    "wikiEncodedName": "%A1%D4%CD%C5%C5%E1%C3%DD%B8%F7%A1%D5",
+    "nameTags": [
+      "竹光"
     ]
   }
 }

@@ -41,6 +41,9 @@ import { createCardDefinitions_Yusei_SyncroTunerMonster } from "./character_yuse
 import { createCardDefinitions_Junk_Monster } from "./tag_j/CardDefinitions_Junk_Monster";
 import { createCardDefinitions_Igknight_Monster } from "./tag_i/CardDefinitions_Igknight_Monster";
 import { createCardDefinitions_Exodia_Monster } from "./tag_e/CardDefinitions_Exodia_Monster";
+import { createCardDefinitions_Monster_Preset_DirectAttacker } from "./CardDefinitions_Monster_Preset_DirectAttacker";
+import { createCardDefinitions_BambooSword_NormalSpell } from "./tag_b/CardDefinitions_BambooSword_NormalSpell";
+import { createCardDefinitions_BambooSword_EquipSpell } from "./tag_b/CardDefinitions_BambooSword_EquipSpell";
 
 export type CardDefinition = {
   name: string;
@@ -103,6 +106,9 @@ export const createCardDefinitions = (): CardDefinition[] => {
     ...createCardDefinitions_Junk_Monster(),
     ...createCardDefinitions_Igknight_Monster(),
     ...createCardDefinitions_Exodia_Monster(),
+    ...createCardDefinitions_Monster_Preset_DirectAttacker(),
+    ...createCardDefinitions_BambooSword_NormalSpell(),
+    ...createCardDefinitions_BambooSword_EquipSpell(),
   ];
   const names = hoge.map((def) => def.name);
   console.info(names);

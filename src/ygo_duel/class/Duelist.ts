@@ -301,6 +301,9 @@ export class Duelist {
   public readonly getMonstersOnField = (): DuelEntity[] => {
     return this.duel.field.getMonstersOnFieldStrictly().filter((monster) => monster.controller === this);
   };
+  public readonly getSpellTrapsOnField = (): DuelEntity[] => {
+    return this.duel.field.getSpellTrapsOnFieldStrictly().filter((spelltrap) => spelltrap.controller === this);
+  };
   public readonly getPendingMonstersOnField = (): DuelEntity[] => {
     return this.duel.field.getPendingMonstersOnField().filter((monster) => monster.controller === this);
   };

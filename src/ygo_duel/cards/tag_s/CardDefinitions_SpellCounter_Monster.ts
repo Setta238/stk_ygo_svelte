@@ -38,12 +38,12 @@ const createSpellCounterCommonEffect = (kind: TCardKind, maxQty?: number) => {
           (operator, target) => operator.isSpawnedBy === target,
           (ope, wip) => {
             wip.maxCounterQty.SpellCounter = maxQty ?? Number.MAX_VALUE;
-            return { maxCounterQty: wip.maxCounterQty };
+            return { ...wip, maxCounterQty: wip.maxCounterQty };
           }
         ),
       ];
     }
-  );
+  ) as ContinuousEffectBase<unknown>;
 };
 
 const _spellCounterChargeEffectDic: { [qty: number]: CardActionDefinition<unknown> } = {};
@@ -239,8 +239,8 @@ export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] =
             ),
           ];
         }
-      ),
-    ] as ContinuousEffectBase<unknown>[],
+      ) as ContinuousEffectBase<unknown>,
+    ],
   });
   result.push({
     name: "王立魔法図書館",
@@ -274,7 +274,7 @@ export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] =
         settle: async () => true,
       },
     ],
-    continuousEffects: [createSpellCounterCommonEffect("Monster", 3)] as ContinuousEffectBase<unknown>[],
+    continuousEffects: [createSpellCounterCommonEffect("Monster", 3)],
   });
 
   return result;

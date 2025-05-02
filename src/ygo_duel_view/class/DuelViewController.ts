@@ -358,7 +358,7 @@ export class DuelViewController {
       return selectableCells[0];
     }
     if (!userAgentInfo.canDragElement) {
-      return await this.waitSelectCell(chooser, selectableCells, cancelable, "召喚先を選択。");
+      return await this.waitSelectCell(chooser, selectableCells, cancelable, message);
     }
 
     let dest: DuelFieldCell = selectableCells.randomPick();

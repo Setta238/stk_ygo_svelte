@@ -74,14 +74,21 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
         executableDuelistTypes: ["Controller"],
         hasToTargetCards: true,
         validate: (myInfo) => {
-          const monsters = myInfo.action.entity.field.getMonstersOnFieldStrictly().filter((monster) => monster.canBeTargetOfEffect(myInfo));
+          const monsters = myInfo.action.entity.field
+            .getMonstersOnFieldStrictly()
+            .filter((monster) => monster.canBeTargetOfEffect(myInfo))
+            .filter((monster) => monster.face === "FaceUp");
           if (!monsters.length) {
             return;
           }
           return defaultSpellTrapValidate(myInfo);
         },
         prepare: async (myInfo, chainBlockInfos, cancelable) => {
-          const monsters = myInfo.action.entity.field.getMonstersOnFieldStrictly().filter((monster) => monster.canBeTargetOfEffect(myInfo));
+          const monsters = myInfo.action.entity.field
+            .getMonstersOnFieldStrictly()
+            .filter((monster) => monster.canBeTargetOfEffect(myInfo))
+            .filter((monster) => monster.face === "FaceUp");
+
           const selected = await myInfo.activator.waitSelectEntity(monsters, "対象とするモンスターを選択", cancelable);
           if (!selected) {
             return;

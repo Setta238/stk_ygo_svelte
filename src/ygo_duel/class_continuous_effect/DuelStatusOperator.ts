@@ -15,11 +15,13 @@ export class StatusOperatorPool extends StickyEffectOperatorPool<StatusOperator,
 export class StatusOperatorBundle extends StickyEffectOperatorBundle<StatusOperator> {
   public readonly calcStatus = (): boolean => {
     const wasEffective = this.entity.isEffective;
-    //    this.entity.resetStatus();
+    this.entity.resetStatus();
     // 対象ステータスのオペレータを抽出
-    this.entity.status = this._operators.reduce((wip, ope) => {
-      return { ...wip, ...ope.statusCalculator(ope, wip) };
-    }, this.entity.status);
+    this.entity.status = this._operators
+      .filter((ope) => ope.isSpawnedBy.isEffective || !ope.isContinuous)
+      .reduce((wip, ope) => {
+        return { ...wip, ...ope.statusCalculator(ope, wip) };
+      }, this.entity.status);
     // 有効無効が切り替わったとき、再計算が必要
     return this.entity.isEffective === wasEffective;
   };

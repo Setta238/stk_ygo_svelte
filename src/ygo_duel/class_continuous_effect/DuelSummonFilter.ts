@@ -20,7 +20,7 @@ export class SummonFilterBundle extends StickyEffectOperatorBundle<SummonFilter>
     materialInfos: SummonMaterialInfo[],
     ignoreSummoningConditions: boolean
   ) =>
-    this.operators
+    this.effectiveOperators
       .filter((ope) => ope.summonKinds.includes(summonKind))
       .reduce((wip, ope) => {
         return {

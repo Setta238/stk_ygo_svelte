@@ -35,7 +35,7 @@ export class ProcFilterBundle extends StickyEffectOperatorBundle<ProcFilter> {
 
     while (true) {
       // 後続は取り除かれる可能性があるので、毎回取り出す
-      const pf = this.operators
+      const pf = this.effectiveOperators
         .filter((pf) => pf.procTypes.includes("Effect"))
         .filter((pf) => pf.isContinuous)
         .find((pf) => !list.includes(pf.seq));

@@ -371,14 +371,25 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
           if (myInfo.action.entity.wasMovedFrom.cellType !== "Deck") {
             return;
           }
-          return myInfo.activator.getAvailableMonsterZones().length > 0 ? [] : undefined;
+          const cells = myInfo.activator.getMonsterZones();
+          const list = myInfo.activator.getEnableSummonList(
+            myInfo.activator,
+            "SpecialSummon",
+            ["Effect"],
+            myInfo.action,
+            [{ monster: myInfo.action.entity, posList: faceupBattlePositions, cells }],
+            [],
+            false
+          );
+
+          return list.length ? [] : undefined;
         },
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromGraveyard"], prepared: undefined };
         },
         execute: (myInfo) => defaultSelfRebornExecute(myInfo),
         settle: async () => true,
-      } as CardActionDefinition<unknown>,
+      },
     ] as CardActionDefinition<unknown>[],
   };
   result.push(def_ライトロード・ビーストウォルフ);

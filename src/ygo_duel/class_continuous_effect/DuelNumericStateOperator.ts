@@ -51,7 +51,7 @@ export class NumericStateOperatorPool extends StickyEffectOperatorPool<NumericSt
     const needsRecalc = duel.field
       .getMonstersOnFieldStrictly()
       .flatMap((monster) => monster.numericOprsBundle)
-      .flatMap((bundle) => bundle.operators)
+      .flatMap((bundle) => bundle.effectiveOperators)
       .some((ope) => ope.targetStateGen === "calculated");
 
     if (needsRecalc) {
@@ -63,7 +63,7 @@ export class NumericStateOperatorPool extends StickyEffectOperatorPool<NumericSt
       // フィールド上のモンスターのステータスを再計算
       duel.field.getMonstersOnFieldStrictly().forEach((monster) => {
         // オペレータのうち、例外三種を順番に適用
-        monster.numericOprsBundle.operators
+        monster.numericOprsBundle.effectiveOperators
           .filter((ope) => ope.targetStateGen === "calculated")
           .forEach((ope) => {
             // リンクモンスターが効果コピーしていた場合
@@ -92,7 +92,7 @@ export class NumericStateOperatorBundle extends StickyEffectOperatorBundle<Numer
    */
   protected readonly beforePush = (ope: NumericStateOperator) => {
     // 対象ステータスのオペレータを抽出
-    const opeList = this.operators.filter((oldOpe) => oldOpe.targetState === ope.targetState).filter((oldOpe) => oldOpe.isEffective);
+    const opeList = this.effectiveOperators.filter((oldOpe) => oldOpe.targetState === ope.targetState).filter((oldOpe) => oldOpe.isEffective);
 
     // 発動する効果の無効化処理
     if (ope.kind === "O-L-F" || ope.kind === "O-C-F") {

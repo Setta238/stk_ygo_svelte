@@ -47,6 +47,11 @@ export const defaultSpellTrapValidate = <T>(myInfo: ChainBlockInfoBase<T>): Duel
   if (myInfo.action.spellSpeed === "Normal" && !myInfo.activator.isTurnPlayer) {
     return;
   }
+
+  if (myInfo.action.entity.fieldCell.cellType === "Hand" && !myInfo.activator.isTurnPlayer) {
+    return;
+  }
+
   if (myInfo.action.entity.status.spellCategory === "Field") {
     return [myInfo.activator.getFieldZone()];
   }

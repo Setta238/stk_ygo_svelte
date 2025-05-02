@@ -89,6 +89,9 @@ export abstract class StickyEffectOperatorBundle<OPE extends StickyEffectOperato
   public get operators() {
     return this._operators;
   }
+  public get effectiveOperators() {
+    return this.operators.filter((ope) => ope.isSpawnedBy.isEffective || !ope.isContinuous);
+  }
 
   public constructor(pool: IOperatorPool<OPE>, entity: DuelEntity) {
     this.pool = pool;
@@ -113,7 +116,7 @@ export abstract class StickyEffectOperatorBundle<OPE extends StickyEffectOperato
     // ProcFilterで弾かれる場合は追加しない。
 
     if (
-      this.entity.procFilterBundle.operators
+      this.entity.procFilterBundle.effectiveOperators
         .filter((ope) => ope.procTypes.includes("Effect"))
         .some((ope) => !ope.filter(ope.effectOwner, ope.isSpawnedBy, ope.actionAttr, []))
     ) {

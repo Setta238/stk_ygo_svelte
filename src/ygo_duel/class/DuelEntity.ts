@@ -549,7 +549,7 @@ export class DuelEntity {
   ): boolean => {
     return (
       !this.isInTrashCell &&
-      this.procFilterBundle.operators.filter((pf) => pf.procTypes.union(causedAs).length).every((pf) => pf.filter(activator, causedBy, action, [this]))
+      this.procFilterBundle.effectiveOperators.filter((pf) => pf.procTypes.union(causedAs).length).every((pf) => pf.filter(activator, causedBy, action, [this]))
     );
   };
   public readonly canBeSentToGraveyard = <T>(
@@ -561,7 +561,7 @@ export class DuelEntity {
     return (
       !this.info.willBeBanished &&
       !this.info.willReturnToDeck &&
-      this.procFilterBundle.operators.filter((pf) => pf.procTypes.union(causedAs).length).every((pf) => pf.filter(activator, causedBy, action, [this]))
+      this.procFilterBundle.effectiveOperators.filter((pf) => pf.procTypes.union(causedAs).length).every((pf) => pf.filter(activator, causedBy, action, [this]))
     );
   };
   private _hasDisappeared = false;
@@ -756,7 +756,7 @@ export class DuelEntity {
   }
 
   public get allStickyEffectOperators() {
-    return [...this.procFilterBundle.operators, ...this.numericOprsBundle.operators];
+    return [...this.procFilterBundle.effectiveOperators, ...this.numericOprsBundle.effectiveOperators];
   }
 
   private readonly cardDefinition: CardDefinition | undefined;
@@ -952,18 +952,14 @@ export class DuelEntity {
     await this.moveAlone(this.fieldCell, kind, "FaceUp", "Vertical", "Top", [...movedAs, "CardActivation"], movedBy, actionOwner, actionOwner);
   };
 
-  public readonly draw = async (
-    movedAs: TDuelCauseReason[],
-    movedBy: DuelEntity | undefined,
-    actionOwner: Duelist | undefined
-  ): Promise<DuelFieldCell | undefined> => {
+  public readonly draw = async (movedAs: TDuelCauseReason[], movedBy: DuelEntity | undefined, actionOwner: Duelist | undefined): Promise<DuelFieldCell> => {
     return await this.addToHand([...movedAs, "Draw"], movedBy, actionOwner);
   };
   public readonly addToHand = async (
     movedAs: TDuelCauseReason[],
     movedBy: DuelEntity | undefined,
     actionOwner: Duelist | undefined
-  ): Promise<DuelFieldCell | undefined> => {
+  ): Promise<DuelFieldCell> => {
     return await this.moveAlone(this.owner.getHandCell(), this.origin.kind, "FaceDown", "Vertical", "Bottom", [...movedAs], movedBy, actionOwner, actionOwner);
   };
   public readonly summon = (
@@ -999,7 +995,7 @@ export class DuelEntity {
     movedBy: DuelEntity | undefined,
     actionOwner: Duelist | undefined,
     chooser: Duelist | undefined
-  ): Promise<DuelFieldCell | undefined> => {
+  ): Promise<DuelFieldCell> => {
     await DuelEntity.moveMany([[this, to, kind, face, orientation, pos, movedAs, movedBy, actionOwner, chooser]], undefined);
     return this.fieldCell;
   };
@@ -1352,7 +1348,9 @@ DuelEntity.prototype.getAttackTargets = function (): DuelEntity[] {
   return enemies
     .filter((enemy) => enemy.canBeTargetOfBattle(this.controller, this))
     .filter((enemy) =>
-      this.procFilterBundle.operators.filter((pf) => pf.procTypes.includes("BattleTarget")).every((pf) => pf.filter(this.controller, this, {}, [enemy]))
+      this.procFilterBundle.effectiveOperators
+        .filter((pf) => pf.procTypes.includes("BattleTarget"))
+        .every((pf) => pf.filter(this.controller, this, {}, [enemy]))
     );
 };
 DuelEntity.prototype.canDirectAttack = function (): boolean {
@@ -1370,7 +1368,7 @@ DuelEntity.prototype.hasAttackRight = function (): boolean {
 
 DuelEntity.prototype.canBeEffected = function (activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionDefinitionAttr>): boolean {
   const entity = this as DuelEntity;
-  return entity.procFilterBundle.operators
+  return entity.procFilterBundle.effectiveOperators
     .filter((pf) => pf.procTypes.some((t) => t === "Effect"))
     .every((pf) => pf.filter(activator, causedBy, action, [this]));
 };
@@ -1384,7 +1382,9 @@ const _canBeDoneSomethingByEffect = (
 ): boolean => {
   return (
     entity.canBeEffected(activator, causedBy, action) &&
-    entity.procFilterBundle.operators.filter((pf) => pf.procTypes.some((t) => t === procType)).every((pf) => pf.filter(activator, causedBy, action, [entity]))
+    entity.procFilterBundle.effectiveOperators
+      .filter((pf) => pf.procTypes.some((t) => t === procType))
+      .every((pf) => pf.filter(activator, causedBy, action, [entity]))
   );
 };
 
@@ -1406,7 +1406,7 @@ DuelEntity.prototype.canBeBanished = function (
 
 DuelEntity.prototype.canBeTargetOfBattle = function (activator: Duelist, causedBy: DuelEntity): boolean {
   const entity = this as DuelEntity;
-  return entity.procFilterBundle.operators
+  return entity.procFilterBundle.effectiveOperators
     .filter((pf) => pf.procTypes.some((t) => t === "BattleTarget"))
     .every((pf) => pf.filter(activator, causedBy, {}, [entity]));
 };
@@ -1418,7 +1418,7 @@ DuelEntity.prototype.validateDestory = function (
   action: Partial<CardActionDefinitionAttr>
 ): boolean {
   const entity = this as DuelEntity;
-  let flg = entity.procFilterBundle.operators
+  let flg = entity.procFilterBundle.effectiveOperators
     .filter((pf) => pf.procTypes.includes(destroyType))
     .every((pf) => pf.filter(activator, causedBy, action ?? {}, [entity]));
 

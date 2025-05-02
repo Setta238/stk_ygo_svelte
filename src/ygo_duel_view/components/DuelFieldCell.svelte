@@ -2,6 +2,7 @@
   import { SystemError } from "@ygo_duel/class/Duel";
 
   import DuelCard, { type TCardState } from "@ygo_duel_view/components/DuelCard.svelte";
+  import { DuelFieldCell as FieldCell } from "@ygo_duel/class/DuelFieldCell";
   import { DuelEntity } from "@ygo_duel/class/DuelEntity";
   import type { AnimationStartEventArg, DuelistResponseBase, DuelViewController, WaitStartEventArg } from "@ygo_duel_view/class/DuelViewController";
   import {} from "@stk_utils/funcs/StkArrayUtils";
@@ -17,7 +18,8 @@
 
   export let column: number;
 
-  export let selectedList = [] as DuelEntity[];
+  export let selectedEntities = [] as DuelEntity[];
+  export let selectedCells = [] as FieldCell[];
   let cell = view.getCell(row, column);
 
   const onCellUpdate = () => {
@@ -33,14 +35,20 @@
   let responseResolve: (action: DuelistResponseBase) => void = () => {};
   let entitiesChoices: ChoicesSweet<DuelEntity> | undefined;
   let targetsInBuildingChain: DuelEntity[] = [];
+  let isSelected = false;
+  let isSelectable = false;
+  let canDirectResoleve = false;
   const onWaitStart: (args: WaitStartEventArg) => void = (args) => {
     animationArgs = [];
-    selectedList.reset();
+    selectedEntities.reset();
     activator = args.activator;
     responseResolve = args.resolve;
     dummyActionInfos = args.dummyActionInfos;
     targetsInBuildingChain = args.chainBlockInfos.flatMap((info) => info.selectedEntities).getDistinct();
     entitiesChoices = args.entitiesChoices;
+    isSelected = false;
+    isSelectable = args.cellsChoices?.selectables.includes(cell) ?? false;
+    canDirectResoleve = isSelectable && args.cellsChoices?.qty === 1;
   };
   view.onWaitStart.append(onWaitStart);
 
@@ -50,6 +58,9 @@
     responseResolve = () => {};
     entitiesChoices = undefined;
     targetsInBuildingChain = [];
+    isSelected = false;
+    isSelectable = false;
+    canDirectResoleve = false;
   };
 
   view.onWaitEnd.append(onWaitEnd);
@@ -105,8 +116,12 @@
 
   const onCellClick = () => {
     cell.field.duel.view.infoBoardState = "Log";
-
-    if (cell.isStackCell) {
+    if (canDirectResoleve) {
+      responseResolve({ selectedCells: [cell] });
+    } else if (isSelectable) {
+      isSelected = !isSelected;
+      selectedCells = isSelected ? [...selectedCells, cell] : selectedCells.filter((e) => e !== cell);
+    } else if (cell.isStackCell) {
       cell.field.duel.view.infoBoardState = "CellInfo";
       cell.field.duel.view.infoBoardCell = cell;
       cell.field.duel.view.requireUpdate();
@@ -187,7 +202,7 @@
       return "Disabled";
     }
 
-    if (entitiesChoices && entitiesChoices.choices.find((e1) => entities.find((e2) => e1 === e2))) {
+    if (entitiesChoices && entitiesChoices.selectables.find((e1) => entities.find((e2) => e1 === e2))) {
       return "Selectable";
     }
 
@@ -222,11 +237,11 @@
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
   <div
-    class={`duel_card_wrapper ${cell.cellType} ${canAcceptDrop ? "can_accept_drop" : ""} ${canAction() ? "can_action" : ""} `}
+    class={`duel_card_wrapper ${cell.cellType} ${canAcceptDrop ? "can_accept_drop" : ""} ${canAction() ? "can_action" : ""} ${isSelected ? "is_selected" : isSelectable ? "is_selectable" : ""} `}
     role="listitem"
     onclick={onCellClick}
-    ondragover={(ev) => dragover(ev)}
-    ondrop={(ev) => drop(ev)}
+    ondragover={dragover}
+    ondrop={drop}
   >
     {#if cell.isDisabledCell}
       <!-- 使用不可セルの場合-->
@@ -264,7 +279,7 @@
               state={validateActions(entity)}
               dummyActionInfos={dummyActionInfos.filter((info) => info.action.entity === entity)}
               cardActionResolve={undefined}
-              bind:selectedList
+              bind:selectedList={selectedEntities}
             />
           </div>
         {/if}
@@ -302,7 +317,7 @@
                 state={!cell.isStackCell && item.index === 0 ? validateActions(...cell.visibleEntities) : undefined}
                 dummyActionInfos={item.index === 0 ? dummyActionInfos.filter((info) => cell.visibleEntities.includes(info.action.entity)) : undefined}
                 cardActionResolve={undefined}
-                bind:selectedList
+                bind:selectedList={selectedEntities}
               />
             </div>
           {/if}
@@ -379,6 +394,12 @@
   }
   .duel_field_cell > div.can_accept_drop {
     border: dotted 3px red;
+  }
+  .duel_field_cell > div.is_selected {
+    border: dotted 3px red;
+  }
+  .duel_field_cell > div.is_selectable {
+    border: dotted 3px blue;
   }
   .duel_card_wrapper {
     display: block;

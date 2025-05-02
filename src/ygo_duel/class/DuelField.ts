@@ -230,7 +230,7 @@ export class DuelField {
     }
     const targets: DuelEntity[] | undefined = await this.duel.view.waitSelectEntities(
       chooser,
-      { choices, qty, validator, cancelable: cancelable ?? false },
+      { selectables: choices, qty, validator, cancelable: cancelable ?? false },
       msg
     );
 

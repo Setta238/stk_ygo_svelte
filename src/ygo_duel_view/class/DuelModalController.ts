@@ -20,7 +20,7 @@ export class DuelModalController {
   });
   public readonly entitySelector = new DuelModalBase<DuelEntitiesSelectorArg, DuelEntity[]>({
     title: "対象を選択",
-    entitiesChoices: { choices: [], validator: () => true, cancelable: false },
+    entitiesChoices: { selectables: [], validator: () => true, cancelable: false },
     cancelable: false,
     chainBlockInfos: [],
   });

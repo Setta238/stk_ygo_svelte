@@ -10,7 +10,8 @@ import { createPromiseSweet } from "@stk_utils/funcs/StkPromiseUtil";
 import type { TCardDetailMode } from "@ygo_duel_view/components/DuelCardDetail.svelte";
 import type { TDuelPhase } from "@ygo_duel/class/DuelPeriod";
 import type { CardActionBase } from "@ygo_duel/class/DuelCardActionBase";
-import type { ChoicesSweet } from "@ygo_duel/class/DuelUtilTypes";
+import { randomChoice, type ChoicesSweet } from "@ygo_duel/class/DuelUtilTypes";
+import { userAgentInfo } from "@stk_utils/class/StkUserAgentInfo";
 export type TDuelWaitMode = "None" | "Free" | "Modal" | "Animation";
 
 export type ResolvedDummyActionInfo = {
@@ -23,6 +24,7 @@ export type ResolvedDummyActionInfo = {
 export type DuelistResponseBase = {
   phaseChange?: TDuelPhase;
   selectedEntities?: DuelEntity[];
+  selectedCells?: DuelFieldCell[];
   sendMessage?: string;
   actionInfo?: ResolvedDummyActionInfo;
   cancel?: boolean;
@@ -231,75 +233,21 @@ export class DuelViewController {
     entitiesChoices: ChoicesSweet<DuelEntity>,
     message: string
   ): Promise<DuelEntity[] | undefined> => {
-    if (!entitiesChoices.choices.length) {
+    if (!entitiesChoices.selectables.length) {
       return;
     }
-    let selected: DuelEntity[] = [];
-
-    if (entitiesChoices.qty && entitiesChoices.choices.length === entitiesChoices.qty) {
-      return [...entitiesChoices.choices];
+    if (entitiesChoices.qty && entitiesChoices.selectables.length === entitiesChoices.qty) {
+      return [...entitiesChoices.selectables];
     }
 
     if (chooser.duelistType === "NPC") {
       // NPCはランダムに選択する
-
-      while (!entitiesChoices.validator(selected)) {
-        // 一個も選択しないパターンは最初にチェックするので、それ以外をランダムに試行する。
-        const _qty = entitiesChoices.qty && entitiesChoices.qty > 0 ? entitiesChoices.qty : Math.floor(Math.random() * entitiesChoices.choices.length) + 1;
-        selected = entitiesChoices.choices.randomPickMany(_qty);
-      }
-      return selected;
+      return randomChoice(entitiesChoices);
     }
 
     const actions = await this._waitDuelistAction(chooser, [], "Modal", message, entitiesChoices, undefined, entitiesChoices.cancelable);
 
     return [...(actions.selectedEntities ?? [])];
-  };
-
-  private readonly _waitDuelistAction = async (
-    activator: Duelist,
-    dummyActionInfos: DummyActionInfo[],
-    waitMode: TDuelWaitMode,
-    message: string,
-    entitiesChoices: ChoicesSweet<DuelEntity> | undefined,
-    cellsChoices: ChoicesSweet<DuelFieldCell> | undefined,
-    cancelable: boolean = false
-  ): Promise<DuelistResponseBase> => {
-    this.waitMode = waitMode;
-    this._message = message;
-
-    this.onDuelUpdateEvent.trigger();
-
-    // Promise一式作成
-    const promiseSweet = createPromiseSweet<DuelistResponseBase>();
-
-    // 待機のための引数作成。解決のためのresolveを渡す
-    const args: WaitStartEventArg = {
-      resolve: promiseSweet.resolve,
-      activator,
-      dummyActionInfos,
-      chainBlockInfos: activator.duel.chainBlockInfos,
-      entitiesChoices,
-      cellsChoices,
-    };
-
-    // 待機開始を通知
-    this.onWaitStartEvent.trigger(args);
-    // 待機開始
-    const userAction: DuelistResponseBase = await promiseSweet.promise;
-    this.modalController.terminateAll();
-
-    this.waitMode = "None";
-    this.onWaitEndEvent.trigger();
-    if (userAction.surrender) {
-      throw new DuelEnd(activator.getOpponentPlayer(), `${activator.profile.name}がサレンダーした。`);
-    }
-    if (!cancelable && userAction.cancel) {
-      throw new SystemError("キャンセル不可のアクションがキャンセルされた。", userAction, dummyActionInfos, waitMode, entitiesChoices, cellsChoices);
-    }
-    this.infoBoardState = "Log";
-
-    return userAction;
   };
 
   public readonly waitSelectText = (choises: { seq: number; text: string }[], msg: string, cancelable: boolean = false): Promise<number | undefined> =>
@@ -351,7 +299,7 @@ export class DuelViewController {
     posList: Readonly<TBattlePosition[]>,
     cancelable: boolean
   ): Promise<{ dest: DuelFieldCell; battlePosition: TBattlePosition } | undefined> => {
-    const message = availableCells.length > 1 ? "カードを召喚先へドラッグ。" : "表示形式を選択。";
+    const message = availableCells.length > 1 && userAgentInfo.canDragElement ? "カードを召喚先へドラッグ。" : "表示形式を選択。";
 
     if (!availableCells.length && !posList.length) {
       if (cancelable) {
@@ -360,18 +308,39 @@ export class DuelViewController {
       throw new SystemError("想定されない状態", summoner, entity, availableCells, posList, cancelable);
     }
 
-    const result = { dest: availableCells.randomPick(), battlePosition: posList[0] };
+    let _posList = [...posList];
 
-    const dummyActionInfos = posList.map((pos) => CardAction.createDummyAction(entity, pos, availableCells, pos));
+    while (true) {
+      const result = { dest: availableCells.randomPick(), battlePosition: _posList[0] };
 
-    const act = await this._waitDammyAction(summoner, dummyActionInfos, message, cancelable);
-    if (!act) {
-      return;
+      if (_posList.length === 1 && !userAgentInfo.canDragElement) {
+        const dest = await this.waitSelectCell(summoner, availableCells, cancelable, "召喚先を選択。");
+        if (!dest) {
+          return;
+        }
+        return { dest, battlePosition: posList[0] };
+      }
+
+      const dummyActionInfos = _posList.map((pos) => CardAction.createDummyAction(entity, pos, availableCells, pos));
+
+      const act = await this._waitDammyAction(summoner, dummyActionInfos, message, cancelable);
+      if (!act) {
+        return;
+      }
+
+      if (act.battlePosition) {
+        _posList = [act.battlePosition];
+      }
+
+      if (!act.dest) {
+        continue;
+      }
+
+      result.dest = act.dest ?? result.dest;
+      result.battlePosition = act.battlePosition ?? result.battlePosition;
+
+      return result;
     }
-    result.dest = act.dest ?? result.dest;
-    result.battlePosition = act.battlePosition ?? result.battlePosition;
-
-    return result;
   };
 
   public readonly waitSelectDestination = async (
@@ -385,6 +354,13 @@ export class DuelViewController {
     if (!selectableCells.length) {
       return;
     }
+    if (selectableCells.length === 1) {
+      return selectableCells[0];
+    }
+    if (!userAgentInfo.canDragElement) {
+      return await this.waitSelectCell(chooser, selectableCells, cancelable, "召喚先を選択。");
+    }
+
     let dest: DuelFieldCell = selectableCells.randomPick();
     const dummyActionInfos = [CardAction.createDummyAction(entity, actionTitle, selectableCells, undefined)];
     const act = await this._waitDammyAction(chooser, dummyActionInfos, message, cancelable);
@@ -429,5 +405,90 @@ export class DuelViewController {
     }
 
     return result;
+  };
+
+  public readonly waitSelectCell = async (
+    chooser: Duelist,
+    selectableCells: DuelFieldCell[],
+    cancelable: boolean,
+    message: string
+  ): Promise<DuelFieldCell | undefined> => {
+    if (!selectableCells.length) {
+      return;
+    }
+
+    if (chooser.duelistType === "NPC") {
+      return selectableCells.randomPick();
+    }
+    const selected =
+      (await this.waitSelectCells(chooser, { selectables: selectableCells, qty: 1, validator: (selected) => selected.length === 1, cancelable }, message)) ??
+      [];
+
+    return selected[0];
+  };
+  public readonly waitSelectCells = async (
+    chooser: Duelist,
+    cellsChoices: ChoicesSweet<DuelFieldCell>,
+    message: string
+  ): Promise<DuelFieldCell[] | undefined> => {
+    if (!cellsChoices.selectables.length) {
+      return;
+    }
+
+    if (chooser.duelistType === "NPC") {
+      return randomChoice(cellsChoices);
+    }
+    const response = await this._waitDuelistAction(chooser, [], "Modal", message, undefined, cellsChoices, cellsChoices.cancelable);
+
+    if ((!response || !response.selectedCells) && !cellsChoices.cancelable) {
+      throw new IllegalCancelError(chooser, cellsChoices, message);
+    }
+
+    return response.selectedCells;
+  };
+  private readonly _waitDuelistAction = async (
+    activator: Duelist,
+    dummyActionInfos: DummyActionInfo[],
+    waitMode: TDuelWaitMode,
+    message: string,
+    entitiesChoices: ChoicesSweet<DuelEntity> | undefined,
+    cellsChoices: ChoicesSweet<DuelFieldCell> | undefined,
+    cancelable: boolean = false
+  ): Promise<DuelistResponseBase> => {
+    this.waitMode = waitMode;
+    this._message = message;
+
+    this.onDuelUpdateEvent.trigger();
+
+    // Promise一式作成
+    const promiseSweet = createPromiseSweet<DuelistResponseBase>();
+
+    // 待機のための引数作成。解決のためのresolveを渡す
+    const args: WaitStartEventArg = {
+      resolve: promiseSweet.resolve,
+      activator,
+      dummyActionInfos,
+      chainBlockInfos: activator.duel.chainBlockInfos,
+      entitiesChoices,
+      cellsChoices,
+    };
+
+    // 待機開始を通知
+    this.onWaitStartEvent.trigger(args);
+    // 待機開始
+    const userAction: DuelistResponseBase = await promiseSweet.promise;
+    this.modalController.terminateAll();
+
+    this.waitMode = "None";
+    this.onWaitEndEvent.trigger();
+    if (userAction.surrender) {
+      throw new DuelEnd(activator.getOpponentPlayer(), `${activator.profile.name}がサレンダーした。`);
+    }
+    if (!cancelable && userAction.cancel) {
+      throw new SystemError("キャンセル不可のアクションがキャンセルされた。", userAction, dummyActionInfos, waitMode, entitiesChoices, cellsChoices);
+    }
+    this.infoBoardState = "Log";
+
+    return userAction;
   };
 }

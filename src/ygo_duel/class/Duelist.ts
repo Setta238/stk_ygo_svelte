@@ -396,7 +396,7 @@ export class Duelist {
       selectedList =
         (await this.duel.view.waitSelectEntities(
           chooser || this,
-          { choices, qty, validator: (list) => list.length === qty, cancelable: false },
+          { selectables: choices, qty, validator: (list) => list.length === qty, cancelable: false },
           `${qty}枚カードを捨てる。`
         )) || [];
     }
@@ -508,7 +508,7 @@ export class Duelist {
     let monsters = choices.map((item) => item.monster);
 
     if (summonChoices.length !== 1 || validator([])) {
-      const hoge = await this.duel.view.waitSelectEntities(this, { choices: monsters, qty, validator, cancelable }, msg);
+      const hoge = await this.duel.view.waitSelectEntities(this, { selectables: monsters, qty, validator, cancelable }, msg);
 
       monsters = hoge ?? [];
     }

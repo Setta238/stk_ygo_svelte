@@ -157,7 +157,7 @@ const defaultLinkSummonPayCost = async (
     const _materials = await myInfo.action.entity.duel.view.waitSelectEntities(
       myInfo.activator,
       {
-        choices,
+        selectables: choices,
         qty: undefined,
         validator: (selected) => {
           //

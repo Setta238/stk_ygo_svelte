@@ -67,7 +67,7 @@ export const createCardDefinitions_Firewall_LinkMonster = (): CardDefinition[] =
           const selectedEntities =
             (await myInfo.action.entity.duel.view.waitSelectEntities(
               myInfo.activator,
-              { choices, qty: undefined, validator: (selected) => selected.length > 0 && selected.length <= maxQty, cancelable: false },
+              { selectables: choices, qty: undefined, validator: (selected) => selected.length > 0 && selected.length <= maxQty, cancelable: false },
               "手札に戻すカードを選択。"
             )) ?? [];
 

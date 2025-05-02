@@ -26,9 +26,9 @@
 {#if isShown}
   <div class="modal_window">
     <div>{args.title}</div>
-    {#each args.entitiesChoices.choices.map((e) => e.controller.seat).getDistinct() as seat}
+    {#each args.entitiesChoices.selectables.map((e) => e.controller.seat).getDistinct() as seat}
       <div class="entities_list {seat}">
-        {#each args.entitiesChoices.choices.filter((e) => e.controller.seat === seat).toSorted(cardEntitySorter) as entity}
+        {#each args.entitiesChoices.selectables.filter((e) => e.controller.seat === seat).toSorted(cardEntitySorter) as entity}
           <div class="entities_list_item {targetsInPreviousChainBlocks.includes(entity) ? `effect_target` : ``}">
             <DuelCard
               {entity}

@@ -24,12 +24,9 @@
   let duelistResponseResolve: (res: DuelistResponseBase) => void = () => {};
   export let qty: number | undefined = undefined;
   const onWaitStart: (args: WaitStartEventArg) => void = (args) => {
-    if (!args.entitiesChoices) {
-      return;
-    }
     activator = args.activator;
     isSelected = false;
-    qty = args.entitiesChoices.qty;
+    qty = args.entitiesChoices?.qty;
     duelistResponseResolve = args.resolve;
   };
   entity.field.duel.view.onWaitStart.append(onWaitStart);
@@ -58,6 +55,7 @@
 
   const onClick = () => {
     showCardInfo();
+    console.log(entity.toString(), state, dummyActionInfos.length, cardActionResolve);
     if (state === "Disabled") {
       return;
     }
@@ -79,7 +77,7 @@
         cardActionResolve(actionInfo);
         return;
       }
-
+      console.log(entity.toString(), state, dummyActionInfos.length, duelistResponseResolve);
       duelistResponseResolve({
         actionInfo,
       });

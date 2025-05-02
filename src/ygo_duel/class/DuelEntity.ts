@@ -94,6 +94,7 @@ export type DuelEntityInfomation = {
   equipedAs: ChainBlockInfo<unknown> | undefined;
   validateEquipOwner: (owner: DuelEntity, equip: DuelEntity) => boolean;
   equipEntities: DuelEntity[];
+  battleLog: { enemy: DuelEntity; timestamp: IDuelClock }[];
 };
 
 export type TDuelEntityFace = "FaceUp" | "FaceDown";
@@ -151,7 +152,8 @@ export type TDuelCauseReason =
   | "System"
   | "LostXyzOwner"
   | "LostEquipOwner"
-  | "SummonNegated";
+  | "SummonNegated"
+  | "PutDirectly";
 
 export const duelEntityCardTypes = ["Card", "Token", "Avatar"] as const;
 export type TDuelEntityCardType = (typeof duelEntityCardTypes)[number];
@@ -555,13 +557,13 @@ export class DuelEntity {
   public readonly canBeSentToGraveyard = <T>(
     activator: Duelist,
     causedBy: DuelEntity,
-    causedAs: ("SendToGraveyardAsEffect" | "SendToGraveyardAsCost")[],
+    causedAs: "SendToGraveyardAsEffect" | "SendToGraveyardAsCost",
     action: CardAction<T>
   ): boolean => {
     return (
       !this.info.willBeBanished &&
       !this.info.willReturnToDeck &&
-      this.procFilterBundle.effectiveOperators.filter((pf) => pf.procTypes.union(causedAs).length).every((pf) => pf.filter(activator, causedBy, action, [this]))
+      this.procFilterBundle.effectiveOperators.filter((pf) => pf.procTypes.includes(causedAs)).every((pf) => pf.filter(activator, causedBy, action, [this]))
     );
   };
   private _hasDisappeared = false;
@@ -812,6 +814,7 @@ export class DuelEntity {
       equipedAs: undefined,
       validateEquipOwner: () => true,
       equipEntities: [],
+      battleLog: [],
     };
     this.resetInfoAll();
     this.face = face;
@@ -946,6 +949,15 @@ export class DuelEntity {
     actionOwner: Duelist
   ): Promise<void> => {
     await this.moveAlone(to, kind, "FaceUp", "Vertical", "Top", [...movedAs, "CardActivation"], movedBy, actionOwner, actionOwner);
+  };
+  public readonly putDirectly = async (
+    to: DuelFieldCell,
+    kind: TCardKind,
+    movedAs: TDuelCauseReason[],
+    movedBy: DuelEntity,
+    actionOwner: Duelist
+  ): Promise<void> => {
+    await this.moveAlone(to, kind, "FaceUp", "Vertical", "Top", [...movedAs, "PutDirectly"], movedBy, actionOwner, actionOwner);
   };
 
   public readonly activateSpellTrapOnField = async (kind: TCardKind, movedAs: TDuelCauseReason[], movedBy: DuelEntity, actionOwner: Duelist): Promise<void> => {
@@ -1210,6 +1222,7 @@ export class DuelEntity {
       equipedAs: undefined,
       validateEquipOwner: () => true,
       equipEntities: [],
+      battleLog: [],
     };
 
     this.counterHolder.clear();

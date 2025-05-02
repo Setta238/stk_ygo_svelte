@@ -17,6 +17,16 @@ export const defaultPayLifePoint = async <T>(
   return { lifePoint: point };
 };
 
+export const defaultCanPaySelfSendToGraveyardCost = <T>(myInfo: ChainBlockInfoBase<T>) =>
+  myInfo.activator.canSendToGraveyard([myInfo.action.entity]) &&
+  myInfo.action.entity.canBeSentToGraveyard(myInfo.activator, myInfo.action.entity, "SendToGraveyardAsCost", myInfo.action);
+
+export const defaultPaySelfSendToGraveyardCost = async <T>(myInfo: ChainBlockInfoBase<T>) => {
+  await myInfo.action.entity.sendToGraveyard(["Cost"], myInfo.action.entity, myInfo.activator);
+
+  return { sendToGraveyard: [myInfo.action.entity] };
+};
+
 export const defaultCanPaySelfBanishCosts = <T>(myInfo: ChainBlockInfoBase<T>) =>
   myInfo.activator.canTryBanish(myInfo.action.entity, "BanishAsCost", myInfo.action) &&
   myInfo.action.entity.canBeBanished("BanishAsCost", myInfo.activator, myInfo.action.entity, myInfo.action);

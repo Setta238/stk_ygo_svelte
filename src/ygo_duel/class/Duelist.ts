@@ -2,7 +2,7 @@ import { type IDuelistProfile } from "@ygo/class/DuelistProfile";
 import { type IDeckInfo } from "@ygo/class/DeckInfo";
 import { Duel, DuelEnd, SystemError, type ResponseActionInfo, type TSeat } from "./Duel";
 import { DuelEntity, type SummonArg, type TDuelCauseReason, type TSummonKindCauseReason } from "./DuelEntity";
-import type { DuelClock } from "./DuelClock";
+import type { IDuelClock } from "./DuelClock";
 import type { DuelFieldCell } from "./DuelFieldCell";
 import { cardInfoDic } from "@ygo/class/CardInfo";
 import {} from "@stk_utils/funcs/StkArrayUtils";
@@ -23,7 +23,7 @@ type TLifeLogReason = "BattleDamage" | "EffectDamage" | "Heal" | "Lost" | "Pay" 
 export type TDuelistType = "NPC" | "Player";
 
 type LifeLogRecord = {
-  clock: DuelClock;
+  clock: IDuelClock;
   reason: TLifeLogReason;
   beforeLp: number;
   afterLp: number;
@@ -234,7 +234,7 @@ export class Duelist {
   };
   public readonly setLp = (lp: number, entity?: DuelEntity, reason?: TLifeLogReason): LifeLogRecord => {
     const log = {
-      clock: this.duel.clock,
+      clock: this.duel.clock.getClone(),
       reason: reason || "Set",
       beforeLp: this._lp,
       afterLp: lp,

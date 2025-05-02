@@ -264,6 +264,9 @@ export class DuelClock implements IDuelClock {
       this.chainSeq === other.chainSeq + 1
     );
   };
+  public readonly isPreviousStage = (other: IDuelClock): boolean => {
+    return this.turn === other.turn && this.phaseSeq === other.phaseSeq && this.stepSeq === other.stepSeq && this.stageSeq === other.stageSeq + 1;
+  };
   public readonly isPreviousTurn = (other: IDuelClock): boolean => {
     return this.turn === other.turn + 1;
   };

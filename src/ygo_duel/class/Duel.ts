@@ -534,6 +534,9 @@ export class Duel {
       }
     }
 
+    attacker.info.battleLog.push({ enemy: defender, timestamp: this.clock.getClone() });
+    defender.info.battleLog.push({ enemy: attacker, timestamp: this.clock.getClone() });
+
     const losers = Object.values(this.duelists).filter((duelist) => duelist.lp <= 0);
 
     if (losers.length) {

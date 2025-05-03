@@ -3,7 +3,7 @@ import { defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/c
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import { type CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
 
-import type { CardDefinition } from "./CardDefinitions";
+import type { CardDefinition } from "../cards/CardDefinitions";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 
 export const createCardDefinitions_NormalSpell_General_Draw = (): CardDefinition[] => {

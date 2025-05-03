@@ -2,7 +2,7 @@ import { defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/c
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 
-import type { CardDefinition } from "./CardDefinitions";
+import type { CardDefinition } from "../cards/CardDefinitions";
 import { freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";

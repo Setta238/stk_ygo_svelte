@@ -2,7 +2,7 @@ import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
 import { defaultAttackAction, defaultSummonFilter } from "@ygo_duel/card_actions/DefaultCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
-import type { CardDefinition } from "./CardDefinitions";
+import type { CardDefinition } from "../cards/CardDefinitions";
 import { getDefaultLinkSummonAction } from "../card_actions/DefaultCardAction_LinkMonster";
 import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
 

@@ -8,7 +8,7 @@ import {
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
 
-import type { CardDefinition } from "./CardDefinitions";
+import type { CardDefinition } from "../cards/CardDefinitions";
 import { type TCardKind, type TEntityFlexibleNumericStatusKey } from "@ygo/class/YgoTypes";
 import {
   createRegularNumericStateOperatorHandler as createRegularNumericStateOperatorHandler,

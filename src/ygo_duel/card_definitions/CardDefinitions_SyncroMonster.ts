@@ -7,7 +7,7 @@ import {
 } from "@ygo_duel/card_actions/DefaultCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
-import type { CardDefinition } from "./CardDefinitions";
+import type { CardDefinition } from "../cards/CardDefinitions";
 import { defaultPrepare } from "@ygo_duel/card_actions/DefaultCardAction";
 import { getDefaultSyncroSummonAction } from "../card_actions/DefaultCardAction_SyncroMonster";
 

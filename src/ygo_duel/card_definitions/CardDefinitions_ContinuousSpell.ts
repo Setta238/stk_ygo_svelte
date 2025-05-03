@@ -2,7 +2,7 @@ import { defaultContinuousSpellCardActivateAction, defaultSpellTrapSetAction } f
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 
-import type { CardDefinition } from "./CardDefinitions";
+import type { CardDefinition } from "../cards/CardDefinitions";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import { createBroadRegularNumericStateOperatorHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 

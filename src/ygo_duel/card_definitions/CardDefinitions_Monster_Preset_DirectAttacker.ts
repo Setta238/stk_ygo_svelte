@@ -8,7 +8,7 @@ import {
 } from "@ygo_duel/card_actions/DefaultCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
-import type { CardDefinition } from "./CardDefinitions";
+import type { CardDefinition } from "../cards/CardDefinitions";
 
 export const createCardDefinitions_Monster_Preset_DirectAttacker = (): CardDefinition[] => {
   const result: CardDefinition[] = [];

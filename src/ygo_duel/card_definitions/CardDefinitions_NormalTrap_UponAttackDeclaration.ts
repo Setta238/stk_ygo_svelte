@@ -4,7 +4,7 @@ import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardActionDefinition, TEffectTag } from "@ygo_duel/class/DuelCardAction";
 import { SystemError } from "@ygo_duel/class/Duel";
 
-import type { CardDefinition } from "./CardDefinitions";
+import type { CardDefinition } from "../cards/CardDefinitions";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 
 export const createCardDefinitions_NormalTrap_UponAttackDeclaration = (): CardDefinition[] => {

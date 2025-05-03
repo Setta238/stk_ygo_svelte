@@ -4,7 +4,7 @@ import { defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/c
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardActionDefinition, TEffectTag } from "@ygo_duel/class/DuelCardAction";
 
-import type { CardDefinition } from "./CardDefinitions";
+import type { CardDefinition } from "../cards/CardDefinitions";
 
 const getDefaultSearchSpellAction = (filter: (card: DuelEntity) => boolean): CardActionDefinition<undefined> => {
   return {

@@ -5,7 +5,7 @@ import { defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/c
 import { type CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
 import { IllegalCancelError, SystemError } from "@ygo_duel/class/Duel";
 
-import type { CardDefinition } from "./CardDefinitions";
+import type { CardDefinition } from "../cards/CardDefinitions";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import {
   defaultPrepare,

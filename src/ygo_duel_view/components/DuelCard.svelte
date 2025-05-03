@@ -152,17 +152,17 @@
           <div class="monster_attr {attr}"></div>
         {/each}
       </div>
-      {#if entity.status.kind === "Monster"}
+      {#if entity.kind === "Monster"}
         <div class="duel_card_row">
           <div class={entity.lvl !== entity.origin.level ? "different_from_its_origin" : ""}>{"★".repeat(entity.lvl || 0)}</div>
           <div class={entity.rank !== entity.origin.rank ? "different_from_its_origin" : ""}>{"☆".repeat(entity.rank || 0)}</div>
         </div>
-      {:else if entity.status.kind === "Spell" && entity.status.spellCategory}
+      {:else if entity.kind === "Spell" && entity.status.spellCategory}
         <div class="duel_card_row">
           <div></div>
           <div>{spellCategoryDic[entity.status.spellCategory]}魔法</div>
         </div>
-      {:else if entity.status.kind === "Trap" && entity.status.trapCategory}
+      {:else if entity.kind === "Trap" && entity.status.trapCategory}
         <div class="duel_card_row">
           <div></div>
           <div>{trapCategoryDic[entity.status.trapCategory]}罠</div>
@@ -174,13 +174,13 @@
           <div class={entity.psR !== entity.origin.pendulumScaleR ? "different_from_its_origin" : ""}>{entity.psR} ▶</div>
         </div>
       {/if}
-      {#if entity.status.kind === "Spell" && entity.isPendulumScale}
+      {#if entity.kind === "Spell" && entity.isPendulumScale}
         <div class="duel_card_row">
           <div></div>
           <div>ペンデュラム</div>
         </div>
       {/if}
-      {#if entity.status.kind === "Monster"}
+      {#if entity.kind === "Monster"}
         <div class="duel_card_row duel_card_detail">
           <div>
             {entity.types.map((t) => monsterTypeEmojiDic[t] + (isWideMode ? monsterTypeDic[t] : "")).join()}

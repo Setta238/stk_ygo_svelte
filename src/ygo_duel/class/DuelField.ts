@@ -84,7 +84,7 @@ export class DuelField {
       .map((entities) => entities[0])
       .filter((card) => card.info.isPending);
   };
-  public readonly getPendingMonstersOnField = (): DuelEntity[] => this.getPendingCardsOnField().filter((monster) => monster.status.kind === "Monster");
+  public readonly getPendingMonstersOnField = (): DuelEntity[] => this.getPendingCardsOnField().filter((monster) => monster.kind === "Monster");
 
   public readonly getEntities = (duelist: Duelist): DuelEntity[] => {
     return this.getAllEntities().filter((entity) => entity.controller === duelist);

@@ -90,7 +90,7 @@ export class EntityMoveLog {
     let cell = this.entity.fieldCell;
 
     // XYZ素材のみ、ログ上「XYZ素材ゾーン」にいたことにする。
-    if (this.entity.status.kind === "XyzMaterial") {
+    if (this.entity.kind === "XyzMaterial") {
       cell = this.entity.controller.getXyzMaterialZone();
     }
 

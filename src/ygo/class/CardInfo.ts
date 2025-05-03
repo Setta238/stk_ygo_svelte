@@ -1,6 +1,6 @@
 import json from "@ygo/json/cardInfo.json";
 import type { CardInfoJson } from "@ygo/class/YgoTypes";
-import { createCardDefinitions, type CardDefinition } from "@ygo_duel/cards/CardDefinitions";
+import { createCardDefinitions, type CardDefinition } from "@ygo_card/class/DuelCardDefinition";
 
 const _cardDefinitions: Map<string, CardDefinition> = new Map();
 createCardDefinitions().forEach((obj) => {

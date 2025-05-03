@@ -51,14 +51,14 @@ import {
   defaultFlipSummonAction,
   defaultNormalSummonAction,
   defaultSummonFilter,
-} from "@ygo_duel/card_actions/DefaultCardAction_Monster";
+} from "@ygo_card/card_actions/DefaultCardAction_Monster";
 import { StkAsyncEvent } from "@stk_utils/class/StkEvent";
-import type { CardDefinition } from "@ygo_duel/cards/CardDefinitions";
+import type { CardDefinition } from "@ygo_card/class/DuelCardDefinition";
 import { SubstituteEffect } from "./DuelSubstituteEffect";
 import { SummonFilter, SummonFilterBundle } from "@ygo_duel/class_continuous_effect/DuelSummonFilter";
 import { DuelEntityShortHands } from "./DuelEntityShortHands";
 import type { IDuelClock } from "./DuelClock";
-import { duelistActions } from "@ygo_duel/card_actions/DefaultCardAction_Duelist";
+import { duelistActions } from "@ygo_card/card_actions/DefaultCardAction_Duelist";
 export type EntityStatus = {
   canAttack: boolean;
   canDirectAttack: boolean;
@@ -71,9 +71,10 @@ export type EntityStatus = {
    */
   isSelectableForAttack: boolean;
   maxCounterQty: { [key in TCounterName]?: number };
-} & EntityStatusBase;
+} & Omit<EntityStatusBase, "kind">;
 
 export type DuelEntityInfomation = {
+  kind: TCardKind;
   isEffectiveIn: DuelFieldCellType[];
   isPending: boolean;
   isDying: boolean;
@@ -287,6 +288,7 @@ export class DuelEntity {
       }
 
       if (!_to.isPlayFieldCell) {
+        console.log(this.toString(), kind, to);
         _kind = entity.origin.kind;
       }
       if (!_to.isMonsterZoneLikeCell) {
@@ -580,6 +582,10 @@ export class DuelEntity {
     return this._info;
   }
 
+  public get kind() {
+    return this.info.kind;
+  }
+
   public get nm() {
     return this.status.name;
   }
@@ -667,7 +673,7 @@ export class DuelEntity {
     if (!this.isOnFieldStrictly) {
       return undefined;
     }
-    if (this.status.kind !== "Monster") {
+    if (this.kind !== "Monster") {
       return undefined;
     }
     if (this.orientation === "Vertical") {
@@ -726,7 +732,7 @@ export class DuelEntity {
     return this.fieldCell.isPlayFieldCell;
   }
   public get isOnFieldStrictly() {
-    return this.isOnField && !this.info.isPending && this.status.kind !== "XyzMaterial";
+    return this.isOnField && !this.info.isPending && this.kind !== "XyzMaterial";
   }
   public get isOnFieldAsMonsterStrictly() {
     return this.fieldCell.isMonsterZoneLikeCell && this.isOnFieldStrictly;
@@ -794,6 +800,7 @@ export class DuelEntity {
 
     this.resetStatusAll();
     this._info = {
+      kind: this.origin.kind,
       isEffectiveIn: [...duelFieldCellTypes],
       attackCount: 0,
       battlePotisionChangeCount: 0,
@@ -1082,7 +1089,7 @@ export class DuelEntity {
           return;
         }
       }
-      if (this.status.kind !== "XyzMaterial") {
+      if (this.kind !== "XyzMaterial") {
         // モンスターゾーンを離れる時の処理
         if ((this.fieldCell.isMonsterZoneLikeCell && !to.isMonsterZoneLikeCell) || kind !== "Monster") {
           // 装備していたカードにマーキング
@@ -1161,9 +1168,9 @@ export class DuelEntity {
       this.resetNumericStatus();
 
       // セットしたターンに発動できない制約を付与
-      this.info.isSettingSickness = this.status.kind === "Trap" || this.status.spellCategory === "QuickPlay";
+      this.info.isSettingSickness = this.kind === "Trap" || this.status.spellCategory === "QuickPlay";
     }
-    this._status.kind = kind;
+    this._info.kind = kind;
     // 移動ログ追加
     this.moveLog.push(kind, movedAs, movedBy, actionOwner, chooser);
 
@@ -1202,6 +1209,7 @@ export class DuelEntity {
 
   private readonly resetInfoAll = () => {
     this._info = {
+      kind: this.origin.kind,
       isDying: false,
       isPending: false,
       isEffectiveIn: [...duelFieldCellTypes],
@@ -1476,7 +1484,7 @@ DuelEntity.prototype.hadArrivedToFieldAt = function (): IDuelClock {
     if (record.isPending) {
       return true;
     }
-    if (record.kind !== this.status.kind) {
+    if (record.kind !== this.kind) {
       return true;
     }
     if (record.face === "FaceDown") {

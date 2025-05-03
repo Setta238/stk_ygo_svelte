@@ -94,7 +94,7 @@ export class Duelist {
 
     await DuelEntityShortHands.moveToXyzOwner(
       summonArgs[0].dest,
-      materialInfos.map((info) => info.material).filter((monster) => monster.status.kind === "XyzMaterial"),
+      materialInfos.map((info) => info.material).filter((monster) => monster.kind === "XyzMaterial"),
       ["XyzMaterial", "Rule"],
       summonArgs[0].monster,
       effectOwner
@@ -799,7 +799,7 @@ export class Duelist {
       if (this.getAvailableSpellTrapZones.length > 1) {
         return actionInfos
           .filter((info) => info.action.playType === "SpellTrapSet")
-          .filter((info) => info.action.entity.status.kind !== "Spell" || info.action.entity.status.spellCategory === "QuickPlay")
+          .filter((info) => info.action.entity.kind !== "Spell" || info.action.entity.status.spellCategory === "QuickPlay")
           .randomPick();
       }
     }

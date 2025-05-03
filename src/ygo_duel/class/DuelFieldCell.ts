@@ -105,10 +105,10 @@ export class DuelFieldCell {
     return this._entities.filter((e) => duelEntityCardTypes.find((t) => t === e.entityType));
   }
   public get cardEntities() {
-    return this._entities.filter((e) => duelEntityCardTypes.find((t) => t === e.entityType)).filter((e) => e.status.kind !== "XyzMaterial");
+    return this._entities.filter((e) => duelEntityCardTypes.find((t) => t === e.entityType)).filter((e) => e.kind !== "XyzMaterial");
   }
   public get xyzMaterials() {
-    return this._entities.filter((e) => e.status.kind === "XyzMaterial");
+    return this._entities.filter((e) => e.kind === "XyzMaterial");
   }
   public get targetForAttack() {
     return this.cellType === "Hand" ? this._entities.find((e) => e.entityType === "Duelist") : this.cardEntities[0];

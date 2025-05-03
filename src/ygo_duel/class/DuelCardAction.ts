@@ -504,9 +504,9 @@ export class CardAction<T> extends CardActionBase implements ICardAction {
         if (this.entity.status.monsterCategories?.includes("Pendulum")) {
           await this.entity.activateAsPendulumScale(dest, ["CardActivation"], this.entity, activator);
         } else if (this.playType === "CardActivation") {
-          await this.entity.activateSpellTrapFromHand(dest, this.entity.status.kind, ["CardActivation"], this.entity, activator);
+          await this.entity.activateSpellTrapFromHand(dest, this.entity.kind, ["CardActivation"], this.entity, activator);
         } else {
-          await this.entity.setAsSpellTrap(dest, this.entity.status.kind, ["SpellTrapSet"], this.entity, activator);
+          await this.entity.setAsSpellTrap(dest, this.entity.kind, ["SpellTrapSet"], this.entity, activator);
         }
         _cancelable = false;
       } else if (this.entity.isOnField && this.entity.face === "FaceDown") {
@@ -624,7 +624,7 @@ export class CardAction<T> extends CardActionBase implements ICardAction {
         tags.push("DestroyMultipleOnField");
       }
     }
-    const monstersOnField = cardsOnFields.filter((card) => card.status.kind === "Monster");
+    const monstersOnField = cardsOnFields.filter((card) => card.kind === "Monster");
 
     if (monstersOnField.length) {
       tags.push("DestroyMonsterOnField");
@@ -633,7 +633,7 @@ export class CardAction<T> extends CardActionBase implements ICardAction {
       }
     }
 
-    const spellTraps = cardsOnFields.filter((card) => card.status.kind !== "Monster");
+    const spellTraps = cardsOnFields.filter((card) => card.kind !== "Monster");
     if (spellTraps.length) {
       tags.push("DestroySpellTrapOnField");
       if (monstersOnField.length > 1) {

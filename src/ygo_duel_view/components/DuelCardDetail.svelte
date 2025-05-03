@@ -50,7 +50,7 @@
             <div>{entity.psR} ▶</div>
           </div>
         {/if}
-        {#if entity.status.kind === "Monster"}
+        {#if entity.kind === "Monster"}
           <div class="duel_card_info_row">
             {#each entity.attr as attr}
               <div class="monster_attr {attr}"></div>
@@ -65,12 +65,12 @@
               <div class="monster_cat {cat}">{monsterCategoryEmojiDic[cat]}{monsterCategoryDic[cat]}</div>
             {/each}
           </div>
-        {:else if entity.status.kind === "Spell" && entity.status.spellCategory}
+        {:else if entity.kind === "Spell" && entity.status.spellCategory}
           <div class="duel_card_row">
             <div></div>
             <div>{spellCategoryDic[entity.status.spellCategory]}魔法</div>
           </div>
-        {:else if entity.status.kind === "Trap" && entity.status.trapCategory}
+        {:else if entity.kind === "Trap" && entity.status.trapCategory}
           <div class="duel_card_row">
             <div></div>
             <div>{trapCategoryDic[entity.status.trapCategory]}罠</div>

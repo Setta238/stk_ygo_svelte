@@ -19,6 +19,7 @@ export default defineConfig({
       "@stk_utils": path.join(__dirname, "src/stk_utils"),
       "@app": path.join(__dirname, "src/app"),
       "@ygo": path.join(__dirname, "src/ygo"),
+      "@ygo_card": path.join(__dirname, "src/ygo_card"),
       "@ygo_deck_editor": path.join(__dirname, "src/ygo_deck_editor"),
       "@ygo_duel": path.join(__dirname, "src/ygo_duel"),
       "@ygo_duel_view": path.join(__dirname, "src/ygo_duel_view"),
@@ -34,10 +35,16 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (id.endsWith("cardInfo.json")) {
-            return "cardInfo";
+            return "json";
+          }
+          if (id.includes("src/ygo_card")) {
+            return "card";
+          }
+          if (id.includes("src/ygo_duel")) {
+            return "duel";
           }
         },
-        chunkFileNames: "assets/cardInfo.js",
+        chunkFileNames: "assets/[name].js",
         assetFileNames: "[name].[ext]",
       },
     },

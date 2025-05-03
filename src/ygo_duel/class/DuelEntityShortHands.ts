@@ -10,7 +10,7 @@ export class DuelEntityShortHands {
     if (entity.info.isDying) {
       return false;
     }
-    if (entity.status.kind === "XyzMaterial") {
+    if (entity.kind === "XyzMaterial") {
       return false;
     }
     if (!entity.isOnFieldStrictly && entity.fieldCell.cellType !== "Deck" && entity.fieldCell.cellType !== "Hand") {

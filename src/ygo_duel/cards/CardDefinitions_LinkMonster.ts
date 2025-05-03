@@ -1,9 +1,9 @@
 import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
-import { defaultAttackAction, defaultSummonFilter } from "@ygo_duel/cards/DefaultCardAction_Monster";
+import { defaultAttackAction, defaultSummonFilter } from "@ygo_duel/card_actions/DefaultCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardDefinition } from "./CardDefinitions";
-import { getDefaultLinkSummonAction } from "./DefaultCardAction_LinkMonster";
+import { getDefaultLinkSummonAction } from "../card_actions/DefaultCardAction_LinkMonster";
 import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
 
 export const createCardDefinitions_LinkMonster = (): CardDefinition[] => {

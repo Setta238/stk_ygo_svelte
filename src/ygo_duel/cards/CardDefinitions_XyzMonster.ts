@@ -4,11 +4,11 @@ import {
   defaultBattlePotisionChangeAction,
   defaultFlipSummonAction,
   defaultSummonFilter,
-} from "@ygo_duel/cards/DefaultCardAction_Monster";
+} from "@ygo_duel/card_actions/DefaultCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardDefinition } from "./CardDefinitions";
-import { getDefaultXyzSummonAction } from "./DefaultCardAction_XyzMonster";
+import { getDefaultXyzSummonAction } from "../card_actions/DefaultCardAction_XyzMonster";
 export const createCardDefinitions_XyzMonster = (): CardDefinition[] => {
   const result: CardDefinition[] = [];
 
@@ -29,3 +29,21 @@ export const createCardDefinitions_XyzMonster = (): CardDefinition[] => {
   );
   return result;
 };
+// MEMO 動作検証用の仕込み
+export default function* generate(): Generator<CardDefinition> {
+  yield* [
+    { name: "ジェムナイト・パール", qty: 2 },
+    { name: "覚醒の勇士 ガガギゴ", qty: 3 },
+  ].map((item) => {
+    return {
+      name: item.name,
+      actions: [
+        defaultAttackAction,
+        defaultBattlePotisionChangeAction,
+        defaultFlipSummonAction,
+        getDefaultXyzSummonAction(item.qty, item.qty),
+      ] as CardActionDefinition<unknown>[],
+      defaultSummonFilter: defaultSummonFilter,
+    };
+  });
+}

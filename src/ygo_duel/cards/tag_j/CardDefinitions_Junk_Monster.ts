@@ -3,11 +3,11 @@ import {
   defaultBattlePotisionChangeAction,
   defaultFlipSummonAction,
   defaultNormalSummonAction,
-} from "@ygo_duel/cards/DefaultCardAction_Monster";
+} from "@ygo_duel/card_actions/DefaultCardAction_Monster";
 import type { CardDefinition } from "../CardDefinitions";
 import { freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
-import { defaultCanPaySelfBanishCosts } from "../DefaultCardAction";
+import { defaultCanPaySelfBanishCosts } from "../../card_actions/DefaultCardAction";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { SystemError } from "@ygo_duel/class/Duel";
 

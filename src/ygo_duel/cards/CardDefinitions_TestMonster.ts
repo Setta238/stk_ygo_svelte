@@ -5,7 +5,7 @@ import {
   defaultBattlePotisionChangeAction,
   defaultFlipSummonAction,
   defaultNormalSummonAction,
-} from "@ygo_duel/cards/DefaultCardAction_Monster";
+} from "@ygo_duel/card_actions/DefaultCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 

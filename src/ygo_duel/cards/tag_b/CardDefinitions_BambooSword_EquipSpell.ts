@@ -1,10 +1,10 @@
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import type { CardDefinition } from "../CardDefinitions";
-import { defaultSpellTrapSetAction, getDefaultEquipSpellTrapAction } from "../DefaultCardAction_Spell";
+import { defaultSpellTrapSetAction, getDefaultEquipSpellTrapAction } from "../../card_actions/DefaultCardAction_Spell";
 import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { IllegalCancelError } from "@ygo_duel/class/Duel";
-import { defaultCanPaySelfSendToGraveyardCost, defaultPaySelfSendToGraveyardCost, defaultPrepare } from "../DefaultCardAction";
+import { defaultCanPaySelfSendToGraveyardCost, defaultPaySelfSendToGraveyardCost, defaultPrepare } from "../../card_actions/DefaultCardAction";
 
 export const createCardDefinitions_BambooSword_EquipSpell = (): CardDefinition[] => {
   const result: CardDefinition[] = [];

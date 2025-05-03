@@ -1,13 +1,13 @@
 import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
-import { defaultAttackAction, defaultSummonFilter } from "@ygo_duel/cards/DefaultCardAction_Monster";
+import { defaultAttackAction, defaultSummonFilter } from "@ygo_duel/card_actions/DefaultCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardDefinition } from "@ygo_duel/cards/CardDefinitions";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
-import { defaultPrepare, defaultCanPaySelfBanishCosts, defaultPaySelfBanishCosts } from "@ygo_duel/cards/DefaultCardAction";
+import { defaultPrepare, defaultCanPaySelfBanishCosts, defaultPaySelfBanishCosts } from "@ygo_duel/card_actions/DefaultCardAction";
 import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
-import { getDefaultLinkSummonAction } from "../DefaultCardAction_LinkMonster";
+import { getDefaultLinkSummonAction } from "../../card_actions/DefaultCardAction_LinkMonster";
 import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 
 export const createCardDefinitions_Crystron_LinkMonster = (): CardDefinition[] => {

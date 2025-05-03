@@ -12,7 +12,7 @@ import {
   defaultRuleSummonExecute,
   defaultRuleSummonPrepare,
   defaultSelfRebornExecute,
-} from "@ygo_duel/cards/DefaultCardAction_Monster";
+} from "@ygo_duel/card_actions/DefaultCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 
@@ -21,7 +21,7 @@ import { createRegularProcFilterHandler, type ContinuousEffectBase } from "@ygo_
 import { ProcFilter } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
 import { damageStepPeriodKeys, duelPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
-import { defaultEffectSpecialSummonExecute, defaultCanPaySelfBanishCosts, defaultPaySelfBanishCosts } from "./DefaultCardAction";
+import { defaultEffectSpecialSummonExecute, defaultCanPaySelfBanishCosts, defaultPaySelfBanishCosts } from "../card_actions/DefaultCardAction";
 
 export const createCardDefinitions_Monster = (): CardDefinition[] => {
   const result: CardDefinition[] = [];

@@ -3,7 +3,7 @@ import {
   defaultSpellTrapSetAction,
   defaultSpellTrapValidate,
   getDefaultEquipSpellTrapAction,
-} from "@ygo_duel/cards/DefaultCardAction_Spell";
+} from "@ygo_duel/card_actions/DefaultCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
@@ -16,7 +16,7 @@ import {
 } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import { defaultPayLifePoint, defaultTargetMonstersRebornExecute, defaultTargetMonstersRebornPrepare } from "./DefaultCardAction";
+import { defaultPayLifePoint, defaultTargetMonstersRebornExecute, defaultTargetMonstersRebornPrepare } from "../card_actions/DefaultCardAction";
 export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
   const result: CardDefinition[] = [];
 

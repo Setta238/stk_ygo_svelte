@@ -4,12 +4,12 @@ import {
   defaultBattlePotisionChangeAction,
   defaultFlipSummonAction,
   defaultSummonFilter,
-} from "@ygo_duel/cards/DefaultCardAction_Monster";
+} from "@ygo_duel/card_actions/DefaultCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardDefinition } from "./CardDefinitions";
-import { defaultPrepare } from "@ygo_duel/cards/DefaultCardAction";
-import { getDefaultSyncroSummonAction } from "./DefaultCardAction_SyncroMonster";
+import { defaultPrepare } from "@ygo_duel/card_actions/DefaultCardAction";
+import { getDefaultSyncroSummonAction } from "../card_actions/DefaultCardAction_SyncroMonster";
 
 export const createCardDefinitions_SyncroMonster = (): CardDefinition[] => {
   const result: CardDefinition[] = [];

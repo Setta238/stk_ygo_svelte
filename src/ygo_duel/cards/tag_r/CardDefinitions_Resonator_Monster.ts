@@ -4,7 +4,7 @@ import {
   defaultFlipSummonAction,
   defaultNormalSummonAction,
   getSelfBattleSubstituteEffectDefinition,
-} from "@ygo_duel/cards/DefaultCardAction_Monster";
+} from "@ygo_duel/card_actions/DefaultCardAction_Monster";
 import type { CardDefinition } from "../CardDefinitions";
 import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";

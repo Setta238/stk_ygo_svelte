@@ -1,5 +1,5 @@
 import type { CardActionDefinition, ChainBlockInfo } from "@ygo_duel/class/DuelCardAction";
-import { defaultPrepare } from "./DefaultCardAction";
+import { defaultPrepare } from "@ygo_duel/card_actions/DefaultCardAction";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 
 const pendulumSummonAction = {

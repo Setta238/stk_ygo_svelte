@@ -17,7 +17,7 @@ import type { Duelist } from "@ygo_duel/class/Duelist";
 import type { SubstituteEffectDefinition } from "@ygo_duel/class/DuelSubstituteEffect";
 import type { SummonFilter } from "@ygo_duel/class_continuous_effect/DuelSummonFilter";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import { defaultPrepare } from "./DefaultCardAction";
+import { defaultPrepare } from "@ygo_duel/card_actions/DefaultCardAction";
 import { createRegularStatusOperatorHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 

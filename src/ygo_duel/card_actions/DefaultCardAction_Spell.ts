@@ -7,7 +7,7 @@ import {
 } from "@ygo_duel/class/DuelCardAction";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { spellTrapZoneCellTypes, type DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
-import { defaultPrepare } from "./DefaultCardAction";
+import { defaultPrepare } from "@ygo_duel/card_actions/DefaultCardAction";
 export const defaultSpellTrapSetValidate = (myInfo: ChainBlockInfoBase<unknown>): DuelFieldCell[] | undefined => {
   if (myInfo.action.entity.status.spellCategory === "Field") {
     const fieldZone = myInfo.activator.getFieldZone();

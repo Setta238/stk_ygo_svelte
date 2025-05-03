@@ -1,11 +1,11 @@
-import { defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/cards/DefaultCardAction_Spell";
+import { defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/card_actions/DefaultCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
 
 import type { CardDefinition } from "./CardDefinitions";
 import { freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
-import { defaultTargetMonstersRebornExecute, defaultTargetMonstersRebornPrepare } from "./DefaultCardAction";
+import { defaultTargetMonstersRebornExecute, defaultTargetMonstersRebornPrepare } from "../card_actions/DefaultCardAction";
 
 export const createCardDefinitions_NormalTrap = (): CardDefinition[] => {
   const result: CardDefinition[] = [];

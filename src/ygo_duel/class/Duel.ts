@@ -1,3 +1,4 @@
+import {} from "@ygo_duel/class/DuelCardDefinition";
 import {} from "@ygo_duel/class/DuelistShortHands";
 import { type IDeckInfo } from "@ygo/class/DeckInfo";
 import { Duelist, type TDuelistType } from "@ygo_duel/class/Duelist";

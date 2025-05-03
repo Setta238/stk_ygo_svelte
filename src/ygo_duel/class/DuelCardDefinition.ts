@@ -1,4 +1,13 @@
-import type { CardActionDefinition } from "./DuelCardAction";
-import type { DuelEntity } from "./DuelEntity";
+try {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const modules: Record<string, any> = import.meta.glob("@ygo_duel/cards/*.ts", { eager: true });
 
-export type DuelCardDefinition<T> = { name: string; actions: CardActionDefinition<T>[]; canSummonBy: (entity: DuelEntity) => boolean };
+  Object.keys(modules).forEach((component) => {
+    if (modules[component].default) {
+      console.log(component, ...modules[component].default());
+    }
+  });
+} catch (error) {
+  console.log("(´・ω・｀)");
+  console.error(error);
+}

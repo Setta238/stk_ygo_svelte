@@ -1,6 +1,6 @@
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { duelFieldCellTypes, monsterZoneCellTypes, spellTrapZoneCellTypes, type DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
-import { defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/cards/DefaultCardAction_Spell";
+import { defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_duel/card_actions/DefaultCardAction_Spell";
 
 import { type CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
 import { IllegalCancelError, SystemError } from "@ygo_duel/class/Duel";
@@ -12,7 +12,7 @@ import {
   defaultTargetMonstersRebornExecute,
   defaultTargetMonstersRebornPrepare,
   getSystemPeriodAction,
-} from "@ygo_duel/cards/DefaultCardAction";
+} from "@ygo_duel/card_actions/DefaultCardAction";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 
 export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {

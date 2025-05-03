@@ -1,5 +1,5 @@
 import type { CardDefinition } from "../CardDefinitions";
-import { defaultSpellTrapSetAction, defaultSpellTrapValidate } from "../DefaultCardAction_Spell";
+import { defaultSpellTrapSetAction, defaultSpellTrapValidate } from "../../card_actions/DefaultCardAction_Spell";
 
 export const createCardDefinitions_BambooSword_NormalSpell = (): CardDefinition[] => {
   const result: CardDefinition[] = [];

@@ -51,14 +51,14 @@ import {
   defaultFlipSummonAction,
   defaultNormalSummonAction,
   defaultSummonFilter,
-} from "@ygo_duel/cards/DefaultCardAction_Monster";
+} from "@ygo_duel/card_actions/DefaultCardAction_Monster";
 import { StkAsyncEvent } from "@stk_utils/class/StkEvent";
 import type { CardDefinition } from "@ygo_duel/cards/CardDefinitions";
 import { SubstituteEffect } from "./DuelSubstituteEffect";
 import { SummonFilter, SummonFilterBundle } from "@ygo_duel/class_continuous_effect/DuelSummonFilter";
 import { DuelEntityShortHands } from "./DuelEntityShortHands";
 import type { IDuelClock } from "./DuelClock";
-import { duelistActions } from "@ygo_duel/cards/DefaultCardAction_Duelist";
+import { duelistActions } from "@ygo_duel/card_actions/DefaultCardAction_Duelist";
 export type EntityStatus = {
   canAttack: boolean;
   canDirectAttack: boolean;

@@ -3,7 +3,7 @@ import {
   defaultBattlePotisionChangeAction,
   defaultFlipSummonAction,
   defaultNormalSummonAction,
-} from "@ygo_duel/cards/DefaultCardAction_Monster";
+} from "@ygo_duel/card_actions/DefaultCardAction_Monster";
 import type { CardDefinition } from "../CardDefinitions";
 import type { CardActionDefinition, ChainBlockInfo, ChainBlockInfoBase } from "@ygo_duel/class/DuelCardAction";
 import {
@@ -17,7 +17,7 @@ import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOper
 import type { TCardKind } from "@ygo/class/YgoTypes";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { duelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
-import { defaultPrepare } from "../DefaultCardAction";
+import { defaultPrepare } from "../../card_actions/DefaultCardAction";
 
 const createSpellCounterCommonEffect = (kind: TCardKind, maxQty?: number) => {
   const title = maxQty ? `魔力充填可能(${maxQty})` : "魔力充填可能";

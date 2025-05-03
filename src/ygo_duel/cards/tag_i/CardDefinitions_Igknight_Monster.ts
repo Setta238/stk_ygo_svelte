@@ -3,11 +3,11 @@ import {
   defaultBattlePotisionChangeAction,
   defaultFlipSummonAction,
   defaultNormalSummonAction,
-} from "@ygo_duel/cards/DefaultCardAction_Monster";
+} from "@ygo_duel/card_actions/DefaultCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardDefinition } from "@ygo_duel/cards/CardDefinitions";
-import { defaultContinuousSpellCardActivateAction } from "../DefaultCardAction_Spell";
+import { defaultContinuousSpellCardActivateAction } from "../../card_actions/DefaultCardAction_Spell";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 
 export const createCardDefinitions_Igknight_Monster = (): CardDefinition[] => {

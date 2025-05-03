@@ -1,16 +1,16 @@
 import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
-import { defaultAttackAction, defaultSummonFilter } from "@ygo_duel/cards/DefaultCardAction_Monster";
+import { defaultAttackAction, defaultSummonFilter } from "@ygo_duel/card_actions/DefaultCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardDefinition } from "@ygo_duel/cards/CardDefinitions";
-import { getDefaultLinkSummonAction } from "@ygo_duel/cards/DefaultCardAction_LinkMonster";
+import { getDefaultLinkSummonAction } from "@ygo_duel/card_actions/DefaultCardAction_LinkMonster";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { damageStepPeriodKeys, duelPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import type DuelFieldCell from "@ygo_duel_view/components/DuelFieldCell.svelte";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
-import { defaultSpellTrapValidate } from "../DefaultCardAction_Spell";
-import { defaultTargetMonstersRebornExecute, defaultTargetMonstersRebornPrepare } from "../DefaultCardAction";
+import { defaultSpellTrapValidate } from "../../card_actions/DefaultCardAction_Spell";
+import { defaultTargetMonstersRebornExecute, defaultTargetMonstersRebornPrepare } from "../../card_actions/DefaultCardAction";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 

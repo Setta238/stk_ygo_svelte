@@ -5,12 +5,12 @@ import {
   defaultFlipSummonAction,
   defaultSummonFilter,
   getDefaultAccelSyncroACtion,
-} from "@ygo_duel/cards/DefaultCardAction_Monster";
+} from "@ygo_duel/card_actions/DefaultCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardDefinition } from "@ygo_duel/cards/CardDefinitions";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
-import { getDefaultSyncroSummonAction } from "../DefaultCardAction_SyncroMonster";
+import { getDefaultSyncroSummonAction } from "../../card_actions/DefaultCardAction_SyncroMonster";
 import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 export const createCardDefinitions_Synchron_SyncroMonster = (): CardDefinition[] => {
   const result: CardDefinition[] = [];

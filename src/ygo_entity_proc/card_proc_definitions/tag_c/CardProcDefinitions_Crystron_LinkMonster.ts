@@ -1,4 +1,4 @@
-import { defaultAttackAction, defaultSummonFilter } from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
+import { defaultAttackAction } from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
@@ -8,6 +8,7 @@ import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 import { getDefaultLinkSummonAction } from "../../card_actions/CommonCardAction_LinkMonster";
 import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
+import { IllegalCancelError } from "@ygo_duel/class/Duel";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
@@ -60,39 +61,39 @@ export default function* generate(): Generator<EntityProcDefinition> {
             .filter((card) => card.status.monsterCategories?.includes("Tuner"));
 
           const cells = myInfo.activator.getMonsterZones();
-          const summoned =
-            (await myInfo.activator.summonOne(
-              myInfo.activator,
-              "SpecialSummon",
-              ["Effect"],
-              myInfo.action,
-              tuners.map((monster) => {
-                return {
-                  monster,
-                  cells,
-                  posList: ["Defense"],
-                };
-              }),
-              [],
+          const tuner = await myInfo.activator.summonOne(
+            myInfo.activator,
+            "SpecialSummon",
+            ["Effect"],
+            myInfo.action,
+            tuners.map((monster) => {
+              return {
+                monster,
+                cells,
+                posList: ["Defense"],
+              };
+            }),
+            [],
+            false,
+            false
+          );
+          if (!tuner) {
+            throw new IllegalCancelError(myInfo);
+          }
+          tuner.statusOperatorBundle.push(
+            new StatusOperator(
+              "効果発動不可",
+              (operator) => operator.effectOwner.duel.clock.isSameTurn(operator.isSpawnedAt),
               false,
-              false
-            )) ?? [];
-          summoned.forEach((tuner) =>
-            tuner.statusOperatorBundle.push(
-              new StatusOperator(
-                "効果発動不可",
-                (operator) => operator.effectOwner.duel.clock.isSameTurn(operator.isSpawnedAt),
-                false,
-                myInfo.action.entity,
-                myInfo.action,
-                () => true,
-                () => {
-                  return { canActivateEffect: false };
-                }
-              )
+              myInfo.action.entity,
+              myInfo.action,
+              () => true,
+              () => {
+                return { canActivateEffect: false };
+              }
             )
           );
-          return summoned.length == 1;
+          return true;
         },
         settle: async () => true,
       },
@@ -136,7 +137,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             .getExtraDeck()
             .cardEntities.filter((monster) => monster.status.monsterCategories?.includes("Syncro"))
             .filter((monster) => monster.status.monsterCategories?.includes("Tuner"));
-          await myInfo.activator.summonOne(
+          const monster = await myInfo.activator.summonOne(
             myInfo.activator,
             "SyncroSummon",
             ["SpecialSummon", "Effect"],
@@ -149,7 +150,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             false
           );
 
-          return true;
+          return Boolean(monster);
         },
         settle: async () => true,
       },

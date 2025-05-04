@@ -296,10 +296,6 @@ export class Duelist {
   public readonly getAvailableSpellTrapZones = (): DuelFieldCell[] => {
     return this.getSpellTrapZones().filter((cell) => cell.isAvailable);
   };
-  public readonly getReleasableMonsters = (): DuelEntity[] => {
-    // TODO : クロス・ソウルと帝王の烈旋の考慮
-    return this.getMonstersOnField();
-  };
   public readonly getMonstersOnField = (): DuelEntity[] => {
     return this.duel.field.getMonstersOnFieldStrictly().filter((monster) => monster.controller === this);
   };
@@ -607,7 +603,7 @@ export class Duelist {
       cancelable,
       msg
     );
-  public readonly summonOne = (
+  public readonly summonOne = async (
     effectOwner: Duelist,
     summonType: TSummonKindCauseReason,
     movedAs: TDuelCauseReason[],
@@ -617,8 +613,8 @@ export class Duelist {
     ignoreSummoningConditions: boolean,
     cancelable: boolean,
     msg?: string
-  ) =>
-    this.summonMany(
+  ) => {
+    const result = await this.summonMany(
       effectOwner,
       summonType,
       movedAs,
@@ -631,6 +627,11 @@ export class Duelist {
       cancelable,
       msg
     );
+    if (!result) {
+      return;
+    }
+    return result[0];
+  };
 
   public readonly summonMany = (
     effectOwner: Duelist,

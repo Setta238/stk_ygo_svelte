@@ -1359,4 +1359,6 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 (2)：このカード以外の自分フィールドの「竹光」カード１枚を対象として発動できる。
 そのカードを持ち主の手札に戻し、装備モンスターはこのターン相手に直接攻撃できる。
 (3)：このカードが墓地へ送られた場合に発動できる。
-デッキから「妖刀竹光」以外の「竹光」カード１枚を手札に加える。`,kind:"Spell",spellCategory:"Equip",wikiEncodedName:"%A1%D4%CD%C5%C5%E1%C3%DD%B8%F7%A1%D5",nameTags:["竹光"]}};export{e as j};
+デッキから「妖刀竹光」以外の「竹光」カード１枚を手札に加える。`,kind:"Spell",spellCategory:"Equip",wikiEncodedName:"%A1%D4%CD%C5%C5%E1%C3%DD%B8%F7%A1%D5",nameTags:["竹光"]},召喚僧サモンプリースト:{name:"召喚僧サモンプリースト",nameKana:"",description:`(1)：このカードが召喚・反転召喚した場合に発動する。このカードを守備表示にする。
+(2)：このカードがモンスターゾーンに存在する限り、このカードはリリースできない。
+(3)：１ターンに１度、手札から魔法カード１枚を捨てて発動できる。デッキからレベル４モンスター１体を特殊召喚する。この効果で特殊召喚したモンスターはこのターン攻撃できない。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:4,attack:800,defense:1600,attributes:["Dark"],types:["Spellcaster"],wikiEncodedName:"%A1%D4%BE%A4%B4%AD%C1%CE%A5%B5%A5%E2%A5%F3%A5%D7%A5%EA%A1%BC%A5%B9%A5%C8%A1%D5",nameTags:[]}};export{e as j};

@@ -45,7 +45,9 @@ const defaultNormalSummonValidate = (myInfo: ChainBlockInfoBase<unknown>): DuelF
 
     return list.length ? list.flatMap((item) => item.cells).getDistinct() : undefined;
   } else {
-    const releasableMonsters = myInfo.activator.getReleasableMonsters();
+    const releasableMonsters = myInfo.activator
+      .getMonstersOnField()
+      .filter((monster) => monster.canBeReleased(myInfo.activator, myInfo.action.entity, ["AdvanceSummonRelease"], myInfo.action));
 
     const qty = myInfo.action.entity.lvl < 7 ? 1 : 2;
 
@@ -98,17 +100,19 @@ const defaultNormalSummonPayCost = async (
     return {};
   }
   const availableCells = myInfo.activator.getAvailableMonsterZones();
-  const releasableMonsters = myInfo.activator.getReleasableMonsters();
+  let releasableMonsters = myInfo.activator
+    .getMonstersOnField()
+    .filter((monster) => monster.canBeReleased(myInfo.activator, myInfo.action.entity, ["AdvanceSummonRelease"], myInfo.action));
   const exZoneMonsters = myInfo.activator.getExtraMonsterZones();
   const qty = myInfo.action.entity.lvl < 7 ? 1 : 2;
 
   if (exZoneMonsters.length >= qty) {
-    releasableMonsters.filter((monster) => monster.fieldCell.cellType !== "ExtraMonsterZone");
+    releasableMonsters = releasableMonsters.filter((monster) => monster.fieldCell.cellType !== "ExtraMonsterZone");
   }
 
   const materials =
     (await myInfo.activator.waitSelectEntities(
-      myInfo.activator.getReleasableMonsters(),
+      releasableMonsters,
       qty,
       (selected) =>
         (cancelable || selected.length > 0) &&

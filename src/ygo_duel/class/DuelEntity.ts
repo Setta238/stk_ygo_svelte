@@ -519,7 +519,7 @@ export class DuelEntity {
   public readonly canBeReleased = <T>(
     activator: Duelist,
     causedBy: DuelEntity,
-    causedAs: (TMaterialCauseReason | "ReleaseAsCost" | "ReleaseAsEffect")[],
+    causedAs: ("AdvanceSummonRelease" | "ReleaseAsCost" | "ReleaseAsEffect" | "RitualMaterial")[],
     action: EntityAction<T>
   ): boolean => {
     return (

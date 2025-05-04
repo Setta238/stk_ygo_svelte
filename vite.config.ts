@@ -42,9 +42,6 @@ export default defineConfig({
           if (id.includes("src/ygo_entity_proc")) {
             return "entity_proc";
           }
-          if (id.includes("src/ygo_duel")) {
-            return "duel";
-          }
         },
         chunkFileNames: "assets/[name].js",
         assetFileNames: "[name].[ext]",

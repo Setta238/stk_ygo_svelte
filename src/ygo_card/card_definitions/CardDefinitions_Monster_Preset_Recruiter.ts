@@ -1,5 +1,4 @@
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
-import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
 import { DuelEntity, type TDestoryCauseReason } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
 import {
@@ -13,79 +12,8 @@ import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardDefinition } from "@ygo_card/class/DuelCardDefinition";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 
-const getDefalutRecruiterAction = (
-  monsterFilter: (monsters: DuelEntity) => boolean,
-  qtyList: number[],
-  posList: TBattlePosition[],
-  destoryTypes: TDestoryCauseReason[],
-  executableCells: DuelFieldCellType[]
-): CardActionDefinition<undefined> => {
-  return {
-    title: "①リクルート",
-    isMandatory: false,
-    playType: "TriggerEffect",
-    spellSpeed: "Normal",
-    executableCells: executableCells,
-    executablePeriods: destoryTypes.includes("EffectDestroy") ? [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys] : ["b1DEnd", "b2DEnd"],
-    executableDuelistTypes: ["Controller"],
-    validate: (myInfo) => {
-      if (!myInfo.action.entity.wasMovedAtPreviousChain) {
-        return;
-      }
-      const cells = myInfo.activator.getMonsterZones();
-      const list = myInfo.activator.getEnableSummonList(
-        myInfo.activator,
-        "SpecialSummon",
-        ["Effect"],
-        myInfo.action,
-        myInfo.activator
-          .getDeckCell()
-          .cardEntities.filter(monsterFilter)
-          .filter((card) => card.kind === "Monster")
-          .filter((card) => card.canBeTargetOfEffect(myInfo))
-          .map((monster) => {
-            return { monster, posList, cells };
-          }),
-        [],
-        false
-      );
-      if (!list.length) {
-        return;
-      }
-      return [];
-    },
-    prepare: async () => {
-      return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromDeck"], prepared: undefined };
-    },
-    execute: async (myInfo) => {
-      const monsters = myInfo.activator.getDeckCell().cardEntities.filter(monsterFilter);
-
-      const cells = myInfo.activator.getMonsterZones();
-      const monster = myInfo.activator.summonMany(
-        myInfo.activator,
-        "SpecialSummon",
-        ["Effect"],
-        myInfo.action,
-        monsters.map((lvl1) => {
-          return { monster: lvl1, posList, cells };
-        }),
-        [],
-        false,
-        qtyList.length > 1 ? undefined : qtyList[0],
-        (summoned) => qtyList.includes(summoned.length),
-        false
-      );
-
-      return Boolean(monster);
-    },
-    settle: async () => true,
-  };
-};
-
-export const createCardDefinitions_Monster_Preset_Recruiter = (): CardDefinition[] => {
-  const result: CardDefinition[] = [];
-
-  [
+export default function* generate(): Generator<CardDefinition> {
+  yield* [
     {
       name: "キラー・ポテト",
       filter: (card: DuelEntity) => card.attr.includes("Dark") && (card.atk ?? 9999) <= 1500,
@@ -278,17 +206,75 @@ export const createCardDefinitions_Monster_Preset_Recruiter = (): CardDefinition
       destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
       executableCells: ["Graveyard"] as DuelFieldCellType[],
     },
-  ].forEach((item) => {
-    result.push({
+  ].map((item): CardDefinition => {
+    return {
       name: item.name,
       actions: [
-        getDefalutRecruiterAction(item.filter, item.qtyList, item.posList, item.destoryTypes, item.executableCells),
+        {
+          title: "①リクルート",
+          isMandatory: false,
+          playType: "TriggerEffect",
+          spellSpeed: "Normal",
+          executableCells: item.executableCells,
+          executablePeriods: item.destoryTypes.includes("EffectDestroy") ? [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys] : ["b1DEnd", "b2DEnd"],
+          executableDuelistTypes: ["Controller"],
+          validate: (myInfo) => {
+            if (!myInfo.action.entity.wasMovedAtPreviousChain) {
+              return;
+            }
+            const cells = myInfo.activator.getMonsterZones();
+            const list = myInfo.activator.getEnableSummonList(
+              myInfo.activator,
+              "SpecialSummon",
+              ["Effect"],
+              myInfo.action,
+              myInfo.activator
+                .getDeckCell()
+                .cardEntities.filter(item.filter)
+                .filter((card) => card.kind === "Monster")
+                .filter((card) => card.canBeTargetOfEffect(myInfo))
+                .map((monster) => {
+                  return { monster, posList: item.posList, cells };
+                }),
+              [],
+              false
+            );
+            if (!list.length) {
+              return;
+            }
+            return [];
+          },
+          prepare: async () => {
+            return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromDeck"], prepared: undefined };
+          },
+          execute: async (myInfo) => {
+            const monsters = myInfo.activator.getDeckCell().cardEntities.filter(item.filter);
+
+            const cells = myInfo.activator.getMonsterZones();
+            const monster = myInfo.activator.summonMany(
+              myInfo.activator,
+              "SpecialSummon",
+              ["Effect"],
+              myInfo.action,
+              monsters.map((lvl1) => {
+                return { monster: lvl1, posList: item.posList, cells };
+              }),
+              [],
+              false,
+              item.qtyList.length > 1 ? undefined : item.qtyList[0],
+              (summoned) => item.qtyList.includes(summoned.length),
+              false
+            );
+
+            return Boolean(monster);
+          },
+          settle: async () => true,
+        },
         defaultAttackAction,
         defaultBattlePotisionChangeAction,
         defaultFlipSummonAction,
         defaultNormalSummonAction,
-      ] as CardActionDefinition<unknown>[],
-    });
+      ],
+    };
   });
-  return result;
-};
+}

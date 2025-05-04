@@ -6,10 +6,8 @@ import type { CardDefinition } from "@ygo_card/class/DuelCardDefinition";
 import { getDefaultLinkSummonAction } from "../card_actions/DefaultCardAction_LinkMonster";
 import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
 
-export const createCardDefinitions_LinkMonster = (): CardDefinition[] => {
-  const result: CardDefinition[] = [];
-
-  [
+export default function* generate(): Generator<CardDefinition> {
+  yield* [
     { name: "ＬＡＮフォリンクス", validator: (selected: DuelEntity[]) => selected.length === 2 },
     { name: "トラフィックゴースト", validator: (selected: DuelEntity[]) => selected.length === 3 },
     {
@@ -22,13 +20,11 @@ export const createCardDefinitions_LinkMonster = (): CardDefinition[] => {
         selected.every((monster) => monster.status.nameTags?.includes("天威") && !monster.status.monsterCategories?.includes("Link")),
     },
     { name: "電影の騎士ガイアセイバー", validator: (selected: DuelEntity[]) => selected.length > 1 },
-  ].forEach((item) =>
-    result.push({
+  ].map((item): CardDefinition => {
+    return {
       name: item.name,
       actions: [defaultAttackAction, getDefaultLinkSummonAction(item.validator)] as CardActionDefinition<unknown>[],
       defaultSummonFilter: defaultSummonFilter,
-    })
-  );
-
-  return result;
-};
+    };
+  });
+}

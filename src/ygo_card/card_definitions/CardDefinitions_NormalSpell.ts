@@ -15,10 +15,8 @@ import {
 } from "@ygo_card/card_actions/DefaultCardAction";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 
-export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
-  const result: CardDefinition[] = [];
-
-  const def_おろかな埋葬 = {
+export default function* generate(): Generator<CardDefinition> {
+  yield {
     name: "おろかな埋葬",
     actions: [
       {
@@ -30,9 +28,8 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         priorityForNPC: 40,
-
-        // デッキにモンスターが一枚以上必要。
         validate: (myInfo) => {
+          // デッキにモンスターが一枚以上必要。
           if (myInfo.activator.getDeckCell().cardEntities.filter((card) => card.kind === "Monster").length === 0) {
             return;
           }
@@ -55,14 +52,11 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           return true;
         },
         settle: async () => true,
-      } as CardActionDefinition<unknown>,
-      defaultSpellTrapSetAction as CardActionDefinition<unknown>,
+      },
+      defaultSpellTrapSetAction,
     ],
   };
-
-  result.push(def_おろかな埋葬);
-
-  const def_おろかな副葬 = {
+  yield {
     name: "おろかな副葬",
     actions: [
       {
@@ -98,14 +92,11 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           return true;
         },
         settle: async () => true,
-      } as CardActionDefinition<unknown>,
-      defaultSpellTrapSetAction as CardActionDefinition<unknown>,
+      },
+      defaultSpellTrapSetAction,
     ],
   };
-
-  result.push(def_おろかな副葬);
-
-  const def_死者蘇生 = {
+  yield {
     name: "死者蘇生",
     actions: [
       {
@@ -153,20 +144,18 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         execute: async (myInfo) => defaultTargetMonstersRebornExecute(myInfo),
         settle: async () => true,
       } as CardActionDefinition<unknown>,
-      defaultSpellTrapSetAction as CardActionDefinition<unknown>,
+      defaultSpellTrapSetAction,
     ],
   };
-
-  result.push(def_死者蘇生);
-  (
+  yield* (
     [
       { name: "大嵐", cellTypes: spellTrapZoneCellTypes, isOnlyEnemies: false },
       { name: "ハーピィの羽根帚", cellTypes: spellTrapZoneCellTypes, isOnlyEnemies: true },
       { name: "ブラック・ホール", cellTypes: monsterZoneCellTypes, isOnlyEnemies: false },
       { name: "サンダー・ボルト", cellTypes: monsterZoneCellTypes, isOnlyEnemies: true },
     ] as { name: string; cellTypes: Readonly<DuelFieldCellType[]>; isOnlyEnemies: boolean }[]
-  ).forEach((item) => {
-    result.push({
+  ).map((item) => {
+    return {
       name: item.name,
       actions: [
         {
@@ -217,12 +206,11 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
           },
           settle: async () => true,
         } as CardActionDefinition<unknown>,
-        defaultSpellTrapSetAction as CardActionDefinition<unknown>,
+        defaultSpellTrapSetAction,
       ],
-    });
+    };
   });
-
-  const def_ハリケーン = {
+  yield {
     name: "ハリケーン",
     actions: [
       {
@@ -269,11 +257,10 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         },
         settle: async () => true,
       } as CardActionDefinition<unknown>,
-      defaultSpellTrapSetAction as CardActionDefinition<unknown>,
+      defaultSpellTrapSetAction,
     ],
   };
-  result.push(def_ハリケーン);
-  const def_光の援軍 = {
+  yield {
     name: "光の援軍",
     actions: [
       {
@@ -328,75 +315,10 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         },
         settle: async () => true,
       } as CardActionDefinition<unknown>,
-      defaultSpellTrapSetAction as CardActionDefinition<unknown>,
+      defaultSpellTrapSetAction,
     ],
   };
-
-  result.push(def_光の援軍);
-
-  const def_調律 = {
-    name: "調律",
-    actions: [
-      {
-        title: "発動",
-        isMandatory: false,
-        playType: "CardActivation",
-        spellSpeed: "Normal",
-        executableCells: ["Hand", "SpellAndTrapZone"],
-        executablePeriods: ["main1", "main2"],
-        executableDuelistTypes: ["Controller"],
-        priorityForNPC: 40,
-        // デッキ二枚以上、対象モンスターが一枚以上必要。
-        validate: (myInfo) => {
-          const cards = myInfo.activator.getDeckCell().cardEntities;
-          if (cards.length < 2) {
-            return;
-          }
-          if (
-            cards.filter((card) => card.status.nameTags?.includes("シンクロン")).filter((card) => card.status.monsterCategories?.includes("Tuner")).length === 0
-          ) {
-            return;
-          }
-          return defaultSpellTrapValidate(myInfo);
-        },
-        prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SearchFromDeck", "SendToGraveyardFromDeck"], prepared: undefined };
-        },
-        execute: async (myInfo) => {
-          const cards = myInfo.activator.getDeckCell().cardEntities;
-          if (cards.length < 2) {
-            return;
-          }
-          const monsters = cards
-            .filter((card) => card.status.nameTags?.includes("シンクロン"))
-            .filter((card) => card.status.monsterCategories?.includes("Tuner"));
-          if (monsters.length === 0) {
-            return false;
-          }
-          const target = await myInfo.activator.waitSelectEntity(monsters, "手札に加えるモンスターを選択", false);
-          if (!target) {
-            throw new IllegalCancelError(myInfo);
-          }
-
-          await target.addToHand(["Effect"], myInfo.action.entity, myInfo.activator);
-
-          myInfo.activator.getDeckCell().shuffle();
-
-          // この墓地送りはタイミングのがさせる要因になる。
-          myInfo.activator.duel.clock.incrementProcSeq();
-
-          await myInfo.activator.getDeckCell().cardEntities[0].sendToGraveyard(["Effect"], myInfo.action.entity, myInfo.activator);
-
-          return true;
-        },
-        settle: async () => true,
-      } as CardActionDefinition<unknown>,
-      defaultSpellTrapSetAction as CardActionDefinition<unknown>,
-    ],
-  };
-
-  result.push(def_調律);
-  const def_ワン・フォー・ワン = {
+  yield {
     name: "ワン・フォー・ワン",
     actions: [
       {
@@ -511,13 +433,11 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         },
         settle: async () => true,
       } as CardActionDefinition<unknown>,
-      defaultSpellTrapSetAction as CardActionDefinition<unknown>,
+      defaultSpellTrapSetAction,
     ],
   };
 
-  result.push(def_ワン・フォー・ワン);
-
-  const def_封印の黄金棺 = {
+  yield {
     name: "封印の黄金櫃",
     actions: [
       {
@@ -627,11 +547,7 @@ export const createCardDefinitions_NormalSpell = (): CardDefinition[] => {
         },
         settle: async () => true,
       } as CardActionDefinition<unknown>,
-      defaultSpellTrapSetAction as CardActionDefinition<unknown>,
+      defaultSpellTrapSetAction,
     ],
   };
-
-  result.push(def_封印の黄金棺);
-
-  return result;
-};
+}

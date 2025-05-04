@@ -8,14 +8,12 @@ import {
   defaultRuleSummonPrepare,
 } from "@ygo_card/card_actions/DefaultCardAction_Monster";
 import type { CardDefinition } from "@ygo_card/class/DuelCardDefinition";
-import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import { faceupBattlePositions, type TEntityFlexibleNumericStatusKey } from "@ygo/class/YgoTypes";
 import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
 
-export const createCardDefinitions_Blackwing_Monster = (): CardDefinition[] => {
-  const result: CardDefinition[] = [];
-  result.push({
+export default function* generate(): Generator<CardDefinition> {
+  yield {
     name: "ＢＦ－疾風のゲイル",
     actions: [
       defaultNormalSummonAction,
@@ -44,7 +42,7 @@ export const createCardDefinitions_Blackwing_Monster = (): CardDefinition[] => {
         prepare: (myInfo) => defaultRuleSummonPrepare(myInfo, "SpecialSummon", ["SpecialSummon", "Rule"], faceupBattlePositions),
         execute: defaultRuleSummonExecute,
         settle: async () => true,
-      } as CardActionDefinition<unknown>,
+      },
       {
         title: "②攻守半減",
         isMandatory: false,
@@ -65,7 +63,7 @@ export const createCardDefinitions_Blackwing_Monster = (): CardDefinition[] => {
             return undefined;
           }
 
-          return enemies.length ? enemies : undefined;
+          return enemies.length ? enemies.map((enemy) => enemy.fieldCell) : undefined;
         },
         prepare: async (myInfo, chainBlockInfos, cancelable) => {
           let target = myInfo.dest?.cardEntities[0];
@@ -94,7 +92,7 @@ export const createCardDefinitions_Blackwing_Monster = (): CardDefinition[] => {
             .find((target) => target.canBeEffected(myInfo.activator, myInfo.action.entity, myInfo.action));
           // フィールドにいなければ効果なし
           if (!target) {
-            return;
+            return false;
           }
           (["attack", "defense"] as TEntityFlexibleNumericStatusKey[])
             .map((targetState) =>
@@ -112,8 +110,7 @@ export const createCardDefinitions_Blackwing_Monster = (): CardDefinition[] => {
           return true;
         },
         settle: async () => true,
-      } as CardActionDefinition<undefined>,
-    ] as CardActionDefinition<unknown>[],
-  });
-  return result;
-};
+      },
+    ],
+  };
+}

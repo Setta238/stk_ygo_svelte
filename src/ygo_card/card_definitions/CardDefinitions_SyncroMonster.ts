@@ -10,12 +10,9 @@ import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardDefinition } from "@ygo_card/class/DuelCardDefinition";
 import { defaultPrepare } from "@ygo_card/card_actions/DefaultCardAction";
 import { getDefaultSyncroSummonAction } from "../card_actions/DefaultCardAction_SyncroMonster";
-
-export const createCardDefinitions_SyncroMonster = (): CardDefinition[] => {
-  const result: CardDefinition[] = [];
-
-  ["大地の騎士ガイアナイト", "スクラップ・デスデーモン"].forEach((name) =>
-    result.push({
+export default function* generate(): Generator<CardDefinition> {
+  yield* ["大地の騎士ガイアナイト", "スクラップ・デスデーモン"].map((name) => {
+    return {
       name: name,
       actions: [
         defaultAttackAction,
@@ -24,10 +21,9 @@ export const createCardDefinitions_SyncroMonster = (): CardDefinition[] => {
         getDefaultSyncroSummonAction(),
       ] as CardActionDefinition<unknown>[],
       defaultSummonFilter: defaultSummonFilter,
-    })
-  );
-
-  result.push({
+    };
+  });
+  yield {
     name: "ナチュル・ガオドレイク",
     actions: [
       defaultAttackAction,
@@ -39,9 +35,8 @@ export const createCardDefinitions_SyncroMonster = (): CardDefinition[] => {
       ),
     ] as CardActionDefinition<unknown>[],
     defaultSummonFilter: defaultSummonFilter,
-  });
-
-  result.push({
+  };
+  yield {
     name: "マジカル・アンドロイド",
     actions: [
       defaultAttackAction,
@@ -74,6 +69,5 @@ export const createCardDefinitions_SyncroMonster = (): CardDefinition[] => {
       },
     ],
     defaultSummonFilter: defaultSummonFilter,
-  });
-  return result;
-};
+  };
+}

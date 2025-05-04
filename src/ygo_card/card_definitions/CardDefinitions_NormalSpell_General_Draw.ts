@@ -6,10 +6,8 @@ import { type CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
 import type { CardDefinition } from "@ygo_card/class/DuelCardDefinition";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 
-export const createCardDefinitions_NormalSpell_General_Draw = (): CardDefinition[] => {
-  const result: CardDefinition[] = [];
-
-  result.push({
+export default function* generate(): Generator<CardDefinition> {
+  yield {
     name: "強欲な壺",
     actions: [
       {
@@ -44,9 +42,8 @@ export const createCardDefinitions_NormalSpell_General_Draw = (): CardDefinition
       },
       defaultSpellTrapSetAction,
     ],
-  });
-
-  const def_貪欲な壺 = {
+  };
+  yield {
     name: "貪欲な壺",
     actions: [
       {
@@ -107,13 +104,11 @@ export const createCardDefinitions_NormalSpell_General_Draw = (): CardDefinition
           return true;
         },
         settle: async () => true,
-      } as CardActionDefinition<unknown>,
-      defaultSpellTrapSetAction as CardActionDefinition<unknown>,
+      },
+      defaultSpellTrapSetAction,
     ],
   };
-
-  result.push(def_貪欲な壺);
-  const def_天使の施し = {
+  yield {
     name: "天使の施し",
     actions: [
       {
@@ -141,12 +136,10 @@ export const createCardDefinitions_NormalSpell_General_Draw = (): CardDefinition
         },
         settle: async () => true,
       } as CardActionDefinition<unknown>,
-      defaultSpellTrapSetAction as CardActionDefinition<unknown>,
+      defaultSpellTrapSetAction,
     ],
   };
-
-  result.push(def_天使の施し);
-  const def_成金ゴブリン = {
+  yield {
     name: "成金ゴブリン",
     actions: [
       {
@@ -175,13 +168,11 @@ export const createCardDefinitions_NormalSpell_General_Draw = (): CardDefinition
           return true;
         },
         settle: async () => true,
-      } as CardActionDefinition<unknown>,
-      defaultSpellTrapSetAction as CardActionDefinition<unknown>,
+      },
+      defaultSpellTrapSetAction,
     ],
   };
-
-  result.push(def_成金ゴブリン);
-  const def_手札抹殺 = {
+  yield {
     name: "手札抹殺",
     actions: [
       {
@@ -238,11 +229,8 @@ export const createCardDefinitions_NormalSpell_General_Draw = (): CardDefinition
           return true;
         },
         settle: async () => true,
-      } as CardActionDefinition<unknown>,
-      defaultSpellTrapSetAction as CardActionDefinition<unknown>,
+      },
+      defaultSpellTrapSetAction,
     ],
   };
-  result.push(def_手札抹殺);
-
-  return result;
-};
+}

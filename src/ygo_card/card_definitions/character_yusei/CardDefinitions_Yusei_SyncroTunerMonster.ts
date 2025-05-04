@@ -14,11 +14,8 @@ import { SystemError } from "@ygo_duel/class/Duel";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
-
-export const createCardDefinitions_Yusei_SyncroTunerMonster = (): CardDefinition[] => {
-  const result: CardDefinition[] = [];
-
-  result.push({
+export default function* generate(): Generator<CardDefinition> {
+  yield {
     name: "シューティング・ライザー・ドラゴン",
     actions: [
       defaultAttackAction,
@@ -79,6 +76,5 @@ export const createCardDefinitions_Yusei_SyncroTunerMonster = (): CardDefinition
       getDefaultAccelSyncroACtion({ title: "②シンクロ召喚", isOnlyNTimesPerChain: 1 }),
     ],
     defaultSummonFilter: defaultSummonFilter,
-  });
-  return result;
-};
+  };
+}

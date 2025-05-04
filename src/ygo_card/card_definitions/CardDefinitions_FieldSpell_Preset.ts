@@ -1,7 +1,6 @@
 import { defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_card/card_actions/DefaultCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
-import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
 
 import type { CardDefinition } from "@ygo_card/class/DuelCardDefinition";
 import type { TEntityFlexibleNumericStatusKey, TMonsterAttribute, TMonsterType } from "@ygo/class/YgoTypes";
@@ -9,11 +8,9 @@ import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNume
 import { createBroadRegularNumericStateOperatorHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { defaultPrepare } from "../card_actions/DefaultCardAction";
 
-export const createCardDefinitions_FieldSpell_Preset = (): CardDefinition[] => {
-  const result: CardDefinition[] = [];
-
+export default function* generate(): Generator<CardDefinition> {
   // 初期種族サポートフィールド魔法
-  [
+  yield* [
     {
       name: "草原",
       up: ["Warrior", "BeastWarrior"] as TMonsterType[],
@@ -44,14 +41,13 @@ export const createCardDefinitions_FieldSpell_Preset = (): CardDefinition[] => {
       up: ["Fiend", "Spellcaster"] as TMonsterType[],
       down: ["Fairy"] as TMonsterType[],
     },
-  ].forEach((item) => {
-    result.push({
+  ].map((item): CardDefinition => {
+    return {
       name: item.name,
       actions: [
         {
           title: "発動",
           isMandatory: false,
-          canIgnoreCosts: true,
           playType: "CardActivation",
           spellSpeed: "Normal",
           executableCells: ["Hand", "SpellAndTrapZone"],
@@ -61,8 +57,8 @@ export const createCardDefinitions_FieldSpell_Preset = (): CardDefinition[] => {
           prepare: defaultPrepare,
           execute: async () => true,
           settle: async () => true,
-        } as CardActionDefinition<unknown>,
-        defaultSpellTrapSetAction as CardActionDefinition<unknown>,
+        },
+        defaultSpellTrapSetAction,
       ],
       continuousEffects: [
         createBroadRegularNumericStateOperatorHandler(
@@ -97,13 +93,13 @@ export const createCardDefinitions_FieldSpell_Preset = (): CardDefinition[] => {
               });
             });
           }
-        ),
-      ] as ContinuousEffectBase<unknown>[],
-    });
+        ) as ContinuousEffectBase<unknown>,
+      ],
+    };
   });
 
   // 初期属性サポートフィールド魔法
-  [
+  yield* [
     {
       name: "バーニングブラッド",
       attr: "Fire" as TMonsterAttribute,
@@ -128,8 +124,8 @@ export const createCardDefinitions_FieldSpell_Preset = (): CardDefinition[] => {
       name: "デザートストーム",
       attr: "Wind" as TMonsterAttribute,
     },
-  ].forEach((item) => {
-    result.push({
+  ].map((item): CardDefinition => {
+    return {
       name: item.name,
       actions: [
         {
@@ -144,8 +140,8 @@ export const createCardDefinitions_FieldSpell_Preset = (): CardDefinition[] => {
           prepare: defaultPrepare,
           execute: async () => true,
           settle: async () => true,
-        } as CardActionDefinition<unknown>,
-        defaultSpellTrapSetAction as CardActionDefinition<unknown>,
+        },
+        defaultSpellTrapSetAction,
       ],
       continuousEffects: [
         createBroadRegularNumericStateOperatorHandler(
@@ -174,9 +170,8 @@ export const createCardDefinitions_FieldSpell_Preset = (): CardDefinition[] => {
               );
             });
           }
-        ),
-      ] as ContinuousEffectBase<unknown>[],
-    });
+        ) as ContinuousEffectBase<unknown>,
+      ],
+    };
   });
-  return result;
-};
+}

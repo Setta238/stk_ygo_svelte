@@ -17,18 +17,17 @@ import {
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { defaultPayLifePoint, defaultTargetMonstersRebornExecute, defaultTargetMonstersRebornPrepare } from "../card_actions/DefaultCardAction";
-export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
-  const result: CardDefinition[] = [];
 
-  (
+export default function* generate(): Generator<CardDefinition> {
+  yield* (
     [
       { name: "団結の力", kind: ["Monster"], rate: 800 },
       { name: "魔導師の力", kind: ["Spell", "Trap"], rate: 500 },
     ] as { name: string; kind: TCardKind[]; rate: number }[]
-  ).forEach((item) => {
-    result.push({
+  ).map((item): CardDefinition => {
+    return {
       name: item.name,
-      actions: [getDefaultEquipSpellTrapAction(), defaultSpellTrapSetAction] as CardActionDefinition<unknown>[],
+      actions: [getDefaultEquipSpellTrapAction(), defaultSpellTrapSetAction],
       continuousEffects: [
         createRegularNumericStateOperatorHandler(
           item.name,
@@ -57,9 +56,9 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
           }
         ),
       ] as ContinuousEffectBase<unknown>[],
-    });
+    };
   });
-  const def_早すぎた埋葬 = {
+  yield {
     name: "早すぎた埋葬",
     actions: [
       {
@@ -146,11 +145,9 @@ export const createCardDefinitions_EquipSpell = (): CardDefinition[] => {
       defaultSpellTrapSetAction,
     ] as CardActionDefinition<unknown>[],
   };
-  result.push(def_早すぎた埋葬);
-  result.push({
+  yield {
     name: "幻惑の巻物",
     actions: [getDefaultEquipSpellTrapAction(), defaultSpellTrapSetAction] as CardActionDefinition<unknown>[],
     continuousEffects: [] as ContinuousEffectBase<unknown>[],
-  });
-  return result;
-};
+  };
+}

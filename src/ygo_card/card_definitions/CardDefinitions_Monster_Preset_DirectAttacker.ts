@@ -10,14 +10,12 @@ import {
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardDefinition } from "@ygo_card/class/DuelCardDefinition";
 
-export const createCardDefinitions_Monster_Preset_DirectAttacker = (): CardDefinition[] => {
-  const result: CardDefinition[] = [];
-  ["ラージマウス", "レインボー・フラワー", "レッグル", "女王の影武者", "人造人間７号"].forEach((name) => {
-    result.push({
+export default function* generate(): Generator<CardDefinition> {
+  yield* ["ラージマウス", "レインボー・フラワー", "レッグル", "女王の影武者", "人造人間７号"].map((name) => {
+    return {
       name: name,
       actions: [defaultAttackAction, defaultBattlePotisionChangeAction, defaultFlipSummonAction, defaultNormalSummonAction] as CardActionDefinition<unknown>[],
       continuousEffects: [defaultDirectAtackEffect],
-    });
+    };
   });
-  return result;
-};
+}

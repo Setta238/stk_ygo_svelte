@@ -18,6 +18,7 @@ import {
 import { max, min } from "@stk_utils/funcs/StkMathUtils";
 import type { TBanishProcType } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
 import { DuelEntityShortHands } from "./DuelEntityShortHands";
+import type { CardDefinition } from "./DuelCardDefinition";
 
 type TLifeLogReason = "BattleDamage" | "EffectDamage" | "Heal" | "Lost" | "Pay" | "Set";
 export type TDuelistType = "NPC" | "Player";
@@ -341,11 +342,11 @@ export class Duelist {
     return this.duel.field.getCardsOnFieldStrictly().filter((card) => card.controller === this);
   };
 
-  public readonly pushDeck = (): void => {
+  public readonly pushDeck = (cardDefinitionsDic: { [name: string]: CardDefinition }): void => {
     this.deckInfo.cardNames
       .map((name) => cardInfoDic[name])
       .filter((info) => info)
-      .forEach((info) => DuelEntity.createCardEntity(this, info));
+      .forEach((info) => DuelEntity.createCardEntity(this, info, cardDefinitionsDic));
     this.duel.log.info(`デッキをセット。メイン${this.getDeckCell().cardEntities.length}枚。エクストラ${this.getExtraDeck().cardEntities.length}枚。`, this);
     return;
   };
@@ -377,6 +378,45 @@ export class Duelist {
     }
 
     return;
+  };
+  public readonly summon = async (
+    summonKind: TSummonKindCauseReason,
+    movedAs: TDuelCauseReason[],
+    actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
+    monster: DuelEntity,
+    posList: Readonly<TBattlePosition[]>,
+    cells: DuelFieldCell[],
+    materialInfos: SummonMaterialInfo[],
+    cancelable: boolean
+  ): Promise<DuelEntity | undefined> => {
+    const monsters =
+      (await this.summonMany(
+        this,
+        summonKind,
+        movedAs,
+        actDefAttr,
+        [{ monster, posList, cells }],
+        materialInfos,
+        false,
+        1,
+        (selected) => selected.length === 1,
+        cancelable
+      )) ?? [];
+    return monsters[0];
+  };
+  public readonly waitSelectEntities = (
+    choices: DuelEntity[],
+    qty: number | undefined,
+    validator: (selected: DuelEntity[]) => boolean,
+    message: string,
+    cancelable: boolean = false
+  ): Promise<DuelEntity[] | undefined> => {
+    return this.duel.view.waitSelectEntities(this, { selectables: choices, qty, validator, cancelable }, message);
+  };
+
+  public readonly waitSelectEntity = async (choices: DuelEntity[], message: string, cancelable: boolean = false): Promise<DuelEntity | undefined> => {
+    const selected = await this.waitSelectEntities(choices, 1, (selected) => selected.length === 1, message, cancelable);
+    return selected ? selected[0] : undefined;
   };
 
   public readonly discard = async (

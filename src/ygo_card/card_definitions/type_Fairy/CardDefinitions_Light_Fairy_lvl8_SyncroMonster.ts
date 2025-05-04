@@ -13,10 +13,8 @@ import { getDefaultSyncroSummonAction } from "../../card_actions/DefaultCardActi
 import { createRegularNumericStateOperatorHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 
-export const createCardDefinitions_Light_Fairy_lvl8_SyncroMonster = (): CardDefinition[] => {
-  const result: CardDefinition[] = [];
-
-  result.push({
+export default function* generate(): Generator<CardDefinition> {
+  yield {
     name: "ゼラの天使",
     actions: [
       defaultAttackAction,
@@ -73,6 +71,5 @@ export const createCardDefinitions_Light_Fairy_lvl8_SyncroMonster = (): CardDefi
       ) as ContinuousEffectBase<unknown>,
     ],
     defaultSummonFilter: defaultSummonFilter,
-  });
-  return result;
-};
+  };
+}

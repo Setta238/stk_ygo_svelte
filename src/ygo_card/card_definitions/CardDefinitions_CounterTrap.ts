@@ -5,11 +5,9 @@ import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardDefinition } from "@ygo_card/class/DuelCardDefinition";
 import { duelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
 
-export const createCardDefinitions_CounterTrap = (): CardDefinition[] => {
-  const result: CardDefinition[] = [];
-  result.push({
+export default function* generate(): Generator<CardDefinition> {
+  yield {
     name: "昇天の黒角笛",
     actions: [
       {
@@ -48,8 +46,7 @@ export const createCardDefinitions_CounterTrap = (): CardDefinition[] => {
         },
         settle: async () => true,
       },
-      defaultSpellTrapSetAction as CardActionDefinition<unknown>,
+      defaultSpellTrapSetAction,
     ],
-  });
-  return result;
-};
+  };
+}

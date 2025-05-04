@@ -1,4 +1,3 @@
-import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
 import {
   defaultAttackAction,
   defaultBattlePotisionChangeAction,
@@ -27,10 +26,8 @@ import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 import { ProcFilter } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 
-export const createCardDefinitions_Stardust_Monster = (): CardDefinition[] => {
-  const result: CardDefinition[] = [];
-
-  result.push({
+export default function* generate(): Generator<CardDefinition> {
+  yield {
     name: "スターダスト・ドラゴン",
     actions: [
       defaultAttackAction,
@@ -109,15 +106,15 @@ export const createCardDefinitions_Stardust_Monster = (): CardDefinition[] => {
       },
     ],
     defaultSummonFilter: defaultSummonFilter,
-  });
+  };
 
-  result.push({
+  yield {
     name: "閃珖竜 スターダスト",
     defaultSummonFilter: defaultSummonFilter,
     actions: [
-      defaultAttackAction as CardActionDefinition<unknown>,
-      defaultBattlePotisionChangeAction as CardActionDefinition<unknown>,
-      getDefaultSyncroSummonAction() as CardActionDefinition<unknown>,
+      defaultAttackAction,
+      defaultBattlePotisionChangeAction,
+      getDefaultSyncroSummonAction(),
       {
         title: "波動音壁",
         isMandatory: false,
@@ -197,9 +194,9 @@ export const createCardDefinitions_Stardust_Monster = (): CardDefinition[] => {
         },
       },
     ],
-  });
+  };
 
-  result.push({
+  yield {
     name: "真閃珖竜 スターダスト・クロニクル",
     defaultSummonFilter: defaultSummonFilter,
     actions: [
@@ -300,8 +297,9 @@ export const createCardDefinitions_Stardust_Monster = (): CardDefinition[] => {
         settle: async () => true,
       },
     ],
-  });
-  result.push({
+  };
+
+  yield {
     name: "聖珖神竜 スターダスト・シフル",
     defaultSummonFilter: defaultSummonFilter,
     actions: [
@@ -340,7 +338,7 @@ export const createCardDefinitions_Stardust_Monster = (): CardDefinition[] => {
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["NegateCardEffect", "DestroyOnField"], prepared: undefined };
         },
-        execute: async (myInfo): Promise<boolean> => {
+        execute: async (myInfo) => {
           if (!myInfo.targetChainBlock) {
             return false;
           }
@@ -354,7 +352,7 @@ export const createCardDefinitions_Stardust_Monster = (): CardDefinition[] => {
           return destroyed.length > 0;
         },
         settle: async () => true,
-      } as CardActionDefinition<unknown>,
+      },
       {
         title: "③蘇生",
         isMandatory: false,
@@ -419,6 +417,5 @@ export const createCardDefinitions_Stardust_Monster = (): CardDefinition[] => {
         },
       },
     ],
-  });
-  return result;
-};
+  };
+}

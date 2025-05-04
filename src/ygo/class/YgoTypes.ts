@@ -207,6 +207,7 @@ export type EntityStatusBase = {
   attributes?: TMonsterAttribute[];
   types?: TMonsterType[];
   linkArrowKeys?: TLinkArrowKey[];
+  isImplemented?: boolean;
 } & EntityStaticStatus &
   Partial<TEntityFlexibleNumericStatus> & { wikiEncodedName: string };
 export type EntityNumericStatus = { [key in TEntityFlexibleNumericStatusGen]: TEntityFlexibleNumericStatus };

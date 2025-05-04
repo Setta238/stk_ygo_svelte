@@ -9,10 +9,8 @@ import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardDefinition } from "@ygo_card/class/DuelCardDefinition";
 import { defaultContinuousSpellCardActivateAction } from "../../card_actions/DefaultCardAction_Spell";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-
-export const createCardDefinitions_Igknight_Monster = (): CardDefinition[] => {
-  const result: CardDefinition[] = [];
-  [
+export default function* generate(): Generator<CardDefinition> {
+  yield* [
     "イグナイト・イーグル",
     "イグナイト・マグナム",
     "イグナイト・ドラグノフ",
@@ -21,8 +19,8 @@ export const createCardDefinitions_Igknight_Monster = (): CardDefinition[] => {
     "イグナイト・ライオット",
     "イグナイト・ウージー",
     "イグナイト・キャリバー",
-  ].forEach((name) => {
-    result.push({
+  ].map((name): CardDefinition => {
+    return {
       name: name,
       actions: [
         defaultAttackAction,
@@ -84,7 +82,6 @@ export const createCardDefinitions_Igknight_Monster = (): CardDefinition[] => {
           settle: async () => true,
         },
       ],
-    });
+    };
   });
-  return result;
-};
+}

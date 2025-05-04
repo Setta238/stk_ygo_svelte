@@ -1,4 +1,3 @@
-import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
 import { defaultAttackAction, defaultSummonFilter } from "@ygo_card/card_actions/DefaultCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
@@ -6,18 +5,14 @@ import type { CardDefinition } from "@ygo_card/class/DuelCardDefinition";
 import { getDefaultLinkSummonAction } from "@ygo_card/card_actions/DefaultCardAction_LinkMonster";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { damageStepPeriodKeys, duelPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
-import type DuelFieldCell from "@ygo_duel_view/components/DuelFieldCell.svelte";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import { defaultSpellTrapValidate } from "../../card_actions/DefaultCardAction_Spell";
 import { defaultTargetMonstersRebornExecute, defaultTargetMonstersRebornPrepare } from "../../card_actions/DefaultCardAction";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-
-export const createCardDefinitions_Firewall_LinkMonster = (): CardDefinition[] => {
-  const result: CardDefinition[] = [];
-
-  result.push({
+export default function* generate(): Generator<CardDefinition> {
+  yield {
     name: "ファイアウォール・ドラゴン・シンギュラリティ",
     actions: [
       defaultAttackAction,
@@ -31,7 +26,7 @@ export const createCardDefinitions_Firewall_LinkMonster = (): CardDefinition[] =
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerTurn: 1,
-        validate: (myInfo): DuelFieldCell[] | undefined => {
+        validate: (myInfo) => {
           const categories = [...myInfo.activator.getGraveyard().cardEntities, ...myInfo.activator.getMonstersOnField()]
             .flatMap((monster) => monster.status.monsterCategories ?? [])
             .getDistinct();
@@ -98,7 +93,7 @@ export const createCardDefinitions_Firewall_LinkMonster = (): CardDefinition[] =
           return true;
         },
         settle: async () => true,
-      } as CardActionDefinition<undefined>,
+      },
       {
         title: "②蘇生",
         isMandatory: false,
@@ -159,10 +154,8 @@ export const createCardDefinitions_Firewall_LinkMonster = (): CardDefinition[] =
           ),
         execute: (myInfo) => defaultTargetMonstersRebornExecute(myInfo, faceupBattlePositions),
         settle: async () => true,
-      } as CardActionDefinition<unknown>,
-    ] as CardActionDefinition<unknown>[],
+      },
+    ],
     defaultSummonFilter: defaultSummonFilter,
-  });
-
-  return result;
-};
+  };
+}

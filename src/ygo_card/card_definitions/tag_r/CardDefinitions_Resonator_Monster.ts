@@ -9,16 +9,14 @@ import type { CardDefinition } from "@ygo_card/class/DuelCardDefinition";
 import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
-
-export const createCardDefinitions_Resonator_Monster = (): CardDefinition[] => {
-  const result: CardDefinition[] = [];
-
-  result.push({
+export default function* generate(): Generator<CardDefinition> {
+  yield {
     name: "ダーク・リゾネーター",
     actions: [defaultAttackAction, defaultBattlePotisionChangeAction, defaultFlipSummonAction, defaultNormalSummonAction] as CardActionDefinition<unknown>[],
     substituteEffects: [getSelfBattleSubstituteEffectDefinition(1)],
-  });
-  result.push({
+  };
+
+  yield {
     name: "レッド・リゾネーター",
     actions: [
       defaultAttackAction,
@@ -125,7 +123,5 @@ export const createCardDefinitions_Resonator_Monster = (): CardDefinition[] => {
         settle: async () => true,
       },
     ],
-  });
-
-  return result;
-};
+  };
+}

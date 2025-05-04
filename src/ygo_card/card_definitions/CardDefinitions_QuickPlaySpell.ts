@@ -9,10 +9,8 @@ import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/D
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
 
-export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
-  const result: CardDefinition[] = [];
-
-  const def_ご隠居の猛毒薬 = {
+export default function* generate(): Generator<CardDefinition> {
+  yield {
     name: "ご隠居の猛毒薬",
     actions: [
       defaultSpellTrapSetAction,
@@ -58,10 +56,7 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
       } as CardActionDefinition<number>,
     ] as CardActionDefinition<unknown>[],
   };
-
-  result.push(def_ご隠居の猛毒薬);
-
-  const def_月の書 = {
+  yield {
     name: "月の書",
     actions: [
       {
@@ -120,13 +115,10 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
         },
         settle: async () => true,
       } as CardActionDefinition<unknown>,
-      defaultSpellTrapSetAction as CardActionDefinition<unknown>,
+      defaultSpellTrapSetAction,
     ],
   };
-
-  result.push(def_月の書);
-
-  result.push({
+  yield {
     name: "突進",
     actions: [
       {
@@ -186,8 +178,7 @@ export const createCardDefinitions_QuickPlaySpell = (): CardDefinition[] => {
         },
         settle: async () => true,
       } as CardActionDefinition<unknown>,
-      defaultSpellTrapSetAction as CardActionDefinition<unknown>,
+      defaultSpellTrapSetAction,
     ],
-  });
-  return result;
-};
+  };
+}

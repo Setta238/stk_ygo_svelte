@@ -12,10 +12,9 @@ import type { CardDefinition } from "@ygo_card/class/DuelCardDefinition";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { getDefaultSyncroSummonAction } from "../../card_actions/DefaultCardAction_SyncroMonster";
 import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
-export const createCardDefinitions_Synchron_SyncroMonster = (): CardDefinition[] => {
-  const result: CardDefinition[] = [];
 
-  result.push({
+export default function* generate(): Generator<CardDefinition> {
+  yield {
     name: "フォーミュラ・シンクロン",
     actions: [
       defaultAttackAction,
@@ -51,7 +50,5 @@ export const createCardDefinitions_Synchron_SyncroMonster = (): CardDefinition[]
       getDefaultAccelSyncroACtion({ title: "②シンクロ召喚", isOnlyNTimesPerChain: 1 }),
     ],
     defaultSummonFilter: defaultSummonFilter,
-  });
-
-  return result;
-};
+  };
+}

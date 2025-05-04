@@ -15,6 +15,7 @@
   import { getKeys } from "@stk_utils/funcs/StkObjectUtils";
   import { fade } from "svelte/transition";
   import { userAgentInfo } from "@stk_utils/class/StkUserAgentInfo";
+
   const idb = new StkIndexedDB<TTblNames>("stk_ygo_svelte", currentVersion, tblNames);
 
   let duel: Duel | undefined;

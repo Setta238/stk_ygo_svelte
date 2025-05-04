@@ -1,16 +1,13 @@
 import { defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_card/card_actions/DefaultCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
-import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
 
 import type { CardDefinition } from "@ygo_card/class/DuelCardDefinition";
 import { freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { defaultTargetMonstersRebornExecute, defaultTargetMonstersRebornPrepare } from "../card_actions/DefaultCardAction";
 
-export const createCardDefinitions_NormalTrap = (): CardDefinition[] => {
-  const result: CardDefinition[] = [];
-
-  result.push({
+export default function* generate(): Generator<CardDefinition> {
+  yield {
     name: "強欲な瓶",
     actions: [
       defaultSpellTrapSetAction,
@@ -43,10 +40,10 @@ export const createCardDefinitions_NormalTrap = (): CardDefinition[] => {
         },
         settle: async () => true,
       },
-    ] as CardActionDefinition<unknown>[],
-  });
+    ],
+  };
 
-  result.push({
+  yield {
     name: "戦線復帰",
     actions: [
       {
@@ -92,9 +89,8 @@ export const createCardDefinitions_NormalTrap = (): CardDefinition[] => {
           ),
         execute: async (myInfo) => defaultTargetMonstersRebornExecute(myInfo, ["Defense"]),
         settle: async () => true,
-      } as CardActionDefinition<unknown>,
-      defaultSpellTrapSetAction as CardActionDefinition<unknown>,
-    ] as CardActionDefinition<unknown>[],
-  });
-  return result;
-};
+      },
+      defaultSpellTrapSetAction,
+    ],
+  };
+}

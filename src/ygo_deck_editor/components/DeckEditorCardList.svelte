@@ -1,9 +1,6 @@
 <script lang="ts">
-  import { cardDefinitionDic, cardInfoDic } from "@ygo/class/CardInfo";
-  import { DeckInfo } from "@ygo/class/DeckInfo";
   import {
     cardKindDic,
-    cardKinds,
     cardSorter,
     deckTypeDic,
     deckTypes,
@@ -27,10 +24,7 @@
   };
   const filterCardList = (deckType?: TDeckTypes, kind?: TCardKind) =>
     (mode === "List" ? allCardInfos : deckCardInfos)
-      .filter(
-        (cardInfo) =>
-          cardDefinitionDic.has(cardInfo.name) || (cardInfo.monsterCategories?.includes("Normal") && !cardInfo.monsterCategories?.includes("Pendulum"))
-      )
+      .filter((cardInfo) => cardInfo.isImplemented)
       .filter((cardInfo) => !kind || cardInfo.kind === kind)
       .filter(
         (cardInfo) =>
@@ -86,7 +80,7 @@
               <li class="deck_editor_item">
                 <div
                   role="listitem"
-                  class={`deck_editor_card duel_card ${cardInfo.kind} ${cardInfo?.monsterCategories?.join(" ")} ${cardDefinitionDic.has(cardInfo.name) ? "is_implemented" : "is_not_implemented"}`}
+                  class={`deck_editor_card duel_card ${cardInfo.kind} ${cardInfo?.monsterCategories?.join(" ")} ${cardInfo.isImplemented ? "is_implemented" : "is_not_implemented"}`}
                   on:mouseenter={() => onAttention(cardInfo)}
                 >
                   <div>

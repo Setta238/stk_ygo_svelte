@@ -1,10 +1,7 @@
 import type { CardDefinition } from "@ygo_card/class/DuelCardDefinition";
 import { defaultSpellTrapSetAction, defaultSpellTrapValidate } from "../../card_actions/DefaultCardAction_Spell";
-
-export const createCardDefinitions_BambooSword_NormalSpell = (): CardDefinition[] => {
-  const result: CardDefinition[] = [];
-
-  result.push({
+export default function* generate(): Generator<CardDefinition> {
+  yield {
     name: "黄金色の竹光",
     actions: [
       {
@@ -48,7 +45,5 @@ export const createCardDefinitions_BambooSword_NormalSpell = (): CardDefinition[
       },
       defaultSpellTrapSetAction,
     ],
-  });
-
-  return result;
-};
+  };
+}

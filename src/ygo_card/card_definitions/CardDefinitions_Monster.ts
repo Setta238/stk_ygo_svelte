@@ -23,10 +23,9 @@ import { damageStepPeriodKeys, duelPeriodKeys, freeChainDuelPeriodKeys } from "@
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 import { defaultEffectSpecialSummonExecute, defaultCanPaySelfBanishCosts, defaultPaySelfBanishCosts } from "../card_actions/DefaultCardAction";
 
-export const createCardDefinitions_Monster = (): CardDefinition[] => {
-  const result: CardDefinition[] = [];
-  ["サイバー・ドラゴン", "六武衆のご隠居", "アンノウン・シンクロン"].forEach((name) =>
-    result.push({
+export default function* generate(): Generator<CardDefinition> {
+  yield* ["サイバー・ドラゴン", "六武衆のご隠居", "アンノウン・シンクロン"].map((name): CardDefinition => {
+    return {
       name: name,
       actions: [
         defaultNormalSummonAction,
@@ -45,20 +44,19 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
           validate: (myInfo) => {
             const monsters = myInfo.action.entity.field.getMonstersOnFieldStrictly();
             if (monsters.length == 0 || monsters.some((m) => m.controller === myInfo.activator)) {
-              return undefined;
+              return;
             }
 
-            return defaultRuleSpecialSummonValidate(myInfo, ["Attack", "Defense"], []);
+            return defaultRuleSpecialSummonValidate(myInfo, faceupBattlePositions, []);
           },
           prepare: (myInfo) => defaultRuleSummonPrepare(myInfo, "SpecialSummon", ["SpecialSummon", "Rule"], faceupBattlePositions),
           execute: defaultRuleSummonExecute,
           settle: async () => true,
-        } as CardActionDefinition<unknown>,
-      ] as CardActionDefinition<unknown>[],
-    })
-  );
-
-  const def_ジャンク・フォアード = {
+        },
+      ],
+    };
+  });
+  yield {
     name: "ジャンク・フォアード",
     actions: [
       defaultNormalSummonAction,
@@ -83,13 +81,10 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
         prepare: (myInfo) => defaultRuleSummonPrepare(myInfo, "SpecialSummon", ["SpecialSummon", "Rule"], faceupBattlePositions),
         execute: defaultRuleSummonExecute,
         settle: async () => true,
-      } as CardActionDefinition<unknown>,
-    ] as CardActionDefinition<unknown>[],
+      },
+    ],
   };
-
-  result.push(def_ジャンク・フォアード);
-
-  const def_ディアボリックガイ = {
+  yield {
     name: "Ｄ－ＨＥＲＯ ディアボリックガイ",
     actions: [
       defaultNormalSummonAction,
@@ -127,12 +122,9 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
         },
         settle: async () => true,
       },
-    ] as CardActionDefinition<unknown>[],
+    ],
   };
-
-  result.push(def_ディアボリックガイ);
-
-  const def_ゾンビキャリア = {
+  yield {
     name: "ゾンビキャリア",
     actions: [
       defaultNormalSummonAction,
@@ -169,10 +161,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
       } as CardActionDefinition<unknown>,
     ] as CardActionDefinition<unknown>[],
   };
-
-  result.push(def_ゾンビキャリア);
-
-  const def_グローアップ・バルブ = {
+  yield {
     name: "グローアップ・バルブ",
     actions: [
       defaultNormalSummonAction,
@@ -203,9 +192,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
       } as CardActionDefinition<unknown>,
     ] as CardActionDefinition<unknown>[],
   };
-
-  result.push(def_グローアップ・バルブ);
-  const def_終末の騎士 = {
+  yield {
     name: "終末の騎士",
     actions: [
       defaultNormalSummonAction,
@@ -261,9 +248,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
       } as CardActionDefinition<undefined>,
     ] as CardActionDefinition<unknown>[],
   };
-
-  result.push(def_終末の騎士);
-  const def_マスマティシャン = {
+  yield {
     name: "マスマティシャン",
     actions: [
       defaultNormalSummonAction,
@@ -345,10 +330,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
       } as CardActionDefinition<undefined>,
     ] as CardActionDefinition<unknown>[],
   };
-
-  result.push(def_マスマティシャン);
-
-  const def_ライトロード・ビーストウォルフ = {
+  yield {
     name: "ライトロード・ビースト ウォルフ",
     actions: [
       defaultAttackAction,
@@ -392,9 +374,7 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
       },
     ] as CardActionDefinition<unknown>[],
   };
-  result.push(def_ライトロード・ビーストウォルフ);
-
-  const def_伝説の白石 = {
+  yield {
     name: "伝説の白石",
     actions: [
       defaultAttackAction,
@@ -437,21 +417,19 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
       } as CardActionDefinition<undefined>,
     ] as CardActionDefinition<unknown>[],
   };
-  result.push(def_伝説の白石);
-
-  const def_うららわらし = [
-    {
-      name: "灰流うらら",
-      chainBlockTags: ["Draw", "SearchFromDeck", "SendToGraveyardFromDeck", "SpecialSummonFromDeck"],
-    },
-    {
-      name: "屋敷わらし",
-      chainBlockTags: ["BanishFromGraveyard", "SpecialSummonFromGraveyard", "AddToHandFromGraveyard"],
-    },
-  ] as { name: string; chainBlockTags: TEffectTag[] }[];
-
-  def_うららわらし.forEach((item) => {
-    result.push({
+  yield* (
+    [
+      {
+        name: "灰流うらら",
+        chainBlockTags: ["Draw", "SearchFromDeck", "SendToGraveyardFromDeck", "SpecialSummonFromDeck"],
+      },
+      {
+        name: "屋敷わらし",
+        chainBlockTags: ["BanishFromGraveyard", "SpecialSummonFromGraveyard", "AddToHandFromGraveyard"],
+      },
+    ] as { name: string; chainBlockTags: TEffectTag[] }[]
+  ).map((item): CardDefinition => {
+    return {
       name: item.name,
       actions: [
         defaultAttackAction,
@@ -493,13 +471,13 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
           settle: async () => true,
         } as CardActionDefinition<undefined>,
       ] as CardActionDefinition<unknown>[],
-    });
+    };
   });
 
-  ["翻弄するエルフの剣士", "ロードランナー", "氷結界の修験者"].forEach((name) => {
-    result.push({
+  yield* ["翻弄するエルフの剣士", "ロードランナー", "氷結界の修験者"].map((name): CardDefinition => {
+    return {
       name: name,
-      actions: [defaultAttackAction, defaultBattlePotisionChangeAction, defaultFlipSummonAction, defaultNormalSummonAction] as CardActionDefinition<unknown>[],
+      actions: [defaultAttackAction, defaultBattlePotisionChangeAction, defaultFlipSummonAction, defaultNormalSummonAction],
       continuousEffects: [
         createRegularProcFilterHandler(
           "①戦闘破壊耐性",
@@ -531,10 +509,8 @@ export const createCardDefinitions_Monster = (): CardDefinition[] => {
               ),
             ];
           }
-        ),
-      ] as ContinuousEffectBase<unknown>[],
-    });
+        ) as ContinuousEffectBase<unknown>,
+      ],
+    };
   });
-
-  return result;
-};
+}

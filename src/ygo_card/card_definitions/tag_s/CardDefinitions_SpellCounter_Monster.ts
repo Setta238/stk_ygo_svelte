@@ -121,10 +121,8 @@ export const paySpellCounters = <T>(
   return { counter: qty };
 };
 
-export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] => {
-  const result: CardDefinition[] = [];
-
-  result.push({
+export default function* generate(): Generator<CardDefinition> {
+  yield {
     name: "魔導戦士 ブレイカー",
     actions: [
       defaultAttackAction,
@@ -241,8 +239,9 @@ export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] =
         }
       ) as ContinuousEffectBase<unknown>,
     ],
-  });
-  result.push({
+  };
+
+  yield {
     name: "王立魔法図書館",
     actions: [
       defaultAttackAction,
@@ -275,7 +274,5 @@ export const createCardDefinitions_SpellCounter_Monster = (): CardDefinition[] =
       },
     ],
     continuousEffects: [createSpellCounterCommonEffect("Monster", 3)],
-  });
-
-  return result;
-};
+  };
+}

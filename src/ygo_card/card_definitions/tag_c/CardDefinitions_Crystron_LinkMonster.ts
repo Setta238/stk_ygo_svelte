@@ -1,4 +1,3 @@
-import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
 import { defaultAttackAction, defaultSummonFilter } from "@ygo_card/card_actions/DefaultCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
@@ -10,9 +9,8 @@ import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 import { getDefaultLinkSummonAction } from "../../card_actions/DefaultCardAction_LinkMonster";
 import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 
-export const createCardDefinitions_Crystron_LinkMonster = (): CardDefinition[] => {
-  const result: CardDefinition[] = [];
-  result.push({
+export default function* generate(): Generator<CardDefinition> {
+  yield {
     name: "水晶機巧－ハリファイバー",
     actions: [
       defaultAttackAction,
@@ -97,7 +95,7 @@ export const createCardDefinitions_Crystron_LinkMonster = (): CardDefinition[] =
           return summoned.length == 1;
         },
         settle: async () => true,
-      } as CardActionDefinition<unknown>,
+      },
       {
         title: "②シンクロ召喚",
         isMandatory: false,
@@ -154,9 +152,8 @@ export const createCardDefinitions_Crystron_LinkMonster = (): CardDefinition[] =
           return true;
         },
         settle: async () => true,
-      } as CardActionDefinition<unknown>,
-    ] as CardActionDefinition<unknown>[],
+      },
+    ],
     defaultSummonFilter: defaultSummonFilter,
-  });
-  return result;
-};
+  };
+}

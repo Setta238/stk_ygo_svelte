@@ -6,165 +6,8 @@ import type { CardActionDefinition, TEffectTag } from "@ygo_duel/class/DuelCardA
 
 import type { CardDefinition } from "@ygo_card/class/DuelCardDefinition";
 
-const getDefaultSearchSpellAction = (filter: (card: DuelEntity) => boolean): CardActionDefinition<undefined> => {
-  return {
-    title: "発動",
-    isMandatory: false,
-    playType: "CardActivation",
-    spellSpeed: "Normal",
-    executableCells: ["Hand", "SpellAndTrapZone"],
-    executablePeriods: ["main1", "main2"],
-    executableDuelistTypes: ["Controller"],
-    priorityForNPC: 40,
-
-    // デッキに対象カードが一枚以上必要。
-    validate: (myInfo) => {
-      if (myInfo.activator.getDeckCell().cardEntities.filter(filter).length === 0) {
-        return;
-      }
-      if (!myInfo.activator.canDraw) {
-        return;
-      }
-      return defaultSpellTrapValidate(myInfo);
-    },
-    prepare: async () => {
-      return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"], prepared: undefined };
-    },
-    execute: async (myInfo) => {
-      const monsters = myInfo.activator.getDeckCell().cardEntities.filter(filter);
-      if (!monsters.length) {
-        return false;
-      }
-      const target = await myInfo.activator.waitSelectEntity(monsters, "手札に加えるカードを選択", false);
-      if (!target) {
-        return false;
-      }
-      await target.addToHand(["Effect"], myInfo.action.entity, myInfo.activator);
-
-      myInfo.activator.getDeckCell().shuffle();
-      return true;
-    },
-    settle: async () => true,
-  };
-};
-const getDefaultSalvageSpellAction = (filter: (card: DuelEntity) => boolean, qty: number): CardActionDefinition<undefined> => {
-  return {
-    title: "発動",
-    isMandatory: false,
-    playType: "CardActivation",
-    spellSpeed: "Normal",
-    executableCells: ["Hand", "SpellAndTrapZone"],
-    executablePeriods: ["main1", "main2"],
-    executableDuelistTypes: ["Controller"],
-
-    hasToTargetCards: true,
-    priorityForNPC: 40,
-    // 墓地にに対象カードが一枚以上必要。
-    validate: (myInfo) => {
-      if (myInfo.activator.getGraveyard().cardEntities.filter(filter).length < qty) {
-        return;
-      }
-      return defaultSpellTrapValidate(myInfo);
-    },
-    prepare: async () => {
-      return { selectedEntities: [], chainBlockTags: ["AddToHandFromGraveyard"], prepared: undefined };
-    },
-    execute: async (myInfo) => {
-      const monsters = myInfo.activator.getGraveyard().cardEntities.filter(filter);
-      if (monsters.length === 0) {
-        return false;
-      }
-      const target = await myInfo.activator.waitSelectEntities(monsters, qty, (list) => list.length === qty, "手札に加えるカードを選択", false);
-      for (const monster of target ?? []) {
-        await monster.addToHand(["Effect"], myInfo.action.entity, myInfo.activator);
-      }
-      return true;
-    },
-    settle: async () => true,
-  };
-};
-const getLikeTradeInAction = (filter: (card: DuelEntity) => boolean): CardActionDefinition<undefined> => {
-  return {
-    title: "発動",
-    isMandatory: false,
-    playType: "CardActivation",
-    spellSpeed: "Normal",
-    executableCells: ["Hand", "SpellAndTrapZone"],
-    executablePeriods: ["main1", "main2"],
-    executableDuelistTypes: ["Controller"],
-    priorityForNPC: 40,
-    canPayCosts: (myInfo) =>
-      myInfo.activator
-        .getHandCell()
-        .cardEntities.filter(filter)
-        .some((card) => myInfo.activator.canDiscard([card])),
-    validate: (myInfo) => {
-      if (myInfo.activator.getDeckCell().cardEntities.length < 2) {
-        return;
-      }
-      return defaultSpellTrapValidate(myInfo);
-    },
-    payCosts: async (myInfo) => {
-      const cost = await myInfo.activator.discard(1, ["Discard", "Cost"], myInfo.action.entity, myInfo.activator, filter);
-
-      return { discard: cost };
-    },
-    prepare: async () => {
-      return { selectedEntities: [], chainBlockTags: ["Draw"], prepared: undefined };
-    },
-    execute: async (myInfo) => {
-      await myInfo.activator.draw(2, myInfo.action.entity, myInfo.activator);
-      return true;
-    },
-    settle: async () => true,
-  };
-};
-
-const getDefaultHealBurnSpellAction = (calcDamage: (entity: DuelEntity) => [number, number]): CardActionDefinition<undefined> => {
-  return {
-    title: "発動",
-    isMandatory: false,
-    playType: "CardActivation",
-    spellSpeed: "Normal",
-    executableCells: ["Hand", "SpellAndTrapZone"],
-    executablePeriods: ["main1", "main2"],
-    executableDuelistTypes: ["Controller"],
-    validate: defaultSpellTrapValidate,
-    prepare: async (myInfo) => {
-      const [toSelf, toOpponent] = calcDamage(myInfo.action.entity);
-
-      const tags: TEffectTag[] = [];
-      if (toSelf < 0) {
-        tags.push("DamageToSelf");
-      }
-      if (toOpponent < 0) {
-        tags.push("DamageToOpponent");
-      }
-
-      return { selectedEntities: [], chainBlockTags: tags, prepared: undefined };
-    },
-    execute: async (myInfo) => {
-      const [toSelf, toOpponent] = calcDamage(myInfo.action.entity);
-      if (toOpponent > 0) {
-        myInfo.activator.getOpponentPlayer().heal(toOpponent, myInfo.action.entity);
-      } else if (toOpponent < 0) {
-        myInfo.activator.getOpponentPlayer().effectDamage(Math.abs(toOpponent), myInfo.action.entity);
-      }
-      if (toSelf > 0) {
-        myInfo.activator.heal(toSelf, myInfo.action.entity);
-      } else if (toSelf < 0) {
-        myInfo.activator.effectDamage(Math.abs(toSelf), myInfo.action.entity);
-      }
-      return true;
-    },
-    settle: async () => true,
-  };
-};
-
-export const createCardDefinitions_NormalSpell_Preset = (): CardDefinition[] => {
-  const result: CardDefinition[] = [];
-
-  [
+export default function* generate(): Generator<CardDefinition> {
+  yield* [
     {
       name: "増援",
       filter: (card: DuelEntity) => card.origin.kind === "Monster" && card.types.includes("Warrior") && (card.origin.level ?? 5) < 5,
@@ -209,14 +52,53 @@ export const createCardDefinitions_NormalSpell_Preset = (): CardDefinition[] => 
       name: "コール・リゾネーター",
       filter: (card: DuelEntity) => card.origin.kind === "Monster" && (card.origin.nameTags ?? []).includes("リゾネーター"),
     },
-  ].forEach((item) => {
-    result.push({
+  ].map((item) => {
+    return {
       name: item.name,
-      actions: [getDefaultSearchSpellAction(item.filter), defaultSpellTrapSetAction] as CardActionDefinition<unknown>[],
-    });
+      actions: [
+        {
+          title: "発動",
+          isMandatory: false,
+          playType: "CardActivation",
+          spellSpeed: "Normal",
+          executableCells: ["Hand", "SpellAndTrapZone"],
+          executablePeriods: ["main1", "main2"],
+          executableDuelistTypes: ["Controller"],
+          priorityForNPC: 40,
+          validate: (myInfo) => {
+            // デッキに対象カードが一枚以上必要。
+            if (!myInfo.activator.getDeckCell().cardEntities.filter(item.filter).length) {
+              return;
+            }
+            if (!myInfo.activator.canDraw) {
+              return;
+            }
+            return defaultSpellTrapValidate(myInfo);
+          },
+          prepare: async () => {
+            return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"], prepared: undefined };
+          },
+          execute: async (myInfo) => {
+            const monsters = myInfo.activator.getDeckCell().cardEntities.filter(item.filter);
+            if (!monsters.length) {
+              return false;
+            }
+            const target = await myInfo.activator.waitSelectEntity(monsters, "手札に加えるカードを選択", false);
+            if (!target) {
+              return false;
+            }
+            await target.addToHand(["Effect"], myInfo.action.entity, myInfo.activator);
+
+            return true;
+          },
+          settle: async () => true,
+        } as CardActionDefinition<unknown>,
+        defaultSpellTrapSetAction,
+      ],
+    };
   });
 
-  [
+  yield* [
     {
       name: "戦士の生還",
       filter: (card: DuelEntity) => card.kind === "Monster" && card.types.includes("Warrior"),
@@ -247,13 +129,48 @@ export const createCardDefinitions_NormalSpell_Preset = (): CardDefinition[] => 
       filter: (card: DuelEntity) => card.kind === "Monster" && (card.status.monsterCategories ?? []).includes("Normal"),
       qty: 2,
     },
-  ].forEach((item) => {
-    result.push({
+  ].map((item) => {
+    return {
       name: item.name,
-      actions: [getDefaultSalvageSpellAction(item.filter, item.qty), defaultSpellTrapSetAction] as CardActionDefinition<unknown>[],
-    });
+      actions: [
+        {
+          title: "発動",
+          isMandatory: false,
+          playType: "CardActivation",
+          spellSpeed: "Normal",
+          executableCells: ["Hand", "SpellAndTrapZone"],
+          executablePeriods: ["main1", "main2"],
+          executableDuelistTypes: ["Controller"],
+          hasToTargetCards: true,
+          priorityForNPC: 40,
+          validate: (myInfo) => {
+            // 墓地にに対象カードが一枚以上必要。
+            if (myInfo.activator.getGraveyard().cardEntities.filter(item.filter).length < item.qty) {
+              return;
+            }
+            return defaultSpellTrapValidate(myInfo);
+          },
+          prepare: async () => {
+            return { selectedEntities: [], chainBlockTags: ["AddToHandFromGraveyard"], prepared: undefined };
+          },
+          execute: async (myInfo) => {
+            const monsters = myInfo.activator.getGraveyard().cardEntities.filter(item.filter);
+            if (monsters.length === 0) {
+              return false;
+            }
+            const target = await myInfo.activator.waitSelectEntities(monsters, item.qty, (list) => list.length === item.qty, "手札に加えるカードを選択", false);
+            for (const monster of target ?? []) {
+              await monster.addToHand(["Effect"], myInfo.action.entity, myInfo.activator);
+            }
+            return true;
+          },
+          settle: async () => true,
+        } as CardActionDefinition<unknown>,
+        defaultSpellTrapSetAction,
+      ],
+    };
   });
-  [
+  yield* [
     {
       name: "トレード・イン",
       filter: (card: DuelEntity) => card.kind === "Monster" && (card.lvl ?? 0) === 8,
@@ -267,13 +184,49 @@ export const createCardDefinitions_NormalSpell_Preset = (): CardDefinition[] => 
       name: "デステニー・ドロー",
       filter: (card: DuelEntity) => card.kind === "Monster" && (card.origin.nameTags ?? []).includes("Ｄ－ＨＥＲＯ"),
     },
-  ].forEach((item) => {
-    result.push({
+  ].map((item) => {
+    return {
       name: item.name,
-      actions: [getLikeTradeInAction(item.filter), defaultSpellTrapSetAction] as CardActionDefinition<unknown>[],
-    });
+      actions: [
+        {
+          title: "発動",
+          isMandatory: false,
+          playType: "CardActivation",
+          spellSpeed: "Normal",
+          executableCells: ["Hand", "SpellAndTrapZone"],
+          executablePeriods: ["main1", "main2"],
+          executableDuelistTypes: ["Controller"],
+          priorityForNPC: 40,
+          canPayCosts: (myInfo) =>
+            myInfo.activator
+              .getHandCell()
+              .cardEntities.filter(item.filter)
+              .some((card) => myInfo.activator.canDiscard([card])),
+          validate: (myInfo) => {
+            if (myInfo.activator.getDeckCell().cardEntities.length < 2) {
+              return;
+            }
+            return defaultSpellTrapValidate(myInfo);
+          },
+          payCosts: async (myInfo) => {
+            const cost = await myInfo.activator.discard(1, ["Discard", "Cost"], myInfo.action.entity, myInfo.activator, item.filter);
+
+            return { discard: cost };
+          },
+          prepare: async () => {
+            return { selectedEntities: [], chainBlockTags: ["Draw"], prepared: undefined };
+          },
+          execute: async (myInfo) => {
+            await myInfo.activator.draw(2, myInfo.action.entity, myInfo.activator);
+            return true;
+          },
+          settle: async () => true,
+        } as CardActionDefinition<unknown>,
+        defaultSpellTrapSetAction,
+      ],
+    };
   });
-  [
+  yield* [
     {
       name: "火の粉",
       calcHeal: () => [0, -200] as [number, number],
@@ -326,11 +279,50 @@ export const createCardDefinitions_NormalSpell_Preset = (): CardDefinition[] => 
       name: "恵みの雨",
       calcHeal: () => [1000, 1000] as [number, number],
     },
-  ].forEach((item) => {
-    result.push({
+  ].map((item) => {
+    return {
       name: item.name,
-      actions: [getDefaultHealBurnSpellAction(item.calcHeal), defaultSpellTrapSetAction] as CardActionDefinition<unknown>[],
-    });
+      actions: [
+        {
+          title: "発動",
+          isMandatory: false,
+          playType: "CardActivation",
+          spellSpeed: "Normal",
+          executableCells: ["Hand", "SpellAndTrapZone"],
+          executablePeriods: ["main1", "main2"],
+          executableDuelistTypes: ["Controller"],
+          validate: defaultSpellTrapValidate,
+          prepare: async () => {
+            const [toSelf, toOpponent] = item.calcHeal();
+
+            const tags: TEffectTag[] = [];
+            if (toSelf < 0) {
+              tags.push("DamageToSelf");
+            }
+            if (toOpponent < 0) {
+              tags.push("DamageToOpponent");
+            }
+
+            return { selectedEntities: [], chainBlockTags: tags, prepared: undefined };
+          },
+          execute: async (myInfo) => {
+            const [toSelf, toOpponent] = item.calcHeal();
+            if (toOpponent > 0) {
+              myInfo.activator.getOpponentPlayer().heal(toOpponent, myInfo.action.entity);
+            } else if (toOpponent < 0) {
+              myInfo.activator.getOpponentPlayer().effectDamage(Math.abs(toOpponent), myInfo.action.entity);
+            }
+            if (toSelf > 0) {
+              myInfo.activator.heal(toSelf, myInfo.action.entity);
+            } else if (toSelf < 0) {
+              myInfo.activator.effectDamage(Math.abs(toSelf), myInfo.action.entity);
+            }
+            return true;
+          },
+          settle: async () => true,
+        } as CardActionDefinition<unknown>,
+        defaultSpellTrapSetAction,
+      ],
+    };
   });
-  return result;
-};
+}

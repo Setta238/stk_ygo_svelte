@@ -1,4 +1,3 @@
-import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
 import {
   defaultAttackAction,
   defaultBattlePotisionChangeAction,
@@ -12,10 +11,8 @@ import { duelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { DuelEnd, SystemError } from "@ygo_duel/class/Duel";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
-
-export const createCardDefinitions_Exodia_Monster = (): CardDefinition[] => {
-  const result: CardDefinition[] = [];
-  result.push({
+export default function* generate(): Generator<CardDefinition> {
+  yield {
     name: "封印されしエクゾディア",
     actions: [
       defaultAttackAction,
@@ -46,7 +43,7 @@ export const createCardDefinitions_Exodia_Monster = (): CardDefinition[] => {
             myInfo.action.entity,
             myInfo.activator
           );
-          return { selectedEntities: [], chainBlockTags: [""], prepared: undefined, nextChainBlockFilter: () => false };
+          return { selectedEntities: [], chainBlockTags: [], prepared: undefined, nextChainBlockFilter: () => false };
         },
         execute: async (myInfo) => {
           const isDraw =
@@ -99,8 +96,6 @@ export const createCardDefinitions_Exodia_Monster = (): CardDefinition[] => {
         },
         settle: async () => true,
       },
-    ] as CardActionDefinition<unknown>[],
-  });
-
-  return result;
-};
+    ],
+  };
+}

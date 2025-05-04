@@ -14,11 +14,8 @@ import { SystemError } from "@ygo_duel/class/Duel";
 import { defaultCanPaySelfBanishCosts, defaultPaySelfBanishCosts, defaultPrepare } from "../../card_actions/DefaultCardAction";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-
-export const createCardDefinitions_WorldChalice_Monster = (): CardDefinition[] => {
-  const result: CardDefinition[] = [];
-
-  result.push({
+export default function* generate(): Generator<CardDefinition> {
+  yield {
     name: "星杯の妖精リース",
     actions: [
       defaultAttackAction,
@@ -51,7 +48,7 @@ export const createCardDefinitions_WorldChalice_Monster = (): CardDefinition[] =
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"], prepared: undefined };
         },
-        execute: async (myInfo): Promise<boolean> => {
+        execute: async (myInfo) => {
           const choices = myInfo.activator
             .getDeckCell()
             .cardEntities.filter((card) => card.kind === "Monster")
@@ -111,8 +108,9 @@ export const createCardDefinitions_WorldChalice_Monster = (): CardDefinition[] =
         settle: async () => true,
       },
     ],
-  });
-  result.push({
+  };
+
+  yield {
     name: "星遺物－『星杯』",
     actions: [
       defaultAttackAction,
@@ -138,7 +136,7 @@ export const createCardDefinitions_WorldChalice_Monster = (): CardDefinition[] =
             : undefined,
         payCosts: defaultSelfReleasePayCosts,
         prepare: defaultPrepare,
-        execute: async (myInfo): Promise<boolean> => {
+        execute: async (myInfo) => {
           const monsters = myInfo.activator.duel.field.moveLog
             .getPriviousChainLog()
             .filter((record) => record.movedAs.includes("SpecialSummon"))
@@ -196,7 +194,7 @@ export const createCardDefinitions_WorldChalice_Monster = (): CardDefinition[] =
           return list.length > 1 ? [] : undefined;
         },
         prepare: defaultPrepare,
-        execute: async (myInfo): Promise<boolean> => {
+        execute: async (myInfo) => {
           const monsters = myInfo.activator
             .getDeckCell()
             .cardEntities.filter((card) => card.kind === "Monster")
@@ -263,6 +261,5 @@ export const createCardDefinitions_WorldChalice_Monster = (): CardDefinition[] =
         settle: async () => true,
       },
     ],
-  });
-  return result;
-};
+  };
+}

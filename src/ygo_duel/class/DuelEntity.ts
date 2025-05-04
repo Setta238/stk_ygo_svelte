@@ -29,7 +29,6 @@ import {
 import { type Duelist } from "./Duelist";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
-import { cardDefinitionDic } from "@ygo/class/CardInfo";
 import {
   CardAction,
   type CardActionDefinition,
@@ -212,12 +211,16 @@ export class DuelEntity {
       }
     );
   };
-  public static readonly createCardEntity = (owner: Duelist, cardInfo: CardInfoJson): DuelEntity | undefined => {
+  public static readonly createCardEntity = (
+    owner: Duelist,
+    cardInfo: CardInfoJson,
+    cardDefinitionsDic: { [name: string]: CardDefinition }
+  ): DuelEntity | undefined => {
     // cardはデッキまたはEXデッキに生成
     const fieldCell = cardInfo.monsterCategories && cardInfo.monsterCategories.union(exMonsterCategories).length ? owner.getExtraDeck() : owner.getDeckCell();
 
     const statusBase = getSubsetAsEntityStatusBase(cardInfo);
-    const definition = cardDefinitionDic.get(cardInfo.name);
+    const definition = cardDefinitionsDic[cardInfo.name];
 
     if (
       (statusBase.kind === "Monster" && statusBase.monsterCategories?.includes("Normal") && !statusBase.monsterCategories?.includes("Pendulum")) ||
@@ -288,7 +291,6 @@ export class DuelEntity {
       }
 
       if (!_to.isPlayFieldCell) {
-        console.log(this.toString(), kind, to);
         _kind = entity.origin.kind;
       }
       if (!_to.isMonsterZoneLikeCell) {

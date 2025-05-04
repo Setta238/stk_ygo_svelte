@@ -7,11 +7,9 @@ import { SystemError } from "@ygo_duel/class/Duel";
 import type { CardDefinition } from "@ygo_card/class/DuelCardDefinition";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 
-export const createCardDefinitions_NormalTrap_UponAttackDeclaration = (): CardDefinition[] => {
-  const result: CardDefinition[] = [];
-
-  ["炸裂装甲", "次元幽閉"].forEach((name) => {
-    result.push({
+export default function* generate(): Generator<CardDefinition> {
+  yield* ["炸裂装甲", "次元幽閉"].map((name) => {
+    return {
       name: name,
       actions: [
         defaultSpellTrapSetAction,
@@ -19,6 +17,7 @@ export const createCardDefinitions_NormalTrap_UponAttackDeclaration = (): CardDe
           title: "発動",
           playType: "CardActivation",
           spellSpeed: "Quick",
+          isMandatory: false,
           executableCells: ["SpellAndTrapZone"],
           executablePeriods: ["b1Battle", "b2Battle"],
           executableDuelistTypes: ["Controller"],
@@ -41,7 +40,7 @@ export const createCardDefinitions_NormalTrap_UponAttackDeclaration = (): CardDe
 
             // 王宮の鉄壁などが有効である場合、発動不可
             if (name === "次元幽閉" && !myInfo.activator.canTryBanish(attacker, "BanishAsEffect", myInfo.action)) {
-              return false;
+              return;
             }
 
             return defaultSpellTrapValidate(myInfo);
@@ -66,10 +65,8 @@ export const createCardDefinitions_NormalTrap_UponAttackDeclaration = (): CardDe
             return true;
           },
           settle: async () => true,
-        },
-      ] as CardActionDefinition<unknown>[],
-    });
+        } as CardActionDefinition<unknown>,
+      ],
+    };
   });
-
-  return result;
-};
+}

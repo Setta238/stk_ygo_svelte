@@ -1,5 +1,4 @@
-import {} from "@ygo_card/class/DuelCardDefinition";
-import {} from "@ygo_duel/class/DuelistShortHands";
+import { generateCardDefinitions } from "@ygo_card/class/DuelCardDefinition";
 import { type IDeckInfo } from "@ygo/class/DeckInfo";
 import { Duelist, type TDuelistType } from "@ygo_duel/class/Duelist";
 import { type IDuelistProfile } from "@ygo/class/DuelistProfile";
@@ -23,6 +22,7 @@ import { DuelEntityShortHands } from "./DuelEntityShortHands";
 import { StkEvent } from "@stk_utils/class/StkEvent";
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
 import type { DuelFieldCell } from "./DuelFieldCell";
+import type { CardDefinition } from "./DuelCardDefinition";
 export const duelStartModes = ["PlayFirst", "DrawFirst", "Random"] as const;
 export type TDuelStartMode = (typeof duelStartModes)[number];
 export const duelStartModeDic: { [key in TDuelStartMode]: string } = {
@@ -190,9 +190,22 @@ export class Duel {
 
     this.priorityHolder = this.firstPlayer;
 
-    // 下の三行はまとめても良いが、ログ的に交互にやったほうがそれっぽいのでこのままにする。
+    const cardDefinitionsDic = generateCardDefinitions(
+      ...Object.values(this.duelists)
+        .flatMap((duelist) => duelist.deckInfo.cardNames)
+        .getDistinct()
+    ).reduce(
+      (wip, definition) => {
+        wip[definition.name] = definition;
+        return { ...wip };
+      },
+      {} as { [name: string]: CardDefinition }
+    );
+
+    console.log(cardDefinitionsDic.keys);
+
     for (const duelist of Object.values(this.duelists)) {
-      duelist.pushDeck();
+      duelist.pushDeck(cardDefinitionsDic);
       duelist.getDeckCell().shuffle();
       if (duelist.initHand.length) {
         duelist.initHand.forEach((name) => {

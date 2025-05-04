@@ -6,13 +6,12 @@ import type { CardDefinition } from "@ygo_card/class/DuelCardDefinition";
 import { freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import type { CardActionDefinition, ChainBlockInfo } from "@ygo_duel/class/DuelCardAction";
+import type { ChainBlockInfo } from "@ygo_duel/class/DuelCardAction";
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
 import { defaultTargetMonstersRebornExecute, defaultTargetMonstersRebornPrepare } from "../card_actions/DefaultCardAction";
 
-export const createCardDefinitions_ContinuousTrap = (): CardDefinition[] => {
-  const result: CardDefinition[] = [];
-  (
+export default function* generate(): Generator<CardDefinition> {
+  yield* (
     [
       { name: "リビングデッドの呼び声", pos: "Attack", filter: () => true },
       { name: "エンジェル・リフト", pos: "Attack", filter: (monster) => (monster.lvl ?? 12) < 3 },
@@ -43,8 +42,8 @@ export const createCardDefinitions_ContinuousTrap = (): CardDefinition[] => {
       filter: (monster: DuelEntity) => boolean;
       onMonsterAfterMove?: (myInfo: ChainBlockInfo<unknown>, data: DuelEntity) => Promise<void | "RemoveMe">;
     }>[]
-  ).forEach((item) =>
-    result.push({
+  ).map((item): CardDefinition => {
+    return {
       name: item.name,
       actions: [
         {
@@ -155,9 +154,8 @@ export const createCardDefinitions_ContinuousTrap = (): CardDefinition[] => {
           },
           settle: async () => true,
         },
-        defaultSpellTrapSetAction as CardActionDefinition<unknown>,
+        defaultSpellTrapSetAction,
       ],
-    })
-  );
-  return result;
-};
+    };
+  });
+}

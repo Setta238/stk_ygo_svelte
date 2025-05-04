@@ -7,9 +7,8 @@ import {
 
 import type { CardDefinition } from "@ygo_card/class/DuelCardDefinition";
 
-export const createCardDefinitions_Wind_Spellcaster_lvl3_Monster = (): CardDefinition[] => {
-  const result: CardDefinition[] = [];
-  result.push({
+export default function* generate(): Generator<CardDefinition> {
+  yield {
     name: "エキセントリック・ボーイ",
     actions: [defaultAttackAction, defaultBattlePotisionChangeAction, defaultNormalSummonAction, defaultFlipSummonAction],
     defaultSummonFilter: (filter, target, effectOwner, summoner, movedAs, attr, monster, materialInfos, posList, cells) => {
@@ -45,7 +44,5 @@ export const createCardDefinitions_Wind_Spellcaster_lvl3_Monster = (): CardDefin
         .filter((cellType) => cellType !== "ExtraMonsterZone")
         .filter((cellType) => cellType !== "MonsterZone");
     },
-  });
-
-  return result;
-};
+  };
+}

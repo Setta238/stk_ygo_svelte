@@ -1,7 +1,6 @@
 import { defaultSpellTrapSetAction, getDefaultEquipSpellTrapAction } from "@ygo_card/card_actions/DefaultCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
-import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
 
 import type { CardDefinition } from "@ygo_card/class/DuelCardDefinition";
 import type { TEntityFlexibleNumericStatusKey, TMonsterAttribute, TMonsterType } from "@ygo/class/YgoTypes";
@@ -11,10 +10,8 @@ import {
 } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 
-export const createCardDefinitions_EquipSpell_Preset = (): CardDefinition[] => {
-  const result: CardDefinition[] = [];
-
-  (
+export default function* generate(): Generator<CardDefinition> {
+  yield* (
     [
       { name: "伝説の剣", attr: undefined, monType: "Warrior", atk: 200, def: 200 },
       { name: "秘術の書", attr: undefined, monType: "Spellcaster", atk: 200, def: 200 },
@@ -41,14 +38,14 @@ export const createCardDefinitions_EquipSpell_Preset = (): CardDefinition[] => {
       { name: "サラマンドラ", attr: "Fire", monType: undefined, atk: 700, def: 0 },
       { name: "シャイン・キャッスル", attr: "Light", monType: undefined, atk: 700, def: 0 },
     ] as { name: string; attr?: TMonsterAttribute; monType?: TMonsterType; atk: number; def: number }[]
-  ).forEach((item) => {
-    result.push({
+  ).map((item): CardDefinition => {
+    return {
       name: item.name,
       actions: [
         getDefaultEquipSpellTrapAction(
           (monster) => (!item.attr || monster.attr.includes(item.attr)) && (!item.monType || monster.types.includes(item.monType))
         ),
-        defaultSpellTrapSetAction as CardActionDefinition<unknown>,
+        defaultSpellTrapSetAction,
       ],
       continuousEffects: [
         createRegularNumericStateOperatorHandler(
@@ -86,10 +83,8 @@ export const createCardDefinitions_EquipSpell_Preset = (): CardDefinition[] => {
               )
             );
           }
-        ),
-      ] as ContinuousEffectBase<unknown>[],
-    });
+        ) as ContinuousEffectBase<unknown>,
+      ],
+    };
   });
-
-  return result;
-};
+}

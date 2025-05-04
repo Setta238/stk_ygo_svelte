@@ -10,11 +10,8 @@ import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import { defaultCanPaySelfBanishCosts } from "../../card_actions/DefaultCardAction";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { SystemError } from "@ygo_duel/class/Duel";
-
-export const createCardDefinitions_Junk_Monster = (): CardDefinition[] => {
-  const result: CardDefinition[] = [];
-
-  result.push({
+export default function* generate(): Generator<CardDefinition> {
+  yield {
     name: "ジャンク・コレクター",
     actions: [
       defaultAttackAction,
@@ -95,7 +92,5 @@ export const createCardDefinitions_Junk_Monster = (): CardDefinition[] => {
         settle: async () => true,
       },
     ],
-  });
-
-  return result;
-};
+  };
+}

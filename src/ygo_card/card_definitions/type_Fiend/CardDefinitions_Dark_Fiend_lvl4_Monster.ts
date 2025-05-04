@@ -17,9 +17,8 @@ import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/D
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 
-export const createCardDefinitions_Dark_Fiend_lvl4_Monster = (): CardDefinition[] => {
-  const result: CardDefinition[] = [];
-  result.push({
+export default function* generate(): Generator<CardDefinition> {
+  yield {
     name: "死霊騎士デスカリバー・ナイト",
     actions: [
       defaultAttackAction,
@@ -73,7 +72,5 @@ export const createCardDefinitions_Dark_Fiend_lvl4_Monster = (): CardDefinition[
       } as CardActionDefinition<unknown>,
     ] as CardActionDefinition<unknown>[],
     defaultSummonFilter: defaultSummonFilter,
-  });
-
-  return result;
-};
+  };
+}

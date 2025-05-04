@@ -6,10 +6,8 @@ import type { CardDefinition } from "@ygo_card/class/DuelCardDefinition";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import { createBroadRegularNumericStateOperatorHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 
-export const createCardDefinitions_ContinuousSpell_Preset = (): CardDefinition[] => {
-  const result: CardDefinition[] = [];
-
-  const def_連合軍 = {
+export default function* generate(): Generator<CardDefinition> {
+  yield {
     name: "連合軍",
     actions: [defaultContinuousSpellCardActivateAction, defaultSpellTrapSetAction],
     continuousEffects: [
@@ -47,11 +45,7 @@ export const createCardDefinitions_ContinuousSpell_Preset = (): CardDefinition[]
             ),
           ];
         }
-      ),
-    ] as ContinuousEffectBase<unknown>[],
+      ) as ContinuousEffectBase<unknown>,
+    ],
   };
-
-  result.push(def_連合軍);
-
-  return result;
-};
+}

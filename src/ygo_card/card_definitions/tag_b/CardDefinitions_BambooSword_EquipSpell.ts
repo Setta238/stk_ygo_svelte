@@ -5,14 +5,13 @@ import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOper
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { IllegalCancelError } from "@ygo_duel/class/Duel";
 import { defaultCanPaySelfSendToGraveyardCost, defaultPaySelfSendToGraveyardCost, defaultPrepare } from "../../card_actions/DefaultCardAction";
-
-export const createCardDefinitions_BambooSword_EquipSpell = (): CardDefinition[] => {
-  const result: CardDefinition[] = [];
-  result.push({
+export default function* generate(): Generator<CardDefinition> {
+  yield {
     name: "折れ竹光",
     actions: [getDefaultEquipSpellTrapAction(), defaultSpellTrapSetAction],
-  });
-  result.push({
+  };
+
+  yield {
     name: "妖刀竹光",
     actions: [
       getDefaultEquipSpellTrapAction(),
@@ -137,8 +136,9 @@ export const createCardDefinitions_BambooSword_EquipSpell = (): CardDefinition[]
         settle: async () => true,
       },
     ],
-  });
-  result.push({
+  };
+
+  yield {
     name: "真刀竹光",
     actions: [
       getDefaultEquipSpellTrapAction(),
@@ -283,6 +283,5 @@ export const createCardDefinitions_BambooSword_EquipSpell = (): CardDefinition[]
         settle: async () => true,
       },
     ],
-  });
-  return result;
-};
+  };
+}

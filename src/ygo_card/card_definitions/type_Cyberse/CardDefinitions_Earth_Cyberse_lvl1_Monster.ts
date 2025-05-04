@@ -1,5 +1,3 @@
-import type { CardActionDefinition } from "@ygo_duel/class/DuelCardAction";
-
 import {
   defaultAttackAction,
   defaultBattlePotisionChangeAction,
@@ -14,9 +12,8 @@ import type { CardDefinition } from "@ygo_card/class/DuelCardDefinition";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import {} from "@ygo_duel/class/DuelEntityShortHands";
 
-export const createCardDefinitions_Earth_Cyberse_lvl1_Monster = (): CardDefinition[] => {
-  const result: CardDefinition[] = [];
-  result.push({
+export default function* generate(): Generator<CardDefinition> {
+  yield {
     name: "ドットスケーパー",
     actions: [
       defaultAttackAction,
@@ -45,7 +42,7 @@ export const createCardDefinitions_Earth_Cyberse_lvl1_Monster = (): CardDefiniti
         },
         execute: (myInfo) => defaultSelfRebornExecute(myInfo),
         settle: async () => true,
-      } as CardActionDefinition<unknown>,
+      },
       {
         title: "②自己帰還",
         isMandatory: false,
@@ -68,9 +65,7 @@ export const createCardDefinitions_Earth_Cyberse_lvl1_Monster = (): CardDefiniti
         },
         execute: (myInfo) => defaultSelfRebornExecute(myInfo),
         settle: async () => true,
-      } as CardActionDefinition<unknown>,
-    ] as CardActionDefinition<unknown>[],
-  });
-
-  return result;
-};
+      },
+    ],
+  };
+}

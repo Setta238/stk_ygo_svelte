@@ -39,6 +39,9 @@ export default defineConfig({
           if (id.endsWith("cardInfo.json")) {
             return "json";
           }
+          if (id.includes("src/ygo_entity_proc")) {
+            return "entity_proc";
+          }
         },
         chunkFileNames: "assets/[name].js",
         assetFileNames: "[name].[ext]",

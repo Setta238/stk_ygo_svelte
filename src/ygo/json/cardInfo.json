@@ -21364,5 +21364,16 @@
     ],
     "wikiEncodedName": "%A1%D4%BE%A4%B4%AD%C1%CE%A5%B5%A5%E2%A5%F3%A5%D7%A5%EA%A1%BC%A5%B9%A5%C8%A1%D5",
     "nameTags": []
+  },
+  "トゥーン・ワールド": {
+    "name": "トゥーン・ワールド",
+    "nameKana": "",
+    "description": "１０００ＬＰを払ってこのカードを発動できる。",
+    "kind": "Spell",
+    "spellCategory": "Continuous",
+    "wikiEncodedName": "%A1%D4%A5%C8%A5%A5%A1%BC%A5%F3%A1%A6%A5%EF%A1%BC%A5%EB%A5%C9%A1%D5",
+    "nameTags": [
+      "トゥーン"
+    ]
   }
 }

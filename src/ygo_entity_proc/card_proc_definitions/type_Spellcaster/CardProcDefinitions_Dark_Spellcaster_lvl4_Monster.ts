@@ -61,7 +61,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerTurnIfFaceup: 1,
         canPayCosts: (myInfo) => {
-          if (!myInfo.activator.canDiscard) {
+          if (!myInfo.activator.status.canDiscardAsCost) {
             return false;
           }
 

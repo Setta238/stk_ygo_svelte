@@ -8,6 +8,7 @@ import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition"
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
+import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
@@ -178,6 +179,127 @@ export default function* generate(): Generator<EntityProcDefinition> {
         },
         settle: async () => true,
       } as CardActionDefinition<unknown>,
+      defaultSpellTrapSetAction,
+    ],
+  };
+  yield {
+    name: "手札断殺",
+    actions: [
+      {
+        title: "発動",
+        isMandatory: false,
+        playType: "CardActivation",
+        spellSpeed: "Quick",
+        executableCells: ["Hand", "SpellAndTrapZone"],
+        executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
+        executableDuelistTypes: ["Controller"],
+        hasToTargetCards: true,
+        validate: (myInfo) => {
+          for (const duelist of [myInfo.activator, myInfo.activator.getOpponentPlayer()]) {
+            if (!duelist.canDraw) {
+              return;
+            }
+            if (
+              duelist
+                .getHandCell()
+                .cardEntities.filter((card) => card.canBeSentToGraveyard(myInfo.activator, myInfo.action.entity, "SendToGraveyardAsEffect", myInfo.action))
+                .filter((card) => card !== myInfo.action.entity).length < 2
+            ) {
+              return;
+            }
+            if (duelist.getDeckCell().cardEntities.length < 2) {
+              return;
+            }
+          }
+
+          return defaultSpellTrapValidate(myInfo);
+        },
+        prepare: async () => {
+          console.log("手札断殺");
+          return { selectedEntities: [], chainBlockTags: ["Draw"], prepared: undefined };
+        },
+        execute: async (myInfo) => {
+          if (myInfo.activator.getHandCell().cardEntities.length < 2) {
+            return false;
+          }
+          if (myInfo.activator.getOpponentPlayer().getHandCell().cardEntities.length < 2) {
+            return false;
+          }
+
+          let qty = 0;
+
+          for (const duelist of [myInfo.activator, myInfo.activator.getOpponentPlayer()]) {
+            const cards = await duelist.waitSelectEntities(
+              duelist.getHandCell().cardEntities,
+              2,
+              (selected) => selected.length === 2,
+              "墓地に送るカードを２枚選択。",
+              false
+            );
+            if (!cards) {
+              throw new IllegalCancelError(myInfo, duelist);
+            }
+            const _cards = await DuelEntityShortHands.sendManyToGraveyardForTheSameReason(cards, ["Effect"], myInfo.action.entity, myInfo.activator);
+            qty += _cards.length;
+          }
+
+          if (!qty) {
+            return false;
+          }
+
+          // タイミングを逃させる要因になる。
+          myInfo.activator.duel.clock.incrementTotalProcSeq();
+
+          await DuelEntityShortHands.drawAtSameTime(myInfo.activator, myInfo.action.entity, 2, 2);
+
+          return true;
+        },
+        settle: async () => true,
+      },
+      defaultSpellTrapSetAction,
+    ],
+  };
+  yield {
+    name: "リロード",
+    actions: [
+      {
+        title: "発動",
+        isMandatory: false,
+        playType: "CardActivation",
+        spellSpeed: "Quick",
+        executableCells: ["Hand", "SpellAndTrapZone"],
+        executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
+        executableDuelistTypes: ["Controller"],
+        hasToTargetCards: true,
+        validate: (myInfo) => {
+          // 自分のデッキが0枚でも発動できる。
+          if (!myInfo.activator.canDraw) {
+            return;
+          }
+
+          return defaultSpellTrapValidate(myInfo);
+        },
+        prepare: async () => {
+          return { selectedEntities: [], chainBlockTags: ["Draw"], prepared: undefined };
+        },
+        execute: async (myInfo) => {
+          const hands = myInfo.activator.getHandCell().cardEntities;
+
+          if (!hands.length) {
+            return false;
+          }
+
+          await DuelEntityShortHands.returnManyToDeckForTheSameReason("Random", hands, ["Effect"], myInfo.action.entity, myInfo.activator);
+
+          // タイミングを逃させる要因になる。
+          myInfo.activator.duel.clock.incrementTotalProcSeq();
+
+          await myInfo.activator.draw(hands.length, myInfo.action.entity, myInfo.activator);
+
+          return true;
+        },
+        settle: async () => true,
+      },
       defaultSpellTrapSetAction,
     ],
   };

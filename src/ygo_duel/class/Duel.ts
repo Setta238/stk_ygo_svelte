@@ -669,7 +669,8 @@ export class Duel {
           //チェーンに積んで、チェーン処理へ
           await this.procChainBlock({ activator: this.priorityHolder, actionInfo }, undefined);
         } else {
-          const info = await actionInfo.action.prepare(this.priorityHolder, undefined, undefined, [], true, false);
+          console.log(actionInfo.dest);
+          const info = await actionInfo.action.prepare(this.priorityHolder, actionInfo.dest, undefined, [], true, false);
           if (!info) {
             continue;
           }
@@ -792,6 +793,7 @@ export class Duel {
     if (chainBlock) {
       const activator = chainBlock.activator;
 
+      console.log(chainBlock.dest);
       // コスト処理
       const chainBlockInfo = await chainBlock.action.prepare(
         activator,

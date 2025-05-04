@@ -190,8 +190,9 @@ export class Duelist {
     this.info = { ...this.infoOrigin };
   };
   public readonly canDiscard = (entities: DuelEntity[]) => {
-    // TODO
-    console.log(entities);
+    if (this.status.canDiscardAsCost)
+      // TODO
+      console.log(entities);
     return true;
   };
   public readonly canSendToGraveyard = (entities: DuelEntity[]) => {

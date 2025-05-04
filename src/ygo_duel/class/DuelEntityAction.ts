@@ -440,7 +440,6 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
     if (this.isLikeContinuousSpell) {
       this.entity.info.isPending = true;
     }
-
     const chainNumber = this.isWithChainBlock ? max(0, ...chainBlockInfos.map((info) => info.chainNumber ?? -1)) + 1 : undefined;
 
     let logText = "";

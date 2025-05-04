@@ -5,6 +5,10 @@ export interface IStkEvent<T> {
 export class StkEvent<T> {
   private handlers: { (data: T): void | "RemoveMe" }[] = [];
 
+  public get length() {
+    return this.handlers.length;
+  }
+
   public append(handler: { (data: T): void | "RemoveMe" }): void {
     this.handlers.push(handler);
   }

@@ -32,7 +32,7 @@
 
   let activator: Duelist | undefined = undefined;
   let dummyActionInfos: DummyActionInfo[] = [];
-  let responseResolve: (action: DuelistResponseBase) => void = () => {};
+  let responseResolve: (action: DuelistResponseBase) => void = () => console.log("hoge");
   let entitiesChoices: ChoicesSweet<DuelEntity> | undefined;
   let targetsInBuildingChain: DuelEntity[] = [];
   let isSelected = false;
@@ -55,7 +55,9 @@
   const onWaitEnd = () => {
     activator = undefined;
     dummyActionInfos = [];
-    responseResolve = () => {};
+    responseResolve = () => {
+      console.log("hoge");
+    };
     entitiesChoices = undefined;
     targetsInBuildingChain = [];
     isSelected = false;
@@ -171,6 +173,7 @@
       if (canAcceptDrop && draggingDummyActionInfos) {
         if (draggingDummyActionInfos.length === 1) {
           const info = draggingDummyActionInfos[0];
+          console.log(responseResolve, { actionInfo: { ...info, dest: cell } });
           responseResolve({ actionInfo: { ...info, dest: cell } });
         } else if (draggingDummyActionInfos.length > 1) {
           if (!activator) {

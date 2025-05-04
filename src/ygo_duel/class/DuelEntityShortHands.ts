@@ -1,4 +1,4 @@
-import { Duel } from "./Duel";
+import { Duel, DuelEnd, SystemError } from "./Duel";
 import { type ChainBlockInfo } from "./DuelEntityAction";
 import { DuelEntity, type TDuelCauseReason, type TDuelEntityFace, type TDuelEntityOrientation, destoryCauseReasonDic } from "./DuelEntity";
 import type { Duelist } from "./Duelist";
@@ -38,9 +38,9 @@ export class DuelEntityShortHands {
     movedAs: TDuelCauseReason[],
     movedBy: DuelEntity,
     activator: Duelist
-  ): Promise<void> => {
+  ): Promise<DuelEntity[]> => {
     if (!entities.length) {
-      return Promise.resolve();
+      return Promise.resolve([]);
     }
     if (movedAs.includes("Cost")) {
       activator.writeInfoLog(`${entities.map((entity) => entity.toString()).join(" ")}をリリースし――、`);
@@ -61,9 +61,9 @@ export class DuelEntityShortHands {
     movedAs: TDuelCauseReason[],
     movedBy: DuelEntity | undefined,
     activator: Duelist | undefined
-  ): Promise<void> => {
+  ): Promise<DuelEntity[]> => {
     if (!entities.length) {
-      return Promise.resolve();
+      return Promise.resolve([]);
     }
     if (activator && movedAs.includes("Cost")) {
       if (movedAs.includes("FusionMaterial")) {
@@ -83,9 +83,9 @@ export class DuelEntityShortHands {
     movedAs: TDuelCauseReason[],
     movedBy: DuelEntity | undefined,
     activator: Duelist | undefined
-  ): Promise<void> => {
+  ): Promise<DuelEntity[]> => {
     if (!entities.length) {
-      return Promise.resolve();
+      return Promise.resolve([]);
     }
     return DuelEntityShortHands.bringManyToSameCellForTheSameReason("Hand", "Bottom", entities, "FaceDown", "Vertical", movedAs, movedBy, activator);
   };
@@ -94,9 +94,9 @@ export class DuelEntityShortHands {
     movedAs: TDuelCauseReason[],
     movedBy: DuelEntity | undefined,
     activator: Duelist | undefined
-  ): Promise<void> => {
+  ): Promise<DuelEntity[]> => {
     if (!entities.length) {
-      return Promise.resolve();
+      return Promise.resolve([]);
     }
     if (activator && movedAs.includes("Cost")) {
       activator.writeInfoLog(`${entities.map((entity) => entity.toString()).join(" ")}を手札から捨て――、`);
@@ -117,9 +117,9 @@ export class DuelEntityShortHands {
     movedAs: TDuelCauseReason[],
     movedBy: DuelEntity | undefined,
     activator: Duelist | undefined
-  ): Promise<void> => {
+  ): Promise<DuelEntity[]> => {
     if (!entities.length) {
-      return Promise.resolve();
+      return Promise.resolve([]);
     }
     if (activator && movedAs.includes("Cost")) {
       activator.writeInfoLog(`${entities.map((entity) => entity.toString()).join(" ")}をゲームから除外し――、`);
@@ -132,9 +132,9 @@ export class DuelEntityShortHands {
     movedAs: TDuelCauseReason[],
     movedBy: DuelEntity | undefined,
     activator: Duelist | undefined
-  ): Promise<void> => {
+  ): Promise<DuelEntity[]> => {
     if (!entities.length) {
-      return Promise.resolve();
+      return Promise.resolve([]);
     }
     if (activator && movedAs.includes("Cost")) {
       activator.writeInfoLog(`${entities.map((entity) => entity.toString()).join(" ")}をデッキに戻し――、`);
@@ -147,9 +147,9 @@ export class DuelEntityShortHands {
     movedAs: TDuelCauseReason[],
     movedBy: DuelEntity | undefined,
     activator: Duelist | undefined
-  ): Promise<void> => {
+  ): Promise<DuelEntity[]> => {
     if (!entities.length) {
-      return Promise.resolve();
+      return Promise.resolve([]);
     }
     if (activator && movedAs.includes("Cost")) {
       activator.writeInfoLog(`${entities.map((entity) => entity.toString()).join(" ")}を手札に戻し――、`);
@@ -204,7 +204,7 @@ export class DuelEntityShortHands {
       activator: Duelist | undefined;
     }[],
     excludedList?: DuelEntity[]
-  ): Promise<void> => {
+  ): Promise<DuelEntity[]> => {
     return DuelEntity.bringManyToSameCell(
       "Banished",
       "Top",
@@ -224,7 +224,7 @@ export class DuelEntityShortHands {
     movedAs: TDuelCauseReason[],
     movedBy: DuelEntity | undefined,
     activator: Duelist | undefined
-  ): Promise<void> => {
+  ): Promise<DuelEntity[]> => {
     return DuelEntity.bringManyToSameCell(
       to,
       pos,
@@ -371,6 +371,47 @@ export class DuelEntityShortHands {
 
     activator.writeInfoLog(`${monsters.map((monster) => monster.toString()).join(" ")}.の召喚は無効にされた。`);
     return monsters;
+  };
+
+  /**
+   *
+   * @param activator
+   * @param causedBy
+   * @param qty1
+   * @param qty2
+   * @returns
+   */
+  public static readonly drawAtSameTime = async (activator: Duelist, causedBy: DuelEntity, qty1: number, qty2: number): Promise<void> => {
+    const winners: Duelist[] = [];
+    const errors: unknown[] = [];
+
+    const promises = [activator.draw(qty1, causedBy, activator), activator.getOpponentPlayer().draw(qty2, causedBy, activator)].map((p) =>
+      p.catch((reason) => {
+        if (reason instanceof DuelEnd) {
+          if (reason.winner) {
+            winners.push(reason.winner);
+          }
+        } else {
+          errors.push(reason);
+        }
+      })
+    );
+
+    await Promise.all(promises);
+
+    if (errors.length) {
+      throw new SystemError("ドロー処理で想定されない例外が発生した。", activator, qty1, qty2, causedBy, ...errors);
+    }
+
+    if (winners.length === 0) {
+      return;
+    }
+
+    if (winners.length === 1) {
+      throw new DuelEnd(winners[0], "対戦相手がデッキからドローできなかった。");
+    }
+
+    throw new DuelEnd(undefined, "お互いにデッキからカードをドローできなかった。");
   };
   private constructor() {}
 }

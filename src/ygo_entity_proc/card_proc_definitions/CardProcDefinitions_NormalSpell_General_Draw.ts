@@ -5,6 +5,7 @@ import { type CardActionDefinition } from "@ygo_duel/class/DuelEntityAction";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
+import { IllegalCancelError } from "@ygo_duel/class/Duel";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
@@ -205,8 +206,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
           return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"], prepared: undefined };
         },
         execute: async (myInfo) => {
-          const h1 = myInfo.activator.getHandCell().cardEntities.length;
-          const h2 = myInfo.activator.getOpponentPlayer().getHandCell().cardEntities.length;
+          const qty1 = myInfo.activator.getHandCell().cardEntities.length;
+          const qty2 = myInfo.activator.getOpponentPlayer().getHandCell().cardEntities.length;
 
           await DuelEntityShortHands.sendManyToGraveyardForTheSameReason(
             myInfo.action.entity.field.getCells("Hand").flatMap((hand) => hand.cardEntities),
@@ -216,15 +217,56 @@ export default function* generate(): Generator<EntityProcDefinition> {
           );
 
           myInfo.activator.duel.clock.incrementProcSeq();
+          await DuelEntityShortHands.drawAtSameTime(myInfo.activator, myInfo.action.entity, qty1, qty2);
 
-          await myInfo.action.entity.field.drawAtSameTime(
-            myInfo.activator,
-            h1,
-            myInfo.activator.getOpponentPlayer(),
-            h2,
-            myInfo.action.entity,
-            myInfo.activator
-          );
+          return true;
+        },
+        settle: async () => true,
+      },
+      defaultSpellTrapSetAction,
+    ],
+  };
+  yield {
+    name: "打ち出の小槌",
+    actions: [
+      {
+        title: "発動",
+        isMandatory: false,
+        playType: "CardActivation",
+        spellSpeed: "Normal",
+        executableCells: ["Hand", "SpellAndTrapZone"],
+        executablePeriods: ["main1", "main2"],
+        executableDuelistTypes: ["Controller"],
+        validate: (myInfo) => {
+          // 自分のデッキが0枚でも発動できる。
+          if (!myInfo.activator.canDraw) {
+            return;
+          }
+
+          return defaultSpellTrapValidate(myInfo);
+        },
+        prepare: async () => {
+          return { selectedEntities: [], chainBlockTags: ["Draw"], prepared: undefined };
+        },
+        execute: async (myInfo) => {
+          const hands = myInfo.activator.getHandCell().cardEntities;
+
+          if (!hands.length) {
+            return false;
+          }
+
+          const cards = await myInfo.activator.waitSelectEntities(hands, undefined, (selected) => selected.length > 0, "デッキに戻すカードを選択。", false);
+
+          if (!cards) {
+            throw new IllegalCancelError(myInfo);
+          }
+
+          await DuelEntityShortHands.returnManyToDeckForTheSameReason("Random", cards, ["Effect"], myInfo.action.entity, myInfo.activator);
+
+          // タイミングを逃させる要因になる。
+          myInfo.activator.duel.clock.incrementTotalProcSeq();
+
+          await myInfo.activator.draw(cards.length, myInfo.action.entity, myInfo.activator);
 
           return true;
         },

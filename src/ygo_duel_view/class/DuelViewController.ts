@@ -6,7 +6,7 @@ import { type Duelist } from "@ygo_duel/class/Duelist";
 import { DuelModalController } from "./DuelModalController";
 import { EntityAction, type ChainBlockInfo, type DummyActionInfo, type ICardAction, type ValidatedActionInfo } from "../../ygo_duel/class/DuelEntityAction";
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
-import { createPromiseSweet } from "@stk_utils/funcs/StkPromiseUtil";
+import { createPromiseSweet, delay } from "@stk_utils/funcs/StkPromiseUtil";
 import type { TCardDetailMode } from "@ygo_duel_view/components/DuelCardDetail.svelte";
 import type { TDuelPhase } from "@ygo_duel/class/DuelPeriod";
 import type { EntityActionBase } from "@ygo_duel/class/DuelEntityActionBase";
@@ -86,7 +86,7 @@ export class DuelViewController {
   //  private draggingAction: CardAction | undefined;
   private _message: string;
   public get message() {
-    return this._message || this.duel.log.lastRecord.text;
+    return (this._message || this.duel.log.lastRecord?.text) ?? "";
   }
   public waitMode: TDuelWaitMode;
   public infoBoardState: TDuelDeskInfoBoardState;
@@ -162,32 +162,28 @@ export class DuelViewController {
       return activator.selectActionForNPC(validatedActionInfos, chainBlockInfos);
     }
 
-    const promiseList: Promise<ResponseActionInfo | undefined>[] = [];
+    const promiseList = [
+      this.modalController.actionSelector.show({
+        title: message,
+        activator: activator,
+        dummyActionInfos: validatedActionInfos,
+        cancelable: cancelable,
+      }),
+      this._waitDuelistAction(activator, validatedActionInfos, "Modal", this.message, undefined, undefined, false).then((result) => result.actionInfo),
+    ];
 
-    promiseList.push(
-      this.modalController.actionSelector
-        .show({
-          title: message,
-          activator: activator,
-          dummyActionInfos: validatedActionInfos,
-          cancelable: cancelable,
-        })
-        .then((actionInfo) => {
-          if (!actionInfo) {
-            return;
-          }
-          return validatedActionInfos.find((info) => info.originSeq === actionInfo.originSeq);
-        })
-    );
+    const actionInfo = await Promise.any(promiseList);
+    if (!actionInfo) {
+      return;
+    }
 
-    promiseList.push(
-      this._waitDuelistAction(activator, validatedActionInfos, "Modal", this.message, undefined, undefined, false).then((result) => {
-        this.infoBoardState = "Log";
-        return validatedActionInfos.find((info) => result.actionInfo?.originSeq === info.originSeq);
-      })
-    );
+    this.infoBoardState = "Log";
 
-    return await Promise.any(promiseList);
+    const origin = validatedActionInfos.find((info) => actionInfo.originSeq === info.originSeq);
+    if (!origin) {
+      throw new SystemError("想定されない状態", actionInfo);
+    }
+    return { ...origin, dest: actionInfo.dest };
   };
 
   /**
@@ -469,6 +465,9 @@ export class DuelViewController {
     this.waitMode = waitMode;
     this._message = message;
 
+    while (this.onDuelUpdateEvent.length < 40) {
+      await delay(1);
+    }
     this.onDuelUpdateEvent.trigger();
 
     // Promise一式作成
@@ -488,6 +487,8 @@ export class DuelViewController {
     this.onWaitStartEvent.trigger(args);
     // 待機開始
     const userAction: DuelistResponseBase = await promiseSweet.promise;
+    console.info("response", userAction);
+
     this.modalController.terminateAll();
 
     this.waitMode = "None";

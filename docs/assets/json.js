@@ -1361,4 +1361,31 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 (3)：このカードが墓地へ送られた場合に発動できる。
 デッキから「妖刀竹光」以外の「竹光」カード１枚を手札に加える。`,kind:"Spell",spellCategory:"Equip",wikiEncodedName:"%A1%D4%CD%C5%C5%E1%C3%DD%B8%F7%A1%D5",nameTags:["竹光"]},召喚僧サモンプリースト:{name:"召喚僧サモンプリースト",nameKana:"",description:`(1)：このカードが召喚・反転召喚した場合に発動する。このカードを守備表示にする。
 (2)：このカードがモンスターゾーンに存在する限り、このカードはリリースできない。
-(3)：１ターンに１度、手札から魔法カード１枚を捨てて発動できる。デッキからレベル４モンスター１体を特殊召喚する。この効果で特殊召喚したモンスターはこのターン攻撃できない。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:4,attack:800,defense:1600,attributes:["Dark"],types:["Spellcaster"],wikiEncodedName:"%A1%D4%BE%A4%B4%AD%C1%CE%A5%B5%A5%E2%A5%F3%A5%D7%A5%EA%A1%BC%A5%B9%A5%C8%A1%D5",nameTags:[]}};export{e as j};
+(3)：１ターンに１度、手札から魔法カード１枚を捨てて発動できる。デッキからレベル４モンスター１体を特殊召喚する。この効果で特殊召喚したモンスターはこのターン攻撃できない。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:4,attack:800,defense:1600,attributes:["Dark"],types:["Spellcaster"],wikiEncodedName:"%A1%D4%BE%A4%B4%AD%C1%CE%A5%B5%A5%E2%A5%F3%A5%D7%A5%EA%A1%BC%A5%B9%A5%C8%A1%D5",nameTags:[]},"トゥーン・ワールド":{name:"トゥーン・ワールド",nameKana:"",description:"１０００ＬＰを払ってこのカードを発動できる。",kind:"Spell",spellCategory:"Continuous",wikiEncodedName:"%A1%D4%A5%C8%A5%A5%A1%BC%A5%F3%A1%A6%A5%EF%A1%BC%A5%EB%A5%C9%A1%D5",nameTags:["トゥーン"]},無の煉獄:{name:"無の煉獄",nameKana:"",description:`自分の手札が３枚以上の場合に発動できる。
+自分のデッキからカードを１枚ドローし、このターンのエンドフェイズ時に自分の手札を全て捨てる。`,kind:"Spell",spellCategory:"Normal",wikiEncodedName:"%A1%D4%CC%B5%A4%CE%CE%FB%B9%F6%A1%D5",nameTags:["煉獄"]},手札断殺:{name:"手札断殺",nameKana:"",description:"(1)：お互いのプレイヤーは手札を２枚墓地へ送る。その後、それぞれデッキから２枚ドローする。",kind:"Spell",spellCategory:"QuickPlay",wikiEncodedName:"%A1%D4%BC%EA%BB%A5%C3%C7%BB%A6%A1%D5",nameTags:[]},"イグナイト・リロード":{name:"イグナイト・リロード",nameKana:"",description:`「イグナイト・リロード」は１ターンに１枚しか発動できない。
+(1)：手札のＰモンスターを任意の数だけ相手に見せ、デッキに戻してシャッフルする。
+その後、自分はデッキに戻した数＋１枚をデッキからドローする。
+このカードの発動後、ターン終了時まで自分はカードの効果でドローできない。`,kind:"Spell",spellCategory:"QuickPlay",wikiEncodedName:"%A1%D4%A5%A4%A5%B0%A5%CA%A5%A4%A5%C8%A1%A6%A5%EA%A5%ED%A1%BC%A5%C9%A1%D5",nameTags:["イグナイト"]},リロード:{name:"リロード",nameKana:"",description:"自分の手札を全てデッキに加えてシャッフルする。その後、デッキに加えた枚数分のカードをドローする。",kind:"Spell",spellCategory:"QuickPlay",wikiEncodedName:"%A1%D4%A5%EA%A5%ED%A1%BC%A5%C9%A1%D5",nameTags:[]},"ヴァレル・リロード":{name:"ヴァレル・リロード",nameKana:"",description:`このカード名の(1)(2)の効果はそれぞれ１ターンに１度しか使用できない。
+(1)：自分の墓地の「ヴァレット」モンスター１体を対象としてこのカードを発動できる。
+そのモンスターを特殊召喚し、このカードを装備する。
+このカードがフィールドから離れた時にそのモンスターは除外される。
+(2)：装備モンスターが破壊された事でこのカードが墓地へ送られた場合に発動できる。
+自分は１枚ドローする。`,kind:"Spell",spellCategory:"Equip",wikiEncodedName:"%A1%D4%A5%F4%A5%A1%A5%EC%A5%EB%A1%A6%A5%EA%A5%ED%A1%BC%A5%C9%A1%D5",nameTags:["ヴァレル"]},打ち出の小槌:{name:"打ち出の小槌",nameKana:"",description:"(1)：自分の手札を任意の数だけデッキに戻してシャッフルする。その後、自分はデッキに戻した数だけドローする。",kind:"Spell",spellCategory:"Normal",wikiEncodedName:"%A1%D4%C2%C7%A4%C1%BD%D0%A4%CE%BE%AE%C4%C8%A1%D5",nameTags:[]},アンカモフライト:{name:"アンカモフライト",nameKana:"",description:`【Ｐスケール：青４/赤４】
+このカード名のＰ効果は１ターンに１度しか使用できない。
+(1)：自分のＥＸデッキのカードが、存在しない場合または「アンカモフライト」のみの場合に発動できる。
+このカードを破壊する。
+その後、自分はデッキから１枚ドローする。
+【モンスター効果】
+このカードは通常召喚できない。
+このカードがＥＸデッキに表側表示で存在し、「アンカモフライト」以外のカードが自分のＥＸデッキに存在しない場合のみ特殊召喚できる。
+この方法による「アンカモフライト」の特殊召喚は１ターンに１度しかできない。
+(1)：モンスターゾーンの表側表示のこのカードはフィールドから離れた場合に除外される。`,pendulumDescription:`このカード名のＰ効果は１ターンに１度しか使用できない。
+(1)：自分のＥＸデッキのカードが、存在しない場合または「アンカモフライト」のみの場合に発動できる。
+このカードを破壊する。
+その後、自分はデッキから１枚ドローする。
+【モンスター効果】
+このカードは通常召喚できない。
+このカードがＥＸデッキに表側表示で存在し、
+「アンカモフライト」以外のカードが自分のＥＸデッキに存在しない場合のみ特殊召喚できる。
+この方法による「アンカモフライト」の特殊召喚は１ターンに１度しかできない。
+(1)：モンスターゾーンの表側表示のこのカードはフィールドから離れた場合に除外される。`,kind:"Monster",monsterCategories:["SpecialSummon","Effect","Pendulum","RegularSpecialSummonOnly"],level:5,attack:1800,defense:0,attributes:["Light"],types:["Spellcaster"],pendulumScaleR:4,pendulumScaleL:4,wikiEncodedName:"%A1%D4%A5%A2%A5%F3%A5%AB%A5%E2%A5%D5%A5%E9%A5%A4%A5%C8%A1%D5"}};export{e as j};

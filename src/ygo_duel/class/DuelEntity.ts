@@ -406,7 +406,7 @@ export class DuelEntity {
       activator: Duelist | undefined;
     }[],
     excludedList?: DuelEntity[]
-  ): Promise<void> => {
+  ): Promise<DuelEntity[]> => {
     return DuelEntity.bringManyToSameCell(
       "Graveyard",
       "Top",
@@ -417,7 +417,7 @@ export class DuelEntity {
     );
   };
 
-  public static readonly bringManyToSameCell = (
+  public static readonly bringManyToSameCell = async (
     to: TBundleCellType,
     pos: TDuelEntityMovePos,
     items: {
@@ -429,8 +429,8 @@ export class DuelEntity {
       activator: Duelist | undefined;
     }[],
     excludedList?: DuelEntity[]
-  ): Promise<void> => {
-    return DuelEntity.moveMany(
+  ) => {
+    await DuelEntity.moveMany(
       items.map((item) => [
         item.entity,
         item.entity.field.getCells(to).filter((cell) => cell.owner === item.entity.owner)[0],
@@ -445,6 +445,7 @@ export class DuelEntity {
       ]),
       excludedList
     );
+    return items.map((item) => item.entity).filter((entity) => entity.fieldCell.cellType === to);
   };
   private static readonly settleEntityMove = (duel: Duel) => {
     duel.field.recalcLinkArrows();
@@ -1471,20 +1472,24 @@ DuelEntity.prototype.ruleDestory = async function (): Promise<DuelFieldCell | un
   return this.info.isVanished ? undefined : this.fieldCell;
 };
 
-DuelEntity.prototype.sendToGraveyard = function (movedAs: TDuelCauseReason[], movedBy: DuelEntity | undefined, activator: Duelist | undefined): Promise<void> {
-  return DuelEntityShortHands.sendManyToGraveyardForTheSameReason([this], movedAs, movedBy, activator);
+DuelEntity.prototype.sendToGraveyard = async function (
+  movedAs: TDuelCauseReason[],
+  movedBy: DuelEntity | undefined,
+  activator: Duelist | undefined
+): Promise<void> {
+  await DuelEntityShortHands.sendManyToGraveyardForTheSameReason([this], movedAs, movedBy, activator);
 };
-DuelEntity.prototype.discard = function (movedAs: TDuelCauseReason[], movedBy: DuelEntity | undefined, activator: Duelist | undefined): Promise<void> {
-  return DuelEntityShortHands.discardManyForTheSameReason([this], movedAs, movedBy, activator);
+DuelEntity.prototype.discard = async function (movedAs: TDuelCauseReason[], movedBy: DuelEntity | undefined, activator: Duelist | undefined): Promise<void> {
+  await DuelEntityShortHands.discardManyForTheSameReason([this], movedAs, movedBy, activator);
 };
-DuelEntity.prototype.returnToDeck = function (
+DuelEntity.prototype.returnToDeck = async function (
   pos: TDuelEntityMovePos,
   movedAs: TDuelCauseReason[],
   movedBy: DuelEntity | undefined,
   activator: Duelist | undefined
 ): Promise<void> {
-  return DuelEntityShortHands.returnManyToDeckForTheSameReason(pos, [this], movedAs, movedBy, activator);
+  await DuelEntityShortHands.returnManyToDeckForTheSameReason(pos, [this], movedAs, movedBy, activator);
 };
-DuelEntity.prototype.banish = function (movedAs: TDuelCauseReason[], movedBy: DuelEntity | undefined, activator: Duelist | undefined): Promise<void> {
-  return DuelEntityShortHands.banishManyForTheSameReason([this], movedAs, movedBy, activator);
+DuelEntity.prototype.banish = async function (movedAs: TDuelCauseReason[], movedBy: DuelEntity | undefined, activator: Duelist | undefined): Promise<void> {
+  await DuelEntityShortHands.banishManyForTheSameReason([this], movedAs, movedBy, activator);
 };

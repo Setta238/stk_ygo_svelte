@@ -1,4 +1,4 @@
-import type { CardActionDefinitionAttr } from "../class/DuelCardAction";
+import type { CardActionDefinitionAttr } from "../class/DuelEntityAction";
 import { StickyEffectOperatorBase, StickyEffectOperatorBundle, StickyEffectOperatorPool } from "./DuelStickyEffectOperatorBase";
 import { type DuelEntity, type TMaterialCauseReason } from "../class/DuelEntity";
 import { type Duelist } from "../class/Duelist";

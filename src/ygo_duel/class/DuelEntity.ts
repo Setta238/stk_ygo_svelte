@@ -1,13 +1,11 @@
 import {
   battlePositionDic,
   exMonsterCategories,
-  specialMonsterCategories,
+  specialSummonMonsterCategories,
   type TBattlePosition,
   type CardInfoDescription,
-  type CardInfoJson,
   type TNonBattlePosition,
   type EntityStatusBase,
-  getSubsetAsEntityStatusBase,
   entityFlexibleStatusKeys,
   type TEntityFlexibleNumericStatusKey,
   type EntityNumericStatus,
@@ -30,13 +28,13 @@ import { type Duelist } from "./Duelist";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import {
-  CardAction,
+  EntityAction,
   type CardActionDefinition,
   type CardActionDefinitionAttr,
   type ChainBlockInfo,
   type ChainBlockInfoBase,
   type SummonMaterialInfo,
-} from "./DuelCardAction";
+} from "./DuelEntityAction";
 import { ProcFilterBundle, type TBanishProcType, type TProcType } from "../class_continuous_effect/DuelProcFilter";
 import { ContinuousEffect, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { NumericStateOperatorBundle } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
@@ -44,20 +42,13 @@ import type { DuelField } from "./DuelField";
 import { EntityMoveLog } from "./DuelEntityMoveLog";
 import { CounterHolder, type TCounterName } from "./DuelCounter";
 import { StatusOperator, StatusOperatorBundle } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
-import {
-  defaultAttackAction,
-  defaultBattlePotisionChangeAction,
-  defaultFlipSummonAction,
-  defaultNormalSummonAction,
-  defaultSummonFilter,
-} from "@ygo_card/card_actions/DefaultCardAction_Monster";
+
 import { StkAsyncEvent } from "@stk_utils/class/StkEvent";
-import type { CardDefinition } from "@ygo_card/class/DuelCardDefinition";
+import { createDuelistEntityDefinition, type EntityDefinition } from "./DuelEntityDefinition";
 import { SubstituteEffect } from "./DuelSubstituteEffect";
 import { SummonFilter, SummonFilterBundle } from "@ygo_duel/class_continuous_effect/DuelSummonFilter";
 import { DuelEntityShortHands } from "./DuelEntityShortHands";
 import type { IDuelClock } from "./DuelClock";
-import { duelistActions } from "@ygo_card/card_actions/DefaultCardAction_Duelist";
 export type EntityStatus = {
   canAttack: boolean;
   canDirectAttack: boolean;
@@ -163,7 +154,7 @@ export type TDuelEntityType = TDuelEntityCardType | TDuelEntityDammyType;
 export type TDuelEntityInfoDetail = {
   name: string;
   entityType: TDuelEntityType;
-  cardPlayList: Array<CardAction<unknown>>;
+  cardPlayList: Array<EntityAction<unknown>>;
 };
 export type TDuelEntityInfo = CardInfoDescription & TDuelEntityInfoDetail;
 
@@ -198,38 +189,16 @@ export class DuelEntity {
    */
   public static readonly createPlayerEntity = (duelist: Duelist): DuelEntity => {
     const hand = duelist.getHandCell();
-    return new DuelEntity(
-      duelist,
-      hand,
-      "Duelist",
-      { name: duelist.profile.name, kind: "Monster", wikiEncodedName: "%A5%D7%A5%EC%A5%A4%A5%E4%A1%BC" },
-      "FaceUp",
-      "Vertical",
-      {
-        name: duelist.profile.name,
-        actions: [...duelistActions],
-      }
-    );
+    return new DuelEntity(duelist, hand, "Duelist", createDuelistEntityDefinition(duelist), "FaceUp", "Vertical");
   };
-  public static readonly createCardEntity = (
-    owner: Duelist,
-    cardInfo: CardInfoJson,
-    cardDefinitionsDic: { [name: string]: CardDefinition }
-  ): DuelEntity | undefined => {
+  public static readonly createCardEntity = (owner: Duelist, definition: EntityDefinition): DuelEntity | undefined => {
     // cardはデッキまたはEXデッキに生成
-    const fieldCell = cardInfo.monsterCategories && cardInfo.monsterCategories.union(exMonsterCategories).length ? owner.getExtraDeck() : owner.getDeckCell();
+    const fieldCell =
+      definition.staticInfo.monsterCategories && definition.staticInfo.monsterCategories.union(exMonsterCategories).length
+        ? owner.getExtraDeck()
+        : owner.getDeckCell();
 
-    const statusBase = getSubsetAsEntityStatusBase(cardInfo);
-    const definition = cardDefinitionsDic[cardInfo.name];
-
-    if (
-      (statusBase.kind === "Monster" && statusBase.monsterCategories?.includes("Normal") && !statusBase.monsterCategories?.includes("Pendulum")) ||
-      definition
-    ) {
-      return new DuelEntity(owner, fieldCell, "Card", getSubsetAsEntityStatusBase(cardInfo), "FaceDown", "Vertical", definition);
-    }
-    console.info(`${cardInfo.name}のカード効果が未定義のため、デッキに投入されなかった。`);
-    return;
+    return new DuelEntity(owner, fieldCell, "Card", definition, "FaceDown", "Vertical");
   };
 
   /**
@@ -544,14 +513,14 @@ export class DuelEntity {
   private _numericStatus: EntityNumericStatus;
   private _info: DuelEntityInfomation;
 
-  public readonly actions: CardAction<unknown>[] = [];
+  public readonly actions: EntityAction<unknown>[] = [];
   public readonly continuousEffects: ContinuousEffect<unknown>[] = [];
   public readonly substituteEffects: SubstituteEffect[] = [];
   public readonly canBeReleased = <T>(
     activator: Duelist,
     causedBy: DuelEntity,
     causedAs: (TMaterialCauseReason | "ReleaseAsCost" | "ReleaseAsEffect")[],
-    action: CardAction<T>
+    action: EntityAction<T>
   ): boolean => {
     return (
       !this.isInTrashCell &&
@@ -562,7 +531,7 @@ export class DuelEntity {
     activator: Duelist,
     causedBy: DuelEntity,
     causedAs: "SendToGraveyardAsEffect" | "SendToGraveyardAsCost",
-    action: CardAction<T>
+    action: EntityAction<T>
   ): boolean => {
     return (
       !this.info.willBeBanished &&
@@ -769,7 +738,7 @@ export class DuelEntity {
     return [...this.procFilterBundle.effectiveOperators, ...this.numericOprsBundle.effectiveOperators];
   }
 
-  private readonly cardDefinition: CardDefinition | undefined;
+  private readonly definition: EntityDefinition;
   /**
    *
    * @param owner
@@ -784,21 +753,20 @@ export class DuelEntity {
     owner: Duelist,
     fieldCell: DuelFieldCell,
     entityType: TDuelEntityType,
-    cardInfo: EntityStatusBase,
+    definition: EntityDefinition,
     face: TDuelEntityFace,
-    orientation: TDuelEntityOrientation,
-    cardDefinition: CardDefinition | undefined
+    orientation: TDuelEntityOrientation
   ) {
     this.seq = DuelEntity.nextEntitySeq++;
     this.counterHolder = new CounterHolder(this);
-    this.cardDefinition = cardDefinition;
+    this.definition = definition;
     this.owner = owner;
     this.fieldCell = fieldCell;
     this.entityType = entityType;
 
-    this.origin = cardInfo;
-    this._status = JSON.parse(JSON.stringify(cardInfo));
-    this._numericStatus = JSON.parse(JSON.stringify(cardInfo));
+    this.origin = definition.staticInfo;
+    this._status = JSON.parse(JSON.stringify(definition.staticInfo));
+    this._numericStatus = JSON.parse(JSON.stringify(definition.staticInfo));
 
     this.resetStatusAll();
     this._info = {
@@ -840,61 +808,52 @@ export class DuelEntity {
     let actionBases: CardActionDefinition<unknown>[] = [];
     let continuousEffectBases: ContinuousEffectBase<unknown>[] = [];
 
-    if (this.origin.kind === "Monster" && this.origin.monsterCategories?.includes("Normal") && !this.origin.monsterCategories?.includes("Pendulum")) {
-      actionBases = [
-        defaultNormalSummonAction,
-        defaultAttackAction,
-        defaultBattlePotisionChangeAction,
-        defaultFlipSummonAction,
-      ] as CardActionDefinition<unknown>[];
-    } else if (cardDefinition) {
-      actionBases = cardDefinition.actions;
-      continuousEffectBases = cardDefinition.continuousEffects ?? [];
-      this.substituteEffects.push(...(cardDefinition.substituteEffects ?? []).map((base) => SubstituteEffect.createNew(this, base)));
+    actionBases = definition.actions;
+    continuousEffectBases = definition.continuousEffects ?? [];
+    this.substituteEffects.push(...(definition.substituteEffects ?? []).map((base) => SubstituteEffect.createNew(this, base)));
 
-      if (this.origin.kind === "Monster" && this.entityType === "Card") {
-        this.summonFilterBundle.push(
-          new SummonFilter(
-            "default",
-            () => true,
-            true,
-            this,
-            {},
-            () => true,
-            summonKindCauseReasons,
-            cardDefinition.defaultSummonFilter ?? defaultSummonFilter
-          )
-        );
-      }
-      if (cardDefinition.defaultStatus) {
-        this.statusOperatorBundle.push(
-          new StatusOperator(
-            "default",
-            () => true,
-            true,
-            this,
-            {},
-            () => true,
-            () => cardDefinition.defaultStatus ?? {}
-          )
-        );
-      }
+    if (this.origin.kind === "Monster" && this.entityType === "Card" && definition.summonFilter) {
+      this.summonFilterBundle.push(
+        new SummonFilter(
+          "default",
+          () => true,
+          true,
+          this,
+          {},
+          () => true,
+          summonKindCauseReasons,
+          definition.summonFilter
+        )
+      );
     }
-    this.actions.push(...actionBases.map((b) => CardAction.createNew(this, b)));
+    if (definition.defaultStatus) {
+      this.statusOperatorBundle.push(
+        new StatusOperator(
+          "default",
+          () => true,
+          true,
+          this,
+          {},
+          () => true,
+          () => definition.defaultStatus ?? {}
+        )
+      );
+    }
+    this.actions.push(...actionBases.map((b) => EntityAction.createNew(this, b)));
     this.continuousEffects.push(...continuousEffectBases.map((b) => ContinuousEffect.createNew(this, b)));
   }
 
   public readonly toString = () => (this.entityType === "Card" ? `《${this.nm}》` : this.nm);
 
   public readonly onUsedAsMaterial = (chainBlockInfo: ChainBlockInfo<unknown>, monster: DuelEntity) => {
-    if (!this.cardDefinition) {
+    if (!this.definition) {
       return;
     }
-    if (!this.cardDefinition.onUsedAsMaterial) {
+    if (!this.definition.onUsedAsMaterial) {
       return;
     }
 
-    this.cardDefinition.onUsedAsMaterial(chainBlockInfo, monster);
+    this.definition.onUsedAsMaterial(chainBlockInfo, monster);
   };
 
   public readonly setBattlePosition = async (pos: TBattlePosition, movedAs: TDuelCauseReason[], movedBy?: DuelEntity, actionOwner?: Duelist): Promise<void> => {
@@ -1219,7 +1178,7 @@ export class DuelEntity {
       isKilledBy: undefined,
       isKilledByWhom: undefined,
       isVanished: false,
-      isRebornable: this.origin.monsterCategories?.union(specialMonsterCategories).length === 0,
+      isRebornable: this.origin.monsterCategories?.union(specialSummonMonsterCategories).length === 0,
       isSettingSickness: false,
       summonKinds: [],
       materials: [],

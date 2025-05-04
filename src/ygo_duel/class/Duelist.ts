@@ -4,21 +4,20 @@ import { Duel, DuelEnd, SystemError, type ResponseActionInfo, type TSeat } from 
 import { DuelEntity, type SummonArg, type TDuelCauseReason, type TSummonKindCauseReason } from "./DuelEntity";
 import type { IDuelClock } from "./DuelClock";
 import type { DuelFieldCell } from "./DuelFieldCell";
-import { cardInfoDic } from "@ygo/class/CardInfo";
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
 import {
-  CardAction,
+  EntityAction,
   type CardActionDefinitionAttr,
   type ChainBlockInfo,
   type SummonMaterialInfo,
   type TCardActionType,
   type ValidatedActionInfo,
-} from "./DuelCardAction";
+} from "./DuelEntityAction";
 import { max, min } from "@stk_utils/funcs/StkMathUtils";
 import type { TBanishProcType } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
 import { DuelEntityShortHands } from "./DuelEntityShortHands";
-import type { CardDefinition } from "./DuelCardDefinition";
+import type { EntityDefinition } from "./DuelEntityDefinition";
 
 type TLifeLogReason = "BattleDamage" | "EffectDamage" | "Heal" | "Lost" | "Pay" | "Set";
 export type TDuelistType = "NPC" | "Player";
@@ -342,11 +341,11 @@ export class Duelist {
     return this.duel.field.getCardsOnFieldStrictly().filter((card) => card.controller === this);
   };
 
-  public readonly pushDeck = (cardDefinitionsDic: { [name: string]: CardDefinition }): void => {
+  public readonly pushDeck = (cardDefinitionsDic: { [name: string]: EntityDefinition }): void => {
     this.deckInfo.cardNames
-      .map((name) => cardInfoDic[name])
+      .map((name) => cardDefinitionsDic[name])
       .filter((info) => info)
-      .forEach((info) => DuelEntity.createCardEntity(this, info, cardDefinitionsDic));
+      .forEach((info) => DuelEntity.createCardEntity(this, info));
     this.duel.log.info(`デッキをセット。メイン${this.getDeckCell().cardEntities.length}枚。エクストラ${this.getExtraDeck().cardEntities.length}枚。`, this);
     return;
   };
@@ -661,7 +660,7 @@ export class Duelist {
       cancelable,
       msg
     );
-  public readonly selectAttackTargetForNPC = (attacker: DuelEntity, action: CardAction<unknown>): DuelEntity | undefined => {
+  public readonly selectAttackTargetForNPC = (attacker: DuelEntity, action: EntityAction<unknown>): DuelEntity | undefined => {
     // 攻撃力と攻撃対象を抽出。
     const atk = attacker.atk ?? 0;
     const enemies = attacker.getAttackTargets();

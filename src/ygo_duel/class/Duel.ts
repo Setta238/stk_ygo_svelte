@@ -1,4 +1,4 @@
-import { generateCardDefinitions } from "@ygo_card/class/DuelCardDefinition";
+import { generateCardDefinitions } from "./DuelEntityDefinition";
 import { type IDeckInfo } from "@ygo/class/DeckInfo";
 import { Duelist, type TDuelistType } from "@ygo_duel/class/Duelist";
 import { type IDuelistProfile } from "@ygo/class/DuelistProfile";
@@ -11,18 +11,18 @@ import DuelChainBlockLog from "./DuelChainBlockLog";
 import {
   cardActionChainBlockTypes,
   cardActionNonChainBlockTypes,
-  type CardAction,
+  type EntityAction,
   type ChainBlockInfo,
   type TCardActionType,
   type TSpellSpeed,
   type ValidatedActionInfo,
-} from "./DuelCardAction";
+} from "./DuelEntityAction";
 import type { TDuelPhase } from "./DuelPeriod";
 import { DuelEntityShortHands } from "./DuelEntityShortHands";
 import { StkEvent } from "@stk_utils/class/StkEvent";
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
 import type { DuelFieldCell } from "./DuelFieldCell";
-import type { CardDefinition } from "./DuelCardDefinition";
+import type { EntityDefinition } from "./DuelEntityDefinition";
 export const duelStartModes = ["PlayFirst", "DrawFirst", "Random"] as const;
 export type TDuelStartMode = (typeof duelStartModes)[number];
 export const duelStartModeDic: { [key in TDuelStartMode]: string } = {
@@ -34,7 +34,7 @@ export const seats = ["Above", "Below"] as const;
 export type TSeat = (typeof seats)[number];
 
 export type ResponseActionInfo = {
-  action: CardAction<unknown>;
+  action: EntityAction<unknown>;
   dest?: DuelFieldCell;
   battlePosition?: TBattlePosition;
   originSeq: number;
@@ -199,10 +199,8 @@ export class Duel {
         wip[definition.name] = definition;
         return { ...wip };
       },
-      {} as { [name: string]: CardDefinition }
+      {} as { [name: string]: EntityDefinition }
     );
-
-    console.log(cardDefinitionsDic.keys);
 
     for (const duelist of Object.values(this.duelists)) {
       duelist.pushDeck(cardDefinitionsDic);
@@ -732,7 +730,7 @@ export class Duel {
 
     // この呼び出しで積むチェーンブロック
     let chainBlock:
-      | { activator: Duelist; action: CardAction<unknown>; targetChainBlock: ChainBlockInfo<unknown> | undefined; dest?: DuelFieldCell }
+      | { activator: Duelist; action: EntityAction<unknown>; targetChainBlock: ChainBlockInfo<unknown> | undefined; dest?: DuelFieldCell }
       | undefined;
 
     // 起点の効果がある場合、最初に積む。

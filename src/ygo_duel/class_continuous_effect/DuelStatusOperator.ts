@@ -1,6 +1,6 @@
 import { StickyEffectOperatorBase, StickyEffectOperatorBundle, StickyEffectOperatorPool } from "./DuelStickyEffectOperatorBase";
 import type { DuelEntity, EntityStatus } from "../class/DuelEntity";
-import type { CardActionDefinitionAttr } from "@ygo_duel/class/DuelCardAction";
+import type { CardActionDefinitionAttr } from "../class/DuelEntityAction";
 import type { Duel } from "@ygo_duel/class/Duel";
 
 export class StatusOperatorPool extends StickyEffectOperatorPool<StatusOperator, StatusOperatorBundle> {

@@ -1,8 +1,8 @@
-import type { ChainBlockInfo } from "./DuelCardAction";
-import { CardActionBase, type CardActionDefinitionBase } from "./DuelCardActionBase";
+import type { ChainBlockInfo } from "./DuelEntityAction";
+import { EntityActionBase, type EntityActionDefinitionBase } from "./DuelEntityActionBase";
 import type { DuelEntity } from "./DuelEntity";
 
-export type SubstituteEffectDefinition = CardActionDefinitionBase & {
+export type SubstituteEffectDefinition = EntityActionDefinitionBase & {
   isApplicableTo: (
     effect: SubstituteEffect,
     destroyType: "BattleDestroy" | "EffectDestroy",
@@ -17,7 +17,7 @@ export type SubstituteEffectDefinition = CardActionDefinitionBase & {
   ) => Promise<DuelEntity[]>;
 };
 
-export class SubstituteEffect extends CardActionBase {
+export class SubstituteEffect extends EntityActionBase {
   public static readonly createNew = (entity: DuelEntity, definition: SubstituteEffectDefinition) => {
     return new SubstituteEffect("AutoSeq", entity, definition);
   };

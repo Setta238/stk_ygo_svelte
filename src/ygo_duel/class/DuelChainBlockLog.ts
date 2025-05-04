@@ -1,5 +1,5 @@
 import { Duel } from "./Duel";
-import type { ChainBlockInfo } from "./DuelCardAction";
+import type { ChainBlockInfo } from "./DuelEntityAction";
 import type { IDuelClock } from "./DuelClock";
 
 type ChainBlockLogRecord = {

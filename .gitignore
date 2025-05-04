@@ -1,5 +1,6 @@
 # for development
-stats.html
+stats.json
+visualizer_*.html
 
 # Logs
 logs

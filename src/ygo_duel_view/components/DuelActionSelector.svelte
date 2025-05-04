@@ -1,6 +1,6 @@
 <script lang="ts" module>
   import { writable } from "svelte/store";
-  import type { DummyActionInfo } from "@ygo_duel/class/DuelCardAction";
+  import type { DummyActionInfo } from "@ygo_duel/class/DuelEntityAction";
   export type CardActionSelectorArgs = {
     title: string;
     activator: Duelist;

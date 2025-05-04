@@ -9,7 +9,7 @@
   import type { DuelistResponseBase, WaitStartEventArg } from "@ygo_duel_view/class/DuelViewController";
   import type { TCardDetailMode } from "./DuelCardDetail.svelte";
   import type { Duelist } from "@ygo_duel/class/Duelist";
-  import type { DummyActionInfo } from "@ygo_duel/class/DuelCardAction";
+  import type { DummyActionInfo } from "@ygo_duel/class/DuelEntityAction";
   export let entity: DuelEntity;
   export let state: TCardState = "Disabled";
   export let selectedList = [] as DuelEntity[];

@@ -1,10 +1,10 @@
 import json from "@ygo/json/cardInfo.json";
 import type { CardInfoJson } from "@ygo/class/YgoTypes";
-import { generateAllCardDefinitions } from "@ygo_card/class/DuelCardDefinition";
+import { generateAllProcCardDefinitions } from "../../ygo_duel/class/DuelEntityDefinition";
 
 const hoge = new Set<string>();
 const fuga = json as unknown as { [name: string]: CardInfoJson };
-for (const definition of generateAllCardDefinitions()) {
+for (const definition of generateAllProcCardDefinitions()) {
   if (hoge.has(definition.name)) {
     throw new Error(`カード定義重複${definition.name}`);
   }

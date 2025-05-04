@@ -1,5 +1,5 @@
 <script lang="ts" module>
-  import type { ChainBlockInfo } from "@ygo_duel/class/DuelCardAction";
+  import type { ChainBlockInfo } from "@ygo_duel/class/DuelEntityAction";
 
   export type DuelEntitiesSelectorArg = {
     title: string;

@@ -14,13 +14,14 @@ export const cardKindDic: { [key in TCardKind]: string } = {
 };
 export const exMonsterCategories = ["Fusion", "Syncro", "Xyz", "Link"] as const;
 export type TMonsterExSummonCategory = (typeof exMonsterCategories)[number];
-export const specialMonsterCategories = [...exMonsterCategories, "SpecialSummon", "Ritual"] as const;
-export type TMonsterSpecialSummonCategory = (typeof specialMonsterCategories)[number];
+export const specialSummonMonsterCategories = [...exMonsterCategories, "SpecialSummon", "Ritual"] as const;
+export type TMonsterSpecialSummonCategory = (typeof specialSummonMonsterCategories)[number];
+export const summonMonsterCategories = [...specialSummonMonsterCategories, "NormalSummonOnly", "RegularSpecialSummonOnly", "FreeReborn"] as const;
 export const monsterEffectCategories = ["Toon", "Spirit", "Union", "Gemini", "FlipEffect"] as const;
 export type TMonsterEffectCategory = (typeof monsterEffectCategories)[number];
-export const monsterOtherCategories = ["Tuner", "Effect", "Normal", "Pendulum", "Token", "FreeReborn", "NormalSummonOnly", "RegularSpecialSummonOnly"] as const;
+export const monsterOtherCategories = ["Tuner", "Effect", "Normal", "Pendulum", "Token"] as const;
 export type TMonsterOtherCategory = (typeof monsterOtherCategories)[number];
-export const monsterCategories = [...specialMonsterCategories, ...monsterEffectCategories, ...monsterOtherCategories] as const;
+export const monsterCategories = [...monsterEffectCategories, ...monsterOtherCategories, ...summonMonsterCategories] as const;
 export type TMonsterCategory = (typeof monsterCategories)[number];
 export const monsterCategoryDic: { [key in TMonsterCategory]: string } = {
   Syncro: "シンクロ",

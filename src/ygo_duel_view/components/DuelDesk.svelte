@@ -18,7 +18,7 @@
   import ModalContainer from "@ygo_duel_view/components/DuelModalContainer.svelte";
   import DuelCardDetail, { type TCardDetailMode } from "./DuelCardDetail.svelte";
   import DuelFieldCellInfo from "./DuelFieldCellInfo.svelte";
-  import type { DummyActionInfo } from "@ygo_duel/class/DuelCardAction";
+  import type { DummyActionInfo } from "@ygo_duel/class/DuelEntityAction";
   import type { ChoicesSweet } from "@ygo_duel/class/DuelUtilTypes";
 
   export let duel: Duel;

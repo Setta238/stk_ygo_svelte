@@ -8,7 +8,7 @@ export default {
     alias: {
       "@stk_utils": "./src/stk_utils",
       "@ygo":  "./src/ygo",
-      "@ygo_card":  "./src/ygo_card",
+      "@ygo_entity_proc":  "./src/ygo_entity_proc",
       "@app":  "./src/app",
       "@ygo_deck_editor":  "./src/ygo_deck_editor",
       "@ygo_duel":  "./src/ygo_duel",

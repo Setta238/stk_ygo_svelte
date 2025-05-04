@@ -1,5 +1,5 @@
 import { Duel } from "./Duel";
-import { type ChainBlockInfo } from "./DuelCardAction";
+import { type ChainBlockInfo } from "./DuelEntityAction";
 import { DuelEntity, type TDuelCauseReason, type TDuelEntityFace, type TDuelEntityOrientation, destoryCauseReasonDic } from "./DuelEntity";
 import type { Duelist } from "./Duelist";
 import type { TBanishProcType } from "@ygo_duel/class_continuous_effect/DuelProcFilter";

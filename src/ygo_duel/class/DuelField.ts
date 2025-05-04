@@ -9,7 +9,7 @@ import { NumericStateOperatorPool } from "@ygo_duel/class_continuous_effect/Duel
 import { StatusOperatorPool } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 import { SummonFilterPool } from "@ygo_duel/class_continuous_effect/DuelSummonFilter";
 import { BroadEntityMoveLog } from "./DuelEntityMoveLog";
-import type { SummonMaterialInfo } from "./DuelCardAction";
+import type { SummonMaterialInfo } from "./DuelEntityAction";
 export class DuelField {
   public readonly cells: DuelFieldCell[][];
   public readonly duel: Duel;

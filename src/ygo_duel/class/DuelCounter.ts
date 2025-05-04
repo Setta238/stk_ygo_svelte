@@ -1,4 +1,4 @@
-import type { CardActionBase } from "./DuelCardActionBase";
+import type { EntityActionBase } from "./DuelEntityActionBase";
 import type { DuelEntity } from "./DuelEntity";
 
 export const actualCounterNames = ["SpellCounter", "KaijuCounter", "NamelessCounter", "IceCounter"] as const;
@@ -92,14 +92,14 @@ export class CounterHolder {
     return this.dic[name].length ?? 0;
   };
 
-  public readonly incrementActionCountPerTurn = (action: CardActionBase) => {
+  public readonly incrementActionCountPerTurn = (action: EntityActionBase) => {
     this.temporaryCounterNames.push(action.title);
     this.incrementActionCount(action);
   };
-  public readonly incrementActionCount = (action: CardActionBase) => {
+  public readonly incrementActionCount = (action: EntityActionBase) => {
     this.dic[action.title] = [action.entity, ...(this.dic[action.title] ?? [])];
   };
-  public readonly getActionCount = (action: CardActionBase) => {
+  public readonly getActionCount = (action: EntityActionBase) => {
     if (!this.dic[action.title]) {
       return 0;
     }

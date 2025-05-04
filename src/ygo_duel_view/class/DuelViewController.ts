@@ -4,12 +4,12 @@ import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { DuelFieldCell, type TDuelEntityMovePos } from "@ygo_duel/class/DuelFieldCell";
 import { type Duelist } from "@ygo_duel/class/Duelist";
 import { DuelModalController } from "./DuelModalController";
-import { CardAction, type ChainBlockInfo, type DummyActionInfo, type ICardAction, type ValidatedActionInfo } from "@ygo_duel/class/DuelCardAction";
+import { EntityAction, type ChainBlockInfo, type DummyActionInfo, type ICardAction, type ValidatedActionInfo } from "../../ygo_duel/class/DuelEntityAction";
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
 import { createPromiseSweet } from "@stk_utils/funcs/StkPromiseUtil";
 import type { TCardDetailMode } from "@ygo_duel_view/components/DuelCardDetail.svelte";
 import type { TDuelPhase } from "@ygo_duel/class/DuelPeriod";
-import type { CardActionBase } from "@ygo_duel/class/DuelCardActionBase";
+import type { EntityActionBase } from "@ygo_duel/class/DuelEntityActionBase";
 import { randomChoice, type ChoicesSweet } from "@ygo_duel/class/DuelUtilTypes";
 import { userAgentInfo } from "@stk_utils/class/StkUserAgentInfo";
 export type TDuelWaitMode = "None" | "Free" | "Modal" | "Animation";
@@ -284,14 +284,14 @@ export class DuelViewController {
     this.onDragEndEvent.trigger();
   };
 
-  public readonly waitSelectAction = async <T extends CardActionBase>(
+  public readonly waitSelectAction = async <T extends EntityActionBase>(
     chooser: Duelist,
     items: { entity: DuelEntity; title: string; origin: T }[],
     message: string,
     cancelable: boolean
   ): Promise<T | undefined> => {
     // 入力待ちのためにdammyAction化
-    const dummyActionInfos = items.map((item) => CardAction.createDummyAction(item.entity, item.title, [], undefined, item.origin));
+    const dummyActionInfos = items.map((item) => EntityAction.createDummyAction(item.entity, item.title, [], undefined, item.origin));
     const actionInfo = await this._waitDammyAction(chooser, dummyActionInfos, message, cancelable);
     if (!actionInfo) {
       return;
@@ -332,7 +332,7 @@ export class DuelViewController {
         return { dest, battlePosition: posList[0] };
       }
 
-      const dummyActionInfos = _posList.map((pos) => CardAction.createDummyAction(entity, pos, availableCells, pos));
+      const dummyActionInfos = _posList.map((pos) => EntityAction.createDummyAction(entity, pos, availableCells, pos));
 
       const act = await this._waitDammyAction(summoner, dummyActionInfos, message, cancelable);
       if (!act) {
@@ -373,7 +373,7 @@ export class DuelViewController {
     }
 
     let dest: DuelFieldCell = selectableCells.randomPick();
-    const dummyActionInfos = [CardAction.createDummyAction(entity, actionTitle, selectableCells, undefined)];
+    const dummyActionInfos = [EntityAction.createDummyAction(entity, actionTitle, selectableCells, undefined)];
     const act = await this._waitDammyAction(chooser, dummyActionInfos, message, cancelable);
     if (!act) {
       return;

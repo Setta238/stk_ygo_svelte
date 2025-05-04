@@ -7,7 +7,7 @@
   import type { AnimationStartEventArg, DuelistResponseBase, DuelViewController, WaitStartEventArg } from "@ygo_duel_view/class/DuelViewController";
   import {} from "@stk_utils/funcs/StkArrayUtils";
   import { cardCrossFade } from "@ygo_duel_view/components/DuelDesk.svelte";
-  import { type DummyActionInfo } from "@ygo_duel/class/DuelCardAction";
+  import { type DummyActionInfo } from "@ygo_duel/class/DuelEntityAction";
   import { actualCounterEmojiDic, type TActualCounterName } from "@ygo_duel/class/DuelCounter";
   import type { TDuelPhase } from "@ygo_duel/class/DuelPeriod";
   import type { Duelist } from "@ygo_duel/class/Duelist";

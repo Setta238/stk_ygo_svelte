@@ -8,7 +8,6 @@ import type { Duelist } from "@ygo_duel/class/Duelist";
 import type { SubstituteEffectDefinition } from "@ygo_duel/class/DuelSubstituteEffect";
 import { cardInfoDic } from "@ygo/class/CardInfo";
 import { defaultNormalMonsterActions, defaultSummonFilter } from "../../ygo_entity_proc/card_actions/CommonCardAction_Monster";
-import { SystemError } from "./Duel";
 import { createDuelistProcDefinition } from "@ygo_entity_proc/duelist_proc_definitions/DuelistProcDefinitions";
 
 export type EntityProcDefinition = {
@@ -96,10 +95,6 @@ export function* generateCardDefinitions(...names: string[]): Generator<EntityDe
     });
   if (_names.length !== names.length) {
     console.log(names.filter((name) => !_names.includes(name)));
-    throw new SystemError(
-      "カード定義が取得できなかった",
-      names.filter((name) => !_names.includes(name))
-    );
   }
 }
 

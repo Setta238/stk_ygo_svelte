@@ -1379,4 +1379,5 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 この効果の発動に対して、お互いは魔法・罠・モンスターの効果を発動できない。
 ●デッキから１枚ドローする。
 ●このカードを破壊する。
-●相手は１０００ＬＰ回復する。`,kind:"Spell",spellCategory:"Field",wikiEncodedName:"%A1%D4%A5%C1%A5%AD%A5%F3%A5%EC%A1%BC%A5%B9%A1%D5",nameTags:[]}};export{e as j};
+●相手は１０００ＬＰ回復する。`,kind:"Spell",spellCategory:"Field",wikiEncodedName:"%A1%D4%A5%C1%A5%AD%A5%F3%A5%EC%A1%BC%A5%B9%A1%D5",nameTags:[]},一時休戦:{name:"一時休戦",nameKana:"",description:`(1)：お互いのプレイヤーは、それぞれデッキから１枚ドローする。
+次の相手ターン終了時まで、お互いが受ける全てのダメージは０になる。`,kind:"Spell",spellCategory:"Normal",wikiEncodedName:"%A1%D4%B0%EC%BB%FE%B5%D9%C0%EF%A1%D5"}};export{e as j};

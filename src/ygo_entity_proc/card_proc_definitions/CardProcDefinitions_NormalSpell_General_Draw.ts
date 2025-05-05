@@ -6,6 +6,7 @@ import { type CardActionDefinition } from "@ygo_duel/class/DuelEntityAction";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { IllegalCancelError } from "@ygo_duel/class/Duel";
+import { DamageFilter } from "@ygo_duel/class_continuous_effect/DuelDamageFilter";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
@@ -203,7 +204,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           return defaultSpellTrapValidate(myInfo);
         },
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["Draw", "DiscordAsEffect"], prepared: undefined };
         },
         execute: async (myInfo) => {
           const qty1 = myInfo.activator.getHandCell().cardEntities.length;
@@ -218,6 +219,58 @@ export default function* generate(): Generator<EntityProcDefinition> {
 
           myInfo.activator.duel.clock.incrementProcSeq();
           await DuelEntityShortHands.drawAtSameTime(myInfo.activator, myInfo.action.entity, qty1, qty2);
+
+          return true;
+        },
+        settle: async () => true,
+      },
+      defaultSpellTrapSetAction,
+    ],
+  };
+  yield {
+    name: "一時休戦",
+    actions: [
+      {
+        title: "発動",
+        isMandatory: false,
+        playType: "CardActivation",
+        spellSpeed: "Normal",
+        executableCells: ["Hand", "SpellAndTrapZone"],
+        executablePeriods: ["main1", "main2"],
+        executableDuelistTypes: ["Controller"],
+        validate: (myInfo) => {
+          for (const duelist of [myInfo.activator, myInfo.activator.getOpponentPlayer()]) {
+            if (!duelist.getDeckCell().cardEntities.length) {
+              return;
+            }
+            if (!duelist.canDraw) {
+              return;
+            }
+          }
+          return defaultSpellTrapValidate(myInfo);
+        },
+        prepare: async () => {
+          return { selectedEntities: [], chainBlockTags: ["Draw"], prepared: undefined };
+        },
+        execute: async (myInfo) => {
+          await DuelEntityShortHands.drawAtSameTime(myInfo.activator, myInfo.action.entity, 1, 1);
+          [myInfo.activator, myInfo.activator.getOpponentPlayer()].forEach((duelist) =>
+            duelist.entity.damageFilterBundle.push(
+              new DamageFilter(
+                "ダメージ無効",
+                (ope) => ope.effectOwner.duel.clock.turn - ope.isSpawnedAt.turn < 2,
+                false,
+                myInfo.action.entity,
+                myInfo.action,
+                () => true,
+                "zero_typeA",
+                (filter, point, activator, damageTo) => {
+                  activator.writeInfoLog(`${damageTo.profile.name}は${filter.isSpawnedBy}の効果でダメージを受けない。`);
+                  return { zero_typeA: true };
+                }
+              )
+            )
+          );
 
           return true;
         },

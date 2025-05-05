@@ -168,8 +168,11 @@ export class Duel {
         continue;
       }
 
-      // これは最後で良い。
+      // 以下2つは最後で良い。
       if (!this.field.summonFilterPool.distributeAll(this)) {
+        continue;
+      }
+      if (!this.field.damageFilterPool.distributeAll(this)) {
         continue;
       }
       return;

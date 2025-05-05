@@ -52,7 +52,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           prepare: async (myInfo) => {
             return {
               selectedEntities: [],
-              chainBlockTags: ["SearchFromDeck", ...myInfo.action.calcChainBlockTagsForDestroy(myInfo.activator.getPendulumScaleMonsters())],
+              chainBlockTags: ["SearchFromDeck", ...myInfo.action.calcChainBlockTagsForDestroy(myInfo.activator, myInfo.activator.getPendulumScaleMonsters())],
               prepared: undefined,
             };
           },

@@ -1,7 +1,7 @@
 import { defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_entity_proc/card_actions/CommonCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
-import type { CardActionDefinition, TEffectTag } from "@ygo_duel/class/DuelEntityAction";
+import type { TEffectTag } from "@ygo_duel/class/DuelEntityAction";
 import { IllegalCancelError } from "@ygo_duel/class/Duel";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
@@ -25,37 +25,29 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableDuelistTypes: ["Controller"],
         validate: defaultSpellTrapValidate,
         prepare: async (myInfo, chainBlockInfos, cancelable) => {
-          const selected = await myInfo.action.entity.field.duel.view.waitSelectText(
-            [
-              { seq: 0, text: "●自分は１２００ＬＰ回復する。" },
-              { seq: 1, text: "●相手に８００ダメージを与える。" },
-            ],
-            "使用する効果を選択",
-            false
-          );
-          if (selected === undefined && !cancelable) {
-            throw new IllegalCancelError(myInfo);
+          const choices: { seq: number; text: string; tags: TEffectTag[] }[] = [
+            { seq: 0, text: "●自分は１２００ＬＰ回復する。", tags: [] },
+            { seq: 1, text: "●相手に８００ダメージを与える。", tags: ["DamageToOpponent"] },
+          ];
+
+          const selected = await myInfo.activator.waitSelectText(choices, "使用する効果を選択", cancelable);
+          if (selected === undefined) {
+            return;
           }
 
-          const tags: TEffectTag[] = [];
-
-          if (selected === 1) {
-            tags.push("DamageToOpponent");
-          }
-
-          return { selectedEntities: [], chainBlockTags: tags, prepared: selected ?? 0 };
+          return { selectedEntities: [], chainBlockTags: selected.tags, prepared: selected.seq };
         },
         execute: async (myInfo) => {
           if (myInfo.prepared === 1) {
-            myInfo.activator.getOpponentPlayer().effectDamage(800, myInfo.action.entity);
+            myInfo.activator.getOpponentPlayer().effectDamage(800, myInfo);
             return true;
           }
           myInfo.activator.heal(1200, myInfo.action.entity);
           return true;
         },
         settle: async () => true,
-      } as CardActionDefinition<number>,
-    ] as CardActionDefinition<unknown>[],
+      },
+    ],
   };
   yield {
     name: "月の書",
@@ -106,7 +98,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           //効果を受けない状態であれば効果なし
           if (!target.canBeEffected(myInfo.activator, myInfo.action.entity, myInfo.action)) {
             myInfo.activator.duel.log.info(`${target.toString()}は${myInfo.action.entity.toString()}の効果を受けない。`);
-            return;
+            return false;
           }
 
           // セット状態にする。
@@ -115,7 +107,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           return true;
         },
         settle: async () => true,
-      } as CardActionDefinition<unknown>,
+      },
       defaultSpellTrapSetAction,
     ],
   };
@@ -162,7 +154,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           //効果を受けない状態であれば効果なし
           if (!target.canBeEffected(myInfo.activator, myInfo.action.entity, myInfo.action)) {
             myInfo.activator.duel.log.info(`${target.toString()}は${myInfo.action.entity.toString()}の効果を受けない。`);
-            return;
+            return false;
           }
           target.numericOprsBundle.push(
             NumericStateOperator.createLingeringAddition(
@@ -178,7 +170,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           return true;
         },
         settle: async () => true,
-      } as CardActionDefinition<unknown>,
+      },
       defaultSpellTrapSetAction,
     ],
   };

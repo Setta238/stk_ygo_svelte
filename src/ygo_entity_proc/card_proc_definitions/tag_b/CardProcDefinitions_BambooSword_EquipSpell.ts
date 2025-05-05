@@ -183,7 +183,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         prepare: async (myInfo) => {
           return {
             selectedEntities: [],
-            chainBlockTags: myInfo.action.calcChainBlockTagsForDestroy(myInfo.activator.getOpponentPlayer().getMonstersOnField()),
+            chainBlockTags: myInfo.action.calcChainBlockTagsForDestroy(myInfo.activator, myInfo.activator.getOpponentPlayer().getMonstersOnField()),
             prepared: undefined,
           };
         },

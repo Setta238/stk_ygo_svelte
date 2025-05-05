@@ -62,14 +62,20 @@
   .flex {
     display: flex;
   }
-  .cancel_button {
-    background-color: aliceblue;
-    margin: 0.3rem;
-    border-width: 0.2rem;
-    border-style: groove;
-    border-color: steelblue;
-    border-radius: 0.4rem;
-    outline: 1rem slategrey;
+  button.cancel_button {
+    border: 1px solid #000;
+    background: #fff;
+    font-weight: 700;
+    line-height: 1.1;
+    display: inline-block;
+    padding: 0.3rem 1.1rem;
+    cursor: pointer;
+    margin: 0.5rem;
+  }
+
+  button.cancel_button:hover {
+    color: #fff;
+    background: #000;
   }
   .modal_window {
     display: block;

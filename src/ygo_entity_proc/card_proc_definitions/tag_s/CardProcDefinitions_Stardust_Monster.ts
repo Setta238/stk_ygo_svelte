@@ -55,7 +55,11 @@ export default function* generate(): Generator<EntityProcDefinition> {
         prepare: async (myInfo, chainBlockInfos) => {
           const info = chainBlockInfos.slice(-1)[0];
 
-          return { selectedEntities: [], chainBlockTags: myInfo.action.calcChainBlockTagsForDestroy([info.action.entity]), prepared: undefined };
+          return {
+            selectedEntities: [],
+            chainBlockTags: myInfo.action.calcChainBlockTagsForDestroy(myInfo.activator, [info.action.entity]),
+            prepared: undefined,
+          };
         },
         execute: async (myInfo, chainBlockInfos) => {
           const info = chainBlockInfos[myInfo.index - 1];

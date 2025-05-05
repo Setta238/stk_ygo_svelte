@@ -310,12 +310,12 @@ export default function* generate(): Generator<EntityProcDefinition> {
             if (toOpponent > 0) {
               myInfo.activator.getOpponentPlayer().heal(toOpponent, myInfo.action.entity);
             } else if (toOpponent < 0) {
-              myInfo.activator.getOpponentPlayer().effectDamage(Math.abs(toOpponent), myInfo.action.entity);
+              myInfo.activator.getOpponentPlayer().effectDamage(Math.abs(toOpponent), myInfo);
             }
             if (toSelf > 0) {
               myInfo.activator.heal(toSelf, myInfo.action.entity);
             } else if (toSelf < 0) {
-              myInfo.activator.effectDamage(Math.abs(toSelf), myInfo.action.entity);
+              myInfo.activator.effectDamage(Math.abs(toSelf), myInfo);
             }
             return true;
           },

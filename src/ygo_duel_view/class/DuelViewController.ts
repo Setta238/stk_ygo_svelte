@@ -257,12 +257,27 @@ export class DuelViewController {
     return [...(response.selectedEntities ?? []), ...(response.selectedCells ?? []).flatMap((cell) => cell.entities).filter((e) => e.entityType === "Duelist")];
   };
 
-  public readonly waitSelectText = (choises: { seq: number; text: string }[], msg: string, cancelable: boolean = false): Promise<number | undefined> =>
-    this.modalController.textSelector.show({
-      title: msg,
-      choises: choises,
-      cancelable: cancelable,
-    });
+  public readonly waitSelectText = async <C extends { seq: number; text: string }>(
+    chooser: Duelist,
+    choises: C[],
+    title: string,
+    cancelable: boolean = false
+  ): Promise<C | undefined> => {
+    if (chooser.duelistType === "NPC") {
+      return choises.randomPick();
+    }
+
+    const selected = await this.modalController.textSelector.show({ title, choises, cancelable });
+
+    if (selected === undefined) {
+      if (!cancelable) {
+        throw new IllegalCancelError(chooser, choises, title, cancelable);
+      }
+      return;
+    }
+
+    return choises.find((c) => c.seq === selected);
+  };
 
   public readonly waitAnimation = async (args: Omit<AnimationStartEventArg, "resolve">): Promise<void> => {
     this._message = "";

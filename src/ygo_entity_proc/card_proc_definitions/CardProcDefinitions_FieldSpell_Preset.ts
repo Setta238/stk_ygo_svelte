@@ -1,4 +1,4 @@
-import { defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_entity_proc/card_actions/CommonCardAction_Spell";
+import { defaultContinuousSpellCardActivateAction, defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CommonCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 
@@ -6,7 +6,6 @@ import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition"
 import type { TEntityFlexibleNumericStatusKey, TMonsterAttribute, TMonsterType } from "@ygo/class/YgoTypes";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import { createBroadRegularNumericStateOperatorHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
-import { defaultPrepare } from "../card_actions/CommonCardAction";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   // 初期種族サポートフィールド魔法
@@ -44,22 +43,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
   ].map((item): EntityProcDefinition => {
     return {
       name: item.name,
-      actions: [
-        {
-          title: "発動",
-          isMandatory: false,
-          playType: "CardActivation",
-          spellSpeed: "Normal",
-          executableCells: ["Hand", "SpellAndTrapZone"],
-          executablePeriods: ["main1", "main2"],
-          executableDuelistTypes: ["Controller"],
-          validate: defaultSpellTrapValidate,
-          prepare: defaultPrepare,
-          execute: async () => true,
-          settle: async () => true,
-        },
-        defaultSpellTrapSetAction,
-      ],
+      actions: [defaultContinuousSpellCardActivateAction, defaultSpellTrapSetAction],
       continuousEffects: [
         createBroadRegularNumericStateOperatorHandler(
           "発動",
@@ -127,22 +111,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
   ].map((item): EntityProcDefinition => {
     return {
       name: item.name,
-      actions: [
-        {
-          title: "発動",
-          isMandatory: false,
-          playType: "CardActivation",
-          spellSpeed: "Normal",
-          executableCells: ["Hand", "FieldSpellZone"],
-          executablePeriods: ["main1", "main2"],
-          executableDuelistTypes: ["Controller"],
-          validate: defaultSpellTrapValidate,
-          prepare: defaultPrepare,
-          execute: async () => true,
-          settle: async () => true,
-        },
-        defaultSpellTrapSetAction,
-      ],
+      actions: [defaultContinuousSpellCardActivateAction, defaultSpellTrapSetAction],
       continuousEffects: [
         createBroadRegularNumericStateOperatorHandler(
           "発動",

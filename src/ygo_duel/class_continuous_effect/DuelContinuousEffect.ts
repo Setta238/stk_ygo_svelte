@@ -7,6 +7,7 @@ import type { IOperatorPool, StickyEffectOperatorBase, StickyEffectOperatorBundl
 import type { ProcFilter } from "./DuelProcFilter";
 import type { StatusOperator } from "./DuelStatusOperator";
 import { duelPeriodKeys, type TDuelPeriodKey } from "@ygo_duel/class/DuelPeriod";
+import type { DamageFilter } from "./DuelDamageFilter";
 
 export type ContinuousEffectBase<T> = {
   title: string;
@@ -196,4 +197,23 @@ export const createRegularStatusOperatorHandler = (
   statusOperatorCreator: (source: DuelEntity) => StatusOperator[]
 ) => {
   return createRegularOperatorHandler(title, kind, getTargets, canStart, statusOperatorCreator, (entity: DuelEntity) => entity.statusOperatorBundle);
+};
+
+export const createBroadRegularDamageFilterHandler = (
+  title: string,
+  kind: TCardKind,
+  canStart: (source: DuelEntity) => boolean,
+  opeListCreater: (source: DuelEntity) => DamageFilter[]
+) => {
+  return createBroadRegularOperatorHandler(title, kind, canStart, opeListCreater, (entity: DuelEntity) => entity.field.damageFilterPool);
+};
+
+export const createRegularDamageFilterHandler = (
+  title: string,
+  kind: TCardKind,
+  getTargets: (source: DuelEntity) => DuelEntity[],
+  canStart: (source: DuelEntity) => boolean,
+  opeListCreater: (source: DuelEntity) => DamageFilter[]
+) => {
+  return createRegularOperatorHandler(title, kind, getTargets, canStart, opeListCreater, (entity: DuelEntity) => entity.damageFilterBundle);
 };

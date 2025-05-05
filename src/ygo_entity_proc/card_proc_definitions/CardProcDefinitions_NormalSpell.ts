@@ -189,7 +189,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               cards = cards.filter((card) => card.controller !== myInfo.activator);
             }
 
-            return { selectedEntities: [], chainBlockTags: myInfo.action.calcChainBlockTagsForDestroy(cards), prepared: undefined };
+            return { selectedEntities: [], chainBlockTags: myInfo.action.calcChainBlockTagsForDestroy(myInfo.activator, cards), prepared: undefined };
           },
           execute: async (myInfo) => {
             let cards = myInfo.action.entity.field

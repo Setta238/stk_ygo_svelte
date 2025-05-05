@@ -18,8 +18,9 @@ import { max, min } from "@stk_utils/funcs/StkMathUtils";
 import type { TBanishProcType } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
 import { DuelEntityShortHands } from "./DuelEntityShortHands";
 import type { EntityDefinition } from "./DuelEntityDefinition";
+import { calcBattleDamage, calcEffectDamage } from "@ygo_duel/class_continuous_effect/DuelDamageFilter";
 
-type TLifeLogReason = "BattleDamage" | "EffectDamage" | "Heal" | "Lost" | "Pay" | "Set";
+export type TLifeLogReason = "BattleDamage" | "EffectDamage" | "Heal" | "Lost" | "Pay" | "Set";
 export type TDuelistType = "NPC" | "Player";
 
 type LifeLogRecord = {
@@ -114,7 +115,6 @@ export class Duelist {
     }
     return DuelEntity.createPlayerEntity(this);
   }
-  public _entity: DuelEntity | undefined;
   public readonly profile: IDuelistProfile;
   public readonly deckInfo: IDeckInfo;
   public info: DuelistInfo;
@@ -218,11 +218,36 @@ export class Duelist {
       .every((pf) => pf.filter(this, this.entity, action, [target]));
   };
 
-  public readonly battleDamage = (point: number, entity: DuelEntity): LifeLogRecord => {
-    return this.setLp(this._lp - point, entity, "BattleDamage");
+  public readonly battleDamage = (
+    point: number,
+    damageSource: DuelEntity,
+    suppressor: DuelEntity,
+    chainBlockInfo: ChainBlockInfo<unknown>
+  ): LifeLogRecord[] => {
+    //MEMO 戦闘ダメージの場合、攻撃宣言したモンスターがダメージ元とは限らない
+    const damageInfo = calcBattleDamage(point, chainBlockInfo.activator, this, damageSource, suppressor, chainBlockInfo.action);
+
+    return this.damage(damageSource, damageInfo);
   };
-  public readonly effectDamage = (point: number, entity: DuelEntity): LifeLogRecord => {
-    return this.setLp(this._lp - point, entity, "EffectDamage");
+  public readonly effectDamage = (point: number, chainBlockInfo: ChainBlockInfo<unknown>): LifeLogRecord[] => {
+    const damageInfo = calcEffectDamage(point, chainBlockInfo, this);
+    return this.damage(chainBlockInfo.action.entity, damageInfo);
+  };
+
+  private readonly damage = (damageSource: DuelEntity, damageInfo: ReturnType<typeof calcBattleDamage>): LifeLogRecord[] => {
+    const result: LifeLogRecord[] = [];
+    if (damageInfo.point) {
+      const diff = damageInfo.damageType === "Heal" ? damageInfo.point : damageInfo.point * -1;
+      result.push(this.setLp(this._lp + diff, damageSource, damageInfo.damageType));
+    }
+    if (damageInfo.damageToOpponent1) {
+      result.push(this.getOpponentPlayer().setLp(this._lp - damageInfo.damageToOpponent1, damageSource, damageInfo.damageType));
+    }
+    if (damageInfo.damageToOpponent2) {
+      result.push(this.getOpponentPlayer().setLp(this._lp - damageInfo.damageToOpponent2, damageSource, damageInfo.damageType));
+    }
+
+    return result;
   };
   public readonly lostLp = (point: number, entity: DuelEntity): LifeLogRecord => {
     return this.setLp(this._lp - point, entity, "Lost");
@@ -414,6 +439,12 @@ export class Duelist {
     const selected = await this.waitSelectEntities(choices, 1, (selected) => selected.length === 1, message, cancelable);
     return selected ? selected[0] : undefined;
   };
+
+  public readonly waitSelectText = <C extends { seq: number; text: string }>(
+    choises: C[],
+    title: string,
+    cancelable: boolean = false
+  ): Promise<C | undefined> => this.duel.view.waitSelectText(this, choises, title, cancelable);
 
   public readonly discard = async (
     qty: number,
@@ -708,7 +739,7 @@ export class Duelist {
     }
 
     let _actionInfos = actionInfos.filter((info) => !this.actionBlackListForNPC.includes(info.action.playType));
-
+    console.log(_actionInfos);
     // 優先度高を発動
     const highPriorities = _actionInfos
       .filter((info) => !Number.isNaN(info.action.priorityForNPC))
@@ -844,6 +875,7 @@ export class Duelist {
           .randomPick();
       }
     }
+    console.log(_actionInfos);
 
     // 残った行動を、残り数に応じてランダムに実行する。
     if (Math.random() < _actionInfos.length / 4) {

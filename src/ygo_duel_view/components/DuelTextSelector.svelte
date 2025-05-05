@@ -21,7 +21,7 @@
       {/each}
     </ui>
     {#if arg.cancelable}
-      <button onclick={() => resolve(undefined)}>Cancel</button>
+      <button class="cancel_button" onclick={() => resolve(undefined)}>Cancel</button>
     {/if}
   </div>
 {/if}
@@ -33,6 +33,7 @@
     opacity: 0.9;
     max-width: 50%;
     width: fit-content;
+    padding: 1rem;
   }
   .modal_window * {
     pointer-events: initial;
@@ -57,5 +58,36 @@
     justify-content: center;
     align-items: center;
     pointer-events: initial;
+  }
+  .text_list button {
+    background-color: #ffffff;
+    display: inline-block;
+    padding: 0em 1em;
+    text-decoration: none;
+    color: #67c5ff;
+    border: solid 0.2rem #67c5ff;
+    border-radius: 3px;
+    transition: 0.4s;
+    margin: 0.5rem 0.3rem;
+  }
+
+  .text_list button:hover {
+    background: #67c5ff;
+    color: white;
+  }
+  button.cancel_button {
+    border: 1px solid #000;
+    background: #fff;
+    font-weight: 700;
+    line-height: 1.1;
+    display: inline-block;
+    padding: 0.3rem 1.1rem;
+    cursor: pointer;
+    margin: 0.5rem;
+  }
+
+  button.cancel_button:hover {
+    color: #fff;
+    background: #000;
   }
 </style>

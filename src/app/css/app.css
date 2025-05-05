@@ -55,8 +55,6 @@ button {
   background-color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s;
-}
-.button_style_reset {
   display: block;
   border-radius: 0%;
   padding: 0px;

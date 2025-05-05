@@ -49,7 +49,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
 
           return {
             selectedEntities: [],
-            chainBlockTags: ["NegateCardEffect", ...myInfo.action.calcChainBlockTagsForDestroy([target.action.entity])],
+            chainBlockTags: ["NegateCardEffect", ...myInfo.action.calcChainBlockTagsForDestroy(myInfo.activator, [target.action.entity])],
             prepared: undefined,
           };
         },

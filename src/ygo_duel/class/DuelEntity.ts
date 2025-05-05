@@ -49,6 +49,7 @@ import { SubstituteEffect } from "./DuelSubstituteEffect";
 import { SummonFilter, SummonFilterBundle } from "@ygo_duel/class_continuous_effect/DuelSummonFilter";
 import { DuelEntityShortHands } from "./DuelEntityShortHands";
 import type { IDuelClock } from "./DuelClock";
+import { DamageFilterBundle } from "@ygo_duel/class_continuous_effect/DuelDamageFilter";
 export type EntityStatus = {
   canAttack: boolean;
   canDirectAttack: boolean;
@@ -56,6 +57,11 @@ export type EntityStatus = {
   allowHandSyncro: boolean;
   allowHandLink: boolean;
   isEffective: boolean;
+  /**
+   * 貫通ダメージ倍化は貫通と倍化で分けて処理する。
+   */
+  piercingTo: Duelist[];
+
   /**
    * falseのモンスターしかいない場合、ダイレクトアタックになる。《伝説のフィッシャーマン》など。
    */
@@ -485,6 +491,7 @@ export class DuelEntity {
   public readonly procFilterBundle: ProcFilterBundle;
   public readonly numericOprsBundle: NumericStateOperatorBundle;
   public readonly statusOperatorBundle: StatusOperatorBundle;
+  public readonly damageFilterBundle: DamageFilterBundle;
   public readonly moveLog: EntityMoveLog;
   public readonly counterHolder: CounterHolder;
   public face: TDuelEntityFace;
@@ -801,6 +808,7 @@ export class DuelEntity {
     this.procFilterBundle = new ProcFilterBundle(fieldCell.field.procFilterPool, this);
     this.numericOprsBundle = new NumericStateOperatorBundle(fieldCell.field.numericStateOperatorPool, this);
     this.statusOperatorBundle = new StatusOperatorBundle(fieldCell.field.statusOperatorPool, this);
+    this.damageFilterBundle = new DamageFilterBundle(fieldCell.field.damageFilterPool, this);
 
     fieldCell.acceptEntities(this, "Top");
     this.moveLog = new EntityMoveLog(this);
@@ -1225,6 +1233,7 @@ export class DuelEntity {
       allowHandSyncro: false,
       allowHandLink: false,
       maxCounterQty: {},
+      piercingTo: [],
     };
   };
   private readonly resetStatusAll = () => {

@@ -524,15 +524,19 @@ export class Duel {
 
     if (defender.entityType === "Duelist") {
       chainBlockInfo.activator.writeInfoLog(`ダメージ計算：${attacker.toString()} (${atkPoint}) ⇒ ${defender.toString()}`);
-      attacker.controller.getOpponentPlayer().battleDamage(atkPoint - defPoint, attacker);
+      attacker.controller.getOpponentPlayer().battleDamage(atkPoint - defPoint, attacker, defender, chainBlockInfo);
     } else {
       chainBlockInfo.activator.writeInfoLog(`ダメージ計算：${attacker.toString()} (${atkPoint}) ⇒ ${defender.toString()} (${defPoint})`);
       // 戦闘ダメージ計算
-      if (atkPoint > 0 && atkPoint > defPoint && defender.battlePosition === "Attack") {
-        attacker.controller.getOpponentPlayer().battleDamage(atkPoint - defPoint, attacker);
+      if (atkPoint > 0 && atkPoint > defPoint) {
+        if (defender.battlePosition === "Attack") {
+          attacker.controller.getOpponentPlayer().battleDamage(atkPoint - defPoint, attacker, defender, chainBlockInfo);
+        } else {
+          attacker.status.piercingTo.forEach((duelist) => duelist.battleDamage(atkPoint - defPoint, attacker, defender, chainBlockInfo));
+        }
       } else if (atkPoint < defPoint) {
         // 絶対防御将軍が守備表示で攻撃しても反射ダメージが発生するとのこと。
-        attacker.controller.battleDamage(defPoint - atkPoint, defender);
+        attacker.controller.battleDamage(defPoint - atkPoint, defender, attacker, chainBlockInfo);
       }
 
       //ダメージ計算時 ⑥戦闘破壊確定

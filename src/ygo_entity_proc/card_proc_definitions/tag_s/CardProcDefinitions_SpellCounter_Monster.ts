@@ -197,7 +197,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             target = _target;
           }
 
-          return { selectedEntities: [target], chainBlockTags: myInfo.action.calcChainBlockTagsForDestroy([target]), prepared: undefined };
+          return { selectedEntities: [target], chainBlockTags: myInfo.action.calcChainBlockTagsForDestroy(myInfo.activator, [target]), prepared: undefined };
         },
         execute: async (myInfo) => {
           if (myInfo.selectedEntities.every((target) => !target.isOnFieldAsSpellTrapStrictly)) {

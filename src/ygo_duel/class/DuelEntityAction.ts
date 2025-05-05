@@ -605,7 +605,7 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
   public readonly isSameGroup = (other: EntityAction<unknown>) =>
     this.actionGroupName ? this.entity.origin.name === other.entity.origin.name && this.actionGroupName === other.actionGroupName : this.isSame(other);
 
-  public readonly calcChainBlockTagsForDestroy = (entites: DuelEntity[]): TEffectTag[] => {
+  public readonly calcChainBlockTagsForDestroy = (activator: Duelist, entities: DuelEntity[]): TEffectTag[] => {
     if (!effectTags.length) {
       return [];
     }
@@ -615,7 +615,7 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
       tags.push("DestroyMultiple");
     }
 
-    const cardsOnFields = entites.filter((card) => card.isOnFieldStrictly);
+    const cardsOnFields = entities.filter((card) => card.isOnFieldStrictly);
 
     if (cardsOnFields.length) {
       tags.push("DestroyOnField");
@@ -639,7 +639,7 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
         tags.push("DestroySpellTrapsOnField");
       }
     }
-    const cardsOnOpponentField = cardsOnFields.filter((card) => card.controller !== this.entity.controller);
+    const cardsOnOpponentField = cardsOnFields.filter((card) => card.controller !== activator);
     if (cardsOnOpponentField.length) {
       tags.push("DestroyOnOpponentField");
       if (cardsOnOpponentField.length > 1) {

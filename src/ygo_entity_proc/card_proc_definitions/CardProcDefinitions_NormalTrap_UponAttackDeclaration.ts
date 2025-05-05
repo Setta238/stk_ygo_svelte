@@ -51,7 +51,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               throw new SystemError("想定されない状態", myInfo, attacker);
             }
 
-            const tags: TEffectTag[] = name === "炸裂装甲" ? myInfo.action.calcChainBlockTagsForDestroy([attacker]) : ["BanishFromField"];
+            const tags: TEffectTag[] = name === "炸裂装甲" ? myInfo.action.calcChainBlockTagsForDestroy(myInfo.activator, [attacker]) : ["BanishFromField"];
 
             return { selectedEntities: [attacker], chainBlockTags: tags, prepared: undefined };
           },

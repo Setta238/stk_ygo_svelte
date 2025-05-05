@@ -525,22 +525,24 @@ export class Duelist {
         };
       })
       .map((item) => {
-        if (item.monster.fieldCell.cellType !== "ExtraDeck") {
+        if (item.monster.fieldCell.cellType === "ExtraDeck") {
+          // エクストラデッキからの特殊召喚の場合
+          if (item.monster.status.monsterCategories?.includes("Link") || item.monster.status.monsterCategories?.includes("Pendulum")) {
+            // リンクモンスターまたはペンデュラムモンスターの場合、エクストラモンスターゾーンまたはリンクマーカーの先にしか特殊召喚できない
+            return {
+              ...item,
+              cells: item.cells.filter(
+                (cell) =>
+                  cell.cellType === "ExtraMonsterZone" ||
+                  cell.linkArrowSources.filter((linkMonster) => !materialInfos.map((info) => info.material).includes(linkMonster)).length
+              ),
+            };
+          }
+        } else {
           //エクストラモンスターゾーンはエクストラデッキからの特殊召喚のみ使用可能
           return {
             ...item,
             cells: item.cells.filter((cell) => cell.cellType !== "ExtraMonsterZone"),
-          };
-        }
-        if (item.monster.status.monsterCategories?.includes("Link") || summonType === "PendulumSummon") {
-          // リンク召喚またはペンデュラム召喚による特殊召喚の場合、エクストラモンスターゾーンまたはリンクマーカーの先にしか特殊召喚できない
-          return {
-            ...item,
-            cells: item.cells.filter(
-              (cell) =>
-                cell.cellType === "ExtraMonsterZone" ||
-                cell.linkArrowSources.filter((linkMonster) => !materialInfos.map((info) => info.material).includes(linkMonster)).length
-            ),
           };
         }
         return item;

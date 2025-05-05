@@ -1370,28 +1370,13 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 そのモンスターを特殊召喚し、このカードを装備する。
 このカードがフィールドから離れた時にそのモンスターは除外される。
 (2)：装備モンスターが破壊された事でこのカードが墓地へ送られた場合に発動できる。
-自分は１枚ドローする。`,kind:"Spell",spellCategory:"Equip",wikiEncodedName:"%A1%D4%A5%F4%A5%A1%A5%EC%A5%EB%A1%A6%A5%EA%A5%ED%A1%BC%A5%C9%A1%D5",nameTags:["ヴァレル"]},打ち出の小槌:{name:"打ち出の小槌",nameKana:"",description:"(1)：自分の手札を任意の数だけデッキに戻してシャッフルする。その後、自分はデッキに戻した数だけドローする。",kind:"Spell",spellCategory:"Normal",wikiEncodedName:"%A1%D4%C2%C7%A4%C1%BD%D0%A4%CE%BE%AE%C4%C8%A1%D5",nameTags:[]},アンカモフライト:{name:"アンカモフライト",nameKana:"",description:`【Ｐスケール：青４/赤４】
-このカード名のＰ効果は１ターンに１度しか使用できない。
-(1)：自分のＥＸデッキのカードが、存在しない場合または「アンカモフライト」のみの場合に発動できる。
-このカードを破壊する。
-その後、自分はデッキから１枚ドローする。
-【モンスター効果】
-このカードは通常召喚できない。
-このカードがＥＸデッキに表側表示で存在し、「アンカモフライト」以外のカードが自分のＥＸデッキに存在しない場合のみ特殊召喚できる。
-この方法による「アンカモフライト」の特殊召喚は１ターンに１度しかできない。
+自分は１枚ドローする。`,kind:"Spell",spellCategory:"Equip",wikiEncodedName:"%A1%D4%A5%F4%A5%A1%A5%EC%A5%EB%A1%A6%A5%EA%A5%ED%A1%BC%A5%C9%A1%D5",nameTags:["ヴァレル"]},打ち出の小槌:{name:"打ち出の小槌",nameKana:"",description:"(1)：自分の手札を任意の数だけデッキに戻してシャッフルする。その後、自分はデッキに戻した数だけドローする。",kind:"Spell",spellCategory:"Normal",wikiEncodedName:"%A1%D4%C2%C7%A4%C1%BD%D0%A4%CE%BE%AE%C4%C8%A1%D5",nameTags:[]},アンカモフライト:{name:"アンカモフライト",nameKana:"",description:`このカードは通常召喚できない。
+このカードがＥＸデッキに表側表示で存在し、「アンカモフライト」以外のカードが自分のＥＸデッキに存在しない場合のみ特殊召喚できる。この方法による「アンカモフライト」の特殊召喚は１ターンに１度しかできない。
 (1)：モンスターゾーンの表側表示のこのカードはフィールドから離れた場合に除外される。`,pendulumDescription:`このカード名のＰ効果は１ターンに１度しか使用できない。
-(1)：自分のＥＸデッキのカードが、存在しない場合または「アンカモフライト」のみの場合に発動できる。
-このカードを破壊する。
-その後、自分はデッキから１枚ドローする。
-【モンスター効果】
-このカードは通常召喚できない。
-このカードがＥＸデッキに表側表示で存在し、
-「アンカモフライト」以外のカードが自分のＥＸデッキに存在しない場合のみ特殊召喚できる。
-この方法による「アンカモフライト」の特殊召喚は１ターンに１度しかできない。
-(1)：モンスターゾーンの表側表示のこのカードはフィールドから離れた場合に除外される。`,kind:"Monster",monsterCategories:["SpecialSummon","Effect","Pendulum","RegularSpecialSummonOnly"],level:5,attack:1800,defense:0,attributes:["Light"],types:["Spellcaster"],pendulumScaleR:4,pendulumScaleL:4,wikiEncodedName:"%A1%D4%A5%A2%A5%F3%A5%AB%A5%E2%A5%D5%A5%E9%A5%A4%A5%C8%A1%D5",nameTags:[]},チキンレース:{name:"チキンレース",nameKana:"",description:`(1)：このカードがフィールドゾーンに存在する限り、相手よりＬＰが少ないプレイヤーが受ける全てのダメージは０になる。
+(1)：自分のＥＸデッキのカードが、存在しない場合または「アンカモフライト」のみの場合に発動できる。このカードを破壊する。その後、自分はデッキから１枚ドローする。`,kind:"Monster",monsterCategories:["SpecialSummon","Effect","Pendulum","RegularSpecialSummonOnly"],level:5,attack:1800,defense:0,attributes:["Light"],types:["Spellcaster"],pendulumScaleR:4,pendulumScaleL:4,wikiEncodedName:"%A1%D4%A5%A2%A5%F3%A5%AB%A5%E2%A5%D5%A5%E9%A5%A4%A5%C8%A1%D5",nameTags:[]},チキンレース:{name:"チキンレース",nameKana:"",description:`(1)：このカードがフィールドゾーンに存在する限り、相手よりＬＰが少ないプレイヤーが受ける全てのダメージは０になる。
 (2)：お互いのプレイヤーは１ターンに１度、
 自分メインフェイズに１０００ＬＰを払って以下の効果から１つを選択して発動できる。
 この効果の発動に対して、お互いは魔法・罠・モンスターの効果を発動できない。
 ●デッキから１枚ドローする。
 ●このカードを破壊する。
-●相手は１０００ＬＰ回復する。`,kind:"Spell",spellCategory:"Field",wikiEncodedName:"%A1%D4%A5%C1%A5%AD%A5%F3%A5%EC%A1%BC%A5%B9%A1%D5"}};export{e as j};
+●相手は１０００ＬＰ回復する。`,kind:"Spell",spellCategory:"Field",wikiEncodedName:"%A1%D4%A5%C1%A5%AD%A5%F3%A5%EC%A1%BC%A5%B9%A1%D5",nameTags:[]}};export{e as j};

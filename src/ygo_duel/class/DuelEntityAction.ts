@@ -546,6 +546,7 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
         return;
       }
       myInfo.costInfo = costInfo;
+      _cancelable = false;
     }
 
     // 準備

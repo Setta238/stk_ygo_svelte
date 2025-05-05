@@ -535,7 +535,7 @@ export class Duel {
         if (defender.battlePosition === "Attack") {
           attacker.controller.getOpponentPlayer().battleDamage(atkPoint - defPoint, attacker, defender, chainBlockInfo);
         } else {
-          attacker.status.piercingTo.forEach((duelist) => duelist.battleDamage(atkPoint - defPoint, attacker, defender, chainBlockInfo));
+          attacker.status.piercingTo.getDistinct().forEach((duelist) => duelist.battleDamage(atkPoint - defPoint, attacker, defender, chainBlockInfo));
         }
       } else if (atkPoint < defPoint) {
         // 絶対防御将軍が守備表示で攻撃しても反射ダメージが発生するとのこと。

@@ -1,3 +1,16 @@
+<script lang="ts" module>
+  export type SearchCondition = {
+    name: string;
+    cardKinds: TCardKind[];
+    monsterCategories: TMonsterCategory[];
+    monsterAttributes: TMonsterAttribute[];
+    monsterTypes: TMonsterType[];
+    spellCategories: TSpellCategory[];
+    trapCategories: TTrapCategory[];
+    others: "test"[];
+  };
+</script>
+
 <script lang="ts">
   import { cardInfoDic } from "@ygo/class/CardInfo";
   import { DeckInfo, type IDeckInfo } from "@ygo/class/DeckInfo";
@@ -22,36 +35,50 @@
     trapCategoryDic,
     type CardInfoJson,
     type TCardKind,
+    type TMonsterAttribute,
     type TMonsterCategory,
+    type TMonsterType,
     type TSpellCategory,
     type TTrapCategory,
   } from "@ygo/class/YgoTypes";
   import {} from "@stk_utils/funcs/StkDateUtils";
-  import { isString } from "@stk_utils/funcs/StkStringUtils";
-
-  const seachConditionDefaultValues = {
-    name: "" as string,
-    cardKinds: cardKinds.filter((kind) => kind !== "XyzMaterial") as TCardKind[],
+  import { fade, slide } from "svelte/transition";
+  const seachConditionDefaultValues: SearchCondition = {
+    name: "",
+    cardKinds: cardKinds.filter((kind) => kind !== "XyzMaterial"),
     monsterCategories: [...monsterCategories],
     monsterAttributes: [...monsterAttributes],
     monsterTypes: [...monsterTypes],
     spellCategories: [...spellCategories],
     trapCategories: [...trapCategories],
-    isForTest: false,
+    others: ["test"],
   };
 
-  const seachCondition = structuredClone(seachConditionDefaultValues);
+  const searchCondition = structuredClone(seachConditionDefaultValues);
+  searchCondition.others = [];
+
   let mode: "SearchCondition" | "CardDetail" = "SearchCondition";
 
   const onClearSearchConditionClick = async () => {
-    seachCondition.name = "";
-    seachCondition.cardKinds = [];
-    seachCondition.monsterCategories = [];
-    seachCondition.monsterAttributes = [];
-    seachCondition.monsterTypes = [];
-    seachCondition.spellCategories = [];
-    seachCondition.trapCategories = [];
-    seachCondition.isForTest = false;
+    searchCondition.name = "";
+    searchCondition.cardKinds = [];
+    searchCondition.monsterCategories = [];
+    searchCondition.monsterAttributes = [];
+    searchCondition.monsterTypes = [];
+    searchCondition.spellCategories = [];
+    searchCondition.trapCategories = [];
+    searchCondition.others = [];
+  };
+
+  const onResetSeachCondition = async (key: keyof typeof searchCondition) => {
+    if (Array.isArray(searchCondition[key]) && Array.isArray(seachConditionDefaultValues[key])) {
+      (searchCondition[key] as string[]) = searchCondition[key].length ? [] : ([...seachConditionDefaultValues[key]] as string[]);
+    }
+  };
+  const ondblclick = (ev: MouseEvent, key: keyof typeof searchCondition, value: string) => {
+    if (Array.isArray(searchCondition[key]) && Array.isArray(seachConditionDefaultValues[key])) {
+      (searchCondition[key] as string[]) = [value];
+    }
   };
 
   const onSelectDeckChange = async () => {
@@ -92,41 +119,6 @@
 
   let cardInfo: CardInfoJson = cardInfoDic["ゾンビーノ"];
 
-  const getCardList = () => {
-    return Object.values(cardInfoDic).filter((cardInfo) => {
-      if (!seachCondition.cardKinds.includes(cardInfo.kind)) {
-        return false;
-      }
-      if (seachCondition.name.trim().length && !cardInfo.name.includes(seachCondition.name)) {
-        return false;
-      }
-
-      if (cardInfo.isForTest && !seachCondition.isForTest) {
-        return false;
-      }
-
-      if (cardInfo.kind === "Monster") {
-        if (cardInfo.attributes && !seachCondition.monsterAttributes.union(cardInfo.attributes).length) {
-          return false;
-        }
-        if (cardInfo.types && !seachCondition.monsterTypes.union(cardInfo.types).length) {
-          return false;
-        }
-
-        if (!cardInfo.monsterCategories) {
-          return false;
-        }
-        return cardInfo.monsterCategories.union(seachCondition.monsterCategories).length;
-      }
-      if (cardInfo.kind === "Spell") {
-        return cardInfo.spellCategory && seachCondition.spellCategories.includes(cardInfo.spellCategory);
-      }
-      if (cardInfo.kind === "Trap") {
-        return cardInfo.trapCategory && seachCondition.trapCategories.includes(cardInfo.trapCategory);
-      }
-    });
-  };
-
   const onAttention = (_cardInfo: CardInfoJson) => {
     mode = "CardDetail";
     cardInfo = _cardInfo;
@@ -139,12 +131,6 @@
       throw new Error("illegal state");
     }
     return deckInfo;
-  };
-
-  const onResetSeachCondition = async (key: keyof typeof seachCondition) => {
-    if (Array.isArray(seachCondition[key]) && Array.isArray(seachConditionDefaultValues[key])) {
-      (seachCondition[key] as string[]) = seachCondition[key].length ? [] : ([...seachConditionDefaultValues[key]] as string[]);
-    }
   };
 
   const onSaveDeckClick = async () => {
@@ -189,7 +175,7 @@
         <div class="deck_editor_search_box_row">
           <div>名称</div>
           <div>
-            <input type="text" bind:value={seachCondition.name} style="width:70%" />※ルビには対応していません
+            <input type="text" bind:value={searchCondition.name} style="width:70%" />※ルビには対応していません
           </div>
         </div>
         <div class="deck_editor_search_box_row">
@@ -197,83 +183,91 @@
           <div>
             {#each cardKinds.filter((kind) => kind !== "XyzMaterial") as key}
               <label>
-                <input type="checkbox" value={key} bind:group={seachCondition.cardKinds} />
+                <input type="checkbox" value={key} bind:group={searchCondition.cardKinds} />
                 {cardKindDic[key]}
               </label>
             {/each}
           </div>
         </div>
-        <div class="deck_editor_search_box_row">
-          <div><button class="search_condition_title black_button" on:click={() => onResetSeachCondition("monsterCategories")}>モンスター</button></div>
+        {#if searchCondition.cardKinds.includes("Monster")}
+          <div class="deck_editor_search_box_row" transition:slide={{ delay: 0, duration: 100 }}>
+            <div><button class="search_condition_title black_button" on:click={() => onResetSeachCondition("monsterCategories")}>モンスター</button></div>
+            <div>
+              {#each monsterCategories as key}
+                <label>
+                  <input type="checkbox" value={key} bind:group={searchCondition.monsterCategories} />
+                  {monsterCategoryEmojiDic[key]}{monsterCategoryDic[key]}
+                </label>
+              {/each}
+            </div>
+          </div>
+          <div class="deck_editor_search_box_row" transition:slide={{ delay: 0, duration: 100 }}>
+            <div><button class="search_condition_title black_button" on:click={() => onResetSeachCondition("monsterAttributes")}>属性</button></div>
+            <div>
+              {#each monsterAttributes as key}
+                <label>
+                  <input type="checkbox" value={key} bind:group={searchCondition.monsterAttributes} />
+                  <div style="display: inline-block;" class="monster_attr {key}"></div>
+                  {monsterAttributeDic[key]}
+                </label>
+              {/each}
+            </div>
+          </div>
+          <div class="deck_editor_search_box_row" transition:slide={{ delay: 0, duration: 100 }}>
+            <div><button class="search_condition_title black_button" on:click={() => onResetSeachCondition("monsterTypes")}>種族</button></div>
+            <div>
+              {#each monsterTypes as key}
+                <label on:dblclick={(ev) => ondblclick(ev, "monsterTypes", key)}>
+                  <input type="checkbox" value={key} bind:group={searchCondition.monsterTypes} />
+                  {monsterTypeEmojiDic[key]}
+                  {monsterTypeDic[key]}
+                </label>
+              {/each}
+            </div>
+          </div>
+        {/if}
+        {#if searchCondition.cardKinds.includes("Spell")}
+          <div class="deck_editor_search_box_row" transition:slide={{ delay: 0, duration: 100 }}>
+            <div><button class="search_condition_title black_button" on:click={() => onResetSeachCondition("spellCategories")}>魔法</button></div>
+            <div>
+              {#each spellCategories as key}
+                <label>
+                  <input type="checkbox" value={key} bind:group={searchCondition.spellCategories} />
+                  {spellCategoryDic[key]}
+                </label>
+              {/each}
+            </div>
+          </div>
+        {/if}
+        {#if searchCondition.cardKinds.includes("Trap")}
+          <div class="deck_editor_search_box_row" transition:slide={{ delay: 0, duration: 100 }}>
+            <div><button class="search_condition_title black_button" on:click={() => onResetSeachCondition("trapCategories")}>罠</button></div>
+            <div>
+              {#each trapCategories as key}
+                <label>
+                  <input type="checkbox" value={key} bind:group={searchCondition.trapCategories} />
+                  {trapCategoryDic[key]}
+                </label>
+              {/each}
+            </div>
+          </div>
+        {/if}
+        <div class="deck_editor_search_box_row" transition:slide={{ delay: 0, duration: 100 }}>
+          <div><button class="search_condition_title black_button" on:click={() => onResetSeachCondition("others")}>その他</button></div>
           <div>
-            {#each monsterCategories as key}
+            {#each [{ key: "test", text: "テスト用カードを表示する" }] as item}
               <label>
-                <input type="checkbox" value={key} bind:group={seachCondition.monsterCategories} />
-                {monsterCategoryEmojiDic[key]}{monsterCategoryDic[key]}
+                <input type="checkbox" value={item.key} bind:group={searchCondition.others} />
+                {item.text}
               </label>
             {/each}
-          </div>
-        </div>
-        <div class="deck_editor_search_box_row">
-          <div><button class="search_condition_title black_button" on:click={() => onResetSeachCondition("monsterAttributes")}>属性</button></div>
-          <div>
-            {#each monsterAttributes as key}
-              <label>
-                <input type="checkbox" value={key} bind:group={seachCondition.monsterAttributes} />
-                <div style="display: inline-block;" class="monster_attr {key}"></div>
-                {monsterAttributeDic[key]}
-              </label>
-            {/each}
-          </div>
-        </div>
-        <div class="deck_editor_search_box_row">
-          <div><button class="search_condition_title black_button" on:click={() => onResetSeachCondition("monsterTypes")}>種族</button></div>
-          <div>
-            {#each monsterTypes as key}
-              <label>
-                <input type="checkbox" value={key} bind:group={seachCondition.monsterTypes} />
-                {monsterTypeEmojiDic[key]}
-                {monsterTypeDic[key]}
-              </label>
-            {/each}
-          </div>
-        </div>
-        <div class="deck_editor_search_box_row">
-          <div><button class="search_condition_title black_button" on:click={() => onResetSeachCondition("spellCategories")}>魔法</button></div>
-          <div>
-            {#each spellCategories as key}
-              <label>
-                <input type="checkbox" value={key} bind:group={seachCondition.spellCategories} />
-                {spellCategoryDic[key]}
-              </label>
-            {/each}
-          </div>
-        </div>
-        <div class="deck_editor_search_box_row">
-          <div><button class="search_condition_title black_button" on:click={() => onResetSeachCondition("trapCategories")}>罠</button></div>
-          <div>
-            {#each trapCategories as key}
-              <label>
-                <input type="checkbox" value={key} bind:group={seachCondition.trapCategories} />
-                {trapCategoryDic[key]}
-              </label>
-            {/each}
-          </div>
-        </div>
-        <div class="deck_editor_search_box_row">
-          <div>テスト用</div>
-          <div>
-            <label>
-              <input type="checkbox" bind:checked={seachCondition.isForTest} />
-              テスト用カードを表示する
-            </label>
           </div>
         </div>
       </div>
       <DeckEditiorCardDetail {cardInfo} />
     </div>
     <div class="deck_editor_body_center">
-      <DeckEditorCardList mode="List" allCardInfos={getCardList()} {onAttention} bind:deckCardInfos={tmpDeck.cardInfos} />
+      <DeckEditorCardList mode="List" allCardInfos={Object.values(cardInfoDic)} {onAttention} {searchCondition} bind:deckCardInfos={tmpDeck.cardInfos} />
     </div>
     <div class="deck_editor_body_right">
       {#await deckInfosPromise}
@@ -431,6 +425,7 @@
     border-radius: 0.5rem;
     padding: 0.2rem;
     margin: 0.4rem;
+    transition: 0.1s;
   }
   .deck_editor_search_box_row > div:first-child {
     margin: auto 0rem;
@@ -456,6 +451,7 @@
   .deck_editor_body_right_header_row {
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
     margin: 0.2rem;
   }
   .deck_editor_body_right_header_row > div {
@@ -477,6 +473,7 @@
     border-radius: 3px;
     transition: 0.4s;
     margin: 0.1rem 0.3rem;
+    text-wrap-mode: nowrap;
     line-height: 1.3;
   }
 

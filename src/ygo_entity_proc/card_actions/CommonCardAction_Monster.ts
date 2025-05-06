@@ -154,7 +154,7 @@ export const defaultRuleSummonPrepare = async (
   posList: Readonly<TBattlePosition[]>,
   cells?: DuelFieldCell[]
 ): Promise<ChainBlockInfoPrepared<unknown> | undefined> => {
-  let _cells = cells;
+  let _cells = myInfo.dest ? [myInfo.dest] : cells;
 
   if (!_cells) {
     // セルを取得
@@ -217,7 +217,7 @@ export const defaultRuleSpecialSummonValidate = <T>(
     return;
   }
 
-  return materials.length === 0 ? cells : [];
+  return materials.length === 0 ? summmonList.flatMap((item) => item.cells) : [];
 };
 
 export const defaultRuleSpecialSummonPrepare = async (

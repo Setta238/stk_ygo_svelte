@@ -173,7 +173,6 @@
       if (canAcceptDrop && draggingDummyActionInfos) {
         if (draggingDummyActionInfos.length === 1) {
           const info = draggingDummyActionInfos[0];
-          console.log(responseResolve, { actionInfo: { ...info, dest: cell } });
           responseResolve({ actionInfo: { ...info, dest: cell } });
         } else if (draggingDummyActionInfos.length > 1) {
           if (!activator) {

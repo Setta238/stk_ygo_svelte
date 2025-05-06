@@ -1,4 +1,4 @@
-import { defaultAttackAction, defaultSummonFilter } from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
+import { defaultAttackAction } from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
@@ -42,7 +42,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
 
           return choices.length ? [] : undefined;
         },
-        prepare: async (myInfo) => {
+        prepare: async (myInfo, chainBlockInfos, cancelable) => {
           const categories = [...myInfo.activator.getGraveyard().cardEntities, ...myInfo.activator.getMonstersOnField()]
             .flatMap((monster) => monster.status.monsterCategories ?? [])
             .getDistinct();
@@ -59,14 +59,15 @@ export default function* generate(): Generator<EntityProcDefinition> {
           if (choices.length < 1) {
             return;
           }
-          const selectedEntities =
-            (await myInfo.action.entity.duel.view.waitSelectEntities(
-              myInfo.activator,
-              { selectables: choices, qty: undefined, validator: (selected) => selected.length > 0 && selected.length <= maxQty, cancelable: false },
-              "手札に戻すカードを選択。"
-            )) ?? [];
+          const selectedEntities = await myInfo.activator.waitSelectEntities(
+            choices,
+            undefined,
+            (selected) => selected.length > 0 && selected.length <= maxQty,
+            "手札に戻すカードを選択。",
+            cancelable
+          );
 
-          if (!selectedEntities.length) {
+          if (!selectedEntities) {
             return;
           }
           return { selectedEntities, chainBlockTags: [], prepared: undefined };

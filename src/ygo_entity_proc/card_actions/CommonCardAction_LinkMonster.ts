@@ -154,22 +154,20 @@ const defaultLinkSummonPayCost = async (
 
   if (patterns.length > 1) {
     const choices = patterns.flatMap((p) => p.map((info) => info.material)).getDistinct();
-    const _materials = await myInfo.action.entity.duel.view.waitSelectEntities(
-      myInfo.activator,
-      {
-        selectables: choices,
-        qty: undefined,
-        validator: (selected) => {
-          //
-          const materialSeqList = selected.map((monster) => monster.seq).sort();
-          return entiteisPatterns.some(
-            (item) => materialSeqList.length === item.materialSeqList.length && materialSeqList.every((seq, index) => seq === item.materialSeqList[index])
-          );
-        },
-        cancelable,
+    const _materials = await myInfo.activator.waitSelectEntities(
+      choices,
+      undefined,
+      (selected) => {
+        //
+        const materialSeqList = selected.map((monster) => monster.seq).sort();
+        return entiteisPatterns.some(
+          (item) => materialSeqList.length === item.materialSeqList.length && materialSeqList.every((seq, index) => seq === item.materialSeqList[index])
+        );
       },
-      "リンク素材とするモンスターを選択"
+      "リンク素材とするモンスターを選択",
+      cancelable
     );
+    console.log(_materials);
     //墓地へ送らなければキャンセル。
     if (!_materials) {
       return;

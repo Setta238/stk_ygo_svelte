@@ -254,7 +254,12 @@ export class DuelViewController {
 
     const response = await this._waitDuelistAction(chooser, [], "Modal", message, entitiesChoices, cellsChoices, entitiesChoices.cancelable);
 
-    return [...(response.selectedEntities ?? []), ...(response.selectedCells ?? []).flatMap((cell) => cell.entities).filter((e) => e.entityType === "Duelist")];
+    const result = [
+      ...(response.selectedEntities ?? []),
+      ...(response.selectedCells ?? []).flatMap((cell) => cell.entities).filter((e) => e.entityType === "Duelist"),
+    ];
+
+    return result.length ? result : [];
   };
 
   public readonly waitSelectText = async <C extends { seq: number; text: string }>(

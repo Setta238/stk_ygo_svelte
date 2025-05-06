@@ -337,7 +337,6 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
   public readonly validateCount = (activator: Duelist, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>): boolean => {
     // このチェーン上で、同一の効果が発動している回数をカウント。
     const currentChainCount = chainBlockInfos.filter((info) => this.isSameGroup(info.action)).length;
-
     if (this.isOnlyNTimesPerDuel > 0) {
       if (
         this.entity.field.duel.chainBlockLog.records
@@ -437,9 +436,6 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
     ignoreCosts: boolean
   ) => {
     let _cancelable = cancelable;
-    if (this.isLikeContinuousSpell) {
-      this.entity.info.isPending = true;
-    }
     const chainNumber = this.isWithChainBlock ? max(0, ...chainBlockInfos.map((info) => info.chainNumber ?? -1)) + 1 : undefined;
 
     let logText = "";
@@ -500,6 +496,10 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
 
         activator.writeInfoLog(logText);
 
+        _cancelable = false;
+        if (this.playType === "CardActivation") {
+          this.entity.info.isPending = true;
+        }
         if (this.entity.status.monsterCategories?.includes("Pendulum")) {
           await this.entity.activateAsPendulumScale(dest, ["CardActivation"], this.entity, activator);
         } else if (this.playType === "CardActivation") {
@@ -507,15 +507,17 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
         } else {
           await this.entity.setAsSpellTrap(dest, this.entity.kind, ["SpellTrapSet"], this.entity, activator);
         }
-        _cancelable = false;
       } else if (this.entity.isOnField && this.entity.face === "FaceDown") {
         logText += `セットされていた${this.entity.toString()}を発動。`;
 
         activator.writeInfoLog(logText);
+        _cancelable = false;
+        if (this.playType === "CardActivation") {
+          this.entity.info.isPending = true;
+        }
 
         // セット状態からの発動ならば、表にする。
         await this.entity.setNonFieldMonsterPosition(this.entity.origin.kind, "FaceUp", ["Rule"]);
-        _cancelable = false;
       }
     } else if (chainNumber !== undefined) {
       logText += `${this.toString()}を発動。`;
@@ -564,7 +566,8 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
   };
 
   public readonly execute = async (myInfo: ChainBlockInfo<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => {
-    if (myInfo.action.isLikeContinuousSpell && !myInfo.action.entity.isOnField) {
+    if (myInfo.action.isLikeContinuousSpell && (myInfo.action.entity.face === "FaceDown" || !myInfo.action.entity.isOnField)) {
+      // 永続魔法類は、フィールドに表側表示で存在しないと処理できない。
       this.entity.info.isPending = false;
       return false;
     }

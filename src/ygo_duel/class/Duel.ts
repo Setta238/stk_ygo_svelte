@@ -800,7 +800,6 @@ export class Duel {
     if (chainBlock) {
       const activator = chainBlock.activator;
 
-      console.log(chainBlock.dest);
       // コスト処理
       const chainBlockInfo = await chainBlock.action.prepare(
         activator,

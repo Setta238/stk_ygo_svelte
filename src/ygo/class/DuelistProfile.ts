@@ -73,9 +73,8 @@ export class DuelistProfile implements IDuelistProfile {
     this.previousNpcDeckId = header.previousNpcDeckId;
   }
 
-  public save = async (newInfo?: IDuelistHeaderRecord): Promise<DuelistProfile> => {
-    console.log(this.previousNpcDeckId, Number.MIN_SAFE_INTEGER);
-    const _newInfo = newInfo ?? {
+  public save = async (newInfo?: Partial<IDuelistHeaderRecord>): Promise<DuelistProfile> => {
+    const _newInfo = {
       id: this.id,
       name: this.name,
       description: this.description,
@@ -83,9 +82,9 @@ export class DuelistProfile implements IDuelistProfile {
       previousNpcId: this.previousNpcId,
       previousStartMode: this.previousStartMode,
       previousNpcDeckId: this.previousNpcDeckId > -1 ? this.previousNpcDeckId : Number.MIN_SAFE_INTEGER,
+      ...newInfo,
     };
 
-    console.log(this.previousNpcDeckId, Number.MIN_SAFE_INTEGER, _newInfo);
     //ヘッダ情報更新
     const newRecord = await DuelistProfile.tblHeader.update(this.id, (info) => {
       return {

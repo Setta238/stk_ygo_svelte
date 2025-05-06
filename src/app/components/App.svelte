@@ -24,7 +24,10 @@
   let gameMode: TGameMode = "Preset";
   let dspMode: "Duel" | "DeckEdit" | "None" = "None";
   let selectedDeckId = 0;
-  const userProfilePromise = DuelistProfile.getOrCreateNew(idb);
+  const userProfilePromise = DuelistProfile.getOrCreateNew(idb).then((profile) => {
+    gameMode = profile.previousGameMode ?? "Preset";
+    return profile;
+  });
 
   const setDeckId = (deckInfos: DeckInfo[]) => {
     const selectedDeck =
@@ -65,7 +68,7 @@
 
   const saveUserProfile = async () => {
     const userProfile = await userProfilePromise;
-    userProfile.save();
+    userProfile.save({ previousGameMode: gameMode });
   };
   const reloadDeckInfos = () => {
     userDecksPromise = DeckInfo.getAllDeckInfo(idb).then((deckInfos) => {

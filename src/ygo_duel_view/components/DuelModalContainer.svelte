@@ -10,7 +10,7 @@
   };
 
   const close = () => {
-    modalController.modals.forEach((modal) => modal.cancel());
+    modalController.modals.filter((modal) => modal.args.cancelable).forEach((modal) => modal.cancel());
   };
 
   modalController?.onUpdate?.append(onModalControllerUpdate);
@@ -53,5 +53,6 @@
     background-color: gray;
     opacity: 0.5;
     border-radius: 0%;
+    pointer-events: initial;
   }
 </style>

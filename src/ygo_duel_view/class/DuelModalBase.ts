@@ -42,6 +42,10 @@ export class DuelModalBase<A extends ModalArgsBase, R> {
     return promise;
   };
   public readonly cancel = () => {
+    console.log(this);
+    if (!this.args.cancelable) {
+      return;
+    }
     if (this._state !== "Disable") {
       this.resolve(undefined);
     }

@@ -12,6 +12,8 @@
   import type { TDuelPhase } from "@ygo_duel/class/DuelPeriod";
   import type { Duelist } from "@ygo_duel/class/Duelist";
   import type { ChoicesSweet } from "@ygo_duel/class/DuelUtilTypes";
+  import { Tween, tweened } from "svelte/motion";
+  import { cubicOut } from "svelte/easing";
   export let view: DuelViewController;
 
   export let row: number;
@@ -20,10 +22,21 @@
 
   export let selectedEntities = [] as DuelEntity[];
   export let selectedCells = [] as FieldCell[];
+
   let cell = view.getCell(row, column);
+  let aboveLp = new Tween(cell.field.duel.duelists.Above.lp, {
+    duration: 400,
+    easing: cubicOut,
+  });
+  let belowLp = new Tween(cell.field.duel.duelists.Below.lp, {
+    duration: 400,
+    easing: cubicOut,
+  });
 
   const onCellUpdate = () => {
     cell = view.getCell(row, column);
+    aboveLp.target = cell.field.duel.duelists.Above.lp;
+    belowLp.target = cell.field.duel.duelists.Below.lp;
   };
 
   cell.onUpdate.append(onCellUpdate);
@@ -51,7 +64,6 @@
     canDirectResoleve = isSelectable && args.cellsChoices?.qty === 1;
   };
   view.onWaitStart.append(onWaitStart);
-
   const onWaitEnd = () => {
     activator = undefined;
     dummyActionInfos = [];
@@ -252,8 +264,8 @@
           <div class="phase_display"><span>{String(cell.field.duel.clock.turn).padStart(2, "0")}</span>{cell.field.duel.phase.toUpperCase()}</div>
         {:else if cell.column === 3}
           <div class="lifepoint_display">
-            <div>{cell.field.duel.duelists.Above.lp}</div>
-            <div>{cell.field.duel.duelists.Below.lp}</div>
+            <div>{Math.floor(aboveLp.current)}</div>
+            <div>{Math.floor(belowLp.current)}</div>
           </div>
         {:else if cell.column === 5}
           {#if view.waitMode === "Free"}

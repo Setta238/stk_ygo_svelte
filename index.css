@@ -35,18 +35,6 @@
     font-size: 1rem;
   }
 }
-.screen_info:before {
-  content: '横幅：' counter(screen-width-px) 'px';
-}
-
-.screen_info:after {
-  content: '高さ：' counter(screen-height-px) 'px';
-}
-
-.screen_info:before,
-.screen_info:after {
-  counter-reset: screen-height-px var(--screen-height-px) screen-width-px var(--screen-width-px);
-}
 main * {
   max-height: 100%;
   box-sizing: border-box;

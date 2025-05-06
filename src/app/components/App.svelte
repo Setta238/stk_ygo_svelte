@@ -15,11 +15,10 @@
   import { getKeys } from "@stk_utils/funcs/StkObjectUtils";
   import { fade, slide } from "svelte/transition";
   import { userAgentInfo } from "@stk_utils/class/StkUserAgentInfo";
-  import type { ChangeEvent } from "rollup";
-  import type { ChangeEventHandler } from "svelte/elements";
-
   const idb = new StkIndexedDB<TTblNames>("stk_ygo_svelte", currentVersion, tblNames);
 
+  let innerWidth = 0;
+  let innerHeight = 0;
   let duel: Duel | undefined;
   let gameMode: TGameMode = "Preset";
   let dspMode: "Duel" | "DeckEdit" | "None" = "None";
@@ -152,6 +151,7 @@
   prepareSampleDeck();
 </script>
 
+<svelte:window bind:innerWidth bind:innerHeight />
 <main>
   <div class="link link_left">
     <a href="https://github.com/Setta238/stk_ygo_svelte" target="_blank" rel="noopener noreferrer" title="repository">repository</a>
@@ -306,7 +306,7 @@
   <div class="debug_info">
     <span>build at: {timestampJson.timestamp}</span>
     <span class="user_agent_info">{userAgentInfo.text}</span>
-    <span class="screen_info"></span>
+    <span class="screen_info">w:{innerWidth}px h:{innerHeight}px</span>
   </div>
   {#if duel && duel.isEnded}
     <div class="result" transition:fade={{ delay: 200, duration: 200 }}>

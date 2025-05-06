@@ -45,9 +45,10 @@
   };
   log.onUpdate.append(onlogUpdate);
   log.duel.view.onDuelUpdate.append(onlogUpdate);
+  onlogUpdate();
 </script>
 
-{#if log.duel.view.infoBoardState === "Log"}
+{#if log.duel.view.infoBoardState === "Log" || log.duel.view.infoBoardState === "Default"}
   <div class="duel_log">
     <div class="duel_log_header"></div>
     <div class="duel_log_body" bind:this={duelLogBodyRef}>

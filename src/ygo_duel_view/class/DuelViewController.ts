@@ -47,7 +47,7 @@ export type AnimationStartEventArg = {
   resolve: () => void;
   count: number;
 };
-export type TDuelDeskInfoBoardState = "Log" | "CellInfo";
+export type TDuelDeskInfoBoardState = "Default" | "Log" | "CellInfo";
 
 export class DuelViewController {
   private onDuelUpdateEvent = new StkEvent<void>();
@@ -95,7 +95,7 @@ export class DuelViewController {
     this.duel = duel;
     this._message = "";
     this.waitMode = "None";
-    this.infoBoardState = "Log";
+    this.infoBoardState = "Default";
     this.infoBoardCell = duel.duelists.Below.getExtraDeck();
     this.modalController = new DuelModalController(this);
   }
@@ -177,7 +177,7 @@ export class DuelViewController {
       return;
     }
 
-    this.infoBoardState = "Log";
+    this.infoBoardState = "Default";
 
     const origin = validatedActionInfos.find((info) => actionInfo.originSeq === info.originSeq);
     if (!origin) {
@@ -480,7 +480,8 @@ export class DuelViewController {
     this.waitMode = waitMode;
     this._message = message;
 
-    while (this.onDuelUpdateEvent.length < 40) {
+    // TODO セルの初期化が終わっていないことがあるので待機が必要だが、判定方法が正しくない。
+    while (this.onDuelUpdateEvent.length < 38) {
       await delay(1);
     }
     this.onDuelUpdateEvent.trigger();
@@ -498,6 +499,8 @@ export class DuelViewController {
       cellsChoices,
     };
 
+    console.info("wait start", args);
+
     // 待機開始を通知
     this.onWaitStartEvent.trigger(args);
     // 待機開始
@@ -514,7 +517,7 @@ export class DuelViewController {
     if (!cancelable && userAction.cancel) {
       throw new SystemError("キャンセル不可のアクションがキャンセルされた。", userAction, dummyActionInfos, waitMode, entitiesChoices, cellsChoices);
     }
-    this.infoBoardState = "Log";
+    this.infoBoardState = "Default";
 
     return userAction;
   };

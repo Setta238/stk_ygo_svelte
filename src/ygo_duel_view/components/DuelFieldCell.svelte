@@ -117,7 +117,7 @@
   };
 
   const onCellClick = () => {
-    cell.field.duel.view.infoBoardState = "Log";
+    cell.field.duel.view.infoBoardState = "Default";
     if (canDirectResoleve) {
       responseResolve({ selectedCells: [cell] });
     } else if (isSelectable) {

@@ -1,5 +1,5 @@
 <script lang="ts" module>
-  import { crossfade } from "svelte/transition";
+  import { crossfade, slide } from "svelte/transition";
 
   export const cardCrossFade = crossfade({
     duration: 400,
@@ -22,6 +22,9 @@
   import type { ChoicesSweet } from "@ygo_duel/class/DuelUtilTypes";
 
   export let duel: Duel;
+
+  let innerWidth = 0;
+  let innerHeight = 0;
   let selectedEntities = [] as DuelEntity[];
   let selectedCells = [] as FieldCell[];
 
@@ -125,19 +128,26 @@
   duel.main();
 </script>
 
-<!-- <div><button on:click={() => {
-    duel.field.pushDeck(duel.duelists.Below);
-  }}>hoge</button></div>-->
-<div class="flex duel_desk">
-  <div class="duel_desk_left v_flex">
-    <DuelDuelist duelist={duel.duelists.Above}></DuelDuelist>
-    <DuelCardDetail entity={focusedCard} mode={focusedCardMode}></DuelCardDetail>
-    <DuelDuelist duelist={duel.duelists.Below}></DuelDuelist>
-  </div>
+<svelte:window bind:innerWidth bind:innerHeight />
+<div class="flex duel_desk {innerWidth <= 1400 ? 'compact_mode' : ''}">
+  {#if innerWidth > 1400}
+    <div class="duel_desk_left v_flex">
+      <DuelDuelist duelist={duel.duelists.Above}></DuelDuelist>
+      <DuelCardDetail entity={focusedCard} mode={focusedCardMode}></DuelCardDetail>
+      <DuelDuelist duelist={duel.duelists.Below}></DuelDuelist>
+    </div>
+  {/if}
   <div class=" duel_desk_center v_flex">
     <div class="duel_field_header">
       {#if !duel.isEnded}
-        <div class="duel_field_header_message">{`[TURN:${duel.clock.turn}][PHASE:${duel.phase}] ${duel.view.message}`}</div>
+        <button
+          class="duel_field_header_message"
+          on:click={() => {
+            duel.view.infoBoardState = "Log";
+          }}
+        >
+          {`[TURN:${duel.clock.turn}][PHASE:${duel.phase}] ${duel.view.message}`}
+        </button>
         <div class="duel_field_header_buttons">
           <!--        <button on:click={onRetryButtonClick}>リトライ</button>-->
           <button on:click={onSurrenderButtonClick}>サレンダー</button>
@@ -172,10 +182,16 @@
       {/if}
     </div>
   </div>
-  <div class=" duel_desk_right" style="text-align: left;">
-    <DuelLog log={duel.log} />
-    <DuelFieldCellInfo cell={duel.view.infoBoardCell} />
-  </div>
+  {#if innerWidth > 1400 || duel.view.infoBoardState !== "Default"}
+    <div
+      class="duel_desk_right duel_desk_right_{duel.view.infoBoardState.toLowerCase()} "
+      style="text-align: left;"
+      transition:slide={{ duration: innerWidth > 1400 ? 0 : 200, axis: "x" }}
+    >
+      <DuelLog log={duel.log} />
+      <DuelFieldCellInfo cell={duel.view.infoBoardCell} />
+    </div>
+  {/if}
 </div>
 <div style="position:absolute;left:0;bottom:0">{duel.clock.toString()}</div>
 
@@ -193,17 +209,32 @@
     margin: 0px;
     justify-content: space-between;
     max-height: 90%;
+    position: relative;
   }
   .duel_desk * {
     margin: 0px;
     padding: 0px;
     font-size: 0.7rem;
   }
-  @media screen and (max-width: 1400px) {
-    .duel_desk_left,
-    .duel_desk_right {
-      display: none;
-    }
+  .duel_desk_right {
+    background: linear-gradient(27deg, snow 2px, transparent 4px), linear-gradient(beige 25%, transparent 50%, blueviolet 75%, indigo);
+    background-color: whitesmoke;
+    background-size: 0.3rem 0.3rem;
+    border-radius: 0.5rem;
+  }
+
+  .compact_mode .duel_desk_left,
+  .compact_mode .duel_desk_right_default {
+    display: none;
+  }
+  .compact_mode .duel_desk_right {
+    display: inherit;
+    transform: 0.5s;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+    opacity: 0.9;
   }
   .duel_desk_left {
     height: auto;
@@ -216,6 +247,8 @@
     width: 100%;
   }
   .duel_field_header_message {
+    display: inline;
+    border: none;
     font-size: 1.4rem;
   }
   .duel_field_header_buttons {

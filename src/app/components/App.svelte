@@ -270,7 +270,8 @@
                       </select>
                     </div></td
                   >
-                </tr>{/if}
+                </tr>
+              {/if}
               <tr>
                 <td colspan="2">
                   <div transition:slide={{ duration: 200 }}>
@@ -279,13 +280,15 @@
                 </td>
               </tr>
             {/await}
-            <tr>
-              <td colspan="2">
-                <div transition:slide={{ duration: 200 }}>
-                  <button class="btn" on:click={onEditClick}>deck edit</button>
-                </div>
-              </td>
-            </tr>
+            {#if gameMode === "Free"}
+              <tr transition:slide={{ duration: 200 }}>
+                <td colspan="2" transition:slide={{ duration: 200 }}>
+                  <div transition:slide={{ duration: 200 }}>
+                    <button class="btn" on:click={onEditClick}>deck edit</button>
+                  </div>
+                </td>
+              </tr>
+            {/if}
           {/await}
         </tbody>
       </table>

@@ -340,7 +340,7 @@ export class DuelViewController {
         if (!dest) {
           return;
         }
-        return { dest, battlePosition: posList[0] };
+        return { ...result, dest };
       }
 
       const dummyActionInfos = _posList.map((pos) => EntityAction.createDummyAction(entity, pos, availableCells, pos));

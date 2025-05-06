@@ -24,9 +24,11 @@
   let gameMode: TGameMode = "Preset";
   let dspMode: "Duel" | "DeckEdit" | "None" = "None";
   let selectedDeckId = 0;
-  const userProfilePromise = DuelistProfile.getOrCreateNew(idb).then((profile) => {
-    gameMode = profile.previousGameMode ?? "Preset";
-    return profile;
+  let npcDescription = "";
+  const userProfilePromise = DuelistProfile.getOrCreateNew(idb).then((userProfile) => {
+    gameMode = userProfile.previousGameMode ?? "Preset";
+    npcDescription = nonPlayerCharacters.find((npc) => npc.id === userProfile.previousNpcId)?.description ?? "";
+    return userProfile;
   });
 
   const setDeckId = (deckInfos: DeckInfo[]) => {
@@ -140,6 +142,13 @@
     gameMode = mode;
     reloadDeckInfos();
   };
+  const onNpcIdChange = (
+    ev: Event & {
+      currentTarget: EventTarget & HTMLSelectElement;
+    }
+  ) => {
+    npcDescription = nonPlayerCharacters.find((npc) => npc.id === Number(ev.currentTarget.value))?.description ?? "";
+  };
   prepareSampleDeck();
 </script>
 
@@ -229,12 +238,12 @@
                   </td>
                   <td transition:slide={{ duration: 200 }}>
                     <div transition:slide={{ duration: 200 }}>
-                      <select id="npc_selector" class="npc_selector" bind:value={userProfile.previousNpcId}>
+                      <select id="npc_selector" class="npc_selector" on:change={onNpcIdChange} bind:value={userProfile.previousNpcId}>
                         {#each nonPlayerCharacters as npc}
                           <option value={npc.id}>{npc.name}</option>
                         {/each}
                       </select>
-                      <div>※{nonPlayerCharacters.find((npc) => npc.id === userProfile.previousNpcId)?.description}</div>
+                      <div>※{npcDescription}</div>
                     </div>
                   </td>
                 </tr>

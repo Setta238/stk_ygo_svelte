@@ -79,7 +79,7 @@ export class DuelistProfile implements IDuelistProfile {
       name: this.name,
       description: this.description,
       previousGameMode: this.previousGameMode ?? "Preset",
-      previousNpcId: this.previousNpcId,
+      previousNpcId: this.previousNpcId ?? Number.MIN_SAFE_INTEGER,
       previousStartMode: this.previousStartMode,
       previousNpcDeckId: this.previousNpcDeckId > -1 ? this.previousNpcDeckId : Number.MIN_SAFE_INTEGER,
       ...newInfo,

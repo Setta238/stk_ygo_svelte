@@ -6,6 +6,7 @@ import {
 } from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
+import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
@@ -39,7 +40,21 @@ export default function* generate(): Generator<EntityProcDefinition> {
       if (!monster.info.summonKinds.includes("SyncroSummon")) {
         return;
       }
-      monster.info.willBeBanished = true;
+
+      myInfo.action.entity.statusOperatorBundle.push(
+        new StatusOperator(
+          "除外予定",
+          () => true,
+          false,
+          myInfo.action.entity,
+          myInfo.action,
+          (ope, target) => target.isOnFieldAsMonsterStrictly && target.face === "FaceUp",
+          (ope, wip) => {
+            return { ...wip, willBeBanished: true };
+          }
+        )
+      );
+
       monster.info.isEffectiveIn = monster.info.isEffectiveIn
         .filter((cellType) => cellType !== "ExtraMonsterZone")
         .filter((cellType) => cellType !== "MonsterZone");

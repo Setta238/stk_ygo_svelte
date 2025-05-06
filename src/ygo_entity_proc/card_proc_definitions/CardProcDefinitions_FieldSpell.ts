@@ -68,7 +68,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
         "①ダメージ無効",
         "Spell",
         (source) => [source.controller, source.controller.getOpponentPlayer()].map((duelist) => duelist.entity),
-        () => true,
         (source) => [
           new DamageFilter(
             "①ダメージ無効",

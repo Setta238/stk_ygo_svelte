@@ -45,39 +45,34 @@ export default function* generate(): Generator<EntityProcDefinition> {
       name: item.name,
       actions: [defaultContinuousSpellCardActivateAction, defaultSpellTrapSetAction],
       continuousEffects: [
-        createBroadRegularNumericStateOperatorHandler(
-          "発動",
-          "Spell",
-          (source) => source.isOnFieldStrictly && source.face === "FaceUp",
-          (source) => {
-            return (["attack", "defense"] as TEntityFlexibleNumericStatusKey[]).flatMap((state) => {
-              return (["up", "down"] as const).map((updown) => {
-                return NumericStateOperator.createContinuous(
-                  "発動",
-                  (operator) => operator.isSpawnedBy.isOnFieldStrictly && operator.isSpawnedBy.face === "FaceUp",
-                  source,
-                  (operator, monster) =>
-                    monster.isOnFieldStrictly &&
-                    monster.face === "FaceUp" &&
-                    (monster.status.monsterCategories ?? false) &&
-                    item[updown].union(monster.types).length > 0,
-                  state,
-                  "wip",
-                  "Addition",
-                  (spawner, monster, current) => {
-                    if (!spawner.isEffective) {
-                      return current;
-                    }
-                    if (monster.face === "FaceDown") {
-                      return current;
-                    }
-                    return current + (updown === "up" ? 200 : -200);
+        createBroadRegularNumericStateOperatorHandler("発動", "Spell", (source) => {
+          return (["attack", "defense"] as TEntityFlexibleNumericStatusKey[]).flatMap((state) => {
+            return (["up", "down"] as const).map((updown) => {
+              return NumericStateOperator.createContinuous(
+                "発動",
+                (operator) => operator.isSpawnedBy.isOnFieldStrictly && operator.isSpawnedBy.face === "FaceUp",
+                source,
+                (operator, monster) =>
+                  monster.isOnFieldStrictly &&
+                  monster.face === "FaceUp" &&
+                  (monster.status.monsterCategories ?? false) &&
+                  item[updown].union(monster.types).length > 0,
+                state,
+                "wip",
+                "Addition",
+                (spawner, monster, current) => {
+                  if (!spawner.isEffective) {
+                    return current;
                   }
-                );
-              });
+                  if (monster.face === "FaceDown") {
+                    return current;
+                  }
+                  return current + (updown === "up" ? 200 : -200);
+                }
+              );
             });
-          }
-        ) as ContinuousEffectBase<unknown>,
+          });
+        }) as ContinuousEffectBase<unknown>,
       ],
     };
   });
@@ -113,33 +108,28 @@ export default function* generate(): Generator<EntityProcDefinition> {
       name: item.name,
       actions: [defaultContinuousSpellCardActivateAction, defaultSpellTrapSetAction],
       continuousEffects: [
-        createBroadRegularNumericStateOperatorHandler(
-          "発動",
-          "Spell",
-          (source) => source.isOnFieldStrictly && source.face === "FaceUp",
-          (source) => {
-            return (["attack", "defense"] as TEntityFlexibleNumericStatusKey[]).flatMap((state) => {
-              return NumericStateOperator.createContinuous(
-                "発動",
-                (operator) => operator.isSpawnedBy.isOnFieldStrictly && operator.isSpawnedBy.face === "FaceUp",
-                source,
-                (operator, monster) => monster.isOnFieldStrictly && monster.face === "FaceUp" && monster.attr.includes(item.attr),
-                state,
-                "wip",
-                "Addition",
-                (spawner, monster, current) => {
-                  if (!spawner.isEffective) {
-                    return current;
-                  }
-                  if (monster.face === "FaceDown") {
-                    return current;
-                  }
-                  return current + (state === "attack" ? 500 : -400);
+        createBroadRegularNumericStateOperatorHandler("発動", "Spell", (source) => {
+          return (["attack", "defense"] as TEntityFlexibleNumericStatusKey[]).flatMap((state) => {
+            return NumericStateOperator.createContinuous(
+              "発動",
+              (operator) => operator.isSpawnedBy.isOnFieldStrictly && operator.isSpawnedBy.face === "FaceUp",
+              source,
+              (operator, monster) => monster.isOnFieldStrictly && monster.face === "FaceUp" && monster.attr.includes(item.attr),
+              state,
+              "wip",
+              "Addition",
+              (spawner, monster, current) => {
+                if (!spawner.isEffective) {
+                  return current;
                 }
-              );
-            });
-          }
-        ) as ContinuousEffectBase<unknown>,
+                if (monster.face === "FaceDown") {
+                  return current;
+                }
+                return current + (state === "attack" ? 500 : -400);
+              }
+            );
+          });
+        }) as ContinuousEffectBase<unknown>,
       ],
     };
   });

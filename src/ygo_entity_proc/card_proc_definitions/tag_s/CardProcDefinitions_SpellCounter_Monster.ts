@@ -26,7 +26,6 @@ const createSpellCounterCommonEffect = (kind: TCardKind, maxQty?: number) => {
     title,
     kind,
     (source) => [source],
-    () => true,
     (source) => {
       return [
         new StatusOperator(
@@ -217,7 +216,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
         "②攻撃力上昇",
         "Monster",
         (source) => [source],
-        () => true,
         (source) => {
           return [
             NumericStateOperator.createContinuous(

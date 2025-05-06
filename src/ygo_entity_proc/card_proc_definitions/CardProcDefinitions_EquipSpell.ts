@@ -33,7 +33,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
           item.name,
           "Spell",
           (source) => (source.info.equipedBy ? [source.info.equipedBy] : []),
-          (source) => source.isOnFieldStrictly && source.face === "FaceUp",
           (entity) => {
             return (["attack", "defense"] as TEntityFlexibleNumericStatusKey[]).map((targetState) =>
               NumericStateOperator.createContinuous(

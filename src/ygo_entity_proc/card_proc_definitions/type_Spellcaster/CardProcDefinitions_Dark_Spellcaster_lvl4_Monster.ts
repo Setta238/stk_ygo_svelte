@@ -153,7 +153,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
         "②リリース不可",
         "Monster",
         (source) => [source],
-        () => true,
         (source) => [
           new ProcFilter(
             "②リリース不可",

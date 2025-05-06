@@ -22,6 +22,7 @@ import { ProcFilter } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
 import { damageStepPeriodKeys, duelPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 import { defaultEffectSpecialSummonExecute, defaultCanPaySelfBanishCosts, defaultPaySelfBanishCosts } from "../card_actions/CommonCardAction";
+import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield* ["サイバー・ドラゴン", "六武衆のご隠居", "アンノウン・シンクロン"].map((name): EntityProcDefinition => {
@@ -154,8 +155,25 @@ export default function* generate(): Generator<EntityProcDefinition> {
           return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromGraveyard"], prepared: undefined };
         },
         execute: async (myInfo): Promise<boolean> => {
-          myInfo.action.entity.info.willBeBanished = await defaultSelfRebornExecute(myInfo);
-          return myInfo.action.entity.info.willBeBanished;
+          if (!(await defaultSelfRebornExecute(myInfo))) {
+            return false;
+          }
+
+          myInfo.action.entity.statusOperatorBundle.push(
+            new StatusOperator(
+              "除外予定",
+              () => true,
+              false,
+              myInfo.action.entity,
+              myInfo.action,
+              (ope, target) => target.isOnFieldAsMonsterStrictly && target.face === "FaceUp",
+              (ope, wip) => {
+                return { ...wip, willBeBanished: true };
+              }
+            )
+          );
+
+          return true;
         },
         settle: async () => true,
       } as CardActionDefinition<unknown>,
@@ -483,7 +501,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
           "①戦闘破壊耐性",
           "Monster",
           (source) => [source],
-          () => true,
           (source) => {
             return [
               new ProcFilter(

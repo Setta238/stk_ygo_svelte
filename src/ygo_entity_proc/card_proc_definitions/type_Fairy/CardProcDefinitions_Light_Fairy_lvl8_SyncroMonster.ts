@@ -47,7 +47,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
         "②攻撃力上昇",
         "Monster",
         (source) => [source],
-        () => true,
         (source) => {
           return [
             NumericStateOperator.createContinuous(

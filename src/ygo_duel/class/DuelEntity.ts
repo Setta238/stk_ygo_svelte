@@ -57,6 +57,8 @@ export type EntityStatus = {
   allowHandSyncro: boolean;
   allowHandLink: boolean;
   isEffective: boolean;
+  willBeBanished: boolean;
+  willReturnToDeck: TDuelEntityMovePos | undefined;
   /**
    * 貫通ダメージ倍化は貫通と倍化で分けて処理する。
    */
@@ -83,8 +85,6 @@ export type DuelEntityInfomation = {
   summonKinds: TSummonKindCauseReason[];
   materials: SummonMaterialInfo[];
   effectTargets: { [actionSeq: number]: DuelEntity[] };
-  willBeBanished: boolean;
-  willReturnToDeck: TDuelEntityMovePos | undefined;
   attackCount: number;
   battlePotisionChangeCount: number;
   equipedBy: DuelEntity | undefined;
@@ -239,14 +239,14 @@ export class DuelEntity {
       let _face = face;
       let _pos = pos;
       let _orientation = orientation;
-      if (entity.info.willBeBanished) {
+      if (entity.status.willBeBanished) {
         _to = entity.owner.getBanished();
         _face = "FaceUp";
         _orientation = "Vertical";
-      } else if (entity.info.willReturnToDeck) {
+      } else if (entity.status.willReturnToDeck) {
         _to = entity.isBelongTo;
         _face = "FaceDown";
-        _pos = entity.info.willReturnToDeck;
+        _pos = entity.status.willReturnToDeck;
         _orientation = "Vertical";
       } else if (entity.status.monsterCategories?.includes("Pendulum") && entity.isOnFieldStrictly && entity.face === "FaceUp" && to.isTrashCell) {
         _to = entity.owner.getExtraDeck();
@@ -542,8 +542,8 @@ export class DuelEntity {
     action: EntityAction<T>
   ): boolean => {
     return (
-      !this.info.willBeBanished &&
-      !this.info.willReturnToDeck &&
+      !this.status.willBeBanished &&
+      !this.status.willReturnToDeck &&
       this.procFilterBundle.effectiveOperators.filter((pf) => pf.procTypes.includes(causedAs)).every((pf) => pf.filter(activator, causedBy, action, [this]))
     );
   };
@@ -793,8 +793,6 @@ export class DuelEntity {
       summonKinds: [],
       materials: [],
       effectTargets: {},
-      willBeBanished: false,
-      willReturnToDeck: undefined,
       equipedBy: undefined,
       equipedAs: undefined,
       validateEquipOwner: () => true,
@@ -1080,8 +1078,6 @@ export class DuelEntity {
           // 数値ステータスをリセット
           // FIXME 情報リセットを一箇所に集約する
           this.resetNumericStatus();
-          this.info.willBeBanished = false;
-          this.info.willReturnToDeck = undefined;
           this.info.isEffectiveIn.push(...playFieldCellTypes);
         }
       }
@@ -1092,8 +1088,6 @@ export class DuelEntity {
         // FIXME 情報リセットを一箇所に集約する
         this.info.equipedBy = undefined;
         this.info.equipedAs = undefined;
-        this.info.willBeBanished = false;
-        this.info.willReturnToDeck = undefined;
         this.info.isEffectiveIn.push(...playFieldCellTypes);
       }
 
@@ -1129,10 +1123,6 @@ export class DuelEntity {
       // 無効化状態を解除
       this._status.isEffective = true;
       this.info.isEffectiveIn = [...duelFieldCellTypes];
-
-      // フィールドから離れたとき除外される系のリセット
-      this.info.willBeBanished = false;
-      this.info.willReturnToDeck = undefined;
 
       //ステータスをリセット
       this.resetNumericStatus();
@@ -1192,8 +1182,6 @@ export class DuelEntity {
       summonKinds: [],
       materials: [],
       effectTargets: {},
-      willBeBanished: false,
-      willReturnToDeck: undefined,
       attackCount: 0,
       battlePotisionChangeCount: 0,
       equipedBy: undefined,
@@ -1232,6 +1220,8 @@ export class DuelEntity {
       isSelectableForAttack: true,
       allowHandSyncro: false,
       allowHandLink: false,
+      willBeBanished: false,
+      willReturnToDeck: undefined,
       maxCounterQty: {},
       piercingTo: [],
     };

@@ -11,6 +11,8 @@ import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition"
 import { defaultContinuousSpellCardActivateAction } from "@ygo_entity_proc/card_actions/CommonCardAction_Spell";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
+import { createRegularStatusOperatorHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
+import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
@@ -94,5 +96,25 @@ export default function* generate(): Generator<EntityProcDefinition> {
       //それ以外は禁止
       return notAllowed;
     },
+    continuousEffects: [
+      createRegularStatusOperatorHandler(
+        "除外予定",
+        "Monster",
+        (source) => [source],
+        (source) => [
+          new StatusOperator(
+            "除外予定",
+            () => true,
+            true,
+            source,
+            {},
+            (ope, target) => target.isOnFieldAsMonsterStrictly && target.face === "FaceUp",
+            (ope, wip) => {
+              return { ...wip, willBeBanished: true };
+            }
+          ),
+        ]
+      ) as ContinuousEffectBase<unknown>,
+    ],
   };
 }

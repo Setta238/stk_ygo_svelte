@@ -653,7 +653,6 @@ export const defaultDirectAtackEffect = createRegularStatusOperatorHandler(
   "直接攻撃",
   "Monster",
   (source) => [source],
-  () => true,
   (source) => {
     return [
       new StatusOperator(

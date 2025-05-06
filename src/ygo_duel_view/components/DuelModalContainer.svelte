@@ -4,11 +4,21 @@
   import { DuelModalController } from "@ygo_duel_view/class/DuelModalController";
   import DuelTextSelector from "./DuelTextSelector.svelte";
   export let modalController: DuelModalController;
-
+  let isDragging = false;
   const onModalControllerUpdate = () => {
     modalController = modalController;
   };
 
+  const onDragStart = () => {
+    isDragging = true;
+    onModalControllerUpdate();
+  };
+  const onDragEnd = () => {
+    isDragging = false;
+    onModalControllerUpdate();
+  };
+  modalController.view.onDragStart.append(onDragStart);
+  modalController.view.onDragEnd.append(onDragEnd);
   const close = () => {
     modalController.modals.filter((modal) => modal.args.cancelable).forEach((modal) => modal.cancel());
   };
@@ -18,7 +28,7 @@
 
 <div class="base">
   {#if modalController.modals.some((modal) => modal.state === "Shown")}
-    <button class="overlay" onclick={close}>☆</button>
+    <button class="overlay {isDragging ? 'pointer_events_none' : ''}" onclick={close}>☆</button>
     {#if modalController.entitySelector.state === "Shown"}
       <DuelEntitiesSelector args={modalController.entitySelector.args} resolve={modalController.entitySelector.resolve} />
     {/if}
@@ -54,5 +64,8 @@
     opacity: 0.5;
     border-radius: 0%;
     pointer-events: initial;
+  }
+  .overlay.pointer_events_none {
+    pointer-events: none;
   }
 </style>

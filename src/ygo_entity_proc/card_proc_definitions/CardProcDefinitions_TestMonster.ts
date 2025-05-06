@@ -27,7 +27,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
         "THE_DEVILS_AVATAR",
         "Monster",
         (source: DuelEntity) => [source],
-        (source: DuelEntity) => source.isOnFieldStrictly && source.face === "FaceUp",
         (entity: DuelEntity) => {
           return (["attack", "defense"] as TEntityFlexibleNumericStatusKey[]).map((targetState) =>
             NumericStateOperator.createContinuous(
@@ -49,25 +48,20 @@ export default function* generate(): Generator<EntityProcDefinition> {
     name: "にせドレッド・ルート",
     actions: [defaultNormalSummonAction, defaultAttackAction, defaultBattlePotisionChangeAction, defaultFlipSummonAction] as CardActionDefinition<unknown>[],
     continuousEffects: [
-      createBroadRegularNumericStateOperatorHandler(
-        "THE_DEVILS_DREAD-ROOT",
-        "Monster",
-        (source: DuelEntity) => source.isOnFieldStrictly && source.face === "FaceUp",
-        (entity: DuelEntity) => {
-          return (["attack", "defense"] as TEntityFlexibleNumericStatusKey[]).map((targetState) =>
-            NumericStateOperator.createContinuous(
-              "THE_DEVILS_DREAD-ROOT",
-              (operator) => operator.isSpawnedBy.isOnFieldStrictly && operator.isSpawnedBy.face === "FaceUp",
-              entity,
-              (operator, target) => target.kind === "Monster" && target.isOnFieldStrictly && target.face === "FaceUp" && target !== operator.isSpawnedBy,
-              targetState,
-              "calculated",
-              "THE_DEVILS_DREAD-ROOT",
-              (spawner: DuelEntity, monster: DuelEntity, current: number) => Math.round(current / 2)
-            )
-          );
-        }
-      ),
+      createBroadRegularNumericStateOperatorHandler("THE_DEVILS_DREAD-ROOT", "Monster", (entity: DuelEntity) => {
+        return (["attack", "defense"] as TEntityFlexibleNumericStatusKey[]).map((targetState) =>
+          NumericStateOperator.createContinuous(
+            "THE_DEVILS_DREAD-ROOT",
+            (operator) => operator.isSpawnedBy.isOnFieldStrictly && operator.isSpawnedBy.face === "FaceUp",
+            entity,
+            (operator, target) => target.kind === "Monster" && target.isOnFieldStrictly && target.face === "FaceUp" && target !== operator.isSpawnedBy,
+            targetState,
+            "calculated",
+            "THE_DEVILS_DREAD-ROOT",
+            (spawner: DuelEntity, monster: DuelEntity, current: number) => Math.round(current / 2)
+          )
+        );
+      }),
     ] as ContinuousEffectBase<unknown>[],
   };
 }

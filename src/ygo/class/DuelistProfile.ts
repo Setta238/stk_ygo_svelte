@@ -3,7 +3,9 @@ import type { StkIndexedDB } from "@stk_utils/class/StkIndexedDB";
 import type { TTblNames } from "@app/components/App.svelte";
 import { duelStartModes, type TDuelStartMode } from "@ygo_duel/class/Duel";
 import { min } from "@stk_utils/funcs/StkMathUtils";
+export type TGameMode = "Preset" | "Free";
 export type DuelistHeaderRecord = IStkDataRecord & {
+  previousGameMode: TGameMode;
   previousNpcId: number;
   previousNpcDeckId: number;
   previousStartMode: TDuelStartMode;
@@ -12,6 +14,7 @@ export interface IDuelistHeaderRecord {
   id: number;
   name: string;
   description: string;
+  previousGameMode: TGameMode;
   previousNpcId: number;
   previousNpcDeckId: number;
   previousStartMode: TDuelStartMode;
@@ -21,6 +24,7 @@ export interface IDuelistProfile {
   name: string;
   description: string;
   npcLvl: number;
+  npcType: "None" | "Normal" | "FtkChallenge";
 }
 
 export class DuelistProfile implements IDuelistProfile {
@@ -40,6 +44,7 @@ export class DuelistProfile implements IDuelistProfile {
     const header = await DuelistProfile.tblHeader.insert({
       name: "あなた",
       description: "ここの文字列を何に使うかは未定。",
+      previousGameMode: "Preset",
       previousNpcId: 0,
       previousNpcDeckId: Number.MIN_SAFE_INTEGER,
       previousStartMode: "Random",
@@ -51,16 +56,18 @@ export class DuelistProfile implements IDuelistProfile {
   public readonly id: number;
   public readonly name: string;
   public readonly description: string;
+  public readonly previousGameMode: TGameMode;
   public readonly previousNpcId: number;
   public readonly previousNpcDeckId: number;
   public readonly previousStartMode: TDuelStartMode;
-  public get npcLvl() {
-    return Number.MAX_VALUE;
-  }
+  public readonly npcLvl = Number.MAX_VALUE;
+  public readonly npcType = "None";
+
   private constructor(header: DuelistHeaderRecord) {
     this.id = header.id;
     this.name = header.name;
     this.description = header.description;
+    this.previousGameMode = header.previousGameMode;
     this.previousNpcId = nonPlayerCharacters.find((npc) => npc.id === header.previousNpcId)?.id ?? min(...nonPlayerCharacters.map((npc) => npc.id));
     this.previousStartMode = duelStartModes.includes(header.previousStartMode) ? header.previousStartMode : "Random";
     this.previousNpcDeckId = header.previousNpcDeckId;
@@ -72,6 +79,7 @@ export class DuelistProfile implements IDuelistProfile {
       id: this.id,
       name: this.name,
       description: this.description,
+      previousGameMode: this.previousGameMode ?? "Preset",
       previousNpcId: this.previousNpcId,
       previousStartMode: this.previousStartMode,
       previousNpcDeckId: this.previousNpcDeckId > -1 ? this.previousNpcDeckId : Number.MIN_SAFE_INTEGER,
@@ -107,17 +115,27 @@ export const nonPlayerCharacters: IDuelistProfile[] = [
     name: "サンドバッグくん棒立ち",
     description: "攻撃宣言なし、強制効果以外の効果の発動なし。",
     npcLvl: 0,
+    npcType: "Normal",
   },
   {
     id: npcId--,
     name: "サンドバッグくん非暴力",
     description: "攻撃宣言なし。",
     npcLvl: 100,
+    npcType: "Normal",
   },
   {
     id: npcId--,
     name: "サンドバッグくん白帯",
     description: "とくに制限なし。",
     npcLvl: 200,
+    npcType: "Normal",
+  },
+  {
+    id: Number.MIN_SAFE_INTEGER,
+    name: "FTK or Die",
+    description: "FTKに失敗すると敗北。",
+    npcLvl: Number.MIN_SAFE_INTEGER,
+    npcType: "FtkChallenge",
   },
 ];

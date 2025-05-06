@@ -158,6 +158,9 @@ export class Duelist {
     const tmp: TCardActionType[] = [];
 
     if (this.duelistType === "NPC") {
+      if (this.profile.npcLvl < 0) {
+        tmp.push("NormalSummon", "SpecialSummon", "SpellTrapSet");
+      }
       if (this.profile.npcLvl < 1) {
         tmp.push("CardActivation", "IgnitionEffect", "TriggerEffect", "QuickEffect");
       }

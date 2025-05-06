@@ -5,23 +5,35 @@
 </script>
 
 <script lang="ts">
-  import { DeckInfo, sampleDecks } from "@ygo/class/DeckInfo";
-  import { DuelistProfile, nonPlayerCharacters } from "@ygo/class/DuelistProfile";
+  import { DeckInfo, sampleDecks, type IDeckInfo } from "@ygo/class/DeckInfo";
+  import { DuelistProfile, nonPlayerCharacters, type TGameMode } from "@ygo/class/DuelistProfile";
   import { Duel, duelStartModeDic, type TDuelStartMode } from "@ygo_duel/class/Duel";
   import DuelDesk from "@ygo_duel_view/components/DuelDesk.svelte";
   import DeckEditor from "@ygo_deck_editor/components/DeckEditor.svelte";
   import { StkIndexedDB } from "@stk_utils/class/StkIndexedDB";
   import timestampJson from "@stk_utils/json/timestamp.json";
   import { getKeys } from "@stk_utils/funcs/StkObjectUtils";
-  import { fade } from "svelte/transition";
+  import { fade, slide } from "svelte/transition";
   import { userAgentInfo } from "@stk_utils/class/StkUserAgentInfo";
+  import type { ChangeEvent } from "rollup";
+  import type { ChangeEventHandler } from "svelte/elements";
 
   const idb = new StkIndexedDB<TTblNames>("stk_ygo_svelte", currentVersion, tblNames);
 
   let duel: Duel | undefined;
-  let mode = "None" as "Duel" | "DeckEdit" | "None";
+  let gameMode: TGameMode = "Preset";
+  let dspMode: "Duel" | "DeckEdit" | "None" = "None";
   let selectedDeckId = 0;
   const userProfilePromise = DuelistProfile.getOrCreateNew(idb);
+
+  const setDeckId = (deckInfos: DeckInfo[]) => {
+    const selectedDeck =
+      deckInfos.find((deckInfo) => deckInfo.lastUsedAt.getTime() === Math.max(...deckInfos.map((deckInfo) => deckInfo.lastUsedAt.getTime()))) ?? deckInfos[0];
+    selectedDeckId = selectedDeck.id;
+    if (gameMode === "Preset" && selectedDeck.deckType !== "Preset") {
+      selectedDeckId = sampleDecks.find((deck) => deck.deckType === "Preset")?.id ?? selectedDeckId;
+    }
+  };
   let userDecksPromise = DeckInfo.getAllDeckInfo(idb).then((deckInfos) => {
     Promise.all(
       deckInfos
@@ -30,22 +42,25 @@
           deckInfo.saveDeckInfo();
         })
     );
-    selectedDeckId = (
-      deckInfos.find((deckInfo) => deckInfo.lastUsedAt.getTime() === Math.max(...deckInfos.map((deckInfo) => deckInfo.lastUsedAt.getTime()))) ?? deckInfos[0]
-    ).id;
-
+    setDeckId(deckInfos);
     return deckInfos;
   });
 
   const getSelectedDeckInfo = async () => {
-    let deckInfo = (await userDecksPromise).find((info) => info.id === selectedDeckId);
-    if (!deckInfo) {
-      deckInfo = (await reloadDeckInfos()).find((info) => info.id === selectedDeckId);
+    let deckInfo = (await userDecksPromise).find((info) => info.id === selectedDeckId) ?? (await reloadDeckInfos()).find((info) => info.id === selectedDeckId);
+    if (deckInfo) {
+      await deckInfo.updateTimestamp();
     }
-    if (!deckInfo) {
+
+    let iDeckInfo: IDeckInfo | undefined = deckInfo;
+
+    if (!iDeckInfo) {
+      iDeckInfo = sampleDecks.find((info) => info.id === selectedDeckId);
+    }
+    if (!iDeckInfo) {
       throw new Error("illegal state");
     }
-    return deckInfo;
+    return iDeckInfo;
   };
 
   const saveUserProfile = async () => {
@@ -54,9 +69,8 @@
   };
   const reloadDeckInfos = () => {
     userDecksPromise = DeckInfo.getAllDeckInfo(idb).then((deckInfos) => {
-      selectedDeckId = (
-        deckInfos.find((deckInfo) => deckInfo.lastUsedAt.getTime() === Math.max(...deckInfos.map((deckInfo) => deckInfo.lastUsedAt.getTime()))) ?? deckInfos[0]
-      ).id;
+      setDeckId(deckInfos);
+
       return deckInfos;
     });
 
@@ -74,19 +88,22 @@
     await Promise.all([saveUserProfile(), prepareSampleDeck()]);
     const selectedDeck = await getSelectedDeckInfo();
     const userProfile = await userProfilePromise;
-    await selectedDeck.updateTimestamp();
-    const npc = nonPlayerCharacters.find((npc) => npc.id === userProfile.previousNpcId);
-    let npcDeck = sampleDecks.slice(-1)[0];
-    if (!npc) {
-      return;
-    }
-    if (userProfile.previousNpcDeckId > -1) {
-      npcDeck = (await userDecksPromise).find((info) => info.id === userProfile.previousNpcDeckId) ?? npcDeck;
-    } else if (npc.id === -1) {
-      npcDeck = sampleDecks.find((info) => info.id === -1) ?? npcDeck;
+    let npc = nonPlayerCharacters.find((npc) => npc.id === Number.MIN_SAFE_INTEGER) ?? nonPlayerCharacters[0];
+    let npcDeck = sampleDecks.find((deck) => deck.id === Number.MIN_SAFE_INTEGER) ?? sampleDecks[0];
+    let startMode: TDuelStartMode = "PlayFirst";
+
+    if (gameMode === "Free") {
+      npc = nonPlayerCharacters.find((npc) => npc.id === userProfile.previousNpcId) ?? npc;
+      npcDeck = sampleDecks.slice(-1)[0];
+      startMode = userProfile.previousStartMode;
+      if (userProfile.previousNpcDeckId > -1) {
+        npcDeck = (await userDecksPromise).find((info) => info.id === userProfile.previousNpcDeckId) ?? npcDeck;
+      } else {
+        npcDeck = sampleDecks.find((info) => info.id === npc.id) ?? npcDeck;
+      }
     }
 
-    duel = new Duel(userProfile, "Player", selectedDeck, [], npc, "NPC", npcDeck, [], userProfile.previousStartMode);
+    duel = new Duel(userProfile, "Player", selectedDeck, [], npc, "NPC", npcDeck, [], startMode);
     duel.onDuelEnd.append(() => {
       duel = duel;
       return "RemoveMe";
@@ -94,7 +111,7 @@
   };
   const onEditClick = async () => {
     await Promise.all([saveUserProfile(), prepareSampleDeck()]);
-    mode = "DeckEdit";
+    dspMode = "DeckEdit";
   };
   const onDuelistNameKeyPress = async (ev: KeyboardEvent) => {
     await saveUserProfile();
@@ -107,7 +124,18 @@
   const onReturnToTopClick = () => {
     userDecksPromise = reloadDeckInfos();
     duel = undefined;
-    mode = "None";
+    dspMode = "None";
+  };
+
+  let timer = Date.now();
+
+  const onGameModeChange = (mode: TGameMode) => {
+    if (Date.now() - timer < 200) {
+      return;
+    }
+    timer = Date.now();
+    gameMode = mode;
+    reloadDeckInfos();
   };
   prepareSampleDeck();
 </script>
@@ -126,62 +154,138 @@
   </div>
   {#if duel}
     <DuelDesk {duel} />
-  {:else if mode === "DeckEdit"}
+  {:else if dspMode === "DeckEdit"}
     <DeckEditor />
   {:else}
     <div class="app_body">
-      {#await userProfilePromise}
-        <div>デュエリスト情報の読み込み、もしくは作成中...</div>
-      {:then userProfile}
-        <div>
-          <label for="duelist_name" class="duelist_name">名前：</label>
-          <input id="duelist_name" class="duelist_name" type="text" bind:value={userProfile.name} on:keypress={onDuelistNameKeyPress} />
-        </div>
-        {#await userDecksPromise}
-          <div>デッキ情報の読み込み、もしくは作成中...</div>
-        {:then userDecks}
-          <div>
-            <label for="deck_selector" class="deck_selector">デッキ：</label>
-            <select id="deck_selector" class="deck_selector" bind:value={selectedDeckId}>
-              {#each userDecks as userDeck}
-                <option value={userDeck.id}>{userDeck.name}</option>
-              {/each}
-            </select>
-          </div>
-          <div>
-            <label for="npc_selector" class="npc_selector">対戦相手：</label>
-            <select id="npc_selector" class="npc_selector" bind:value={userProfile.previousNpcId}>
-              {#each nonPlayerCharacters as npc}
-                <option value={npc.id}>{npc.name}</option>
-              {/each}
-            </select>
-            <div>※{nonPlayerCharacters.find((npc) => npc.id === userProfile.previousNpcId)?.description}</div>
-          </div>
-          <div>
-            <label for="npc_deck_selector" class="deck_selector">対戦相手のデッキ：</label>
-            <select id="npc_deck_selector" class="deck_selector" bind:value={userProfile.previousNpcDeckId}>
-              <option value={Number.MIN_SAFE_INTEGER}>デフォルト</option>
-              {#each userDecks as userDeck}
-                <option value={userDeck.id}>{userDeck.name}</option>
-              {/each}
-            </select>
-          </div>
-          <div>
-            <label for="npc_selector" class="npc_selector">先攻後攻：</label>
-            <select id="npc_selector" class="npc_selector" bind:value={userProfile.previousStartMode}>
-              {#each getKeys(duelStartModeDic) as key}
-                <option value={key}>{duelStartModeDic[key]}</option>
-              {/each}
-            </select>
-          </div>
-          <div>
-            <button class="btn" on:click={onDuelStartClick}>duel start!</button>
-          </div>
-        {/await}
-        <div>
-          <button class="btn" on:click={onEditClick}>deck edit</button>
-        </div>
-      {/await}
+      <table class="config_table">
+        <tbody>
+          {#await userProfilePromise}
+            <tr> <td colspan="2"><div>デュエリスト情報の読み込み、もしくは作成中...</div></td></tr>
+          {:then userProfile}
+            <tr class="config_row" transition:slide={{ duration: 200 }}>
+              <td transition:slide={{ duration: 200 }}>
+                <div transition:slide={{ duration: 200 }}>
+                  <label for="duelist_name" class="config_row_label duelist_name">名前：</label>
+                </div>
+              </td>
+              <td transition:slide={{ duration: 200 }}>
+                <div transition:slide={{ duration: 200 }}>
+                  <input id="duelist_name" class="duelist_name" type="text" bind:value={userProfile.name} on:keypress={onDuelistNameKeyPress} />
+                </div></td
+              >
+            </tr>
+            {#await userDecksPromise}
+              <tr> <td colspan="2"><div>デッキ情報の読み込み、もしくは作成中...</div></td></tr>
+            {:then userDecks}
+              <tr class="config_row" transition:slide={{ duration: 200 }}>
+                <td transition:slide={{ duration: 200 }}>
+                  <div transition:slide={{ duration: 200 }}>
+                    <label class="config_row_label" for="game_mode_radio_preset"> ゲームモード： </label>
+                  </div>
+                </td>
+                <td transition:slide={{ duration: 200 }}>
+                  <div transition:slide={{ duration: 200 }}>
+                    {#each ["Preset", "Free"] as TGameMode[] as mode}
+                      <input
+                        id="game_mode_radio_{mode.toLowerCase()}"
+                        class="game_mode_radio"
+                        value={mode}
+                        type="radio"
+                        name="game_mode"
+                        checked={gameMode === mode}
+                        on:change={() => onGameModeChange(mode)}
+                      />
+                      <label class="game_mode_tab_label game_mode_tab_{mode.toLowerCase()}" for="game_mode_radio_{mode.toLowerCase()}"> {mode} </label>
+                    {/each}
+                  </div>
+                </td>
+              </tr>
+              <tr class="config_row" transition:slide={{ duration: 200 }}>
+                <td transition:slide={{ duration: 200 }}>
+                  <div transition:slide={{ duration: 200 }}>
+                    <label for="deck_selector" class="config_row_label deck_selector">デッキ：</label>
+                  </div>
+                </td>
+                <td transition:slide={{ duration: 200 }}>
+                  <div transition:slide={{ duration: 200 }}>
+                    <select id="deck_selector" class="deck_selector" bind:value={selectedDeckId}>
+                      {#each gameMode === "Preset" ? sampleDecks.filter((info) => info.deckType === "Preset") : userDecks as userDeck}
+                        <option value={userDeck.id}>{userDeck.name}</option>
+                      {/each}
+                    </select>
+                  </div>
+                </td>
+              </tr>
+              {#if gameMode === "Free"}
+                <tr class="config_row" transition:slide={{ duration: 200 }}>
+                  <td transition:slide={{ duration: 200 }}>
+                    <div transition:slide={{ duration: 200 }}>
+                      <label for="npc_selector" class="config_row_label npc_selector">対戦相手：</label>
+                    </div>
+                  </td>
+                  <td transition:slide={{ duration: 200 }}>
+                    <div transition:slide={{ duration: 200 }}>
+                      <select id="npc_selector" class="npc_selector" bind:value={userProfile.previousNpcId}>
+                        {#each nonPlayerCharacters as npc}
+                          <option value={npc.id}>{npc.name}</option>
+                        {/each}
+                      </select>
+                      <div>※{nonPlayerCharacters.find((npc) => npc.id === userProfile.previousNpcId)?.description}</div>
+                    </div>
+                  </td>
+                </tr>
+                <tr class="config_row" transition:slide={{ duration: 200 }}>
+                  <td transition:slide={{ duration: 200 }}>
+                    <div transition:slide={{ duration: 200 }}>
+                      <label for="npc_deck_selector" class="config_row_label deck_selector">デッキ：</label>
+                    </div>
+                  </td>
+                  <td transition:slide={{ duration: 200 }}>
+                    <div transition:slide={{ duration: 200 }}>
+                      <select id="npc_deck_selector" class="deck_selector" bind:value={userProfile.previousNpcDeckId}>
+                        <option value={Number.MIN_SAFE_INTEGER}>デフォルト</option>
+                        {#each userDecks as userDeck}
+                          <option value={userDeck.id}>{userDeck.name}</option>
+                        {/each}
+                      </select>
+                    </div>
+                  </td>
+                </tr>
+                <tr class="config_row" transition:slide={{ duration: 200 }}>
+                  <td transition:slide={{ duration: 200 }}>
+                    <div transition:slide={{ duration: 200 }}>
+                      <label for="npc_selector" class="config_row_label npc_selector">先攻後攻：</label>
+                    </div>
+                  </td>
+                  <td transition:slide={{ duration: 200 }}>
+                    <div transition:slide={{ duration: 200 }}>
+                      <select id="npc_selector" class="npc_selector" bind:value={userProfile.previousStartMode}>
+                        {#each getKeys(duelStartModeDic) as key}
+                          <option value={key}>{duelStartModeDic[key]}</option>
+                        {/each}
+                      </select>
+                    </div></td
+                  >
+                </tr>{/if}
+              <tr>
+                <td colspan="2">
+                  <div transition:slide={{ duration: 200 }}>
+                    <button class="btn" on:click={onDuelStartClick}>duel start!</button>
+                  </div>
+                </td>
+              </tr>
+            {/await}
+            <tr>
+              <td colspan="2">
+                <div transition:slide={{ duration: 200 }}>
+                  <button class="btn" on:click={onEditClick}>deck edit</button>
+                </div>
+              </td>
+            </tr>
+          {/await}
+        </tbody>
+      </table>
     </div>
   {/if}
   <div class="debug_info">
@@ -190,7 +294,7 @@
     <span class="screen_info"></span>
   </div>
   {#if duel && duel.isEnded}
-    <div class="result" transition:fade={{ delay: 200, duration: 2000 }}>
+    <div class="result" transition:fade={{ delay: 200, duration: 200 }}>
       {#if duel.winner}
         {#if duel.winner.seat === "Below"}
           <div class="result_title result_win">YOU WIN</div>
@@ -226,8 +330,16 @@
     border-color: black;
     border-width: 0.5rem;
   }
-  .app_body > div {
-    margin: 1rem;
+  .config_table td {
+    padding: 1rem 2rem;
+  }
+  .config_row td:first-child {
+    text-align: right;
+    padding-right: 0.3rem;
+  }
+  .config_row td:last-child {
+    text-align: left;
+    padding-left: 0.3rem;
   }
   .link.link_left {
     position: absolute;
@@ -253,9 +365,7 @@
     right: 1rem;
     bottom: 1rem;
   }
-  .duelist_name,
-  .deck_selector,
-  .npc_selector {
+  .config_row * {
     font-size: 1.4rem;
     text-decoration: none;
   }
@@ -276,7 +386,22 @@
     background: #00bcd4;
     color: white;
   }
-
+  .game_mode_tab_label {
+    color: White;
+    background: LightGray;
+    margin-right: 1rem;
+    padding: 0.4rem 1rem;
+    order: -1;
+  }
+  .game_mode_tab_label:hover {
+    filter: invert();
+  }
+  .game_mode_radio:checked + .game_mode_tab_label {
+    background: DeepSkyBlue;
+  }
+  .game_mode_radio {
+    display: none;
+  }
   .result {
     position: fixed;
     top: 0;

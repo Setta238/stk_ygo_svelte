@@ -1,8 +1,10 @@
+import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import type { CardActionDefinition, ChainBlockInfo } from "../../ygo_duel/class/DuelEntityAction";
 import { defaultPrepare } from "../card_actions/CommonCardAction";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
-
-const pendulumSummonAction = {
+import { DuelEnd, SystemError } from "@ygo_duel/class/Duel";
+import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
+export const pendulumSummonAction = {
   title: "ペンデュラム召喚",
   isMandatory: false,
   playType: "SpecialSummon",
@@ -96,5 +98,67 @@ const pendulumSummonAction = {
   },
   settle: async () => true,
 } as CardActionDefinition<unknown>;
+export const ftkChallengeFailedAction = {
+  title: "強制勝利",
+  isMandatory: true,
+  playType: "IgnitionEffect",
+  spellSpeed: "Normal",
+  executableCells: ["Hand"],
+  executablePeriods: ["main2"],
+  executableDuelistTypes: ["Controller"],
+  isOnlyNTimesPerTurn: 1,
+  validate: (myInfo) => (myInfo.activator.duel.clock.turn > 1 ? [] : undefined),
+  prepare: async (myInfo) => {
+    await DuelEntityShortHands.sendManyToGraveyardForTheSameReason(
+      myInfo.activator.duel.field.getCardsOnFieldStrictly(),
+      ["Rule"],
+      myInfo.action.entity,
+      myInfo.activator
+    );
+    return { selectedEntities: [], chainBlockTags: [], prepared: undefined, nextChainBlockFilter: () => false };
+  },
+  execute: async (myInfo) => {
+    const items = [
+      { name: "封印されし者の左足", column: 4 },
+      { name: "封印されし者の右足", column: 2 },
+      { name: "封印されし者の左腕", column: 5 },
+      { name: "封印されし者の右腕", column: 1 },
+      { name: "封印されしエクゾディア", column: 3 },
+    ];
 
-export const duelistActions = [pendulumSummonAction] as const;
+    for (const item of items) {
+      const exodiaParts = [
+        myInfo.activator.duel.field
+          .getAllCardEntities()
+          .filter((card) => card.owner === myInfo.activator)
+          .find((card) => card.origin.name === item.name),
+        myInfo.activator
+          .getOpponentPlayer()
+          .getHandCell()
+          .cardEntities.find((card) => card.origin.name === item.name),
+      ].filter((part): part is DuelEntity => part !== undefined);
+
+      if (!exodiaParts.length) {
+        throw new SystemError("想定されない状態", myInfo.activator.getHandCell().cardEntities, item.name);
+      }
+      console.log(exodiaParts);
+      await DuelEntity.moveMany(
+        exodiaParts.map((part) => [
+          part,
+          part.controller.getMonsterZones().find((cell) => cell.column === (part.controller.seat === "Above" ? 6 - item.column : item.column)) ??
+            part.controller.getFieldZone(),
+          "Monster",
+          "FaceUp",
+          "Vertical",
+          "Top",
+          ["Rule"],
+          undefined,
+          undefined,
+          undefined,
+        ])
+      );
+    }
+    throw new DuelEnd(myInfo.activator, `${myInfo.activator.getOpponentPlayer().profile.name}がワンターンキルに失敗した。`);
+  },
+  settle: async () => true,
+} as CardActionDefinition<unknown>;

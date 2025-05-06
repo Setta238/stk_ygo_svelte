@@ -4,8 +4,12 @@ import { cardInfoDic } from "@ygo/class/CardInfo";
 import type { TTblNames } from "@app/components/App.svelte";
 import { cardSorter } from "./YgoTypes";
 import sampleDeckInfos from "@ygo/json/SampleDeckInfos.json";
+// ヘッダと明細を分ける意味はなかった気がする……
+
+type TDeckType = "User" | "NPC" | "Preset";
 
 export type DeckHeaderRecord = IStkDataRecord & {
+  deckType: TDeckType;
   lastUsedAt: Date;
 };
 export type DeckDetailRecord = IStkDataRecord & {
@@ -15,6 +19,7 @@ export type DeckDetailRecord = IStkDataRecord & {
 export interface IDeckInfo {
   id: number;
   name: string;
+  deckType: TDeckType;
   description: string;
   lastUsedAt: Date;
   cardNames: Readonly<string[]>;
@@ -73,6 +78,7 @@ export class DeckInfo implements IDeckInfo {
     const header = await DeckInfo.tblHeader.insert({
       name: deckName,
       description: description,
+      deckType: "User",
       lastUsedAt: new Date(),
     });
 
@@ -91,18 +97,20 @@ export class DeckInfo implements IDeckInfo {
   };
 
   public static prepareSampleDeck = async () => {
-    const sampleDeck = sampleDeckInfos.slice(-1)[0];
+    const sampleDeck = sampleDeckInfos.find((info) => info.deckType === "Preset") ?? sampleDeckInfos.slice(-1)[0];
     return await DeckInfo.createNewDeck(sampleDeck.name, sampleDeck.description, sampleDeck.cardNames);
   };
 
   public readonly id: number;
   public readonly name: string;
+  public readonly deckType: TDeckType;
   public readonly description: string;
   public readonly lastUsedAt: Date;
   public readonly cardNames: Readonly<string[]>;
   private constructor(header: DeckHeaderRecord, details: DeckDetailRecord[]) {
     this.id = header.id;
     this.name = header.name;
+    this.deckType = header.deckType;
     this.description = header.description;
     this.lastUsedAt = header.lastUsedAt;
     this.cardNames = details.filter((detail) => detail.deckId === this.id).map((detail) => detail.name);
@@ -142,6 +150,7 @@ export class DeckInfo implements IDeckInfo {
         ...info,
         name: _newDeckInfo.name,
         description: _newDeckInfo.description,
+        deckType: "User",
         lastUsedAt: new Date(),
       };
     });

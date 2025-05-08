@@ -1,13 +1,17 @@
 import { Duel } from "./Duel";
 import type { ChainBlockInfo } from "./DuelEntityAction";
 import type { IDuelClock } from "./DuelClock";
-
-type ChainBlockLogRecord = {
+import { StkEvent } from "@stk_utils/class/StkEvent";
+export type ChainBlockLogRecord = {
   seq: number;
   clock: IDuelClock;
   chainBlockInfo: ChainBlockInfo<unknown>;
 };
 export default class DuelChainBlockLog {
+  private onInsertEvent = new StkEvent<ChainBlockLogRecord>();
+  public get onInsert() {
+    return this.onInsertEvent.expose();
+  }
   private nextSeq: number;
   public readonly records: ChainBlockLogRecord[] = [];
   public readonly duel: Duel;
@@ -16,10 +20,12 @@ export default class DuelChainBlockLog {
     this.duel = duel;
   }
   public readonly push = <T>(chainBlockInfo: ChainBlockInfo<T>): void => {
-    this.records.push({
+    const record = {
       seq: this.nextSeq++,
       clock: this.duel.clock.getClone(),
       chainBlockInfo: chainBlockInfo as ChainBlockInfo<unknown>,
-    });
+    };
+    this.records.push(record);
+    this.onInsertEvent.trigger(record);
   };
 }

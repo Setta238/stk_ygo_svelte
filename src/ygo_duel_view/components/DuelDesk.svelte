@@ -20,6 +20,7 @@
   import DuelFieldCellInfo from "./DuelFieldCellInfo.svelte";
   import type { DummyActionInfo } from "@ygo_duel/class/DuelEntityAction";
   import type { ChoicesSweet } from "@ygo_duel/class/DuelUtilTypes";
+  import DuelCutin from "./DuelCutin.svelte";
 
   export let duel: Duel;
 
@@ -154,7 +155,7 @@
         </div>
       {/if}
     </div>
-    <div>
+    <div class="duel_field_body">
       {#if duel.clock.turn > 0}
         <table class="duel_field">
           <tbody>
@@ -194,9 +195,13 @@
   {/if}
 </div>
 <div style="position:absolute;left:0;bottom:0">{duel.clock.toString()}</div>
-
 <ModalContainer modalController={duel.view.modalController} />
 
+<!--
+<div style="position:absolute;top:0;left:0">
+  <DuelCutin {duel}></DuelCutin>
+</div>
+-->
 <style>
   .v_flex {
     display: flex;
@@ -242,6 +247,11 @@
     justify-content: space-between;
     align-items: center;
   }
+  .duel_desk_center {
+    min-width: 60%;
+    justify-content: space-between;
+    align-items: center;
+  }
   .duel_field_header {
     position: relative;
     width: 100%;
@@ -256,14 +266,13 @@
     text-align: left;
     top: 0px;
     left: 0px;
+    z-index: 1;
   }
   .duel_field_header_buttons button {
     border-radius: 0.5rem;
   }
-  .duel_desk_center {
-    min-width: 60%;
-    justify-content: space-between;
-    align-items: center;
+  .duel_field_body {
+    position: relative;
   }
   .duel_field_footer button {
     padding: 0 10px;

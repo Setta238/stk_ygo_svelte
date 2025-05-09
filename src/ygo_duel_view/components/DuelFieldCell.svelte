@@ -128,17 +128,22 @@
     );
   };
 
-  const onCellClick = () => {
-    cell.field.duel.view.infoBoardState = "Default";
+  const onCellClick = (ev: MouseEvent & { currentTarget: EventTarget & HTMLDivElement }) => {
+    if ((ev.target as HTMLDivElement)?.id === "config_button") {
+      view.infoBoardState = "Config";
+      view.requireUpdate();
+      return;
+    }
+    view.infoBoardState = "Default";
     if (canDirectResoleve) {
       responseResolve({ selectedCells: [cell] });
     } else if (isSelectable) {
       isSelected = !isSelected;
       selectedCells = isSelected ? [...selectedCells, cell] : selectedCells.filter((e) => e !== cell);
     } else if (cell.isStackCell) {
-      cell.field.duel.view.infoBoardState = "CellInfo";
-      cell.field.duel.view.infoBoardCell = cell;
-      cell.field.duel.view.requireUpdate();
+      view.infoBoardState = "CellInfo";
+      view.infoBoardCell = cell;
+      view.requireUpdate();
       const cellActionSeqs = cell.entities.flatMap((e) => e.actions).map((action) => action.seq);
       const cellActionInfos = dummyActionInfos.filter((info) => cellActionSeqs.includes(info.action.seq));
 
@@ -147,7 +152,6 @@
           return;
         }
 
-        const view = cell.field.duel.view;
         view.modalController.actionSelector
           .show({
             title: "カードを選択。",
@@ -165,7 +169,7 @@
         return;
       }
     }
-    cell.field.duel.view.requireUpdate();
+    view.requireUpdate();
     console.info(cell);
   };
 
@@ -302,6 +306,11 @@
       {#if args && args.index !== "Top"}
         <div class="card_animation_receiver {cell.cellType}" in:receive={{ key: args.entity.seq }}>
           <DuelCard entity={args.entity} state="Disabled" dummyActionInfos={[]} cardActionResolve={undefined} />
+        </div>
+      {/if}
+      {#if cell.owner.seat === "Below"}
+        <div class="config_button_wrapper">
+          <button id="config_button"> ⚙</button>
         </div>
       {/if}
     {:else}
@@ -479,6 +488,22 @@
     justify-content: space-between;
     color: black;
     line-height: 1.1;
+  }
+  .config_button_wrapper {
+    position: absolute;
+    right: 0px;
+    bottom: 0px;
+    padding: 0rem;
+  }
+  #config_button {
+    font-size: 2rem;
+    font-family:
+      "Twitter Color Emoji", "EmojiOne Color", "Apple カラー絵文字", "Apple Color Emoji", "Gecko Emoji", "Noto Emoji", "Noto Color Emoji", "Segoe UI Emoji",
+      OpenSansEmoji, EmojiSymbols, DFPEmoji, "Segoe UI Symbol 8", "Segoe UI Symbol", "Noto Sans Symbols", Symbola, Quivira, "和田研中丸ゴシック2004絵文字",
+      WadaLabChuMaruGo2004Emoji, "和田研細丸ゴシック2004絵文字", WadaLabMaruGo2004Emoji, "DejaVu Sans", "VL Pゴシック", YOzFont, "Nishiki-teki",
+      "Android Emoji", "Sun-ExtA", symbols, places, people, objects, nature, fantasy;
+    margin: 0rem;
+    border-style: none;
   }
   @media screen and (max-width: 1400px) {
     .lifepoint_display {

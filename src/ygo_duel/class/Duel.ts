@@ -9,19 +9,18 @@ import { DuelViewController } from "@ygo_duel_view/class/DuelViewController";
 import { DuelClock, type IDuelClock } from "./DuelClock";
 import DuelChainBlockLog from "./DuelChainBlockLog";
 import {
-  cardActionChainBlockTypes,
-  cardActionNonChainBlockTypes,
   type EntityAction,
   type ChainBlockInfo,
   type TCardActionType,
   type TSpellSpeed,
   type ValidatedActionInfo,
+  cardActionCreateChainTypes,
 } from "./DuelEntityAction";
 import type { TDuelPhase } from "./DuelPeriod";
 import { DuelEntityShortHands } from "./DuelEntityShortHands";
 import { StkEvent } from "@stk_utils/class/StkEvent";
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
-import type { DuelFieldCell } from "./DuelFieldCell";
+import { type DuelFieldCell } from "./DuelFieldCell";
 import type { EntityDefinition } from "./DuelEntityDefinition";
 export const duelStartModes = ["PlayFirst", "DrawFirst", "Random"] as const;
 export type TDuelStartMode = (typeof duelStartModes)[number];
@@ -334,29 +333,16 @@ export class Duel {
           []
         )
       );
-      console.info("response", response);
 
-      // ユーザー入力がカードアクションだった場合、チェーンブロックを作るか作らないかで処理を分ける
-      if (response && response.actionInfo) {
-        if (([...cardActionNonChainBlockTypes] as string[]).includes(response.actionInfo.action.playType)) {
-          //チェーンに乗らない処理を実行し、処理番号をインクリメント
-          const chainBlockInfo = await response.actionInfo.action.prepare(this.priorityHolder, response.actionInfo.dest, undefined, [], true, false);
-
-          if (chainBlockInfo === undefined) {
-            continue;
-          }
-
-          await response.actionInfo.action.execute(chainBlockInfo, this.chainBlockInfos);
-
-          this.clock.incrementChainSeq();
-        } else {
-          //チェーンに積んで、チェーン処理へ
-          const result = await this.procChainBlock({ activator: this.priorityHolder, actionInfo: response.actionInfo }, undefined);
-          if (result === "cancel") {
-            continue;
-          }
+      if (response.actionInfo) {
+        // ユーザー入力がカードアクションだった場合、チェーン処理へ
+        const result = await this.procChain({ activator: this.priorityHolder, actionInfo: response.actionInfo }, undefined);
+        if (result === "cancel") {
+          continue;
         }
+
         await this.procFreeChain();
+
         continue;
       }
 
@@ -368,9 +354,9 @@ export class Duel {
         while (true) {
           const actionInfo = await this.view.waitQuickEffect(
             this.priorityHolder,
-            this.getEnableActions(this.priorityHolder, ["QuickEffect", "TriggerEffect"], ["Quick", "Counter"], []),
+            this.getEnableActions(this.priorityHolder, ["QuickEffect", "CardActivation"], ["Quick", "Counter"], []),
             [],
-            "",
+            `相手がフェイズを終了しようとしている。`,
             true
           );
 
@@ -379,7 +365,7 @@ export class Duel {
             this.moveNextPhase(nextPhase);
             return;
           }
-          result = await this.procChainBlock({ activator: this.priorityHolder, actionInfo }, undefined);
+          result = await this.procChain({ activator: this.priorityHolder, actionInfo }, undefined);
           if (result === "done") {
             break;
           }
@@ -426,47 +412,52 @@ export class Duel {
         this.clock.incrementChainSeq();
 
         let damageStepFlg = true;
+        let rollbackFlg = false;
 
         while (true) {
-          const oldMonsterTotalProcSeqList = this.getNonTurnPlayer()
-            .getMonstersOnField()
-            .map((monster) => [monster.seq, monster.moveLog.latestRecord.movedAt.totalProcSeq]) as [monSeq: number, procSec: number][];
+          // 巻き戻し計算のために値を控える。
+          const oldTotalProcSeq = this.clock.totalProcSeq;
+          const oldMonsters = this.getNonTurnPlayer().getMonstersOnField();
 
-          //フリーチェーン処理へ
-          await this.procFreeChain();
+          //フリーチェーン処理。
+          //一回のチェーンごとに、戦闘可否判定を行い、否であればループを抜ける。
+          while (damageStepFlg) {
+            const procChainResult = await this.procChain(undefined, undefined);
+            if (!this.attackingMonster) {
+              throw new SystemError("想定されない状態");
+            }
 
-          if (!this.attackingMonster) {
-            throw new SystemError("想定されない状態");
+            if (!this.attackingMonster.isOnFieldStrictly) {
+              this.log.info(`${this.attackingMonster.toString()}がフィールドにいなくなったため、戦闘が中断された。`);
+              damageStepFlg = false;
+            } else if (this.attackingMonster.face === "FaceDown") {
+              this.log.info(`${this.attackingMonster.toString()}が裏側守備表示になったため、戦闘が中断された。`);
+              damageStepFlg = false;
+            } else if (this.attackingMonster.orientation === "Horizontal") {
+              // TODO 絶対防御将軍などの考慮
+              this.log.info(`${this.attackingMonster.toString()}が守備表示になったため、戦闘が中断された。`);
+              damageStepFlg = false;
+            } else if (
+              oldMonsters.some((monster) => !monster.isOnFieldAsMonsterStrictly) ||
+              this.getNonTurnPlayer()
+                .getMonstersOnField()
+                .flatMap((monster) => monster.moveLog.records)
+                .filter((record) => record.movedAt.totalProcSeq > oldTotalProcSeq)
+                .some((record) => !record.cell.isMonsterZoneLikeCell)
+            ) {
+              this.log.info(`モンスターの数が増減したためバトルステップの巻き戻しが発生。`);
+              this.targetForAttack = await this.getTurnPlayer().waitSelectEntity(this.attackingMonster.getAttackTargets(), "攻撃対象を選択。", true);
+              rollbackFlg = true;
+              break;
+            }
+            if (procChainResult === "pass") {
+              break;
+            }
+          }
+          if (rollbackFlg) {
+            continue;
           }
 
-          if (!this.attackingMonster.isOnFieldStrictly) {
-            this.log.info(`${this.attackingMonster.toString()}がフィールドにいなくなったため、戦闘が中断された。`);
-            damageStepFlg = false;
-          } else if (this.attackingMonster.face === "FaceDown") {
-            this.log.info(`${this.attackingMonster.toString()}が裏側守備表示になったため、戦闘が中断された。`);
-            damageStepFlg = false;
-          } else if (this.attackingMonster.orientation === "Horizontal") {
-            // TODO 絶対防御将軍などの考慮
-            this.log.info(`${this.attackingMonster.toString()}が守備表示になったため、戦闘が中断された。`);
-            damageStepFlg = false;
-          }
-
-          const newMonsterTotalProcSeqList = this.getNonTurnPlayer()
-            .getMonstersOnField()
-            .map((monster) => [monster.seq, monster.moveLog.latestRecord.movedAt.totalProcSeq]) as [monSeq: number, procSec: number][];
-
-          if (oldMonsterTotalProcSeqList.length !== newMonsterTotalProcSeqList.length) {
-            this.log.info(`モンスターの数が増減したためバトルステップの巻き戻しが発生。`);
-            throw new SystemError("巻き戻し未実装");
-          }
-          if (
-            oldMonsterTotalProcSeqList.some(([oldMonSeq, oldProcSeq]) =>
-              newMonsterTotalProcSeqList.every(([newMonSeq, newProcSeq]) => newMonSeq !== oldMonSeq || newProcSeq !== oldProcSeq)
-            )
-          ) {
-            this.log.info(`モンスターの数が増減したためバトルステップの巻き戻しが発生。`);
-            throw new SystemError("巻き戻し未実装");
-          }
           break;
         }
 
@@ -497,7 +488,7 @@ export class Duel {
     this.clock.setStage(this, "start");
     //ダメージステップ開始時 ※「ダメージ計算を行わずに」などと記載されたものなど
     //TODO エフェクト処理
-    await this.procFreeChain();
+    await this.procSpellSpeed1();
   };
   private readonly procBattlePhaseDamageStep2 = async (attacker: DuelEntity, defender: DuelEntity) => {
     this.clock.setStage(this, "beforeDmgCalc");
@@ -506,7 +497,7 @@ export class Duel {
       defender.setBattlePosition("Defense", ["Flip", "FlipByBattle"], attacker, attacker.controller);
     }
     //TODO 「ライトロード・モンク エイリン」「ドリルロイド」等、
-    await this.procFreeChain();
+    await this.procSpellSpeed1();
   };
   private readonly procBattlePhaseDamageStep3 = async (chainBlockInfo: ChainBlockInfo<unknown>, attacker: DuelEntity, defender: DuelEntity) => {
     if (attacker.atk === undefined) {
@@ -519,7 +510,7 @@ export class Duel {
 
     //ダメージ計算時②各種効果の発動 ※《プライドの咆哮》など
     // TODO １つ目のチェーンのみ、「ダメージ計算時」を条件とする効果を発動できる
-    await this.procFreeChain();
+    await this.procSpellSpeed1();
 
     //ダメージ計算時③ダメージ計算 ～ ④ダメージ数値確定 ～ ⑤戦闘ダメージの発生
     const atkPoint = attacker.atk;
@@ -569,7 +560,7 @@ export class Duel {
     this.clock.setStage(this, "afterDmgCalc");
     //ダメージ計算後
     // ダメージ発生、戦闘発生をトリガーとする効果、またはダメージ計算後を直接指定する効果
-    await this.procFreeChain();
+    await this.procSpellSpeed1();
   };
   private readonly procBattlePhaseDamageStep5 = async () => {
     this.clock.setStage(this, "end");
@@ -582,7 +573,7 @@ export class Duel {
 
     //ダメージステップ終了時
     // 戦闘破壊されて墓地に送られた場合の効果
-    await this.procFreeChain();
+    await this.procSpellSpeed1();
   };
   private readonly procBattlePhaseEndStep = async () => {
     this.clock.setStep(this, "end");
@@ -625,7 +616,7 @@ export class Duel {
       Below: Number.MAX_VALUE,
     };
 
-    while (Object.values(mandatoryCount).some((count) => count !== 0)) {
+    while (true) {
       // 優先権保持者の可能な処理をリストアップ
       const actionInfos = this.getEnableActions(
         this.priorityHolder,
@@ -634,7 +625,13 @@ export class Duel {
         []
       );
 
+      // 強制効果の数を更新
       mandatoryCount[this.priorityHolder.seat] = actionInfos.filter((info) => info.action.isMandatory).length;
+
+      // 強制効果が残っておらず、お互いスキップしたならばループを抜ける。
+      if (Object.values(mandatoryCount).every((count) => count === 0) && skipCount > 1) {
+        break;
+      }
 
       // 強制効果を適当にピックアップしておく
       const sample = actionInfos.find((info) => info.action.isMandatory);
@@ -648,12 +645,13 @@ export class Duel {
       // 強制効果が残っていて、お互いにキャンセルすることの防止
       let cancelable = Boolean(!actionInfo);
 
+      // ターンプレイヤーと非ターンプレイヤーではキャンセル可能条件が異なる
       if (this.priorityHolder.isTurnPlayer) {
         if (skipCount === 0) {
           cancelable = true;
         }
       } else {
-        if (mandatoryCount[this.priorityHolder.getOpponentPlayer().seat] >= 0) {
+        if (mandatoryCount[this.getTurnPlayer().seat]) {
           cancelable = true;
         }
       }
@@ -661,40 +659,36 @@ export class Duel {
       // 0件または強制効果1件のときのみ効果選択をスキップ
       // TODO 強制効果1件のときも一回まではキャンセルできるので、考慮が必要。
       if (actionInfos.length && (actionInfos.length > 1 || !actionInfo)) {
-        actionInfo = await this.view.waitQuickEffect(
-          this.priorityHolder,
-          actionInfos,
-          [],
-          cancelable ? "" : "まだ発動しなければならない効果が残っている。",
-          cancelable
-        );
+        // この部分のチェーンチェックは、設定と状況によってスキップ可能とする。
+        if (this.priorityHolder.chainConfig.noticeFreeChain || actionInfos.some((info) => info.action.isNoticedForcibly)) {
+          actionInfo = await this.view.waitQuickEffect(
+            this.priorityHolder,
+            actionInfos,
+            [],
+            cancelable ? this.clock.period.name : "まだ発動しなければならない効果が残っている。",
+            cancelable
+          );
+        }
       }
 
       // どちらかのプレイヤーが効果を発動する場合、チェーン処理へ。
       if (actionInfo) {
-        if (cardActionChainBlockTypes.some((tp) => tp === actionInfo.action.playType)) {
-          //チェーンに積んで、チェーン処理へ
-          await this.procChainBlock({ activator: this.priorityHolder, actionInfo }, undefined);
-        } else {
-          console.log(actionInfo.dest);
-          const info = await actionInfo.action.prepare(this.priorityHolder, actionInfo.dest, undefined, [], true, false);
-          if (!info) {
-            continue;
-          }
-          await actionInfo.action.execute(info, []);
-          await actionInfo.action.settle(info, []);
-          this.clock.incrementChainSeq();
+        const chainProcResult = await this.procChain({ activator: this.priorityHolder, actionInfo }, undefined);
+        // 選択したアクションを取り消す場合、優先権を変えずにループの先頭に戻す。
+        if (chainProcResult === "cancel") {
+          continue;
         }
 
         // フリーチェーン処理
         await this.procFreeChain();
-
         // ターンプレイヤーに優先権が戻る
         this.priorityHolder = this.getTurnPlayer();
 
+        // スキップカウントをリセット
         skipCount = 0;
         continue;
       }
+      // 優先権プレイヤーを切り替え、スキップカウントを加算
       this.priorityHolder = this.priorityHolder.getOpponentPlayer();
       skipCount++;
     }
@@ -702,7 +696,7 @@ export class Duel {
 
   private readonly procFreeChain = async () => {
     // フリーチェーン処理
-    while ((await this.procChainBlock(undefined, undefined)) !== "pass") {
+    while ((await this.procChain(undefined, undefined)) !== "pass") {
       //
     }
   };
@@ -714,7 +708,7 @@ export class Duel {
    * @param chainBlockInfos
    * @returns チェーンが発生したかどうか
    */
-  private readonly procChainBlock = async (
+  private readonly procChain = async (
     firstBlock: { activator: Duelist; actionInfo: ResponseActionInfo } | undefined,
     triggerEffects: { activator: Duelist; actionInfo: ValidatedActionInfo; targetChainBlock: ChainBlockInfo<unknown> | undefined }[] | undefined
   ): Promise<"done" | "pass" | "cancel"> => {
@@ -775,21 +769,43 @@ export class Duel {
           spellSpeeds.push("Quick");
         }
 
-        const msg = this.chainBlockInfos.length ? "※メッセージ考え中※" : "クイックエフェクト発動タイミング。効果を発動しますか？";
+        // この部分のチェーンチェックは設定と状況によってスキップ可能とする
 
-        const actionInfo = await this.view.waitQuickEffect(
-          this.priorityHolder,
-          this.getEnableActions(this.priorityHolder, ["QuickEffect", "CardActivation"], spellSpeeds, this.chainBlockInfos),
-          this.chainBlockInfos,
-          msg,
-          true
-        );
+        // 先にアクションを収拾
+        const actions = this.getEnableActions(this.priorityHolder, ["QuickEffect", "CardActivation"], spellSpeeds, this.chainBlockInfos);
 
-        // どちらかのプレイヤーが効果を発動する場合、チェーン処理へ。
-        if (actionInfo) {
-          chainBlock = { ...actionInfo, activator: this.priorityHolder, targetChainBlock: this.chainBlockInfos.slice(-1)[0] };
-          // トリガーエフェクトが選択されなかった場合、リストをリセットする。
-          break;
+        // 強制通知の効果がある、あるいは攻撃宣言中であれば通知
+        let noticeflg = actions.some((info) => info.action.isNoticedForcibly) || Boolean(this.attackingMonster);
+
+        if (!noticeflg) {
+          if (this.chainBlockInfos.length) {
+            // チェーンが積まれている場合、フラグと前チェーンの発動者で判断
+            noticeflg = this.priorityHolder.chainConfig.noticeSelfChain || this.chainBlockInfos.slice(-1)[0].activator !== this.priorityHolder;
+          } else {
+            // チェーンが積まれていない場合、フラグで判断
+            noticeflg = this.priorityHolder.chainConfig.noticeFreeChain;
+          }
+        }
+
+        if (noticeflg) {
+          const msg = this.chainBlockInfos.some((info) => info.action.isWithChainBlock)
+            ? "チェーンして効果を発動しますか？"
+            : "クイックエフェクト発動タイミング。効果を発動しますか？";
+
+          const actionInfo = await this.view.waitQuickEffect(
+            this.priorityHolder,
+            this.getEnableActions(this.priorityHolder, ["QuickEffect", "CardActivation"], spellSpeeds, this.chainBlockInfos),
+            this.chainBlockInfos,
+            msg,
+            true
+          );
+
+          // どちらかのプレイヤーが効果を発動する場合、チェーン処理へ。
+          if (actionInfo) {
+            chainBlock = { ...actionInfo, activator: this.priorityHolder, targetChainBlock: this.chainBlockInfos.slice(-1)[0] };
+            // トリガーエフェクトが選択されなかった場合、リストをリセットする。
+            break;
+          }
         }
         skipCount++;
       }
@@ -829,8 +845,10 @@ export class Duel {
         .filter((e) => e.actionInfo.action.seq !== chainBlock?.action.seq)
         .filter((e) => e.actionInfo.action.validateCount(e.activator, this.chainBlockInfos));
 
-      // ★★★★★ 再帰実行 ★★★★★
-      await this.procChainBlock(undefined, _triggerEffets.length ? _triggerEffets : undefined);
+      if (cardActionCreateChainTypes.some((tp) => tp === chainBlockInfo.action.playType)) {
+        // ★★★★★ 再帰実行 ★★★★★
+        await this.procChain(undefined, _triggerEffets.length ? _triggerEffets : undefined);
+      }
 
       if (chainBlockInfo.chainNumber) {
         this.log.info(`チェーン${chainBlockInfo.chainNumber}: ${chainBlockInfo.action.toString()}の効果処理。`, activator);
@@ -924,7 +942,7 @@ export class Duel {
           // ★★★★★ 再帰実行 ★★★★★
           //   ※ 緊急同調など、直後にチェーンに乗らない特殊召喚を行う場合。チェーン１の場合、では昇天の角笛を発動できる。
           //   ※ ！重要！ チェーン番号は同じまま進める。このチェーンが終わったあとに、誘発効果の収拾を行うため。
-          await this.procChainBlock({ activator: chainBlockInfo.activator, actionInfo: chainBlockInfo.nextActionInfo }, undefined);
+          await this.procChain({ activator: chainBlockInfo.activator, actionInfo: chainBlockInfo.nextActionInfo }, undefined);
         }
         // チェーン番号を加算。
         this.clock.incrementChainSeq();

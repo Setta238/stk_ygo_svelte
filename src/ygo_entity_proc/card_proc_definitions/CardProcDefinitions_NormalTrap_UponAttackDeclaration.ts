@@ -22,6 +22,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           executablePeriods: ["b1Battle", "b2Battle"],
           executableDuelistTypes: ["Controller"],
           hasToTargetCards: true,
+          isNoticedForcibly: true,
           validate: (myInfo) => {
             if (!myInfo.activator.duel.clock.isUponAttackDeclaration()) {
               return;

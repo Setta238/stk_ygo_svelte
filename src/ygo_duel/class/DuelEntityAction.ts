@@ -174,6 +174,11 @@ export type CardActionDefinitionAttr = EntityActionDefinitionBase & {
    * チェーンに乗らない召喚特殊召喚を無効にできるかどうか
    */
   negateSummon?: boolean;
+
+  /**
+   * チェーンチェック設定を無視して通知する
+   */
+  isNoticedForcibly?: boolean;
   /**
    * NPC用プロパティ
    */
@@ -291,6 +296,16 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
 
   public get isLikeContinuousSpell() {
     return this.definition.isLikeContinuousSpell || (this.entity.isLikeContinuousSpell && this.playType === "CardActivation");
+  }
+
+  public get isNoticedForcibly() {
+    return (
+      this.isMandatory ||
+      this.definition.playType === "TriggerEffect" ||
+      this.definition.playType === "LingeringEffect" ||
+      this.negatePreviousBlock ||
+      this.negateSummon
+    );
   }
 
   public get negatePreviousBlock() {

@@ -47,7 +47,7 @@ export type AnimationStartEventArg = {
   resolve: () => void;
   count: number;
 };
-export type TDuelDeskInfoBoardState = "Default" | "Log" | "CellInfo";
+export type TDuelDeskInfoBoardState = "Default" | "Log" | "CellInfo" | "Config";
 
 export class DuelViewController {
   private onDuelUpdateEvent = new StkEvent<void>();
@@ -287,6 +287,9 @@ export class DuelViewController {
   public readonly waitAnimation = async (args: Omit<AnimationStartEventArg, "resolve">): Promise<void> => {
     this._message = "";
     this.waitMode = "Animation";
+    if (window.getSelection) {
+      window.getSelection()?.removeAllRanges();
+    }
     this.onDuelUpdateEvent.trigger();
     return new Promise<void>((resolve) => this.onAnimationStartEvent.trigger({ ...args, resolve }));
   };

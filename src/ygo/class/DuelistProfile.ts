@@ -3,8 +3,10 @@ import type { StkIndexedDB } from "@stk_utils/class/StkIndexedDB";
 import type { TTblNames } from "@app/components/App.svelte";
 import { duelStartModes, type TDuelStartMode } from "@ygo_duel/class/Duel";
 import { min } from "@stk_utils/funcs/StkMathUtils";
+import type { ChainConfig } from "@ygo_duel/class/Duelist";
 export type TGameMode = "Preset" | "Free";
 export type DuelistHeaderRecord = IStkDataRecord & {
+  chainConfig: ChainConfig;
   previousGameMode: TGameMode;
   previousNpcId: number;
   previousNpcDeckId: number;
@@ -14,6 +16,7 @@ export interface IDuelistHeaderRecord {
   id: number;
   name: string;
   description: string;
+  chainConfig: ChainConfig;
   previousGameMode: TGameMode;
   previousNpcId: number;
   previousNpcDeckId: number;
@@ -25,6 +28,7 @@ export interface IDuelistProfile {
   description: string;
   npcLvl: number;
   npcType: "None" | "Normal" | "FtkChallenge";
+  chainConfig?: ChainConfig;
 }
 
 export class DuelistProfile implements IDuelistProfile {
@@ -37,13 +41,26 @@ export class DuelistProfile implements IDuelistProfile {
     const headers = await DuelistProfile.tblHeader.getAll();
 
     if (headers.length) {
-      console.log(headers[0].previousNpcDeckId);
-      return new DuelistProfile(headers[0]);
+      let header = headers[0];
+      if (!header.chainConfig) {
+        header = {
+          ...header,
+          chainConfig: {
+            noticeSelfChain: false,
+            noticeFreeChain: false,
+          },
+        };
+      }
+      return new DuelistProfile(header);
     }
 
     const header = await DuelistProfile.tblHeader.insert({
       name: "あなた",
       description: "ここの文字列を何に使うかは未定。",
+      chainConfig: {
+        noticeSelfChain: false,
+        noticeFreeChain: false,
+      },
       previousGameMode: "Preset",
       previousNpcId: 0,
       previousNpcDeckId: Number.MIN_SAFE_INTEGER,
@@ -56,6 +73,8 @@ export class DuelistProfile implements IDuelistProfile {
   public readonly id: number;
   public readonly name: string;
   public readonly description: string;
+  public readonly chainConfig: ChainConfig;
+
   public readonly previousGameMode: TGameMode;
   public readonly previousNpcId: number;
   public readonly previousNpcDeckId: number;
@@ -67,6 +86,7 @@ export class DuelistProfile implements IDuelistProfile {
     this.id = header.id;
     this.name = header.name;
     this.description = header.description;
+    this.chainConfig = header.chainConfig;
     this.previousGameMode = header.previousGameMode;
     this.previousNpcId = nonPlayerCharacters.find((npc) => npc.id === header.previousNpcId)?.id ?? min(...nonPlayerCharacters.map((npc) => npc.id));
     this.previousStartMode = duelStartModes.includes(header.previousStartMode) ? header.previousStartMode : "Random";
@@ -78,6 +98,12 @@ export class DuelistProfile implements IDuelistProfile {
       id: this.id,
       name: this.name,
       description: this.description,
+      chainConfig: this.chainConfig ?? {
+        noticeSelfChain: false,
+        noticeFreeChainPhase: false,
+        noticeFreeChainStep: false,
+        noticeAfterChainInMainPhase: false,
+      },
       previousGameMode: this.previousGameMode ?? "Preset",
       previousNpcId: this.previousNpcId ?? Number.MIN_SAFE_INTEGER,
       previousStartMode: this.previousStartMode,

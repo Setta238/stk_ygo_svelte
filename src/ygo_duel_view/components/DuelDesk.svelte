@@ -21,8 +21,12 @@
   import type { DummyActionInfo } from "@ygo_duel/class/DuelEntityAction";
   import type { ChoicesSweet } from "@ygo_duel/class/DuelUtilTypes";
   import DuelCutin from "./DuelCutin.svelte";
+  import { chainConfigDic, chainConfigKeys } from "@ygo_duel/class/Duelist";
+  import type { DuelistProfile } from "@ygo/class/DuelistProfile";
+  import DuelConfig from "./DuelConfig.svelte";
 
   export let duel: Duel;
+  export let userProfile: DuelistProfile;
 
   let innerWidth = 0;
   let innerHeight = 0;
@@ -176,7 +180,7 @@
         {#if cancelable}
           <button on:click={onCancelClick}>cancel</button>
         {/if}
-      {:else if userActionInfos && userActionInfos.length}
+      {:else}
         {#each userActionInfos as actionInfo}
           <button on:click={() => onActionButtonClick(actionInfo)}>{actionInfo.action.title}</button>
         {/each}
@@ -191,10 +195,12 @@
     >
       <DuelLog log={duel.log} />
       <DuelFieldCellInfo cell={duel.view.infoBoardCell} />
+      <DuelConfig {userProfile} viewController={duel.view} />
     </div>
   {/if}
 </div>
 <div style="position:absolute;left:0;bottom:0">{duel.clock.toString()}</div>
+
 <ModalContainer modalController={duel.view.modalController} />
 
 <!--

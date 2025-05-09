@@ -15,6 +15,7 @@
   import { getKeys } from "@stk_utils/funcs/StkObjectUtils";
   import { fade, slide } from "svelte/transition";
   import { userAgentInfo } from "@stk_utils/class/StkUserAgentInfo";
+  import { chainConfigDic, chainConfigKeys } from "@ygo_duel/class/Duelist";
   const idb = new StkIndexedDB<TTblNames>("stk_ygo_svelte", currentVersion, tblNames);
 
   let innerWidth = 0;
@@ -152,7 +153,7 @@
 </script>
 
 <svelte:window bind:innerWidth bind:innerHeight />
-<main>
+<main style="flex-direction: column; display :flex">
   <div class="link link_left">
     <a href="https://github.com/Setta238/stk_ygo_svelte" target="_blank" rel="noopener noreferrer" title="repository">repository</a>
     <a href="https://x.com/ninja_no" target="_blank" rel="noopener noreferrer" title="repository">X(Twitter)</a>
@@ -165,7 +166,9 @@
     <a href="/stk_ygo_svelte/note.html" target="_blank" rel="noopener noreferrer" title="repository">現時点とこの先のこと</a>
   </div>
   {#if duel}
-    <DuelDesk {duel} />
+    {#await userProfilePromise then userProfile}
+      <DuelDesk {duel} {userProfile} />
+    {/await}
   {:else if dspMode === "DeckEdit"}
     <DeckEditor />
   {:else}
@@ -374,11 +377,13 @@
   }
   .debug_info {
     display: flex;
-    flex-direction: column;
     text-align: right;
     position: absolute;
     right: 1rem;
     bottom: 1rem;
+  }
+  .debug_info * {
+    padding: 0rem 2rem;
   }
   .config_row * {
     font-size: 1.4rem;

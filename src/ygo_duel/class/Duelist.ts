@@ -20,8 +20,21 @@ import { DuelEntityShortHands } from "./DuelEntityShortHands";
 import type { EntityDefinition } from "./DuelEntityDefinition";
 import { calcBattleDamage, calcEffectDamage } from "@ygo_duel/class_continuous_effect/DuelDamageFilter";
 
-export type TLifeLogReason = "BattleDamage" | "EffectDamage" | "Heal" | "Lost" | "Pay" | "Set";
 export type TDuelistType = "NPC" | "Player";
+
+export const chainConfigKeys = ["noticeSelfChain", "noticeFreeChain"] as const;
+export type TChainConfigKey = (typeof chainConfigKeys)[number];
+export type ChainConfig = {
+  [key in TChainConfigKey]: boolean;
+};
+export const chainConfigDic: {
+  [key in TChainConfigKey]: string;
+} = {
+  noticeSelfChain: "セルフチェーン",
+  noticeFreeChain: "フリーチェーン",
+} as const;
+
+export type TLifeLogReason = "BattleDamage" | "EffectDamage" | "Heal" | "Lost" | "Pay" | "Set";
 
 type LifeLogRecord = {
   clock: IDuelClock;
@@ -126,10 +139,15 @@ export class Duelist {
   private readonly actionBlackListForNPC: Readonly<TCardActionType[]>;
   private _lp: number;
   public readonly initHand: Readonly<string[]>;
+  public readonly chainConfig: ChainConfig;
   public constructor(duel: Duel, seat: TSeat, profile: IDuelistProfile, duelistType: TDuelistType, deckInfo: IDeckInfo, hand: string[] = []) {
     this.duel = duel;
     this.seat = seat;
     this.profile = profile;
+    this.chainConfig = profile.chainConfig ?? {
+      noticeSelfChain: true,
+      noticeFreeChain: true,
+    };
     this.duelistType = duelistType;
     this.deckInfo = deckInfo;
     this.initHand = hand;

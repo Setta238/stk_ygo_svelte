@@ -31,22 +31,6 @@
   };
   entity.field.duel.view.onWaitStart.append(onWaitStart);
   let isDragging = false;
-  const dblclick = () => {
-    if (state === "Disabled") {
-      return;
-    }
-
-    if (state === "Selectable" && qty === 1) {
-      if (selectedList.some((card) => card.seq !== entity.seq)) {
-        selectedList = [entity];
-        return;
-      }
-      if (qty === 1 && entitySelectResolve) {
-        entitySelectResolve([entity]);
-      }
-    }
-  };
-
   const showCardInfo = (mode?: TCardDetailMode) => {
     if (entity.face === "FaceUp" || (entity.owner === entity.field.duel.duelists.Below && (entity.isUnderControl || isVisibleForcibly))) {
       entity.field.duel.view.showCardInfo(entity, mode ?? "Normal");
@@ -61,9 +45,9 @@
     }
     if (state === "Selectable") {
       isSelected = !isSelected;
-      if (qty === 1) {
-        selectedList.splice(0);
-        entity.duel.view.requireUpdate();
+      if (qty === 1 && entitySelectResolve) {
+        entitySelectResolve([entity]);
+        return;
       }
       selectedList = isSelected ? [...selectedList, entity] : selectedList.filter((e) => e !== entity);
       return;
@@ -138,7 +122,6 @@
     on:dragstart={dragStart}
     on:dragend={dragEnd}
     on:click={onClick}
-    on:dblclick={dblclick}
     on:mouseenter={() => showCardInfo()}
     on:contextmenu={onRightClick}
     title={entity.nm}
@@ -199,11 +182,9 @@
     </div>
   </button>
 {:else if entity.battlePosition === "Set"}
-  <button
-    class="duel_card duel_card_face_down duel_card_face_down_defense {state}  {isSelected ? 'duel_card_selected' : ''}"
-    on:click={onClick}
-    on:dblclick={dblclick}><div>裏守備</div></button
-  >
+  <button class="duel_card duel_card_face_down duel_card_face_down_defense {state}  {isSelected ? 'duel_card_selected' : ''}" on:click={onClick}>
+    <div>裏守備</div>
+  </button>
 {:else}
   <div class="duel_card duel_card_face_down"><div>セット</div></div>
 {/if}

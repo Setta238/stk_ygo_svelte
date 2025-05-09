@@ -176,7 +176,9 @@
     </div>
     <div class="duel_field_footer">
       {#if (entitiesChoices && entitiesChoices.selectables.length) || (cellsChoices && cellsChoices.selectables)}
-        <button on:click={onOkClick} disabled={!validator()}>OK</button>
+        {#if ((entitiesChoices && entitiesChoices.qty) ?? (cellsChoices && cellsChoices.qty) ?? 9999) > 1}
+          <button on:click={onOkClick} disabled={!validator()}>OK</button>
+        {/if}
         {#if cancelable}
           <button on:click={onCancelClick}>cancel</button>
         {/if}

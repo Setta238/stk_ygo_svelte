@@ -5,6 +5,17 @@ import { visualizer } from "rollup-plugin-visualizer";
 import checker from "vite-plugin-checker";
 
 // https://vite.dev/config/
+
+const tmpDate = new Date();
+
+const y = tmpDate.getFullYear().toString();
+const m = ("0" + (tmpDate.getMonth() + 1)).slice(-2);
+const d = ("0" + tmpDate.getDate()).slice(-2);
+const h = ("0" + tmpDate.getHours()).slice(-2);
+const n = ("0" + tmpDate.getMinutes()).slice(-2);
+const s = ("0" + tmpDate.getSeconds()).slice(-2);
+const timestamp = `${y}${m}${d}_${h}${n}${s}`;
+
 export default defineConfig({
   plugins: [
     svelte(),
@@ -43,8 +54,8 @@ export default defineConfig({
             return "entity_proc";
           }
         },
-        chunkFileNames: "assets/[name].js",
-        assetFileNames: "[name].[ext]",
+        chunkFileNames: `assets/[name]_${timestamp}.js`,
+        assetFileNames: `[name]_${timestamp}.[ext]`,
       },
     },
   },

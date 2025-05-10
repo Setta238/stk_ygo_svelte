@@ -605,35 +605,44 @@ export class Duelist {
       return [];
     }
 
-    let monsters = choices.map((item) => item.monster);
-
-    if (summonChoices.length !== 1 || validator([])) {
-      const hoge = await this.duel.view.waitSelectEntities(this, { selectables: monsters, qty, validator, cancelable }, msg);
-
-      monsters = hoge ?? [];
-    }
-
+    let _choices = choices.map((choice) => {
+      return { ...choice, cells: [...choice.cells], posList: [...choice.posList] };
+    });
     const summonArgs: SummonArg[] = [];
-    for (const choice of choices.filter((item) => monsters.includes(item.monster))) {
-      const selectableCells = choice.cells.filter((cell) => !summonArgs.map((arg) => arg.dest).includes(cell));
-      if (!selectableCells.length) {
-        continue;
+    while (_choices.length && summonArgs.length < (qty ?? Number.MAX_SAFE_INTEGER)) {
+      // キャンセル可能でまだ選択していないとき、または条件を満たしているときキャンセル可能
+      const _cancelable = (cancelable && !summonArgs.length) || validator(summonArgs.map((arg) => arg.monster));
+      let choice = _choices.randomPick();
+      if (_choices.length > 1) {
+        const monster = await this.waitSelectEntity(
+          _choices.map((item) => item.monster),
+          msg,
+          _cancelable
+        );
+
+        if (!monster) {
+          return summonArgs;
+        }
+
+        choice = _choices.find((choice) => choice.monster === monster) ?? choice;
       }
       let pos: TBattlePosition = [...choice.posList].randomPick();
-      let dest: DuelFieldCell = selectableCells.randomPick();
+      let dest: DuelFieldCell = [...choice.cells].randomPick();
 
-      if (selectableCells.length > 1 || choice.posList.length > 1) {
+      if (choice.cells.length || choice.posList.length) {
         // TODO NPCの場合
         if (this.duelistType !== "NPC") {
-          const item = await this.duel.view.waitSelectSummonDestination(choice.summoner, choice.monster, selectableCells, choice.posList, cancelable);
+          const item = await this.duel.view.waitSelectSummonDestination(choice.summoner, choice.monster, choice.cells, choice.posList, _cancelable);
           if (!item) {
-            return [];
+            return summonArgs;
           }
           dest = item.dest;
           pos = item.battlePosition;
         }
       }
       summonArgs.push({ summoner: this, monster: choice.monster, pos, dest });
+      _choices.forEach((choice) => (choice.cells = choice.cells.filter((cell) => !summonArgs.map((arg) => arg.dest).includes(cell))));
+      _choices = _choices.filter((_choice) => _choice !== choice).filter((_choice) => _choice.cells.length);
     }
 
     return summonArgs;

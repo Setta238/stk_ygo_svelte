@@ -8,6 +8,7 @@ import { IllegalCancelError, SystemError } from "@ygo_duel/class/Duel";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import {
+  defaultPayLifePoint,
   defaultPrepare,
   defaultTargetMonstersRebornExecute,
   defaultTargetMonstersRebornPrepare,
@@ -547,6 +548,104 @@ export default function* generate(): Generator<EntityProcDefinition> {
         },
         settle: async () => true,
       } as CardActionDefinition<unknown>,
+      defaultSpellTrapSetAction,
+    ],
+  };
+  yield {
+    name: "魔の試着部屋",
+    actions: [
+      {
+        title: "発動",
+        isMandatory: false,
+        playType: "CardActivation",
+        spellSpeed: "Normal",
+        executableCells: ["Hand", "SpellAndTrapZone"],
+        executablePeriods: ["main1", "main2"],
+        executableDuelistTypes: ["Controller"],
+        canPayCosts: (myInfo) => myInfo.activator.lp >= 800,
+        validate: (myInfo) => {
+          if (myInfo.activator.getDeckCell().cardEntities.length < 4) {
+            return;
+          }
+          const cells = myInfo.activator.getMonsterZones();
+          const list = myInfo.activator.getEnableSummonList(
+            myInfo.activator,
+            "SpecialSummon",
+            ["Effect"],
+            myInfo.action,
+            myInfo.activator
+              .getDeckCell()
+              .cardEntities.filter((card) => card.kind === "Monster")
+              .filter((monster) => monster.status.monsterCategories?.includes("Normal"))
+              .filter((monster) => (monster.lvl ?? 12) < 4)
+              .map((monster) => {
+                return { monster, posList: faceupBattlePositions, cells };
+              }),
+            [],
+            false
+          );
+          if (!list.length) {
+            return;
+          }
+          return defaultSpellTrapValidate(myInfo);
+        },
+        payCosts: (myInfo, chainBlockInfos) => defaultPayLifePoint(myInfo, chainBlockInfos, 800),
+        prepare: async () => {
+          return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromDeck"], prepared: undefined };
+        },
+        execute: async (myInfo) => {
+          if (myInfo.activator.getDeckCell().cardEntities.length < 4) {
+            return false;
+          }
+          const cards = await DuelEntityShortHands.excavateManyFromDeck(myInfo.activator, 4, ["Effect"], myInfo.action.entity, myInfo.activator);
+
+          const monsters = cards
+            .filter((card) => card.kind === "Monster")
+            .filter((monster) => monster.status.monsterCategories?.includes("Normal"))
+            .filter((monster) => (monster.lvl ?? 12) < 4);
+
+          if (monsters.length) {
+            const cells = myInfo.activator.getMonsterZones();
+            const qty = monsters.length > cells.length ? cells.length : monsters.length;
+            await myInfo.activator.summonMany(
+              myInfo.activator,
+              "SpecialSummon",
+              ["Effect"],
+              myInfo.action,
+              monsters.map((monster) => {
+                return {
+                  monster,
+                  cells,
+                  posList: faceupBattlePositions,
+                };
+              }),
+              [],
+              false,
+              qty,
+              (summoned) => summoned.length === qty,
+              false
+            );
+          }
+          await DuelEntityShortHands.sendManyToGraveyardForTheSameReason(
+            monsters.filter((monster) => !monster.isOnFieldAsMonsterStrictly),
+            ["Effect"],
+            myInfo.action.entity,
+            myInfo.activator
+          );
+          console.log(cards.filter((card) => card.fieldCell.cellType === "Deck"));
+
+          await DuelEntityShortHands.returnManyToDeckForTheSameReason(
+            "Random",
+            cards.filter((card) => card.fieldCell.cellType === "Deck"),
+            ["Effect"],
+            myInfo.action.entity,
+            myInfo.activator
+          );
+
+          return true;
+        },
+        settle: async () => true,
+      },
       defaultSpellTrapSetAction,
     ],
   };

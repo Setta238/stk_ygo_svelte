@@ -150,7 +150,8 @@ export type TDuelCauseReason =
   | "LostXyzOwner"
   | "LostEquipOwner"
   | "SummonNegated"
-  | "PutDirectly";
+  | "PutDirectly"
+  | "Excavate";
 
 export const duelEntityCardTypes = ["Card", "Token", "Avatar"] as const;
 export type TDuelEntityCardType = (typeof duelEntityCardTypes)[number];
@@ -1039,6 +1040,9 @@ export class DuelEntity {
         // ★★★★★ アニメーション ★★★★★
         await this.field.duel.view.waitAnimation({ entity: this, to: to, index: pos, count: 0 });
       }
+    }
+
+    if (to !== this.fieldCell || pos === "Random") {
       // セルから自分自身を取り除く
       this.fieldCell.releaseEntities(this);
 
@@ -1092,6 +1096,7 @@ export class DuelEntity {
       }
 
       // セルに自分を所属させる
+      console.log(this.toString(), to.cellType, pos);
       to.acceptEntities(this, pos);
 
       // ★情報のリセット、再セット

@@ -433,7 +433,7 @@ export class DuelViewController {
           title: message,
           activator: chooser,
           dummyActionInfos,
-          cancelable: false,
+          cancelable,
         }),
         this.duel.view.waitSubAction(chooser, dummyActionInfos, message, cancelable),
       ];

@@ -1,4 +1,5 @@
 import { StkEvent } from "../../stk_utils/class/StkEvent";
+import { SystemError } from "./Duel";
 import { duelEntityCardTypes, duelEntityDammyTypes } from "./DuelEntity";
 import type { DuelEntity } from "./DuelEntity";
 import type { DuelField } from "./DuelField";
@@ -17,7 +18,7 @@ export const playFieldCellTypes = [...monsterZoneCellTypes, ...spellTrapZoneCell
 export const disabledCellTypes = ["XyzMaterialZone", "Disable"] as const;
 export const duelFieldCellTypes = [...bundleCellTypes, ...playFieldCellTypes, ...disabledCellTypes] as const;
 export type DuelFieldCellType = (typeof duelFieldCellTypes)[number];
-export type TDuelEntityMovePos = "Top" | "Bottom" | "Random";
+export type TDuelEntityMovePos = "Top" | "Bottom" | "Random" | "Fix";
 
 export const cellTypeMaster = {
   0: {
@@ -181,23 +182,29 @@ export class DuelFieldCell {
     return entity;
   };
   public readonly acceptEntities = (entity: DuelEntity, pos: TDuelEntityMovePos) => {
-    if (pos === "Top") {
-      this._entities.unshift(entity);
+    if (pos === "Fix") {
+      if (!this._entities.includes(entity)) {
+        throw new SystemError("引数とセルの状態が矛盾している。", this, entity, pos);
+      }
     } else {
-      this._entities.push(entity);
-    }
+      if (pos === "Top") {
+        this._entities.unshift(entity);
+      } else {
+        this._entities.push(entity);
+      }
 
-    if (pos === "Random") {
-      this._needsShuffle = true;
-    }
-    this._entities.forEach((entity) => {
-      entity.fieldCell = this;
-    });
+      if (pos === "Random") {
+        console.log(this._needsShuffle, pos);
+        this._needsShuffle = true;
+      }
+      this._entities.forEach((entity) => {
+        entity.fieldCell = this;
+      });
 
-    if (this.isMonsterZoneLikeCell && entity.origin.monsterCategories?.includes("Link")) {
-      this._requiresRecalcLinkArrows = true;
+      if (this.isMonsterZoneLikeCell && entity.origin.monsterCategories?.includes("Link")) {
+        this._requiresRecalcLinkArrows = true;
+      }
     }
-
     this.onUpdateEvent.trigger();
   };
   public readonly shuffle = (): void => {

@@ -5,6 +5,7 @@ import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardActionDefinition, TEffectTag } from "@ygo_duel/class/DuelEntityAction";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
+import { defaultCanPayDiscardCosts, defaultPayDiscardCosts } from "@ygo_entity_proc/card_actions/CommonCardAction";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield* [
@@ -197,22 +198,14 @@ export default function* generate(): Generator<EntityProcDefinition> {
           executablePeriods: ["main1", "main2"],
           executableDuelistTypes: ["Controller"],
           priorityForNPC: 40,
-          canPayCosts: (myInfo) =>
-            myInfo.activator
-              .getHandCell()
-              .cardEntities.filter(item.filter)
-              .some((card) => myInfo.activator.canDiscard([card])),
+          canPayCosts: (myInfo) => defaultCanPayDiscardCosts(myInfo, item.filter),
           validate: (myInfo) => {
             if (myInfo.activator.getDeckCell().cardEntities.length < 2) {
               return;
             }
             return defaultSpellTrapValidate(myInfo);
           },
-          payCosts: async (myInfo) => {
-            const cost = await myInfo.activator.discard(1, ["Discard", "Cost"], myInfo.action.entity, myInfo.activator, item.filter);
-
-            return { discard: cost };
-          },
+          payCosts: async (myInfo, chainBlockInfos, cancelable) => defaultPayDiscardCosts(myInfo, cancelable, item.filter),
           prepare: async () => {
             return { selectedEntities: [], chainBlockTags: ["Draw"], prepared: undefined };
           },

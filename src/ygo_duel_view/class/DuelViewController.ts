@@ -262,6 +262,19 @@ export class DuelViewController {
     return result.length ? result : [];
   };
 
+  public readonly waitYesOrNo = async (chooser: Duelist, title: string): Promise<boolean> => {
+    const res = await this.waitSelectText(
+      chooser,
+      [
+        { seq: 0, text: "Yes" },
+        { seq: 1, text: "No" },
+      ],
+      title,
+      false
+    );
+    return res?.seq === 0;
+  };
+
   public readonly waitSelectText = async <C extends { seq: number; text: string }>(
     chooser: Duelist,
     choises: C[],

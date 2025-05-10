@@ -85,7 +85,7 @@ export type DuelEntityInfomation = {
   summonKinds: TSummonKindCauseReason[];
   materials: SummonMaterialInfo[];
   effectTargets: { [actionSeq: number]: DuelEntity[] };
-  attackCount: number;
+  attackDeclareCount: number;
   battlePotisionChangeCount: number;
   equipedBy: DuelEntity | undefined;
   equipedAs: ChainBlockInfo<unknown> | undefined;
@@ -780,7 +780,7 @@ export class DuelEntity {
     this._info = {
       kind: this.origin.kind,
       isEffectiveIn: [...duelFieldCellTypes],
-      attackCount: 0,
+      attackDeclareCount: 0,
       battlePotisionChangeCount: 0,
       isDying: false,
       isPending: false,
@@ -1140,7 +1140,7 @@ export class DuelEntity {
   };
   public readonly initForTurn = () => {
     this.info.isSettingSickness = false;
-    this.info.attackCount = 0;
+    this.info.attackDeclareCount = 0;
     this.info.battlePotisionChangeCount = 0;
 
     this.counterHolder.corpseDisposal();
@@ -1155,7 +1155,7 @@ export class DuelEntity {
       isKilledBy: undefined,
       isKilledByWhom: undefined,
       effectTargets: {},
-      attackCount: 0,
+      attackDeclareCount: 0,
       battlePotisionChangeCount: 0,
       materials: [],
       equipedBy: undefined,
@@ -1182,7 +1182,7 @@ export class DuelEntity {
       summonKinds: [],
       materials: [],
       effectTargets: {},
-      attackCount: 0,
+      attackDeclareCount: 0,
       battlePotisionChangeCount: 0,
       equipedBy: undefined,
       equipedAs: undefined,
@@ -1310,21 +1310,31 @@ DuelEntity.prototype.hasBeenSummonedJustNow = function (summonKinds: TSummonKind
 };
 
 DuelEntity.prototype.getAttackTargets = function (): DuelEntity[] {
-  if (!this.hasAttackRight()) {
-    return [];
-  }
-
   // ダイレクトアタックを阻害しうるモンスターを抽出
   const enemies = this.controller
     .getOpponentPlayer()
     .getMonstersOnField()
     .filter((enemy) => enemy.status.isSelectableForAttack);
 
-  console.log(this.toString(), this.status.canDirectAttack);
+  console.log(this.toString(), enemies, this.status.canDirectAttack);
 
   if (this.status.canDirectAttack || !enemies.length) {
+    console.log(this.toString(), enemies, this.status.canDirectAttack);
     enemies.push(this.controller.getOpponentPlayer().entity);
   }
+
+  console.log(
+    this.toString(),
+    enemies,
+    this.status.canDirectAttack,
+    enemies
+      .filter((enemy) => enemy.canBeTargetOfBattle(this.controller, this))
+      .filter((enemy) =>
+        this.procFilterBundle.effectiveOperators
+          .filter((pf) => pf.procTypes.includes("BattleTarget"))
+          .every((pf) => pf.filter(this.controller, this, {}, [enemy]))
+      )
+  );
 
   // 自分、相手ともにフィルタリングが必要。
   return enemies
@@ -1345,7 +1355,7 @@ DuelEntity.prototype.canAttackToMonster = function (): boolean {
 
 DuelEntity.prototype.hasAttackRight = function (): boolean {
   // TODO 連続攻撃モンスター、絶対防御将軍などの考慮
-  return this.battlePosition === "Attack" && this.info.attackCount === 0 && this.status.canAttack;
+  return this.battlePosition === "Attack" && this.info.attackDeclareCount === 0 && this.status.canAttack;
 };
 
 DuelEntity.prototype.canBeEffected = function (activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionDefinitionAttr>): boolean {

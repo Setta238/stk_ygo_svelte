@@ -61,6 +61,23 @@ export const defaultPayBanishCosts = async <T>(
   await DuelEntityShortHands.banishManyForTheSameReason(cost, ["Cost"], myInfo.action.entity, myInfo.activator);
   return { banish: cost };
 };
+
+export const defaultCanPayDiscardCosts = <T>(myInfo: ChainBlockInfoBase<T>, filter: (entity: DuelEntity) => boolean = () => true, qty: number = 1) =>
+  myInfo.activator
+    .getHandCell()
+    .cardEntities.filter(filter)
+    .filter((card) => myInfo.activator.canDiscard([card])).length >= qty;
+
+export const defaultPayDiscardCosts = async <T>(
+  myInfo: ChainBlockInfoBase<T>,
+  cancelable: boolean = false,
+  filter: (entity: DuelEntity) => boolean = () => true,
+  qty: number = 1
+) => {
+  const cost = await myInfo.activator.discard(qty, "Cost", filter, myInfo.action.entity, myInfo.activator, myInfo.activator, cancelable);
+  return { discard: cost };
+};
+
 export const defaultTargetMonstersRebornPrepare = async <T>(
   myInfo: ChainBlockInfoBase<T>,
   monsters: DuelEntity[],

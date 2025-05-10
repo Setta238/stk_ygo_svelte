@@ -133,7 +133,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         },
         execute: async (myInfo) => {
           await myInfo.activator.draw(3, myInfo.action.entity, myInfo.activator);
-          await myInfo.activator.discard(2, ["Effect", "Discard"], myInfo.action.entity, myInfo.activator, () => true, myInfo.activator);
+          await myInfo.activator.discard(2, "Effect", () => true, myInfo.action.entity, myInfo.activator);
           return true;
         },
         settle: async () => true,

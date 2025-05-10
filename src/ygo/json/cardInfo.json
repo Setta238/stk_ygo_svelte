@@ -21477,6 +21477,15 @@
     "description": "(1)：お互いのプレイヤーは、それぞれデッキから１枚ドローする。\n次の相手ターン終了時まで、お互いが受ける全てのダメージは０になる。",
     "kind": "Spell",
     "spellCategory": "Normal",
-    "wikiEncodedName": "%A1%D4%B0%EC%BB%FE%B5%D9%C0%EF%A1%D5"
+    "wikiEncodedName": "%A1%D4%B0%EC%BB%FE%B5%D9%C0%EF%A1%D5",
+    "nameTags": []
+  },
+  "サンダー・ブレイク": {
+    "name": "サンダー・ブレイク",
+    "nameKana": "",
+    "description": "(1)：手札を１枚捨て、フィールドのカード１枚を対象として発動できる。\nそのカードを破壊する。",
+    "kind": "Trap",
+    "trapCategory": "Normal",
+    "wikiEncodedName": "%A1%D4%A5%B5%A5%F3%A5%C0%A1%BC%A1%A6%A5%D6%A5%EC%A5%A4%A5%AF%A1%D5"
   }
 }

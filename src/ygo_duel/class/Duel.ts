@@ -281,7 +281,7 @@ export class Duel {
     }
   };
 
-  public readonly declareAnAttack = (attacker: DuelEntity, defender: DuelEntity): void => {
+  public readonly declareAnAttack = (attacker: DuelEntity, defender: DuelEntity, reselect: boolean = false): void => {
     this.attackingMonster = attacker;
     this.targetForAttack = defender;
     let def = " (" + (defender.battlePosition === "Attack" ? defender.atk : defender.def)?.toString() + ")";
@@ -293,8 +293,13 @@ export class Duel {
       def = "";
     }
 
-    attacker.info.attackCount++;
-    this.log.info(`攻撃宣言：${attacker.toString()} (${attacker.atk})⇒ ${defender.toString()}${def}`, attacker.controller);
+    const msgTitle = reselect ? "攻撃対象再選択" : "攻撃宣言";
+
+    if (!reselect) {
+      attacker.info.attackDeclareCount++;
+    }
+
+    this.log.info(`${msgTitle}:${attacker.toString()} (${attacker.atk})⇒ ${defender.toString()}${def}`, attacker.controller);
   };
 
   private readonly procDrawPhase = async () => {
@@ -378,8 +383,9 @@ export class Duel {
     }
   };
   private readonly procBattlePhase = async () => {
-    await this.procBattlePhaseStartStep();
-    await this.procBattlePhaseBattleStep();
+    if (await this.procBattlePhaseStartStep()) {
+      await this.procBattlePhaseBattleStep();
+    }
     await this.procBattlePhaseEndStep();
   };
   private readonly procBattlePhaseStartStep = async () => {
@@ -390,7 +396,7 @@ export class Duel {
     this.targetForAttack = undefined;
 
     // フェイズ強制処理
-    await this.procSpellSpeed1();
+    return await this.procSpellSpeed1();
   };
   private readonly procBattlePhaseBattleStep = async () => {
     while (true) {
@@ -411,61 +417,71 @@ export class Duel {
         await response.actionInfo.action.execute(info, []);
         this.clock.incrementChainSeq();
 
-        let damageStepFlg = true;
-        let rollbackFlg = false;
-
-        while (true) {
+        //フリーチェーン処理のループ。
+        //一回のチェーンごとに、戦闘可否判定を行い、否であればループを抜ける。
+        while (this.attackingMonster && this.targetForAttack) {
           // 巻き戻し計算のために値を控える。
           const oldTotalProcSeq = this.clock.totalProcSeq;
           const oldMonsters = this.getNonTurnPlayer().getMonstersOnField();
 
-          //フリーチェーン処理。
-          //一回のチェーンごとに、戦闘可否判定を行い、否であればループを抜ける。
-          while (damageStepFlg) {
-            const procChainResult = await this.procChain(undefined, undefined);
-            if (!this.attackingMonster) {
-              throw new SystemError("想定されない状態");
+          const procChainResult = await this.procChain(undefined, undefined);
+          if (!this.attackingMonster) {
+            throw new SystemError("想定されない状態");
+          }
+
+          if (!this.canContinueBattle()) {
+            break;
+          }
+          const attackTargets = this.attackingMonster.getAttackTargets();
+
+          if (
+            oldMonsters.some((monster) => !monster.isOnFieldAsMonsterStrictly) ||
+            this.getNonTurnPlayer()
+              .getMonstersOnField()
+              .flatMap((monster) => monster.moveLog.records)
+              .filter((record) => record.movedAt.totalProcSeq > oldTotalProcSeq)
+              .some((record) => !record.cell.isMonsterZoneLikeCell)
+          ) {
+            this.log.info(`モンスターの数が増減したためバトルステップの巻き戻しが発生。`);
+            this.targetForAttack = undefined;
+          } else if (
+            this.targetForAttack.entityType === "Duelist" &&
+            attackTargets.every((monster) => monster !== this.targetForAttack) &&
+            !this.attackingMonster.status.canDirectAttack
+          ) {
+            this.log.info(`${this.attackingMonster.toString()}が直接攻撃能力を喪失したため、バトルステップの巻き戻しが発生。`);
+            this.targetForAttack = undefined;
+          }
+          if (!this.targetForAttack) {
+            if (!attackTargets.length) {
+              this.log.info("攻撃可能な対象が存在しないため、攻撃対象選択を選択肢しなおせない。");
+              break;
+            }
+            if (this.getTurnPlayer().duelistType === "Player") {
+              if (!(await this.view.waitYesOrNo(this.getTurnPlayer(), "攻撃対象選択を選択し直す？"))) {
+                this.getTurnPlayer().writeInfoLog(`${this.attackingMonster.toString()}の攻撃宣言をキャンセル。`);
+                break;
+              }
+            }
+            this.targetForAttack = await this.getTurnPlayer().waitSelectEntity(attackTargets, "攻撃対象を選択。", true);
+            if (!this.targetForAttack) {
+              this.getTurnPlayer().writeInfoLog(`${this.attackingMonster.toString()}の攻撃宣言をキャンセル。`);
+              break;
             }
 
-            if (!this.attackingMonster.isOnFieldStrictly) {
-              this.log.info(`${this.attackingMonster.toString()}がフィールドにいなくなったため、戦闘が中断された。`);
-              damageStepFlg = false;
-            } else if (this.attackingMonster.face === "FaceDown") {
-              this.log.info(`${this.attackingMonster.toString()}が裏側守備表示になったため、戦闘が中断された。`);
-              damageStepFlg = false;
-            } else if (this.attackingMonster.orientation === "Horizontal") {
-              // TODO 絶対防御将軍などの考慮
-              this.log.info(`${this.attackingMonster.toString()}が守備表示になったため、戦闘が中断された。`);
-              damageStepFlg = false;
-            } else if (
-              oldMonsters.some((monster) => !monster.isOnFieldAsMonsterStrictly) ||
-              this.getNonTurnPlayer()
-                .getMonstersOnField()
-                .flatMap((monster) => monster.moveLog.records)
-                .filter((record) => record.movedAt.totalProcSeq > oldTotalProcSeq)
-                .some((record) => !record.cell.isMonsterZoneLikeCell)
-            ) {
-              this.log.info(`モンスターの数が増減したためバトルステップの巻き戻しが発生。`);
-              this.targetForAttack = await this.getTurnPlayer().waitSelectEntity(this.attackingMonster.getAttackTargets(), "攻撃対象を選択。", true);
-              rollbackFlg = true;
-              break;
-            }
-            if (procChainResult === "pass") {
-              break;
-            }
-          }
-          if (rollbackFlg) {
+            this.declareAnAttack(this.attackingMonster, this.targetForAttack, true);
+
             continue;
           }
-
-          break;
+          if (procChainResult === "pass") {
+            break;
+          }
         }
 
-        if (!damageStepFlg) {
-          continue;
+        if (this.attackingMonster && this.targetForAttack) {
+          //ダメージステップ処理へ
+          await this.procBattlePhaseDamageStep(info);
         }
-        //ダメージステップ処理へ
-        await this.procBattlePhaseDamageStep(info);
       }
     }
   };
@@ -478,28 +494,52 @@ export class Duel {
       throw new SystemError("想定されない状態", this.attackingMonster, this.targetForAttack);
     }
 
-    await this.procBattlePhaseDamageStep1();
-    await this.procBattlePhaseDamageStep2(this.attackingMonster, this.targetForAttack);
-    await this.procBattlePhaseDamageStep3(chainBlockInfo, this.attackingMonster, this.targetForAttack);
-    await this.procBattlePhaseDamageStep4();
-    await this.procBattlePhaseDamageStep5();
+    for (const procBattlePhaseDamageStep of [
+      this.procBattlePhaseDamageStep1,
+      this.procBattlePhaseDamageStep2,
+      this.procBattlePhaseDamageStep3,
+      this.procBattlePhaseDamageStep4,
+      this.procBattlePhaseDamageStep5,
+    ]) {
+      if (!(await procBattlePhaseDamageStep(chainBlockInfo))) {
+        return;
+      }
+    }
   };
-  private readonly procBattlePhaseDamageStep1 = async () => {
+  private readonly procBattlePhaseDamageStep1 = async (): Promise<boolean> => {
     this.clock.setStage(this, "start");
-    //ダメージステップ開始時 ※「ダメージ計算を行わずに」などと記載されたものなど
-    //TODO エフェクト処理
-    await this.procSpellSpeed1();
+    //ダメージステップ開始時
+    // https://yugioh-wiki.net/index.php?%A5%C0%A5%E1%A1%BC%A5%B8%A5%B9%A5%C6%A5%C3%A5%D7%B3%AB%BB%CF%BB%FE
+    // 「ダメージ計算を行わずに」などと記載された効果は、原則としてここで発動する。
+    //『ダメージステップ開始時』であることを条件とする誘発効果は、ダメージステップ開始時の最初のチェーン上でのみ発動できる。
+    return await this.procFreeChain(this.canContinueBattle);
   };
-  private readonly procBattlePhaseDamageStep2 = async (attacker: DuelEntity, defender: DuelEntity) => {
+  private readonly procBattlePhaseDamageStep2 = async (): Promise<boolean> => {
+    if (!this.attackingMonster) {
+      throw new SystemError("想定されない状態", this.attackingMonster);
+    }
+    if (!this.targetForAttack) {
+      throw new SystemError("想定されない状態", this.targetForAttack);
+    }
+    const attacker = this.attackingMonster;
+    const defender = this.targetForAttack;
     this.clock.setStage(this, "beforeDmgCalc");
     //ダメージ計算前 ※裏側守備表示モンスターを表にする
-    if (defender?.battlePosition === "Set") {
+    if (defender.battlePosition === "Set") {
       defender.setBattlePosition("Defense", ["Flip", "FlipByBattle"], attacker, attacker.controller);
     }
     //TODO 「ライトロード・モンク エイリン」「ドリルロイド」等、
-    await this.procSpellSpeed1();
+    return await this.procFreeChain(this.canContinueBattle);
   };
-  private readonly procBattlePhaseDamageStep3 = async (chainBlockInfo: ChainBlockInfo<unknown>, attacker: DuelEntity, defender: DuelEntity) => {
+  private readonly procBattlePhaseDamageStep3 = async (chainBlockInfo: ChainBlockInfo<unknown>): Promise<boolean> => {
+    if (!this.attackingMonster) {
+      throw new SystemError("想定されない状態", this.attackingMonster);
+    }
+    if (!this.targetForAttack) {
+      throw new SystemError("想定されない状態", this.targetForAttack);
+    }
+    const attacker = this.attackingMonster;
+    const defender = this.targetForAttack;
     if (attacker.atk === undefined) {
       throw new SystemError("想定されない状態", this.attackingMonster, this.targetForAttack);
     }
@@ -510,7 +550,9 @@ export class Duel {
 
     //ダメージ計算時②各種効果の発動 ※《プライドの咆哮》など
     // TODO １つ目のチェーンのみ、「ダメージ計算時」を条件とする効果を発動できる
-    await this.procSpellSpeed1();
+    if (!(await this.procFreeChain(this.canContinueBattle))) {
+      return false;
+    }
 
     //ダメージ計算時③ダメージ計算 ～ ④ダメージ数値確定 ～ ⑤戦闘ダメージの発生
     const atkPoint = attacker.atk;
@@ -555,12 +597,16 @@ export class Duel {
       }
       throw new DuelEnd(undefined, "戦闘ダメージによって、お互いのライフポイントがゼロになった。");
     }
+    return true;
   };
-  private readonly procBattlePhaseDamageStep4 = async () => {
+  private readonly procBattlePhaseDamageStep4 = async (): Promise<boolean> => {
     this.clock.setStage(this, "afterDmgCalc");
     //ダメージ計算後
     // ダメージ発生、戦闘発生をトリガーとする効果、またはダメージ計算後を直接指定する効果
-    await this.procSpellSpeed1();
+    if (!(await this.procFreeChain())) {
+      return false;
+    }
+    return true;
   };
   private readonly procBattlePhaseDamageStep5 = async () => {
     this.clock.setStage(this, "end");
@@ -573,8 +619,12 @@ export class Duel {
 
     //ダメージステップ終了時
     // 戦闘破壊されて墓地に送られた場合の効果
-    await this.procSpellSpeed1();
+    if (!(await this.procFreeChain())) {
+      return false;
+    }
+    return true;
   };
+
   private readonly procBattlePhaseEndStep = async () => {
     this.clock.setStep(this, "end");
     this.priorityHolder = this.getTurnPlayer();
@@ -594,7 +644,7 @@ export class Duel {
       if (qty < 7) {
         break;
       }
-      await this.getTurnPlayer().discard(qty - 6, ["Rule"]);
+      await this.getTurnPlayer().discard(qty - 6, "Rule");
       // TODO トリガー効果のみ発動可能
     }
 
@@ -602,6 +652,23 @@ export class Duel {
 
     this.moveNextPhase("draw");
     return;
+  };
+  private readonly canContinueBattle = (): boolean => {
+    if (!this.attackingMonster) {
+      return false;
+    }
+    if (!this.attackingMonster.isOnFieldStrictly) {
+      this.log.info(`${this.attackingMonster.toString()}がフィールドに存在しなくなっため、戦闘が中断された。`);
+      this.attackingMonster = undefined;
+    } else if (this.attackingMonster.face === "FaceDown") {
+      this.log.info(`${this.attackingMonster.toString()}が裏側守備表示になったため、戦闘が中断された。`);
+      this.attackingMonster = undefined;
+    } else if (this.attackingMonster.orientation === "Horizontal") {
+      // TODO 絶対防御将軍などの考慮
+      this.log.info(`${this.attackingMonster.toString()}が守備表示になったため、戦闘が中断された。`);
+      this.attackingMonster = undefined;
+    }
+    return Boolean(this.attackingMonster);
   };
 
   private readonly procSpellSpeed1 = async () => {
@@ -629,8 +696,10 @@ export class Duel {
       mandatoryCount[this.priorityHolder.seat] = actionInfos.filter((info) => info.action.isMandatory).length;
 
       // 強制効果が残っておらず、お互いスキップしたならばループを抜ける。
-      if (Object.values(mandatoryCount).every((count) => count === 0) && skipCount > 1) {
-        break;
+      if (Object.values(mandatoryCount).every((count) => count === 0)) {
+        if (skipCount > 1) {
+          break;
+        }
       }
 
       // 強制効果を適当にピックアップしておく
@@ -661,13 +730,7 @@ export class Duel {
       if (actionInfos.length && (actionInfos.length > 1 || !actionInfo)) {
         // この部分のチェーンチェックは、設定と状況によってスキップ可能とする。
         if (this.priorityHolder.chainConfig.noticeFreeChain || actionInfos.some((info) => info.action.isNoticedForcibly)) {
-          actionInfo = await this.view.waitQuickEffect(
-            this.priorityHolder,
-            actionInfos,
-            [],
-            cancelable ? this.clock.period.name : "まだ発動しなければならない効果が残っている。",
-            cancelable
-          );
+          actionInfo = await this.view.waitQuickEffect(this.priorityHolder, actionInfos, [], this.clock.period.name, cancelable);
         }
       }
 
@@ -680,7 +743,9 @@ export class Duel {
         }
 
         // フリーチェーン処理
-        await this.procFreeChain();
+        if (!(await this.procFreeChain())) {
+          return false;
+        }
         // ターンプレイヤーに優先権が戻る
         this.priorityHolder = this.getTurnPlayer();
 
@@ -692,13 +757,22 @@ export class Duel {
       this.priorityHolder = this.priorityHolder.getOpponentPlayer();
       skipCount++;
     }
+    return true;
   };
 
-  private readonly procFreeChain = async () => {
+  private readonly procFreeChain = async (validator: () => boolean = () => true): Promise<boolean> => {
+    const currentPeriodKey = this.clock.period.key;
+
     // フリーチェーン処理
     while ((await this.procChain(undefined, undefined)) !== "pass") {
-      //
+      if (this.clock.period.key !== currentPeriodKey) {
+        return false;
+      }
+      if (!validator()) {
+        return false;
+      }
     }
+    return true;
   };
 
   /**

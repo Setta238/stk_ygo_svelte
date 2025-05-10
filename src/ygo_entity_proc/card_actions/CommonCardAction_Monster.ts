@@ -245,13 +245,17 @@ const defaultDeclareAttackValidate = (myInfo: ChainBlockInfoBase<unknown>): Duel
   if (!myInfo.activator.isTurnPlayer) {
     return undefined;
   }
+  if (myInfo.action.entity.info.attackDeclareCount > 0 || myInfo.action.entity.battlePosition !== "Attack") {
+    return;
+  }
+
   const targets = myInfo.action.entity.getAttackTargets();
 
   // 攻撃対象をダイレクトアタック含めて抽出し、セルに変換
   return targets.length ? targets.map((e) => e.fieldCell) : undefined;
 };
 const defaultDeclareAttackPrepare = async (myInfo: ChainBlockInfoBase<unknown>): Promise<ChainBlockInfoPrepared<unknown> | undefined> => {
-  if (myInfo.action.entity.info.attackCount > 0 || myInfo.action.entity.battlePosition !== "Attack") {
+  if (myInfo.action.entity.info.attackDeclareCount > 0 || myInfo.action.entity.battlePosition !== "Attack") {
     return;
   }
 
@@ -335,7 +339,7 @@ export const defaultFlipSummonAction: CardActionDefinition<unknown> = {
   executableDuelistTypes: ["Controller"],
   validate: (myInfo) =>
     myInfo.action.entity.info.battlePotisionChangeCount === 0 &&
-    myInfo.action.entity.info.attackCount === 0 &&
+    myInfo.action.entity.info.attackDeclareCount === 0 &&
     myInfo.activator.isTurnPlayer &&
     myInfo.action.entity.face === "FaceDown"
       ? []
@@ -359,7 +363,7 @@ export const defaultBattlePotisionChangeAction: CardActionDefinition<unknown> = 
   executableDuelistTypes: ["Controller"],
   validate: (myInfo) =>
     myInfo.action.entity.info.battlePotisionChangeCount === 0 &&
-    myInfo.action.entity.info.attackCount === 0 &&
+    myInfo.action.entity.info.attackDeclareCount === 0 &&
     myInfo.activator.isTurnPlayer &&
     myInfo.action.entity.face === "FaceUp"
       ? []

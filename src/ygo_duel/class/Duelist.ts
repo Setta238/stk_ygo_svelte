@@ -469,33 +469,38 @@ export class Duelist {
 
   public readonly discard = async (
     qty: number,
-    movedAs: TDuelCauseReason[],
+    reason: "Rule" | "Cost" | "Effect",
+    filter: (entity: DuelEntity) => boolean = () => true,
     causedBy?: DuelEntity,
+    activator?: Duelist,
     chooser?: Duelist,
-    filter?: (entity: DuelEntity) => boolean,
-    causedByWhome?: Duelist
-  ): Promise<DuelEntity[]> => {
-    const _filter: (entity: DuelEntity) => boolean = filter || (() => true);
-    const choices = this.getHandCell().cardEntities.filter(_filter);
+    cancelable: boolean = false
+  ): Promise<DuelEntity[] | undefined> => {
+    const choices = this.getHandCell().cardEntities.filter(filter);
 
     if (choices.length < qty) {
       return [];
     }
     let selectedList = [] as DuelEntity[];
-    if ((chooser || this).duelistType === "NPC") {
+    if (choices.length === qty) {
+      selectedList = choices;
+    } else if ((chooser || this).duelistType === "NPC") {
       // NPCに選択権がある場合、ランダムに手札を捨てる。
       selectedList = choices.randomPickMany(qty);
     } else {
-      selectedList =
-        (await this.duel.view.waitSelectEntities(
-          chooser || this,
-          { selectables: choices, qty, validator: (list) => list.length === qty, cancelable: false },
-          `${qty}枚カードを捨てる。`
-        )) || [];
+      const _selectedList = await this.duel.view.waitSelectEntities(
+        chooser || this,
+        { selectables: choices, qty, validator: (list) => list.length === qty, cancelable },
+        `${qty}枚カードを捨てる。`
+      );
+      if (!_selectedList) {
+        return;
+      }
+      selectedList = _selectedList;
     }
     this.writeInfoLog(`手札からカードを${selectedList.length}枚捨てた。${selectedList.map((e) => e.origin?.name)}。`);
 
-    await DuelEntityShortHands.discardManyForTheSameReason(selectedList, ["Discard", ...movedAs], causedBy, causedByWhome);
+    await DuelEntityShortHands.discardManyForTheSameReason(selectedList, ["Discard", reason], causedBy, activator);
 
     return selectedList;
   };

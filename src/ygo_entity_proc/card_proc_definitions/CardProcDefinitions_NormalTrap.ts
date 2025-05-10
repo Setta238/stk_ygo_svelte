@@ -4,7 +4,13 @@ import {} from "@stk_utils/funcs/StkArrayUtils";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
-import { defaultTargetMonstersRebornExecute, defaultTargetMonstersRebornPrepare } from "../card_actions/CommonCardAction";
+import {
+  defaultCanPayDiscardCosts,
+  defaultPayDiscardCosts,
+  defaultTargetMonstersRebornExecute,
+  defaultTargetMonstersRebornPrepare,
+} from "../card_actions/CommonCardAction";
+import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
@@ -55,8 +61,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: freeChainDuelPeriodKeys,
         executableDuelistTypes: ["Controller"],
         hasToTargetCards: true,
-        // 墓地に蘇生可能モンスター、場に空きが必要。
         validate: (myInfo) => {
+          // 墓地に蘇生可能モンスター、場に空きが必要。
           const cells = myInfo.activator.getMonsterZones();
           const list = myInfo.activator.getEnableSummonList(
             myInfo.activator,
@@ -88,6 +94,55 @@ export default function* generate(): Generator<EntityProcDefinition> {
             ["Defense"]
           ),
         execute: async (myInfo) => defaultTargetMonstersRebornExecute(myInfo, ["Defense"]),
+        settle: async () => true,
+      },
+      defaultSpellTrapSetAction,
+    ],
+  };
+  yield {
+    name: "サンダー・ブレイク",
+    actions: [
+      {
+        title: "発動",
+        isMandatory: false,
+        playType: "CardActivation",
+        spellSpeed: "Quick",
+        executableCells: ["SpellAndTrapZone"],
+        executablePeriods: freeChainDuelPeriodKeys,
+        executableDuelistTypes: ["Controller"],
+        hasToTargetCards: true,
+        canPayCosts: (myInfo) => defaultCanPayDiscardCosts(myInfo),
+        validate: (myInfo) => {
+          const monsters = myInfo.action.entity.field.getMonstersOnFieldStrictly().filter((monster) => monster.canBeTargetOfEffect(myInfo));
+          if (!monsters.length) {
+            return;
+          }
+          return defaultSpellTrapValidate(myInfo);
+        },
+        payCosts: async (myInfo, chainBlockInfos, cancelable) => defaultPayDiscardCosts(myInfo, cancelable),
+        prepare: async (myInfo, chainBlockInfos, cancelable) => {
+          const monsters = myInfo.action.entity.field.getMonstersOnFieldStrictly().filter((monster) => monster.canBeTargetOfEffect(myInfo));
+          const selected = await myInfo.activator.waitSelectEntity(monsters, "対象とするモンスターを選択", cancelable);
+          if (!selected) {
+            return;
+          }
+          return {
+            selectedEntities: [selected],
+            chainBlockTags: myInfo.action.calcChainBlockTagsForDestroy(myInfo.activator, [selected]),
+            prepared: undefined,
+          };
+        },
+        execute: async (myInfo) => {
+          const target = myInfo.selectedEntities[0];
+          // フィールドにいなければ効果なし
+          if (!target.isOnFieldAsMonsterStrictly) {
+            return false;
+          }
+
+          await DuelEntityShortHands.tryDestroy(myInfo.selectedEntities, myInfo);
+
+          return true;
+        },
         settle: async () => true,
       },
       defaultSpellTrapSetAction,

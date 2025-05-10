@@ -24,7 +24,6 @@
   let duelistResponseResolve: (res: DuelistResponseBase) => void = () => {};
   export let qty: number | undefined = undefined;
   const onWaitStart: (args: WaitStartEventArg) => void = (args) => {
-    console.log(args);
     activator = args.activator;
     isSelected = false;
     qty = args.entitiesChoices?.qty;

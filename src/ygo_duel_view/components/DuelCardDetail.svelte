@@ -87,16 +87,24 @@
       {:else}
         <div class="duel_card_info_row">
           <div>
-            <div>"info" :{"{"}</div>
-            {#each Object.entries(entity.info) as [key, value]}
-              <div>"{key}" :{value?.toString()},</div>
+            {#each ["info", "status"] as const as prop}
+              <div>"{prop}" :{"{"}</div>
+              {#each Object.entries(entity[prop]) as [key, value]}
+                <div>
+                  "{key}" :
+                  {#if Array.isArray(value)}
+                    [
+                    {#each value as item}
+                      {item.toString()},
+                    {/each}
+                    ],
+                  {:else}
+                    {value?.toString()},
+                  {/if}
+                </div>
+              {/each}
+              <div>{"},"}</div>
             {/each}
-            <div>{"},"}</div>
-            <div>"status" :{"{"}</div>
-            {#each Object.entries(entity.status) as [key, value]}
-              <div>"{key}" :{value?.toString()},</div>
-            {/each}
-            <div>{"},"}</div>
             <div>"actions" :{"["}</div>
             {#each entity.actions as action}
               <div>"{action.playType} {action.title}",</div>

@@ -3,7 +3,7 @@ import { type IDeckInfo } from "@ygo/class/DeckInfo";
 import { Duel, DuelEnd, SystemError, type ResponseActionInfo, type TSeat } from "./Duel";
 import { DuelEntity, type SummonArg, type TDuelCauseReason, type TSummonKindCauseReason } from "./DuelEntity";
 import type { IDuelClock } from "./DuelClock";
-import type { DuelFieldCell } from "./DuelFieldCell";
+import type { DuelFieldCell, DuelFieldCellType } from "./DuelFieldCell";
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
 import {
@@ -297,35 +297,38 @@ export class Duelist {
   public readonly getOpponentPlayer = (): Duelist => {
     return this.duel.firstPlayer === this ? this.duel.secondPlayer : this.duel.firstPlayer;
   };
+  public readonly getCells = (...cellTypeList: Readonly<DuelFieldCellType[]>): DuelFieldCell[] => {
+    return this.duel.field.getCells(...cellTypeList).filter((cell) => cell.owner === this);
+  };
   public readonly getHandCell = (): DuelFieldCell => {
-    return this.duel.field.getCells("Hand").filter((cell) => cell.owner === this)[0];
+    return this.getCells("Hand")[0];
   };
   public readonly getDeckCell = (): DuelFieldCell => {
-    return this.duel.field.getCells("Deck").filter((cell) => cell.owner === this)[0];
+    return this.getCells("Deck")[0];
   };
   public readonly getExtraDeck = (): DuelFieldCell => {
-    return this.duel.field.getCells("ExtraDeck").filter((cell) => cell.owner === this)[0];
+    return this.getCells("ExtraDeck")[0];
   };
   public readonly getGraveyard = (): DuelFieldCell => {
-    return this.duel.field.getCells("Graveyard").filter((cell) => cell.owner === this)[0];
+    return this.getCells("Graveyard")[0];
   };
   public readonly getFieldZone = (): DuelFieldCell => {
-    return this.duel.field.getCells("FieldSpellZone").filter((cell) => cell.owner === this)[0];
+    return this.getCells("FieldSpellZone")[0];
   };
   public readonly getBanished = (): DuelFieldCell => {
-    return this.duel.field.getCells("Banished").filter((cell) => cell.owner === this)[0];
+    return this.getCells("Banished")[0];
   };
   public readonly getMonsterZones = (): DuelFieldCell[] => {
-    return this.duel.field.getCells("MonsterZone").filter((cell) => cell.owner === this);
+    return this.getCells("MonsterZone");
   };
   public readonly getExtraMonsterZones = (): DuelFieldCell[] => {
-    return this.duel.field.getCells("ExtraMonsterZone").filter((cell) => cell.cardEntities[0]?.controller === this);
+    return this.getCells("ExtraMonsterZone");
   };
   public readonly getSpellTrapZones = (): DuelFieldCell[] => {
-    return this.duel.field.getCells("SpellAndTrapZone").filter((cell) => cell.owner === this);
+    return this.getCells("SpellAndTrapZone");
   };
   public readonly getXyzMaterialZone = (): DuelFieldCell => {
-    return this.duel.field.getCells("XyzMaterialZone").filter((cell) => cell.owner === this)[0];
+    return this.getCells("XyzMaterialZone")[0];
   };
   public readonly getEmptyMonsterZones = (): DuelFieldCell[] => {
     return this.getMonsterZones().filter((cell) => cell.cardEntities.length === 0);

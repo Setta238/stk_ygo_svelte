@@ -27,14 +27,7 @@ import {
 import { type Duelist } from "./Duelist";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
-import {
-  EntityAction,
-  type CardActionDefinition,
-  type CardActionDefinitionAttr,
-  type ChainBlockInfo,
-  type ChainBlockInfoBase,
-  type SummonMaterialInfo,
-} from "./DuelEntityAction";
+import { EntityAction, type CardActionDefinitionAttr, type ChainBlockInfo, type ChainBlockInfoBase, type SummonMaterialInfo } from "./DuelEntityAction";
 import { ProcFilterBundle, type TBanishProcType, type TProcType } from "../class_continuous_effect/DuelProcFilter";
 import { ContinuousEffect, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { NumericStateOperatorBundle } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
@@ -813,10 +806,8 @@ export class DuelEntity {
     this.moveLog = new EntityMoveLog(this);
     this.moveLog.pushForRuleAction(["Spawn"]);
 
-    let actionBases: CardActionDefinition<unknown>[] = [];
     let continuousEffectBases: ContinuousEffectBase<unknown>[] = [];
 
-    actionBases = definition.actions;
     continuousEffectBases = definition.continuousEffects ?? [];
     this.substituteEffects.push(...(definition.substituteEffects ?? []).map((base) => SubstituteEffect.createNew(this, base)));
 
@@ -847,7 +838,7 @@ export class DuelEntity {
         )
       );
     }
-    this.actions.push(...actionBases.map((b) => EntityAction.createNew(this, b)));
+    this.actions.push(...definition.actions.map((b) => EntityAction.createNew(this, b)));
     this.continuousEffects.push(...continuousEffectBases.map((b) => ContinuousEffect.createNew(this, b)));
   }
 

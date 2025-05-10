@@ -7,12 +7,16 @@ import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 import type { Duelist } from "@ygo_duel/class/Duelist";
 import type { SubstituteEffectDefinition } from "@ygo_duel/class/DuelSubstituteEffect";
 import { cardInfoDic } from "@ygo/class/CardInfo";
-import { defaultNormalMonsterActions, defaultSummonFilter } from "../../ygo_entity_proc/card_actions/CommonCardAction_Monster";
+import {
+  defaultNormalMonsterActions,
+  defaultSpecialSummonMonsterActions,
+  defaultSummonFilter,
+} from "../../ygo_entity_proc/card_actions/CommonCardAction_Monster";
 import { createDuelistProcDefinition } from "@ygo_entity_proc/duelist_proc_definitions/DuelistProcDefinitions";
 
 export type EntityProcDefinition = {
   name: string;
-  actions: EntityActionDefinition<unknown>[];
+  actions: Readonly<EntityActionDefinition<unknown>[]>;
   continuousEffects?: ContinuousEffectBase<unknown>[];
   summonFilter?: (
     filter: SummonFilter,
@@ -77,19 +81,22 @@ export function* generateCardDefinitions(...names: string[]): Generator<EntityDe
     }
   }
 
-  // 残ったもののうち、ペンデュラムモンスター以外の通常モンスターを返す
+  // 残ったもののうち、ペンデュラムモンスターと効果モンスター以外のモンスターを返す
   yield* names
     .filter((name) => !_names.includes(name))
     .map((name) => cardInfoDic[name])
     .filter((info) => info)
     .filter((info) => info.kind === "Monster")
-    .filter((info) => info.monsterCategories?.includes("Normal"))
+    .filter((info) => !info.monsterCategories?.includes("Effect"))
     .filter((info) => !info.monsterCategories?.includes("Pendulum"))
     .map((info) => {
       _names.push(info.name);
+      if (info.monsterCategories?.includes("SpecialSummon")) {
+        console.log(info.name);
+      }
       return {
         name: info.name,
-        actions: defaultNormalMonsterActions,
+        actions: info.monsterCategories?.includes("SpecialSummon") ? defaultSpecialSummonMonsterActions : defaultNormalMonsterActions,
         staticInfo: info,
       };
     });

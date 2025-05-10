@@ -386,7 +386,8 @@ export const defaultSelfRebornExecute = async <T>(myInfo: ChainBlockInfo<T>, pos
   return true;
 };
 
-export const defaultNormalMonsterActions = [defaultAttackAction, defaultBattlePotisionChangeAction, defaultFlipSummonAction, defaultNormalSummonAction];
+export const defaultSpecialSummonMonsterActions = [defaultAttackAction, defaultBattlePotisionChangeAction, defaultFlipSummonAction] as const;
+export const defaultNormalMonsterActions = [...defaultSpecialSummonMonsterActions, defaultNormalSummonAction] as const;
 
 /**
  * 通常の特殊召喚モンスター用

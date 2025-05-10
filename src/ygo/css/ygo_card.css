@@ -21,16 +21,20 @@
 }
 .duel_card.Xyz .duel_card_detail {
   background-color: black;
-}
-.duel_card.Link {
+}.duel_card.Link {
   background-color: mediumblue;
   color: white;
+}
+
+.duel_card.Ritual .duel_card_detail {
+  background-color:cornflowerblue;
+}.duel_card.Ritual {
+  background-color:cornflowerblue
 }
 
 .duel_card.Link .duel_card_detail {
   background-color: mediumblue;
 }
-
 .duel_card.Spell {
   background-color: forestgreen;
   color: white;

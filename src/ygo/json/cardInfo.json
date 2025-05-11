@@ -21615,5 +21615,1849 @@
       "Fish"
     ],
     "wikiEncodedName": "%A1%D4%CD%D7%BA%C9%A5%AF%A5%B8%A5%E9%A1%D5"
+  },
+  "カルボナーラ戦士": {
+    "name": "カルボナーラ戦士",
+    "nameKana": "",
+    "description": "「マグネッツ１号」＋「マグネッツ２号」",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 4,
+    "attack": 1500,
+    "defense": 1200,
+    "attributes": [
+      "Earth"
+    ],
+    "types": [
+      "Warrior"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%AB%A5%EB%A5%DC%A5%CA%A1%BC%A5%E9%C0%EF%BB%CE%A1%D5"
+  },
+  "クリッチー": {
+    "name": "クリッチー",
+    "nameKana": "",
+    "description": "｢クリッター｣＋｢黒き森のウィッチ｣",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 6,
+    "attack": 2100,
+    "defense": 1800,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Spellcaster"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%AF%A5%EA%A5%C3%A5%C1%A1%BC%A1%D5"
+  },
+  "スケルゴン": {
+    "name": "スケルゴン",
+    "nameKana": "",
+    "description": "メデューサの亡霊＋暗黒の竜王",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 6,
+    "attack": 1700,
+    "defense": 1900,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Zombie"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%B9%A5%B1%A5%EB%A5%B4%A5%F3%A1%D5"
+  },
+  "スチームジャイロイド": {
+    "name": "スチームジャイロイド",
+    "nameKana": "",
+    "description": "「ジャイロイド」＋「スチームロイド」",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "nameTags": [
+      "ロイド"
+    ],
+    "level": 6,
+    "attack": 2200,
+    "defense": 1600,
+    "attributes": [
+      "Earth"
+    ],
+    "types": [
+      "Machine"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%B9%A5%C1%A1%BC%A5%E0%A5%B8%A5%E3%A5%A4%A5%ED%A5%A4%A5%C9%A1%D5"
+  },
+  "テセウスの魔棲物": {
+    "name": "テセウスの魔棲物",
+    "nameKana": "",
+    "description": "チューナー×２",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "Tuner",
+      "SpecialSummon"
+    ],
+    "level": 5,
+    "attack": 2200,
+    "defense": 1800,
+    "attributes": [
+      "Water"
+    ],
+    "types": [
+      "Zombie"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%C6%A5%BB%A5%A6%A5%B9%A4%CE%CB%E2%C0%B3%CA%AA%A1%D5"
+  },
+  "バラに棲む悪霊": {
+    "name": "バラに棲む悪霊",
+    "nameKana": "",
+    "description": "グレムリン＋スネーク・パーム",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 6,
+    "attack": 2000,
+    "defense": 1800,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Plant"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%D0%A5%E9%A4%CB%C0%B3%A4%E0%B0%AD%CE%EE%A1%D5"
+  },
+  "バロックス": {
+    "name": "バロックス",
+    "nameKana": "",
+    "description": "キラーパンダ＋ガーゴイル",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 5,
+    "attack": 1380,
+    "defense": 1530,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Fiend"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%D0%A5%ED%A5%C3%A5%AF%A5%B9%A1%D5"
+  },
+  "フュージョニスト": {
+    "name": "フュージョニスト",
+    "nameKana": "",
+    "description": "「プチテンシ」＋「スリーピィ」",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 3,
+    "attack": 900,
+    "defense": 700,
+    "attributes": [
+      "Earth"
+    ],
+    "types": [
+      "Beast"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%D5%A5%E5%A1%BC%A5%B8%A5%E7%A5%CB%A5%B9%A5%C8%A1%D5"
+  },
+  "ブラキオレイドス": {
+    "name": "ブラキオレイドス",
+    "nameKana": "",
+    "description": "二頭を持つキング・レックス＋屍を貪る竜",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 6,
+    "attack": 2200,
+    "defense": 2000,
+    "attributes": [
+      "Water"
+    ],
+    "types": [
+      "Dinosaur"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%D6%A5%E9%A5%AD%A5%AA%A5%EC%A5%A4%A5%C9%A5%B9%A1%D5"
+  },
+  "プラグティカル": {
+    "name": "プラグティカル",
+    "nameKana": "",
+    "description": "トラコドン＋フレイム・ヴァイパー",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 5,
+    "attack": 1900,
+    "defense": 1500,
+    "attributes": [
+      "Earth"
+    ],
+    "types": [
+      "Dinosaur"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%D7%A5%E9%A5%B0%A5%C6%A5%A3%A5%AB%A5%EB%A1%D5"
+  },
+  "マブラス": {
+    "name": "マブラス",
+    "nameKana": "",
+    "description": "「タイホーン」＋「邪炎の翼」",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 4,
+    "attack": 1300,
+    "defense": 900,
+    "attributes": [
+      "Wind"
+    ],
+    "types": [
+      "WingedBeast"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%DE%A5%D6%A5%E9%A5%B9%A1%D5"
+  },
+  "ミノケンタウロス": {
+    "name": "ミノケンタウロス",
+    "nameKana": "",
+    "description": "「ミノタウルス」＋「ケンタウロス」",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 6,
+    "attack": 2000,
+    "defense": 1700,
+    "attributes": [
+      "Earth"
+    ],
+    "types": [
+      "BeastWarrior"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%DF%A5%CE%A5%B1%A5%F3%A5%BF%A5%A6%A5%ED%A5%B9%A1%D5"
+  },
+  "暗黒火炎龍": {
+    "name": "暗黒火炎龍",
+    "nameKana": "",
+    "description": "「火炎草」＋「プチリュウ」",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 4,
+    "attack": 1500,
+    "defense": 1250,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Dragon"
+    ],
+    "wikiEncodedName": "%A1%D4%B0%C5%B9%F5%B2%D0%B1%EA%CE%B6%A1%D5"
+  },
+  "炎の騎士 キラー": {
+    "name": "炎の騎士 キラー",
+    "nameKana": "",
+    "description": "「モンスター・エッグ」＋「スティング」",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 3,
+    "attack": 1100,
+    "defense": 800,
+    "attributes": [
+      "Fire"
+    ],
+    "types": [
+      "Pyro"
+    ],
+    "wikiEncodedName": "%A1%D4%B1%EA%A4%CE%B5%B3%BB%CE+%A5%AD%A5%E9%A1%BC%A1%D5"
+  },
+  "炎の剣士": {
+    "name": "炎の剣士",
+    "nameKana": "",
+    "description": "「炎を操る者」＋「伝説の剣豪 ＭＡＳＡＫＩ」",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 5,
+    "attack": 1800,
+    "defense": 1600,
+    "attributes": [
+      "Fire"
+    ],
+    "types": [
+      "Warrior"
+    ],
+    "wikiEncodedName": "%A1%D4%B1%EA%A4%CE%B7%F5%BB%CE%A1%D5"
+  },
+  "音楽家の帝王": {
+    "name": "音楽家の帝王",
+    "nameKana": "",
+    "description": "「黒き森のウィッチ」＋「ハイ・プリーステス」",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "nameTags": [
+      "帝王"
+    ],
+    "level": 5,
+    "attack": 1750,
+    "defense": 1500,
+    "attributes": [
+      "Light"
+    ],
+    "types": [
+      "Spellcaster"
+    ],
+    "wikiEncodedName": "%A1%D4%B2%BB%B3%DA%B2%C8%A4%CE%C4%EB%B2%A6%A1%D5"
+  },
+  "極炎の剣士": {
+    "name": "極炎の剣士",
+    "nameKana": "",
+    "description": "「炎の剣士」＋「闘気炎斬龍」\nこのカード名の(1)(2)の効果はそれぞれ１ターンに１度しか使用できない。\n(1)：相手フィールドのモンスター１体を対象として発動できる\n（このカードが装備カードを装備している場合、この効果は相手ターンでも発動できる）。\nそのモンスターを破壊し、相手に５００ダメージを与える。\n(2)：このカードが戦闘を行うダメージステップ開始時に発動できる。\nこのカードの攻撃力はターン終了時まで倍になる。\nこのターンのエンドフェイズにこのカードは破壊される。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "Effect",
+      "SpecialSummon"
+    ],
+    "level": 8,
+    "attack": 2800,
+    "defense": 1600,
+    "attributes": [
+      "Fire"
+    ],
+    "types": [
+      "Warrior"
+    ],
+    "wikiEncodedName": "%A1%D4%B6%CB%B1%EA%A4%CE%B7%F5%BB%CE%A1%D5"
+  },
+  "金色の魔象": {
+    "name": "金色の魔象",
+    "nameKana": "",
+    "description": "メデューサの亡霊＋ドラゴン・ゾンビ",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 6,
+    "attack": 2200,
+    "defense": 1800,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Zombie"
+    ],
+    "wikiEncodedName": "%A1%D4%B6%E2%BF%A7%A4%CE%CB%E2%BE%DD%A1%D5"
+  },
+  "紅陽鳥": {
+    "name": "紅陽鳥",
+    "nameKana": "",
+    "description": "セイント・バード＋スカイ・ハンター",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 6,
+    "attack": 2300,
+    "defense": 1800,
+    "attributes": [
+      "Fire"
+    ],
+    "types": [
+      "WingedBeast"
+    ],
+    "wikiEncodedName": "%A1%D4%B9%C8%CD%DB%C4%BB%A1%D5"
+  },
+  "轟きの大海蛇": {
+    "name": "轟きの大海蛇",
+    "nameKana": "",
+    "description": "「魔法のランプ」＋「ひょうすべ」",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 6,
+    "attack": 2100,
+    "defense": 1800,
+    "attributes": [
+      "Water"
+    ],
+    "types": [
+      "Aqua"
+    ],
+    "wikiEncodedName": "%A1%D4%B9%EC%A4%AD%A4%CE%C2%E7%B3%A4%BC%D8%A1%D5"
+  },
+  "黒き人食い鮫": {
+    "name": "黒き人食い鮫",
+    "nameKana": "",
+    "description": "「シーカーメン」＋「キラー・ブロッブ」＋「海原の女戦士」",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 5,
+    "attack": 2100,
+    "defense": 1300,
+    "attributes": [
+      "Water"
+    ],
+    "types": [
+      "Fish"
+    ],
+    "wikiEncodedName": "%A1%D4%B9%F5%A4%AD%BF%CD%BF%A9%A4%A4%BB%AD%A1%D5"
+  },
+  "砂の魔女": {
+    "name": "砂の魔女",
+    "nameKana": "",
+    "description": "岩石の巨兵＋エンシェント・エルフ",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 6,
+    "attack": 2100,
+    "defense": 1700,
+    "attributes": [
+      "Earth"
+    ],
+    "types": [
+      "Rock"
+    ],
+    "wikiEncodedName": "%A1%D4%BA%BD%A4%CE%CB%E2%BD%F7%A1%D5"
+  },
+  "裁きの鷹": {
+    "name": "裁きの鷹",
+    "nameKana": "",
+    "description": "冠を戴く蒼き翼＋コケ",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 6,
+    "attack": 2100,
+    "defense": 1800,
+    "attributes": [
+      "Wind"
+    ],
+    "types": [
+      "WingedBeast"
+    ],
+    "wikiEncodedName": "%A1%D4%BA%DB%A4%AD%A4%CE%C2%EB%A1%D5"
+  },
+  "裁きを下す女帝": {
+    "name": "裁きを下す女帝",
+    "nameKana": "",
+    "description": "女王の影武者＋響女",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 6,
+    "attack": 2100,
+    "defense": 1700,
+    "attributes": [
+      "Earth"
+    ],
+    "types": [
+      "Warrior"
+    ],
+    "wikiEncodedName": "%A1%D4%BA%DB%A4%AD%A4%F2%B2%BC%A4%B9%BD%F7%C4%EB%A1%D5"
+  },
+  "朱雀": {
+    "name": "朱雀",
+    "nameKana": "",
+    "description": "「赤き剣のライムンドス」＋「炎の魔神」",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 5,
+    "attack": 1900,
+    "defense": 1500,
+    "attributes": [
+      "Fire"
+    ],
+    "types": [
+      "Pyro"
+    ],
+    "wikiEncodedName": "%A1%D4%BC%EB%BF%FD%A1%D5"
+  },
+  "深海に潜むサメ": {
+    "name": "深海に潜むサメ",
+    "nameKana": "",
+    "description": "神魚＋舌魚",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 5,
+    "attack": 1900,
+    "defense": 1600,
+    "attributes": [
+      "Water"
+    ],
+    "types": [
+      "Fish"
+    ],
+    "wikiEncodedName": "%A1%D4%BF%BC%B3%A4%A4%CB%C0%F8%A4%E0%A5%B5%A5%E1%A1%D5"
+  },
+  "水陸両用バグロス": {
+    "name": "水陸両用バグロス",
+    "nameKana": "",
+    "description": "「陸戦型 バグロス」＋「海を守る戦士」",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 5,
+    "attack": 1850,
+    "defense": 1300,
+    "attributes": [
+      "Water"
+    ],
+    "types": [
+      "Aqua"
+    ],
+    "wikiEncodedName": "%A1%D4%BF%E5%CE%A6%CE%BE%CD%D1%A5%D0%A5%B0%A5%ED%A5%B9%A1%D5"
+  },
+  "戦場の死装束": {
+    "name": "戦場の死装束",
+    "nameKana": "",
+    "description": "音女＋斬首の美女",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 6,
+    "attack": 1900,
+    "defense": 1700,
+    "attributes": [
+      "Earth"
+    ],
+    "types": [
+      "Warrior"
+    ],
+    "wikiEncodedName": "%A1%D4%C0%EF%BE%EC%A4%CE%BB%E0%C1%F5%C2%AB%A1%D5"
+  },
+  "魔装騎士ドラゴネス": {
+    "name": "魔装騎士ドラゴネス",
+    "nameKana": "",
+    "description": "「アーメイル」＋「一眼の盾竜」",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 3,
+    "attack": 1200,
+    "defense": 900,
+    "attributes": [
+      "Wind"
+    ],
+    "types": [
+      "Warrior"
+    ],
+    "wikiEncodedName": "%A1%D4%CB%E2%C1%F5%B5%B3%BB%CE%A5%C9%A5%E9%A5%B4%A5%CD%A5%B9%A1%D5"
+  },
+  "魔導騎士ギルティア": {
+    "name": "魔導騎士ギルティア",
+    "nameKana": "",
+    "description": "「冥界の番人」＋「王座の守護者」",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "nameTags": [
+      "魔導"
+    ],
+    "level": 5,
+    "attack": 1850,
+    "defense": 1500,
+    "attributes": [
+      "Light"
+    ],
+    "types": [
+      "Warrior"
+    ],
+    "wikiEncodedName": "%A1%D4%CB%E2%C6%B3%B5%B3%BB%CE%A5%AE%A5%EB%A5%C6%A5%A3%A5%A2%A1%D5"
+  },
+  "無の畢竟 オールヴェイン": {
+    "name": "無の畢竟 オールヴェイン",
+    "nameKana": "",
+    "description": "通常モンスター×２",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "Tuner",
+      "SpecialSummon"
+    ],
+    "level": 2,
+    "attack": 0,
+    "defense": 2100,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Fairy"
+    ],
+    "wikiEncodedName": "%A1%D4%CC%B5%A4%CE%C9%AD%F0%EF+%A5%AA%A1%BC%A5%EB%A5%F4%A5%A7%A5%A4%A5%F3%A1%D5"
+  },
+  "雷神の怒り": {
+    "name": "雷神の怒り",
+    "nameKana": "",
+    "description": "「エンゼル・イヤーズ」＋「メガ・サンダーボール」",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 5,
+    "attack": 1900,
+    "defense": 1400,
+    "attributes": [
+      "Wind"
+    ],
+    "types": [
+      "Thunder"
+    ],
+    "wikiEncodedName": "%A1%D4%CD%EB%BF%C0%A4%CE%C5%DC%A4%EA%A1%D5"
+  },
+  "ヘルフレイムゴースト": {
+    "name": "ヘルフレイムゴースト",
+    "nameKana": "",
+    "description": "炎族レベル４モンスター×２\n１ターンに１度、このカードのエクシーズ素材を１つ取り除いて発動できる。\nこのカードの攻撃力は相手のエンドフェイズ時まで５００ポイントアップする。\nまた、攻撃力２５００以上のこのカードが破壊された時、お互いの墓地のモンスターを合計３体選択してゲームから除外する。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Xyz",
+      "Effect",
+      "SpecialSummon"
+    ],
+    "rank": 4,
+    "attack": 2200,
+    "defense": 2000,
+    "attributes": [
+      "Fire"
+    ],
+    "types": [
+      "Pyro"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%D8%A5%EB%A5%D5%A5%EC%A5%A4%A5%E0%A5%B4%A1%BC%A5%B9%A5%C8%A1%D5"
+  },
+  "剛炎の剣士": {
+    "name": "剛炎の剣士",
+    "nameKana": "",
+    "description": "【リンクマーカー：左/左下】\nカード名が異なるモンスター２体\nこのカード名の(2)の効果は１ターンに１度しか使用できない。\n(1)：フィールドの戦士族モンスターの攻撃力は５００アップする。\n(2)：リンク召喚したこのカードが戦闘または相手の効果で破壊された場合、リンクモンスター以外の自分の墓地の戦士族モンスター１体を対象として発動できる。\nそのモンスターを特殊召喚する。\nこの効果で特殊召喚したモンスターは、フィールドから離れた場合に除外される。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Link",
+      "Effect",
+      "SpecialSummon"
+    ],
+    "link": 2,
+    "attack": 1300,
+    "attributes": [
+      "Fire"
+    ],
+    "types": [
+      "Warrior"
+    ],
+    "wikiEncodedName": "%A1%D4%B9%E4%B1%EA%A4%CE%B7%F5%BB%CE%A1%D5",
+    "linkArrowKeys": [
+      "MiddleLeft",
+      "BottomLeft"
+    ]
+  },
+  "レッドアイズ・ブラックフルメタルドラゴン": {
+    "name": "レッドアイズ・ブラックフルメタルドラゴン",
+    "nameKana": "",
+    "description": "このカードは通常召喚できず、レベル５以上のドラゴン族モンスターをリリースして発動した\n「メタル化・強化反射装甲」の効果で特殊召喚できる。\nこのカード名の(1)(2)の効果はそれぞれ１ターンに１度しか使用できない。\n(1)：手札のこのカードを相手に見せて発動できる。\nデッキから「メタル化」罠カード１枚を自分フィールドにセットし、このカードをデッキに戻す。\n(2)：相手が効果を発動した時に発動できる。\nその発動を無効にする。\nその後、相手フィールドの攻撃表示モンスター１体の元々の攻撃力分のダメージを相手に与える事ができる。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "SpecialSummon",
+      "Effect"
+    ],
+    "nameTags": [
+      "レッドアイズ"
+    ],
+    "level": 8,
+    "attack": 3400,
+    "defense": 2400,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Machine"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%EC%A5%C3%A5%C9%A5%A2%A5%A4%A5%BA%A1%A6%A5%D6%A5%E9%A5%C3%A5%AF%A5%D5%A5%EB%A5%E1%A5%BF%A5%EB%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5"
+  },
+  "レッドアイズ・ブラックメタルドラゴン": {
+    "name": "レッドアイズ・ブラックメタルドラゴン",
+    "nameKana": "",
+    "description": "このカードは通常召喚できない。\n「メタル化・魔法反射装甲」を装備している\n自分フィールドの「真紅眼の黒竜」１体をリリースした場合にデッキから特殊召喚できる。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "SpecialSummon",
+      "Effect"
+    ],
+    "nameTags": [
+      "レッドアイズ"
+    ],
+    "level": 8,
+    "attack": 2800,
+    "defense": 2400,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Machine"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%EC%A5%C3%A5%C9%A5%A2%A5%A4%A5%BA%A1%A6%A5%D6%A5%E9%A5%C3%A5%AF%A5%E1%A5%BF%A5%EB%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5"
+  },
+  "鋼炎の剣士": {
+    "name": "鋼炎の剣士",
+    "nameKana": "",
+    "description": "このカードは通常召喚できず、レベル５以上の戦士族モンスターをリリースして発動した\n「メタル化・強化反射装甲」の効果で特殊召喚できる。\nこのカード名の(1)の効果は１ターンに１度しか使用できない。\n(1)：手札のこのカードを相手に見せて発動できる。\n「鋼炎の剣士」以外の「メタル化・強化反射装甲」のカード名が記されたカード１枚をデッキから手札に加え、このカードをデッキに戻す。\n(2)：このカードがモンスターゾーンに存在する限り、\n相手が効果を発動する度に、このカードの攻撃力は３００アップし、相手に５００ダメージを与える。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "SpecialSummon",
+      "Effect"
+    ],
+    "level": 6,
+    "attack": 2500,
+    "defense": 1600,
+    "attributes": [
+      "Fire"
+    ],
+    "types": [
+      "Machine"
+    ],
+    "wikiEncodedName": "%A1%D4%B9%DD%B1%EA%A4%CE%B7%F5%BB%CE%A1%D5"
+  },
+  "シンクロ・フュージョニスト": {
+    "name": "シンクロ・フュージョニスト",
+    "nameKana": "",
+    "description": "(1)：このカードがＳ素材として墓地へ送られた場合に発動できる。\nデッキから「融合」魔法カードまたは「フュージョン」魔法カード１枚を手札に加える。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "nameTags": [
+      "シンクロ"
+    ],
+    "level": 2,
+    "attack": 800,
+    "defense": 600,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Spellcaster"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%B7%A5%F3%A5%AF%A5%ED%A1%A6%A5%D5%A5%E5%A1%BC%A5%B8%A5%E7%A5%CB%A5%B9%A5%C8%A1%D5"
+  },
+  "フュージョニストキラー": {
+    "name": "フュージョニストキラー",
+    "nameKana": "",
+    "description": "このカードと戦闘を行う融合モンスターの攻撃力は、ダメージステップの間０となる。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "level": 4,
+    "attack": 1400,
+    "defense": 1200,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Fiend"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%D5%A5%E5%A1%BC%A5%B8%A5%E7%A5%CB%A5%B9%A5%C8%A5%AD%A5%E9%A1%BC%A1%D5"
+  },
+  "レッドアイズ・ダークネスメタルドラゴン": {
+    "name": "レッドアイズ・ダークネスメタルドラゴン",
+    "nameKana": "",
+    "description": "このカード名の、(1)の方法による特殊召喚は１ターンに１度しかできず、(2)の効果は１ターンに１度しか使用できない。\n(1)：このカードは自分フィールドの表側表示のドラゴン族モンスター１体を除外し、手札から特殊召喚できる。\n(2)：自分メインフェイズに発動できる。\n自分の手札・墓地から「レッドアイズ・ダークネスメタルドラゴン」以外の\nドラゴン族モンスター１体を特殊召喚する。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "nameTags": [
+      "レッドアイズ"
+    ],
+    "level": 10,
+    "attack": 2800,
+    "defense": 2400,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Dragon"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%EC%A5%C3%A5%C9%A5%A2%A5%A4%A5%BA%A1%A6%A5%C0%A1%BC%A5%AF%A5%CD%A5%B9%A5%E1%A5%BF%A5%EB%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5"
+  },
+  "幻炎の剣士－ミラージュ・ソードマン－": {
+    "name": "幻炎の剣士－ミラージュ・ソードマン－",
+    "nameKana": "",
+    "description": "このカード名の(1)(2)(3)の効果はそれぞれ１ターンに１度しか使用できない。\n(1)：自分フィールドの表側表示の炎属性の融合モンスターが戦闘・効果で破壊された場合に発動できる。\nこのカードを手札・墓地から特殊召喚する。\n(2)：このカードが相手モンスターと戦闘を行うダメージステップ開始時に発動できる。\nその戦闘を行うモンスター２体を破壊する。\n(3)：このカードが戦闘または他のカードの効果で破壊された場合に発動できる。\nレベル７以下の、「炎の剣士」またはそのカード名が記されたモンスター１体をデッキ・ＥＸデッキから特殊召喚する。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "level": 8,
+    "attack": 2800,
+    "defense": 2000,
+    "attributes": [
+      "Fire"
+    ],
+    "types": [
+      "Warrior"
+    ],
+    "wikiEncodedName": "%A1%D4%B8%B8%B1%EA%A4%CE%B7%F5%BB%CE%A1%DD%A5%DF%A5%E9%A1%BC%A5%B8%A5%E5%A1%A6%A5%BD%A1%BC%A5%C9%A5%DE%A5%F3%A1%DD%A1%D5"
+  },
+  "朱雀の召喚士": {
+    "name": "朱雀の召喚士",
+    "nameKana": "",
+    "description": "(1)：このカードが相手モンスターの攻撃で破壊され墓地へ送られた時に発動できる。\nデッキから攻撃力１５００以下の戦士族モンスター１体を攻撃表示で特殊召喚する。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "level": 4,
+    "attack": 1600,
+    "defense": 1300,
+    "attributes": [
+      "Fire"
+    ],
+    "types": [
+      "Spellcaster"
+    ],
+    "wikiEncodedName": "%A1%D4%BC%EB%BF%FD%A4%CE%BE%A4%B4%AD%BB%CE%A1%D5"
+  },
+  "水陸両用バグロス Ｍｋ－１１": {
+    "name": "水陸両用バグロス Ｍｋ－１１",
+    "nameKana": "",
+    "description": "このカード名の(2)の効果は１ターンに１度しか使用できない。\n(1)：フィールドに「海」が存在しない場合、このカードの攻撃力は７００アップし、このカードは直接攻撃できない。\n(2)：フィールドに「海」が存在する場合、水属性以外の表側表示モンスター１体を対象として発動できる。\nそのモンスターを破壊する。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "level": 5,
+    "attack": 1850,
+    "defense": 1500,
+    "attributes": [
+      "Water"
+    ],
+    "types": [
+      "Machine"
+    ],
+    "wikiEncodedName": "%A1%D4%BF%E5%CE%A6%CE%BE%CD%D1%A5%D0%A5%B0%A5%ED%A5%B9+%A3%CD%A3%EB%A1%DD%A3%B1%A3%B1%A1%D5"
+  },
+  "水陸両用バグロス Ｍｋ－３": {
+    "name": "水陸両用バグロス Ｍｋ－３",
+    "nameKana": "",
+    "description": "「海」がフィールド上に存在する限り、このカードは相手プレイヤーに直接攻撃する事ができる。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "level": 4,
+    "attack": 1500,
+    "defense": 1300,
+    "attributes": [
+      "Water"
+    ],
+    "types": [
+      "Machine"
+    ],
+    "wikiEncodedName": "%A1%D4%BF%E5%CE%A6%CE%BE%CD%D1%A5%D0%A5%B0%A5%ED%A5%B9+%A3%CD%A3%EB%A1%DD%A3%B3%A1%D5"
+  },
+  "蒼炎の剣士": {
+    "name": "蒼炎の剣士",
+    "nameKana": "",
+    "description": "(1)：１ターンに１度、自分・相手のバトルフェイズに、このカード以外の自分フィールドの戦士族モンスター１体を対象として発動できる。\nこのカードの攻撃力を６００ダウンし、対象のモンスターの攻撃力を６００アップする。\n(2)：フィールドのこのカードが相手によって破壊され墓地へ送られた時、\n墓地のこのカードを除外し、自分の墓地の戦士族・炎属性モンスター１体を対象として発動できる。\nその戦士族・炎属性モンスターを特殊召喚する。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "level": 4,
+    "attack": 1800,
+    "defense": 1600,
+    "attributes": [
+      "Fire"
+    ],
+    "types": [
+      "Warrior"
+    ],
+    "wikiEncodedName": "%A1%D4%C1%F3%B1%EA%A4%CE%B7%F5%BB%CE%A1%D5"
+  },
+  "闘炎の剣士": {
+    "name": "闘炎の剣士",
+    "nameKana": "",
+    "description": "このカード名の(1)(2)の効果はそれぞれ１ターンに１度しか使用できない。\n(1)：このカードが召喚・特殊召喚した場合に発動できる。\nデッキから「炎の剣士」のカード名が記された魔法・罠カード１枚を手札に加える。\n(2)：このカードが墓地へ送られた場合に発動できる。\n「闘炎の剣士」を除く、「炎の剣士」またはそのカード名が記されたモンスター１体をデッキ・ＥＸデッキから墓地へ送る。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "level": 4,
+    "attack": 1800,
+    "defense": 1600,
+    "attributes": [
+      "Fire"
+    ],
+    "types": [
+      "Warrior"
+    ],
+    "wikiEncodedName": "%A1%D4%C6%AE%B1%EA%A4%CE%B7%F5%BB%CE%A1%D5"
+  },
+  "魔導騎士ギルティア－ソウル・スピア": {
+    "name": "魔導騎士ギルティア－ソウル・スピア",
+    "nameKana": "",
+    "description": "このカード名の(3)の効果は１ターンに１度しか使用できない。\n(1)：自分フィールドにモンスターが存在しない場合、このカードはリリースなしで召喚できる。\n(2)：このカードが召喚に成功した時に発動できる。\nこのカードの攻撃力以上の攻撃力を持つ相手フィールドのモンスター１体を選んで除外する。\n(3)：手札を１枚捨てて発動できる。\nデッキから以下のモンスターの内１体を手札に加える。\n●ドラゴン族・闇属性・レベル７モンスター\n●機械族・闇属性・レベル６モンスター\n●戦士族・水属性・レベル５モンスター",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "nameTags": [
+      "魔導"
+    ],
+    "level": 5,
+    "attack": 1850,
+    "defense": 1500,
+    "attributes": [
+      "Light"
+    ],
+    "types": [
+      "Warrior"
+    ],
+    "wikiEncodedName": "%A1%D4%CB%E2%C6%B3%B5%B3%BB%CE%A5%AE%A5%EB%A5%C6%A5%A3%A5%A2%A1%DD%A5%BD%A5%A6%A5%EB%A1%A6%A5%B9%A5%D4%A5%A2%A1%D5"
+  },
+  "電脳堺門－朱雀": {
+    "name": "電脳堺門－朱雀",
+    "nameKana": "",
+    "description": "このカード名の(1)(2)の効果はそれぞれ１ターンに１度しか使用できない。\n(1)：フィールドの表側表示のカード１枚を対象として発動できる。\n除外されている自分の「電脳堺」カード２枚を選んでデッキに戻す（同名カードは１枚まで）。\nその後、対象のカードを破壊する。\n(2)：自分メインフェイズに墓地のこのカードを除外し、自分フィールドの「電脳堺」モンスター１体を対象として発動できる。\nそのモンスターのレベルまたはランクをターン終了時まで３つ上げる、または下げる。",
+    "kind": "Trap",
+    "trapCategory": "Continuous",
+    "nameTags": [
+      "電脳堺",
+      "電脳堺門"
+    ],
+    "wikiEncodedName": "%A1%D4%C5%C5%C7%BE%BA%E6%CC%E7%A1%DD%BC%EB%BF%FD%A1%D5"
+  },
+  "簡素融合": {
+    "name": "簡素融合",
+    "nameKana": "",
+    "description": "このカード名のカードは１ターンに１枚しか発動できない。\n(1)：１０００ＬＰを払って発動できる。\n効果モンスターを除くレベル６以下の融合モンスター１体を融合召喚扱いとしてＥＸデッキから特殊召喚する。\nこの効果で特殊召喚したモンスターは攻撃できず、エンドフェイズに破壊される。",
+    "kind": "Spell",
+    "spellCategory": "Normal",
+    "nameTags": [
+      "融合"
+    ],
+    "wikiEncodedName": "%A1%D4%B4%CA%C1%C7%CD%BB%B9%E7%A1%D5"
+  },
+  "デスカイザー・ドラゴン": {
+    "name": "デスカイザー・ドラゴン",
+    "nameKana": "",
+    "description": "「ゾンビキャリア」＋チューナー以外のアンデット族モンスター１体以上\n(1)：このカードが特殊召喚に成功した時、相手の墓地のアンデット族モンスター１体を対象として発動できる。\nそのアンデット族モンスターを自分フィールドに攻撃表示で特殊召喚する。\nこのカードがフィールドから離れた時にそのモンスターは破壊される。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Syncro",
+      "Effect",
+      "SpecialSummon"
+    ],
+    "level": 6,
+    "attack": 2400,
+    "defense": 1500,
+    "attributes": [
+      "Fire"
+    ],
+    "types": [
+      "Zombie"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%C7%A5%B9%A5%AB%A5%A4%A5%B6%A1%BC%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5"
+  },
+  "カイザー・ドラゴン": {
+    "name": "カイザー・ドラゴン",
+    "nameKana": "",
+    "description": "砦を守る翼竜＋フェアリー・ドラゴン",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 7,
+    "attack": 2300,
+    "defense": 2000,
+    "attributes": [
+      "Light"
+    ],
+    "types": [
+      "Dragon"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%AB%A5%A4%A5%B6%A1%BC%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5"
+  },
+  "ジェムナイト・ジルコニア": {
+    "name": "ジェムナイト・ジルコニア",
+    "nameKana": "",
+    "description": "「ジェムナイト」モンスター＋岩石族モンスター",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "nameTags": [
+      "ジェム",
+      "ジェムナイト"
+    ],
+    "level": 8,
+    "attack": 2900,
+    "defense": 2500,
+    "attributes": [
+      "Earth"
+    ],
+    "types": [
+      "Rock"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%B8%A5%A7%A5%E0%A5%CA%A5%A4%A5%C8%A1%A6%A5%B8%A5%EB%A5%B3%A5%CB%A5%A2%A1%D5"
+  },
+  "スカルビショップ": {
+    "name": "スカルビショップ",
+    "nameKana": "",
+    "description": "悪魔の知恵＋魔天老",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 7,
+    "attack": 2650,
+    "defense": 2250,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Spellcaster"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%B9%A5%AB%A5%EB%A5%D3%A5%B7%A5%E7%A5%C3%A5%D7%A1%D5"
+  },
+  "デビル・ボックス": {
+    "name": "デビル・ボックス",
+    "nameKana": "",
+    "description": "マーダーサーカス＋ドリーム・ピエロ",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 7,
+    "attack": 2300,
+    "defense": 2000,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Fiend"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%C7%A5%D3%A5%EB%A1%A6%A5%DC%A5%C3%A5%AF%A5%B9%A1%D5"
+  },
+  "ヒューマノイド・ドレイク": {
+    "name": "ヒューマノイド・ドレイク",
+    "nameKana": "",
+    "description": "「ワームドレイク」＋「ヒューマノイド・スライム」",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 7,
+    "attack": 2200,
+    "defense": 2000,
+    "attributes": [
+      "Water"
+    ],
+    "types": [
+      "Aqua"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%D2%A5%E5%A1%BC%A5%DE%A5%CE%A5%A4%A5%C9%A1%A6%A5%C9%A5%EC%A5%A4%A5%AF%A1%D5"
+  },
+  "ブラック・デーモンズ・ドラゴン": {
+    "name": "ブラック・デーモンズ・ドラゴン",
+    "nameKana": "",
+    "description": "「デーモンの召喚」＋「真紅眼の黒竜」",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "nameTags": [
+      "デーモン"
+    ],
+    "level": 9,
+    "attack": 3200,
+    "defense": 2500,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Dragon"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%D6%A5%E9%A5%C3%A5%AF%A1%A6%A5%C7%A1%BC%A5%E2%A5%F3%A5%BA%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5"
+  },
+  "マスター・オブ・ＯＺ": {
+    "name": "マスター・オブ・ＯＺ",
+    "nameKana": "",
+    "description": "「ビッグ・コアラ」＋「デス・カンガルー」",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 9,
+    "attack": 4200,
+    "defense": 3700,
+    "attributes": [
+      "Earth"
+    ],
+    "types": [
+      "Beast"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%DE%A5%B9%A5%BF%A1%BC%A1%A6%A5%AA%A5%D6%A1%A6%A3%CF%A3%DA%A1%D5"
+  },
+  "メタルフォーゼ・カーディナル": {
+    "name": "メタルフォーゼ・カーディナル",
+    "nameKana": "",
+    "description": "「メタルフォーゼ」モンスター＋攻撃力３０００以下のモンスター×２",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "nameTags": [
+      "メタルフォーゼ"
+    ],
+    "level": 9,
+    "attack": 3000,
+    "defense": 3000,
+    "attributes": [
+      "Fire"
+    ],
+    "types": [
+      "Psychic"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%E1%A5%BF%A5%EB%A5%D5%A5%A9%A1%BC%A5%BC%A1%A6%A5%AB%A1%BC%A5%C7%A5%A3%A5%CA%A5%EB%A1%D5"
+  },
+  "メテオ・ブラック・ドラゴン": {
+    "name": "メテオ・ブラック・ドラゴン",
+    "nameKana": "",
+    "description": "「真紅眼の黒竜」＋「メテオ・ドラゴン」",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 8,
+    "attack": 3500,
+    "defense": 2000,
+    "attributes": [
+      "Fire"
+    ],
+    "types": [
+      "Dragon"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%E1%A5%C6%A5%AA%A1%A6%A5%D6%A5%E9%A5%C3%A5%AF%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5"
+  },
+  "悪魔竜ブラック・デーモンズ・ドラゴン": {
+    "name": "悪魔竜ブラック・デーモンズ・ドラゴン",
+    "nameKana": "",
+    "description": "レベル６「デーモン」通常モンスター＋「レッドアイズ」通常モンスター\n自分は「悪魔竜ブラック・デーモンズ・ドラゴン」を１ターンに１度しか特殊召喚できない。\n(1)：このカードが戦闘を行う場合、相手はダメージステップ終了時まで魔法・罠・モンスターの効果を発動できない。\n(2)：融合召喚したこのカードが戦闘を行ったバトルフェイズ終了時、\n自分の墓地の「レッドアイズ」通常モンスター１体を対象として発動できる。\n墓地のそのモンスターの元々の攻撃力分のダメージを相手に与える。\nその後、そのモンスターをデッキに戻す。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon",
+      "Effect"
+    ],
+    "nameTags": [
+      "デーモン"
+    ],
+    "level": 9,
+    "attack": 3200,
+    "defense": 2500,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Dragon"
+    ],
+    "wikiEncodedName": "%A1%D4%B0%AD%CB%E2%CE%B5%A5%D6%A5%E9%A5%C3%A5%AF%A1%A6%A5%C7%A1%BC%A5%E2%A5%F3%A5%BA%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5"
+  },
+  "召喚獣メガラニカ": {
+    "name": "召喚獣メガラニカ",
+    "nameKana": "",
+    "description": "「召喚師アレイスター」＋地属性モンスター",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "nameTags": [
+      "召喚獣"
+    ],
+    "level": 8,
+    "attack": 3000,
+    "defense": 3300,
+    "attributes": [
+      "Earth"
+    ],
+    "types": [
+      "Rock"
+    ],
+    "wikiEncodedName": "%A1%D4%BE%A4%B4%AD%BD%C3%A5%E1%A5%AC%A5%E9%A5%CB%A5%AB%A1%D5"
+  },
+  "真青眼の究極竜": {
+    "name": "真青眼の究極竜",
+    "nameKana": "",
+    "description": "「青眼の白龍」＋「青眼の白龍」＋「青眼の白龍」\nこのカード名の(1)の効果は１ターンに２度まで使用できる。\n(1)：融合召喚したこのカードが攻撃したダメージステップ終了時、自分フィールドに他の表側表示カードが存在しない場合、\nＥＸデッキから「ブルーアイズ」融合モンスター１体を墓地へ送って発動できる。\nこのカードは続けて攻撃できる。\n(2)：自分フィールドの「ブルーアイズ」モンスターを対象とする魔法・罠・モンスターの効果が発動した時、\n墓地のこのカードを除外して発動できる。\nその発動を無効にし破壊する。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon",
+      "Effect"
+    ],
+    "level": 12,
+    "attack": 4500,
+    "defense": 3800,
+    "attributes": [
+      "Light"
+    ],
+    "types": [
+      "Dragon"
+    ],
+    "wikiEncodedName": "%A1%D4%BF%BF%C0%C4%B4%E3%A4%CE%B5%E6%B6%CB%CE%B5%A1%D5"
+  },
+  "聖女ジャンヌ": {
+    "name": "聖女ジャンヌ",
+    "nameKana": "",
+    "description": "「慈悲深き修道女」＋「堕天使マリー」",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 7,
+    "attack": 2800,
+    "defense": 2000,
+    "attributes": [
+      "Light"
+    ],
+    "types": [
+      "Fairy"
+    ],
+    "wikiEncodedName": "%A1%D4%C0%BB%BD%F7%A5%B8%A5%E3%A5%F3%A5%CC%A1%D5"
+  },
+  "青眼の究極竜": {
+    "name": "青眼の究極竜",
+    "nameKana": "",
+    "description": "「青眼の白龍」＋「青眼の白龍」＋「青眼の白龍」",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 12,
+    "attack": 4500,
+    "defense": 3800,
+    "attributes": [
+      "Light"
+    ],
+    "types": [
+      "Dragon"
+    ],
+    "wikiEncodedName": "%A1%D4%C0%C4%B4%E3%A4%CE%B5%E6%B6%CB%CE%B5%A1%D5"
+  },
+  "千年竜": {
+    "name": "千年竜",
+    "nameKana": "",
+    "description": "「時の魔術師」＋「ベビードラゴン」",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "nameTags": [
+      "千年"
+    ],
+    "level": 7,
+    "attack": 2400,
+    "defense": 2000,
+    "attributes": [
+      "Wind"
+    ],
+    "types": [
+      "Dragon"
+    ],
+    "wikiEncodedName": "%A1%D4%C0%E9%C7%AF%CE%B5%A1%D5"
+  },
+  "双頭の雷龍": {
+    "name": "双頭の雷龍",
+    "nameKana": "",
+    "description": "「サンダー・ドラゴン」＋「サンダー・ドラゴン」",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 7,
+    "attack": 2800,
+    "defense": 2100,
+    "attributes": [
+      "Light"
+    ],
+    "types": [
+      "Thunder"
+    ],
+    "wikiEncodedName": "%A1%D4%C1%D0%C6%AC%A4%CE%CD%EB%CE%B6%A1%D5"
+  },
+  "天翔の竜騎士ガイア": {
+    "name": "天翔の竜騎士ガイア",
+    "nameKana": "",
+    "description": "「暗黒騎士ガイア」モンスター＋ドラゴン族モンスター\n(1)：このカードはモンスターゾーンに存在する限り、カード名を「竜騎士ガイア」として扱う。\n(2)：このカードが特殊召喚に成功した場合に発動できる。\n自分のデッキ・墓地から「螺旋槍殺」１枚を選んで手札に加える。\n(3)：このカードが相手モンスターに攻撃宣言した時に発動できる。\nその相手モンスターの表示形式を変更する。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon",
+      "Effect"
+    ],
+    "level": 7,
+    "attack": 2600,
+    "defense": 2100,
+    "attributes": [
+      "Wind"
+    ],
+    "types": [
+      "Dragon"
+    ],
+    "wikiEncodedName": "%A1%D4%C5%B7%E6%C6%A4%CE%CE%B5%B5%B3%BB%CE%A5%AC%A5%A4%A5%A2%A1%D5"
+  },
+  "迷宮の魔戦車": {
+    "name": "迷宮の魔戦車",
+    "nameKana": "",
+    "description": "「ギガテック・ウルフ」＋「キャノン・ソルジャー」",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 7,
+    "attack": 2400,
+    "defense": 2400,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Machine"
+    ],
+    "wikiEncodedName": "%A1%D4%CC%C2%B5%DC%A4%CE%CB%E2%C0%EF%BC%D6%A1%D5"
+  },
+  "流星竜メテオ・ブラック・ドラゴン": {
+    "name": "流星竜メテオ・ブラック・ドラゴン",
+    "nameKana": "",
+    "description": "レベル７「レッドアイズ」モンスター＋レベル６ドラゴン族モンスター\n(1)：このカードが融合召喚した場合に発動できる。\n手札・デッキから「レッドアイズ」モンスター１体を墓地へ送り、そのモンスターの攻撃力の半分のダメージを相手に与える。\n(2)：このカードがモンスターゾーンから墓地へ送られた場合、\n自分の墓地の通常モンスター１体を対象として発動できる。\nそのモンスターを特殊召喚する。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "Effect",
+      "SpecialSummon"
+    ],
+    "level": 8,
+    "attack": 3500,
+    "defense": 2000,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Dragon"
+    ],
+    "wikiEncodedName": "%A1%D4%CE%AE%C0%B1%CE%B5%A5%E1%A5%C6%A5%AA%A1%A6%A5%D6%A5%E9%A5%C3%A5%AF%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5"
+  },
+  "竜騎士ガイア": {
+    "name": "竜騎士ガイア",
+    "nameKana": "",
+    "description": "「暗黒騎士ガイア」＋「カース・オブ・ドラゴン」",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 7,
+    "attack": 2600,
+    "defense": 2100,
+    "attributes": [
+      "Wind"
+    ],
+    "types": [
+      "Dragon"
+    ],
+    "wikiEncodedName": "%A1%D4%CE%B5%B5%B3%BB%CE%A5%AC%A5%A4%A5%A2%A1%D5"
+  },
+  "デスカイザー・ドラゴン／バスター": {
+    "name": "デスカイザー・ドラゴン／バスター",
+    "nameKana": "",
+    "description": "このカードは通常召喚できない。\n「バスター・モード」の効果でのみ特殊召喚できる。\nこのカードが特殊召喚に成功した時、自分・相手の墓地からアンデット族モンスターを\n任意の数だけ選択して自分フィールド上に特殊召喚する。\nこの効果で特殊召喚したモンスターの効果は無効化され、\nこのターンのエンドフェイズ時に破壊される。\nまた、フィールド上のこのカードが破壊された時、\n自分の墓地の「デスカイザー・ドラゴン」１体を選択して特殊召喚できる。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "SpecialSummon",
+      "Effect",
+      "RegularSpecialSummonOnly"
+    ],
+    "nameTags": [
+      "／バスター"
+    ],
+    "level": 8,
+    "attack": 2900,
+    "defense": 2000,
+    "attributes": [
+      "Fire"
+    ],
+    "types": [
+      "Zombie"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%C7%A5%B9%A5%AB%A5%A4%A5%B6%A1%BC%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%BF%A5%D0%A5%B9%A5%BF%A1%BC%A1%D5"
+  },
+  "ヘルカイザー・ドラゴン": {
+    "name": "ヘルカイザー・ドラゴン",
+    "nameKana": "",
+    "description": "このカードは墓地またはフィールド上に表側表示で存在する場合、通常モンスターとして扱う。\nフィールド上に表側表示で存在するこのカードを通常召喚扱いとして再度召喚する事で、\nこのカードは効果モンスター扱いとなり以下の効果を得る。\n●このカードは１度のバトルフェイズ中に２回攻撃する事ができる。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Gemini",
+      "Effect"
+    ],
+    "level": 6,
+    "attack": 2400,
+    "defense": 1500,
+    "attributes": [
+      "Fire"
+    ],
+    "types": [
+      "Dragon"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%D8%A5%EB%A5%AB%A5%A4%A5%B6%A1%BC%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5"
+  },
+  "メタルフォーゼ・アダマンテ": {
+    "name": "メタルフォーゼ・アダマンテ",
+    "nameKana": "",
+    "description": "「メタルフォーゼ」モンスター＋攻撃力２５００以下のモンスター",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "nameTags": [
+      "メタルフォーゼ"
+    ],
+    "level": 5,
+    "attack": 2500,
+    "defense": 2500,
+    "attributes": [
+      "Fire"
+    ],
+    "types": [
+      "Psychic"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%E1%A5%BF%A5%EB%A5%D5%A5%A9%A1%BC%A5%BC%A1%A6%A5%A2%A5%C0%A5%DE%A5%F3%A5%C6%A1%D5"
+  },
+  "アクア・ドラゴン": {
+    "name": "アクア・ドラゴン",
+    "nameKana": "",
+    "description": "「フェアリー・ドラゴン」＋「海原の女戦士」＋「ゾーン・イーター」",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 6,
+    "attack": 2250,
+    "defense": 1900,
+    "attributes": [
+      "Water"
+    ],
+    "types": [
+      "SeaSerpent"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%A2%A5%AF%A5%A2%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5"
+  },
+  "アンデット・ウォーリアー": {
+    "name": "アンデット・ウォーリアー",
+    "nameKana": "",
+    "description": "「ワイト」＋「格闘戦士アルティメーター」",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 3,
+    "attack": 1200,
+    "defense": 900,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Zombie"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%A2%A5%F3%A5%C7%A5%C3%A5%C8%A1%A6%A5%A6%A5%A9%A1%BC%A5%EA%A5%A2%A1%BC%A1%D5"
+  },
+  "カオス・ウィザード": {
+    "name": "カオス・ウィザード",
+    "nameKana": "",
+    "description": "「ホーリー・エルフ」＋「黒魔族のカーテン」",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "nameTags": [
+      "カオス"
+    ],
+    "level": 4,
+    "attack": 1300,
+    "defense": 1100,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Spellcaster"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%AB%A5%AA%A5%B9%A1%A6%A5%A6%A5%A3%A5%B6%A1%BC%A5%C9%A1%D5"
+  },
+  "クワガー・ヘラクレス": {
+    "name": "クワガー・ヘラクレス",
+    "nameKana": "",
+    "description": "「クワガタ・アルファ」＋「ヘラクレス・ビートル」",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 6,
+    "attack": 1900,
+    "defense": 1700,
+    "attributes": [
+      "Earth"
+    ],
+    "types": [
+      "Insect"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%AF%A5%EF%A5%AC%A1%BC%A1%A6%A5%D8%A5%E9%A5%AF%A5%EC%A5%B9%A1%D5"
+  },
+  "ソウル・ハンター": {
+    "name": "ソウル・ハンター",
+    "nameKana": "",
+    "description": "ランプの魔人＋異次元からの侵略者",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 6,
+    "attack": 2200,
+    "defense": 1800,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Fiend"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%BD%A5%A6%A5%EB%A1%A6%A5%CF%A5%F3%A5%BF%A1%BC%A1%D5"
+  },
+  "デス・バード": {
+    "name": "デス・バード",
+    "nameKana": "",
+    "description": "タクヒ＋髑髏の寺院",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 6,
+    "attack": 1900,
+    "defense": 1700,
+    "attributes": [
+      "Wind"
+    ],
+    "types": [
+      "WingedBeast"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%C7%A5%B9%A1%A6%A5%D0%A1%BC%A5%C9%A1%D5"
+  },
+  "フラワー・ウルフ": {
+    "name": "フラワー・ウルフ",
+    "nameKana": "",
+    "description": "シルバー・フォング＋魔界のイバラ",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 5,
+    "attack": 1800,
+    "defense": 1400,
+    "attributes": [
+      "Earth"
+    ],
+    "types": [
+      "Beast"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%D5%A5%E9%A5%EF%A1%BC%A1%A6%A5%A6%A5%EB%A5%D5%A1%D5"
+  },
+  "フレイム・ゴースト": {
+    "name": "フレイム・ゴースト",
+    "nameKana": "",
+    "description": "「ワイト」＋「マグマン」",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 3,
+    "attack": 1000,
+    "defense": 800,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Zombie"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%D5%A5%EC%A5%A4%A5%E0%A1%A6%A5%B4%A1%BC%A5%B9%A5%C8%A1%D5"
+  },
+  "マリン・ビースト": {
+    "name": "マリン・ビースト",
+    "nameKana": "",
+    "description": "水の魔導師＋ベヒゴン",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 5,
+    "attack": 1700,
+    "defense": 1600,
+    "attributes": [
+      "Water"
+    ],
+    "types": [
+      "Fish"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%DE%A5%EA%A5%F3%A1%A6%A5%D3%A1%BC%A5%B9%A5%C8%A1%D5"
+  },
+  "メカ・ザウルス": {
+    "name": "メカ・ザウルス",
+    "nameKana": "",
+    "description": "「ミスター・ボンバー」＋「二頭を持つキング・レックス」",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 5,
+    "attack": 1800,
+    "defense": 1400,
+    "attributes": [
+      "Earth"
+    ],
+    "types": [
+      "Machine"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%E1%A5%AB%A1%A6%A5%B6%A5%A6%A5%EB%A5%B9%A1%D5"
+  },
+  "メタル・ドラゴン": {
+    "name": "メタル・ドラゴン",
+    "nameKana": "",
+    "description": "「鋼鉄の巨神像」＋「レッサー・ドラゴン」",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 6,
+    "attack": 1850,
+    "defense": 1700,
+    "attributes": [
+      "Wind"
+    ],
+    "types": [
+      "Machine"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%E1%A5%BF%A5%EB%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5"
+  },
+  "レア・フィッシュ": {
+    "name": "レア・フィッシュ",
+    "nameKana": "",
+    "description": "「フュージョニスト」＋「恍惚の人魚」",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "SpecialSummon"
+    ],
+    "level": 4,
+    "attack": 1500,
+    "defense": 1200,
+    "attributes": [
+      "Water"
+    ],
+    "types": [
+      "Fish"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%EC%A5%A2%A1%A6%A5%D5%A5%A3%A5%C3%A5%B7%A5%E5%A1%D5"
+  },
+  "レアメタル・ドラゴン": {
+    "name": "レアメタル・ドラゴン",
+    "nameKana": "",
+    "description": "このカードは通常召喚できない。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "SpecialSummon",
+      "Effect",
+      "FreeReborn"
+    ],
+    "level": 4,
+    "attack": 2400,
+    "defense": 1200,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Dragon"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%EC%A5%A2%A5%E1%A5%BF%A5%EB%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5"
   }
 }

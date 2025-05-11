@@ -1,0 +1,92 @@
+{
+  "SpellCounter": {
+    "name": "SpellCounter",
+    "type": "Actual",
+    "text": "魔力カウンター",
+    "emoji": "🔮",
+    "sticky": false,
+    "temporary": false,
+    "isOnlyOnField": true
+  },
+  "KaijuCounter": {
+    "name": "KaijuCounter",
+    "type": "Actual",
+    "text": "壊獣カウンター",
+    "emoji": "☢",
+    "sticky": false,
+    "temporary": false,
+    "isOnlyOnField": true
+  },
+  "NamelessCounter": {
+    "name": "NamelessCounter",
+    "type": "Actual",
+    "text": "カウンター",
+    "emoji": "💠",
+    "sticky": false,
+    "temporary": false,
+    "isOnlyOnField": true
+  },
+  "IceCounter": {
+    "name": "IceCounter",
+    "type": "Actual",
+    "text": "アイスカウンター",
+    "emoji": "❄",
+    "sticky": false,
+    "temporary": false,
+    "isOnlyOnField": true
+  },
+  "SelfDestruction": {
+    "name": "SelfDestruction",
+    "type": "System",
+    "text": "自壊",
+    "emoji": "",
+    "sticky": false,
+    "temporary": false,
+    "isOnlyOnField": true
+  },
+  "CycleFlip": {
+    "name": "CycleFlip",
+    "type": "System",
+    "text": "サイクルリバース",
+    "emoji": "",
+    "sticky": true,
+    "temporary": true,
+    "isOnlyOnField": true
+  },
+  "SonicBarrier": {
+    "name": "SonicBarrier",
+    "type": "System",
+    "text": "波動音壁",
+    "emoji": "",
+    "sticky": true,
+    "temporary": true,
+    "isOnlyOnField": true
+  },
+  "SonicVerse": {
+    "name": "SonicVerse",
+    "type": "System",
+    "text": "波動聖句（適用済）",
+    "emoji": "",
+    "sticky": true,
+    "temporary": true,
+    "isOnlyOnField": true
+  },
+  "IntoTheVoid": {
+    "name": "IntoTheVoid",
+    "type": "System",
+    "text": "無の煉獄",
+    "emoji": "",
+    "sticky": true,
+    "temporary": true,
+    "isOnlyOnField": false
+  },
+  "GoldSarcophagus": {
+    "name": "GoldSarcophagus",
+    "type": "System",
+    "text": "封印の黄金櫃",
+    "emoji": "",
+    "sticky": true,
+    "temporary": false,
+    "isOnlyOnField": false
+  }
+}

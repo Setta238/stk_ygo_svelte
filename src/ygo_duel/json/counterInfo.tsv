@@ -1,0 +1,11 @@
+name	type	text	emoji	sticky	temporary	isOnlyOnField
+SpellCounter	Actual	魔力カウンター	🔮	false	false	true
+KaijuCounter	Actual	壊獣カウンター	☢	false	false	true
+NamelessCounter	Actual	カウンター	💠	false	false	true
+IceCounter	Actual	アイスカウンター	❄	false	false	true
+SelfDestruction	System	自壊		false	false	true
+CycleFlip	System	サイクルリバース		true	true	true
+SonicBarrier	System	波動音壁		true	true	true
+SonicVerse	System	波動聖句（適用済）		true	true	true
+IntoTheVoid	System	無の煉獄		true	true	false
+GoldSarcophagus	System	封印の黄金櫃		true	false	false

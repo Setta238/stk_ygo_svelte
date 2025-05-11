@@ -15,8 +15,8 @@ for (const definition of generateAllProcCardDefinitions()) {
 export const cardInfoDic = Object.values(fuga).reduce(
   (dic, info) => {
     if (info.monsterCategories && !info.monsterCategories?.includes("Effect") && !info.monsterCategories.includes("Pendulum")) {
-      if (!info.monsterCategories.includes("Normal")) {
-        console.log(info.name);
+      if (info.monsterCategories.includes("Fusion")) {
+        console.log(info.name + "★" + info.description);
       }
       info.isImplemented = true;
     }

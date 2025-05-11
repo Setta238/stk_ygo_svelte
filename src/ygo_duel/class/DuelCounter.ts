@@ -1,29 +1,36 @@
 import type { EntityActionBase } from "./DuelEntityActionBase";
 import type { DuelEntity } from "./DuelEntity";
+import _counterInfo from "@ygo_duel/json/counterInfo.json";
+export type TCounterName = keyof typeof _counterInfo;
 
-export const actualCounterNames = ["SpellCounter", "KaijuCounter", "NamelessCounter", "IceCounter"] as const;
-export type TActualCounterName = (typeof actualCounterNames)[number];
-
-export const stickyTemporaryCounterNames = ["CycleFlip", "SonicBarrier", "SonicVerse", "IntoTheVoid"] as const;
-export type TStickyTemporaryCounterName = (typeof stickyTemporaryCounterNames)[number];
-export const stickyCounterNames = ["GoldSarcophagus"] as const;
-export type TStickyCounterName = (typeof stickyCounterNames)[number];
-export const counterNames = [...actualCounterNames, ...stickyTemporaryCounterNames, ...stickyCounterNames] as const;
-export type TCounterName = (typeof counterNames)[number];
-
-export const actualCounterDic: { [key in TActualCounterName]: string } = {
-  SpellCounter: "魔力カウンター",
-  KaijuCounter: "壊獣カウンター",
-  NamelessCounter: "カウンター",
-  IceCounter: "アイスカウンター",
+const counterInfo = _counterInfo as {
+  [name in TCounterName]: {
+    name: TCounterName;
+    type: "Actual" | "System";
+    text: string;
+    emoji: string;
+    /**
+     * 裏守備になった時に消えるかどうか
+     */
+    sticky: boolean;
+    /**
+     * ターン終了時に消えるかどうか
+     */
+    temporary: boolean;
+    /**
+     * フィールドを離れた時に消えるかどうか
+     */
+    isOnlyOnField: boolean;
+  };
 };
 
-export const actualCounterEmojiDic: { [key in TActualCounterName]: string } = {
-  SpellCounter: "🔮",
-  KaijuCounter: "☢",
-  NamelessCounter: "💠",
-  IceCounter: "❄",
-};
+const illegalCounters = Object.values(counterInfo)
+  .filter((info) => info.type === "Actual")
+  .filter((info) => info.sticky || info.temporary || !info.isOnlyOnField);
+if (illegalCounters.length) {
+  throw new Error(`カウンターの設定誤り。${illegalCounters.map((info) => info.name).join(", ")}`);
+}
+export const getCounterEmoji = (name: TCounterName) => counterInfo[name].emoji;
 
 export class CounterHolder {
   private readonly dic: { [name: string]: DuelEntity[] };
@@ -90,6 +97,12 @@ export class CounterHolder {
     return this.dic[name].length ?? 0;
   };
 
+  public readonly setSelfDestructionFlg = (by: DuelEntity) => {
+    this.add("SelfDestruction", 1, by);
+  };
+  public readonly getSelfDestructionFlg = (by: DuelEntity): boolean => {
+    return this.getQty("SelfDestruction", by) > 0;
+  };
   public readonly incrementActionCountPerTurn = (action: EntityActionBase) => {
     this.temporaryCounterNames.push(action.title);
     this.incrementActionCount(action);
@@ -110,13 +123,17 @@ export class CounterHolder {
   public readonly corpseDisposal = () => {
     this.temporaryCounterNames.forEach((name) => delete this.dic[name]);
     this.temporaryCounterNames.reset();
-    stickyTemporaryCounterNames.forEach((name) => delete this.dic[name]);
+    Object.values(counterInfo)
+      .filter((info) => info.temporary)
+      .forEach((info) => delete this.dic[info.name]);
   };
   /**
    * カウンタークリーナー専用？
    */
   public readonly removeAllActualCounters = () => {
-    actualCounterNames.forEach((name) => delete this.dic[name]);
+    Object.values(counterInfo)
+      .filter((info) => info.type === "Actual")
+      .forEach((info) => delete this.dic[info.name]);
   };
   /**
    * 裏守備になったとき。サイクルリバースのカウンターは消えない。
@@ -124,15 +141,18 @@ export class CounterHolder {
   public readonly removeAllWhenfaceDown = () => {
     this.temporaryCounterNames.forEach((name) => delete this.dic[name]);
     this.temporaryCounterNames.reset();
-    actualCounterNames.forEach((name) => delete this.dic[name]);
+    Object.values(counterInfo)
+      .filter((info) => !info.sticky)
+      .forEach((info) => delete this.dic[info.name]);
   };
   /**
    * 場を離れたとき
    */
   public readonly clear = () => {
-    stickyTemporaryCounterNames.forEach((name) => delete this.dic[name]);
     this.temporaryCounterNames.forEach((name) => delete this.dic[name]);
     this.temporaryCounterNames.reset();
-    counterNames.forEach((name) => delete this.dic[name]);
+    Object.values(counterInfo)
+      .filter((info) => info.isOnlyOnField)
+      .forEach((info) => delete this.dic[info.name]);
   };
 }

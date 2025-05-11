@@ -8,12 +8,13 @@
   import {} from "@stk_utils/funcs/StkArrayUtils";
   import { cardCrossFade } from "@ygo_duel_view/components/DuelDesk.svelte";
   import { type DummyActionInfo } from "@ygo_duel/class/DuelEntityAction";
-  import { actualCounterEmojiDic, type TActualCounterName } from "@ygo_duel/class/DuelCounter";
+  import { getCounterEmoji } from "@ygo_duel/class/DuelCounter";
   import type { TDuelPhase } from "@ygo_duel/class/DuelPeriod";
   import type { Duelist } from "@ygo_duel/class/Duelist";
   import type { ChoicesSweet } from "@ygo_duel/class/DuelUtilTypes";
-  import { Tween, tweened } from "svelte/motion";
+  import { Tween } from "svelte/motion";
   import { cubicOut } from "svelte/easing";
+  import { getKeys } from "@stk_utils/funcs/StkObjectUtils";
   export let view: DuelViewController;
 
   export let row: number;
@@ -349,9 +350,9 @@
           <!-- 表示形式、カウンターの表示-->
           <div style="position: absolute; bottom:0rem">
             【{cell.visibleEntities[0].battlePositionName}】
-            {#each Object.keys(cell.visibleEntities[0].status.maxCounterQty) as TActualCounterName[] as counter}
+            {#each getKeys(cell.visibleEntities[0].status.maxCounterQty) as counter}
               【
-              {actualCounterEmojiDic[counter]}{cell.visibleEntities[0].counterHolder.getQty(counter)}
+              {getCounterEmoji(counter)}{cell.visibleEntities[0].counterHolder.getQty(counter)}
               {#if cell.visibleEntities[0].status.maxCounterQty[counter] ?? 9999 < 100}
                 /{cell.visibleEntities[0].status.maxCounterQty[counter]}
               {/if}

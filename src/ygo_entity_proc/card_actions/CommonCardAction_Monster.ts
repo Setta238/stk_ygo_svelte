@@ -243,7 +243,10 @@ export const defaultRuleSpecialSummonExecute = async (myInfo: ChainBlockInfo<Sum
 
 const defaultDeclareAttackValidate = (myInfo: ChainBlockInfoBase<unknown>): DuelFieldCell[] | undefined => {
   if (!myInfo.activator.isTurnPlayer) {
-    return undefined;
+    return;
+  }
+  if (!myInfo.action.entity.status.canAttack) {
+    return;
   }
   if (myInfo.action.entity.info.attackDeclareCount > 0 || myInfo.action.entity.battlePosition !== "Attack") {
     return;

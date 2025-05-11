@@ -14,6 +14,24 @@ import {
 } from "../../ygo_entity_proc/card_actions/CommonCardAction_Monster";
 import { createDuelistProcDefinition } from "@ygo_entity_proc/duelist_proc_definitions/DuelistProcDefinitions";
 
+export type NameTypeFusionMaterialInfo = {
+  type: "Name";
+  cardName: string;
+  qtyLowerBound: number;
+  qtyUpperBound?: number;
+};
+export type FileterTypeFusionMaterialInfo = {
+  type: "Filter";
+  filter: (entity: DuelEntity) => boolean;
+  qtyLowerBound: number;
+  qtyUpperBound?: number;
+};
+
+export type FusionMaterialInfo = NameTypeFusionMaterialInfo | FileterTypeFusionMaterialInfo;
+
+export const isNameTypeFusionMaterialInfo = (info: FusionMaterialInfo): info is NameTypeFusionMaterialInfo => info.type === "Name";
+export const isFilterTypeFusionMaterialInfo = (info: FusionMaterialInfo): info is NameTypeFusionMaterialInfo => info.type === "Filter";
+
 export type EntityProcDefinition = {
   name: string;
   actions: Readonly<EntityActionDefinition<unknown>[]>;
@@ -37,6 +55,7 @@ export type EntityProcDefinition = {
   substituteEffects?: SubstituteEffectDefinition[];
   defaultStatus?: Partial<EntityStatus>;
   onUsedAsMaterial?: (chainBlockInfo: ChainBlockInfo<unknown>, monster: DuelEntity) => void;
+  fusionMaterialInfos?: FusionMaterialInfo[];
 };
 
 export type EntityDefinition = EntityProcDefinition & {
@@ -67,12 +86,18 @@ export function* generateCardDefinitions(...names: string[]): Generator<EntityDe
     if (module.default) {
       for (const definition of module.default()) {
         if (names.includes(definition.name)) {
-          const staticInfo = cardInfoDic[definition.name];
+          const staticInfo = { ...cardInfoDic[definition.name] };
           let summonFilter = definition.summonFilter;
           if (staticInfo.kind === "Monster" && staticInfo.monsterCategories && !definition.summonFilter) {
             if (staticInfo.monsterCategories.union(summonMonsterCategories).length) {
               summonFilter = defaultSummonFilter;
             }
+          }
+          if (definition.fusionMaterialInfos && definition.fusionMaterialInfos.some((info) => info.type === "Name")) {
+            staticInfo.textTags = [
+              ...(staticInfo.textTags ?? []),
+              ...definition.fusionMaterialInfos.filter(isNameTypeFusionMaterialInfo).map((info) => info.cardName),
+            ];
           }
           yield { ...definition, summonFilter, staticInfo };
           _names.push(definition.name);
@@ -91,9 +116,7 @@ export function* generateCardDefinitions(...names: string[]): Generator<EntityDe
     .filter((info) => !info.monsterCategories?.includes("Pendulum"))
     .map((info) => {
       _names.push(info.name);
-      if (info.monsterCategories?.includes("SpecialSummon")) {
-        console.log(info.name);
-      }
+
       return {
         name: info.name,
         actions: info.monsterCategories?.includes("SpecialSummon") ? defaultSpecialSummonMonsterActions : defaultNormalMonsterActions,

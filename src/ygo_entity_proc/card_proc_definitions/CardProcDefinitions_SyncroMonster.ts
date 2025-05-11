@@ -1,4 +1,3 @@
-import type { CardActionDefinition } from "@ygo_duel/class/DuelEntityAction";
 import { defaultAttackAction, defaultBattlePotisionChangeAction, defaultFlipSummonAction } from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
@@ -6,17 +5,12 @@ import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition"
 import { defaultPrepare } from "@ygo_entity_proc/card_actions/CommonCardAction";
 import { getDefaultSyncroSummonAction } from "@ygo_entity_proc/card_actions/CommonCardAction_SyncroMonster";
 export default function* generate(): Generator<EntityProcDefinition> {
-  yield* ["大地の騎士ガイアナイト", "スクラップ・デスデーモン"].map((name) => {
-    return {
-      name: name,
-      actions: [
-        defaultAttackAction,
-        defaultBattlePotisionChangeAction,
-        defaultFlipSummonAction,
-        getDefaultSyncroSummonAction(),
-      ] as CardActionDefinition<unknown>[],
+  for (const name of ["大地の騎士ガイアナイト", "スクラップ・デスデーモン"]) {
+    yield {
+      name,
+      actions: [defaultAttackAction, defaultBattlePotisionChangeAction, defaultFlipSummonAction, getDefaultSyncroSummonAction()],
     };
-  });
+  }
   yield {
     name: "ナチュル・ガオドレイク",
     actions: [
@@ -27,7 +21,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         (tuners) => tuners.length === 1 && tuners.every((tuner) => tuner.attr.some((a) => a === "Earth")),
         (nonTuners) => nonTuners.length > 0 && nonTuners.every((nonTuner) => nonTuner.attr.some((a) => a === "Earth"))
       ),
-    ] as CardActionDefinition<unknown>[],
+    ],
   };
   yield {
     name: "マジカル・アンドロイド",

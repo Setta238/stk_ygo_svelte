@@ -4,6 +4,7 @@ import { defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_entity
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { defaultPrepare } from "@ygo_entity_proc/card_actions/CommonCardAction";
+import { executableDuelistTypes } from "@ygo_duel/class/DuelEntityAction";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
@@ -46,7 +47,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         spellSpeed: "Normal",
         executableCells: duelFieldCellTypes,
         executablePeriods: ["end"],
-        executableDuelistTypes: ["Controller", "Opponent"],
+        executableDuelistTypes,
         validate: (myInfo) => {
           return myInfo.activator.entity.counterHolder.getQty("IntoTheVoid", myInfo.action.entity) ? [] : undefined;
         },

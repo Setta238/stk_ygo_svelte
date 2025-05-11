@@ -4,7 +4,7 @@ import {} from "@stk_utils/funcs/StkArrayUtils";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { defaultPayLifePoint } from "@ygo_entity_proc/card_actions/CommonCardAction";
-import type { TEffectTag } from "@ygo_duel/class/DuelEntityAction";
+import { executableDuelistTypes, type TEffectTag } from "@ygo_duel/class/DuelEntityAction";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { createRegularDamageFilterHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { DamageFilter } from "@ygo_duel/class_continuous_effect/DuelDamageFilter";
@@ -22,7 +22,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         spellSpeed: "Normal",
         executableCells: ["FieldSpellZone"],
         executablePeriods: ["main1", "main2"],
-        executableDuelistTypes: ["Controller", "Opponent"],
+        executableDuelistTypes,
         isOnlyNTimesPerTurnIfFaceup: 1,
         canPayCosts: (myInfo) => myInfo.activator.lp >= 1000,
         validate: () => [],

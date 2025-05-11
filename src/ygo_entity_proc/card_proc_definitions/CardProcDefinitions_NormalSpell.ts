@@ -13,6 +13,7 @@ import {
   getSystemPeriodAction,
 } from "@ygo_entity_proc/card_actions/CommonCardAction";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
+import { executableDuelistTypes } from "@ygo_duel/class/DuelEntityAction";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
@@ -500,7 +501,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         spellSpeed: "Normal",
         executableCells: duelFieldCellTypes, //回収効果はカード本体の状態に係わらず、使用可能
         executablePeriods: ["stanby"],
-        executableDuelistTypes: ["Controller", "Opponent"],
+        executableDuelistTypes,
         validate: (myInfo) => {
           //発動者のスタンバイフェイズでカウント、カードは持ち主の手札に入る
           if (!myInfo.activator.isTurnPlayer) {

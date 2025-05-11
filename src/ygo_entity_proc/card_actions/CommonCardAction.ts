@@ -1,6 +1,7 @@
 import { faceupBattlePositions, type TBattlePosition } from "@ygo/class/YgoTypes";
 import { IllegalCancelError } from "@ygo_duel/class/Duel";
 import {
+  executableDuelistTypes,
   type ActionCostInfo,
   type CardActionDefinition,
   type ChainBlockInfo,
@@ -168,7 +169,7 @@ export const getSystemPeriodAction = (
     spellSpeed: "Normal",
     executableCells: duelFieldCellTypes,
     executablePeriods: executablePeriods,
-    executableDuelistTypes: ["Controller", "Opponent"],
+    executableDuelistTypes,
     isMandatory: true,
     validate: callback,
     prepare: defaultPrepare,

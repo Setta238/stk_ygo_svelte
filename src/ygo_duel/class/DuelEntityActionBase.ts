@@ -9,7 +9,7 @@ export type EntityActionDefinitionBase = {
   isMandatory: boolean;
   executableCells: Readonly<DuelFieldCellType[]>;
   executablePeriods: Readonly<TDuelPeriodKey[]>;
-  executableDuelistTypes: TExecutableDuelistType[];
+  executableDuelistTypes: Readonly<TExecutableDuelistType[]>;
   isOnlyNTimesPerTurn?: number;
   isOnlyNTimesPerDuel?: number;
   isOnlyNTimesPerTurnIfFaceup?: number;

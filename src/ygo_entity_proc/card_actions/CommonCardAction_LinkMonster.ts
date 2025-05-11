@@ -108,10 +108,10 @@ export const defaultLinkMaterialsValidator = (
   return;
 };
 
-const getEnableLinkSummonPatterns = (
+function* getEnableLinkSummonPatterns(
   myInfo: ChainBlockInfoBase<unknown>,
   validator: (materials: DuelEntity[]) => boolean = () => true
-): SummonMaterialInfo[][] => {
+): Generator<SummonMaterialInfo[]> {
   // 手札と場から全てのリンク素材にできるモンスターを収集する。
   let materials = [
     ...myInfo.activator.getMonstersOnField().filter((card) => card.battlePosition !== "Set"),
@@ -125,24 +125,24 @@ const getEnableLinkSummonPatterns = (
 
   // ０枚はリンク召喚不可
   if (materials.length < 1) {
-    return [];
+    return;
   }
 
   const cells = [...myInfo.activator.getMonsterZones(), ...myInfo.activator.duel.field.getAvailableExtraMonsterZones()];
   //全パターンを試し、リンク召喚可能なパターンを全て列挙する。
-  return materials
+  yield* materials
     .getAllOnOffPattern()
     .filter((pattern) => pattern.some((monster) => monster.status.allowHandLink) || pattern.every((monster) => monster.isOnFieldAsMonsterStrictly))
     .map((pattern) => defaultLinkMaterialsValidator(myInfo, cells, pattern, validator) ?? [])
     .filter((materialInfos) => materialInfos.length);
-};
+}
 const defaultLinkSummonPayCost = async (
   myInfo: ChainBlockInfoBase<unknown>,
   chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
   cancelable: boolean
 ): Promise<ActionCostInfo | undefined> => {
   // パターンを先に列挙しておく
-  const patterns = myInfo.action.getEnableMaterialPatterns(myInfo);
+  const patterns = myInfo.action.getEnableMaterialPatterns(myInfo).toArray();
 
   // 逆引きできるように準備
   const entiteisPatterns = patterns.map((infos) => {
@@ -202,7 +202,7 @@ export const getDefaultLinkSummonAction = (validator: (materials: DuelEntity[]) 
     executablePeriods: ["main1", "main2"],
     executableDuelistTypes: ["Controller"],
     getEnableMaterialPatterns: (myInfo) => getEnableLinkSummonPatterns(myInfo, validator),
-    canPayCosts: (myInfo) => myInfo.action.getEnableMaterialPatterns(myInfo).length > 0,
+    canPayCosts: (myInfo) => myInfo.action.getEnableMaterialPatterns(myInfo).some((infos) => infos.length),
     validate: (myInfo) =>
       !myInfo.ignoreCost || myInfo.activator.getAvailableExtraZones().length + myInfo.activator.getAvailableMonsterZones().length > 0 ? [] : undefined,
     payCosts: defaultLinkSummonPayCost,

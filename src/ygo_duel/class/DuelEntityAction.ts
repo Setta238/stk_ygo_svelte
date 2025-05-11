@@ -152,7 +152,7 @@ export type ChainBlockInfoPrepared<T> = {
 };
 export type ChainBlockInfo<T> = ChainBlockInfoBase<T> & ChainBlockInfoPrepared<T>;
 
-export type CardActionDefinitionAttr = EntityActionDefinitionBase & {
+export type CardActionDefinitionAttrs = EntityActionDefinitionBase & {
   playType: TCardActionType;
   spellSpeed: TSpellSpeed;
   hasToTargetCards?: boolean;
@@ -184,8 +184,8 @@ export type CardActionDefinitionAttr = EntityActionDefinitionBase & {
    */
   priorityForNPC?: number;
 };
-export type CardActionDefinition<T> = CardActionDefinitionAttr & {
-  getEnableMaterialPatterns?: (myInfo: ChainBlockInfoBase<T>) => SummonMaterialInfo[][];
+export type CardActionDefinitionFunctions<T> = {
+  getEnableMaterialPatterns?: (myInfo: ChainBlockInfoBase<T>) => Generator<SummonMaterialInfo[]>;
   canPayCosts?: (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => boolean;
 
   /**
@@ -222,6 +222,7 @@ export type CardActionDefinition<T> = CardActionDefinitionAttr & {
   settle: (myInfo: ChainBlockInfo<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => Promise<boolean>;
 };
 
+export type CardActionDefinition<T> = CardActionDefinitionAttrs & CardActionDefinitionFunctions<T>;
 export type ValidatedActionInfo = {
   action: EntityAction<unknown>;
   dests: DuelFieldCell[];
@@ -346,8 +347,11 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
     return new EntityAction<T>(this.seq, this.entity, this.definition, addhocMateriallimitation);
   };
 
-  public readonly getEnableMaterialPatterns = (myInfo: ChainBlockInfoBase<T>) =>
-    this.definition.getEnableMaterialPatterns?.(myInfo).filter(this.addhocMaterialLimitation) ?? [];
+  public *getEnableMaterialPatterns(myInfo: ChainBlockInfoBase<T>) {
+    if (this.definition.getEnableMaterialPatterns) {
+      yield* this.definition.getEnableMaterialPatterns(myInfo).filter(this.addhocMaterialLimitation);
+    }
+  }
 
   public readonly validateCount = (activator: Duelist, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>): boolean => {
     // このチェーン上で、同一の効果が発動している回数をカウント。

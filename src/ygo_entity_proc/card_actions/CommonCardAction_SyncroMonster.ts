@@ -66,11 +66,11 @@ const defaultSyncroMaterialsValidator = (
   return materialInfos;
 };
 
-const getEnableSyncroSummonPatterns = (
+function* getEnableSyncroSummonPatterns(
   myInfo: ChainBlockInfoBase<unknown>,
   tunersValidator: (tuners: DuelEntity[]) => boolean = (tuners) => tuners.length === 1,
   nonTunersValidator: (nonTuners: DuelEntity[]) => boolean = (nonTuners) => nonTuners.length > 0
-): SummonMaterialInfo[][] => {
+): Generator<SummonMaterialInfo[]> {
   // 手札と場から全てのシンクロ素材にできるモンスターを収集する。
   let materials = [
     ...myInfo.activator.getMonstersOnField().filter((card) => card.battlePosition !== "Set"),
@@ -84,19 +84,23 @@ const getEnableSyncroSummonPatterns = (
 
   // 二枚以下はシンクロ召喚不可
   if (materials.length < 2) {
-    return [];
+    return;
   }
 
   const cells = [...myInfo.activator.getMonsterZones(), ...myInfo.activator.duel.field.getCells("ExtraMonsterZone")];
   const posList: TBattlePosition[] = ["Attack", "Defense"];
 
   //全パターンを試し、シンクロ召喚可能なパターンを全て列挙する。
-  return materials
+  yield* materials
     .getAllOnOffPattern()
+    .map((tst) => {
+      console.log(tst.map((e) => e.toString()));
+      return tst;
+    })
     .filter((pattern) => pattern.some((monster) => monster.status.allowHandSyncro) || pattern.every((monster) => monster.isOnFieldAsMonsterStrictly))
     .map((pattern) => defaultSyncroMaterialsValidator(myInfo, posList, cells, pattern, tunersValidator, nonTunersValidator) ?? [])
     .filter((materialInfos) => materialInfos.length);
-};
+}
 
 const defaultSyncroSummonPayCost = async (
   myInfo: ChainBlockInfoBase<unknown>,
@@ -104,7 +108,7 @@ const defaultSyncroSummonPayCost = async (
   cancelable: boolean
 ): Promise<ActionCostInfo | undefined> => {
   // パターンを先に列挙しておく
-  const patterns = myInfo.action.getEnableMaterialPatterns(myInfo);
+  const patterns = myInfo.action.getEnableMaterialPatterns(myInfo).toArray();
 
   // 逆引きできるように準備
   const entiteisPatterns = patterns.map((infos) => {
@@ -166,7 +170,7 @@ export const getDefaultSyncroSummonAction = (
     executablePeriods: ["main1", "main2"],
     executableDuelistTypes: ["Controller"],
     getEnableMaterialPatterns: (myInfo) => getEnableSyncroSummonPatterns(myInfo, tunersValidator, nonTunersValidator),
-    canPayCosts: (myInfo) => myInfo.action.getEnableMaterialPatterns(myInfo).length > 0,
+    canPayCosts: (myInfo) => myInfo.action.getEnableMaterialPatterns(myInfo).some((infos) => infos.length),
     validate: (myInfo) =>
       !myInfo.ignoreCost || myInfo.activator.getAvailableExtraZones().length + myInfo.activator.getAvailableMonsterZones().length > 0 ? [] : undefined,
     payCosts: defaultSyncroSummonPayCost,

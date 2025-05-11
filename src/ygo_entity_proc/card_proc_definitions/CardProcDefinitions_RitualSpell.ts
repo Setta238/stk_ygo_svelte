@@ -1,7 +1,7 @@
 import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CommonCardAction_Spell";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
-import { getDefaultRitualSummonAction } from "@ygo_entity_proc/card_actions/CommonCardAction_RitualSpell";
+import { getDefaultRitualSummonActionPartical } from "@ygo_entity_proc/card_actions/CommonCardAction_RitualSpell";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   for (const item of [
@@ -24,13 +24,22 @@ export default function* generate(): Generator<EntityProcDefinition> {
     yield {
       name: item.spellName,
       actions: [
-        getDefaultRitualSummonAction(
-          ["Hand"],
-          (monster) => monster.nm === item.monsterName,
-          ["Hand", "MonsterZone", "ExtraMonsterZone"],
-          () => true,
-          "OrMore"
-        ),
+        {
+          title: "発動",
+          isMandatory: false,
+          playType: "CardActivation",
+          spellSpeed: "Normal",
+          executableCells: ["Hand", "SpellAndTrapZone"],
+          executablePeriods: ["main1", "main2"],
+          executableDuelistTypes: ["Controller"],
+          ...getDefaultRitualSummonActionPartical(
+            ["Hand"],
+            (monster) => monster.nm === item.monsterName,
+            ["Hand", "MonsterZone", "ExtraMonsterZone"],
+            () => true,
+            "OrMore"
+          ),
+        },
         defaultSpellTrapSetAction,
       ],
     };

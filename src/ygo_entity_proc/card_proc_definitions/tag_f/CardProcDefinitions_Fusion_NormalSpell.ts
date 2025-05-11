@@ -9,8 +9,31 @@ import { defaultPayLifePoint, defaultPrepare } from "@ygo_entity_proc/card_actio
 import { IllegalCancelError, SystemError } from "@ygo_duel/class/Duel";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { executableDuelistTypes } from "@ygo_duel/class/DuelEntityAction";
+import { getDefaultFusionSummonAction } from "@ygo_entity_proc/card_actions/CommonCardAction_FusionSpell";
 
 export default function* generate(): Generator<EntityProcDefinition> {
+  yield {
+    name: "融合",
+    actions: [
+      {
+        title: "発動",
+        isMandatory: false,
+        playType: "CardActivation",
+        spellSpeed: "Normal",
+        executableCells: ["Hand", "SpellAndTrapZone"],
+        executablePeriods: ["main1", "main2"],
+        executableDuelistTypes: ["Controller"],
+        ...getDefaultFusionSummonAction(
+          ["ExtraDeck"],
+          () => true,
+          ["Hand", "MonsterZone", "ExtraMonsterZone"],
+          () => true,
+          "Graveyard"
+        ),
+      },
+      defaultSpellTrapSetAction,
+    ],
+  };
   for (const item of [
     { name: "簡易融合", lvlUpperBound: 5, filter: () => true },
     { name: "簡素融合", lvlUpperBound: 6, filter: (entity: DuelEntity) => !entity.status.monsterCategories?.includes("Effect") },
@@ -112,6 +135,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               )
             );
             summoned.counterHolder.setSelfDestructionFlg(myInfo.action.entity);
+            summoned.info.isRebornable = !summoned.origin.monsterCategories?.includes("RegularSpecialSummonOnly");
             return true;
           },
           settle: async () => true,

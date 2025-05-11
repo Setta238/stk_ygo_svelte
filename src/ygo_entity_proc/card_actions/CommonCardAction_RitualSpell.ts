@@ -1,5 +1,5 @@
 import { faceupBattlePositions, type TBattlePosition } from "@ygo/class/YgoTypes";
-import type { ChainBlockInfoBase, CardActionDefinition, SummonMaterialInfo, TEffectTag, ChainBlockInfo } from "@ygo_duel/class/DuelEntityAction";
+import type { ChainBlockInfoBase, SummonMaterialInfo, TEffectTag, ChainBlockInfo, CardActionDefinitionFunctions } from "@ygo_duel/class/DuelEntityAction";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCell, DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
 import { SystemError } from "@ygo_duel/class/Duel";
@@ -71,10 +71,10 @@ const defaultRitualMaterialsValidator = (
   return materialInfos;
 };
 
-const getEnableRitualSummonPatterns = (
+function* getEnableRitualSummonPatterns(
   myInfo: ChainBlockInfoBase<unknown>,
-  ...args: Parameters<typeof getDefaultRitualSummonAction>
-): { monster: DuelEntity; materialInfos: SummonMaterialInfo[] }[] => {
+  ...args: Parameters<typeof getDefaultRitualSummonActionPartical>
+): Generator<{ monster: DuelEntity; materialInfos: SummonMaterialInfo[] }> {
   const [summonFrom, monsterValidator, materialsFrom, materialValidator, levelValiType] = args;
 
   const monsters = myInfo.activator
@@ -84,7 +84,7 @@ const getEnableRitualSummonPatterns = (
     .filter(monsterValidator);
 
   if (!monsters.length) {
-    return [];
+    return;
   }
   // 手札と場から全ての素材にできるモンスターを収集する。
   const materials = myInfo.activator
@@ -94,33 +94,28 @@ const getEnableRitualSummonPatterns = (
     .filter((monster) => monster.canBeReleased(myInfo.activator, myInfo.action.entity, ["RitualMaterial", "ReleaseAsEffect"], myInfo.action));
 
   if (!materials.length) {
-    return [];
+    return;
   }
   const cells = myInfo.activator.getMonsterZones();
   const posList: TBattlePosition[] = ["Attack", "Defense"];
 
-  //全パターンを試し、シンクロ召喚可能なパターンを全て列挙する。
-  return monsters
-    .flatMap((monster) => {
-      return materials
-        .filter((material) => material !== monster)
-        .getAllOnOffPattern()
-        .map((pattern) => {
-          return { monster, materials: pattern };
-        });
-    })
-    .map((item) => {
-      return {
-        monster: item.monster,
-        materialInfos: defaultRitualMaterialsValidator(item.monster, myInfo, posList, cells, item.materials, materialValidator, levelValiType) ?? [],
-      };
-    })
-    .filter((item) => item.materialInfos.length);
-};
+  //全パターンを試し、儀式召喚可能なパターンを全て列挙する。
+  for (const monster of monsters) {
+    for (const pattern of materials.filter((material) => material !== monster).getAllOnOffPattern()) {
+      const materialInfos = defaultRitualMaterialsValidator(monster, myInfo, posList, cells, pattern, materialValidator, levelValiType);
+      if (materialInfos) {
+        yield { monster, materialInfos };
+      }
+    }
+  }
+}
 
-const defaultRitualSummonExecute = async (myInfo: ChainBlockInfo<unknown>, ...args: Parameters<typeof getDefaultRitualSummonAction>): Promise<boolean> => {
+const defaultRitualSummonExecute = async (
+  myInfo: ChainBlockInfo<unknown>,
+  ...args: Parameters<typeof getDefaultRitualSummonActionPartical>
+): Promise<boolean> => {
   // パターンを先に列挙しておく
-  const patternInfos = getEnableRitualSummonPatterns(myInfo, ...args);
+  const patternInfos = getEnableRitualSummonPatterns(myInfo, ...args).toArray();
 
   const monsters = patternInfos.map((info) => info.monster).getDistinct();
 
@@ -185,27 +180,22 @@ const defaultRitualSummonExecute = async (myInfo: ChainBlockInfo<unknown>, ...ar
 
   monster.info.isRebornable = !monster.origin.monsterCategories?.includes("RegularSpecialSummonOnly");
 
-  myInfo.costInfo.summonMaterialInfos?.map((info) => info.material).forEach((material) => material.onUsedAsMaterial(myInfo, myInfo.action.entity));
+  materialInfos.map((info) => info.material).forEach((material) => material.onUsedAsMaterial(myInfo, myInfo.action.entity));
   return true;
 };
 
-export const getDefaultRitualSummonAction = (
+export const getDefaultRitualSummonActionPartical = (
   summonFrom: DuelFieldCellType[],
   monsterValidator: (monster: DuelEntity) => boolean,
   materialsFrom: DuelFieldCellType[],
   materialValidator: (materials: DuelEntity[]) => boolean,
   levelValiType: TRitualLevelValitationType
-): CardActionDefinition<unknown> => {
+): CardActionDefinitionFunctions<unknown> => {
   return {
-    title: "儀式召喚",
-    isMandatory: false,
-    playType: "CardActivation",
-    spellSpeed: "Normal",
-    executableCells: ["Hand", "SpellAndTrapZone"],
-    executablePeriods: ["main1", "main2"],
-    executableDuelistTypes: ["Controller"],
     validate: (myInfo) =>
-      getEnableRitualSummonPatterns(myInfo, summonFrom, monsterValidator, materialsFrom, materialValidator, levelValiType).length
+      getEnableRitualSummonPatterns(myInfo, summonFrom, monsterValidator, materialsFrom, materialValidator, levelValiType).some(
+        (pattern) => pattern.materialInfos.length
+      )
         ? defaultSpellTrapValidate(myInfo)
         : undefined,
     prepare: async () => {

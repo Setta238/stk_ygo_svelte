@@ -8,7 +8,7 @@ import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
 import {
   EntityAction,
-  type CardActionDefinitionAttr,
+  type CardActionDefinitionAttrs,
   type ChainBlockInfo,
   type SummonMaterialInfo,
   type TCardActionType,
@@ -69,7 +69,7 @@ export class Duelist {
     effectOwner: Duelist,
     summonType: TSummonKindCauseReason,
     movedAs: TDuelCauseReason[],
-    actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
+    actDefAttr: CardActionDefinitionAttrs & { entity: DuelEntity },
     summonChoices: SummonChoice[],
     materialInfos: SummonMaterialInfo[],
     ignoreSummoningConditions: boolean,
@@ -233,7 +233,7 @@ export class Duelist {
    * @param procType
    * @param chainBlockInfo
    */
-  public readonly canTryBanish = (target: DuelEntity, procType: TBanishProcType, action: CardActionDefinitionAttr): boolean => {
+  public readonly canTryBanish = (target: DuelEntity, procType: TBanishProcType, action: CardActionDefinitionAttrs): boolean => {
     return this.entity.procFilterBundle.effectiveOperators
       .filter((pf) => pf.procTypes.includes(procType))
       .every((pf) => pf.filter(this, this.entity, action, [target]));
@@ -427,7 +427,7 @@ export class Duelist {
   public readonly summon = async (
     summonKind: TSummonKindCauseReason,
     movedAs: TDuelCauseReason[],
-    actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
+    actDefAttr: CardActionDefinitionAttrs & { entity: DuelEntity },
     monster: DuelEntity,
     posList: Readonly<TBattlePosition[]>,
     cells: DuelFieldCell[],
@@ -512,7 +512,7 @@ export class Duelist {
     effectOwner: Duelist,
     summonType: TSummonKindCauseReason,
     movedAs: TDuelCauseReason[],
-    actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
+    actDefAttr: CardActionDefinitionAttrs & { entity: DuelEntity },
     summonChoices: Omit<SummonChoice, "summoner">[],
     materialInfos: SummonMaterialInfo[],
     ignoreSummoningConditions: boolean
@@ -593,7 +593,7 @@ export class Duelist {
     effectOwner: Duelist,
     summonType: TSummonKindCauseReason,
     movedAs: TDuelCauseReason[],
-    actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
+    actDefAttr: CardActionDefinitionAttrs & { entity: DuelEntity },
     summonChoices: SummonChoice[],
     materialInfos: SummonMaterialInfo[],
     ignoreSummoningConditions: boolean,
@@ -655,7 +655,7 @@ export class Duelist {
     effectOwner: Duelist,
     summonType: TSummonKindCauseReason,
     movedAs: TDuelCauseReason[],
-    actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
+    actDefAttr: CardActionDefinitionAttrs & { entity: DuelEntity },
     summonChoices: Omit<SummonChoice, "summoner">[],
     materialInfos: SummonMaterialInfo[],
     ignoreSummoningConditions: boolean,
@@ -679,7 +679,7 @@ export class Duelist {
     effectOwner: Duelist,
     summonType: TSummonKindCauseReason,
     movedAs: TDuelCauseReason[],
-    actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
+    actDefAttr: CardActionDefinitionAttrs & { entity: DuelEntity },
     summonChoices: Omit<SummonChoice, "summoner">[],
     materialInfos: SummonMaterialInfo[],
     ignoreSummoningConditions: boolean,
@@ -709,7 +709,7 @@ export class Duelist {
     effectOwner: Duelist,
     summonType: TSummonKindCauseReason,
     movedAs: TDuelCauseReason[],
-    actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
+    actDefAttr: CardActionDefinitionAttrs & { entity: DuelEntity },
     summonChoices: Omit<SummonChoice, "summoner">[],
     materialInfos: SummonMaterialInfo[],
     ignoreSummoningConditions: boolean,

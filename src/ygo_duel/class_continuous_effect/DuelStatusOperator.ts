@@ -1,6 +1,6 @@
 import { StickyEffectOperatorBase, StickyEffectOperatorBundle, StickyEffectOperatorPool } from "./DuelStickyEffectOperatorBase";
 import type { DuelEntity, EntityStatus } from "../class/DuelEntity";
-import type { CardActionDefinitionAttr } from "../class/DuelEntityAction";
+import type { CardActionDefinitionAttrs } from "../class/DuelEntityAction";
 import type { Duel } from "@ygo_duel/class/Duel";
 
 export class StatusOperatorPool extends StickyEffectOperatorPool<StatusOperator, StatusOperatorBundle> {
@@ -35,7 +35,7 @@ export class StatusOperator extends StickyEffectOperatorBase {
     validateAlive: (operator: StickyEffectOperatorBase) => boolean,
     isContinuous: boolean,
     isSpawnedBy: DuelEntity,
-    actionAttr: Partial<CardActionDefinitionAttr>,
+    actionAttr: Partial<CardActionDefinitionAttrs>,
     isApplicableTo: (operator: StickyEffectOperatorBase, target: DuelEntity) => boolean,
     statusCalculator: (operator: StickyEffectOperatorBase, wipStatus: EntityStatus) => Partial<EntityStatus>
   ) {

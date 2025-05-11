@@ -1,4 +1,4 @@
-import type { CardActionDefinitionAttr, SummonMaterialInfo } from "../class/DuelEntityAction";
+import type { CardActionDefinitionAttrs, SummonMaterialInfo } from "../class/DuelEntityAction";
 import { StickyEffectOperatorBase, StickyEffectOperatorBundle, StickyEffectOperatorPool } from "./DuelStickyEffectOperatorBase";
 import { type DuelEntity, type TDuelCauseReason, type TSummonKindCauseReason } from "../class/DuelEntity";
 import { type Duelist, type SummonChoice } from "../class/Duelist";
@@ -15,7 +15,7 @@ export class SummonFilterBundle extends StickyEffectOperatorBundle<SummonFilter>
     effectOwner: Duelist,
     summonKind: TSummonKindCauseReason,
     movedAs: TDuelCauseReason[],
-    actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
+    actDefAttr: CardActionDefinitionAttrs & { entity: DuelEntity },
     summonChoice: SummonChoice,
     materialInfos: SummonMaterialInfo[],
     ignoreSummoningConditions: boolean
@@ -49,7 +49,7 @@ export class SummonFilter extends StickyEffectOperatorBase {
     effectOwner: Duelist,
     summoner: Duelist,
     movedAs: TDuelCauseReason[],
-    actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
+    actDefAttr: CardActionDefinitionAttrs & { entity: DuelEntity },
     monster: DuelEntity,
     materialInfos: SummonMaterialInfo[],
     posList: Readonly<TBattlePosition[]>,
@@ -64,7 +64,7 @@ export class SummonFilter extends StickyEffectOperatorBase {
     validateAlive: (operator: StickyEffectOperatorBase) => boolean,
     isContinuous: boolean,
     isSpawnedBy: DuelEntity,
-    actionAttr: Partial<CardActionDefinitionAttr>,
+    actionAttr: Partial<CardActionDefinitionAttrs>,
     isApplicableTo: (operator: StickyEffectOperatorBase, target: DuelEntity) => boolean,
     summonKinds: Readonly<TSummonKindCauseReason[]>,
     filter: (
@@ -73,7 +73,7 @@ export class SummonFilter extends StickyEffectOperatorBase {
       effectOwner: Duelist,
       summoner: Duelist,
       movedAs: TDuelCauseReason[],
-      actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
+      actDefAttr: CardActionDefinitionAttrs & { entity: DuelEntity },
       monster: DuelEntity,
       materialInfos: SummonMaterialInfo[],
       posList: Readonly<TBattlePosition[]>,

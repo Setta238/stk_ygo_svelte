@@ -27,7 +27,7 @@ import {
 import { type Duelist } from "./Duelist";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
-import { EntityAction, type CardActionDefinitionAttr, type ChainBlockInfo, type ChainBlockInfoBase, type SummonMaterialInfo } from "./DuelEntityAction";
+import { EntityAction, type CardActionDefinitionAttrs, type ChainBlockInfo, type ChainBlockInfoBase, type SummonMaterialInfo } from "./DuelEntityAction";
 import { ProcFilterBundle, type TBanishProcType, type TProcType } from "../class_continuous_effect/DuelProcFilter";
 import { ContinuousEffect, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { NumericStateOperatorBundle } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
@@ -741,6 +741,10 @@ export class DuelEntity {
     return [...this.procFilterBundle.effectiveOperators, ...this.numericOprsBundle.effectiveOperators];
   }
 
+  public get fusionMaterialInfos() {
+    return this.definition.fusionMaterialInfos ?? [];
+  }
+
   private readonly definition: EntityDefinition;
   /**
    *
@@ -1253,11 +1257,11 @@ declare module "./DuelEntity" {
      * 直接攻撃できる状態かどうか判定
      */
     canDirectAttack(): boolean;
-    canBeEffected(activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionDefinitionAttr>): boolean;
-    canBeBanished(procType: TBanishProcType, activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionDefinitionAttr>): boolean;
+    canBeEffected(activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionDefinitionAttrs>): boolean;
+    canBeBanished(procType: TBanishProcType, activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionDefinitionAttrs>): boolean;
     canBeTargetOfEffect<T>(chainBlockInfo: ChainBlockInfoBase<T>): boolean;
     canBeTargetOfBattle(activator: Duelist, entity: DuelEntity): boolean;
-    validateDestory(destroyType: TDestoryCauseReason, activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionDefinitionAttr>): boolean;
+    validateDestory(destroyType: TDestoryCauseReason, activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionDefinitionAttrs>): boolean;
     getIndexInCell(): number;
     getXyzMaterials(): DuelEntity[];
     wasMovedAfter(clock: IDuelClock): boolean;
@@ -1356,7 +1360,7 @@ DuelEntity.prototype.hasAttackRight = function (): boolean {
   return this.battlePosition === "Attack" && this.info.attackDeclareCount === 0 && this.status.canAttack;
 };
 
-DuelEntity.prototype.canBeEffected = function (activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionDefinitionAttr>): boolean {
+DuelEntity.prototype.canBeEffected = function (activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionDefinitionAttrs>): boolean {
   const entity = this as DuelEntity;
   return entity.procFilterBundle.effectiveOperators
     .filter((pf) => pf.procTypes.some((t) => t === "Effect"))
@@ -1368,7 +1372,7 @@ const _canBeDoneSomethingByEffect = (
   procType: TProcType,
   activator: Duelist,
   causedBy: DuelEntity,
-  action: Partial<CardActionDefinitionAttr>
+  action: Partial<CardActionDefinitionAttrs>
 ): boolean => {
   return (
     entity.canBeEffected(activator, causedBy, action) &&
@@ -1386,7 +1390,7 @@ DuelEntity.prototype.canBeBanished = function (
   procType: TBanishProcType,
   activator: Duelist,
   causedBy: DuelEntity,
-  action: Partial<CardActionDefinitionAttr>
+  action: Partial<CardActionDefinitionAttrs>
 ): boolean {
   if (this.fieldCell.cellType === "Banished") {
     return false;
@@ -1405,7 +1409,7 @@ DuelEntity.prototype.validateDestory = function (
   destroyType: "BattleDestroy" | "EffectDestroy",
   activator: Duelist,
   causedBy: DuelEntity,
-  action: Partial<CardActionDefinitionAttr>
+  action: Partial<CardActionDefinitionAttrs>
 ): boolean {
   const entity = this as DuelEntity;
   let flg = entity.procFilterBundle.effectiveOperators

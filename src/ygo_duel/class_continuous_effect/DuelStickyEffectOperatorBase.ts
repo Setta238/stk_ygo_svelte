@@ -1,7 +1,7 @@
 import type { Duelist } from "@ygo_duel/class/Duelist";
 import { Duel, SystemError } from "../class/Duel";
 import type { DuelEntity } from "../class/DuelEntity";
-import { getEffectActiovationType, type CardActionDefinitionAttr, type TEffectActiovationType } from "../class/DuelEntityAction";
+import { getEffectActiovationType, type CardActionDefinitionAttrs, type TEffectActiovationType } from "../class/DuelEntityAction";
 import type { IDuelClock } from "@ygo_duel/class/DuelClock";
 export interface IOperatorPool<OPE extends StickyEffectOperatorBase> {
   push: (ope: OPE) => void;
@@ -150,7 +150,7 @@ export abstract class StickyEffectOperatorBase {
   public readonly isSpawnedBy: DuelEntity;
   public readonly isSpawnedAt: IDuelClock;
   public readonly activateType: TEffectActiovationType;
-  public readonly actionAttr: Partial<CardActionDefinitionAttr>;
+  public readonly actionAttr: Partial<CardActionDefinitionAttrs>;
   public readonly isApplicableTo: (target: DuelEntity) => boolean;
   public readonly effectOwner: Duelist;
   public abstract readonly beforeRemove: <OPE extends StickyEffectOperatorBase>(bundle: IOperatorBundle<OPE>) => void;
@@ -171,7 +171,7 @@ export abstract class StickyEffectOperatorBase {
     validateAlive: (operator: StickyEffectOperatorBase) => boolean,
     isContinuous: boolean,
     isSpawnedBy: DuelEntity,
-    actionAttr: Partial<CardActionDefinitionAttr>,
+    actionAttr: Partial<CardActionDefinitionAttrs>,
     isApplicableTo: (operator: StickyEffectOperatorBase, target: DuelEntity) => boolean
   ) {
     this.seq = StickyEffectOperatorBase.nextSeq++;

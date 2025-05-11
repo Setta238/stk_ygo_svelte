@@ -7,7 +7,7 @@ import {
 } from "@ygo_duel/class_continuous_effect/DuelStickyEffectOperatorBase";
 import { Duel, SystemError } from "@ygo_duel/class/Duel";
 import { entityFlexibleStatusKeys, type TEntityFlexibleNumericStatusGen, type TEntityFlexibleNumericStatusKey } from "@ygo/class/YgoTypes";
-import type { CardActionDefinitionAttr } from "../class/DuelEntityAction";
+import type { CardActionDefinitionAttrs } from "../class/DuelEntityAction";
 
 export const stateOperationTypes = ["Addition", "Fixation", "THE_DEVILS_DREAD-ROOT", "THE_DEVILS_AVATAR", "Gradius'_Option"] as const;
 type TStateOperationType = (typeof stateOperationTypes)[number];
@@ -269,7 +269,7 @@ export class NumericStateOperator extends StickyEffectOperatorBase {
     title: string,
     validateAlive: (operator: StickyEffectOperatorBase) => boolean,
     isSpawnedBy: DuelEntity,
-    actionAttr: Partial<CardActionDefinitionAttr>,
+    actionAttr: Partial<CardActionDefinitionAttrs>,
     targetState: TEntityFlexibleNumericStatusKey,
     stateOperationType: TStateOperationType,
     calcValue: (spawner: DuelEntity, target: DuelEntity, current: number) => number
@@ -291,7 +291,7 @@ export class NumericStateOperator extends StickyEffectOperatorBase {
     title: string,
     validateAlive: (operator: StickyEffectOperatorBase) => boolean,
     isSpawnedBy: DuelEntity,
-    actionAttr: Partial<CardActionDefinitionAttr>,
+    actionAttr: Partial<CardActionDefinitionAttrs>,
     targetState: TEntityFlexibleNumericStatusKey,
     calcValue: (spawner: DuelEntity, target: DuelEntity, current: number) => number
   ) => {
@@ -302,7 +302,7 @@ export class NumericStateOperator extends StickyEffectOperatorBase {
     title: string,
     validateAlive: (operator: StickyEffectOperatorBase) => boolean,
     isSpawnedBy: DuelEntity,
-    actionAttr: Partial<CardActionDefinitionAttr>,
+    actionAttr: Partial<CardActionDefinitionAttrs>,
     targetState: TEntityFlexibleNumericStatusKey,
     calcValue: (spawner: DuelEntity, target: DuelEntity, current: number) => number
   ) => {
@@ -348,7 +348,7 @@ export class NumericStateOperator extends StickyEffectOperatorBase {
     validateAlive: (operator: StickyEffectOperatorBase) => boolean,
     isContinuous: boolean,
     isSpawnedBy: DuelEntity,
-    actionAttr: Partial<CardActionDefinitionAttr>,
+    actionAttr: Partial<CardActionDefinitionAttrs>,
     isApplicableTo: (operator: StickyEffectOperatorBase, target: DuelEntity) => boolean,
     targetState: TEntityFlexibleNumericStatusKey,
     targetStateGen: TEntityFlexibleNumericStatusGen,

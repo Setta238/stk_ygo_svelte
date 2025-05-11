@@ -1,4 +1,4 @@
-import type { CardActionDefinitionAttr, ChainBlockInfo } from "../class/DuelEntityAction";
+import type { CardActionDefinitionAttrs, ChainBlockInfo } from "../class/DuelEntityAction";
 import { StickyEffectOperatorBase, StickyEffectOperatorBundle, StickyEffectOperatorPool } from "./DuelStickyEffectOperatorBase";
 import { DuelEntity } from "../class/DuelEntity";
 import { type Duelist, type TLifeLogReason } from "../class/Duelist";
@@ -50,14 +50,14 @@ export class DamageFilter extends StickyEffectOperatorBase {
     damageSource: DuelEntity,
     suppressor: DuelEntity | undefined,
     damageType: TLifeLogReason,
-    actionAttr: CardActionDefinitionAttr
+    actionAttr: CardActionDefinitionAttrs
   ) => Partial<DamageCalcTypeFlags>;
   public constructor(
     title: string,
     validateAlive: (operator: StickyEffectOperatorBase) => boolean,
     isContinuous: boolean,
     isSpawnedBy: DuelEntity,
-    actionAttr: Partial<CardActionDefinitionAttr>,
+    actionAttr: Partial<CardActionDefinitionAttrs>,
     isApplicableTo: (operator: StickyEffectOperatorBase, target: DuelEntity) => boolean,
     calcType: keyof DamageCalcTypeFlags,
     filter: (filter: DamageFilter, ...args: Parameters<typeof DamageFilter.prototype.filter>) => Partial<DamageCalcTypeFlags>
@@ -163,5 +163,5 @@ export const calcBattleDamage = (
   damageTo: Duelist,
   damageSource: DuelEntity,
   suppressor: DuelEntity,
-  actionAttr: CardActionDefinitionAttr
+  actionAttr: CardActionDefinitionAttrs
 ) => calcDamage(point, activator, damageTo, damageSource, suppressor.entityType === "Duelist" ? undefined : suppressor, "BattleDamage", actionAttr);

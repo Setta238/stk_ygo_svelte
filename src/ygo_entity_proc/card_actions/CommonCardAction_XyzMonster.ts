@@ -62,29 +62,29 @@ const defaultXyzMaterialsValidator = (
   return materialInfos;
 };
 
-const getEnableXyzSummonPatterns = (
+function* getEnableXyzSummonPatterns(
   myInfo: ChainBlockInfoBase<unknown>,
   qtyLowerBound: number = 2,
   qtyUpperBound: number = 2,
   validator: (materials: DuelEntity[]) => boolean = (materials) => materials.length > 1
-): SummonMaterialInfo[][] => {
+): Generator<SummonMaterialInfo[]> {
   // 場から全てのエクシーズ素材にできるモンスターを収集する。
   const materials = myInfo.activator.getMonstersOnField().filter((card) => card.battlePosition !== "Set");
 
   // 一枚以下はエクシーズ召喚不可
   if (materials.length < qtyLowerBound) {
-    return [];
+    return;
   }
   const cells = [...myInfo.activator.getMonsterZones(), ...myInfo.activator.getAvailableExtraZones()];
 
   //全パターンを試し、エクシーズ召喚可能なパターンを全て列挙する。
-  return materials
+  yield* materials
     .getAllOnOffPattern()
     .filter((pattern) => pattern.length >= qtyLowerBound)
     .filter((pattern) => pattern.length <= qtyUpperBound)
     .map((pattern) => defaultXyzMaterialsValidator(myInfo, faceupBattlePositions, cells, pattern, qtyLowerBound, qtyUpperBound, validator) ?? [])
     .filter((pattern) => pattern.length);
-};
+}
 
 const defaultXyzSummonPayCost = async (
   myInfo: ChainBlockInfoBase<unknown>,
@@ -92,7 +92,7 @@ const defaultXyzSummonPayCost = async (
   cancelable: boolean
 ): Promise<ActionCostInfo | undefined> => {
   // パターンを先に列挙しておく
-  const patterns = myInfo.action.getEnableMaterialPatterns(myInfo);
+  const patterns = myInfo.action.getEnableMaterialPatterns(myInfo).toArray();
 
   // 逆引きできるように準備
   const entiteisPatterns = patterns.map((infos) => {
@@ -157,7 +157,7 @@ export const getDefaultXyzSummonAction = (
     executablePeriods: ["main1", "main2"],
     executableDuelistTypes: ["Controller"],
     getEnableMaterialPatterns: (myInfo) => getEnableXyzSummonPatterns(myInfo, qtyLowerBound, qtyUpperBound, validator),
-    canPayCosts: (myInfo) => myInfo.action.getEnableMaterialPatterns(myInfo).length > 0,
+    canPayCosts: (myInfo) => myInfo.action.getEnableMaterialPatterns(myInfo).some((infos) => infos.length),
     validate: (myInfo) =>
       !myInfo.ignoreCost || myInfo.activator.getAvailableExtraZones().length + myInfo.activator.getAvailableMonsterZones().length > 0 ? [] : undefined,
     payCosts: defaultXyzSummonPayCost,

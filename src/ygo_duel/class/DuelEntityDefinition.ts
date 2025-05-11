@@ -1,7 +1,7 @@
 import { summonMonsterCategories, type EntityStatusBase, type TBattlePosition } from "@ygo/class/YgoTypes";
 import type { ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import type { SummonFilter } from "@ygo_duel/class_continuous_effect/DuelSummonFilter";
-import type { CardActionDefinition as EntityActionDefinition, CardActionDefinitionAttr, ChainBlockInfo, SummonMaterialInfo } from "./DuelEntityAction";
+import type { CardActionDefinition as EntityActionDefinition, CardActionDefinitionAttrs, ChainBlockInfo, SummonMaterialInfo } from "./DuelEntityAction";
 import type { DuelEntity, TDuelCauseReason, EntityStatus } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 import type { Duelist } from "@ygo_duel/class/Duelist";
@@ -30,7 +30,7 @@ export type OvermuchTypeFusionMaterialInfo = {
 export type FusionMaterialInfo = NameTypeFusionMaterialInfo | FileterTypeFusionMaterialInfo | OvermuchTypeFusionMaterialInfo;
 
 export const isNameTypeFusionMaterialInfo = (info: FusionMaterialInfo): info is NameTypeFusionMaterialInfo => info.type === "Name";
-export const isFilterTypeFusionMaterialInfo = (info: FusionMaterialInfo): info is NameTypeFusionMaterialInfo => info.type === "Filter";
+export const isFilterTypeFusionMaterialInfo = (info: FusionMaterialInfo): info is FileterTypeFusionMaterialInfo => info.type === "Filter";
 export const isOvermuchTypeFusionMaterialInfo = (info: FusionMaterialInfo): info is OvermuchTypeFusionMaterialInfo => info.type === "Overmuch";
 
 export type EntityProcDefinition = {
@@ -43,7 +43,7 @@ export type EntityProcDefinition = {
     effectOwner: Duelist,
     summoner: Duelist,
     movedAs: TDuelCauseReason[],
-    actDefAttr: CardActionDefinitionAttr & { entity: DuelEntity },
+    actDefAttr: CardActionDefinitionAttrs & { entity: DuelEntity },
     monster: DuelEntity,
     materialInfos: SummonMaterialInfo[],
     posList: Readonly<TBattlePosition[]>,

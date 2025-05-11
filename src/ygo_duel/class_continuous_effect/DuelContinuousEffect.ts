@@ -14,9 +14,9 @@ export type ContinuousEffectBase<T> = {
   appliableCellTypes: DuelFieldCellType[];
   appliableDuelPeriodKeys: Readonly<TDuelPeriodKey[]>;
   faceList: TDuelEntityFace[];
-  canStart: (entity: DuelEntity) => boolean;
-  start: (entity: DuelEntity) => Promise<T>;
-  finish: (entity: DuelEntity, info: T) => Promise<void>;
+  canStart: (source: DuelEntity) => boolean;
+  start: (source: DuelEntity) => Promise<T>;
+  finish: (source: DuelEntity, info: T) => Promise<void>;
 };
 
 /**
@@ -139,14 +139,14 @@ export const createRegularOperatorHandler = <OPE extends StickyEffectOperatorBas
     appliableDuelPeriodKeys: duelPeriodKeys,
     faceList: ["FaceUp"],
     canStart: (source) => !source.info.isPending && !source.info.isDying,
-    start: async (target: DuelEntity): Promise<{ targets: DuelEntity[]; seqList: number[] }> => {
-      const list = opeListCreater(target);
-      const entities = getTargets(target);
-      console.info(`start : ${target.toString()} ⇒ ${entities.map((e) => e.toString()).join(" ")} (${list.map((item) => item.title).join(" ")})`);
-      entities.map(getBundle).forEach((bundle) => list.forEach(bundle.push));
-      return { targets: entities, seqList: list.map((item) => item.seq) };
+    start: async (source: DuelEntity): Promise<{ targets: DuelEntity[]; seqList: number[] }> => {
+      const list = opeListCreater(source);
+      const targets = getTargets(source);
+      console.info(`start : ${source.toString()} ⇒ ${targets.map((e) => e.toString()).join(" ")} (${list.map((item) => item.title).join(" ")})`);
+      targets.map(getBundle).forEach((bundle) => list.forEach(bundle.push));
+      return { targets, seqList: list.map((item) => item.seq) };
     },
-    finish: async (entity: DuelEntity, info: { targets: DuelEntity[]; seqList: number[] }): Promise<void> => {
+    finish: async (source: DuelEntity, info: { targets: DuelEntity[]; seqList: number[] }): Promise<void> => {
       info.targets.map(getBundle).forEach((bundle) => info.seqList.forEach((seq) => bundle.removeItem(seq)));
     },
   };

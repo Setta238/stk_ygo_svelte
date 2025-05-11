@@ -23459,5 +23459,96 @@
       "Dragon"
     ],
     "wikiEncodedName": "%A1%D4%A5%EC%A5%A2%A5%E1%A5%BF%A5%EB%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5"
+  },
+  "イリュージョン・シープ": {
+    "name": "イリュージョン・シープ",
+    "nameKana": "",
+    "description": "このカードを融合素材モンスター１体の代わりにする事ができる。\nその際、他の融合素材モンスターは正規のものでなければならない。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "level": 3,
+    "attack": 1150,
+    "defense": 900,
+    "attributes": [
+      "Earth"
+    ],
+    "types": [
+      "Beast"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%A4%A5%EA%A5%E5%A1%BC%A5%B8%A5%E7%A5%F3%A1%A6%A5%B7%A1%BC%A5%D7%A1%D5"
+  },
+  "沼地の魔獣王": {
+    "name": "沼地の魔獣王",
+    "nameKana": "",
+    "description": "このカードを融合素材モンスター１体の代わりにする事ができる。\nその際、他の融合素材モンスターは正規のものでなければならない。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "level": 4,
+    "attack": 1000,
+    "defense": 1100,
+    "attributes": [
+      "Water"
+    ],
+    "types": [
+      "Aqua"
+    ],
+    "wikiEncodedName": "%A1%D4%BE%C2%C3%CF%A4%CE%CB%E2%BD%C3%B2%A6%A1%D5"
+  },
+  "心眼の女神": {
+    "name": "心眼の女神",
+    "nameKana": "",
+    "description": "このカードを融合素材モンスター１体の代わりにする事ができる。\nその際、他の融合素材モンスターは正規のものでなければならない。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "level": 4,
+    "attack": 1200,
+    "defense": 1000,
+    "attributes": [
+      "Light"
+    ],
+    "types": [
+      "Fairy"
+    ],
+    "wikiEncodedName": "%A1%D4%BF%B4%B4%E3%A4%CE%BD%F7%BF%C0%A1%D5"
+  },
+  "破壊神 ヴァサーゴ": {
+    "name": "破壊神 ヴァサーゴ",
+    "nameKana": "",
+    "description": "このカードを融合素材モンスター１体の代わりにする事ができる。\nその際、他の融合素材モンスターは正規のものでなければならない。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "level": 3,
+    "attack": 1100,
+    "defense": 900,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Fiend"
+    ],
+    "wikiEncodedName": "%A1%D4%C7%CB%B2%F5%BF%C0+%A5%F4%A5%A1%A5%B5%A1%BC%A5%B4%A1%D5"
+  },
+  "融合": {
+    "name": "融合",
+    "nameKana": "",
+    "description": "(1)：自分の手札・フィールドのモンスターを融合素材とし、融合モンスター１体を融合召喚する。",
+    "kind": "Spell",
+    "spellCategory": "Normal",
+    "nameTags": [
+      "融合"
+    ],
+    "wikiEncodedName": "%A1%D4%CD%BB%B9%E7%A1%D5"
   }
 }

@@ -20,6 +20,7 @@ import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { defaultPrepare } from "./CommonCardAction";
 import { createRegularStatusOperatorHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
+import { duelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 const defaultNormalSummonValidate = (myInfo: ChainBlockInfoBase<unknown>): DuelFieldCell[] | undefined => {
   // 召喚権を使い切っていたら通常召喚不可。
   if (myInfo.activator.info.ruleNormalSummonCount >= myInfo.activator.info.maxRuleNormalSummonCount) {
@@ -677,3 +678,33 @@ export const defaultDirectAtackEffect = createRegularStatusOperatorHandler(
     ];
   }
 ) as ContinuousEffectBase<unknown>;
+
+export const defaultFusionSubstituteEffect = {
+  title: "融合素材代用",
+  appliableCellTypes: ["MonsterZone", "ExtraMonsterZone", "Hand", "Graveyard "],
+  appliableDuelPeriodKeys: duelPeriodKeys,
+  faceList: ["FaceUp", "FaceDown"],
+  canStart: () => true,
+  start: async (source: DuelEntity): Promise<{ targets: DuelEntity[]; seq: number }> => {
+    const ope = new StatusOperator(
+      "融合素材代用",
+      () => true,
+      true,
+      source,
+      {},
+      () => true,
+      (ope, wip) => {
+        if (ope.isSpawnedBy.isEffective) {
+          wip.fusionSubstitute = true;
+        }
+        return wip;
+      }
+    );
+    source.statusOperatorBundle.push(ope);
+
+    return { targets: [source], seq: ope.seq };
+  },
+  finish: async (source: DuelEntity, info: { targets: DuelEntity[]; seq: number }): Promise<void> => {
+    info.targets.forEach((target) => target.statusOperatorBundle.removeItem(info.seq));
+  },
+} as ContinuousEffectBase<unknown>;

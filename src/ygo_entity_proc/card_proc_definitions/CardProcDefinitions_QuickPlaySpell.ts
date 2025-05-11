@@ -65,6 +65,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           const monsters = myInfo.action.entity.field
             .getMonstersOnFieldStrictly()
             .filter((monster) => monster.canBeTargetOfEffect(myInfo))
+            .filter((monster) => monster.canBeSet)
             .filter((monster) => monster.face === "FaceUp");
           if (!monsters.length) {
             return;
@@ -75,6 +76,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           const monsters = myInfo.action.entity.field
             .getMonstersOnFieldStrictly()
             .filter((monster) => monster.canBeTargetOfEffect(myInfo))
+            .filter((monster) => monster.canBeSet)
             .filter((monster) => monster.face === "FaceUp");
 
           const selected = await myInfo.activator.waitSelectEntity(monsters, "対象とするモンスターを選択", cancelable);

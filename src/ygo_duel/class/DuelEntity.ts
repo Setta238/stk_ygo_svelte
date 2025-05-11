@@ -636,6 +636,9 @@ export class DuelEntity {
   public get isEffective() {
     return this.status.isEffective && this.info.isEffectiveIn.includes(this.fieldCell.cellType);
   }
+  public get canBeSet() {
+    return this.entityType === "Card" && !this.status.monsterCategories?.includes("Link");
+  }
 
   /**
    * 現在無効状態だが、場所を変えれば有効になる

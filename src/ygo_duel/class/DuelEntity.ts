@@ -1245,18 +1245,7 @@ declare module "./DuelEntity" {
     hasBeenSummonedNow(summonKinds: TSummonKindCauseReason[], posList?: TBattlePosition[]): boolean;
     hasBeenSummonedJustNow(summonKinds: TSummonKindCauseReason[], posList?: TBattlePosition[]): boolean;
     getAttackTargets(): DuelEntity[];
-    /**
-     * 相手側の状態を考慮せず、攻撃できる状態か判定
-     */
-    hasAttackRight(): boolean;
-    /**
-     * モンスターへ攻撃できる状態かどうか判定
-     */
-    canAttackToMonster(): boolean;
-    /**
-     * 直接攻撃できる状態かどうか判定
-     */
-    canDirectAttack(): boolean;
+
     canBeEffected(activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionDefinitionAttrs>): boolean;
     canBeBanished(procType: TBanishProcType, activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionDefinitionAttrs>): boolean;
     canBeTargetOfEffect<T>(chainBlockInfo: ChainBlockInfoBase<T>): boolean;
@@ -1346,18 +1335,6 @@ DuelEntity.prototype.getAttackTargets = function (): DuelEntity[] {
         .filter((pf) => pf.procTypes.includes("BattleTarget"))
         .every((pf) => pf.filter(this.controller, this, {}, [enemy]))
     );
-};
-DuelEntity.prototype.canDirectAttack = function (): boolean {
-  return this.getAttackTargets().some((enemy) => enemy.entityType === "Duelist");
-};
-
-DuelEntity.prototype.canAttackToMonster = function (): boolean {
-  return this.getAttackTargets().some((enemy) => enemy.entityType !== "Duelist");
-};
-
-DuelEntity.prototype.hasAttackRight = function (): boolean {
-  // TODO 連続攻撃モンスター、絶対防御将軍などの考慮
-  return this.battlePosition === "Attack" && this.info.attackDeclareCount === 0 && this.status.canAttack;
 };
 
 DuelEntity.prototype.canBeEffected = function (activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionDefinitionAttrs>): boolean {

@@ -71,6 +71,7 @@ export const defaultCanPayDiscardCosts = <T>(myInfo: ChainBlockInfoBase<T>, filt
 
 export const defaultPayDiscardCosts = async <T>(
   myInfo: ChainBlockInfoBase<T>,
+  chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
   cancelable: boolean = false,
   filter: (entity: DuelEntity) => boolean = () => true,
   qty: number = 1
@@ -78,6 +79,15 @@ export const defaultPayDiscardCosts = async <T>(
   const cost = await myInfo.activator.discard(qty, "Cost", filter, myInfo.action.entity, myInfo.activator, myInfo.activator, cancelable);
   return { discard: cost };
 };
+
+export const defaultCanPaySelfDiscardCosts = <T>(myInfo: ChainBlockInfoBase<T>) =>
+  defaultCanPayDiscardCosts(myInfo, (entity) => myInfo.action.entity === entity, 1);
+
+export const defaultPaySelfDiscardCosts = <T>(
+  myInfo: ChainBlockInfoBase<T>,
+  chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
+  cancelable: boolean = false
+) => defaultPayDiscardCosts(myInfo, chainBlockInfos, cancelable, (entity) => myInfo.action.entity === entity);
 
 export const defaultTargetMonstersRebornPrepare = async <T>(
   myInfo: ChainBlockInfoBase<T>,

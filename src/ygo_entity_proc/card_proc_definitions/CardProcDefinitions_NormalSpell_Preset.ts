@@ -71,7 +71,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             if (!myInfo.activator.getDeckCell().cardEntities.filter(item.filter).length) {
               return;
             }
-            if (!myInfo.activator.canDraw) {
+            if (!myInfo.activator.canAddToHandFromDeck) {
               return;
             }
             return defaultSpellTrapValidate(myInfo);
@@ -205,7 +205,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             }
             return defaultSpellTrapValidate(myInfo);
           },
-          payCosts: async (myInfo, chainBlockInfos, cancelable) => defaultPayDiscardCosts(myInfo, cancelable, item.filter),
+          payCosts: async (...args) => defaultPayDiscardCosts(...args, item.filter),
           prepare: async () => {
             return { selectedEntities: [], chainBlockTags: ["Draw"], prepared: undefined };
           },

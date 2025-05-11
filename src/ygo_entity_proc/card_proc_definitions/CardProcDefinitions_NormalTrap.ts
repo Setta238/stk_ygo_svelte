@@ -119,7 +119,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           }
           return defaultSpellTrapValidate(myInfo);
         },
-        payCosts: async (myInfo, chainBlockInfos, cancelable) => defaultPayDiscardCosts(myInfo, cancelable),
+        payCosts: defaultPayDiscardCosts,
         prepare: async (myInfo, chainBlockInfos, cancelable) => {
           const monsters = myInfo.action.entity.field.getMonstersOnFieldStrictly().filter((monster) => monster.canBeTargetOfEffect(myInfo));
           const selected = await myInfo.activator.waitSelectEntity(monsters, "対象とするモンスターを選択", cancelable);

@@ -23550,5 +23550,25 @@
       "融合"
     ],
     "wikiEncodedName": "%A1%D4%CD%BB%B9%E7%A1%D5"
+  },
+  "沼地の魔神王": {
+    "name": "沼地の魔神王",
+    "nameKana": "",
+    "description": "(1)：手札・フィールド・墓地のこのカードは、融合モンスターカードにカード名が記された融合素材モンスター１体の代わりにできる。\nその際、他の融合素材モンスターは正規のものでなければならない。\n(2)：このカードを手札から墓地へ捨てて発動できる。\nデッキから「融合」１枚を手札に加える。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "level": 3,
+    "attack": 500,
+    "defense": 1100,
+    "attributes": [
+      "Water"
+    ],
+    "types": [
+      "Aqua"
+    ],
+    "wikiEncodedName": "%A1%D4%BE%C2%C3%CF%A4%CE%CB%E2%BF%C0%B2%A6%A1%D5"
   }
 }

@@ -17,20 +17,21 @@ import { createDuelistProcDefinition } from "@ygo_entity_proc/duelist_proc_defin
 export type NameTypeFusionMaterialInfo = {
   type: "Name";
   cardName: string;
-  qtyLowerBound: number;
-  qtyUpperBound?: number;
 };
 export type FileterTypeFusionMaterialInfo = {
   type: "Filter";
   filter: (entity: DuelEntity) => boolean;
-  qtyLowerBound: number;
-  qtyUpperBound?: number;
+};
+export type OvermuchTypeFusionMaterialInfo = {
+  type: "Overmuch";
+  filter: (entity: DuelEntity) => boolean;
 };
 
-export type FusionMaterialInfo = NameTypeFusionMaterialInfo | FileterTypeFusionMaterialInfo;
+export type FusionMaterialInfo = NameTypeFusionMaterialInfo | FileterTypeFusionMaterialInfo | OvermuchTypeFusionMaterialInfo;
 
 export const isNameTypeFusionMaterialInfo = (info: FusionMaterialInfo): info is NameTypeFusionMaterialInfo => info.type === "Name";
 export const isFilterTypeFusionMaterialInfo = (info: FusionMaterialInfo): info is NameTypeFusionMaterialInfo => info.type === "Filter";
+export const isOvermuchTypeFusionMaterialInfo = (info: FusionMaterialInfo): info is OvermuchTypeFusionMaterialInfo => info.type === "Overmuch";
 
 export type EntityProcDefinition = {
   name: string;

@@ -62,6 +62,7 @@ export type EntityStatus = {
    */
   isSelectableForAttack: boolean;
   maxCounterQty: { [key in TCounterName]?: number };
+  fusionSubstitute: boolean;
 } & Omit<EntityStatusBase, "kind">;
 
 export type DuelEntityInfomation = {
@@ -1218,6 +1219,7 @@ export class DuelEntity {
       allowHandLink: false,
       willBeBanished: false,
       willReturnToDeck: undefined,
+      fusionSubstitute: false,
       maxCounterQty: {},
       piercingTo: [],
     };

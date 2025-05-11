@@ -1,8 +1,6 @@
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { duelFieldCellTypes, monsterZoneCellTypes, spellTrapZoneCellTypes, type DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
 import { defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_entity_proc/card_actions/CommonCardAction_Spell";
-
-import { type CardActionDefinition } from "@ygo_duel/class/DuelEntityAction";
 import { IllegalCancelError, SystemError } from "@ygo_duel/class/Duel";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
@@ -144,19 +142,18 @@ export default function* generate(): Generator<EntityProcDefinition> {
           ),
         execute: async (myInfo) => defaultTargetMonstersRebornExecute(myInfo),
         settle: async () => true,
-      } as CardActionDefinition<unknown>,
+      },
       defaultSpellTrapSetAction,
     ],
   };
-  yield* (
-    [
-      { name: "大嵐", cellTypes: spellTrapZoneCellTypes, isOnlyEnemies: false },
-      { name: "ハーピィの羽根帚", cellTypes: spellTrapZoneCellTypes, isOnlyEnemies: true },
-      { name: "ブラック・ホール", cellTypes: monsterZoneCellTypes, isOnlyEnemies: false },
-      { name: "サンダー・ボルト", cellTypes: monsterZoneCellTypes, isOnlyEnemies: true },
-    ] as { name: string; cellTypes: Readonly<DuelFieldCellType[]>; isOnlyEnemies: boolean }[]
-  ).map((item) => {
-    return {
+
+  for (const item of [
+    { name: "大嵐", cellTypes: spellTrapZoneCellTypes, isOnlyEnemies: false },
+    { name: "ハーピィの羽根帚", cellTypes: spellTrapZoneCellTypes, isOnlyEnemies: true },
+    { name: "ブラック・ホール", cellTypes: monsterZoneCellTypes, isOnlyEnemies: false },
+    { name: "サンダー・ボルト", cellTypes: monsterZoneCellTypes, isOnlyEnemies: true },
+  ] as { name: string; cellTypes: Readonly<DuelFieldCellType[]>; isOnlyEnemies: boolean }[]) {
+    yield {
       name: item.name,
       actions: [
         {
@@ -206,11 +203,11 @@ export default function* generate(): Generator<EntityProcDefinition> {
             return true;
           },
           settle: async () => true,
-        } as CardActionDefinition<unknown>,
+        },
         defaultSpellTrapSetAction,
       ],
     };
-  });
+  }
   yield {
     name: "ハリケーン",
     actions: [
@@ -257,7 +254,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           return true;
         },
         settle: async () => true,
-      } as CardActionDefinition<unknown>,
+      },
       defaultSpellTrapSetAction,
     ],
   };
@@ -315,7 +312,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           return true;
         },
         settle: async () => true,
-      } as CardActionDefinition<unknown>,
+      },
       defaultSpellTrapSetAction,
     ],
   };
@@ -433,7 +430,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           return Boolean(monster);
         },
         settle: async () => true,
-      } as CardActionDefinition<unknown>,
+      },
       defaultSpellTrapSetAction,
     ],
   };
@@ -476,7 +473,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           return true;
         },
         settle: async () => true,
-      } as CardActionDefinition<unknown>,
+      },
       getSystemPeriodAction("回収カウント進行", ["stanby"], (myInfo) => {
         if (!myInfo.activator.isTurnPlayer) {
           return;
@@ -547,7 +544,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           return true;
         },
         settle: async () => true,
-      } as CardActionDefinition<unknown>,
+      },
       defaultSpellTrapSetAction,
     ],
   };

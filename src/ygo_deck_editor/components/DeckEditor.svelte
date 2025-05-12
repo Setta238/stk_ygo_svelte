@@ -12,7 +12,7 @@
 </script>
 
 <script lang="ts">
-  import { cardInfoDic } from "@ygo/class/CardInfo";
+  import { cardInfoDic, definitionCount, nonDefinitionCount } from "@ygo/class/CardInfo";
   import { DeckInfo, type IDeckInfo } from "@ygo/class/DeckInfo";
   import { type TDuelEntityFace } from "@ygo_duel/class/DuelEntity";
   import DeckEditorCardList from "./DeckEditorCardList.svelte";
@@ -327,10 +327,12 @@
             
         -->
   </div>
+  <div class="footer">実装済カード{definitionCount + nonDefinitionCount}枚（内、効果のないモンスター{nonDefinitionCount}枚）</div>
 </div>
 
 <style>
   .deck_editor {
+    position: relative;
     display: flex;
     flex-direction: column;
     height: 95vh;
@@ -338,6 +340,7 @@
     padding: 1rem;
     background-color: thistle;
   }
+
   .deck_editor_body {
     display: flex;
     height: 1rem;
@@ -480,5 +483,10 @@
   .white_button:hover {
     background: #67c5ff;
     color: white;
+  }
+  .footer {
+    position: absolute;
+    bottom: 0.2rem;
+    left: 0.8rem;
   }
 </style>

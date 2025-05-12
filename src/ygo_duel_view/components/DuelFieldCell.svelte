@@ -256,7 +256,7 @@
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
   <div
-    class={`duel_card_wrapper ${cell.cellType} ${canAcceptDrop ? "can_accept_drop" : ""} ${canAction() ? "can_action" : ""} ${isSelected ? "is_selected" : isSelectable ? "is_selectable" : ""} `}
+    class={`duel_field_cell_inner_box ${cell.cellType} ${canAcceptDrop ? "can_accept_drop" : ""} ${canAction() ? "can_action" : ""} ${isSelected ? "is_selected" : isSelectable ? "is_selectable" : ""} `}
     role="listitem"
     onclick={onCellClick}
     ondragover={dragover}
@@ -335,7 +335,11 @@
             {#if targetsInBuildingChain.includes(item.entity)}
               <div style="position: absolute; top:0rem">｛効果対象｝</div>
             {/if}
-            <div style="position: absolute; display:flex;justify-content: center;" out:send={{ key: item.entity.seq }}>
+            <div
+              class="duel_card_wrapper {item.entity.exist ? 'duel_card_wrapper_exists' : ''}"
+              style="position: absolute; display:flex;justify-content: center;"
+              out:send={{ key: item.entity.seq }}
+            >
               <DuelCard
                 entity={item.entity}
                 state={!cell.isStackCell && item.index === 0 ? validateActions(...cell.visibleEntities) : undefined}
@@ -425,7 +429,7 @@
   .duel_field_cell > div.is_selectable {
     border: dotted 3px blue;
   }
-  .duel_card_wrapper {
+  .duel_field_cell_inner_box {
     display: block;
     box-sizing: border-box;
     position: relative;
@@ -435,20 +439,29 @@
     padding: 0rem;
     pointer-events: auto;
   }
-  .duel_card_wrapper > .card_animation_receiver {
+  .duel_field_cell_inner_box > .card_animation_receiver {
     position: absolute;
     max-width: 4rem;
     margin: auto;
   }
-  .duel_card_wrapper.Hand {
+  .duel_field_cell_inner_box.Hand {
     display: flex;
     justify-content: center;
     align-items: center;
   }
-  .duel_card_wrapper.Hand > .card_animation_receiver {
+  .duel_field_cell_inner_box.Hand > .card_animation_receiver {
     position: static;
     margin: 0px;
   }
+
+  .duel_card_wrapper {
+    transition: 400ms;
+    opacity: 0;
+  }
+  .duel_card_wrapper.duel_card_wrapper_exists {
+    opacity: 1;
+  }
+
   .badge {
     position: absolute;
     top: 0.3rem;
@@ -532,11 +545,11 @@
     color: #fff;
     background: #000;
   }
-  .duel_field_cell > .duel_card_wrapper {
+  .duel_field_cell > .duel_field_cell_inner_box {
     display: flex;
     flex-direction: column;
   }
-  .duel_field_cell.duel_field_cell_Hand > .duel_card_wrapper {
+  .duel_field_cell.duel_field_cell_Hand > .duel_field_cell_inner_box {
     display: flex;
     flex-direction: row;
   }

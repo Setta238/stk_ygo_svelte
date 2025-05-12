@@ -19,7 +19,7 @@ export abstract class StickyEffectOperatorPool<OPE extends StickyEffectOperatorB
 
   public readonly excludesExpired = () => {
     // 消滅済のエンティティのバンドルを除去
-    this.bundles = this.bundles.filter((bundle) => !bundle.entity.hasDisappeared);
+    this.bundles = this.bundles.filter((bundle) => !bundle.entity.exist);
 
     this.bundles.forEach((bundle) => bundle.excludesExpired());
     this.pooledOperators = this.pooledOperators.filter((ope) => ope.validateAlive());

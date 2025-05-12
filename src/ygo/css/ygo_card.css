@@ -52,8 +52,12 @@
 }.duel_card.Trap {
   background-color: orchid;
   color: white;
+}.duel_card.Token {
+  background-color: silver;
 }
-  
+.duel_card.Token .duel_card_detail {
+  background-color: silver;
+}
 .duel_card .monster_attr::after {
   line-height: 100%;
   display: inline-block;

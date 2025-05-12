@@ -1610,4 +1610,6 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 その際、他の融合素材モンスターは正規のものでなければならない。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:3,attack:1100,defense:900,attributes:["Dark"],types:["Fiend"],wikiEncodedName:"%A1%D4%C7%CB%B2%F5%BF%C0+%A5%F4%A5%A1%A5%B5%A1%BC%A5%B4%A1%D5"},融合:{name:"融合",nameKana:"",description:"(1)：自分の手札・フィールドのモンスターを融合素材とし、融合モンスター１体を融合召喚する。",kind:"Spell",spellCategory:"Normal",nameTags:["融合"],wikiEncodedName:"%A1%D4%CD%BB%B9%E7%A1%D5"},沼地の魔神王:{name:"沼地の魔神王",nameKana:"",description:`(1)：手札・フィールド・墓地のこのカードは、融合モンスターカードにカード名が記された融合素材モンスター１体の代わりにできる。
 その際、他の融合素材モンスターは正規のものでなければならない。
 (2)：このカードを手札から墓地へ捨てて発動できる。
-デッキから「融合」１枚を手札に加える。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:3,attack:500,defense:1100,attributes:["Water"],types:["Aqua"],wikiEncodedName:"%A1%D4%BE%C2%C3%CF%A4%CE%CB%E2%BF%C0%B2%A6%A1%D5"}};export{e as j};
+デッキから「融合」１枚を手札に加える。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:3,attack:500,defense:1100,attributes:["Water"],types:["Aqua"],wikiEncodedName:"%A1%D4%BE%C2%C3%CF%A4%CE%CB%E2%BF%C0%B2%A6%A1%D5"},"ワンタイム・パスコード":{name:"ワンタイム・パスコード",nameKana:"",description:`このカード名のカードは１ターンに１枚しか発動できない。
+(1)：自分フィールドに「セキュリティトークン」（サイバース族・光・星４・攻／守２０００）１体を
+守備表示で特殊召喚する。`,kind:"Spell",spellCategory:"Normal",wikiEncodedName:"%A1%D4%A5%EF%A5%F3%A5%BF%A5%A4%A5%E0%A1%A6%A5%D1%A5%B9%A5%B3%A1%BC%A5%C9%A1%D5"}};export{e as j};

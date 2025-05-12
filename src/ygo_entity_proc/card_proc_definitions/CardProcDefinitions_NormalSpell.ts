@@ -13,7 +13,8 @@ import {
   getSystemPeriodAction,
 } from "@ygo_entity_proc/card_actions/CommonCardAction";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
-import { executableDuelistTypes } from "@ygo_duel/class/DuelEntityAction";
+import { executableDuelistTypes, type ChainBlockInfoBase } from "@ygo_duel/class/DuelEntityAction";
+import { defaultSpecialSummonMonsterActions } from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
@@ -253,6 +254,69 @@ export default function* generate(): Generator<EntityProcDefinition> {
 
           await DuelEntityShortHands.returnManyToHandForTheSameReason(cards, ["Effect"], myInfo.action.entity, myInfo.activator);
           return true;
+        },
+        settle: async () => true,
+      },
+      defaultSpellTrapSetAction,
+    ],
+  };
+
+  const getOrCreateSecurityToken = (myInfo: ChainBlockInfoBase<unknown>) =>
+    myInfo.activator.duel.field.getWaitingRoomCell().cardEntities.find((entity) => entity.parent === myInfo.action.entity) ??
+    DuelEntity.createTokenEntity(myInfo.activator, myInfo.action.entity, {
+      name: "セキュリティトークン",
+      actions: defaultSpecialSummonMonsterActions,
+      staticInfo: {
+        name: "セキュリティトークン",
+        kind: "Monster",
+        monsterCategories: ["Normal", "Token"],
+        level: 4,
+        attack: 2000,
+        defense: 2000,
+        attributes: ["Light"],
+        types: ["Cyberse"],
+        wikiEncodedName: "%A5%BB%A5%AD%A5%E5%A5%EA%A5%C6%A5%A3%A5%C8%A1%BC%A5%AF%A5%F3",
+      },
+    });
+
+  yield {
+    name: "ワンタイム・パスコード",
+    actions: [
+      {
+        title: "発動",
+        isMandatory: false,
+        playType: "CardActivation",
+        spellSpeed: "Normal",
+        executableCells: ["Hand", "SpellAndTrapZone"],
+        executablePeriods: ["main1", "main2"],
+        executableDuelistTypes: ["Controller"],
+        isOnlyNTimesPerTurn: 1,
+        validate: (myInfo) => {
+          const token = getOrCreateSecurityToken(myInfo);
+          const cells = myInfo.activator.getMonsterZones();
+          const list = myInfo.activator.getEnableSummonList(
+            myInfo.activator,
+            "SpecialSummon",
+            ["Effect"],
+            myInfo.action,
+            [{ monster: token, posList: ["Defense"], cells }],
+            [],
+            false
+          );
+          if (!list.length) {
+            return;
+          }
+          return defaultSpellTrapValidate(myInfo);
+        },
+        prepare: async () => {
+          return { selectedEntities: [], chainBlockTags: ["SpecialSummon"], prepared: undefined };
+        },
+        execute: async (myInfo) => {
+          const token = getOrCreateSecurityToken(myInfo);
+          const cells = myInfo.activator.getMonsterZones();
+
+          const summoned = await myInfo.activator.summon("SpecialSummon", ["Effect"], myInfo.action, token, ["Defense"], cells, [], false);
+          return Boolean(summoned);
         },
         settle: async () => true,
       },

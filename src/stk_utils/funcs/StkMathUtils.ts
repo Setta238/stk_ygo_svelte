@@ -47,7 +47,6 @@ const testArray = [
   58, 59, 59, 59, 59, 60, 61, 63, 65, 65, 65, 65, 66, 67, 67, 67, 69, 69, 71, 71, 72, 73, 73, 73, 73, 73, 74, 75, 75, 76, 76, 77, 78, 79, 80, 80, 80, 80, 84,
   84, 84, 84, 84, 84, 85, 85, 85, 87, 90, 91, 94, 96, 96, 97, 98, 101, 101, 101, 101, 101,
 ];
-console.log(testArray.length);
 
 testArray.forEach((value, index) => {
   if ((testArray[getIndex(testArray, index) - 1] || -Number.MAX_VALUE) >= index || (testArray[getIndex(testArray, index)] || Number.MAX_VALUE) < index) {

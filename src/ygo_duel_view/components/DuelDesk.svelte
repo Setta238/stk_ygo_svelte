@@ -20,11 +20,8 @@
   import DuelFieldCellInfo from "./DuelFieldCellInfo.svelte";
   import type { DummyActionInfo } from "@ygo_duel/class/DuelEntityAction";
   import type { ChoicesSweet } from "@ygo_duel/class/DuelUtilTypes";
-  import DuelCutin from "./DuelCutin.svelte";
-  import { chainConfigDic, chainConfigKeys } from "@ygo_duel/class/Duelist";
   import type { DuelistProfile } from "@ygo/class/DuelistProfile";
   import DuelConfig from "./DuelConfig.svelte";
-
   export let duel: Duel;
   export let userProfile: DuelistProfile;
 

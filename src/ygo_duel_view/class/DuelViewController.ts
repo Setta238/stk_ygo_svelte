@@ -307,6 +307,11 @@ export class DuelViewController {
     return new Promise<void>((resolve) => this.onAnimationStartEvent.trigger({ ...args, resolve }));
   };
 
+  public readonly waitTokenAnimation = async (): Promise<void> => {
+    this.requireUpdate();
+    await delay(450);
+  };
+
   public readonly setDraggingActions = (validatedActionInfos: (DummyActionInfo & { battlePosition?: TBattlePosition })[]) => {
     this.onDragStartEvent.trigger(validatedActionInfos);
     this.requireUpdate();
@@ -503,6 +508,7 @@ export class DuelViewController {
 
     // TODO セルの初期化が終わっていないことがあるので待機が必要だが、判定方法が正しくない。
     while (this.onDuelUpdateEvent.length < 38) {
+      console.log(this.onDuelUpdateEvent.length);
       await delay(1);
     }
     this.onDuelUpdateEvent.trigger();

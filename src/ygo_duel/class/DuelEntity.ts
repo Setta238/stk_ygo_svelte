@@ -43,6 +43,7 @@ import { SummonFilter, SummonFilterBundle } from "@ygo_duel/class_continuous_eff
 import { DuelEntityShortHands } from "./DuelEntityShortHands";
 import type { IDuelClock } from "./DuelClock";
 import { DamageFilterBundle } from "@ygo_duel/class_continuous_effect/DuelDamageFilter";
+import { delay } from "@stk_utils/funcs/StkPromiseUtil";
 export type EntityStatus = {
   canAttack: boolean;
   canDirectAttack: boolean;
@@ -145,9 +146,10 @@ export type TDuelCauseReason =
   | "LostEquipOwner"
   | "SummonNegated"
   | "PutDirectly"
-  | "Excavate";
+  | "Excavate"
+  | "TokenBirth";
 
-export const duelEntityCardTypes = ["Card", "Token", "Avatar"] as const;
+export const duelEntityCardTypes = ["Card", "Token"] as const;
 export type TDuelEntityCardType = (typeof duelEntityCardTypes)[number];
 export const duelEntityDammyTypes = ["Duelist", "Squatter"] as const;
 export type TDuelEntityDammyType = (typeof duelEntityDammyTypes)[number];
@@ -192,7 +194,7 @@ export class DuelEntity {
     const hand = duelist.getHandCell();
     return new DuelEntity(duelist, hand, "Duelist", createDuelistEntityDefinition(duelist), "FaceUp", "Vertical");
   };
-  public static readonly createCardEntity = (owner: Duelist, definition: EntityDefinition): DuelEntity | undefined => {
+  public static readonly createCardEntity = (owner: Duelist, definition: EntityDefinition): DuelEntity => {
     // cardはデッキまたはEXデッキに生成
     const fieldCell =
       definition.staticInfo.monsterCategories && definition.staticInfo.monsterCategories.union(exMonsterCategories).length
@@ -200,6 +202,9 @@ export class DuelEntity {
         : owner.getDeckCell();
 
     return new DuelEntity(owner, fieldCell, "Card", definition, "FaceDown", "Vertical");
+  };
+  public static readonly createTokenEntity = (owner: Duelist, createdBy: DuelEntity, definition: EntityDefinition): DuelEntity => {
+    return new DuelEntity(owner, owner.duel.field.getWaitingRoomCell(), "Token", definition, "FaceUp", "Vertical", createdBy);
   };
 
   /**
@@ -262,7 +267,11 @@ export class DuelEntity {
 
       if (!_to.isPlayFieldCell) {
         _kind = entity.origin.kind;
+        if (entity.entityType === "Token") {
+          _to = entity.field.getWaitingRoomCell();
+        }
       }
+
       if (!_to.isMonsterZoneLikeCell) {
         _orientation = "Vertical";
       }
@@ -489,6 +498,7 @@ export class DuelEntity {
   public readonly damageFilterBundle: DamageFilterBundle;
   public readonly moveLog: EntityMoveLog;
   public readonly counterHolder: CounterHolder;
+  public readonly parent: DuelEntity | undefined;
   public face: TDuelEntityFace;
   public get isUnderControl() {
     return this.face === "FaceUp" || deckCellTypes.every((t) => t !== this.fieldCell.cellType);
@@ -542,7 +552,7 @@ export class DuelEntity {
       this.procFilterBundle.effectiveOperators.filter((pf) => pf.procTypes.includes(causedAs)).every((pf) => pf.filter(activator, causedBy, action, [this]))
     );
   };
-  private _hasDisappeared = false;
+
   public get status() {
     return this._status as Readonly<EntityStatus>;
   }
@@ -735,9 +745,9 @@ export class DuelEntity {
       ? this.owner.getExtraDeck()
       : this.owner.getDeckCell();
   }
-
-  public get hasDisappeared() {
-    return this._hasDisappeared;
+  private _exists = true;
+  public get exist() {
+    return this._exists;
   }
 
   public get allStickyEffectOperators() {
@@ -765,7 +775,8 @@ export class DuelEntity {
     entityType: TDuelEntityType,
     definition: EntityDefinition,
     face: TDuelEntityFace,
-    orientation: TDuelEntityOrientation
+    orientation: TDuelEntityOrientation,
+    parent?: DuelEntity
   ) {
     this.seq = DuelEntity.nextEntitySeq++;
     this.counterHolder = new CounterHolder(this);
@@ -773,11 +784,10 @@ export class DuelEntity {
     this.owner = owner;
     this.fieldCell = fieldCell;
     this.entityType = entityType;
-
+    this.parent = parent;
     this.origin = definition.staticInfo;
     this._status = JSON.parse(JSON.stringify(definition.staticInfo));
     this._numericStatus = JSON.parse(JSON.stringify(definition.staticInfo));
-
     this.resetStatusAll();
     this._info = {
       kind: this.origin.kind,
@@ -809,6 +819,7 @@ export class DuelEntity {
     this.numericOprsBundle = new NumericStateOperatorBundle(fieldCell.field.numericStateOperatorPool, this);
     this.statusOperatorBundle = new StatusOperatorBundle(fieldCell.field.statusOperatorPool, this);
     this.damageFilterBundle = new DamageFilterBundle(fieldCell.field.damageFilterPool, this);
+    this._exists = this.entityType === "Card";
 
     fieldCell.acceptEntities(this, "Top");
     this.moveLog = new EntityMoveLog(this);
@@ -1031,12 +1042,20 @@ export class DuelEntity {
     });
     this.face = face;
     this.orientation = orientation;
-
+    let appearFlg = false;
     // 異なるセルに移動する場合
     if (to !== this.fieldCell) {
-      if (this.field.duel.clock.turn > 0) {
+      if (this.fieldCell.cellType === "WaitingRoom") {
+        this.duel.log.info(`生成：${this.toString()}`, actionOwner);
+        appearFlg = true;
+      } else if (to.cellType === "WaitingRoom") {
+        this.duel.log.info(`消滅：${this.toString()}`, actionOwner);
+        this._exists = false;
+        // ★★★★★ 消滅アニメーション ★★★★★
+        await this.duel.view.waitTokenAnimation();
+      } else if (this.field.duel.clock.turn) {
         this.duel.log.info(`移動：${this.toString()}  ${this.fieldCell.toString()} ⇒ ${to.toString()}`, actionOwner);
-        // ★★★★★ アニメーション ★★★★★
+        // ★★★★★ 移動アニメーション ★★★★★
         await this.field.duel.view.waitAnimation({ entity: this, to: to, index: pos, count: 0 });
       }
     }
@@ -1052,13 +1071,6 @@ export class DuelEntity {
 
         // 墓地送り予定情報を削除
         this.resetCauseOfDeath();
-
-        // トークンが場を離れる場合、消滅
-        if (this.entityType === "Token") {
-          this._hasDisappeared = true;
-          this.field.duel.log.info(`${this.nm}は消滅した。`, this.controller);
-          return;
-        }
       }
       if (this.kind !== "XyzMaterial") {
         // モンスターゾーンを離れる時の処理
@@ -1095,9 +1107,15 @@ export class DuelEntity {
       }
 
       // セルに自分を所属させる
-      console.log(this.toString(), to.cellType, pos);
       to.acceptEntities(this, pos);
 
+      if (appearFlg) {
+        // FIXME 一度awaitを掛けないと、生成アニメーションが上手く行かない。
+        await delay(1);
+        this._exists = true;
+        // ★★★★★ 生成アニメーション ★★★★★
+        await this.duel.view.waitTokenAnimation();
+      }
       // ★情報のリセット、再セット
       //    後処理は後続で行う
       if (to === this.isBelongTo || to.cellType === "Hand" || (to.cellType === "Banished" && this.face === "FaceDown")) {

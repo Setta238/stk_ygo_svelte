@@ -53,6 +53,9 @@ export class DuelField {
   public readonly getAvailableExtraMonsterZones = (): DuelFieldCell[] => {
     return this.getCells("ExtraMonsterZone").filter((cell) => cell.isAvailable);
   };
+  public readonly getWaitingRoomCell = (): DuelFieldCell => {
+    return this.getCells("WaitingRoom")[0];
+  };
   public readonly getAllEntities = (): DuelEntity[] => {
     return this.getAllCells()
       .map((cell) => cell.entities)

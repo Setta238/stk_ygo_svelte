@@ -23570,5 +23570,13 @@
       "Aqua"
     ],
     "wikiEncodedName": "%A1%D4%BE%C2%C3%CF%A4%CE%CB%E2%BF%C0%B2%A6%A1%D5"
+  },
+  "ワンタイム・パスコード": {
+    "name": "ワンタイム・パスコード",
+    "nameKana": "",
+    "description": "このカード名のカードは１ターンに１枚しか発動できない。\n(1)：自分フィールドに「セキュリティトークン」（サイバース族・光・星４・攻／守２０００）１体を\n守備表示で特殊召喚する。",
+    "kind": "Spell",
+    "spellCategory": "Normal",
+    "wikiEncodedName": "%A1%D4%A5%EF%A5%F3%A5%BF%A5%A4%A5%E0%A1%A6%A5%D1%A5%B9%A5%B3%A1%BC%A5%C9%A1%D5"
   }
 }

@@ -121,7 +121,7 @@ export class EntityMoveLog {
 
   public readonly negateSummon = (movedBy: DuelEntity, activator: Duelist) => {
     const latestRecord = this.records.slice(-1)[0];
-    latestRecord.cell = this.entity.field.getCells("Disable")[0];
+    latestRecord.cell = this.entity.field.getWaitingRoomCell();
     latestRecord.movedBy = movedBy;
     latestRecord.movedAs = ["SummonNegated"];
     latestRecord.actionOwner = activator;

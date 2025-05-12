@@ -15,7 +15,7 @@ export const spellTrapZoneCellTypes = ["SpellAndTrapZone", "FieldSpellZone"] as 
  * fieldCellTypesとしたいが、フィールドゾーンと誤解する可能性が高いので一旦playとつけておく
  */
 export const playFieldCellTypes = [...monsterZoneCellTypes, ...spellTrapZoneCellTypes] as const;
-export const disabledCellTypes = ["XyzMaterialZone", "Disable"] as const;
+export const disabledCellTypes = ["XyzMaterialZone", "WaitingRoom"] as const;
 export const duelFieldCellTypes = [...bundleCellTypes, ...playFieldCellTypes, ...disabledCellTypes] as const;
 export type DuelFieldCellType = (typeof duelFieldCellTypes)[number];
 export type TDuelEntityMovePos = "Top" | "Bottom" | "Random" | "Fix";
@@ -46,7 +46,7 @@ export const cellTypeMaster = {
     0: "Banished",
     1: "XyzMaterialZone",
     2: "ExtraMonsterZone",
-    3: "Disable",
+    3: "WaitingRoom",
     4: "ExtraMonsterZone",
     5: "XyzMaterialZone",
     6: "Banished",

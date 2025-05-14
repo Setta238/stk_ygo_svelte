@@ -1,9 +1,4 @@
-import {
-  defaultEquipSpellTrapExecute,
-  defaultSpellTrapSetAction,
-  defaultSpellTrapValidate,
-  getDefaultEquipSpellTrapAction,
-} from "@ygo_entity_proc/card_actions/CommonCardAction_Spell";
+import { defaultEquipSpellTrapExecute, defaultSpellTrapSetAction, getDefaultEquipSpellTrapAction } from "@ygo_entity_proc/card_actions/CommonCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardActionDefinition } from "@ygo_duel/class/DuelEntityAction";
@@ -70,8 +65,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableDuelistTypes: ["Controller"],
         hasToTargetCards: true,
         canPayCosts: (myInfo) => myInfo.activator.lp >= 800,
-        // 墓地に蘇生可能モンスター、場に空きが必要。
-        validate: (myInfo) => {
+        canExecute: (myInfo) => {
           const cells = myInfo.activator.getMonsterZones();
           const list = myInfo.activator.getEnableSummonList(
             myInfo.activator,
@@ -88,10 +82,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             [],
             false
           );
-          if (!list.length) {
-            return;
-          }
-          return defaultSpellTrapValidate(myInfo);
+          return list.length > 0;
         },
         payCosts: (myInfo, chainBlockInfos) => defaultPayLifePoint(myInfo, chainBlockInfos, 800),
         prepare: async (myInfo) => {
@@ -142,7 +133,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         settle: async () => true,
       },
       defaultSpellTrapSetAction,
-    ] as CardActionDefinition<unknown>[],
+    ],
   };
   yield {
     name: "幻惑の巻物",

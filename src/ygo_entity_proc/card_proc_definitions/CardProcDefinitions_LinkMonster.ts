@@ -1,5 +1,4 @@
-import type { CardActionDefinition } from "@ygo_duel/class/DuelEntityAction";
-import { defaultAttackAction, defaultSummonFilter } from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
+import { defaultAttackAction } from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
@@ -23,7 +22,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
   ].map((item): EntityProcDefinition => {
     return {
       name: item.name,
-      actions: [defaultAttackAction, getDefaultLinkSummonAction(item.validator)] as CardActionDefinition<unknown>[],
+      actions: [defaultAttackAction, getDefaultLinkSummonAction(item.validator)],
     };
   });
 }

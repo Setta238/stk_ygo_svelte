@@ -1,6 +1,6 @@
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { duelFieldCellTypes, monsterZoneCellTypes, spellTrapZoneCellTypes, type DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
-import { defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_entity_proc/card_actions/CommonCardAction_Spell";
+import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CommonCardAction_Spell";
 import { IllegalCancelError, SystemError } from "@ygo_duel/class/Duel";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
@@ -29,13 +29,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         priorityForNPC: 40,
-        validate: (myInfo) => {
-          // デッキにモンスターが一枚以上必要。
-          if (myInfo.activator.getDeckCell().cardEntities.filter((card) => card.kind === "Monster").length === 0) {
-            return;
-          }
-          return defaultSpellTrapValidate(myInfo);
-        },
+        canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.some((card) => card.kind === "Monster"),
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["SendToGraveyardFromDeck"], prepared: undefined };
         },
@@ -49,7 +43,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             throw new IllegalCancelError(myInfo);
           }
           await target.sendToGraveyard(["Effect"], myInfo.action.entity, myInfo.activator);
-          await myInfo.activator.getDeckCell().shuffle();
+          myInfo.activator.getDeckCell().shuffle();
           return true;
         },
         settle: async () => true,
@@ -70,13 +64,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerTurn: 1,
         priorityForNPC: 40,
-        // デッキにモンスターが一枚以上必要。
-        validate: (myInfo) => {
-          if (myInfo.activator.getDeckCell().cardEntities.filter((card) => card.kind !== "Monster").length === 0) {
-            return;
-          }
-          return defaultSpellTrapValidate(myInfo);
-        },
+        canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.some((card) => card.kind !== "Monster"),
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["SendToGraveyardFromDeck"], prepared: undefined };
         },
@@ -90,6 +78,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
             throw new IllegalCancelError(myInfo);
           }
           await target.sendToGraveyard(["Effect"], myInfo.action.entity, myInfo.activator);
+          myInfo.activator.getDeckCell().shuffle();
+
           return true;
         },
         settle: async () => true,
@@ -110,7 +100,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableDuelistTypes: ["Controller"],
         hasToTargetCards: true,
         // 墓地に蘇生可能モンスター、場に空きが必要。
-        validate: (myInfo) => {
+        canExecute: (myInfo) => {
           const cells = myInfo.activator.getMonsterZones();
           const list = myInfo.activator.getEnableSummonList(
             myInfo.activator,
@@ -128,10 +118,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             [],
             false
           );
-          if (!list.length) {
-            return;
-          }
-          return defaultSpellTrapValidate(myInfo);
+          return list.length > 0;
         },
         prepare: (myInfo) =>
           defaultTargetMonstersRebornPrepare(
@@ -166,7 +153,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           executableCells: ["Hand", "SpellAndTrapZone"],
           executablePeriods: ["main1", "main2"],
           executableDuelistTypes: ["Controller"],
-          validate: (myInfo) => {
+          canExecute: (myInfo) => {
             let cards = myInfo.action.entity.field
               .getCells(...item.cellTypes)
               .flatMap((cell) => cell.cardEntities)
@@ -174,11 +161,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             if (item.isOnlyEnemies) {
               cards = cards.filter((card) => card.controller !== myInfo.activator);
             }
-            if (!cards.length) {
-              return;
-            }
-
-            return defaultSpellTrapValidate(myInfo);
+            return cards.length > 0;
           },
           prepare: async (myInfo) => {
             let cards = myInfo.action.entity.field
@@ -221,18 +204,11 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Hand", "SpellAndTrapZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
-        validate: (myInfo) => {
-          const cards = myInfo.action.entity.field
+        canExecute: (myInfo) =>
+          myInfo.action.entity.field
             .getCells("SpellAndTrapZone", "FieldSpellZone")
             .flatMap((cell) => cell.cardEntities)
-            .filter((card) => card !== myInfo.action.entity);
-
-          if (!cards.length) {
-            return;
-          }
-
-          return defaultSpellTrapValidate(myInfo);
-        },
+            .some((card) => card !== myInfo.action.entity),
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["BounceToHand"], prepared: undefined };
         },
@@ -291,7 +267,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerTurn: 1,
-        validate: (myInfo) => {
+        canExecute: (myInfo) => {
           const token = getOrCreateSecurityToken(myInfo);
           const cells = myInfo.activator.getMonsterZones();
           const list = myInfo.activator.getEnableSummonList(
@@ -303,10 +279,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             [],
             false
           );
-          if (!list.length) {
-            return;
-          }
-          return defaultSpellTrapValidate(myInfo);
+          return list.length > 0;
         },
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["SpecialSummon"], prepared: undefined };
@@ -336,19 +309,12 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableDuelistTypes: ["Controller"],
         priorityForNPC: 40,
         canPayCosts: (myInfo) => myInfo.activator.getDeckCell().cardEntities.length > 3,
-        validate: (myInfo) => {
-          // デッキに対象モンスターが一枚以上必要。
-          if (
-            myInfo.activator
-              .getDeckCell()
-              .cardEntities.filter((card) => card.kind === "Monster")
-              .filter((entity) => (entity.lvl ?? 13) < 5)
-              .filter((entity) => entity.status.nameTags && entity.status.nameTags.includes("ライトロード")).length === 0
-          ) {
-            return;
-          }
-          return defaultSpellTrapValidate(myInfo);
-        },
+        canExecute: (myInfo) =>
+          myInfo.activator
+            .getDeckCell()
+            .cardEntities.filter((card) => card.kind === "Monster")
+            .filter((entity) => (entity.lvl ?? 13) < 5)
+            .some((entity) => entity.status.nameTags && entity.status.nameTags.includes("ライトロード")),
         payCosts: async (myInfo) => {
           const cost = myInfo.activator.getDeckCell().cardEntities.slice(0, 3);
 
@@ -407,7 +373,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
 
           return true;
         },
-        validate: (myInfo) => {
+        canExecute: (myInfo) => {
           let allLvl1Monsters = [
             ...myInfo.activator.getDeckCell().cardEntities.filter((card) => (card.lvl ?? 12) === 1),
             ...myInfo.activator.getHandCell().cardEntities.filter((card) => (card.lvl ?? 12) === 1),
@@ -429,10 +395,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             [],
             false
           );
-          if (!list.length) {
-            return;
-          }
-          return defaultSpellTrapValidate(myInfo);
+          return list.length > 0;
         },
         payCosts: async (myInfo, chainBlockInfos, cancelable) => {
           // 特殊召喚できるレベル１を取得
@@ -511,14 +474,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Hand", "SpellAndTrapZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
-        validate: (myInfo) => {
-          // デッキに除外できるカードが必要
-          if (myInfo.activator.getDeckCell().cardEntities.every((card) => !myInfo.activator.canTryBanish(card, "BanishAsEffect", myInfo.action))) {
-            return;
-          }
-
-          return defaultSpellTrapValidate(myInfo);
-        },
+        canExecute: (myInfo) =>
+          myInfo.activator.getDeckCell().cardEntities.some((card) => myInfo.activator.canTryBanish(card, "BanishAsEffect", myInfo.action)),
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["BanishFromDeck"], prepared: undefined };
         },
@@ -566,21 +523,14 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: duelFieldCellTypes, //回収効果はカード本体の状態に係わらず、使用可能
         executablePeriods: ["stanby"],
         executableDuelistTypes,
-        validate: (myInfo) => {
-          //発動者のスタンバイフェイズでカウント、カードは持ち主の手札に入る
-          if (!myInfo.activator.isTurnPlayer) {
-            return;
-          }
-          // 封印の黄金櫃カウンターがちょうど二個のものを回収できる。
-          return myInfo.action.entity.field
+        canExecute: (myInfo) =>
+          myInfo.activator.isTurnPlayer &&
+          myInfo.action.entity.field
             .getCells("Banished")
             .flatMap((cell) => cell.cardEntities)
             .filter((card) => card.moveLog.latestRecord.movedBy === myInfo.action.entity)
             .filter((card) => card.moveLog.latestRecord.actionOwner === myInfo.activator)
-            .some((card) => card.counterHolder.getQty("GoldSarcophagus") === 2)
-            ? []
-            : undefined;
-        },
+            .some((card) => card.counterHolder.getQty("GoldSarcophagus") === 2),
         prepare: defaultPrepare,
         execute: async (myInfo) => {
           const cards = myInfo.action.entity.field
@@ -625,12 +575,9 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         canPayCosts: (myInfo) => myInfo.activator.lp >= 800,
-        validate: (myInfo) => {
-          if (myInfo.activator.getDeckCell().cardEntities.length < 4) {
-            return;
-          }
-          const cells = myInfo.activator.getMonsterZones();
-          const list = myInfo.activator.getEnableSummonList(
+        canExecute: (myInfo) =>
+          myInfo.activator.getDeckCell().cardEntities.length > 0 &&
+          myInfo.activator.getEnableSummonList(
             myInfo.activator,
             "SpecialSummon",
             ["Effect"],
@@ -641,16 +588,11 @@ export default function* generate(): Generator<EntityProcDefinition> {
               .filter((monster) => monster.status.monsterCategories?.includes("Normal"))
               .filter((monster) => (monster.lvl ?? 12) < 4)
               .map((monster) => {
-                return { monster, posList: faceupBattlePositions, cells };
+                return { monster, posList: faceupBattlePositions, cells: myInfo.activator.getMonsterZones() };
               }),
             [],
             false
-          );
-          if (!list.length) {
-            return;
-          }
-          return defaultSpellTrapValidate(myInfo);
-        },
+          ).length > 0,
         payCosts: (myInfo, chainBlockInfos) => defaultPayLifePoint(myInfo, chainBlockInfos, 800),
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromDeck"], prepared: undefined };

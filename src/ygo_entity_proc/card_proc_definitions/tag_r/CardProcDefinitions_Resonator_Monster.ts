@@ -6,13 +6,13 @@ import {
   getSelfBattleSubstituteEffectDefinition,
 } from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
-import type { CardActionDefinition } from "@ygo_duel/class/DuelEntityAction";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
+import { getSingleTargetActionPartical } from "@ygo_entity_proc/card_actions/CommonCardAction";
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "ダーク・リゾネーター",
-    actions: [defaultAttackAction, defaultBattlePotisionChangeAction, defaultFlipSummonAction, defaultNormalSummonAction] as CardActionDefinition<unknown>[],
+    actions: [defaultAttackAction, defaultBattlePotisionChangeAction, defaultFlipSummonAction, defaultNormalSummonAction],
     substituteEffects: [getSelfBattleSubstituteEffectDefinition(1)],
   };
 
@@ -31,10 +31,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["MonsterZone"],
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
-        validate: (myInfo) => {
-          if (!myInfo.action.entity.hasBeenSummonedNow(["NormalSummon"])) {
-            return;
-          }
+        meetsConditions: (myInfo) => myInfo.action.entity.hasBeenSummonedNow(["NormalSummon"]),
+        canExecute: (myInfo) => {
           const cells = myInfo.activator.getMonsterZones();
           const list = myInfo.activator.getEnableSummonList(
             myInfo.activator,
@@ -51,13 +49,10 @@ export default function* generate(): Generator<EntityProcDefinition> {
             [],
             false
           );
-          if (!list.length) {
-            return;
-          }
-          return [];
+          return list.length > 0;
         },
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromHand"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromHand", "IfNormarlSummonSucceed"], prepared: undefined };
         },
         execute: async (myInfo) => {
           const cells = myInfo.activator.getMonsterZones();
@@ -83,36 +78,17 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["MonsterZone"],
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
-        hasToTargetCards: true,
         isOnlyNTimesPerTurn: 1,
-        validate: (myInfo) => {
-          if (!myInfo.action.entity.hasBeenSummonedNow(["SpecialSummon"])) {
-            return;
-          }
-
-          return myInfo.activator
-            .getMonstersOnField()
-            .filter((monster) => monster.canBeTargetOfEffect(myInfo))
-            .filter((monster) => (monster.atk ?? 0) > 0)
-            .some((monster) => monster.info.summonKinds.includes("SpecialSummon"))
-            ? []
-            : undefined;
-        },
-        prepare: async (myInfo) => {
-          const monster = await myInfo.activator.waitSelectEntity(
+        meetsConditions: (myInfo) => myInfo.action.entity.hasBeenSummonedNow(["SpecialSummon"]),
+        ...getSingleTargetActionPartical(
+          (myInfo) =>
             myInfo.activator
               .getMonstersOnField()
               .filter((monster) => monster.canBeTargetOfEffect(myInfo))
               .filter((monster) => (monster.atk ?? 0) > 0)
               .filter((monster) => monster.info.summonKinds.includes("SpecialSummon")),
-            "対象とするモンスターを選択",
-            false
-          );
-          if (!monster) {
-            return;
-          }
-          return { selectedEntities: [monster], chainBlockTags: [], prepared: undefined };
-        },
+          { message: "対象モンスターを選択。" }
+        ),
         execute: async (myInfo) => {
           const lp = myInfo.activator.lp;
           myInfo.selectedEntities

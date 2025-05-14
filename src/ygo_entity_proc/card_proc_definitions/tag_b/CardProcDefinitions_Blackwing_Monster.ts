@@ -1,16 +1,18 @@
 import {
+  canSelfSepcialSummon,
   defaultAttackAction,
   defaultBattlePotisionChangeAction,
   defaultFlipSummonAction,
   defaultNormalSummonAction,
-  defaultRuleSpecialSummonValidate,
   defaultRuleSummonExecute,
   defaultRuleSummonPrepare,
+  getDestsForSelfSpecialSummon,
 } from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import { faceupBattlePositions, type TEntityFlexibleNumericStatusKey } from "@ygo/class/YgoTypes";
 import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
+import { getSingleTargetActionPartical } from "@ygo_entity_proc/card_actions/CommonCardAction";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
@@ -28,17 +30,12 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Hand"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
-        validate: (myInfo) => {
-          const blackwings = myInfo.activator
+        canExecute: (myInfo) =>
+          myInfo.activator
             .getMonstersOnField()
             .filter((monster) => (monster.status.nameTags ?? []).includes("ＢＦ"))
-            .filter((monster) => monster.nm !== myInfo.action.entity.origin.name);
-          if (!blackwings.length) {
-            return undefined;
-          }
-
-          return defaultRuleSpecialSummonValidate(myInfo, ["Attack", "Defense"], []);
-        },
+            .some((monster) => monster.nm !== myInfo.action.entity.origin.name) && canSelfSepcialSummon(myInfo, faceupBattlePositions, [], ["Rule"]),
+        getDests: (myInfo) => getDestsForSelfSpecialSummon(myInfo, faceupBattlePositions, [], ["Rule"]),
         prepare: (myInfo) => defaultRuleSummonPrepare(myInfo, "SpecialSummon", ["SpecialSummon", "Rule"], faceupBattlePositions),
         execute: defaultRuleSummonExecute,
         settle: async () => true,
@@ -51,40 +48,16 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["MonsterZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
-        hasToTargetCards: true,
         isOnlyNTimesPerTurnIfFaceup: 1,
-        validate: (myInfo) => {
-          const enemies = myInfo.activator
-            .getOpponentPlayer()
-            .getMonstersOnField()
-            .filter((enemy) => enemy.face === "FaceUp")
-            .filter((enemy) => enemy.canBeTargetOfEffect(myInfo));
-          if (!enemies.length) {
-            return undefined;
-          }
-
-          return enemies.length ? enemies.map((enemy) => enemy.fieldCell) : undefined;
-        },
-        prepare: async (myInfo, chainBlockInfos, cancelable) => {
-          let target = myInfo.dest?.cardEntities[0];
-
-          if (!target) {
-            const enemies = myInfo.activator
+        ...getSingleTargetActionPartical(
+          (myInfo) =>
+            myInfo.activator
               .getOpponentPlayer()
               .getMonstersOnField()
               .filter((enemy) => enemy.face === "FaceUp")
-              .filter((enemy) => enemy.canBeTargetOfEffect(myInfo));
-            const _target = await myInfo.activator.waitSelectEntity(enemies, "効果対象を選択。", cancelable);
-
-            if (!_target) {
-              return;
-            }
-
-            target = _target;
-          }
-
-          return { selectedEntities: [target], chainBlockTags: [], prepared: undefined };
-        },
+              .filter((enemy) => enemy.canBeTargetOfEffect(myInfo)),
+          { message: "対象モンスターを選択。" }
+        ),
         execute: async (myInfo) => {
           const target = myInfo.selectedEntities
             .filter((target) => target.isOnFieldAsMonsterStrictly)

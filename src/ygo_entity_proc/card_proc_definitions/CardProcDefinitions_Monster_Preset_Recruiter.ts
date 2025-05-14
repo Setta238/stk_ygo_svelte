@@ -218,10 +218,9 @@ export default function* generate(): Generator<EntityProcDefinition> {
           executableCells: item.executableCells,
           executablePeriods: item.destoryTypes.includes("EffectDestroy") ? [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys] : ["b1DEnd", "b2DEnd"],
           executableDuelistTypes: ["Controller"],
-          validate: (myInfo) => {
-            if (!myInfo.action.entity.wasMovedAtPreviousChain) {
-              return;
-            }
+          meetsConditions: (myInfo) =>
+            myInfo.action.entity.wasMovedAtPreviousChain && myInfo.action.entity.moveLog.latestRecord.movedAs.union(item.destoryTypes).length > 0,
+          canExecute: (myInfo) => {
             const cells = myInfo.activator.getMonsterZones();
             const list = myInfo.activator.getEnableSummonList(
               myInfo.activator,
@@ -239,10 +238,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               [],
               false
             );
-            if (!list.length) {
-              return;
-            }
-            return [];
+            return list.length > 0;
           },
           prepare: async () => {
             return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromDeck"], prepared: undefined };

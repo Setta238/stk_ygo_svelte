@@ -31,20 +31,13 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerTurn: 1,
-        validate: (myInfo) => {
-          if (!myInfo.action.entity.hasBeenSummonedNow(["NormalSummon", "SpecialSummon"])) {
-            return;
-          }
-          if (
-            myInfo.activator
-              .getDeckCell()
-              .cardEntities.filter((card) => card.kind === "Monster")
-              .filter((card) => card.status.nameTags?.includes("星杯")).length === 0
-          ) {
-            return;
-          }
-          return [];
-        },
+        meetsConditions: (myInfo) => myInfo.action.entity.hasBeenSummonedNow(["NormalSummon", "SpecialSummon"]),
+        canExecute: (myInfo) =>
+          myInfo.activator.canAddToHandFromDeck &&
+          myInfo.activator
+            .getDeckCell()
+            .cardEntities.filter((card) => card.kind === "Monster")
+            .some((card) => card.status.nameTags?.includes("星杯")),
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"], prepared: undefined };
         },
@@ -80,7 +73,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
           [...myInfo.activator.getMonstersOnField(), ...myInfo.activator.getHandCell().cardEntities.filter((card) => card.kind === "Monster")].some((monster) =>
             monster.canBeSentToGraveyard(myInfo.activator, myInfo.action.entity, "SendToGraveyardAsCost", myInfo.action)
           ),
-        validate: () => [],
         payCosts: async (myInfo) => {
           const choices = [
             ...myInfo.activator.getMonstersOnField(),
@@ -126,14 +118,12 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
         canPayCosts: defaultSelfReleaseCanPayCosts,
-        validate: (myInfo) =>
+        canExecute: (myInfo) =>
           myInfo.activator.duel.field.moveLog
             .getPriviousChainLog()
             .filter((record) => record.movedAs.includes("SpecialSummon"))
             .map((record) => record.entity)
-            .some((entity) => entity.wasMovedFrom.cellType === "ExtraDeck")
-            ? []
-            : undefined,
+            .some((entity) => entity.wasMovedFrom.cellType === "ExtraDeck"),
         payCosts: defaultSelfReleasePayCosts,
         prepare: defaultPrepare,
         execute: async (myInfo) => {
@@ -160,16 +150,11 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Hand", "Graveyard", "Banished"],
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
-        validate: (myInfo) => {
-          if (!myInfo.action.entity.wasMovedAtPreviousChain) {
-            return;
-          }
-          if (!myInfo.action.entity.info.summonKinds.includes("NormalSummon")) {
-            return;
-          }
-          if (myInfo.action.entity.moveLog.previousPlaceRecord.face === "FaceDown") {
-            return;
-          }
+        meetsConditions: (myInfo) =>
+          myInfo.action.entity.wasMovedAtPreviousChain &&
+          myInfo.action.entity.info.summonKinds.includes("NormalSummon") &&
+          myInfo.action.entity.moveLog.previousPlaceRecord.face === "FaceUp",
+        canExecute: (myInfo) => {
           const monsters = myInfo.activator
             .getDeckCell()
             .cardEntities.filter((card) => card.kind === "Monster")
@@ -191,7 +176,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             [],
             false
           );
-          return list.length > 1 ? [] : undefined;
+          return list.length > 1;
         },
         prepare: defaultPrepare,
         execute: async (myInfo) => {
@@ -233,12 +218,10 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         canPayCosts: defaultCanPaySelfBanishCosts,
-        validate: (myInfo) => {
-          if (myInfo.action.entity.wasMovedAtCurrentTurn) {
-            return;
-          }
-          return myInfo.activator.getDeckCell().cardEntities.filter((card) => card.status.nameTags?.includes("星遺物")).length > 0 ? [] : undefined;
-        },
+        meetsConditions: (myInfo) => myInfo.action.entity.wasMovedAtCurrentTurn,
+        canExecute: (myInfo) =>
+          myInfo.activator.canAddToHandFromDeck &&
+          myInfo.activator.getDeckCell().cardEntities.filter((card) => card.status.nameTags?.includes("星遺物")).length > 0,
         payCosts: defaultPaySelfBanishCosts,
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"], prepared: undefined };

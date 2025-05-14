@@ -36,19 +36,19 @@ export default function* generate(): Generator<EntityProcDefinition> {
           executableCells: ["SpellAndTrapZone"],
           executablePeriods: ["main1", "main2"],
           executableDuelistTypes: ["Controller"],
-          validate: (myInfo) => {
+          meetsConditions: (myInfo) => {
             const theOther = myInfo.activator.getPendulumScaleMonsters().find((ps) => ps !== myInfo.action.entity);
 
             if (!theOther) {
-              return;
+              return false;
             }
 
             if (!theOther.status.nameTags?.includes("イグナイト")) {
-              return;
+              return false;
             }
-
-            return myInfo.activator.getDeckCell().cardEntities.some((card) => card.status.nameTags?.includes("イグナイト")) ? [] : undefined;
+            return true;
           },
+          canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.some((card) => card.status.nameTags?.includes("イグナイト")),
           prepare: async (myInfo) => {
             return {
               selectedEntities: [],

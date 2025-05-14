@@ -1,4 +1,4 @@
-import { defaultSpellTrapValidate, defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CommonCardAction_Spell";
+import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CommonCardAction_Spell";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { IllegalCancelError } from "@ygo_duel/class/Duel";
 export default function* generate(): Generator<EntityProcDefinition> {
@@ -14,18 +14,12 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         priorityForNPC: 40,
-        // デッキ二枚以上、対象モンスターが一枚以上必要。
-        validate: (myInfo) => {
+        canExecute: (myInfo) => {
           const cards = myInfo.activator.getDeckCell().cardEntities;
           if (cards.length < 2) {
-            return;
+            return false;
           }
-          if (
-            cards.filter((card) => card.status.nameTags?.includes("シンクロン")).filter((card) => card.status.monsterCategories?.includes("Tuner")).length === 0
-          ) {
-            return;
-          }
-          return defaultSpellTrapValidate(myInfo);
+          return cards.filter((card) => card.status.nameTags?.includes("シンクロン")).some((card) => card.status.monsterCategories?.includes("Tuner"));
         },
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["SearchFromDeck", "SendToGraveyardFromDeck"], prepared: undefined };

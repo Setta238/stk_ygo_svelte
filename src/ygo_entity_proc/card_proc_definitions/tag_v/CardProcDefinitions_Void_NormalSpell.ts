@@ -1,5 +1,5 @@
 import { duelFieldCellTypes } from "@ygo_duel/class/DuelFieldCell";
-import { defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_entity_proc/card_actions/CommonCardAction_Spell";
+import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CommonCardAction_Spell";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
@@ -18,18 +18,9 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Hand", "SpellAndTrapZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
-        validate: (myInfo) => {
-          if (!myInfo.activator.getDeckCell().cardEntities.length) {
-            return;
-          }
-          if (myInfo.activator.getHandCell().cardEntities.length < 3) {
-            return;
-          }
-          if (!myInfo.activator.status.canDiscardAsEffect) {
-            return;
-          }
-          return defaultSpellTrapValidate(myInfo);
-        },
+        meetsConditions: (myInfo) => myInfo.activator.getHandCell().cardEntities.length > 2,
+        canExecute: (myInfo) =>
+          myInfo.activator.canDraw && myInfo.activator.status.canDiscardAsEffect && myInfo.activator.getDeckCell().cardEntities.length > 0,
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["Draw", "DiscordAsEffect"], prepared: undefined };
         },
@@ -48,9 +39,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: duelFieldCellTypes,
         executablePeriods: ["end"],
         executableDuelistTypes,
-        validate: (myInfo) => {
-          return myInfo.activator.entity.counterHolder.getQty("IntoTheVoid", myInfo.action.entity) ? [] : undefined;
-        },
+        meetsConditions: (myInfo) => myInfo.activator.entity.counterHolder.getQty("IntoTheVoid", myInfo.action.entity) > 0,
         prepare: defaultPrepare,
         execute: async (myInfo) => {
           await DuelEntityShortHands.discardManyForTheSameReason(

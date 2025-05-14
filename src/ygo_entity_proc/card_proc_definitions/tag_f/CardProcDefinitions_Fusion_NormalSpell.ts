@@ -1,5 +1,5 @@
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
-import { defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_entity_proc/card_actions/CommonCardAction_Spell";
+import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CommonCardAction_Spell";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
@@ -51,7 +51,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           executableDuelistTypes: ["Controller"],
           isOnlyNTimesPerTurn: 1,
           canPayCosts: (myInfo) => myInfo.activator.lp >= 1000,
-          validate: (myInfo) => {
+          canExecute: (myInfo) => {
             const cells = myInfo.activator.getMonsterZones();
             const list = myInfo.activator.getEnableSummonList(
               myInfo.activator,
@@ -69,10 +69,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               [],
               false
             );
-            if (!list.length) {
-              return;
-            }
-            return defaultSpellTrapValidate(myInfo);
+            return list.length > 0;
           },
           payCosts: (myInfo, chainBlockInfos) => defaultPayLifePoint(myInfo, chainBlockInfos, 1000),
           prepare: async () => {
@@ -149,10 +146,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
           executableCells: duelFieldCellTypes,
           executablePeriods: ["end"],
           executableDuelistTypes,
-          validate: (myInfo) =>
-            myInfo.action.entity.field.getMonstersOnFieldStrictly().filter((card) => card.counterHolder.getSelfDestructionFlg(myInfo.action.entity)).length
-              ? []
-              : undefined,
+          canExecute: (myInfo) =>
+            myInfo.action.entity.field.getMonstersOnFieldStrictly().some((card) => card.counterHolder.getSelfDestructionFlg(myInfo.action.entity)),
           prepare: defaultPrepare,
           execute: async (myInfo) => {
             const cards = myInfo.action.entity.field

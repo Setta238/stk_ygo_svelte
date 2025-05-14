@@ -1,4 +1,4 @@
-import { defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_entity_proc/card_actions/CommonCardAction_Spell";
+import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CommonCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 
@@ -19,23 +19,12 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: duelPeriodKeys,
         executableDuelistTypes: ["Controller"],
         negateSummon: true,
-        validate: (myInfo) => {
-          if (!myInfo.targetChainBlock) {
-            return;
-          }
-          if (myInfo.targetChainBlock.action.playType !== "SpecialSummon") {
-            return;
-          }
-          // 相手限定
-          if (myInfo.targetChainBlock.activator === myInfo.activator) {
-            return;
-          }
-          // 一体限定
-          if (myInfo.activator.duel.field.getPendingMonstersOnField().length !== 1) {
-            return;
-          }
-          return defaultSpellTrapValidate(myInfo);
-        },
+        canExecute: (myInfo) =>
+          (myInfo.targetChainBlock &&
+            myInfo.targetChainBlock.action.playType === "SpecialSummon" &&
+            myInfo.targetChainBlock.activator !== myInfo.activator &&
+            myInfo.activator.duel.field.getPendingMonstersOnField().length === 1) ??
+          false,
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["NegateSpecialSummon"], prepared: undefined };
         },

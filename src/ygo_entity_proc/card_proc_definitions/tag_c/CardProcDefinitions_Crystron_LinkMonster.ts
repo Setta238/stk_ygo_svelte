@@ -24,10 +24,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: monsterZoneCellTypes,
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
-        validate: (myInfo) => {
-          if (!myInfo.action.entity.hasBeenSummonedNow(["LinkSummon"])) {
-            return;
-          }
+        meetsConditions: (myInfo) => myInfo.action.entity.hasBeenSummonedNow(["LinkSummon"]),
+        canExecute: (myInfo) => {
           const tuners = [myInfo.activator.getHandCell(), myInfo.activator.getDeckCell()]
             .flatMap((cell) => cell.cardEntities)
             .filter((card) => (card.lvl ?? 12) < 4)
@@ -49,7 +47,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             [],
             false
           );
-          return list.length ? [] : undefined;
+          return list.length > 0;
         },
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromDeck"], prepared: undefined };
@@ -87,7 +85,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               false,
               myInfo.action.entity,
               myInfo.action,
-              () => true,
+              (operator, target) => operator.effectOwner.duel.clock.isSameTurn(operator.isSpawnedAt) && target.isOnFieldAsMonsterStrictly,
               () => {
                 return { canActivateEffect: false };
               }
@@ -107,10 +105,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerChain: 1,
         canPayCosts: defaultCanPaySelfBanishCosts,
-        validate: (myInfo) => {
-          if (myInfo.activator.isTurnPlayer) {
-            return;
-          }
+        meetsConditions: (myInfo) => myInfo.activator.isTurnPlayer,
+        canExecute: (myInfo) => {
           const cells = [...myInfo.activator.getMonsterZones(), ...myInfo.activator.duel.field.getCells("ExtraMonsterZone")];
           const syncroTuners = myInfo.activator
             .getExtraDeck()
@@ -127,7 +123,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             [{ material: myInfo.action.entity, cell: myInfo.action.entity.fieldCell }],
             false
           );
-          return list.length ? [] : undefined;
+          return list.length > 0;
         },
         payCosts: defaultPaySelfBanishCosts,
         prepare: defaultPrepare,

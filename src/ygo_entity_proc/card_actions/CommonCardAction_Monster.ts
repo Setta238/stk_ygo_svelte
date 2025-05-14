@@ -21,77 +21,11 @@ import { defaultPrepare } from "./CommonCardAction";
 import { createRegularStatusOperatorHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 import { duelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
-const defaultNormalSummonValidate = (myInfo: ChainBlockInfoBase<unknown>): DuelFieldCell[] | undefined => {
-  // 召喚権を使い切っていたら通常召喚不可。
-  if (myInfo.activator.info.ruleNormalSummonCount >= myInfo.activator.info.maxRuleNormalSummonCount) {
-    return;
-  }
-
-  // レベルがないモンスターは通常召喚不可
-  if (!myInfo.action.entity.lvl) {
-    return;
-  }
-
-  if (myInfo.action.entity.lvl < 5) {
-    // 4以下はリリースモンスターの考慮不要
-    const list = myInfo.activator.getEnableSummonList(
-      myInfo.activator,
-      "NormalSummon",
-      ["Rule"],
-      myInfo.action,
-      [{ monster: myInfo.action.entity, posList: ["Attack", "Set"], cells: myInfo.activator.getMonsterZones() }],
-      [],
-      false
-    );
-
-    return list.length ? list.flatMap((item) => item.cells).getDistinct() : undefined;
-  } else {
-    const releasableMonsters = myInfo.activator
-      .getMonstersOnField()
-      .filter((monster) => monster.canBeReleased(myInfo.activator, myInfo.action.entity, ["AdvanceSummonRelease"], myInfo.action));
-
-    const qty = myInfo.action.entity.lvl < 7 ? 1 : 2;
-
-    // リリース可能なモンスターが不足する場合、アドバンス召喚不可
-    if (releasableMonsters.length < qty) {
-      return;
-    }
-
-    // TODO ダブルコストモンスター
-    const patterns = releasableMonsters.getAllOnOffPattern().filter((pattern) => pattern.length === qty);
-
-    if (
-      patterns.some(
-        (pattern) =>
-          myInfo.activator.getEnableSummonList(
-            myInfo.activator,
-            "AdvanceSummon",
-            ["Rule", "NormalSummon"],
-            myInfo.action,
-            [{ monster: myInfo.action.entity, posList: ["Attack", "Set"], cells: myInfo.activator.getMonsterZones() }],
-            pattern.map((material) => {
-              return { material, cell: material.fieldCell };
-            }),
-            false
-          ).length
-      )
-    ) {
-      // リリース処理が先にくるので、選択可能なセルはなし
-      return [];
-    }
-  }
-  return;
-
-  // TODO : クロス・ソウルの「しなければならない」の制限の考慮。エクストラモンスターゾーンまたは相手モンスターゾーンにしかリリース可能なモンスターがいない場合、空きが必要。
-  // if (emptyCells.length > 0 || releasableMonsters.filter((m) => m.controller === entity.controller && m.fieldCell.cellType === "MonsterZone")) {
-  //   return true;
-  // }
-};
 
 const defaultNormalSummonPayCost = async (
   myInfo: ChainBlockInfoBase<unknown>,
   chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
-  cancelable?: boolean
+  cancelable: boolean = false
 ): Promise<ActionCostInfo | undefined> => {
   if (!myInfo.action.entity.lvl) {
     return;
@@ -120,13 +54,14 @@ const defaultNormalSummonPayCost = async (
         (qty < 0 || selected.length === qty) &&
         (availableCells.length > 0 || selected.some((matetial) => matetial.fieldCell.cellType === "ExtraMonsterZone")),
       "リリースするモンスターを選択",
-      cancelable ?? false
+      cancelable
     )) ?? [];
 
   //リリースしなければキャンセル。
   if (!materials.length) {
     return;
   }
+
   await DuelEntityShortHands.releaseManyForTheSameReason(materials, ["Cost", "AdvanceSummonRelease", "Rule"], myInfo.action.entity, myInfo.activator);
 
   // 詰め直し
@@ -185,18 +120,95 @@ export const defaultNormalSummonAction: CardActionDefinition<unknown> = {
   executableCells: ["Hand"],
   executablePeriods: ["main1", "main2"],
   executableDuelistTypes: ["Controller"],
-  validate: defaultNormalSummonValidate,
+  canPayCosts: (myInfo: ChainBlockInfoBase<unknown>): boolean => {
+    if (!myInfo.action.entity.lvl) {
+      return false;
+    }
+
+    if (myInfo.action.entity.lvl < 5) {
+      // 4以下はリリースモンスターの考慮不要
+      const list = myInfo.activator.getEnableSummonList(
+        myInfo.activator,
+        "NormalSummon",
+        ["Rule"],
+        myInfo.action,
+        [{ monster: myInfo.action.entity, posList: ["Attack", "Set"], cells: myInfo.activator.getMonsterZones() }],
+        [],
+        false
+      );
+
+      return list.length > 0;
+    }
+    const releasableMonsters = myInfo.activator
+      .getMonstersOnField()
+      .filter((monster) => monster.canBeReleased(myInfo.activator, myInfo.action.entity, ["AdvanceSummonRelease"], myInfo.action));
+
+    const qty = myInfo.action.entity.lvl < 7 ? 1 : 2;
+
+    // リリース可能なモンスターが不足する場合、アドバンス召喚不可
+    if (releasableMonsters.length < qty) {
+      return false;
+    }
+
+    // TODO ダブルコストモンスター
+    const patterns = releasableMonsters.getAllOnOffPattern().filter((pattern) => pattern.length === qty);
+
+    return patterns.some(
+      (pattern) =>
+        myInfo.activator.getEnableSummonList(
+          myInfo.activator,
+          "AdvanceSummon",
+          ["Rule", "NormalSummon"],
+          myInfo.action,
+          [{ monster: myInfo.action.entity, posList: ["Attack", "Set"], cells: myInfo.activator.getMonsterZones() }],
+          pattern.map((material) => {
+            return { material, cell: material.fieldCell };
+          }),
+          false
+        ).length
+    );
+
+    // TODO : クロス・ソウルの「しなければならない」の制限の考慮。エクストラモンスターゾーンまたは相手モンスターゾーンにしかリリース可能なモンスターがいない場合、空きが必要。
+    // if (emptyCells.length > 0 || releasableMonsters.filter((m) => m.controller === entity.controller && m.fieldCell.cellType === "MonsterZone")) {
+    //   return true;
+    // }
+  },
+  meetsConditions: (myInfo) =>
+    myInfo.activator.info.ruleNormalSummonCount < myInfo.activator.info.maxRuleNormalSummonCount && Boolean(myInfo.action.entity.lvl),
+  getDests: (myInfo: ChainBlockInfoBase<unknown>): DuelFieldCell[] => {
+    if (!myInfo.action.entity.lvl) {
+      return [];
+    }
+
+    // アドバンス召喚の場合、リリースコスト支払いが先
+    if (myInfo.action.entity.lvl > 4) {
+      return [];
+    }
+
+    // 4以下はリリースモンスターの考慮不要
+    const list = myInfo.activator.getEnableSummonList(
+      myInfo.activator,
+      "NormalSummon",
+      ["Rule"],
+      myInfo.action,
+      [{ monster: myInfo.action.entity, posList: ["Attack", "Set"], cells: myInfo.activator.getMonsterZones() }],
+      [],
+      false
+    );
+
+    return list.flatMap((choice) => choice.cells).getDistinct();
+  },
   payCosts: defaultNormalSummonPayCost,
   prepare: defaultNormalSummonPrepare,
   execute: defaultRuleSummonExecute,
   settle: async () => true,
 };
-
-export const defaultRuleSpecialSummonValidate = <T>(
+export const getDestsForSelfSpecialSummon = <T>(
   myInfo: ChainBlockInfoBase<T>,
   posList: Readonly<TBattlePosition[]>,
-  materials: SummonMaterialInfo[]
-): DuelFieldCell[] | undefined => {
+  materials: SummonMaterialInfo[],
+  movedAs: TDuelCauseReason[]
+): DuelFieldCell[] => {
   // セルを取得
   const cells = myInfo.activator.getMonsterZones();
 
@@ -207,19 +219,17 @@ export const defaultRuleSpecialSummonValidate = <T>(
   const summmonList = myInfo.activator.getEnableSummonList(
     myInfo.activator,
     "SpecialSummon",
-    ["Rule"],
+    movedAs,
     myInfo.action,
     [{ monster: myInfo.action.entity, posList, cells: cells }],
     materials,
     false
   );
 
-  if (!summmonList.length) {
-    return;
-  }
-
-  return materials.length === 0 ? summmonList.flatMap((item) => item.cells) : [];
+  return summmonList.flatMap((item) => item.cells);
 };
+
+export const canSelfSepcialSummon = <T>(...args: Parameters<typeof getDestsForSelfSpecialSummon<T>>) => getDestsForSelfSpecialSummon(...args).length > 0;
 
 export const defaultRuleSpecialSummonPrepare = async (
   materialInfos: SummonMaterialInfo[]
@@ -242,78 +252,76 @@ export const defaultRuleSpecialSummonExecute = async (myInfo: ChainBlockInfo<Sum
   return Boolean(monster);
 };
 
-const defaultDeclareAttackValidate = (myInfo: ChainBlockInfoBase<unknown>): DuelFieldCell[] | undefined => {
-  if (!myInfo.activator.isTurnPlayer) {
-    return;
-  }
-  if (!myInfo.action.entity.status.canAttack) {
-    return;
-  }
-  if (myInfo.action.entity.info.attackDeclareCount > 0 || myInfo.action.entity.battlePosition !== "Attack") {
-    return;
-  }
-
-  const targets = myInfo.action.entity.getAttackTargets();
-
-  // 攻撃対象をダイレクトアタック含めて抽出し、セルに変換
-  return targets.length ? targets.map((e) => e.fieldCell) : undefined;
-};
-const defaultDeclareAttackPrepare = async (myInfo: ChainBlockInfoBase<unknown>): Promise<ChainBlockInfoPrepared<unknown> | undefined> => {
-  if (myInfo.action.entity.info.attackDeclareCount > 0 || myInfo.action.entity.battlePosition !== "Attack") {
-    return;
-  }
-
-  // 準備段階でセルを指定していた場合、エンティティに逆変換
-  if (myInfo.dest?.targetForAttack) {
-    const opponent = myInfo.dest.entities.find((entity) => entity.entityType === "Duelist");
-
-    return { selectedEntities: opponent ? [opponent] : myInfo.dest.cardEntities, chainBlockTags: [], prepared: undefined };
-  }
-
-  const choices = myInfo.action.entity.getAttackTargets();
-
-  if (choices.length === 0) {
-    throw new SystemError("想定されない状態", myInfo);
-  }
-  if (choices.length === 1) {
-    return { selectedEntities: choices, chainBlockTags: [], prepared: undefined };
-  }
-
-  if (myInfo.activator.duelistType === "NPC") {
-    let target = myInfo.activator.selectAttackTargetForNPC(myInfo.action.entity, myInfo.action as EntityAction<unknown>);
-    if (!target) {
-      myInfo.activator.duel.log.warn("NPCの攻撃対象選択に失敗したため、ランダムに攻撃対象を選択。");
-      target = choices.randomPick();
-    }
-    return { selectedEntities: [target], chainBlockTags: [], prepared: undefined };
-  }
-
-  const target = await myInfo.activator.waitSelectEntity(choices, "攻撃対象を選択。", true);
-
-  if (!target) {
-    return;
-  }
-
-  return { selectedEntities: [target], chainBlockTags: [], prepared: undefined };
-};
-const defaultDeclareAttackExecute = async (myInfo: ChainBlockInfo<unknown>): Promise<boolean> => {
-  myInfo.action.entity.field.duel.declareAnAttack(myInfo.action.entity, myInfo.selectedEntities[0]);
-
-  return true;
-};
-
 export const defaultAttackAction: CardActionDefinition<unknown> = {
   title: "攻撃宣言",
   isMandatory: false,
-
   playType: "Battle",
   spellSpeed: "Normal",
   executableCells: ["MonsterZone", "ExtraMonsterZone"],
   executablePeriods: ["b1Battle", "b2Battle"],
   executableDuelistTypes: ["Controller"],
-  validate: defaultDeclareAttackValidate,
-  prepare: defaultDeclareAttackPrepare,
-  execute: defaultDeclareAttackExecute,
+  hasToTargetCards: true,
+  getTargetableEntities: (myInfo) => myInfo.action.entity.getAttackTargets(),
+  canExecute: (myInfo, chainBlockInfos) => {
+    if (!myInfo.activator.isTurnPlayer) {
+      return false;
+    }
+    if (!myInfo.action.entity.status.canAttack) {
+      return false;
+    }
+    if (myInfo.action.entity.info.attackDeclareCount > 0 || myInfo.action.entity.battlePosition !== "Attack") {
+      return false;
+    }
+    return myInfo.action.getTargetableEntities(myInfo, chainBlockInfos).length > 0;
+  },
+  getDests: (myInfo, chainBlockInfos) =>
+    myInfo.action
+      .getTargetableEntities(myInfo, chainBlockInfos)
+      .filter((entity) => entity.isOnField)
+      .map((card) => card.fieldCell),
+  prepare: async (myInfo, chainBlockInfos) => {
+    if (myInfo.action.entity.info.attackDeclareCount > 0 || myInfo.action.entity.battlePosition !== "Attack") {
+      return;
+    }
+
+    // ドラッグ・アンド・ドロップでセルを指定していた場合、エンティティに逆変換
+    if (myInfo.dest?.targetForAttack) {
+      const opponent = myInfo.dest.entities.find((entity) => entity.entityType === "Duelist");
+
+      return { selectedEntities: opponent ? [opponent] : myInfo.dest.cardEntities, chainBlockTags: [], prepared: undefined };
+    }
+
+    const choices = myInfo.action.getTargetableEntities(myInfo, chainBlockInfos);
+
+    if (choices.length === 0) {
+      throw new SystemError("攻撃対象の選択肢がない状態で実行された。", myInfo);
+    }
+    if (choices.length === 1) {
+      return { selectedEntities: choices, chainBlockTags: [], prepared: undefined };
+    }
+
+    if (myInfo.activator.duelistType === "NPC") {
+      let target = myInfo.activator.selectAttackTargetForNPC(myInfo.action.entity, myInfo.action as EntityAction<unknown>);
+      if (!target) {
+        myInfo.activator.duel.log.warn("NPCの攻撃対象選択に失敗したため、ランダムに攻撃対象を選択。");
+        target = choices.randomPick();
+      }
+      return { selectedEntities: [target], chainBlockTags: [], prepared: undefined };
+    }
+
+    const target = await myInfo.activator.waitSelectEntity(choices, "攻撃対象を選択。", true);
+
+    if (!target) {
+      return;
+    }
+
+    return { selectedEntities: [target], chainBlockTags: [], prepared: undefined };
+  },
+  execute: async (myInfo) => {
+    myInfo.action.entity.field.duel.declareAnAttack(myInfo.action.entity, myInfo.selectedEntities[0]);
+
+    return true;
+  },
   settle: async () => true,
 };
 
@@ -341,13 +349,11 @@ export const defaultFlipSummonAction: CardActionDefinition<unknown> = {
   executableCells: ["MonsterZone", "ExtraMonsterZone"],
   executablePeriods: ["main1", "main2"],
   executableDuelistTypes: ["Controller"],
-  validate: (myInfo) =>
+  canExecute: (myInfo) =>
     myInfo.action.entity.info.battlePotisionChangeCount === 0 &&
     myInfo.action.entity.info.attackDeclareCount === 0 &&
     myInfo.activator.isTurnPlayer &&
-    myInfo.action.entity.face === "FaceDown"
-      ? []
-      : undefined,
+    myInfo.action.entity.face === "FaceDown",
   prepare: defaultBattlePotisionChangePrepare,
   execute: async (myInfo) => {
     myInfo.action.entity.determine();
@@ -365,13 +371,11 @@ export const defaultBattlePotisionChangeAction: CardActionDefinition<unknown> = 
   executableCells: ["MonsterZone", "ExtraMonsterZone"],
   executablePeriods: ["main1", "main2"],
   executableDuelistTypes: ["Controller"],
-  validate: (myInfo) =>
+  canExecute: (myInfo) =>
     myInfo.action.entity.info.battlePotisionChangeCount === 0 &&
     myInfo.action.entity.info.attackDeclareCount === 0 &&
     myInfo.activator.isTurnPlayer &&
-    myInfo.action.entity.face === "FaceUp"
-      ? []
-      : undefined,
+    myInfo.action.entity.face === "FaceUp",
   prepare: defaultBattlePotisionChangePrepare,
   execute: async (myInfo) => {
     myInfo.action.entity.determine();
@@ -536,11 +540,11 @@ export const getDefaultAccelSyncroACtion = <T>(options: Partial<CardActionDefini
     executablePeriods: ["main1", "main2"],
     executableDuelistTypes: ["Controller"],
     isOnlyNTimesPerChain: 1,
-    validate: (myInfo) => {
+    canExecute: (myInfo) => {
       if (myInfo.activator.isTurnPlayer) {
-        return;
+        return false;
       }
-      const flg = myInfo.activator
+      return myInfo.activator
         .getExtraDeck()
         .cardEntities.filter((monster) => monster.status.monsterCategories?.includes("Syncro"))
         .flatMap((monster) => monster.actions)
@@ -571,7 +575,6 @@ export const getDefaultAccelSyncroACtion = <T>(options: Partial<CardActionDefini
             );
           })
         );
-      return flg ? [] : undefined;
     },
     prepare: defaultPrepare,
     execute: async (myInfo): Promise<boolean> => {

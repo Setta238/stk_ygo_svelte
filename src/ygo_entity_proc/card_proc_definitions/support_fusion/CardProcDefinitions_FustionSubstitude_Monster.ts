@@ -34,16 +34,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         canPayCosts: defaultCanPaySelfDiscardCosts,
-        validate: (myInfo) => {
-          // デッキに対象カードが一枚以上必要。
-          if (!myInfo.activator.getDeckCell().cardEntities.some((card) => card.nm === "融合")) {
-            return;
-          }
-          if (!myInfo.activator.canAddToHandFromDeck) {
-            return;
-          }
-          return [myInfo.activator.getGraveyard()];
-        },
+        canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.some((card) => card.nm === "融合") && myInfo.activator.canAddToHandFromDeck,
+        getDests: (myInfo) => [myInfo.activator.getGraveyard()],
         payCosts: defaultPaySelfDiscardCosts,
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"], prepared: undefined };

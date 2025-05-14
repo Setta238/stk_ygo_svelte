@@ -1,4 +1,4 @@
-import { defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_entity_proc/card_actions/CommonCardAction_Spell";
+import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CommonCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 
@@ -54,8 +54,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           executableCells: ["SpellAndTrapZone"],
           executablePeriods: freeChainDuelPeriodKeys,
           executableDuelistTypes: ["Controller"],
-          // 墓地に蘇生可能モンスター、場に空きが必要。
-          validate: (myInfo) => {
+          canExecute: (myInfo) => {
             const cells = myInfo.activator.getMonsterZones();
             const list = myInfo.activator.getEnableSummonList(
               myInfo.activator,
@@ -73,10 +72,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               [],
               false
             );
-            if (!list.length) {
-              return;
-            }
-            return defaultSpellTrapValidate(myInfo);
+            return list.length > 0;
           },
           prepare: (myInfo) =>
             defaultTargetMonstersRebornPrepare(

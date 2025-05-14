@@ -1,13 +1,8 @@
-import {
-  type CardActionDefinition,
-  type ChainBlockInfo,
-  type ChainBlockInfoBase,
-  type ChainBlockInfoPrepared,
-  type TEffectTag,
-} from "@ygo_duel/class/DuelEntityAction";
+import { type CardActionDefinition, type ChainBlockInfo, type ChainBlockInfoBase, type TEffectTag } from "@ygo_duel/class/DuelEntityAction";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
-import { spellTrapZoneCellTypes, type DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
+import { type DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 import { defaultPrepare } from "@ygo_entity_proc/card_actions/CommonCardAction";
+import { SystemError } from "@ygo_duel/class/Duel";
 export const defaultSpellTrapSetValidate = (myInfo: ChainBlockInfoBase<unknown>): DuelFieldCell[] | undefined => {
   if (myInfo.action.entity.status.spellCategory === "Field") {
     const fieldZone = myInfo.activator.getFieldZone();
@@ -25,44 +20,9 @@ export const defaultSpellTrapSetAction: CardActionDefinition<unknown> = {
   executablePeriods: ["main1", "main2"],
   executableDuelistTypes: ["Controller"],
   isMandatory: false,
-  validate: defaultSpellTrapSetValidate,
   prepare: defaultPrepare,
   execute: async () => true,
   settle: async () => true,
-};
-
-export const defaultSpellTrapValidate = <T>(myInfo: ChainBlockInfoBase<T>): DuelFieldCell[] | undefined => {
-  if (myInfo.action.entity.info.isPending) {
-    return;
-  }
-  if (myInfo.action.entity.info.isDying) {
-    return;
-  }
-  if (myInfo.action.entity.info.isSettingSickness) {
-    return;
-  }
-  if (spellTrapZoneCellTypes.some((ct) => ct === myInfo.action.entity.fieldCell.cellType)) {
-    return myInfo.action.entity.face === "FaceDown" ? [] : undefined;
-  }
-  if (myInfo.action.spellSpeed === "Normal" && !myInfo.activator.isTurnPlayer) {
-    return;
-  }
-
-  if (myInfo.action.entity.fieldCell.cellType === "Hand" && !myInfo.activator.isTurnPlayer) {
-    return;
-  }
-
-  if (myInfo.action.entity.status.spellCategory === "Field") {
-    return [myInfo.activator.getFieldZone()];
-  }
-
-  let availableCells = myInfo.activator.getAvailableSpellTrapZones();
-
-  if (myInfo.action.entity.status.monsterCategories?.includes("Pendulum")) {
-    // ペンデュラムの場合、発動先はペンデュラムゾーンのみ
-    availableCells = availableCells.filter((cell) => cell.isAvailableForPendulum);
-  }
-  return availableCells.length > 0 ? availableCells : undefined;
 };
 
 export const defaultContinuousSpellCardActivateAction = {
@@ -73,39 +33,23 @@ export const defaultContinuousSpellCardActivateAction = {
   executableCells: ["Hand", "SpellAndTrapZone"],
   executablePeriods: ["main1", "main2"],
   executableDuelistTypes: ["Controller"],
-  validate: defaultSpellTrapValidate,
   prepare: defaultPrepare,
   execute: async () => true,
   settle: async () => true,
 } as CardActionDefinition<unknown>;
 
-export const defaultEquipSpellTrapValidate = <T>(
-  myInfo: ChainBlockInfoBase<T>,
-  chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
-  validateEquipOwner: (equipOwner: DuelEntity, equip: DuelEntity) => boolean = () => true
-) => {
-  const monsters = myInfo.action.entity.field
-    .getMonstersOnFieldStrictly()
-    .filter((monster) => monster.face === "FaceUp")
-    .filter((monster) => monster.canBeTargetOfEffect(myInfo))
-    .filter((monster) => validateEquipOwner(monster, myInfo.action.entity));
-  return monsters.length ? defaultSpellTrapValidate(myInfo) : undefined;
-};
-
 export const defaultEquipSpellTrapPrepare = async <T>(
   myInfo: ChainBlockInfoBase<T>,
-  chainBlockInfos: Readonly<ChainBlockInfoPrepared<unknown>[]>,
+  chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
   cancelable: boolean,
   chainBlockTags: TEffectTag[] | undefined,
-  prepared: T,
-  validateEquipOwner: (equipOwner: DuelEntity, equip: DuelEntity) => boolean = () => true
+  prepared: T
 ) => {
-  const monsters = myInfo.action.entity.field
-    .getMonstersOnFieldStrictly()
-    .filter((monster) => monster.face === "FaceUp")
-    .filter((monster) => monster.canBeTargetOfEffect(myInfo))
-    .filter((monster) => validateEquipOwner(monster, myInfo.action.entity));
-  const target = await myInfo.activator.waitSelectEntity(monsters, "装備対象モンスターを選択", cancelable);
+  const entities = myInfo.action.getTargetableEntities(myInfo, chainBlockInfos);
+  if (!entities) {
+    throw new SystemError("CardAction定義が正しくない", myInfo);
+  }
+  const target = await myInfo.activator.waitSelectEntity(entities, "装備対象モンスターを選択", cancelable);
   if (!target) {
     return undefined;
   }
@@ -136,7 +80,9 @@ export const defaultEquipSpellTrapExecute = async <T>(
   return true;
 };
 
-export const getDefaultEquipSpellTrapAction = (filter: (monster: DuelEntity) => boolean = () => true): CardActionDefinition<unknown> => {
+export const getDefaultEquipSpellTrapAction = (
+  validateEquipOwner: (equipOwner: DuelEntity, equip: DuelEntity) => boolean = () => true
+): CardActionDefinition<unknown> => {
   return {
     title: "発動",
     isMandatory: false,
@@ -145,8 +91,18 @@ export const getDefaultEquipSpellTrapAction = (filter: (monster: DuelEntity) => 
     executableCells: ["Hand", "SpellAndTrapZone"],
     executablePeriods: ["main1", "main2"],
     executableDuelistTypes: ["Controller"],
-    validate: (myInfo, chainBlockInfos) => defaultEquipSpellTrapValidate(myInfo, chainBlockInfos, filter),
-    prepare: (myInfo, chainBlockInfos, cancelable) => defaultEquipSpellTrapPrepare(myInfo, chainBlockInfos, cancelable, [], undefined, filter),
+    getTargetableEntities: (myInfo) =>
+      myInfo.action.entity.field
+        .getMonstersOnFieldStrictly()
+        .filter((monster) => monster.face === "FaceUp")
+        .filter((monster) => monster.canBeTargetOfEffect(myInfo))
+        .filter((monster) => validateEquipOwner(monster, myInfo.action.entity)),
+    getDests: (myInfo, chainBlockInfos) =>
+      myInfo.action
+        .getTargetableEntities(myInfo, chainBlockInfos)
+        .filter((entity) => entity.isOnFieldAsMonsterStrictly)
+        .map((monster) => monster.fieldCell),
+    prepare: (myInfo, chainBlockInfos, cancelable) => defaultEquipSpellTrapPrepare(myInfo, chainBlockInfos, cancelable, [], undefined),
     execute: defaultEquipSpellTrapExecute,
     settle: async () => true,
   };

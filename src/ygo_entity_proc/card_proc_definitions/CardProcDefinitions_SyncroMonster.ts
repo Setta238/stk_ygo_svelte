@@ -39,8 +39,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: ["end"],
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerTurnIfFaceup: 1,
-        validate: (myInfo) =>
-          myInfo.action.entity.duel.phase === "end" && myInfo.activator.isTurnPlayer && myInfo.action.entity.face === "FaceUp" ? [] : undefined,
+        meetsConditions: (myInfo) => myInfo.activator.isTurnPlayer && myInfo.action.entity.face === "FaceUp",
         prepare: defaultPrepare,
         execute: async (myInfo) => {
           myInfo.activator.heal(

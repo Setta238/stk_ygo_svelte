@@ -203,8 +203,7 @@ export const getDefaultLinkSummonAction = (validator: (materials: DuelEntity[]) 
     executableDuelistTypes: ["Controller"],
     getEnableMaterialPatterns: (myInfo) => getEnableLinkSummonPatterns(myInfo, validator),
     canPayCosts: (myInfo) => myInfo.action.getEnableMaterialPatterns(myInfo).some((infos) => infos.length),
-    validate: (myInfo) =>
-      !myInfo.ignoreCost || myInfo.activator.getAvailableExtraZones().length + myInfo.activator.getAvailableMonsterZones().length > 0 ? [] : undefined,
+    canExecute: (myInfo) => !myInfo.ignoreCost || myInfo.activator.getAvailableExtraZones().length + myInfo.activator.getAvailableMonsterZones().length > 0,
     payCosts: defaultLinkSummonPayCost,
     prepare: (myInfo) => defaultRuleSummonPrepare(myInfo, "LinkSummon", ["Rule", "SpecialSummon", "LinkSummon"], ["Attack"]),
     execute: defaultRuleSummonExecute,

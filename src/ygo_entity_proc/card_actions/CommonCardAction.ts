@@ -89,6 +89,44 @@ export const defaultPaySelfDiscardCosts = <T>(
   cancelable: boolean = false
 ) => defaultPayDiscardCosts(myInfo, chainBlockInfos, cancelable, (entity) => myInfo.action.entity === entity);
 
+export const getDestsForSingleTargetAction = <T>(myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) =>
+  myInfo.action
+    .getTargetableEntities(myInfo, chainBlockInfos)
+    .filter((entity) => entity.isOnField)
+    .map((card) => card.fieldCell);
+
+export const getSingleTargetActionPartical = <T>(
+  getTargetableEntities: (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => DuelEntity[],
+  options: { message?: string; tags?: TEffectTag[]; destoryTargets?: boolean } = {}
+) => {
+  return {
+    hasToTargetCards: true,
+    getTargetableEntities,
+    canExecute: (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) =>
+      getTargetableEntities(myInfo, chainBlockInfos).filter((monster) => monster.canBeTargetOfEffect(myInfo)).length > 0,
+    getDests: getDestsForSingleTargetAction,
+    prepare: async (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, cancelable: boolean) => {
+      let selectedEntities: DuelEntity[] = [];
+      if (myInfo.dest) {
+        selectedEntities = [myInfo.dest.cardEntities[0]];
+      } else {
+        const targets = myInfo.action.getTargetableEntities(myInfo, chainBlockInfos).filter((monster) => monster.canBeTargetOfEffect(myInfo));
+        const target = await myInfo.activator.waitSelectEntity(targets, options.message ?? "対象とするカードを選択。", cancelable);
+        if (!target) {
+          return;
+        }
+        selectedEntities = [target];
+      }
+      const chainBlockTags: TEffectTag[] = options.tags ?? [];
+
+      if (options.destoryTargets) {
+        chainBlockTags.push(...myInfo.action.calcChainBlockTagsForDestroy(myInfo.activator, selectedEntities));
+      }
+      return { selectedEntities, chainBlockTags, prepared: undefined as T };
+    },
+  };
+};
+
 export const defaultTargetMonstersRebornPrepare = async <T>(
   myInfo: ChainBlockInfoBase<T>,
   monsters: DuelEntity[],
@@ -172,7 +210,7 @@ export const getSystemPeriodAction = (
   executablePeriods: Readonly<TDuelPeriodKey[]>,
   callback: (myInfo: ChainBlockInfoBase<unknown>) => undefined
 ) => {
-  // FIXME 非同期が使えない都合上、validateにcallbackを渡し、そちらで実行する。
+  // FIXME 非同期が使えない都合上、isMeaningfulにcallbackを渡し、そちらで実行する。
   return {
     title: title,
     playType: "SystemPeriodAction",
@@ -181,7 +219,10 @@ export const getSystemPeriodAction = (
     executablePeriods: executablePeriods,
     executableDuelistTypes,
     isMandatory: true,
-    validate: callback,
+    canExecute: (myInfo) => {
+      callback(myInfo);
+      return false;
+    },
     prepare: defaultPrepare,
     execute: async () => true,
     settle: async () => true,

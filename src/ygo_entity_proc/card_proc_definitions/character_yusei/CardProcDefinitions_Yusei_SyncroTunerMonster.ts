@@ -30,16 +30,9 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerTurn: 1,
-        validate: (myInfo) => {
-          if (!myInfo.action.entity.hasBeenSummonedNow(["SyncroSummon"])) {
-            return;
-          }
-          if (!myInfo.activator.getDeckCell().cardEntities.some((card) => (card.lvl ?? 12) < (myInfo.action.entity.lvl ?? 0))) {
-            return;
-          }
-
-          return [];
-        },
+        canExecute: (myInfo) =>
+          myInfo.action.entity.hasBeenSummonedNow(["SyncroSummon"]) &&
+          myInfo.activator.getDeckCell().cardEntities.some((card) => (card.lvl ?? 12) < (myInfo.action.entity.lvl ?? 0)),
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["SendToGraveyardFromDeck", "IfSpecialSummonSucceed"], prepared: undefined };
         },

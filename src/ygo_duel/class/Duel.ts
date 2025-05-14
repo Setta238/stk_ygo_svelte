@@ -1091,7 +1091,7 @@ export class Duel {
       .filter((action) => action.validateDuelist(duelist))
       .filter((action) => enableCardPlayTypes.includes(action.playType))
       .filter((action) => nextChainBlockFilter(duelist, action))
-      .map((action) => action.validate(duelist, chainBlockInfos, false))
+      .map((action) => action.validate(duelist, chainBlockInfos))
       .filter((info): info is ValidatedActionInfo => info !== undefined);
   };
 }

@@ -7,7 +7,6 @@ import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { damageStepPeriodKeys, duelPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
-import { defaultSpellTrapValidate } from "../../card_actions/CommonCardAction_Spell";
 import { defaultTargetMonstersRebornExecute, defaultTargetMonstersRebornPrepare } from "../../card_actions/CommonCardAction";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
@@ -26,21 +25,21 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerTurn: 1,
-        validate: (myInfo) => {
+        canExecute: (myInfo) => {
           const categories = [...myInfo.activator.getGraveyard().cardEntities, ...myInfo.activator.getMonstersOnField()]
             .flatMap((monster) => monster.status.monsterCategories ?? [])
             .getDistinct();
           const maxQty = categories.union(["Ritual", "Fusion", "Syncro", "Xyz"]).length;
 
           if (maxQty < 1) {
-            return;
+            return false;
           }
           const choices = [
             ...myInfo.activator.getOpponentPlayer().getGraveyard().cardEntities,
             ...myInfo.activator.getOpponentPlayer().getEntiteisOnField(),
           ].filter((entity) => entity.canBeTargetOfEffect(myInfo));
 
-          return choices.length ? [] : undefined;
+          return choices.length > 0;
         },
         prepare: async (myInfo, chainBlockInfos, cancelable) => {
           const categories = [...myInfo.activator.getGraveyard().cardEntities, ...myInfo.activator.getMonstersOnField()]
@@ -104,7 +103,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: duelPeriodKeys,
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerTurn: 1,
-        validate: (myInfo) => {
+        meetsConditions: (myInfo) => {
           const wasMovedAt = myInfo.action.entity.moveLog.latestRecord.movedAt;
           // 前のチェーンで移動したエンティティがどこから移動したかを取得。
           const froms = myInfo.action.duel.field.moveLog
@@ -117,10 +116,9 @@ export default function* generate(): Generator<EntityProcDefinition> {
             .map((record) => record.entity.wasMovedFrom)
             .toArray();
 
-          if (!myInfo.action.entity.linkArrowDests.union(froms).length) {
-            return;
-          }
-
+          return myInfo.action.entity.linkArrowDests.union(froms).length > 0;
+        },
+        canExecute: (myInfo) => {
           const cells = myInfo.activator.getMonsterZones();
           const list = myInfo.activator.getEnableSummonList(
             myInfo.activator,
@@ -138,10 +136,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             [],
             false
           );
-          if (!list.length) {
-            return;
-          }
-          return defaultSpellTrapValidate(myInfo);
+          return list.length > 0;
         },
         prepare: (myInfo) =>
           defaultTargetMonstersRebornPrepare(

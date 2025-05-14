@@ -5,7 +5,6 @@ import type { DuelFieldCell, DuelFieldCellType } from "@ygo_duel/class/DuelField
 import { SystemError } from "@ygo_duel/class/Duel";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { min } from "@stk_utils/funcs/StkMathUtils";
-import { defaultSpellTrapValidate } from "./CommonCardAction_Spell";
 
 type TRitualLevelValitationType = "Equal" | "OrMore";
 
@@ -192,12 +191,10 @@ export const getDefaultRitualSummonActionPartical = (
   levelValiType: TRitualLevelValitationType
 ): CardActionDefinitionFunctions<unknown> => {
   return {
-    validate: (myInfo) =>
+    canExecute: (myInfo) =>
       getEnableRitualSummonPatterns(myInfo, summonFrom, monsterValidator, materialsFrom, materialValidator, levelValiType).some(
         (pattern) => pattern.materialInfos.length
-      )
-        ? defaultSpellTrapValidate(myInfo)
-        : undefined,
+      ),
     prepare: async () => {
       const tags: TEffectTag[] = [];
       if (summonFrom.includes("Hand")) {

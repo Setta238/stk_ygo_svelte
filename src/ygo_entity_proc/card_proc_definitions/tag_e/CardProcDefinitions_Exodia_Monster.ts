@@ -27,14 +27,13 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Hand"],
         executablePeriods: duelPeriodKeys,
         executableDuelistTypes: ["Controller"],
-        validate: (myInfo) => {
+        canExecute: (myInfo) => {
           const exodiaParts = myInfo.activator
             .getHandCell()
             .cardEntities.filter((card) => card.origin.nameTags?.includes("封印されし"))
             .map((card) => card.origin.name)
             .getDistinct();
-          console.log(myInfo.action.entity.toString(), exodiaParts);
-          return exodiaParts.length === 5 ? [] : undefined;
+          return exodiaParts.length === 5;
         },
         prepare: async (myInfo) => {
           await DuelEntityShortHands.sendManyToGraveyardForTheSameReason(

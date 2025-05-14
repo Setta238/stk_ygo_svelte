@@ -183,22 +183,48 @@ export type CardActionDefinitionAttrs = EntityActionDefinitionBase & {
    * NPC用プロパティ
    */
   priorityForNPC?: number;
+
+  // 夢幻泡影など
+  canActivateCardDirectly?: boolean;
 };
 export type CardActionDefinitionFunctions<T> = {
   getEnableMaterialPatterns?: (myInfo: ChainBlockInfoBase<T>) => Generator<SummonMaterialInfo[]>;
+  /**
+   * コストの支払い可否判断
+   * @param myInfo
+   * @param chainBlockInfos
+   * @returns
+   */
   canPayCosts?: (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => boolean;
+  /**
+   * 発動条件判断
+   * ※「自分フィールドに「ブラック・マジシャン」が存在する場合に発動できる。」など、コピー時に無視できることがある条件判断
+   * @param myInfo
+   * @param chainBlockInfos
+   * @returns
+   */
+  meetsConditions?: (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => boolean;
+  /**
+   * 空撃ち判断など、発動に際して無視できない条件判断
+   * @param myInfo
+   * @param chainBlockInfos
+   * @returns
+   */
+  canExecute?: (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => boolean;
+
+  getTargetableEntities?: (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => DuelEntity[];
 
   /**
-   * 発動可能かどうかの検証
+   * 発動時にドラッグ・アンド・ドロップ可能である場合の選択肢のcellを返す。
    * @param myInfo
    * @param chainBlockInfos
    * @returns 発動時にドラッグ・アンド・ドロップ可能である場合、選択肢のcellが返る。
    */
-  validate: (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => DuelFieldCell[] | undefined;
+  getDests?: (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => DuelFieldCell[];
 
   payCosts?: (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, cancelable: boolean) => Promise<ActionCostInfo | undefined>;
   /**
-   * コストの支払い、対象に取るなど
+   * 対象に取るなど
    * @param myInfo
    * @param cell
    * @param chainBlockInfos
@@ -263,7 +289,7 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
       executableDuelistTypes: [],
       playType: "Dammy",
       spellSpeed: "Dammy",
-      validate: () => dests,
+      getDests: () => dests,
       prepare: async () => undefined,
       execute: async () => false,
       settle: async () => false,
@@ -294,7 +320,15 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
   public get isWithChainBlock() {
     return cardActionChainBlockTypes.some((t) => t === this.playType);
   }
-
+  public readonly getTargetableEntities = (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => {
+    if (this.definition.hasToTargetCards && !this.definition.getTargetableEntities) {
+      throw new SystemError(`処理定義が矛盾している。${this.toString()}`, this);
+    }
+    if (!this.definition.getTargetableEntities) {
+      return [];
+    }
+    return this.definition.getTargetableEntities(myInfo, chainBlockInfos);
+  };
   public get isLikeContinuousSpell() {
     return this.definition.isLikeContinuousSpell || (this.entity.isLikeContinuousSpell && this.playType === "CardActivation");
   }
@@ -400,12 +434,10 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
   public readonly validate = (
     activator: Duelist,
     chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
-    ignoreCosts: boolean
+    options: ("IgnoreCosts" | "IgnoreConditions")[] = []
   ): ValidatedActionInfo | undefined => {
-    // カードの発動はフィールド表側表示ではできない
-    if (this.playType === "CardActivation" && this.entity.isOnFieldStrictly && this.entity.face === "FaceUp") {
-      return;
-    }
+    const ignoreCosts = options.includes("IgnoreCosts");
+    const ignoreConditions = options.includes("IgnoreConditions");
 
     if (this.isWithChainBlock && !this.entity.status.canActivateEffect) {
       return;
@@ -440,12 +472,79 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
         return;
       }
     }
-    const dests = this.definition.validate(myInfo, this.playType === "AfterChainBlock" ? [] : chainBlockInfos);
-    if (!dests) {
-      return;
+    if (this.definition.meetsConditions && !ignoreConditions) {
+      if (!this.definition.meetsConditions(myInfo, this.playType === "AfterChainBlock" ? [] : chainBlockInfos)) {
+        return;
+      }
+    }
+    if (this.definition.canExecute) {
+      if (!this.definition.canExecute(myInfo, this.playType === "AfterChainBlock" ? [] : chainBlockInfos)) {
+        return;
+      }
+    }
+
+    const dests: DuelFieldCell[] = [];
+    if (this.definition.getDests) {
+      dests.push(...this.definition.getDests(myInfo, this.playType === "AfterChainBlock" ? [] : chainBlockInfos));
+    }
+
+    if (this.playType === "CardActivation") {
+      const _dests = this.getDestForCardActivation(activator);
+      if (!_dests) {
+        return;
+      }
+      dests.push(..._dests);
+    } else if (this.playType === "SpellTrapSet") {
+      if (this.entity.status.spellCategory === "Field") {
+        dests.push(activator.getFieldZone());
+      } else {
+        dests.push(...activator.getAvailableSpellTrapZones());
+      }
     }
     return { action: this as EntityAction<unknown>, dests, originSeq: this.seq };
   };
+
+  private readonly getDestForCardActivation = (activator: Duelist): DuelFieldCell[] | undefined => {
+    // 発動待機中は不可
+    if (this.entity.info.isPending) {
+      return;
+    }
+    // 破壊予定の場合は不可
+    if (this.entity.info.isDying) {
+      return;
+    }
+    // セットされたターンは発動不可
+    if (this.entity.info.isSettingSickness) {
+      return;
+    }
+    // フィールドの場合、セット状態であれば可、それ以外は不可
+    if (this.entity.isOnFieldAsSpellTrapStrictly) {
+      return this.entity.face === "FaceDown" ? [] : undefined;
+    }
+
+    // フィールドにも手札にもない場合、不可
+    if (this.entity.fieldCell.cellType !== "Hand") {
+      return;
+    }
+
+    //手札からの発動はレッド・リブートなどの特別な場合か、ターンプレイヤーのみ可能
+    if (this.definition.canActivateCardDirectly || !activator.isTurnPlayer) {
+      return;
+    }
+
+    // フィールド魔法は可
+    if (this.entity.status.spellCategory === "Field") {
+      return [activator.getFieldZone()];
+    }
+
+    let availableCells = activator.getAvailableSpellTrapZones();
+    if (this.entity.status.monsterCategories?.includes("Pendulum")) {
+      // ペンデュラムの場合、発動先はペンデュラムゾーンのみ
+      availableCells = availableCells.filter((cell) => cell.isAvailableForPendulum);
+    }
+    return availableCells;
+  };
+
   public readonly prepare = async (
     activator: Duelist,
     cell: DuelFieldCell | undefined,
@@ -454,6 +553,7 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
     cancelable: boolean,
     ignoreCosts: boolean
   ) => {
+    let _cell = cell;
     let _cancelable = cancelable;
     const chainNumber = this.isWithChainBlock ? max(0, ...chainBlockInfos.map((info) => info.chainNumber ?? -1)) + 1 : undefined;
 
@@ -464,12 +564,21 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
     }
 
     if (this.playType === "CardActivation" || this.playType === "SpellTrapSet") {
-      //魔法・罠・ペンデュラムスケールのカードの発動またはセットの場合、コスト支払いの前に移動処理を行う。
-
       if (this.entity.fieldCell.cellType === "Hand") {
-        // 手札からの発動・セットの場合
+        //魔法・罠・ペンデュラムスケールのカードの発動またはセットの場合、コスト支払いの前に移動処理を行う。
 
-        let availableCells = cell ? [cell] : this.entity.status.spellCategory === "Field" ? [activator.getFieldZone()] : activator.getAvailableSpellTrapZones();
+        let availableCells = this.entity.status.spellCategory === "Field" ? [activator.getFieldZone()] : activator.getAvailableSpellTrapZones();
+
+        if (this.entity.status.monsterCategories?.includes("Pendulum")) {
+          // ペンデュラムの場合、発動先はペンデュラムゾーンのみ
+          availableCells = availableCells.filter((cell) => cell.isAvailableForPendulum);
+        }
+        if (_cell && availableCells.includes(_cell)) {
+          // ドラッグ・アンド・ドロップが移動先の指定として行われていた場合、置き換え
+          availableCells = [_cell];
+          // 以降の処理に渡さないために初期化
+          _cell = undefined;
+        }
 
         if (this.entity.status.spellCategory === "Field") {
           // フィールド魔法を手札から発動する場合、既存のフィールドがあれば上書き
@@ -480,11 +589,6 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
             activator.writeInfoLog(`フィールド魔法の上書きにより、${oldOne.toString()}は墓地に送られた。`);
             _cancelable = false;
           }
-        }
-
-        if (this.entity.status.monsterCategories?.includes("Pendulum")) {
-          // ペンデュラムの場合、発動先はペンデュラムゾーンのみ
-          availableCells = availableCells.filter((cell) => cell.isAvailableForPendulum);
         }
 
         let dest = availableCells[0];
@@ -555,7 +659,7 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
       isActivatedAt: this.duel.clock.getClone(),
       costInfo: {},
       state: "ready",
-      dest: cell,
+      dest: _cell,
       ignoreCost: false,
     };
 

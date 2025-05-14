@@ -1,5 +1,3 @@
-import type { CardActionDefinition } from "@ygo_duel/class/DuelEntityAction";
-
 import {
   defaultAttackAction,
   defaultBattlePotisionChangeAction,
@@ -34,10 +32,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableDuelistTypes: ["Controller"],
         negatePreviousBlock: true,
         canPayCosts: defaultSelfReleaseCanPayCosts,
-        validate: (myInfo) =>
-          myInfo.targetChainBlock && myInfo.targetChainBlock.action.entity.kind === "Monster" && myInfo.targetChainBlock.action.isWithChainBlock
-            ? []
-            : undefined,
+        canExecute: (myInfo) =>
+          Boolean(myInfo.targetChainBlock && myInfo.targetChainBlock.action.entity.kind === "Monster" && myInfo.targetChainBlock.action.isWithChainBlock),
         payCosts: defaultSelfReleasePayCosts,
         prepare: async (myInfo, chainBlockInfos) => {
           const target = myInfo.targetChainBlock;
@@ -68,7 +64,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           return true;
         },
         settle: async () => true,
-      } as CardActionDefinition<unknown>,
-    ] as CardActionDefinition<unknown>[],
+      },
+    ],
   };
 }

@@ -26,6 +26,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: monsterZoneCellTypes,
         executablePeriods: freeChainDuelPeriodKeys,
         executableDuelistTypes: ["Controller"],
+        needsToPayCost: true,
         canPayCosts: (myInfo) => {
           const traps = myInfo.activator
             .getGraveyard()
@@ -36,14 +37,13 @@ export default function* generate(): Generator<EntityProcDefinition> {
             .flatMap((card) => card.actions)
             .filter((action) => action.playType === "CardActivation")
             .filter((action) => !action.needsToPayCost)
-            .filter((action) => action.validate(myInfo.activator, [], true));
+            .filter((action) => action.validate(myInfo.activator, [], ["IgnoreCosts"]));
           if (!traps.length) {
             return false;
           }
 
           return defaultCanPaySelfBanishCosts(myInfo);
         },
-        validate: () => [],
         payCosts: async (myInfo, chainBlockInfos, cancelable) => {
           const choices = myInfo.activator
             .getGraveyard()
@@ -54,7 +54,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             .flatMap((card) => card.actions)
             .filter((action) => action.playType === "CardActivation")
             .filter((action) => !action.needsToPayCost)
-            .filter((action) => action.validate(myInfo.activator, [], true))
+            .filter((action) => action.validate(myInfo.activator, [], ["IgnoreCosts"]))
             .map((action) => action.entity);
 
           const target = await myInfo.activator.waitSelectEntity(choices, "コピーする罠を選択。", cancelable);

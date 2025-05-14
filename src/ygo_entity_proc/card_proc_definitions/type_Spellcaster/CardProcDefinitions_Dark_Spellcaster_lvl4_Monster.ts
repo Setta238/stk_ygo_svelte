@@ -29,12 +29,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["MonsterZone"],
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
-        validate: (myInfo) => {
-          if (!myInfo.action.entity.hasBeenSummonedNow(["NormalSummon", "FlipSummon"])) {
-            return;
-          }
-          return [];
-        },
+        meetsConditions: (myInfo) => myInfo.action.entity.hasBeenSummonedNow(["NormalSummon", "FlipSummon"]),
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["IfNormarlSummonSucceed"], prepared: undefined };
         },
@@ -67,7 +62,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
 
           return myInfo.activator.getHandCell().cardEntities.some((card) => card.kind === "Spell");
         },
-        validate: (myInfo) => {
+        canExecute: (myInfo) => {
           const lv4Monsters = myInfo.activator
             .getDeckCell()
             .cardEntities.filter((card) => card.kind === "Monster")
@@ -85,10 +80,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             [],
             false
           );
-          if (!list.length) {
-            return;
-          }
-          return [];
+          return list.length > 0;
         },
         payCosts: async (myInfo, chainBlockInfos, cancelable) => {
           const spells = myInfo.activator.getHandCell().cardEntities.filter((card) => card.kind === "Spell");

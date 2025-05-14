@@ -4,7 +4,6 @@ import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCell, DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
 import { SystemError } from "@ygo_duel/class/Duel";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import { defaultSpellTrapValidate } from "./CommonCardAction_Spell";
 import { isNameTypeFusionMaterialInfo, isOvermuchTypeFusionMaterialInfo } from "@ygo_duel/class/DuelEntityDefinition";
 
 /**
@@ -136,7 +135,6 @@ function* getEnableFusionSummonPatterns(
   const materials = myInfo.activator
     .getCells(...materialsFrom)
     .flatMap((cell) => cell.cardEntities)
-    .filter((monster) => monster.lvl)
     .filter((monster) => monster.canBeEffected(myInfo.activator, myInfo.action.entity, myInfo.action));
 
   if (!materials.length) {
@@ -264,12 +262,10 @@ export const getDefaultFusionSummonAction = (
   materialsTo: DuelFieldCellType
 ): CardActionDefinitionFunctions<unknown> => {
   return {
-    validate: (myInfo) =>
+    canExecute: (myInfo) =>
       getEnableFusionSummonPatterns(myInfo, summonFrom, monsterValidator, materialsFrom, materialValidator, materialsTo).some(
         (pattern) => pattern.materialInfos.length
-      )
-        ? defaultSpellTrapValidate(myInfo)
-        : undefined,
+      ),
     prepare: async () => {
       return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromExtraDeck"], prepared: undefined };
     },

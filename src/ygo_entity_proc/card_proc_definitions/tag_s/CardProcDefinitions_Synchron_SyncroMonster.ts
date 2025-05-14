@@ -1,4 +1,3 @@
-import type { CardActionDefinition } from "@ygo_duel/class/DuelEntityAction";
 import {
   defaultAttackAction,
   defaultBattlePotisionChangeAction,
@@ -28,15 +27,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: monsterZoneCellTypes,
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
-        validate: (myInfo) => {
-          if (!myInfo.action.entity.hasBeenSummonedJustNow(["SyncroSummon"])) {
-            return;
-          }
-          if (!myInfo.activator.getDeckCell().cardEntities.length) {
-            return;
-          }
-          return [];
-        },
+        meetsConditions: (myInfo) => myInfo.action.entity.hasBeenSummonedJustNow(["SyncroSummon"]),
+        canExecute: (myInfo) => myInfo.activator.canDraw && myInfo.activator.getDeckCell().cardEntities.length > 0,
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["Draw"], prepared: undefined };
         },
@@ -45,7 +37,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           return true;
         },
         settle: async () => true,
-      } as CardActionDefinition<unknown>,
+      },
       getDefaultAccelSyncroACtion({ title: "②シンクロ召喚", isOnlyNTimesPerChain: 1 }),
     ],
   };

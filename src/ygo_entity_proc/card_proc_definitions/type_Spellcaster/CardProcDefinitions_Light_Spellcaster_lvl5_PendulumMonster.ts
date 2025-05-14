@@ -1,10 +1,11 @@
 import {
+  canSelfSepcialSummon,
   defaultAttackAction,
   defaultBattlePotisionChangeAction,
   defaultFlipSummonAction,
-  defaultRuleSpecialSummonValidate,
   defaultRuleSummonExecute,
   defaultRuleSummonPrepare,
+  getDestsForSelfSpecialSummon,
 } from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
@@ -31,15 +32,9 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerDuel: 1,
-        validate: (myInfo) => {
-          if (myInfo.action.entity.face === "FaceDown") {
-            return;
-          }
-          if (myInfo.activator.getExtraDeck().cardEntities.some((card) => card.nm !== "アンカモフライト")) {
-            return;
-          }
-          return defaultRuleSpecialSummonValidate(myInfo, faceupBattlePositions, []);
-        },
+        meetsConditions: (myInfo) => myInfo.activator.getExtraDeck().cardEntities.every((card) => card.nm === "アンカモフライト"),
+        canExecute: (myInfo) => myInfo.action.entity.face === "FaceUp" && canSelfSepcialSummon(myInfo, faceupBattlePositions, [], ["Rule"]),
+        getDests: (myInfo) => getDestsForSelfSpecialSummon(myInfo, faceupBattlePositions, [], ["Rule"]),
         prepare: (myInfo) => defaultRuleSummonPrepare(myInfo, "SpecialSummon", ["SpecialSummon", "Rule"], faceupBattlePositions),
         execute: defaultRuleSummonExecute,
         settle: async () => true,
@@ -54,16 +49,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableDuelistTypes: ["Controller"],
         priorityForNPC: 20,
         isOnlyNTimesPerTurn: 1,
-        validate: (myInfo) => {
-          if (myInfo.activator.getDeckCell().cardEntities.length < 1) {
-            return;
-          }
-          if (myInfo.activator.getExtraDeck().cardEntities.some((card) => card.nm !== "アンカモフライト")) {
-            return;
-          }
-
-          return [];
-        },
+        meetsConditions: (myInfo) => myInfo.activator.getExtraDeck().cardEntities.every((card) => card.nm === "アンカモフライト"),
+        canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.length > 0 && myInfo.activator.canDraw,
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["DestroySpellTrapOnField", "Draw"], prepared: undefined };
         },

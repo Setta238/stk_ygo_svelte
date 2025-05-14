@@ -1,4 +1,5 @@
 import {
+  canSelfSepcialSummon,
   defaultAttackAction,
   defaultBattlePotisionChangeAction,
   defaultFlipSummonAction,
@@ -18,12 +19,14 @@ import {
   defaultTargetMonstersRebornPrepare,
   defaultPayBanishCosts,
   defaultCanPayBanishCosts,
+  getSingleTargetActionPartical,
 } from "@ygo_entity_proc/card_actions/CommonCardAction";
 import { duelFieldCellTypes, monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import { getDefaultSyncroSummonAction } from "../../card_actions/CommonCardAction_SyncroMonster";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 import { ProcFilter } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
+import { SystemError } from "@ygo_duel/class/Duel";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
@@ -42,22 +45,19 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: duelPeriodKeys,
         executableDuelistTypes: ["Controller"],
         canPayCosts: defaultSelfReleaseCanPayCosts,
-        validate: (myInfo, chainBlockInfos) => {
-          if (chainBlockInfos.length === 0) {
-            return;
-          }
-
-          const info = chainBlockInfos[myInfo.index - 1];
-
-          return info.chainBlockTags.includes("DestroyOnField") ? [] : undefined;
-        },
+        canExecute: (myInfo) =>
+          Boolean(
+            myInfo.targetChainBlock && myInfo.targetChainBlock.action.isWithChainBlock && myInfo.targetChainBlock.chainBlockTags.includes("DestroyOnField")
+          ),
         payCosts: defaultSelfReleasePayCosts,
-        prepare: async (myInfo, chainBlockInfos) => {
-          const info = chainBlockInfos.slice(-1)[0];
+        prepare: async (myInfo) => {
+          if (!myInfo.targetChainBlock) {
+            throw new SystemError("想定されない状態", myInfo);
+          }
 
           return {
             selectedEntities: [],
-            chainBlockTags: myInfo.action.calcChainBlockTagsForDestroy(myInfo.activator, [info.action.entity]),
+            chainBlockTags: myInfo.action.calcChainBlockTagsForDestroy(myInfo.activator, [myInfo.targetChainBlock.action.entity]),
             prepared: undefined,
           };
         },
@@ -77,17 +77,17 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Graveyard"],
         executablePeriods: ["end"],
         executableDuelistTypes: ["Controller"],
-        validate: (myInfo) => {
+        canExecute: (myInfo) => {
           const moveLogRecord = myInfo.action.entity.moveLog.latestRecord;
 
           if (moveLogRecord.movedBy !== myInfo.action.entity) {
-            return;
+            return false;
           }
           if (!myInfo.activator.duel.clock.isSameTurn(moveLogRecord.movedAt)) {
-            return;
+            return false;
           }
           if (!moveLogRecord.movedAs.includes("Cost")) {
-            return;
+            return false;
           }
 
           const duel = myInfo.activator.duel;
@@ -97,11 +97,10 @@ export default function* generate(): Generator<EntityProcDefinition> {
             .findLast((info) => info.action.title === "①ヴィクテム・サンクチュアリ");
 
           if (!lastAction || lastAction.state !== "done") {
-            return;
+            return false;
           }
 
-          const availableCells = myInfo.activator.getAvailableMonsterZones();
-          return availableCells.length > 0 ? [] : undefined;
+          return canSelfSepcialSummon(myInfo, faceupBattlePositions, [], ["Effect"]);
         },
         prepare: defaultPrepare,
         execute: (myInfo) => defaultSelfRebornExecute(myInfo),
@@ -126,40 +125,12 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: freeChainDuelPeriodKeys,
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerTurnIfFaceup: 1,
-        hasToTargetCards: true,
-        validate: (myInfo) => {
-          const targets = myInfo.activator
+        ...getSingleTargetActionPartical((myInfo) =>
+          myInfo.activator
             .getEntiteisOnField()
             .filter((card) => card.face === "FaceUp")
-            .filter((card) => card.canBeTargetOfEffect(myInfo));
-          if (!targets.length) {
-            return;
-          }
-
-          return targets.map((target) => target.fieldCell);
-        },
-        prepare: async (myInfo, chainBlockInfos, cancelable) => {
-          if (myInfo.dest) {
-            return {
-              selectedEntities: myInfo.dest.cardEntities,
-              chainBlockTags: [],
-              prepared: undefined,
-            };
-          }
-
-          const targets = myInfo.activator
-            .getEntiteisOnField()
-            .filter((card) => card.face === "FaceUp")
-            .filter((card) => card.canBeTargetOfEffect(myInfo));
-          if (!targets.length) {
-            return;
-          }
-          const selected = await myInfo.activator.waitSelectEntity(targets, "対象とするカードを選択", cancelable);
-          if (!selected) {
-            return;
-          }
-          return { selectedEntities: [selected], chainBlockTags: [], prepared: undefined };
-        },
+            .filter((card) => card.canBeTargetOfEffect(myInfo))
+        ),
         execute: async (myInfo) => {
           myInfo.selectedEntities
             .filter((card) => card.isOnFieldStrictly)
@@ -222,7 +193,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
             myInfo,
             myInfo.activator.getGraveyard().cardEntities.filter((card) => card.status.monsterCategories?.includes("Syncro"))
           ),
-        validate: () => [],
         payCosts: (myInfo) =>
           defaultPayBanishCosts(
             myInfo,
@@ -256,10 +226,11 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Banished"],
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
-        validate: (myInfo) => {
-          if (!myInfo.action.entity.wasMovedAtPreviousChain) {
-            return;
-          }
+        meetsConditions: (myInfo) =>
+          myInfo.action.entity.wasMovedAtPreviousChain &&
+          myInfo.action.entity.moveLog.latestRecord.actionOwner !== myInfo.activator &&
+          (myInfo.action.entity.wasMovedFrom.owner === myInfo.activator || myInfo.action.entity.wasMovedFrom.cellType === "ExtraMonsterZone"),
+        canExecute: (myInfo) => {
           const cells = myInfo.activator.getMonsterZones();
           const list = myInfo.activator.getEnableSummonList(
             myInfo.activator,
@@ -279,10 +250,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             [],
             false
           );
-          if (!list.length) {
-            return;
-          }
-          return [];
+          return list.length > 0;
         },
         prepare: (myInfo) =>
           defaultTargetMonstersRebornPrepare(
@@ -321,22 +289,13 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerTurnIfFaceup: 1,
         negatePreviousBlock: true,
-        validate: (myInfo) => {
-          if (!myInfo.targetChainBlock) {
-            return;
-          }
-          if (myInfo.activator === myInfo.targetChainBlock.activator) {
-            return;
-          }
-          if (myInfo.targetChainBlock.action.entity.kind !== "Monster") {
-            return;
-          }
-          if (!myInfo.targetChainBlock.action.isWithChainBlock) {
-            return;
-          }
-
-          return [];
-        },
+        canExecute: (myInfo) =>
+          Boolean(
+            myInfo.targetChainBlock &&
+              myInfo.targetChainBlock.action.entity.kind === "Monster" &&
+              myInfo.targetChainBlock.action.isWithChainBlock &&
+              myInfo.activator !== myInfo.targetChainBlock.activator
+          ),
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["NegateCardEffect", "DestroyOnField"], prepared: undefined };
         },
@@ -365,24 +324,32 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableDuelistTypes: ["Controller"],
         priorityForNPC: 10,
         canPayCosts: defaultCanPaySelfBanishCosts,
-        validate: (myInfo) => {
-          if (
+        canExecute: (myInfo) => {
+          const cells = myInfo.activator.getMonsterZones();
+          const list = myInfo.activator.getEnableSummonList(
+            myInfo.activator,
+            "SpecialSummon",
+            ["Effect"],
+            myInfo.action,
             myInfo.activator
-              .getBanished()
+              .getGraveyard()
               .cardEntities.filter((card) => card.status.nameTags?.includes("スターダスト"))
-              .filter((card) => (card.lvl ?? 12) < 9).length === 0
-          ) {
-            return;
-          }
-          const availableCells = myInfo.activator.getAvailableMonsterZones();
-          return availableCells.length > 0 ? [] : undefined;
+              .filter((card) => (card.lvl ?? 12) < 9)
+              .filter((card) => card.canBeTargetOfEffect(myInfo))
+              .map((monster) => {
+                return { monster, posList: faceupBattlePositions, cells };
+              }),
+            [],
+            false
+          );
+          return list.length > 0;
         },
         payCosts: defaultPaySelfBanishCosts,
         prepare: (myInfo) =>
           defaultTargetMonstersRebornPrepare(
             myInfo,
             myInfo.activator
-              .getBanished()
+              .getGraveyard()
               .cardEntities.filter((card) => card.status.nameTags?.includes("スターダスト"))
               .filter((card) => (card.lvl ?? 12) < 9),
             faceupBattlePositions,

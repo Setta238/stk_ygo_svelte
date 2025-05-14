@@ -1,15 +1,15 @@
-import { defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_entity_proc/card_actions/CommonCardAction_Spell";
+import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CommonCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
-import type { CardActionDefinition, TEffectTag } from "@ygo_duel/class/DuelEntityAction";
+import type { TEffectTag } from "@ygo_duel/class/DuelEntityAction";
 import { SystemError } from "@ygo_duel/class/Duel";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 
 export default function* generate(): Generator<EntityProcDefinition> {
-  yield* ["炸裂装甲", "次元幽閉"].map((name) => {
-    return {
+  for (const name of ["炸裂装甲", "次元幽閉"]) {
+    yield {
       name: name,
       actions: [
         defaultSpellTrapSetAction,
@@ -23,12 +23,12 @@ export default function* generate(): Generator<EntityProcDefinition> {
           executableDuelistTypes: ["Controller"],
           hasToTargetCards: true,
           isNoticedForcibly: true,
-          validate: (myInfo) => {
+          canExecute: (myInfo) => {
             if (!myInfo.activator.duel.clock.isUponAttackDeclaration()) {
-              return;
+              return false;
             }
             if (myInfo.activator.isTurnPlayer) {
-              return;
+              return false;
             }
             const attacker = myInfo.activator.duel.attackingMonster;
             if (!attacker) {
@@ -36,15 +36,15 @@ export default function* generate(): Generator<EntityProcDefinition> {
             }
 
             if (!attacker.canBeTargetOfEffect(myInfo)) {
-              return;
+              return false;
             }
 
             // 王宮の鉄壁などが有効である場合、発動不可
             if (name === "次元幽閉" && !myInfo.activator.canTryBanish(attacker, "BanishAsEffect", myInfo.action)) {
-              return;
+              return false;
             }
 
-            return defaultSpellTrapValidate(myInfo);
+            return true;
           },
           prepare: async (myInfo) => {
             const attacker = myInfo.activator.duel.attackingMonster;
@@ -66,8 +66,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
             return true;
           },
           settle: async () => true,
-        } as CardActionDefinition<unknown>,
+        },
       ],
     };
-  });
+  }
 }

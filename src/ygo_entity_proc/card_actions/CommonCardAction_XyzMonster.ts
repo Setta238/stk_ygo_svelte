@@ -158,8 +158,7 @@ export const getDefaultXyzSummonAction = (
     executableDuelistTypes: ["Controller"],
     getEnableMaterialPatterns: (myInfo) => getEnableXyzSummonPatterns(myInfo, qtyLowerBound, qtyUpperBound, validator),
     canPayCosts: (myInfo) => myInfo.action.getEnableMaterialPatterns(myInfo).some((infos) => infos.length),
-    validate: (myInfo) =>
-      !myInfo.ignoreCost || myInfo.activator.getAvailableExtraZones().length + myInfo.activator.getAvailableMonsterZones().length > 0 ? [] : undefined,
+    canExecute: (myInfo) => !myInfo.ignoreCost || myInfo.activator.getAvailableExtraZones().length + myInfo.activator.getAvailableMonsterZones().length > 0,
     payCosts: defaultXyzSummonPayCost,
     prepare: (myInfo) => defaultRuleSummonPrepare(myInfo, "XyzSummon", ["Rule", "SpecialSummon", "XyzSummon"], ["Attack", "Defense"]),
     execute: defaultRuleSummonExecute,

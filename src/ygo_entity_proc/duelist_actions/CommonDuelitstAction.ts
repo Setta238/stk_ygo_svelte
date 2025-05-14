@@ -4,7 +4,7 @@ import { defaultPrepare } from "../card_actions/CommonCardAction";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 import { DuelEnd, SystemError } from "@ygo_duel/class/Duel";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-export const pendulumSummonAction = {
+export const pendulumSummonAction: CardActionDefinition<unknown> = {
   title: "ペンデュラム召喚",
   isMandatory: false,
   playType: "SpecialSummon",
@@ -13,13 +13,13 @@ export const pendulumSummonAction = {
   executablePeriods: ["main1", "main2"],
   executableDuelistTypes: ["Controller"],
   isOnlyNTimesPerTurn: 1,
-  validate: (myInfo) => {
+  canExecute: (myInfo) => {
     const scales = myInfo.activator.getPendulumScales();
     if (!scales) {
-      return;
+      return false;
     }
     if (scales.upperBound - scales.lowerBound < 2) {
-      return;
+      return false;
     }
 
     const monsters = [
@@ -31,7 +31,7 @@ export const pendulumSummonAction = {
       .filter((card) => card.lvl && card.lvl < scales.upperBound);
 
     if (!monsters.length) {
-      return;
+      return false;
     }
 
     const cells = [...myInfo.activator.getMonsterZones(), ...myInfo.activator.getEmptyExtraZones()];
@@ -51,7 +51,7 @@ export const pendulumSummonAction = {
       [],
       false
     );
-    return list.length ? [] : undefined;
+    return list.length > 0;
   },
   prepare: async (myInfo) => {
     const scales = myInfo.activator.getPendulumScales();
@@ -97,8 +97,8 @@ export const pendulumSummonAction = {
     return true;
   },
   settle: async () => true,
-} as CardActionDefinition<unknown>;
-export const ftkChallengeFailedAction = {
+};
+export const ftkChallengeFailedAction: CardActionDefinition<unknown> = {
   title: "強制勝利",
   isMandatory: true,
   playType: "IgnitionEffect",
@@ -107,7 +107,7 @@ export const ftkChallengeFailedAction = {
   executablePeriods: ["main2"],
   executableDuelistTypes: ["Controller"],
   isOnlyNTimesPerTurn: 1,
-  validate: (myInfo) => (myInfo.activator.duel.clock.turn > 1 ? [] : undefined),
+  canExecute: (myInfo) => myInfo.activator.duel.clock.turn > 1,
   prepare: async (myInfo) => {
     await DuelEntityShortHands.sendManyToGraveyardForTheSameReason(
       myInfo.activator.duel.field.getCardsOnFieldStrictly(),
@@ -161,4 +161,4 @@ export const ftkChallengeFailedAction = {
     throw new DuelEnd(myInfo.activator, `${myInfo.activator.getOpponentPlayer().profile.name}がワンターンキルに失敗した。`);
   },
   settle: async () => true,
-} as CardActionDefinition<unknown>;
+};

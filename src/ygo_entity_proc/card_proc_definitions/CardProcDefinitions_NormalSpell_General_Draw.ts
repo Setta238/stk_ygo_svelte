@@ -1,4 +1,4 @@
-import { defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_entity_proc/card_actions/CommonCardAction_Spell";
+import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CommonCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import { type CardActionDefinition } from "@ygo_duel/class/DuelEntityAction";
@@ -21,18 +21,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         priorityForNPC: 20,
-        validate: (myInfo) => {
-          if (myInfo.activator.getDeckCell().cardEntities.length < 2) {
-            return;
-          }
-          if (!myInfo.activator.canDraw) {
-            return;
-          }
-          if (!myInfo.activator.canAddToHandFromDeck) {
-            return;
-          }
-          return defaultSpellTrapValidate(myInfo);
-        },
+        canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.length > 1 && myInfo.activator.canDraw && myInfo.activator.canAddToHandFromDeck,
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["Draw"], prepared: undefined };
         },
@@ -57,24 +46,13 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         priorityForNPC: 30,
-        validate: (myInfo) => {
-          // 墓地に対象に取れるモンスターが５体以上必要
-          if (
-            myInfo.activator
-              .getGraveyard()
-              .cardEntities.filter((card) => card.kind === "Monster")
-              .filter((card) => card.canBeTargetOfEffect(myInfo)).length < 5
-          ) {
-            return;
-          }
-          if (!myInfo.activator.canDraw) {
-            return;
-          }
-          if (!myInfo.activator.canAddToHandFromDeck) {
-            return;
-          }
-          return defaultSpellTrapValidate(myInfo);
-        },
+        canExecute: (myInfo) =>
+          myInfo.activator
+            .getGraveyard()
+            .cardEntities.filter((card) => card.kind === "Monster")
+            .filter((card) => card.canBeTargetOfEffect(myInfo)).length > 4 &&
+          myInfo.activator.canDraw &&
+          myInfo.activator.canAddToHandFromDeck,
         prepare: async (myInfo) => {
           const targets = await myInfo.activator.waitSelectEntities(
             myInfo.activator
@@ -122,12 +100,11 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         priorityForNPC: 30,
-        validate: (myInfo) => {
-          if (myInfo.activator.getDeckCell().cardEntities.length < 3) {
-            return;
-          }
-          return defaultSpellTrapValidate(myInfo);
-        },
+        canExecute: (myInfo) =>
+          myInfo.activator.getDeckCell().cardEntities.length > 2 &&
+          myInfo.activator.canDraw &&
+          myInfo.activator.canAddToHandFromDeck &&
+          myInfo.activator.status.canDiscardAsEffect,
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["Draw", "DiscordAsEffect"], prepared: undefined };
         },
@@ -153,12 +130,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         priorityForNPC: 20,
-        validate: (myInfo) => {
-          if (myInfo.activator.getDeckCell().cardEntities.length < 1) {
-            return;
-          }
-          return defaultSpellTrapValidate(myInfo);
-        },
+        canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.length > 0 && myInfo.activator.canDraw && myInfo.activator.canAddToHandFromDeck,
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["Draw"], prepared: undefined };
         },
@@ -185,24 +157,18 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Hand", "SpellAndTrapZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
-        validate: (myInfo) => {
-          if (
-            myInfo.activator.getDeckCell().cardEntities.length <
-            myInfo.activator.getHandCell().cardEntities.filter((card) => card.seq !== myInfo.action.entity.seq).length
-          ) {
-            return;
-          }
-          if (
-            myInfo.action.entity.field
-              .getAllCells()
-              .filter((c) => c.cellType === "Hand")
-              .flatMap((c) => c.cardEntities)
-              .filter((card) => card.seq !== myInfo.action.entity.seq).length === 0
-          ) {
-            return;
-          }
-          return defaultSpellTrapValidate(myInfo);
-        },
+        canExecute: (myInfo) =>
+          myInfo.activator.getDeckCell().cardEntities.length >=
+            myInfo.activator.getHandCell().cardEntities.filter((card) => card.seq !== myInfo.action.entity.seq).length &&
+          myInfo.activator.canDraw &&
+          myInfo.activator.canAddToHandFromDeck &&
+          myInfo.activator.getOpponentPlayer().canDraw &&
+          myInfo.activator.getOpponentPlayer().canAddToHandFromDeck &&
+          myInfo.action.entity.field
+            .getAllCells()
+            .filter((c) => c.cellType === "Hand")
+            .flatMap((c) => c.cardEntities)
+            .some((card) => card.seq !== myInfo.action.entity.seq),
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["Draw", "DiscordAsEffect"], prepared: undefined };
         },
@@ -238,17 +204,11 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Hand", "SpellAndTrapZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
-        validate: (myInfo) => {
-          for (const duelist of [myInfo.activator, myInfo.activator.getOpponentPlayer()]) {
-            if (!duelist.getDeckCell().cardEntities.length) {
-              return;
-            }
-            if (!duelist.canDraw) {
-              return;
-            }
-          }
-          return defaultSpellTrapValidate(myInfo);
-        },
+        canExecute: (myInfo) =>
+          myInfo.activator.getDeckCell().cardEntities.length > 0 &&
+          myInfo.activator.canDraw &&
+          myInfo.activator.getOpponentPlayer().getDeckCell().cardEntities.length > 0 &&
+          myInfo.activator.getOpponentPlayer().canDraw,
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["Draw"], prepared: undefined };
         },
@@ -290,14 +250,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Hand", "SpellAndTrapZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
-        validate: (myInfo) => {
-          // 自分のデッキが0枚でも発動できる。
-          if (!myInfo.activator.canDraw) {
-            return;
-          }
-
-          return defaultSpellTrapValidate(myInfo);
-        },
+        canExecute: (myInfo) => myInfo.activator.canDraw,
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["Draw"], prepared: undefined };
         },

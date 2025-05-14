@@ -1,5 +1,5 @@
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
-import { defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_entity_proc/card_actions/CommonCardAction_Spell";
+import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CommonCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardActionDefinition, TEffectTag } from "@ygo_duel/class/DuelEntityAction";
@@ -66,16 +66,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           executablePeriods: ["main1", "main2"],
           executableDuelistTypes: ["Controller"],
           priorityForNPC: 40,
-          validate: (myInfo) => {
-            // デッキに対象カードが一枚以上必要。
-            if (!myInfo.activator.getDeckCell().cardEntities.filter(item.filter).length) {
-              return;
-            }
-            if (!myInfo.activator.canAddToHandFromDeck) {
-              return;
-            }
-            return defaultSpellTrapValidate(myInfo);
-          },
+          canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.some(item.filter) && myInfo.activator.canAddToHandFromDeck,
           prepare: async () => {
             return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"], prepared: undefined };
           },
@@ -144,13 +135,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           executableDuelistTypes: ["Controller"],
           hasToTargetCards: true,
           priorityForNPC: 40,
-          validate: (myInfo) => {
-            // 墓地にに対象カードが一枚以上必要。
-            if (myInfo.activator.getGraveyard().cardEntities.filter(item.filter).length < item.qty) {
-              return;
-            }
-            return defaultSpellTrapValidate(myInfo);
-          },
+          canExecute: (myInfo) => myInfo.activator.getGraveyard().cardEntities.filter(item.filter).length >= item.qty,
           prepare: async () => {
             return { selectedEntities: [], chainBlockTags: ["AddToHandFromGraveyard"], prepared: undefined };
           },
@@ -199,12 +184,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           executableDuelistTypes: ["Controller"],
           priorityForNPC: 40,
           canPayCosts: (myInfo) => defaultCanPayDiscardCosts(myInfo, item.filter),
-          validate: (myInfo) => {
-            if (myInfo.activator.getDeckCell().cardEntities.length < 2) {
-              return;
-            }
-            return defaultSpellTrapValidate(myInfo);
-          },
+          canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.length > 1,
           payCosts: async (...args) => defaultPayDiscardCosts(...args, item.filter),
           prepare: async () => {
             return { selectedEntities: [], chainBlockTags: ["Draw"], prepared: undefined };
@@ -284,7 +264,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
           executableCells: ["Hand", "SpellAndTrapZone"],
           executablePeriods: ["main1", "main2"],
           executableDuelistTypes: ["Controller"],
-          validate: defaultSpellTrapValidate,
           prepare: async () => {
             const [toSelf, toOpponent] = item.calcHeal();
 

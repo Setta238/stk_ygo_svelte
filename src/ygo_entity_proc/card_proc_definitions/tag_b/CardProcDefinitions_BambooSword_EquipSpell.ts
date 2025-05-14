@@ -4,7 +4,12 @@ import { defaultSpellTrapSetAction, getDefaultEquipSpellTrapAction } from "../..
 import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { IllegalCancelError } from "@ygo_duel/class/Duel";
-import { defaultCanPaySelfSendToGraveyardCost, defaultPaySelfSendToGraveyardCost, defaultPrepare } from "../../card_actions/CommonCardAction";
+import {
+  defaultCanPaySelfSendToGraveyardCost,
+  defaultPaySelfSendToGraveyardCost,
+  defaultPrepare,
+  getSingleTargetActionPartical,
+} from "../../card_actions/CommonCardAction";
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "折れ竹光",
@@ -25,43 +30,15 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerTurn: 1,
-        validate: (myInfo) => {
-          if (
-            !myInfo.activator
-              .getSpellTrapsOnField()
-              .filter((spelltrap) => spelltrap.status.nameTags?.includes("竹光"))
-              .filter((spelltrap) => spelltrap !== myInfo.action.entity)
-              .some((spelltrap) => spelltrap.status.spellCategory === "Equip")
-          ) {
-            return;
-          }
-          const equipOwner = myInfo.action.entity.info.equipedBy;
-          if (!equipOwner) {
-            return;
-          }
-
-          if (equipOwner.status.canDirectAttack) {
-            return;
-          }
-          return [];
-        },
-        prepare: async (myInfo, chainBlockInfos, cancelable) => {
-          const takemitsu = await myInfo.activator.waitSelectEntity(
+        ...getSingleTargetActionPartical(
+          (myInfo) =>
             myInfo.activator
               .getSpellTrapsOnField()
               .filter((spelltrap) => spelltrap.status.nameTags?.includes("竹光"))
               .filter((spelltrap) => spelltrap !== myInfo.action.entity)
               .filter((spelltrap) => spelltrap.status.spellCategory === "Equip"),
-            "手札に戻すカードを選択。",
-            cancelable
-          );
-
-          if (!takemitsu) {
-            return;
-          }
-
-          return { selectedEntities: [takemitsu], chainBlockTags: [], prepared: undefined };
-        },
+          { message: "手札に戻すカードを選択。", tags: ["BounceToHand"] }
+        ),
         execute: async (myInfo) => {
           const equipOwner = myInfo.action.entity.info.equipedBy;
           if (!equipOwner) {
@@ -98,23 +75,13 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Graveyard"],
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
-        validate: (myInfo) => {
-          // 前回のチェーンで動いたかどうか
-          if (!myInfo.action.entity.wasMovedAtPreviousChain) {
-            return;
-          }
-
-          if (!myInfo.activator.canAddToHandFromDeck) {
-            return;
-          }
-
-          return myInfo.activator
+        meetsConditions: (myInfo) => myInfo.action.entity.wasMovedAtPreviousChain && myInfo.action.entity.wasMovedFrom.cellType !== "Banished",
+        canExecute: (myInfo) =>
+          myInfo.activator.canAddToHandFromDeck &&
+          myInfo.activator
             .getDeckCell()
             .cardEntities.filter((card) => card.status.nameTags?.includes("竹光"))
-            .some((takemitsu) => takemitsu.status.name !== "妖刀竹光")
-            ? []
-            : undefined;
-        },
+            .some((takemitsu) => takemitsu.status.name !== "妖刀竹光"),
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"], prepared: undefined };
         },
@@ -151,10 +118,10 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["SpellAndTrapZone"],
         executablePeriods: ["b1DAfterDmgCalc", "b2DAfterDmgCalc"],
         executableDuelistTypes: ["Controller"],
-        validate: (myInfo) => {
+        canExecute: (myInfo) => {
           const equipOwner = myInfo.action.entity.info.equipedBy;
           if (!equipOwner) {
-            return;
+            return false;
           }
 
           if (
@@ -162,11 +129,11 @@ export default function* generate(): Generator<EntityProcDefinition> {
               .filter((record) => myInfo.activator.duel.clock.isPreviousStage(record.timestamp))
               .some((record) => record.enemy.entityType === "Duelist")
           ) {
-            return;
+            return false;
           }
 
           if (!myInfo.activator.getOpponentPlayer().getMonstersOnField().length) {
-            return;
+            return false;
           }
 
           if (
@@ -175,10 +142,10 @@ export default function* generate(): Generator<EntityProcDefinition> {
               .lifeLog.filter((record) => myInfo.activator.duel.clock.isPreviousStage(record.clock))
               .some((record) => record.entity === equipOwner)
           ) {
-            return;
+            return false;
           }
 
-          return [];
+          return true;
         },
         prepare: async (myInfo) => {
           return {
@@ -208,24 +175,15 @@ export default function* generate(): Generator<EntityProcDefinition> {
           }
           return defaultCanPaySelfSendToGraveyardCost(myInfo);
         },
-        validate: (myInfo) => {
-          const equipOwner = myInfo.action.entity.info.equipedBy;
-          if (!equipOwner) {
-            return;
-          }
-          const takemitsus = myInfo.activator
-            .getDeckCell()
-            .cardEntities.filter((card) => card.status.nameTags?.includes("竹光"))
-            .filter((takemitsu) => takemitsu.status.name !== "真刀竹光")
-            .filter((spelltrap) => spelltrap.status.spellCategory === "Equip");
-
-          if (!takemitsus.length) {
-            return;
-          }
-
-          // TODO デッキの竹光を装備できない可能性。
-          return myInfo.activator.duel.field.getMonstersOnFieldStrictly().some((monster) => monster.canBeTargetOfEffect(myInfo)) ? [] : undefined;
-        },
+        canExecute: (myInfo) =>
+          Boolean(
+            myInfo.action.entity.info.equipedBy &&
+              myInfo.activator
+                .getDeckCell()
+                .cardEntities.filter((card) => card.status.nameTags?.includes("竹光"))
+                .filter((takemitsu) => takemitsu.status.name !== "真刀竹光")
+                .some((spelltrap) => spelltrap.status.spellCategory === "Equip")
+          ) && myInfo.activator.duel.field.getMonstersOnFieldStrictly().some((monster) => monster.canBeTargetOfEffect(myInfo)),
         payCosts: defaultPaySelfSendToGraveyardCost,
         prepare: defaultPrepare,
         execute: async (myInfo) => {

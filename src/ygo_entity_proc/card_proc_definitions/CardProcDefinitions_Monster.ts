@@ -1,17 +1,17 @@
 import { IllegalCancelError } from "@ygo_duel/class/Duel";
-import type { EntityAction, CardActionDefinition, TEffectTag } from "@ygo_duel/class/DuelEntityAction";
+import type { EntityAction, TEffectTag } from "@ygo_duel/class/DuelEntityAction";
 import {} from "@ygo_duel/class/DuelEntityShortHands";
 
-import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 import {
+  canSelfSepcialSummon,
   defaultAttackAction,
   defaultBattlePotisionChangeAction,
   defaultFlipSummonAction,
   defaultNormalSummonAction,
-  defaultRuleSpecialSummonValidate,
   defaultRuleSummonExecute,
   defaultRuleSummonPrepare,
   defaultSelfRebornExecute,
+  getDestsForSelfSpecialSummon,
 } from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
@@ -42,14 +42,15 @@ export default function* generate(): Generator<EntityProcDefinition> {
           executablePeriods: ["main1", "main2"],
           executableDuelistTypes: ["Controller"],
           isOnlyNTimesPerDuel: name === "アンノウン・シンクロン" ? 1 : undefined,
-          validate: (myInfo) => {
+          canExecute: (myInfo) => {
             const monsters = myInfo.action.entity.field.getMonstersOnFieldStrictly();
-            if (monsters.length == 0 || monsters.some((m) => m.controller === myInfo.activator)) {
-              return;
-            }
-
-            return defaultRuleSpecialSummonValidate(myInfo, faceupBattlePositions, []);
+            return (
+              monsters.length > 0 &&
+              monsters.every((m) => m.controller !== myInfo.activator) &&
+              canSelfSepcialSummon(myInfo, faceupBattlePositions, [], ["Rule"])
+            );
           },
+          getDests: (myInfo) => getDestsForSelfSpecialSummon(myInfo, faceupBattlePositions, [], ["Rule"]),
           prepare: (myInfo) => defaultRuleSummonPrepare(myInfo, "SpecialSummon", ["SpecialSummon", "Rule"], faceupBattlePositions),
           execute: defaultRuleSummonExecute,
           settle: async () => true,
@@ -72,13 +73,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Hand"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
-        validate: (myInfo) => {
-          if (myInfo.activator.getMonstersOnField().length) {
-            return;
-          }
-
-          return defaultRuleSpecialSummonValidate(myInfo, faceupBattlePositions, []);
-        },
+        canExecute: (myInfo) => myInfo.activator.getMonstersOnField().length === 0 && canSelfSepcialSummon(myInfo, faceupBattlePositions, [], ["Rule"]),
+        getDests: (myInfo) => getDestsForSelfSpecialSummon(myInfo, faceupBattlePositions, [], ["Rule"]),
         prepare: (myInfo) => defaultRuleSummonPrepare(myInfo, "SpecialSummon", ["SpecialSummon", "Rule"], faceupBattlePositions),
         execute: defaultRuleSummonExecute,
         settle: async () => true,
@@ -102,13 +98,22 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableDuelistTypes: ["Controller"],
         priorityForNPC: 10,
         canPayCosts: defaultCanPaySelfBanishCosts,
-        validate: (myInfo) => {
-          if (myInfo.activator.getDeckCell().cardEntities.filter((card) => card.nm === "Ｄ－ＨＥＲＯ ディアボリックガイ").length === 0) {
-            return;
+        canExecute: (myInfo) => {
+          const nextOne = myInfo.activator.getDeckCell().cardEntities.find((card) => card.nm === "Ｄ－ＨＥＲＯ ディアボリックガイ");
+          if (!nextOne) {
+            return false;
           }
-
-          const availableCells = myInfo.activator.getAvailableMonsterZones();
-          return availableCells.length > 0 ? [] : undefined;
+          const cells = myInfo.activator.getMonsterZones();
+          const list = myInfo.activator.getEnableSummonList(
+            myInfo.activator,
+            "SpecialSummon",
+            ["Effect"],
+            myInfo.action,
+            [{ monster: nextOne, posList: faceupBattlePositions, cells }],
+            [],
+            false
+          );
+          return list.length > 0;
         },
         payCosts: defaultPaySelfBanishCosts,
         prepare: async () => {
@@ -141,7 +146,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         canPayCosts: (myInfo) => myInfo.activator.getHandCell().cardEntities.length > 0,
-        validate: (myInfo) => (myInfo.activator.getAvailableMonsterZones().length > 0 ? [] : undefined),
+        getDests: (myInfo) => getDestsForSelfSpecialSummon(myInfo, faceupBattlePositions, [], ["Effect"]),
+        canExecute: (myInfo) => canSelfSepcialSummon(myInfo, faceupBattlePositions, [], ["Effect"]),
         payCosts: async (myInfo, chainBlockInfos, cancelable) => {
           const hands = myInfo.activator.getHandCell().cardEntities;
           const cost = await myInfo.activator.waitSelectEntity(hands, "デッキトップに戻すカードを一枚選択。", cancelable);
@@ -176,8 +182,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
           return true;
         },
         settle: async () => true,
-      } as CardActionDefinition<unknown>,
-    ] as CardActionDefinition<unknown>[],
+      },
+    ],
   };
   yield {
     name: "グローアップ・バルブ",
@@ -196,7 +202,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerDuel: 1,
         canPayCosts: (myInfo) => myInfo.activator.getDeckCell().cardEntities.length > 0,
-        validate: (myInfo) => (myInfo.activator.getAvailableMonsterZones().length > 0 ? [] : undefined),
+        getDests: (myInfo) => getDestsForSelfSpecialSummon(myInfo, faceupBattlePositions, [], ["Effect"]),
+        canExecute: (myInfo) => canSelfSepcialSummon(myInfo, faceupBattlePositions, [], ["Effect"]),
         payCosts: async (myInfo) => {
           const cost = myInfo.activator.getDeckCell().cardEntities[0];
           await myInfo.activator.getDeckCell().cardEntities[0].sendToGraveyard(["Cost"], myInfo.action.entity, myInfo.activator);
@@ -207,8 +214,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
         },
         execute: (myInfo) => defaultSelfRebornExecute(myInfo),
         settle: async () => true,
-      } as CardActionDefinition<unknown>,
-    ] as CardActionDefinition<unknown>[],
+      },
+    ],
   };
   yield {
     name: "終末の騎士",
@@ -225,21 +232,14 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["MonsterZone"],
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
-        validate: (myInfo) => {
-          if (!myInfo.action.entity.hasBeenSummonedNow(["NormalSummon", "SpecialSummon", "FlipSummon"])) {
-            return;
-          }
-          if (myInfo.activator.getDeckCell().cardEntities.filter((card) => card.attr.includes("Dark")).length === 0) {
-            return;
-          }
-          return [];
-        },
+        meetsConditions: (myInfo) => myInfo.action.entity.hasBeenSummonedNow(["NormalSummon", "SpecialSummon", "FlipSummon"]),
+        canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.some((card) => card.attr.includes("Dark")),
         prepare: async (myInfo) => {
           const tags = ["SendToGraveyardFromDeck"] as TEffectTag[];
 
           if (myInfo.action.entity.moveLog.latestRecord.movedAs.includes("NormalSummon")) {
             tags.push("IfNormarlSummonSucceed");
-          } else {
+          } else if (myInfo.action.entity.moveLog.latestRecord.movedAs.includes("SpecialSummon")) {
             tags.push("IfSpecialSummonSucceed");
           }
           return { selectedEntities: [], chainBlockTags: tags, prepared: undefined };
@@ -249,22 +249,19 @@ export default function* generate(): Generator<EntityProcDefinition> {
           if (choices.length === 0) {
             return false;
           }
-          await myInfo.action.entity.field.sendToGraveyard(
-            "墓地に送るモンスターを選択",
-            myInfo.activator,
-            choices,
-            1,
-            (list) => list.length === 1,
-            ["Effect"],
-            myInfo.action.entity,
-            false
-          );
+
+          const monster = await myInfo.activator.waitSelectEntity(choices, "墓地に送るモンスターを選択", false);
+          if (!monster) {
+            throw new IllegalCancelError(myInfo);
+          }
+          await monster.sendToGraveyard(["Effect"], myInfo.action.entity, myInfo.activator);
           myInfo.activator.getDeckCell().shuffle();
+
           return true;
         },
         settle: async () => true,
-      } as CardActionDefinition<undefined>,
-    ] as CardActionDefinition<unknown>[],
+      },
+    ],
   };
   yield {
     name: "マスマティシャン",
@@ -281,38 +278,27 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["MonsterZone"],
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
-        validate: (myInfo) => {
-          if (!myInfo.action.entity.hasBeenSummonedNow(["NormalSummon"])) {
-            return;
-          }
-          if (!myInfo.activator.getDeckCell().cardEntities.find((card) => (card.lvl ?? 5) < 5)) {
-            return;
-          }
-          return [];
-        },
+        meetsConditions: (myInfo) => myInfo.action.entity.hasBeenSummonedNow(["NormalSummon"]),
+        canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.some((card) => card.lvl && card.lvl < 5),
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["IfNormarlSummonSucceed", "SendToGraveyardFromDeck"], prepared: undefined };
         },
         execute: async (myInfo): Promise<boolean> => {
-          const choices = myInfo.activator.getDeckCell().cardEntities.filter((card) => (card.lvl ?? 5) < 5);
+          const choices = myInfo.activator.getDeckCell().cardEntities.filter((card) => card.lvl && card.lvl < 5);
           if (choices.length === 0) {
             return false;
           }
-          await myInfo.action.entity.field.sendToGraveyard(
-            "墓地に送るモンスターを選択",
-            myInfo.activator,
-            choices,
-            1,
-            (list) => list.length === 1,
-            ["Effect"],
-            myInfo.action.entity,
-            false
-          );
+          const monster = await myInfo.activator.waitSelectEntity(choices, "墓地に送るモンスターを選択", false);
+          if (!monster) {
+            throw new IllegalCancelError(myInfo);
+          }
+          await monster.sendToGraveyard(["Effect"], myInfo.action.entity, myInfo.activator);
           myInfo.activator.getDeckCell().shuffle();
+
           return true;
         },
         settle: async () => true,
-      } as CardActionDefinition<undefined>,
+      },
       {
         title: "②ドロー",
         isMandatory: false,
@@ -321,21 +307,9 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Graveyard"],
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
-        validate: (myInfo) => {
-          if (myInfo.action.entity.face === "FaceDown") {
-            return;
-          }
-          if (!myInfo.action.entity.moveLog.latestRecord.movedAs.includes("BattleDestroy")) {
-            return;
-          }
-          if (!myInfo.action.entity.wasMovedAtPreviousChain) {
-            return;
-          }
-          if (myInfo.activator.getDeckCell().cardEntities.length === 0) {
-            return;
-          }
-          return [];
-        },
+        meetsConditions: (myInfo) =>
+          myInfo.action.entity.moveLog.latestRecord.movedAs.includes("BattleDestroy") && myInfo.action.entity.wasMovedAtPreviousChain,
+        canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.length > 0,
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["Draw"], prepared: undefined };
         },
@@ -345,8 +319,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
           return true;
         },
         settle: async () => true,
-      } as CardActionDefinition<undefined>,
-    ] as CardActionDefinition<unknown>[],
+      },
+    ],
   };
   yield {
     name: "ライトロード・ビースト ウォルフ",
@@ -362,35 +336,16 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Graveyard"],
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
-        validate: (myInfo) => {
-          // 前回のチェーンで動いたかどうか
-          if (!myInfo.action.entity.wasMovedAtPreviousChain) {
-            return;
-          }
-          // 前回のチェーンで動いたとき、デッキからだったかどうか
-          if (myInfo.action.entity.wasMovedFrom.cellType !== "Deck") {
-            return;
-          }
-          const cells = myInfo.activator.getMonsterZones();
-          const list = myInfo.activator.getEnableSummonList(
-            myInfo.activator,
-            "SpecialSummon",
-            ["Effect"],
-            myInfo.action,
-            [{ monster: myInfo.action.entity, posList: faceupBattlePositions, cells }],
-            [],
-            false
-          );
-
-          return list.length ? [] : undefined;
-        },
+        meetsConditions: (myInfo) => myInfo.action.entity.wasMovedFrom.cellType === "Deck" && myInfo.action.entity.wasMovedAtPreviousChain,
+        getDests: (myInfo) => getDestsForSelfSpecialSummon(myInfo, faceupBattlePositions, [], ["Effect"]),
+        canExecute: (myInfo) => canSelfSepcialSummon(myInfo, faceupBattlePositions, [], ["Effect"]),
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromGraveyard"], prepared: undefined };
         },
         execute: (myInfo) => defaultSelfRebornExecute(myInfo),
         settle: async () => true,
       },
-    ] as CardActionDefinition<unknown>[],
+    ],
   };
   yield {
     name: "伝説の白石",
@@ -407,17 +362,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Graveyard"],
         executablePeriods: duelPeriodKeys,
         executableDuelistTypes: ["Controller"],
-        validate: (myInfo) => {
-          // 前回のチェーンで動いたかどうか
-          if (!myInfo.action.entity.wasMovedAtPreviousChain) {
-            return;
-          }
-          // 前回のチェーンで動いたとき、除外から動いていたら対象外（※墓地に戻すではこの手の効果は発動しない）
-          if (myInfo.action.entity.wasMovedFrom.cellType === "Banished") {
-            return;
-          }
-          return myInfo.activator.getDeckCell().cardEntities.find((card) => card.nm === "青眼の白龍") ? [] : undefined;
-        },
+        meetsConditions: (myInfo) => myInfo.action.entity.wasMovedAtPreviousChain && myInfo.action.entity.wasMovedFrom.cellType !== "Banished",
+        canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.some((card) => card.nm === "青眼の白龍") && myInfo.activator.canAddToHandFromDeck,
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"], prepared: undefined };
         },
@@ -432,22 +378,21 @@ export default function* generate(): Generator<EntityProcDefinition> {
           return true;
         },
         settle: async () => true,
-      } as CardActionDefinition<undefined>,
-    ] as CardActionDefinition<unknown>[],
+      },
+    ],
   };
-  yield* (
-    [
-      {
-        name: "灰流うらら",
-        chainBlockTags: ["Draw", "SearchFromDeck", "SendToGraveyardFromDeck", "SpecialSummonFromDeck"],
-      },
-      {
-        name: "屋敷わらし",
-        chainBlockTags: ["BanishFromGraveyard", "SpecialSummonFromGraveyard", "AddToHandFromGraveyard"],
-      },
-    ] as { name: string; chainBlockTags: TEffectTag[] }[]
-  ).map((item): EntityProcDefinition => {
-    return {
+
+  for (const item of [
+    {
+      name: "灰流うらら",
+      chainBlockTags: ["Draw", "SearchFromDeck", "SendToGraveyardFromDeck", "SpecialSummonFromDeck"],
+    },
+    {
+      name: "屋敷わらし",
+      chainBlockTags: ["BanishFromGraveyard", "SpecialSummonFromGraveyard", "AddToHandFromGraveyard"],
+    },
+  ] as { name: string; chainBlockTags: TEffectTag[] }[]) {
+    yield {
       name: item.name,
       actions: [
         defaultAttackAction,
@@ -465,15 +410,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           isOnlyNTimesPerTurn: 1,
           negatePreviousBlock: true,
           canPayCosts: (myInfo) => myInfo.activator.canDiscard([myInfo.action.entity]),
-          validate: (myInfo, chainBlockInfos): DuelFieldCell[] | undefined => {
-            if (chainBlockInfos.length === 0) {
-              return;
-            }
-
-            const info = chainBlockInfos[myInfo.index - 1];
-
-            return info.chainBlockTags.union(item.chainBlockTags).length > 0 ? [] : undefined;
-          },
+          canExecute: (myInfo) => (myInfo.targetChainBlock && myInfo.targetChainBlock.chainBlockTags.union(item.chainBlockTags).length > 0) ?? false,
           payCosts: async (myInfo) => {
             await myInfo.action.entity.discard(["Cost"], myInfo.action.entity, myInfo.activator);
             return { sendToGraveyard: [myInfo.action.entity] };
@@ -487,13 +424,12 @@ export default function* generate(): Generator<EntityProcDefinition> {
             return true;
           },
           settle: async () => true,
-        } as CardActionDefinition<undefined>,
-      ] as CardActionDefinition<unknown>[],
+        },
+      ],
     };
-  });
-
-  yield* ["翻弄するエルフの剣士", "ロードランナー", "氷結界の修験者"].map((name): EntityProcDefinition => {
-    return {
+  }
+  for (const name of ["翻弄するエルフの剣士", "ロードランナー", "氷結界の修験者"]) {
+    yield {
       name: name,
       actions: [defaultAttackAction, defaultBattlePotisionChangeAction, defaultFlipSummonAction, defaultNormalSummonAction],
       continuousEffects: [
@@ -529,5 +465,5 @@ export default function* generate(): Generator<EntityProcDefinition> {
         ) as ContinuousEffectBase<unknown>,
       ],
     };
-  });
+  }
 }

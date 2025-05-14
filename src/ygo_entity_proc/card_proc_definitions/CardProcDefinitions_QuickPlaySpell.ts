@@ -1,4 +1,4 @@
-import { defaultSpellTrapSetAction, defaultSpellTrapValidate } from "@ygo_entity_proc/card_actions/CommonCardAction_Spell";
+import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CommonCardAction_Spell";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { TEffectTag } from "@ygo_duel/class/DuelEntityAction";
@@ -9,6 +9,7 @@ import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/D
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
+import { getSingleTargetActionPartical } from "@ygo_entity_proc/card_actions/CommonCardAction";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
@@ -23,7 +24,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Hand", "SpellAndTrapZone"],
         executablePeriods: freeChainDuelPeriodKeys,
         executableDuelistTypes: ["Controller"],
-        validate: defaultSpellTrapValidate,
         prepare: async (myInfo, chainBlockInfos, cancelable) => {
           const choices: { seq: number; text: string; tags: TEffectTag[] }[] = [
             { seq: 0, text: "●自分は１２００ＬＰ回復する。", tags: [] },
@@ -60,31 +60,15 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Hand", "SpellAndTrapZone"],
         executablePeriods: freeChainDuelPeriodKeys,
         executableDuelistTypes: ["Controller"],
-        hasToTargetCards: true,
-        validate: (myInfo) => {
-          const monsters = myInfo.action.entity.field
-            .getMonstersOnFieldStrictly()
-            .filter((monster) => monster.canBeTargetOfEffect(myInfo))
-            .filter((monster) => monster.canBeSet)
-            .filter((monster) => monster.face === "FaceUp");
-          if (!monsters.length) {
-            return;
-          }
-          return defaultSpellTrapValidate(myInfo);
-        },
-        prepare: async (myInfo, chainBlockInfos, cancelable) => {
-          const monsters = myInfo.action.entity.field
-            .getMonstersOnFieldStrictly()
-            .filter((monster) => monster.canBeTargetOfEffect(myInfo))
-            .filter((monster) => monster.canBeSet)
-            .filter((monster) => monster.face === "FaceUp");
-
-          const selected = await myInfo.activator.waitSelectEntity(monsters, "対象とするモンスターを選択", cancelable);
-          if (!selected) {
-            return;
-          }
-          return { selectedEntities: [selected], chainBlockTags: [], prepared: undefined };
-        },
+        ...getSingleTargetActionPartical(
+          (myInfo) =>
+            myInfo.action.entity.field
+              .getMonstersOnFieldStrictly()
+              .filter((monster) => monster.canBeTargetOfEffect(myInfo))
+              .filter((monster) => monster.canBeSet)
+              .filter((monster) => monster.face === "FaceUp"),
+          { message: "対象とするモンスターを選択。" }
+        ),
         execute: async (myInfo) => {
           const target = myInfo.selectedEntities[0];
           // フィールドにいなければ効果なし
@@ -124,23 +108,14 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Hand", "SpellAndTrapZone"],
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
-        hasToTargetCards: true,
-        validate: (myInfo) => {
-          const monsters = myInfo.action.entity.field.getMonstersOnFieldStrictly().filter((monster) => monster.canBeTargetOfEffect(myInfo));
-          if (!monsters.length) {
-            return;
-          }
-          return defaultSpellTrapValidate(myInfo);
-        },
-        prepare: async (myInfo, chainBlockInfos, cancelable) => {
-          const monsters = myInfo.action.entity.field.getMonstersOnFieldStrictly().filter((monster) => monster.canBeTargetOfEffect(myInfo));
-          const selected = await myInfo.activator.waitSelectEntity(monsters, "対象とするモンスターを選択", cancelable);
-          if (!selected) {
-            return;
-          }
-
-          return { selectedEntities: [selected], chainBlockTags: [], prepared: undefined };
-        },
+        ...getSingleTargetActionPartical(
+          (myInfo) =>
+            myInfo.action.entity.field
+              .getMonstersOnFieldStrictly()
+              .filter((monster) => monster.face === "FaceUp")
+              .filter((monster) => monster.canBeTargetOfEffect(myInfo)),
+          { message: "対象とするモンスターを選択。" }
+        ),
         execute: async (myInfo) => {
           const target = myInfo.selectedEntities[0];
           // フィールドにいなければ効果なし
@@ -187,11 +162,10 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Hand", "SpellAndTrapZone"],
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
-        hasToTargetCards: true,
-        validate: (myInfo) => {
+        canExecute: (myInfo) => {
           for (const duelist of [myInfo.activator, myInfo.activator.getOpponentPlayer()]) {
             if (!duelist.canDraw) {
-              return;
+              return false;
             }
             if (
               duelist
@@ -199,14 +173,14 @@ export default function* generate(): Generator<EntityProcDefinition> {
                 .cardEntities.filter((card) => card.canBeSentToGraveyard(myInfo.activator, myInfo.action.entity, "SendToGraveyardAsEffect", myInfo.action))
                 .filter((card) => card !== myInfo.action.entity).length < 2
             ) {
-              return;
+              return false;
             }
             if (duelist.getDeckCell().cardEntities.length < 2) {
-              return;
+              return false;
             }
           }
 
-          return defaultSpellTrapValidate(myInfo);
+          return true;
         },
         prepare: async () => {
           console.log("手札断殺");
@@ -265,14 +239,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
         hasToTargetCards: true,
-        validate: (myInfo) => {
-          // 自分のデッキが0枚でも発動できる。
-          if (!myInfo.activator.canDraw) {
-            return;
-          }
-
-          return defaultSpellTrapValidate(myInfo);
-        },
+        // 自分のデッキが0枚でも発動できる。
+        canExecute: (myInfo) => myInfo.activator.canDraw,
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["Draw"], prepared: undefined };
         },

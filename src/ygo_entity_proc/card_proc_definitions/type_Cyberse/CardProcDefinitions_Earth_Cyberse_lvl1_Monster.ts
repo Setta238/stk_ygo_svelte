@@ -1,4 +1,5 @@
 import {
+  canSelfSepcialSummon,
   defaultAttackAction,
   defaultBattlePotisionChangeAction,
   defaultFlipSummonAction,
@@ -11,6 +12,7 @@ import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import {} from "@ygo_duel/class/DuelEntityShortHands";
+import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
@@ -30,13 +32,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerDuel: 1,
         actionGroupName: "ドットスケーパー",
-        validate: (myInfo) => {
-          // 前回のチェーンで動いたかどうか
-          if (!myInfo.action.entity.wasMovedAtPreviousChain) {
-            return;
-          }
-          return myInfo.activator.getAvailableMonsterZones().length > 0 ? [] : undefined;
-        },
+        meetsConditions: (myInfo) => myInfo.action.entity.wasMovedAtPreviousChain && myInfo.action.entity.wasMovedFrom.cellType !== "Banished",
+        canExecute: (myInfo) => canSelfSepcialSummon(myInfo, faceupBattlePositions, [], ["Effect"]),
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromGraveyard"], prepared: undefined };
         },
@@ -53,13 +50,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerDuel: 1,
         actionGroupName: "ドットスケーパー",
-        validate: (myInfo) => {
-          // 前回のチェーンで動いたかどうか
-          if (!myInfo.action.entity.wasMovedAtPreviousChain) {
-            return;
-          }
-          return myInfo.activator.getAvailableMonsterZones().length > 0 ? [] : undefined;
-        },
+        meetsConditions: (myInfo) => myInfo.action.entity.wasMovedAtPreviousChain,
+        canExecute: (myInfo) => canSelfSepcialSummon(myInfo, faceupBattlePositions, [], ["Effect"]),
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromBanished"], prepared: undefined };
         },

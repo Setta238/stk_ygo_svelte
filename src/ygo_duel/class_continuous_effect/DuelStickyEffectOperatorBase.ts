@@ -18,9 +18,6 @@ export abstract class StickyEffectOperatorPool<OPE extends StickyEffectOperatorB
   protected bundles: Bundle[] = [];
 
   public readonly excludesExpired = () => {
-    // 消滅済のエンティティのバンドルを除去
-    this.bundles = this.bundles.filter((bundle) => !bundle.entity.exist);
-
     this.bundles.forEach((bundle) => bundle.excludesExpired());
     this.pooledOperators = this.pooledOperators.filter((ope) => ope.validateAlive());
   };
@@ -66,6 +63,7 @@ export abstract class StickyEffectOperatorPool<OPE extends StickyEffectOperatorB
   public readonly distribute = (ope: OPE) => {
     // まだ配布されていないオペレータを配布する。
     return this.bundles
+      .filter((bundle) => bundle.entity.exist)
       .filter((bundle) => bundle.operators.every((_ope) => _ope.seq !== ope.seq))
       .filter((bundle) => ope.isApplicableTo(bundle.entity))
       .filter((bundle) => bundle.entity.canBeEffected(ope.effectOwner, ope.isSpawnedBy, ope.actionAttr))

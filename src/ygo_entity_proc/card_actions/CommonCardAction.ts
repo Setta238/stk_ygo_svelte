@@ -215,7 +215,7 @@ export const getSystemPeriodAction = (
   executablePeriods: Readonly<TDuelPeriodKey[]>,
   callback: (myInfo: ChainBlockInfoBase<unknown>) => undefined
 ) => {
-  // FIXME 非同期が使えない都合上、isMeaningfulにcallbackを渡し、そちらで実行する。
+  // FIXME 非同期が使えない都合上、canExecuteにcallbackを渡し、そちらで実行する。
   return {
     title: title,
     playType: "SystemPeriodAction",

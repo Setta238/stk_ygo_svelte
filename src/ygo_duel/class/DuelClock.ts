@@ -208,7 +208,7 @@ export class DuelClock implements IDuelClock {
     this._totalProcSeq++;
 
     // 開始点のセット
-    let needsToSetStartPoint = false;
+    let needsToSetStartPoint = true;
     duelClockSubKeys.toReversed().forEach((key) => {
       // 一つ下のレベルが0の場合、開始点として保存
       if (needsToSetStartPoint) {
@@ -216,12 +216,12 @@ export class DuelClock implements IDuelClock {
         this._currentStartPoints[key] = this.totalProcSeq;
       }
       // 一つ上のレベルの開始点を保存するかどうかの判定。
-      needsToSetStartPoint = this[key] === 0;
+      needsToSetStartPoint = needsToSetStartPoint && this[key] === 0;
     });
 
     duelClockSubKeys
       .toReversed()
-      .filter((key) => (this._currentStartPoints[key] = this.totalProcSeq))
+      .filter((key) => this._currentStartPoints[key] === this.totalProcSeq)
       .filter((key) => key !== "procSeq")
       .forEach((key) => this.onClockChangeEvents[key].trigger(this));
     // procSeqのイベントは毎回トリガする。

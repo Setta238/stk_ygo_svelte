@@ -218,7 +218,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         canPayCosts: defaultCanPaySelfBanishCosts,
-        meetsConditions: (myInfo) => myInfo.action.entity.wasMovedAtCurrentTurn,
+        meetsConditions: (myInfo) => !myInfo.action.entity.wasMovedAtCurrentTurn,
         canExecute: (myInfo) =>
           myInfo.activator.canAddToHandFromDeck &&
           myInfo.activator.getDeckCell().cardEntities.filter((card) => card.status.nameTags?.includes("星遺物")).length > 0,

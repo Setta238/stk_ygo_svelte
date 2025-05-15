@@ -37,7 +37,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
             .flatMap((card) => card.actions)
             .filter((action) => action.playType === "CardActivation")
             .filter((action) => !action.needsToPayCost)
-            .filter((action) => action.validate(myInfo.activator, [], ["IgnoreCosts"]));
+            .filter((action) => action.validate(myInfo.activator, [], ["IgnoreCosts", "CopyEffectOnly"]));
+
           if (!traps.length) {
             return false;
           }
@@ -54,12 +55,12 @@ export default function* generate(): Generator<EntityProcDefinition> {
             .flatMap((card) => card.actions)
             .filter((action) => action.playType === "CardActivation")
             .filter((action) => !action.needsToPayCost)
-            .filter((action) => action.validate(myInfo.activator, [], ["IgnoreCosts"]))
+            .filter((action) => action.validate(myInfo.activator, [], ["IgnoreCosts", "CopyEffectOnly"]))
             .map((action) => action.entity);
 
           const target = await myInfo.activator.waitSelectEntity(choices, "コピーする罠を選択。", cancelable);
           if (!target) {
-            return;
+            throw new SystemError("想定されない状態", myInfo);
           }
           const cost = [myInfo.action.entity, target];
           await DuelEntityShortHands.banishManyForTheSameReason(cost, ["Cost"], myInfo.action.entity, myInfo.activator);

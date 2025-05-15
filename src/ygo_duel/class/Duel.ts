@@ -1069,11 +1069,7 @@ export class Duel {
     }
   };
   private readonly executeSystemPeriodActions = (): void => {
-    Object.values(this.duelists).flatMap((duelist) =>
-      this.getEnableActions(duelist, ["SystemPeriodAction"], ["Normal"], []).map((action) => {
-        return { duelist, action };
-      })
-    );
+    Object.values(this.duelists).forEach((duelist) => this.getEnableActions(duelist, ["SystemPeriodAction"], ["Normal"], []));
   };
   private readonly getEnableActions = (
     duelist: Duelist,

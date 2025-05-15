@@ -101,8 +101,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
         canPayCosts: defaultCanPayDiscardCosts,
         payCosts: defaultPayDiscardCosts,
         ...getSingleTargetActionPartical(
-          (myInfo) => myInfo.action.entity.field.getMonstersOnFieldStrictly().filter((monster) => monster.canBeTargetOfEffect(myInfo)),
-          { message: "対象とするモンスターを選択。", destoryTargets: true }
+          (myInfo) => myInfo.action.entity.field.getCardsOnFieldStrictly().filter((monster) => monster.canBeTargetOfEffect(myInfo)),
+          { message: "対象とするカードを選択。", destoryTargets: true }
         ),
         execute: async (myInfo) => {
           // フィールドにいなければ効果なし

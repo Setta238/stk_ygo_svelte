@@ -64,7 +64,7 @@ const createSpellCounterChargeEffect = (titlePrefix: string, qty: number = 1): C
             myInfo.targetChainBlock.action.entity.kind === "Spell" &&
             myInfo.action.entity.isEffective &&
             myInfo.action.entity.face === "FaceUp" &&
-            (myInfo.action.entity.status.maxCounterQty.SpellCounter ?? 0) < myInfo.action.entity.counterHolder.getQty("SpellCounter") &&
+            myInfo.action.entity.counterHolder.getQty("SpellCounter") < (myInfo.action.entity.status.maxCounterQty.SpellCounter ?? 0) &&
             myInfo.action.entity.hadArrivedToFieldAt().totalProcSeq <= myInfo.targetChainBlock.isActivatedAt.totalProcSeq
         ),
       prepare: defaultPrepare,

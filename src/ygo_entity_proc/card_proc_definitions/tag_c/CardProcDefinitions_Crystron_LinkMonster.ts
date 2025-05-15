@@ -105,7 +105,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerChain: 1,
         canPayCosts: defaultCanPaySelfBanishCosts,
-        meetsConditions: (myInfo) => myInfo.activator.isTurnPlayer,
+        meetsConditions: (myInfo) => !myInfo.activator.isTurnPlayer,
         canExecute: (myInfo) => {
           const cells = [...myInfo.activator.getMonsterZones(), ...myInfo.activator.duel.field.getCells("ExtraMonsterZone")];
           const syncroTuners = myInfo.activator

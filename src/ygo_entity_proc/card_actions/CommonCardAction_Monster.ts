@@ -540,10 +540,8 @@ export const getDefaultAccelSyncroACtion = <T>(options: Partial<CardActionDefini
     executablePeriods: ["main1", "main2"],
     executableDuelistTypes: ["Controller"],
     isOnlyNTimesPerChain: 1,
+    meetsConditions: (myInfo) => !myInfo.activator.isTurnPlayer,
     canExecute: (myInfo) => {
-      if (myInfo.activator.isTurnPlayer) {
-        return false;
-      }
       return myInfo.activator
         .getExtraDeck()
         .cardEntities.filter((monster) => monster.status.monsterCategories?.includes("Syncro"))

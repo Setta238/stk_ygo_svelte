@@ -127,7 +127,7 @@
             <div>{"],"}</div>
             <div>"numericStateOperators" :{"["}</div>
             {#each entity.numericOprsBundle.operators as pf}
-              <div>"{pf.isSpawnedBy.toString()} {pf.title}",</div>
+              <div>"{pf.isSpawnedBy.toString()} {pf.title} {pf.isEffective} {pf.isContinuous} {pf.targetState} {pf.targetStateGen} ",</div>
             {/each}
             <div>{"],"}</div>
             <div>"stateOperators" :{"["}</div>

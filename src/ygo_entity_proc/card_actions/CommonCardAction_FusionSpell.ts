@@ -4,7 +4,7 @@ import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCell, DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
 import { SystemError } from "@ygo_duel/class/Duel";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import { isNameTypeFusionMaterialInfo, isOvermuchTypeFusionMaterialInfo } from "@ygo_duel/class/DuelEntityDefinition";
+import { isFilterTypeFusionMaterialInfo, isNameTypeFusionMaterialInfo, isOvermuchTypeFusionMaterialInfo } from "@ygo_duel/class/DuelEntityDefinition";
 
 /**
  * 追加素材分を含まないパターンとして合致する場合、値を返す
@@ -145,14 +145,32 @@ function* getEnableFusionSummonPatterns(
 
   //全パターンを試し、融合召喚可能なパターンを全て列挙する。
   for (const monster of monsters) {
-    const qty = monster.fusionMaterialInfos.filter((info) => info.type !== "Overmuch").length;
-    if (!qty) {
+    // 必須素材を抜き出し
+    const requiredMaterials = monster.fusionMaterialInfos.filter((info) => info.type !== "Overmuch");
+
+    if (!requiredMaterials.length) {
+      // なければ融合召喚不可
       continue;
     }
+
+    // ★処理負荷軽減のため、単純な事前チェックを行う。
+
+    if (
+      materials.every((material) => !material.status.fusionSubstitute) &&
+      requiredMaterials.filter(isNameTypeFusionMaterialInfo).some((info) => materials.every((material) => material.nm !== info.cardName))
+    ) {
+      // 融合素材代用モンスターが存在せず、名称指定の素材に合致するモンスターがいない場合、不可
+      continue;
+    }
+    if (requiredMaterials.filter(isFilterTypeFusionMaterialInfo).some((info) => materials.every((material) => !info.filter(material)))) {
+      // 条件指定素材に合致するモンスターがいない場合、不可
+      continue;
+    }
+
     for (const pattern of materials
       .filter((material) => material !== monster)
       .getAllOnOffPattern()
-      .filter((pattern) => pattern.length === qty)) {
+      .filter((pattern) => pattern.length === requiredMaterials.length)) {
       const materialInfos = defaultFusionMaterialsValidator(monster, myInfo, posList, cells, pattern, materialValidator);
       if (materialInfos) {
         yield { monster, materialInfos };
@@ -176,6 +194,7 @@ const defaultFusionSummonExecute = async (myInfo: ChainBlockInfo<unknown>, ...ar
 
   const overmuchs = monster.fusionMaterialInfos.filter(isOvermuchTypeFusionMaterialInfo);
 
+  // 選択されなかったモンスターを除去
   const patterns = patternInfos.filter((info) => info.monster === monster).map((info) => info.materialInfos);
 
   // 逆引きできるように準備

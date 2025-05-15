@@ -434,10 +434,11 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
   public readonly validate = (
     activator: Duelist,
     chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
-    options: ("IgnoreCosts" | "IgnoreConditions")[] = []
+    options: ("IgnoreCosts" | "IgnoreConditions" | "CopyEffectOnly")[] = []
   ): ValidatedActionInfo | undefined => {
     const ignoreCosts = options.includes("IgnoreCosts");
     const ignoreConditions = options.includes("IgnoreConditions");
+    const copyEffectOnly = options.includes("CopyEffectOnly");
 
     if (this.isWithChainBlock && !this.entity.status.canActivateEffect) {
       return;
@@ -488,7 +489,7 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
       dests.push(...this.definition.getDests(myInfo, this.playType === "AfterChainBlock" ? [] : chainBlockInfos));
     }
 
-    if (this.playType === "CardActivation") {
+    if (this.playType === "CardActivation" && !copyEffectOnly) {
       const _dests = this.getDestForCardActivation(activator);
       if (!_dests) {
         return;

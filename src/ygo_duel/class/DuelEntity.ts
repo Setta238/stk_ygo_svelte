@@ -1381,7 +1381,9 @@ const _canBeDoneSomethingByEffect = (
 };
 
 DuelEntity.prototype.canBeTargetOfEffect = function <T>(chainBlockInfo: ChainBlockInfoBase<T>): boolean {
-  return _canBeDoneSomethingByEffect(this, "EffectTarget", chainBlockInfo.activator, chainBlockInfo.action.entity, chainBlockInfo.action);
+  return this.procFilterBundle.effectiveOperators
+    .filter((pf) => pf.procTypes.some((t) => t === "EffectTarget"))
+    .every((pf) => pf.filter(chainBlockInfo.activator, chainBlockInfo.action.entity, chainBlockInfo.action, [this]));
 };
 
 DuelEntity.prototype.canBeBanished = function (

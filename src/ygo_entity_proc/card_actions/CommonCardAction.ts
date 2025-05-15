@@ -63,7 +63,12 @@ export const defaultPayBanishCosts = async <T>(
   return { banish: cost };
 };
 
-export const defaultCanPayDiscardCosts = <T>(myInfo: ChainBlockInfoBase<T>, filter: (entity: DuelEntity) => boolean = () => true, qty: number = 1) =>
+export const defaultCanPayDiscardCosts = <T>(
+  myInfo: ChainBlockInfoBase<T>,
+  chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
+  filter: (entity: DuelEntity) => boolean = () => true,
+  qty: number = 1
+) =>
   myInfo.activator
     .getHandCell()
     .cardEntities.filter(filter)
@@ -80,8 +85,8 @@ export const defaultPayDiscardCosts = async <T>(
   return { discard: cost };
 };
 
-export const defaultCanPaySelfDiscardCosts = <T>(myInfo: ChainBlockInfoBase<T>) =>
-  defaultCanPayDiscardCosts(myInfo, (entity) => myInfo.action.entity === entity, 1);
+export const defaultCanPaySelfDiscardCosts = <T>(myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) =>
+  defaultCanPayDiscardCosts(myInfo, chainBlockInfos, (entity) => myInfo.action.entity === entity, 1);
 
 export const defaultPaySelfDiscardCosts = <T>(
   myInfo: ChainBlockInfoBase<T>,

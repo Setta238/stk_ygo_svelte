@@ -183,7 +183,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           executablePeriods: ["main1", "main2"],
           executableDuelistTypes: ["Controller"],
           priorityForNPC: 40,
-          canPayCosts: (myInfo) => defaultCanPayDiscardCosts(myInfo, item.filter),
+          canPayCosts: (...args) => defaultCanPayDiscardCosts(...args, item.filter),
           canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.length > 1,
           payCosts: async (...args) => defaultPayDiscardCosts(...args, item.filter),
           prepare: async () => {

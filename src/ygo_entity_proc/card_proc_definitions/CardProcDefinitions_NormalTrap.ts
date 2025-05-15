@@ -6,6 +6,7 @@ import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition"
 import { freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import {
   defaultCanPayDiscardCosts,
+  defaultPayDiscardCosts,
   defaultTargetMonstersRebornExecute,
   defaultTargetMonstersRebornPrepare,
   getSingleTargetActionPartical,
@@ -97,7 +98,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["SpellAndTrapZone"],
         executablePeriods: freeChainDuelPeriodKeys,
         executableDuelistTypes: ["Controller"],
-        canPayCosts: (myInfo) => defaultCanPayDiscardCosts(myInfo),
+        canPayCosts: defaultCanPayDiscardCosts,
+        payCosts: defaultPayDiscardCosts,
         ...getSingleTargetActionPartical(
           (myInfo) => myInfo.action.entity.field.getMonstersOnFieldStrictly().filter((monster) => monster.canBeTargetOfEffect(myInfo)),
           { message: "対象とするモンスターを選択。", destoryTargets: true }

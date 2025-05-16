@@ -160,7 +160,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromGraveyard"], prepared: undefined };
         },
-        execute: async (myInfo): Promise<boolean> => {
+        execute: async (myInfo) => {
           if (!(await defaultSelfRebornExecute(myInfo))) {
             return false;
           }
@@ -244,7 +244,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           }
           return { selectedEntities: [], chainBlockTags: tags, prepared: undefined };
         },
-        execute: async (myInfo): Promise<boolean> => {
+        execute: async (myInfo) => {
           const choices = myInfo.activator.getDeckCell().cardEntities.filter((card) => card.attr.includes("Dark"));
           if (choices.length === 0) {
             return false;
@@ -283,7 +283,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["IfNormarlSummonSucceed", "SendToGraveyardFromDeck"], prepared: undefined };
         },
-        execute: async (myInfo): Promise<boolean> => {
+        execute: async (myInfo) => {
           const choices = myInfo.activator.getDeckCell().cardEntities.filter((card) => card.lvl && card.lvl < 5);
           if (choices.length === 0) {
             return false;
@@ -309,11 +309,11 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableDuelistTypes: ["Controller"],
         meetsConditions: (myInfo) =>
           myInfo.action.entity.moveLog.latestRecord.movedAs.includes("BattleDestroy") && myInfo.action.entity.wasMovedAtPreviousChain,
-        canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.length > 0,
+        canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.length > 0 && myInfo.activator.canDraw,
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["Draw"], prepared: undefined };
         },
-        execute: async (myInfo): Promise<boolean> => {
+        execute: async (myInfo) => {
           await myInfo.activator.draw(1, myInfo.action.entity, myInfo.activator);
 
           return true;
@@ -367,7 +367,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"], prepared: undefined };
         },
-        execute: async (myInfo): Promise<boolean> => {
+        execute: async (myInfo) => {
           // 青眼の白龍固定なので、一枚見つけたらそれでよい。
           const monster = myInfo.activator.getDeckCell().cardEntities.find((card) => card.nm === "青眼の白龍");
           if (!monster) {
@@ -418,7 +418,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           prepare: async () => {
             return { selectedEntities: [], chainBlockTags: ["NegateCardEffect"], prepared: undefined };
           },
-          execute: async (myInfo, chainBlockInfos): Promise<boolean> => {
+          execute: async (myInfo, chainBlockInfos) => {
             const info = chainBlockInfos[myInfo.index - 1];
             info.isNegatedEffectBy = myInfo.action as EntityAction<unknown>;
             return true;

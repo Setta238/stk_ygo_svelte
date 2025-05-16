@@ -34,8 +34,9 @@ export const pendulumSummonAction: CardActionDefinition<unknown> = {
       return false;
     }
 
-    const cells = [...myInfo.activator.getMonsterZones(), ...myInfo.activator.getEmptyExtraZones()];
-
+    const cells = [...myInfo.activator.getMonsterZones(), ...myInfo.activator.getAvailableMonsterZones()];
+    console.log(...myInfo.activator.getExtraMonsterZones());
+    console.log(...cells);
     const list = myInfo.activator.getEnableSummonList(
       myInfo.activator,
       "PendulumSummon",
@@ -74,7 +75,7 @@ export const pendulumSummonAction: CardActionDefinition<unknown> = {
       return;
     }
 
-    const cells = [...myInfo.activator.getMonsterZones(), ...myInfo.activator.getEmptyExtraZones()];
+    const cells = [...myInfo.activator.getMonsterZones(), ...myInfo.activator.getAvailableExtraMonsterZones()];
     await myInfo.activator.summonMany(
       myInfo.activator,
       "PendulumSummon",

@@ -214,7 +214,7 @@ export const getDestsForSelfSpecialSummon = <T>(
 
   // エクストラデッキにいる場合、エクストラモンスターゾーンも使用可能
   if (myInfo.action.entity.fieldCell.cellType === "ExtraDeck") {
-    cells.push(...myInfo.activator.getAvailableExtraZones());
+    cells.push(...myInfo.activator.getAvailableExtraMonsterZones());
   }
   const summmonList = myInfo.activator.getEnableSummonList(
     myInfo.activator,
@@ -245,7 +245,7 @@ export const defaultRuleSpecialSummonExecute = async (myInfo: ChainBlockInfo<Sum
 
   // エクストラデッキにいる場合、エクストラモンスターゾーンも使用可能
   if (myInfo.action.entity.fieldCell.cellType === "ExtraDeck") {
-    cells.push(...myInfo.activator.getAvailableExtraZones());
+    cells.push(...myInfo.activator.getAvailableExtraMonsterZones());
   }
   const monster = await myInfo.activator.summon("SpecialSummon", movedAs, myInfo.action, myInfo.action.entity, posList, cells, myInfo.prepared, false);
 

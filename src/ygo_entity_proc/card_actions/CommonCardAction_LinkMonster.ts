@@ -69,7 +69,7 @@ export const defaultLinkMaterialsValidator = (
 
   // ※※※ ここから先は、リンク召喚可能なものをreturnさせていく ※※※
 
-  if (myInfo.activator.getAvailableExtraZones().length) {
+  if (myInfo.activator.getAvailableExtraMonsterZones().length) {
     // エクストラモンスターゾーンが使用可能ならば、リンク召喚可能。
     return materialInfos;
   }
@@ -203,7 +203,8 @@ export const getDefaultLinkSummonAction = (validator: (materials: DuelEntity[]) 
     executableDuelistTypes: ["Controller"],
     getEnableMaterialPatterns: (myInfo) => getEnableLinkSummonPatterns(myInfo, validator),
     canPayCosts: (myInfo) => myInfo.action.getEnableMaterialPatterns(myInfo).some((infos) => infos.length),
-    canExecute: (myInfo) => !myInfo.ignoreCost || myInfo.activator.getAvailableExtraZones().length + myInfo.activator.getAvailableMonsterZones().length > 0,
+    canExecute: (myInfo) =>
+      !myInfo.ignoreCost || myInfo.activator.getAvailableExtraMonsterZones().length + myInfo.activator.getAvailableMonsterZones().length > 0,
     payCosts: defaultLinkSummonPayCost,
     prepare: (myInfo) => defaultRuleSummonPrepare(myInfo, "LinkSummon", ["Rule", "SpecialSummon", "LinkSummon"], ["Attack"]),
     execute: defaultRuleSummonExecute,

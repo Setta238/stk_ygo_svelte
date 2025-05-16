@@ -102,13 +102,19 @@ export const getDestsForSingleTargetAction = <T>(myInfo: ChainBlockInfoBase<T>, 
 
 export const getSingleTargetActionPartical = <T>(
   getTargetableEntities: (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => DuelEntity[],
-  options: { message?: string; tags?: TEffectTag[]; destoryTargets?: boolean } = {}
+  options: {
+    message?: string;
+    tags?: TEffectTag[];
+    destoryTargets?: boolean;
+    canExecute?: (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => boolean;
+  } = {}
 ) => {
   return {
     hasToTargetCards: true,
     getTargetableEntities,
-    canExecute: (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) =>
-      getTargetableEntities(myInfo, chainBlockInfos).filter((monster) => monster.canBeTargetOfEffect(myInfo)).length > 0,
+    canExecute: (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>): boolean =>
+      getTargetableEntities(myInfo, chainBlockInfos).filter((monster) => monster.canBeTargetOfEffect(myInfo)).length > 0 &&
+      (!options.canExecute || options.canExecute(myInfo, chainBlockInfos)),
     getDests: getDestsForSingleTargetAction,
     prepare: async (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, cancelable: boolean) => {
       let selectedEntities: DuelEntity[] = [];

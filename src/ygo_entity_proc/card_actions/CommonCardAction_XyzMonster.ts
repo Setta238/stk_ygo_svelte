@@ -75,7 +75,7 @@ function* getEnableXyzSummonPatterns(
   if (materials.length < qtyLowerBound) {
     return;
   }
-  const cells = [...myInfo.activator.getMonsterZones(), ...myInfo.activator.getAvailableExtraZones()];
+  const cells = [...myInfo.activator.getMonsterZones(), ...myInfo.activator.getAvailableExtraMonsterZones()];
 
   //全パターンを試し、エクシーズ召喚可能なパターンを全て列挙する。
   yield* materials
@@ -158,7 +158,8 @@ export const getDefaultXyzSummonAction = (
     executableDuelistTypes: ["Controller"],
     getEnableMaterialPatterns: (myInfo) => getEnableXyzSummonPatterns(myInfo, qtyLowerBound, qtyUpperBound, validator),
     canPayCosts: (myInfo) => myInfo.action.getEnableMaterialPatterns(myInfo).some((infos) => infos.length),
-    canExecute: (myInfo) => !myInfo.ignoreCost || myInfo.activator.getAvailableExtraZones().length + myInfo.activator.getAvailableMonsterZones().length > 0,
+    canExecute: (myInfo) =>
+      !myInfo.ignoreCost || myInfo.activator.getAvailableExtraMonsterZones().length + myInfo.activator.getAvailableMonsterZones().length > 0,
     payCosts: defaultXyzSummonPayCost,
     prepare: (myInfo) => defaultRuleSummonPrepare(myInfo, "XyzSummon", ["Rule", "SpecialSummon", "XyzSummon"], ["Attack", "Defense"]),
     execute: defaultRuleSummonExecute,

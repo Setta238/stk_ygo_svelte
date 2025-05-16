@@ -226,6 +226,10 @@ export class Duelist {
     console.log(entities);
     return true;
   };
+  public get canSet() {
+    // TODO
+    return true;
+  }
 
   /**
    * 対象の耐性などを考慮せず、行為を行えるかどうかの判定
@@ -333,13 +337,10 @@ export class Duelist {
   public readonly getEmptyMonsterZones = (): DuelFieldCell[] => {
     return this.getMonsterZones().filter((cell) => cell.cardEntities.length === 0);
   };
-  public readonly getEmptyExtraZones = (): DuelFieldCell[] => {
-    return this.getExtraMonsterZones().length === 0 ? this.getMonsterZones().filter((cell) => cell.cardEntities.length === 0) : [];
-  };
   public readonly getAvailableMonsterZones = (): DuelFieldCell[] => {
     return this.getMonsterZones().filter((cell) => cell.isAvailable);
   };
-  public readonly getAvailableExtraZones = (): DuelFieldCell[] => {
+  public readonly getAvailableExtraMonsterZones = (): DuelFieldCell[] => {
     // TODOエクストラリンク
     return this.getExtraMonsterZones().length === 0 ? this.duel.field.getCells("ExtraMonsterZone").filter((cell) => cell.isAvailable) : [];
   };
@@ -644,7 +645,15 @@ export class Duelist {
         }
       }
       summonArgs.push({ summoner: this, monster: choice.monster, pos, dest });
-      _choices.forEach((choice) => (choice.cells = choice.cells.filter((cell) => !summonArgs.map((arg) => arg.dest).includes(cell))));
+      // 一足飛びにエクストラリンク成立まで進むことはありえないので、EXゾーンを使ったら以後は残りのEXゾーンも使用できない。
+      const isExZoneFilled = dest.cellType === "ExtraMonsterZone";
+
+      _choices.forEach((choice) => {
+        choice.cells = choice.cells.filter((cell) => !summonArgs.map((arg) => arg.dest).includes(cell));
+        if (isExZoneFilled) {
+          choice.cells = choice.cells.filter((cell) => cell.cellType !== "ExtraMonsterZone");
+        }
+      });
       _choices = _choices.filter((_choice) => _choice !== choice).filter((_choice) => _choice.cells.length);
     }
 

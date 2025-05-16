@@ -167,7 +167,8 @@ export const getDefaultSyncroSummonAction = (
     executableDuelistTypes: ["Controller"],
     getEnableMaterialPatterns: (myInfo) => getEnableSyncroSummonPatterns(myInfo, tunersValidator, nonTunersValidator),
     canPayCosts: (myInfo) => myInfo.action.getEnableMaterialPatterns(myInfo).some((infos) => infos.length),
-    canExecute: (myInfo) => !myInfo.ignoreCost || myInfo.activator.getAvailableExtraZones().length + myInfo.activator.getAvailableMonsterZones().length > 0,
+    canExecute: (myInfo) =>
+      !myInfo.ignoreCost || myInfo.activator.getAvailableExtraMonsterZones().length + myInfo.activator.getAvailableMonsterZones().length > 0,
     payCosts: defaultSyncroSummonPayCost,
     prepare: (myInfo) => defaultRuleSummonPrepare(myInfo, "SyncroSummon", ["Rule", "SpecialSummon", "SyncroSummon"], ["Attack", "Defense"]),
     execute: defaultRuleSummonExecute,

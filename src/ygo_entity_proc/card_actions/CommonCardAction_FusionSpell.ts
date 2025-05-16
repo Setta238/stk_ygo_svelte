@@ -13,7 +13,7 @@ import { isFilterTypeFusionMaterialInfo, isNameTypeFusionMaterialInfo, isOvermuc
  * @param posList
  * @param cells
  * @param materials
- * @param validator
+ * @param materialsValidator
  * @returns
  */
 const validateFusionMaterials = (
@@ -22,7 +22,7 @@ const validateFusionMaterials = (
   posList: Readonly<TBattlePosition[]>,
   cells: DuelFieldCell[],
   materials: DuelEntity[],
-  validator: (materials: DuelEntity[]) => boolean
+  materialsValidator: (myInfo: ChainBlockInfoBase<unknown>, monster: DuelEntity, materials: DuelEntity[]) => boolean
 ): SummonMaterialInfo[] | undefined => {
   const fusionMaterialInfos = monster.fusionMaterialInfos.filter((info) => info.type !== "Overmuch");
   if (!fusionMaterialInfos.length) {
@@ -36,7 +36,7 @@ const validateFusionMaterials = (
   }
 
   // 融合魔法側から見た素材の条件チェック
-  if (!validator(materials)) {
+  if (!materialsValidator(myInfo, monster, materials)) {
     return;
   }
 
@@ -129,7 +129,7 @@ function* getEnableFusionSummonPatterns(
     .getCells(...summonFrom)
     .flatMap((cell) => cell.cardEntities)
     .filter((monster) => monster.status.monsterCategories?.includes("Fusion"))
-    .filter(monsterValidator);
+    .filter((monster) => monsterValidator(myInfo, monster));
 
   if (!monsters.length) {
     return;
@@ -280,20 +280,20 @@ const defaultFusionSummonExecute = async (myInfo: ChainBlockInfo<unknown>, ...ar
 
 export const getDefaultFusionSummonAction = (
   summonFrom: DuelFieldCellType[],
-  monsterValidator: (monster: DuelEntity) => boolean,
+  monsterValidator: (myInfo: ChainBlockInfoBase<unknown>, monster: DuelEntity) => boolean,
   materialsFrom: DuelFieldCellType[],
-  materialValidator: (materials: DuelEntity[]) => boolean,
+  materialsValidator: (myInfo: ChainBlockInfoBase<unknown>, monster: DuelEntity, materials: DuelEntity[]) => boolean,
   materialsTo: DuelFieldCellType
 ): CardActionDefinitionFunctions<unknown> => {
   return {
     canExecute: (myInfo) =>
-      getEnableFusionSummonPatterns(myInfo, summonFrom, monsterValidator, materialsFrom, materialValidator, materialsTo).some(
+      getEnableFusionSummonPatterns(myInfo, summonFrom, monsterValidator, materialsFrom, materialsValidator, materialsTo).some(
         (pattern) => pattern.materialInfos.length
       ),
     prepare: async () => {
       return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromExtraDeck"], prepared: undefined };
     },
-    execute: (myInfo) => defaultFusionSummonExecute(myInfo, summonFrom, monsterValidator, materialsFrom, materialValidator, materialsTo),
+    execute: (myInfo) => defaultFusionSummonExecute(myInfo, summonFrom, monsterValidator, materialsFrom, materialsValidator, materialsTo),
     settle: async () => true,
   };
 };

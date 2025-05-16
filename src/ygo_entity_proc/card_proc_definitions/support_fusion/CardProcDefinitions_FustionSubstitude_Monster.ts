@@ -79,7 +79,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           ["ExtraDeck"],
           () => true,
           ["MonsterZone", "ExtraMonsterZone"],
-          () => true,
+          (myInfo, monster, materials) => materials.includes(myInfo.action.entity),
           "Graveyard"
         ),
         settle: async () => true,

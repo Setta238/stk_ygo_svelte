@@ -16,7 +16,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableDuelistTypes: ["Controller"],
         ...getDefaultFusionSummonAction(
           ["ExtraDeck"],
-          (monster) => Boolean(monster.status.nameTags?.includes("メタルフォーゼ")),
+          (myInfo, monster) => Boolean(monster.status.nameTags?.includes("メタルフォーゼ")),
           ["Hand", "MonsterZone", "ExtraMonsterZone"],
           () => true,
           "Graveyard"

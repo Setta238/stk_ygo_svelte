@@ -757,6 +757,15 @@ export class DuelEntity {
   public get fusionMaterialInfos() {
     return this.definition.fusionMaterialInfos ?? [];
   }
+  public readonly validateFusionMaterials = (entities: DuelEntity[]): boolean => {
+    if (!this.definition.fusionMaterialInfos) {
+      return false;
+    }
+    if (!this.definition.validateFusionMaterials) {
+      return true;
+    }
+    return this.definition.validateFusionMaterials(entities);
+  };
 
   private readonly definition: EntityDefinition;
   /**

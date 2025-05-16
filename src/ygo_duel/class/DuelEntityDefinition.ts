@@ -57,6 +57,7 @@ export type EntityProcDefinition = {
   defaultStatus?: Partial<EntityStatus>;
   onUsedAsMaterial?: (chainBlockInfo: ChainBlockInfo<unknown>, monster: DuelEntity) => void;
   fusionMaterialInfos?: FusionMaterialInfo[];
+  validateFusionMaterials?: (entites: DuelEntity[]) => boolean;
 };
 
 export type EntityDefinition = EntityProcDefinition & {

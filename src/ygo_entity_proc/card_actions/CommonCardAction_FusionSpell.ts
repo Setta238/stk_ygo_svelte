@@ -16,7 +16,7 @@ import { isFilterTypeFusionMaterialInfo, isNameTypeFusionMaterialInfo, isOvermuc
  * @param validator
  * @returns
  */
-const defaultFusionMaterialsValidator = (
+const validateFusionMaterials = (
   monster: DuelEntity,
   myInfo: ChainBlockInfoBase<unknown>,
   posList: Readonly<TBattlePosition[]>,
@@ -37,6 +37,10 @@ const defaultFusionMaterialsValidator = (
 
   // 融合魔法側から見た素材の条件チェック
   if (!validator(materials)) {
+    return;
+  }
+
+  if (!monster.validateFusionMaterials(materials)) {
     return;
   }
 
@@ -171,7 +175,7 @@ function* getEnableFusionSummonPatterns(
       .filter((material) => material !== monster)
       .getAllOnOffPattern()
       .filter((pattern) => pattern.length === requiredMaterials.length)) {
-      const materialInfos = defaultFusionMaterialsValidator(monster, myInfo, posList, cells, pattern, materialValidator);
+      const materialInfos = validateFusionMaterials(monster, myInfo, posList, cells, pattern, materialValidator);
       if (materialInfos) {
         yield { monster, materialInfos };
         console.log(monster, materialInfos);

@@ -1663,4 +1663,9 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 (2)：このカードが墓地に存在する場合に発動できる。
 墓地のこのカードをデッキに加えてシャッフルする。
 その後、自分はデッキから１枚ドローする。`,kind:"Spell",spellCategory:"Normal",nameTags:["融合","メタルフォーゼ"],wikiEncodedName:"%A1%D4%CF%A3%C1%F5%CD%BB%B9%E7%A1%D5"},重錬装融合:{name:"重錬装融合",nameKana:"",description:`(1)：自分の手札・フィールドから、「メタルフォーゼ」融合モンスターカードによって決められた融合素材モンスターを墓地へ送り、
-その融合モンスター１体をエクストラデッキから融合召喚する。`,kind:"Spell",spellCategory:"QuickPlay",nameTags:["融合","メタルフォーゼ"],wikiEncodedName:"%A1%D4%BD%C5%CF%A3%C1%F5%CD%BB%B9%E7%A1%D5"}};export{e as j};
+その融合モンスター１体をエクストラデッキから融合召喚する。`,kind:"Spell",spellCategory:"QuickPlay",nameTags:["融合","メタルフォーゼ"],wikiEncodedName:"%A1%D4%BD%C5%CF%A3%C1%F5%CD%BB%B9%E7%A1%D5"},"パラサイト・フュージョナー":{name:"パラサイト・フュージョナー",nameKana:"",description:`このカードは、このカードの(1)の効果を適用する場合のみ融合素材にできる。
+(1)：このカードは、融合モンスターカードにカード名が記された融合素材モンスター１体の代わりにできる。
+その際、他の融合素材モンスターは正規のものでなければならない。
+(2)：このカードが特殊召喚に成功した場合に発動できる。
+融合モンスターカードによって決められた、このカードを含む融合素材モンスターを自分フィールドから墓地へ送り、
+その融合モンスター１体をエクストラデッキから融合召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:1,attack:0,defense:0,attributes:["Dark"],types:["Insect"],wikiEncodedName:"%A1%D4%A5%D1%A5%E9%A5%B5%A5%A4%A5%C8%A1%A6%A5%D5%A5%E5%A1%BC%A5%B8%A5%E7%A5%CA%A1%BC%A1%D5"}};export{e as j};

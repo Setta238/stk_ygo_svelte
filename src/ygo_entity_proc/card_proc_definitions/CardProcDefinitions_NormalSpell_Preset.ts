@@ -6,8 +6,47 @@ import type { CardActionDefinition, TEffectTag } from "@ygo_duel/class/DuelEntit
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { defaultCanPayDiscardCosts, defaultPayDiscardCosts } from "@ygo_entity_proc/card_actions/CommonCardAction";
+import type { TMonsterType } from "@ygo/class/YgoTypes";
+import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 
 export default function* generate(): Generator<EntityProcDefinition> {
+  for (const item of [
+    { name: "トゲトゲ神の殺虫剤", type: "Insect" },
+    { name: "戦士抹殺", type: "Warrior" },
+    { name: "酸の嵐", type: "Machine" },
+    { name: "永遠の渇水", type: "Fish" },
+    { name: "神の息吹", type: "Rock" },
+    { name: "魔女狩り", type: "Spellcaster" },
+    { name: "悪魔払い", type: "Fiend" },
+  ] as { name: string; type: TMonsterType }[]) {
+    yield {
+      name: item.name,
+      actions: [
+        {
+          title: "発動",
+          isMandatory: false,
+          playType: "CardActivation",
+          spellSpeed: "Normal",
+          executableCells: ["Hand", "SpellAndTrapZone"],
+          executablePeriods: ["main1", "main2"],
+          executableDuelistTypes: ["Controller"],
+          canExecute: (myInfo) => myInfo.action.entity.field.getMonstersOnFieldStrictly().some((card) => card.types.includes(item.type)),
+          prepare: async (myInfo) => {
+            const cards = myInfo.action.entity.field.getMonstersOnFieldStrictly().filter((card) => card.types.includes(item.type));
+            return { selectedEntities: [], chainBlockTags: myInfo.action.calcChainBlockTagsForDestroy(myInfo.activator, cards), prepared: undefined };
+          },
+          execute: async (myInfo) => {
+            const cards = myInfo.action.entity.field.getMonstersOnFieldStrictly().filter((card) => card.types.includes(item.type));
+            await DuelEntityShortHands.tryDestroy(cards, myInfo);
+
+            return true;
+          },
+          settle: async () => true,
+        },
+        defaultSpellTrapSetAction,
+      ],
+    };
+  }
   yield* [
     {
       name: "増援",

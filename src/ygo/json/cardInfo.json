@@ -23811,5 +23811,61 @@
       "Insect"
     ],
     "wikiEncodedName": "%A1%D4%A5%D1%A5%E9%A5%B5%A5%A4%A5%C8%A1%A6%A5%D5%A5%E5%A1%BC%A5%B8%A5%E7%A5%CA%A1%BC%A1%D5"
+  },
+  "トゲトゲ神の殺虫剤": {
+    "name": "トゲトゲ神の殺虫剤",
+    "nameKana": "",
+    "description": "フィールド上の昆虫族モンスターは、すべて破壊される。",
+    "kind": "Spell",
+    "spellCategory": "Normal",
+    "wikiEncodedName": "%A1%D4%A5%C8%A5%B2%A5%C8%A5%B2%BF%C0%A4%CE%BB%A6%C3%EE%BA%DE%A1%D5"
+  },
+  "悪魔払い": {
+    "name": "悪魔払い",
+    "nameKana": "",
+    "description": "フィールド上の悪魔族モンスターを全て破壊する。",
+    "kind": "Spell",
+    "spellCategory": "Normal",
+    "wikiEncodedName": "%A1%D4%B0%AD%CB%E2%CA%A7%A4%A4%A1%D5"
+  },
+  "永遠の渇水": {
+    "name": "永遠の渇水",
+    "nameKana": "",
+    "description": "フィールド上の魚族モンスターは、すべて破壊される。",
+    "kind": "Spell",
+    "spellCategory": "Normal",
+    "wikiEncodedName": "%A1%D4%B1%CA%B1%F3%A4%CE%B3%E9%BF%E5%A1%D5"
+  },
+  "酸の嵐": {
+    "name": "酸の嵐",
+    "nameKana": "",
+    "description": "フィールド上に表側表示で存在する機械族モンスターを全て破壊する。",
+    "kind": "Spell",
+    "spellCategory": "Normal",
+    "wikiEncodedName": "%A1%D4%BB%C0%A4%CE%CD%F2%A1%D5"
+  },
+  "神の息吹": {
+    "name": "神の息吹",
+    "nameKana": "",
+    "description": "フィールド上に表側表示で存在する岩石族モンスターを全て破壊する。",
+    "kind": "Spell",
+    "spellCategory": "Normal",
+    "wikiEncodedName": "%A1%D4%BF%C0%A4%CE%C2%A9%BF%E1%A1%D5"
+  },
+  "戦士抹殺": {
+    "name": "戦士抹殺",
+    "nameKana": "",
+    "description": "フィールド上に表側表示で存在する戦士族モンスターを全て破壊する。",
+    "kind": "Spell",
+    "spellCategory": "Normal",
+    "wikiEncodedName": "%A1%D4%C0%EF%BB%CE%CB%F5%BB%A6%A1%D5"
+  },
+  "魔女狩り": {
+    "name": "魔女狩り",
+    "nameKana": "",
+    "description": "フィールド上に表側表示で存在する魔法使い族モンスターを全て破壊する。",
+    "kind": "Spell",
+    "spellCategory": "Normal",
+    "wikiEncodedName": "%A1%D4%CB%E2%BD%F7%BC%ED%A4%EA%A1%D5"
   }
 }

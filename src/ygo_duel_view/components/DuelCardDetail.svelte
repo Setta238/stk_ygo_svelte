@@ -82,7 +82,7 @@
     <div class="duel_card_info_body">
       {#if mode === "Normal"}
         <div class="duel_card_info_row">
-          <div><pre class="description">{getInfo()?.description}</pre></div>
+          <pre class="description">{getInfo()?.description}</pre>
         </div>
       {:else}
         <div class="duel_card_info_row">
@@ -178,6 +178,7 @@
     overflow-y: auto;
     display: flex;
     flex-direction: column;
+    min-width: 90%;
     max-width: 100%;
   }
   .button_style_reset {

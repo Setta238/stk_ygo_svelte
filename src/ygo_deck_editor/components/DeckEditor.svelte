@@ -175,7 +175,9 @@
         <div class="deck_editor_search_box_row">
           <div>名称</div>
           <div>
-            <input type="text" bind:value={searchCondition.name} style="width:70%" />※ルビには対応していません
+            <input type="text" bind:value={searchCondition.name} style="width:70%" />
+            <button class="white_button" on:click={() => (searchCondition.name = "")}>クリア</button>
+            <span> ※ルビには対応していません </span>
           </div>
         </div>
         <div class="deck_editor_search_box_row">

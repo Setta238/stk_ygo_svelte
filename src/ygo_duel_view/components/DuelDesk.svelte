@@ -279,6 +279,8 @@
   .duel_field_body {
     position: relative;
   }
+
+  .duel_field_header_buttons button,
   .duel_field_footer button {
     padding: 0 10px;
     font-size: 1.4rem;
@@ -291,9 +293,14 @@
     cursor: pointer;
   }
 
+  .duel_field_header_buttons button:hover,
   .duel_field_footer button:hover {
     color: #fff;
     background: #000;
+  }
+  .duel_field_header_buttons button:disabled,
+  .duel_field_footer button:disabled {
+    background-color: grey;
   }
   .duel_desk_right {
     min-width: 20%;
@@ -303,22 +310,5 @@
     width: 100%;
     text-align: center;
     border-collapse: collapse;
-  }
-
-  .duel_field_header_buttons button {
-    padding: 0 10px;
-    font-size: 1.4rem;
-    border: 2px solid #000;
-    background: #fff;
-    font-weight: 700;
-    line-height: 1.5;
-    position: relative;
-    display: inline-block;
-    padding: 0.2rem 1rem;
-    cursor: pointer;
-  }
-  .duel_field_header_buttons button:hover {
-    color: #fff;
-    background: #000;
   }
 </style>

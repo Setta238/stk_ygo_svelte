@@ -56,7 +56,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             throw new SystemError("想定されない状態", myInfo);
           }
 
-          const cost = await myInfo.activator.waitSelectEntity(choices, "墓地に送るモンスターを選択", false);
+          const cost = await myInfo.activator.waitSelectEntity(choices, "墓地に送るモンスターを選択", cancelable);
           if (!cost) {
             if (!cancelable) {
               throw new IllegalCancelError(myInfo);
@@ -68,7 +68,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             .getExtraDeck()
             .cardEntities.filter((monster) => monster.fusionMaterialInfos.filter(isNameTypeFusionMaterialInfo).some((info) => info.cardName === cost.nm));
 
-          const fusionMonster = await myInfo.activator.waitSelectEntity(fusionMonsters, "公開するモンスターを選択", false);
+          const fusionMonster = await myInfo.activator.waitSelectEntity(fusionMonsters, "公開するモンスターを選択", cancelable);
 
           if (!fusionMonster) {
             throw new SystemError("想定されない状態", myInfo);

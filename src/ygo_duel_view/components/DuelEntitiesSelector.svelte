@@ -101,6 +101,9 @@
     background: #67c5ff;
     color: white;
   }
+  .modal_window button:disabled {
+    background: grey;
+  }
   .entities_list.Below {
     background-color: azure;
   }

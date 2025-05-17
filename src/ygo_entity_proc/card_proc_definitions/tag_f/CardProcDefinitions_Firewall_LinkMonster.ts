@@ -29,7 +29,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           const categories = [...myInfo.activator.getGraveyard().cardEntities, ...myInfo.activator.getMonstersOnField()]
             .flatMap((monster) => monster.status.monsterCategories ?? [])
             .getDistinct();
-          const maxQty = categories.union(["Ritual", "Fusion", "Syncro", "Xyz"]).length;
+          const maxQty = categories.union(["Ritual", "Fusion", "Synchro", "Xyz"]).length;
 
           if (maxQty < 1) {
             return false;
@@ -45,7 +45,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           const categories = [...myInfo.activator.getGraveyard().cardEntities, ...myInfo.activator.getMonstersOnField()]
             .flatMap((monster) => monster.status.monsterCategories ?? [])
             .getDistinct();
-          const maxQty = categories.union(["Ritual", "Fusion", "Syncro", "Xyz"]).length;
+          const maxQty = categories.union(["Ritual", "Fusion", "Synchro", "Xyz"]).length;
 
           if (maxQty < 1) {
             return;

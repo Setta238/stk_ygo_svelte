@@ -81,7 +81,7 @@ export class DuelEntityShortHands {
     if (activator && movedAs.includes("Cost")) {
       if (movedAs.includes("FusionMaterial")) {
         activator.writeInfoLog(`${entities.map((entity) => entity.toString()).join(" ")}を融合素材とし――、`);
-      } else if (movedAs.includes("SyncroMaterial")) {
+      } else if (movedAs.includes("SynchroMaterial")) {
         activator.writeInfoLog(`${entities.map((entity) => entity.toString()).join(" ")}をシンクロと素材し――、`);
       } else if (movedAs.includes("LinkMaterial")) {
         activator.writeInfoLog(`${entities.map((entity) => entity.toString()).join(" ")}をリンクマーカーにセッティング――、`);

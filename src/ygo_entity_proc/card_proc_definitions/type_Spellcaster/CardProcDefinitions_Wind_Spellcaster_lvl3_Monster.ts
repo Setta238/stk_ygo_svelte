@@ -15,7 +15,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
     summonFilter: (filter, target, effectOwner, summoner, movedAs, attr, monster, materialInfos, posList, cells) => {
       const ok = { posList, cells };
       const notAllowed = { posList: [], cells: [] };
-      if (!movedAs.includes("SyncroSummon")) {
+      if (!movedAs.includes("SynchroSummon")) {
         return ok;
       }
       const myInfo = materialInfos.find((info) => info.material === filter.isSpawnedBy);
@@ -35,9 +35,9 @@ export default function* generate(): Generator<EntityProcDefinition> {
 
       return materialInfos.filter((info) => info !== myInfo).every((info) => info.cell.cellType === "Hand") ? ok : notAllowed;
     },
-    defaultStatus: { allowHandSyncro: true },
+    defaultStatus: { allowHandSynchro: true },
     onUsedAsMaterial: (myInfo, monster) => {
-      if (!monster.info.summonKinds.includes("SyncroSummon")) {
+      if (!monster.info.summonKinds.includes("SynchroSummon")) {
         return;
       }
 

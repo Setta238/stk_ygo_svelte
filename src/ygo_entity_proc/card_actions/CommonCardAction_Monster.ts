@@ -530,7 +530,7 @@ export const defaultSelfReleasePayCosts = async <T>(myInfo: ChainBlockInfoBase<T
   return { release: [myInfo.action.entity] };
 };
 
-export const getDefaultAccelSyncroACtion = <T>(options: Partial<CardActionDefinition<T>>): CardActionDefinition<T> => {
+export const getDefaultAccelSynchroACtion = <T>(options: Partial<CardActionDefinition<T>>): CardActionDefinition<T> => {
   return {
     title: "シンクロ召喚",
     isMandatory: false,
@@ -544,7 +544,7 @@ export const getDefaultAccelSyncroACtion = <T>(options: Partial<CardActionDefini
     canExecute: (myInfo) => {
       return myInfo.activator
         .getExtraDeck()
-        .cardEntities.filter((monster) => monster.status.monsterCategories?.includes("Syncro"))
+        .cardEntities.filter((monster) => monster.status.monsterCategories?.includes("Synchro"))
         .flatMap((monster) => monster.actions)
         .filter((action) => action.playType === "SpecialSummon")
         .map((action) => {
@@ -587,9 +587,9 @@ export const getDefaultAccelSyncroACtion = <T>(options: Partial<CardActionDefini
       }
 
       // シンクロ召喚できるシンクロモンスターを抜き出し
-      const syncroMonsters = myInfo.activator
+      const synchroMonsters = myInfo.activator
         .getExtraDeck()
-        .cardEntities.filter((monster) => monster.status.monsterCategories?.includes("Syncro"))
+        .cardEntities.filter((monster) => monster.status.monsterCategories?.includes("Synchro"))
         .flatMap((monster) => monster.actions)
         .filter((action) => action.playType === "SpecialSummon")
         .map((action) => {
@@ -621,25 +621,25 @@ export const getDefaultAccelSyncroACtion = <T>(options: Partial<CardActionDefini
         .map((childInfo) => childInfo.action.entity)
         .getDistinct();
 
-      if (!syncroMonsters.length) {
+      if (!synchroMonsters.length) {
         return false;
       }
 
       const selected =
-        (await myInfo.activator.waitSelectEntities(syncroMonsters, 1, (selected) => selected.length === 1, "シンクロ召喚するモンスターを選択。", false)) ?? [];
+        (await myInfo.activator.waitSelectEntities(synchroMonsters, 1, (selected) => selected.length === 1, "シンクロ召喚するモンスターを選択。", false)) ?? [];
 
       if (!selected.length) {
         throw new SystemError("想定されない状態", myInfo);
       }
 
-      const syncroSummonAction = selected[0].actions.find((action) => action.playType === "SpecialSummon");
+      const synchroSummonAction = selected[0].actions.find((action) => action.playType === "SpecialSummon");
 
-      if (!syncroSummonAction) {
+      if (!synchroSummonAction) {
         throw new SystemError("想定されない状態", myInfo);
       }
 
       // 「このカードを含む自分フィールド上のモンスター」という制約を付加したダミーアクションを作成する。
-      const dammySyncroSummonAction = syncroSummonAction.getClone((infos) => {
+      const dammySynchroSummonAction = synchroSummonAction.getClone((infos) => {
         const materials = infos.map((info) => info.material);
         //全て自分フィールド上のモンスターかつ、このカード自身を含む必要がある。
         return (
@@ -650,7 +650,7 @@ export const getDefaultAccelSyncroACtion = <T>(options: Partial<CardActionDefini
       });
 
       // 次に行うアクションとして設定。
-      myInfo.nextActionInfo = { action: dammySyncroSummonAction, originSeq: dammySyncroSummonAction.seq };
+      myInfo.nextActionInfo = { action: dammySynchroSummonAction, originSeq: dammySynchroSummonAction.seq };
 
       return true;
     },

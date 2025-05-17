@@ -108,16 +108,16 @@ export default function* generate(): Generator<EntityProcDefinition> {
         meetsConditions: (myInfo) => !myInfo.activator.isTurnPlayer,
         canExecute: (myInfo) => {
           const cells = [...myInfo.activator.getMonsterZones(), ...myInfo.activator.duel.field.getCells("ExtraMonsterZone")];
-          const syncroTuners = myInfo.activator
+          const synchroTuners = myInfo.activator
             .getExtraDeck()
-            .cardEntities.filter((monster) => monster.status.monsterCategories?.includes("Syncro"))
+            .cardEntities.filter((monster) => monster.status.monsterCategories?.includes("Synchro"))
             .filter((monster) => monster.status.monsterCategories?.includes("Tuner"));
           const list = myInfo.activator.getEnableSummonList(
             myInfo.activator,
-            "SyncroSummon",
+            "SynchroSummon",
             ["SpecialSummon", "Effect"],
             myInfo.action,
-            syncroTuners.map((monster) => {
+            synchroTuners.map((monster) => {
               return { monster, cells, posList: faceupBattlePositions };
             }),
             [{ material: myInfo.action.entity, cell: myInfo.action.entity.fieldCell }],
@@ -129,16 +129,16 @@ export default function* generate(): Generator<EntityProcDefinition> {
         prepare: defaultPrepare,
         execute: async (myInfo): Promise<boolean> => {
           const cells = [...myInfo.activator.getMonsterZones(), ...myInfo.activator.duel.field.getCells("ExtraMonsterZone")];
-          const syncroTuners = myInfo.activator
+          const synchroTuners = myInfo.activator
             .getExtraDeck()
-            .cardEntities.filter((monster) => monster.status.monsterCategories?.includes("Syncro"))
+            .cardEntities.filter((monster) => monster.status.monsterCategories?.includes("Synchro"))
             .filter((monster) => monster.status.monsterCategories?.includes("Tuner"));
           const monster = await myInfo.activator.summonOne(
             myInfo.activator,
-            "SyncroSummon",
+            "SynchroSummon",
             ["SpecialSummon", "Effect"],
             myInfo.action,
-            syncroTuners.map((monster) => {
+            synchroTuners.map((monster) => {
               return { monster, cells, posList: faceupBattlePositions };
             }),
             [],

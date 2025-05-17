@@ -22,7 +22,7 @@ import {
   getSingleTargetActionPartical,
 } from "@ygo_entity_proc/card_actions/CommonCardAction";
 import { duelFieldCellTypes, monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
-import { getDefaultSyncroSummonAction } from "../../card_actions/CommonCardAction_SyncroMonster";
+import { getDefaultSynchroSummonAction } from "../../card_actions/CommonCardAction_SynchroMonster";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 import { ProcFilter } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
@@ -35,7 +35,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
       defaultAttackAction,
       defaultBattlePotisionChangeAction,
       defaultFlipSummonAction,
-      getDefaultSyncroSummonAction(),
+      getDefaultSynchroSummonAction(),
       {
         title: "①ヴィクテム・サンクチュアリ",
         isMandatory: false,
@@ -115,7 +115,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
     actions: [
       defaultAttackAction,
       defaultBattlePotisionChangeAction,
-      getDefaultSyncroSummonAction(),
+      getDefaultSynchroSummonAction(),
       {
         title: "波動音壁",
         isMandatory: false,
@@ -175,9 +175,9 @@ export default function* generate(): Generator<EntityProcDefinition> {
     actions: [
       defaultAttackAction,
       defaultBattlePotisionChangeAction,
-      getDefaultSyncroSummonAction(
-        (tuners) => tuners.length === 1 && tuners.every((tuner) => tuner.status.monsterCategories?.includes("Syncro")),
-        (tuners) => tuners.length > 0 && tuners.every((tuner) => tuner.status.monsterCategories?.includes("Syncro"))
+      getDefaultSynchroSummonAction(
+        (tuners) => tuners.length === 1 && tuners.every((tuner) => tuner.status.monsterCategories?.includes("Synchro")),
+        (tuners) => tuners.length > 0 && tuners.every((tuner) => tuner.status.monsterCategories?.includes("Synchro"))
       ),
       {
         title: "波動護魂",
@@ -191,12 +191,12 @@ export default function* generate(): Generator<EntityProcDefinition> {
         canPayCosts: (myInfo) =>
           defaultCanPayBanishCosts(
             myInfo,
-            myInfo.activator.getGraveyard().cardEntities.filter((card) => card.status.monsterCategories?.includes("Syncro"))
+            myInfo.activator.getGraveyard().cardEntities.filter((card) => card.status.monsterCategories?.includes("Synchro"))
           ),
         payCosts: (myInfo) =>
           defaultPayBanishCosts(
             myInfo,
-            myInfo.activator.getGraveyard().cardEntities.filter((card) => card.status.monsterCategories?.includes("Syncro")),
+            myInfo.activator.getGraveyard().cardEntities.filter((card) => card.status.monsterCategories?.includes("Synchro")),
             (selected) => selected.length === 1,
             1
           ),
@@ -242,7 +242,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               .cardEntities.filter((card) => card.kind === "Monster")
               .filter((card) => card.face === "FaceUp")
               .filter((card) => card.types.includes("Dragon"))
-              .filter((card) => card.status.monsterCategories?.includes("Syncro"))
+              .filter((card) => card.status.monsterCategories?.includes("Synchro"))
               .filter((card) => card.canBeTargetOfEffect(myInfo))
               .map((monster) => {
                 return { monster, posList: faceupBattlePositions, cells };
@@ -260,7 +260,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               .cardEntities.filter((card) => card.kind === "Monster")
               .filter((card) => card.face === "FaceUp")
               .filter((card) => card.types.includes("Dragon"))
-              .filter((card) => card.status.monsterCategories?.includes("Syncro"))
+              .filter((card) => card.status.monsterCategories?.includes("Synchro"))
               .filter((card) => card.canBeTargetOfEffect(myInfo))
           ),
         execute: async (myInfo) => defaultTargetMonstersRebornExecute(myInfo),
@@ -275,9 +275,9 @@ export default function* generate(): Generator<EntityProcDefinition> {
     actions: [
       defaultAttackAction,
       defaultBattlePotisionChangeAction,
-      getDefaultSyncroSummonAction(
-        (tuners) => tuners.length === 1 && tuners.every((tuner) => tuner.status.monsterCategories?.includes("Syncro")),
-        (tuners) => tuners.length > 1 && tuners.every((tuner) => tuner.status.monsterCategories?.includes("Syncro"))
+      getDefaultSynchroSummonAction(
+        (tuners) => tuners.length === 1 && tuners.every((tuner) => tuner.status.monsterCategories?.includes("Synchro")),
+        (tuners) => tuners.length > 1 && tuners.every((tuner) => tuner.status.monsterCategories?.includes("Synchro"))
       ),
       {
         title: "②珖波動反撃",

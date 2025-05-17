@@ -5,7 +5,7 @@ import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 import { SystemError } from "@ygo_duel/class/Duel";
 import { defaultRuleSummonExecute, defaultRuleSummonPrepare } from "./CommonCardAction_Monster";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-const defaultSyncroMaterialsValidator = (
+const defaultSynchroMaterialsValidator = (
   myInfo: ChainBlockInfoBase<unknown>,
   posList: Readonly<TBattlePosition[]>,
   cells: DuelFieldCell[],
@@ -53,7 +53,7 @@ const defaultSyncroMaterialsValidator = (
   if (
     !myInfo.activator.getEnableSummonList(
       myInfo.activator,
-      "SyncroSummon",
+      "SynchroSummon",
       ["Rule", "SpecialSummon"],
       myInfo.action,
       [{ monster: myInfo.action.entity, posList, cells }],
@@ -66,7 +66,7 @@ const defaultSyncroMaterialsValidator = (
   return materialInfos;
 };
 
-function* getEnableSyncroSummonPatterns(
+function* getEnableSynchroSummonPatterns(
   myInfo: ChainBlockInfoBase<unknown>,
   tunersValidator: (tuners: DuelEntity[]) => boolean = (tuners) => tuners.length === 1,
   nonTunersValidator: (nonTuners: DuelEntity[]) => boolean = (nonTuners) => nonTuners.length > 0
@@ -78,7 +78,7 @@ function* getEnableSyncroSummonPatterns(
   ];
 
   // 手札シンクロを許容するカードがない場合、手札のカードを排除する。
-  if (materials.every((m) => !m.status.allowHandSyncro)) {
+  if (materials.every((m) => !m.status.allowHandSynchro)) {
     materials = materials.filter((m) => m.fieldCell.isPlayFieldCell);
   }
 
@@ -93,12 +93,12 @@ function* getEnableSyncroSummonPatterns(
   //全パターンを試し、シンクロ召喚可能なパターンを全て列挙する。
   yield* materials
     .getAllOnOffPattern()
-    .filter((pattern) => pattern.some((monster) => monster.status.allowHandSyncro) || pattern.every((monster) => monster.isOnFieldAsMonsterStrictly))
-    .map((pattern) => defaultSyncroMaterialsValidator(myInfo, posList, cells, pattern, tunersValidator, nonTunersValidator) ?? [])
+    .filter((pattern) => pattern.some((monster) => monster.status.allowHandSynchro) || pattern.every((monster) => monster.isOnFieldAsMonsterStrictly))
+    .map((pattern) => defaultSynchroMaterialsValidator(myInfo, posList, cells, pattern, tunersValidator, nonTunersValidator) ?? [])
     .filter((materialInfos) => materialInfos.length);
 }
 
-const defaultSyncroSummonPayCost = async (
+const defaultSynchroSummonPayCost = async (
   myInfo: ChainBlockInfoBase<unknown>,
   chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
   cancelable: boolean
@@ -146,14 +146,14 @@ const defaultSyncroSummonPayCost = async (
   }
   await DuelEntityShortHands.sendManyToGraveyardForTheSameReason(
     materials,
-    ["SyncroMaterial", "Cost", "Rule", "SpecialSummonMaterial"],
+    ["SynchroMaterial", "Cost", "Rule", "SpecialSummonMaterial"],
     myInfo.action.entity,
     myInfo.activator
   );
   return { summonMaterialInfos: materialInfos };
 };
 
-export const getDefaultSyncroSummonAction = (
+export const getDefaultSynchroSummonAction = (
   tunersValidator: (tuners: DuelEntity[]) => boolean = (tuners) => tuners.length === 1,
   nonTunersValidator: (nonTuners: DuelEntity[]) => boolean = (nonTuners) => nonTuners.length > 0
 ): CardActionDefinition<unknown> => {
@@ -165,12 +165,12 @@ export const getDefaultSyncroSummonAction = (
     executableCells: ["ExtraDeck"],
     executablePeriods: ["main1", "main2"],
     executableDuelistTypes: ["Controller"],
-    getEnableMaterialPatterns: (myInfo) => getEnableSyncroSummonPatterns(myInfo, tunersValidator, nonTunersValidator),
+    getEnableMaterialPatterns: (myInfo) => getEnableSynchroSummonPatterns(myInfo, tunersValidator, nonTunersValidator),
     canPayCosts: (myInfo) => myInfo.action.getEnableMaterialPatterns(myInfo).some((infos) => infos.length),
     canExecute: (myInfo) =>
       !myInfo.ignoreCost || myInfo.activator.getAvailableExtraMonsterZones().length + myInfo.activator.getAvailableMonsterZones().length > 0,
-    payCosts: defaultSyncroSummonPayCost,
-    prepare: (myInfo) => defaultRuleSummonPrepare(myInfo, "SyncroSummon", ["Rule", "SpecialSummon", "SyncroSummon"], ["Attack", "Defense"]),
+    payCosts: defaultSynchroSummonPayCost,
+    prepare: (myInfo) => defaultRuleSummonPrepare(myInfo, "SynchroSummon", ["Rule", "SpecialSummon", "SynchroSummon"], ["Attack", "Defense"]),
     execute: defaultRuleSummonExecute,
     settle: async () => true,
   };

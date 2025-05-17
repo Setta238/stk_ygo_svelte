@@ -10,10 +10,10 @@
 .duel_card.Effect .duel_card_detail{
   background-color: moccasin;
 }
-.duel_card.Syncro {
+.duel_card.Synchro {
   background-color: snow;
 }
-.duel_card.Syncro .duel_card_detail {
+.duel_card.Synchro .duel_card_detail {
   background-color: snow;
 }
 .duel_card.Xyz {

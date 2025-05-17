@@ -3,12 +3,12 @@ import { defaultAttackAction, defaultBattlePotisionChangeAction, defaultFlipSumm
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { defaultPrepare } from "@ygo_entity_proc/card_actions/CommonCardAction";
-import { getDefaultSyncroSummonAction } from "@ygo_entity_proc/card_actions/CommonCardAction_SyncroMonster";
+import { getDefaultSynchroSummonAction } from "@ygo_entity_proc/card_actions/CommonCardAction_SynchroMonster";
 export default function* generate(): Generator<EntityProcDefinition> {
   for (const name of ["大地の騎士ガイアナイト", "スクラップ・デスデーモン"]) {
     yield {
       name,
-      actions: [defaultAttackAction, defaultBattlePotisionChangeAction, defaultFlipSummonAction, getDefaultSyncroSummonAction()],
+      actions: [defaultAttackAction, defaultBattlePotisionChangeAction, defaultFlipSummonAction, getDefaultSynchroSummonAction()],
     };
   }
   yield {
@@ -17,7 +17,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
       defaultAttackAction,
       defaultBattlePotisionChangeAction,
       defaultFlipSummonAction,
-      getDefaultSyncroSummonAction(
+      getDefaultSynchroSummonAction(
         (tuners) => tuners.length === 1 && tuners.every((tuner) => tuner.attr.some((a) => a === "Earth")),
         (nonTuners) => nonTuners.length > 0 && nonTuners.every((nonTuner) => nonTuner.attr.some((a) => a === "Earth"))
       ),
@@ -29,7 +29,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
       defaultAttackAction,
       defaultBattlePotisionChangeAction,
       defaultFlipSummonAction,
-      getDefaultSyncroSummonAction(),
+      getDefaultSynchroSummonAction(),
       {
         title: "回復",
         isMandatory: true,

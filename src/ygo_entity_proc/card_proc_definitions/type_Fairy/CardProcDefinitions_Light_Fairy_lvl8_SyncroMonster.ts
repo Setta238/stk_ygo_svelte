@@ -8,7 +8,7 @@ import {
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
-import { getDefaultSyncroSummonAction } from "../../card_actions/CommonCardAction_SyncroMonster";
+import { getDefaultSynchroSummonAction } from "../../card_actions/CommonCardAction_SynchroMonster";
 import { createRegularNumericStateOperatorHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
@@ -20,7 +20,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
       defaultAttackAction,
       defaultBattlePotisionChangeAction,
       defaultFlipSummonAction,
-      getDefaultSyncroSummonAction(),
+      getDefaultSynchroSummonAction(),
       {
         title: "②自己帰還",
         isMandatory: true,

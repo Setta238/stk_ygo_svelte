@@ -12,7 +12,7 @@ export const cardKindDic: { [key in TCardKind]: string } = {
   Trap: "罠",
   XyzMaterial: "XYZ素材",
 };
-export const exMonsterCategories = ["Fusion", "Syncro", "Xyz", "Link"] as const;
+export const exMonsterCategories = ["Fusion", "Synchro", "Xyz", "Link"] as const;
 export type TMonsterExSummonCategory = (typeof exMonsterCategories)[number];
 export const specialSummonMonsterCategories = [...exMonsterCategories, "SpecialSummon", "Ritual"] as const;
 export type TMonsterSpecialSummonCategory = (typeof specialSummonMonsterCategories)[number];
@@ -24,7 +24,7 @@ export type TMonsterOtherCategory = (typeof monsterOtherCategories)[number];
 export const monsterCategories = [...monsterEffectCategories, ...monsterOtherCategories, ...summonMonsterCategories] as const;
 export type TMonsterCategory = (typeof monsterCategories)[number];
 export const monsterCategoryDic: { [key in TMonsterCategory]: string } = {
-  Syncro: "シンクロ",
+  Synchro: "シンクロ",
   Fusion: "融合",
   Xyz: "エクシーズ",
   Link: "リンク",
@@ -45,7 +45,7 @@ export const monsterCategoryDic: { [key in TMonsterCategory]: string } = {
   RegularSpecialSummonOnly: "正規の方法以外での特殊召喚不可",
 };
 export const monsterCategoryEmojiDic: { [key in TMonsterCategory]: string } = {
-  Syncro: "🎵",
+  Synchro: "🎵",
   Fusion: "🌀",
   Xyz: "📰",
   Link: "⛓️",

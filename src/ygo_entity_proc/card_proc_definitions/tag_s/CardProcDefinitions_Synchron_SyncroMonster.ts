@@ -2,13 +2,13 @@ import {
   defaultAttackAction,
   defaultBattlePotisionChangeAction,
   defaultFlipSummonAction,
-  getDefaultAccelSyncroACtion,
+  getDefaultAccelSynchroACtion,
 } from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
-import { getDefaultSyncroSummonAction } from "../../card_actions/CommonCardAction_SyncroMonster";
+import { getDefaultSynchroSummonAction } from "../../card_actions/CommonCardAction_SynchroMonster";
 import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 
 export default function* generate(): Generator<EntityProcDefinition> {
@@ -18,7 +18,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
       defaultAttackAction,
       defaultBattlePotisionChangeAction,
       defaultFlipSummonAction,
-      getDefaultSyncroSummonAction(),
+      getDefaultSynchroSummonAction(),
       {
         title: "①ドロー",
         isMandatory: false,
@@ -27,7 +27,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: monsterZoneCellTypes,
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
-        meetsConditions: (myInfo) => myInfo.action.entity.hasBeenSummonedJustNow(["SyncroSummon"]),
+        meetsConditions: (myInfo) => myInfo.action.entity.hasBeenSummonedJustNow(["SynchroSummon"]),
         canExecute: (myInfo) => myInfo.activator.canDraw && myInfo.activator.getDeckCell().cardEntities.length > 0,
         prepare: async () => {
           return { selectedEntities: [], chainBlockTags: ["Draw"], prepared: undefined };
@@ -38,7 +38,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         },
         settle: async () => true,
       },
-      getDefaultAccelSyncroACtion({ title: "②シンクロ召喚", isOnlyNTimesPerChain: 1 }),
+      getDefaultAccelSynchroACtion({ title: "②シンクロ召喚", isOnlyNTimesPerChain: 1 }),
     ],
   };
 }

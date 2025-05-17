@@ -48,7 +48,7 @@ export type EntityStatus = {
   canAttack: boolean;
   canDirectAttack: boolean;
   canActivateEffect: boolean;
-  allowHandSyncro: boolean;
+  allowHandSynchro: boolean;
   allowHandLink: boolean;
   isEffective: boolean;
   willBeBanished: boolean;
@@ -91,11 +91,19 @@ export type DuelEntityInfomation = {
 
 export type TDuelEntityFace = "FaceUp" | "FaceDown";
 export type TDuelEntityOrientation = "Horizontal" | "Vertical";
-export const namedSummonKindCauseReasons = ["FusionSummon", "SyncroSummon", "XyzSummon", "PendulumSummon", "LinkSummon", "RitualSummon", "FlipSummon"] as const;
+export const namedSummonKindCauseReasons = [
+  "FusionSummon",
+  "SynchroSummon",
+  "XyzSummon",
+  "PendulumSummon",
+  "LinkSummon",
+  "RitualSummon",
+  "FlipSummon",
+] as const;
 export type TNamedSummonKindCauseReason = (typeof namedSummonKindCauseReasons)[number];
 export const summonNameDic: { [key in TNamedSummonKindCauseReason]: string } = {
   FusionSummon: "融合召喚",
-  SyncroSummon: "シンクロ召喚",
+  SynchroSummon: "シンクロ召喚",
   XyzSummon: "エクシーズ召喚",
   PendulumSummon: "ペンデュラム召喚",
   LinkSummon: "リンク召喚",
@@ -118,7 +126,7 @@ export const materialCauseReason = [
   "AdvanceSummonRelease",
   "SpecialSummonMaterial",
   "FusionMaterial",
-  "SyncroMaterial",
+  "SynchroMaterial",
   "LinkMaterial",
   "XyzMaterial",
   "RitualMaterial",
@@ -1249,7 +1257,7 @@ export class DuelEntity {
       canDirectAttack: false,
       canActivateEffect: true,
       isSelectableForAttack: true,
-      allowHandSyncro: false,
+      allowHandSynchro: false,
       allowHandLink: false,
       willBeBanished: false,
       willReturnToDeck: undefined,

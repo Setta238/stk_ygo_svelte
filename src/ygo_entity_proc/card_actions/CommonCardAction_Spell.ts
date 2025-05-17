@@ -30,7 +30,7 @@ export const defaultContinuousSpellCardActivateAction = {
   isMandatory: false,
   playType: "CardActivation",
   spellSpeed: "Normal",
-  executableCells: ["Hand", "SpellAndTrapZone"],
+  executableCells: ["Hand", "SpellAndTrapZone", "FieldSpellZone"],
   executablePeriods: ["main1", "main2"],
   executableDuelistTypes: ["Controller"],
   prepare: defaultPrepare,

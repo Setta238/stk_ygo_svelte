@@ -42,9 +42,6 @@
       </div>
       {#if mode === "Normal"}
         {#if entity.status.monsterCategories?.includes("Pendulum")}
-          <div class="duel_card_info_row">
-            <div><pre class="description">{cardInfoDic[entity.origin.name].pendulumDescription}</pre></div>
-          </div>
           <div class="duel_card_info_row" style=" justify-content: space-between;">
             <div>◀ {entity.psL}</div>
             <div>{entity.psR} ▶</div>
@@ -81,6 +78,11 @@
 
     <div class="duel_card_info_body">
       {#if mode === "Normal"}
+        {#if entity.status.monsterCategories?.includes("Pendulum")}
+          <div class="duel_card_info_row" style="border-style: solid; border-width: 1px;">
+            <pre class="description">{cardInfoDic[entity.origin.name].pendulumDescription}</pre>
+          </div>
+        {/if}
         <div class="duel_card_info_row">
           <pre class="description">{getInfo()?.description}</pre>
         </div>

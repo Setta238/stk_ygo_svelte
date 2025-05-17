@@ -25,7 +25,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableDuelistTypes,
         isOnlyNTimesPerTurnIfFaceup: 1,
         canPayCosts: (myInfo) => myInfo.activator.lp >= 1000,
-        getDests: () => [],
+        canExecute: (myInfo) => myInfo.action.entity.face === "FaceUp",
         payCosts: (myInfo, chainBlockInfos) => defaultPayLifePoint(myInfo, chainBlockInfos, 1000),
         prepare: async (myInfo, chainBlockInfos, cancelable) => {
           let choices: { seq: number; text: string; tags: TEffectTag[] }[] = [

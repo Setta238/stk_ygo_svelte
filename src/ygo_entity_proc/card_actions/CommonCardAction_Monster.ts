@@ -433,7 +433,7 @@ export const defaultSummonFilter = (
   }
 
   // モンスターのみ
-  if (monster.kind !== "Monster") {
+  if (!monster.isMonster) {
     return ok;
   }
 

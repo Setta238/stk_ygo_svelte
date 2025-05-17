@@ -22,10 +22,12 @@
       <div class="duel_card_info_row">
         <div>{cardInfo.name}</div>
       </div>
-      <div class="duel_card_info_row" style="position:sticky; top:0;">
-        <div>{"★".repeat(cardInfo.level || 0)}</div>
-        <div>{"☆".repeat(cardInfo.rank || 0)}</div>
-      </div>
+      {#if cardInfo.kind === "Monster"}
+        <div class="duel_card_info_row" style="position:sticky; top:0;">
+          <div>{"★".repeat(cardInfo.level || 0)}</div>
+          <div>{"☆".repeat(cardInfo.rank || 0)}</div>
+        </div>
+      {/if}
     </div>
     <div class="duel_card_info_body">
       {#if cardInfo.monsterCategories?.includes("Pendulum")}

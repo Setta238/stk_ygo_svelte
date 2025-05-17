@@ -12,7 +12,6 @@ import {
   type ContinuousEffectBase,
 } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
-import { spellTrapZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 import type { TCardKind } from "@ygo/class/YgoTypes";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
@@ -145,11 +144,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         canPayCosts: (myInfo, chainBlockInfos) => canPaySpellCounters(myInfo, chainBlockInfos, 1),
         payCosts: async (myInfo, chainBlockInfos, cancelable) => paySpellCounters(myInfo, chainBlockInfos, cancelable, [1]),
         ...getSingleTargetActionPartical(
-          (myInfo) =>
-            myInfo.action.entity.field
-              .getCells(...spellTrapZoneCellTypes)
-              .flatMap((cell) => cell.cardEntities)
-              .filter((card) => card.canBeTargetOfEffect(myInfo)),
+          (myInfo) => myInfo.activator.duel.field.getSpellTrapsOnFieldStrictly().filter((card) => card.canBeTargetOfEffect(myInfo)),
           { message: "破壊する対象を選択。", destoryTargets: true }
         ),
         execute: async (myInfo) => {

@@ -149,7 +149,7 @@ export class NumericStateOperatorBundle extends StickyEffectOperatorBundle<Numer
   public readonly calcStateAll = (): void => entityFlexibleStatusKeys.forEach(this.calcState);
 
   public readonly calcState = (targetState: TEntityFlexibleNumericStatusKey): void => {
-    if (this.entity.kind !== "Monster" && !this.entity.isPendulumScale) {
+    if (!this.entity.isPendulumScale && !this.entity.isMonster) {
       this.entity.numericStatus.calculated[targetState] = undefined;
       return;
     }

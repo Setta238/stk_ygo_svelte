@@ -4,7 +4,7 @@ import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardActionDefinition } from "@ygo_duel/class/DuelEntityAction";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
-import { type TCardKind, type TEntityFlexibleNumericStatusKey } from "@ygo/class/YgoTypes";
+import { type TEntityFlexibleNumericStatusKey } from "@ygo/class/YgoTypes";
 import {
   createRegularNumericStateOperatorHandler as createRegularNumericStateOperatorHandler,
   type ContinuousEffectBase,
@@ -12,13 +12,14 @@ import {
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { defaultPayLifePoint, defaultTargetMonstersRebornExecute, defaultTargetMonstersRebornPrepare } from "../card_actions/CommonCardAction";
+import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield* (
     [
-      { name: "団結の力", kind: ["Monster"], rate: 800 },
-      { name: "魔導師の力", kind: ["Spell", "Trap"], rate: 500 },
-    ] as { name: string; kind: TCardKind[]; rate: number }[]
+      { name: "団結の力", filter: (entity) => entity.isMonster && entity.face === "FaceUp", rate: 800 },
+      { name: "魔導師の力", filter: (entity) => entity.kind === "Spell" || entity.kind === "Trap", rate: 500 },
+    ] as { name: string; filter: (entity: DuelEntity) => boolean; rate: number }[]
   ).map((item): EntityProcDefinition => {
     return {
       name: item.name,
@@ -42,7 +43,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
                   if (!spawner.isEffective) {
                     return current;
                   }
-                  const qty = spawner.controller.getEntiteisOnField().filter((card) => item.kind.includes(card.kind)).length;
+                  const qty = spawner.controller.getEntiteisOnField().filter(item.filter).length;
                   return current + qty * item.rate;
                 }
               )

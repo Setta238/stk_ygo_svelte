@@ -33,7 +33,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         negatePreviousBlock: true,
         canPayCosts: defaultSelfReleaseCanPayCosts,
         canExecute: (myInfo) =>
-          Boolean(myInfo.targetChainBlock && myInfo.targetChainBlock.action.entity.kind === "Monster" && myInfo.targetChainBlock.action.isWithChainBlock),
+          Boolean(myInfo.targetChainBlock && myInfo.targetChainBlock.action.entity.isMonster && myInfo.targetChainBlock.action.isWithChainBlock),
         payCosts: defaultSelfReleasePayCosts,
         prepare: async (myInfo, chainBlockInfos) => {
           const target = myInfo.targetChainBlock;
@@ -50,7 +50,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           };
         },
         execute: async (myInfo, chainBlockInfos) => {
-          const trigger = chainBlockInfos.find((info) => info.action.entity.kind !== "Monster" && info.action.isWithChainBlock);
+          const trigger = chainBlockInfos.find((info) => info.action.entity.isMonster && info.action.isWithChainBlock);
           const prev = chainBlockInfos[myInfo.index - 1];
 
           if (prev !== trigger) {

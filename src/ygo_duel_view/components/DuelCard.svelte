@@ -140,7 +140,7 @@
           <div class="monster_attr {attr}"></div>
         {/each}
       </div>
-      {#if entity.kind === "Monster"}
+      {#if entity.isMonster}
         <div class="duel_card_row">
           <div class={entity.lvl !== entity.origin.level ? "different_from_its_origin" : ""}>{"★".repeat(entity.lvl || 0)}</div>
           <div class={entity.rank !== entity.origin.rank ? "different_from_its_origin" : ""}>{"☆".repeat(entity.rank || 0)}</div>
@@ -168,7 +168,7 @@
           <div>ペンデュラム</div>
         </div>
       {/if}
-      {#if entity.kind === "Monster"}
+      {#if entity.isMonster}
         <div class="duel_card_row duel_card_detail">
           <div>
             {entity.types.map((t) => monsterTypeEmojiDic[t] + (isWideMode ? monsterTypeDic[t] : "")).join()}

@@ -54,7 +54,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             "THE_DEVILS_DREAD-ROOT",
             (operator) => operator.isSpawnedBy.isOnFieldStrictly && operator.isSpawnedBy.face === "FaceUp",
             entity,
-            (operator, target) => target.kind === "Monster" && target.isOnFieldStrictly && target.face === "FaceUp" && target !== operator.isSpawnedBy,
+            (operator, target) => target.isMonster && target.isOnFieldStrictly && target.face === "FaceUp" && target !== operator.isSpawnedBy,
             targetState,
             "calculated",
             "THE_DEVILS_DREAD-ROOT",

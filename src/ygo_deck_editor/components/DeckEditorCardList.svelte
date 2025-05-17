@@ -166,21 +166,23 @@
                       </div>
                       <div style="display:flex">
                         <div>
-                          {#if cardInfo.level}
-                            ★{cardInfo.level}
+                          {#if cardInfo.kind === "Monster"}
+                            {#if cardInfo.level}
+                              ★{cardInfo.level}
+                            {/if}
+                            {#if cardInfo.rank}
+                              ☆{cardInfo.rank}
+                            {/if}
+                            {#each cardInfo.attributes ?? [] as attr}
+                              <div class="monster_attr {attr}"></div>
+                            {/each}
+                            {#each cardInfo.types ?? [] as type}
+                              {monsterTypeEmojiDic[type]}
+                            {/each}
+                            {#each cardInfo.monsterCategories ?? [] as cat}
+                              {monsterCategoryEmojiDic[cat]}
+                            {/each}
                           {/if}
-                          {#if cardInfo.rank}
-                            ☆{cardInfo.rank}
-                          {/if}
-                          {#each cardInfo.attributes ?? [] as attr}
-                            <div class="monster_attr {attr}"></div>
-                          {/each}
-                          {#each cardInfo.types ?? [] as type}
-                            {monsterTypeEmojiDic[type]}
-                          {/each}
-                          {#each cardInfo.monsterCategories ?? [] as cat}
-                            {monsterCategoryEmojiDic[cat]}
-                          {/each}
                           {#if cardInfo.spellCategory !== undefined}
                             {spellCategoryDic[cardInfo.spellCategory]}魔法
                           {/if}

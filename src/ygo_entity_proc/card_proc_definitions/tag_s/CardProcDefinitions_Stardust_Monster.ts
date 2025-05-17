@@ -292,7 +292,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         canExecute: (myInfo) =>
           Boolean(
             myInfo.targetChainBlock &&
-              myInfo.targetChainBlock.action.entity.kind === "Monster" &&
+              myInfo.targetChainBlock.action.entity.isMonster &&
               myInfo.targetChainBlock.action.isWithChainBlock &&
               myInfo.activator !== myInfo.targetChainBlock.activator
           ),

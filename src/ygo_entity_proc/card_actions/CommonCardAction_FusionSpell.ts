@@ -139,7 +139,7 @@ function* getEnableFusionSummonPatterns(
   const materials = myInfo.activator
     .getCells(...materialsFrom)
     .flatMap((cell) => cell.cardEntities)
-    .filter((card) => card.kind === "Monster")
+    .filter((card) => card.isMonster)
     .filter((monster) => monster.canBeEffected(myInfo.activator, myInfo.action.entity, myInfo.action));
 
   if (!materials.length) {

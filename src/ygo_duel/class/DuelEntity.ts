@@ -727,13 +727,19 @@ export class DuelEntity {
     return this.fieldCell.isPlayFieldCell;
   }
   public get isOnFieldStrictly() {
-    return this.isOnField && !this.info.isPending && this.kind !== "XyzMaterial";
+    return this.isOnField && !this.info.isPending && !this.info.isDying && this.kind !== "XyzMaterial";
   }
   public get isOnFieldAsMonsterStrictly() {
+    // フィールド上の場合、モンスターゾーンにいればモンスターである。
     return this.fieldCell.isMonsterZoneLikeCell && this.isOnFieldStrictly;
   }
+  public get isMonster() {
+    // カードの種類がモンスターであるか、モンスターゾーンにいればモンスターである。
+    return this.isOnFieldAsMonsterStrictly || this.kind === "Monster";
+  }
   public get isOnFieldAsSpellTrapStrictly() {
-    return this.fieldCell.isSpellTrapZoneLikeCell && this.isOnFieldStrictly;
+    // フィールド上の場合、モンスターゾーンにいたとしても罠カードの可能性街あるため、カードの種類で識別する。
+    return this.isOnFieldStrictly && (this.kind === "Spell" || this.kind === "Trap");
   }
   public get isInTrashCell() {
     return this.fieldCell.isTrashCell;

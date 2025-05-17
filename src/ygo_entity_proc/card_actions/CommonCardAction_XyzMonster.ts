@@ -132,14 +132,13 @@ const defaultXyzSummonPayCost = async (
   if (!materialInfos) {
     throw new SystemError("想定されない状態", myInfo, materials);
   }
-  console.log(materialInfos);
+
   await DuelEntityShortHands.convertManyToXyzMaterials(
     materialInfos.map((info) => info.material),
     ["XyzMaterial", "Rule", "Cost"],
     myInfo.action.entity,
     myInfo.activator
   );
-  console.log(materialInfos.map((info) => info.material.kind));
 
   return { summonMaterialInfos: materialInfos };
 };

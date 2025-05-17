@@ -23867,5 +23867,29 @@
     "kind": "Spell",
     "spellCategory": "Normal",
     "wikiEncodedName": "%A1%D4%CB%E2%BD%F7%BC%ED%A4%EA%A1%D5"
+  },
+  "Ｅ・ＨＥＲＯ プリズマー": {
+    "name": "Ｅ・ＨＥＲＯ プリズマー",
+    "nameKana": "",
+    "description": "(1)：１ターンに１度、エクストラデッキの融合モンスター１体を相手に見せ、そのモンスターにカード名が記されている融合素材モンスター１体をデッキから墓地へ送って発動できる。\nエンドフェイズまで、このカードはこの効果を発動するために墓地へ送ったモンスターと同名カードとして扱う。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "nameTags": [
+      "Ｅ・ＨＥＲＯ",
+      "ＨＥＲＯ"
+    ],
+    "level": 4,
+    "attack": 1700,
+    "defense": 1100,
+    "attributes": [
+      "Light"
+    ],
+    "types": [
+      "Warrior"
+    ],
+    "wikiEncodedName": "%A1%D4%A3%C5%A1%A6%A3%C8%A3%C5%A3%D2%A3%CF+%A5%D7%A5%EA%A5%BA%A5%DE%A1%BC%A1%D5"
   }
 }

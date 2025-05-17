@@ -133,7 +133,7 @@
   >
     <div class="duel_card_body">
       <div class="duel_card_row" style="position:relative">
-        <div>{entity.nm}</div>
+        <div class={entity.nm !== entity.origin.name ? "different_from_its_origin" : ""}>{entity.nm}</div>
         <div></div>
 
         {#each entity.attr as attr}

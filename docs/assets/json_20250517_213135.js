@@ -1677,12 +1677,12 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 フィールドのカード１枚を対象として発動できる。
 そのカードを破壊する。
 このカードが「ＷＷ」モンスターのみを素材としてＳ召喚されている場合、
-この効果は１ターンに２度まで使用できる。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Synchro","Effect"],nameTags:["ＷＷ"],level:8,attack:2800,defense:2400,attributes:["Wind"],types:["Spellcaster"],wikiEncodedName:"%A1%D4%A3%D7%A3%D7%A1%DD%A5%C0%A5%A4%A5%E4%A5%E2%A5%F3%A5%C9%A1%A6%A5%D9%A5%EB%A1%D5"},"Ｎｏ.５２ ダイヤモンド・クラブ・キング":{name:"Ｎｏ.５２ ダイヤモンド・クラブ・キング",nameKana:"",description:`レベル４モンスター×２
+この効果は１ターンに２度まで使用できる。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Synchro","Effect","SpecialSummon"],nameTags:["ＷＷ"],level:8,attack:2800,defense:2400,attributes:["Wind"],types:["Spellcaster"],wikiEncodedName:"%A1%D4%A3%D7%A3%D7%A1%DD%A5%C0%A5%A4%A5%E4%A5%E2%A5%F3%A5%C9%A1%A6%A5%D9%A5%EB%A1%D5"},"Ｎｏ.５２ ダイヤモンド・クラブ・キング":{name:"Ｎｏ.５２ ダイヤモンド・クラブ・キング",nameKana:"",description:`レベル４モンスター×２
 (1)：「Ｎｏ.５２ ダイヤモンド・クラブ・キング」は自分フィールドに１体しか表側表示で存在できない。
 (2)：１ターンに１度、このカードのＸ素材を１つ取り除いて発動できる。
 ターン終了時まで、このカードの守備力を０にし、攻撃力を３０００にする。
 (3)：このカードは攻撃した場合、バトルフェイズ終了時に守備表示になる。
-(4)：Ｘ素材が無いこのカードは、攻撃されたダメージステップ終了時に攻撃表示になる。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Xyz","Effect"],nameTags:["Ｎｏ.","Ｎ"],rank:4,attack:0,defense:3e3,attributes:["Earth"],types:["Rock"],wikiEncodedName:"%A1%D4%A3%CE%A3%EF.%A3%B5%A3%B2+%A5%C0%A5%A4%A5%E4%A5%E2%A5%F3%A5%C9%A1%A6%A5%AF%A5%E9%A5%D6%A1%A6%A5%AD%A5%F3%A5%B0%A1%D5"},"Ｄ－ＨＥＲＯ ダイヤモンドガイ":{name:"Ｄ－ＨＥＲＯ ダイヤモンドガイ",nameKana:"",description:`(1)：１ターンに１度、自分メインフェイズに発動できる。
+(4)：Ｘ素材が無いこのカードは、攻撃されたダメージステップ終了時に攻撃表示になる。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Xyz","Effect","SpecialSummon"],nameTags:["Ｎｏ.","Ｎ"],rank:4,attack:0,defense:3e3,attributes:["Earth"],types:["Rock"],wikiEncodedName:"%A1%D4%A3%CE%A3%EF.%A3%B5%A3%B2+%A5%C0%A5%A4%A5%E4%A5%E2%A5%F3%A5%C9%A1%A6%A5%AF%A5%E9%A5%D6%A1%A6%A5%AD%A5%F3%A5%B0%A1%D5"},"Ｄ－ＨＥＲＯ ダイヤモンドガイ":{name:"Ｄ－ＨＥＲＯ ダイヤモンドガイ",nameKana:"",description:`(1)：１ターンに１度、自分メインフェイズに発動できる。
 自分のデッキの一番上のカードをめくり、それが通常魔法カードだった場合、そのカードを墓地へ送る。
 違った場合、そのカードをデッキの一番下に戻す。
 この効果で通常魔法カードを墓地へ送った場合、次の自分ターンのメインフェイズに墓地のその通常魔法カードの発動時の効果を発動できる。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],nameTags:["Ｄ－ＨＥＲＯ","ＨＥＲＯ"],level:4,attack:1400,defense:1600,attributes:["Dark"],types:["Warrior"],wikiEncodedName:"%A1%D4%A3%C4%A1%DD%A3%C8%A3%C5%A3%D2%A3%CF+%A5%C0%A5%A4%A5%E4%A5%E2%A5%F3%A5%C9%A5%AC%A5%A4%A1%D5"},"ダイヤモンドダスト・サイクロン":{name:"ダイヤモンドダスト・サイクロン",nameKana:"",description:`フォッグカウンターが４つ以上乗っているモンスター１体を選択して発動する。
@@ -1695,4 +1695,20 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 自分の墓地の「ダストン」モンスター１体を除外して発動できる。
 このカードは通常モンスター（悪魔族・闇・星１・攻０／守１０００）となり、
 相手のモンスターゾーンに守備表示で特殊召喚する（罠カードとしては扱わない）。
-この効果で特殊召喚したこのカードはリリースできず、融合・Ｓ・Ｘ召喚の素材にもできない。`,kind:"Trap",trapCategory:"Normal",nameTags:["ダストン"],wikiEncodedName:"%A1%D4%A5%C0%A5%A4%A5%E4%A5%E2%A5%F3%A5%C9%A5%C0%A5%B9%A5%C8%A5%F3%A1%D5"}};export{e as j};
+この効果で特殊召喚したこのカードはリリースできず、融合・Ｓ・Ｘ召喚の素材にもできない。`,kind:"Trap",trapCategory:"Normal",nameTags:["ダストン"],wikiEncodedName:"%A1%D4%A5%C0%A5%A4%A5%E4%A5%E2%A5%F3%A5%C9%A5%C0%A5%B9%A5%C8%A5%F3%A1%D5"},儀式の下準備:{name:"儀式の下準備",nameKana:"",description:`このカード名のカードは１ターンに１枚しか発動できない。
+(1)：デッキから儀式魔法カード１枚を選び、さらにその儀式魔法カードにカード名が記された儀式モンスター１体を自分のデッキ・墓地から選ぶ。
+そのカード２枚を手札に加える。`,kind:"Spell",spellCategory:"Normal",wikiEncodedName:"%A1%D4%B5%B7%BC%B0%A4%CE%B2%BC%BD%E0%C8%F7%A1%D5"},儀式の準備:{name:"儀式の準備",nameKana:"",description:`(1)：デッキからレベル７以下の儀式モンスター１体を手札に加える。
+その後、自分の墓地の儀式魔法カード１枚を選んで手札に加える事ができる。`,kind:"Spell",spellCategory:"Normal",wikiEncodedName:"%A1%D4%B5%B7%BC%B0%A4%CE%BD%E0%C8%F7%A1%D5"},"センジュ・ゴッド":{name:"センジュ・ゴッド",nameKana:"",description:`(1)：このカードが召喚・反転召喚した時に発動できる。
+デッキから儀式モンスター１体を手札に加える。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:4,attack:1400,defense:1e3,attributes:["Light"],types:["Fairy"],wikiEncodedName:"%A1%D4%A5%BB%A5%F3%A5%B8%A5%E5%A1%A6%A5%B4%A5%C3%A5%C9%A1%D5"},"チョウジュ・ゴッド":{name:"チョウジュ・ゴッド",nameKana:"",description:`このカード名の効果は１ターンに１度しか使用できない。
+(1)：このカードが召喚・反転召喚・特殊召喚に成功した場合に発動できる。
+デッキから儀式モンスター１体と儀式魔法カード１枚を手札に加える。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:6,attack:1400,defense:1e3,attributes:["Light"],types:["Fairy"],wikiEncodedName:"%A1%D4%A5%C1%A5%E7%A5%A6%A5%B8%A5%E5%A1%A6%A5%B4%A5%C3%A5%C9%A1%D5"},"マンジュ・ゴッド":{name:"マンジュ・ゴッド",nameKana:"",description:`(1)：このカードが召喚・反転召喚した時に発動できる。
+デッキから儀式モンスター１体か儀式魔法カード１枚を手札に加える。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:4,attack:1400,defense:1e3,attributes:["Light"],types:["Fairy"],wikiEncodedName:"%A1%D4%A5%DE%A5%F3%A5%B8%A5%E5%A1%A6%A5%B4%A5%C3%A5%C9%A1%D5"},トランソニックバード:{name:"トランソニックバード",nameKana:"",description:`「音速を追う者」により降臨。
+(1)：１ターンに１度、発動できる。
+手札の儀式魔法カード１枚を相手に見せ、そのカードにカード名が記された儀式モンスター１体をデッキから手札に加え、
+見せたカードをデッキに戻す。
+(2)：相手ターンに１度、デッキから儀式魔法カード１枚を墓地へ送って発動できる。
+この効果は、その儀式魔法カード発動時の儀式召喚する効果と同じになる。
+(3)：儀式召喚したこのカードがリリースされた場合、
+相手フィールドの表側表示のカード１枚を対象として発動できる。
+そのカードの効果をターン終了時まで無効にする。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Ritual","Effect"],level:4,attack:0,defense:2400,attributes:["Dark"],types:["WingedBeast"],wikiEncodedName:"%A1%D4%A5%C8%A5%E9%A5%F3%A5%BD%A5%CB%A5%C3%A5%AF%A5%D0%A1%BC%A5%C9%A1%D5"},ソニックバード:{name:"ソニックバード",nameKana:"",description:`(1)：このカードが召喚・反転召喚に成功した時に発動できる。
+デッキから儀式魔法カード１枚を手札に加える。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:4,attack:1400,defense:1e3,attributes:["Wind"],types:["WingedBeast"],wikiEncodedName:"%A1%D4%A5%BD%A5%CB%A5%C3%A5%AF%A5%D0%A1%BC%A5%C9%A1%D5"}};export{e as j};

@@ -23900,7 +23900,8 @@
     "kind": "Monster",
     "monsterCategories": [
       "Synchro",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     "nameTags": [
       "ＷＷ"
@@ -23924,7 +23925,8 @@
     "kind": "Monster",
     "monsterCategories": [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     "nameTags": [
       "Ｎｏ.",
@@ -23991,5 +23993,122 @@
       "ダストン"
     ],
     "wikiEncodedName": "%A1%D4%A5%C0%A5%A4%A5%E4%A5%E2%A5%F3%A5%C9%A5%C0%A5%B9%A5%C8%A5%F3%A1%D5"
+  },
+  "儀式の下準備": {
+    "name": "儀式の下準備",
+    "nameKana": "",
+    "description": "このカード名のカードは１ターンに１枚しか発動できない。\n(1)：デッキから儀式魔法カード１枚を選び、さらにその儀式魔法カードにカード名が記された儀式モンスター１体を自分のデッキ・墓地から選ぶ。\nそのカード２枚を手札に加える。",
+    "kind": "Spell",
+    "spellCategory": "Normal",
+    "wikiEncodedName": "%A1%D4%B5%B7%BC%B0%A4%CE%B2%BC%BD%E0%C8%F7%A1%D5"
+  },
+  "儀式の準備": {
+    "name": "儀式の準備",
+    "nameKana": "",
+    "description": "(1)：デッキからレベル７以下の儀式モンスター１体を手札に加える。\nその後、自分の墓地の儀式魔法カード１枚を選んで手札に加える事ができる。",
+    "kind": "Spell",
+    "spellCategory": "Normal",
+    "wikiEncodedName": "%A1%D4%B5%B7%BC%B0%A4%CE%BD%E0%C8%F7%A1%D5"
+  },
+  "センジュ・ゴッド": {
+    "name": "センジュ・ゴッド",
+    "nameKana": "",
+    "description": "(1)：このカードが召喚・反転召喚した時に発動できる。\nデッキから儀式モンスター１体を手札に加える。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "level": 4,
+    "attack": 1400,
+    "defense": 1000,
+    "attributes": [
+      "Light"
+    ],
+    "types": [
+      "Fairy"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%BB%A5%F3%A5%B8%A5%E5%A1%A6%A5%B4%A5%C3%A5%C9%A1%D5"
+  },
+  "チョウジュ・ゴッド": {
+    "name": "チョウジュ・ゴッド",
+    "nameKana": "",
+    "description": "このカード名の効果は１ターンに１度しか使用できない。\n(1)：このカードが召喚・反転召喚・特殊召喚に成功した場合に発動できる。\nデッキから儀式モンスター１体と儀式魔法カード１枚を手札に加える。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "level": 6,
+    "attack": 1400,
+    "defense": 1000,
+    "attributes": [
+      "Light"
+    ],
+    "types": [
+      "Fairy"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%C1%A5%E7%A5%A6%A5%B8%A5%E5%A1%A6%A5%B4%A5%C3%A5%C9%A1%D5"
+  },
+  "マンジュ・ゴッド": {
+    "name": "マンジュ・ゴッド",
+    "nameKana": "",
+    "description": "(1)：このカードが召喚・反転召喚した時に発動できる。\nデッキから儀式モンスター１体か儀式魔法カード１枚を手札に加える。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "level": 4,
+    "attack": 1400,
+    "defense": 1000,
+    "attributes": [
+      "Light"
+    ],
+    "types": [
+      "Fairy"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%DE%A5%F3%A5%B8%A5%E5%A1%A6%A5%B4%A5%C3%A5%C9%A1%D5"
+  },
+  "トランソニックバード": {
+    "name": "トランソニックバード",
+    "nameKana": "",
+    "description": "「音速を追う者」により降臨。\n(1)：１ターンに１度、発動できる。\n手札の儀式魔法カード１枚を相手に見せ、そのカードにカード名が記された儀式モンスター１体をデッキから手札に加え、\n見せたカードをデッキに戻す。\n(2)：相手ターンに１度、デッキから儀式魔法カード１枚を墓地へ送って発動できる。\nこの効果は、その儀式魔法カード発動時の儀式召喚する効果と同じになる。\n(3)：儀式召喚したこのカードがリリースされた場合、\n相手フィールドの表側表示のカード１枚を対象として発動できる。\nそのカードの効果をターン終了時まで無効にする。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Ritual",
+      "Effect"
+    ],
+    "level": 4,
+    "attack": 0,
+    "defense": 2400,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "WingedBeast"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%C8%A5%E9%A5%F3%A5%BD%A5%CB%A5%C3%A5%AF%A5%D0%A1%BC%A5%C9%A1%D5"
+  },
+  "ソニックバード": {
+    "name": "ソニックバード",
+    "nameKana": "",
+    "description": "(1)：このカードが召喚・反転召喚に成功した時に発動できる。\nデッキから儀式魔法カード１枚を手札に加える。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "level": 4,
+    "attack": 1400,
+    "defense": 1000,
+    "attributes": [
+      "Wind"
+    ],
+    "types": [
+      "WingedBeast"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%BD%A5%CB%A5%C3%A5%AF%A5%D0%A1%BC%A5%C9%A1%D5"
   }
 }

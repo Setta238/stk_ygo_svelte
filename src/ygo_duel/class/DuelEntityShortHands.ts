@@ -264,7 +264,7 @@ export class DuelEntityShortHands {
 
   public static readonly waitCorpseDisposal = (duel: Duel) => {
     return DuelEntity.sendManyToGraveyard(
-      [...duel.field.getCardsOnFieldStrictly(), ...duel.field.getPendingCardsOnField()]
+      [...duel.field.getDyingCardsOnField(), ...duel.field.getPendingCardsOnField()]
         .filter((entity) => entity.info.isDying)
         .map((entity) => {
           return {

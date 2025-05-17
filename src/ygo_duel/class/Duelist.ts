@@ -202,6 +202,10 @@ export class Duelist {
     // TODO
     return true;
   }
+  public get canAddToHandFromGraveyard() {
+    // TODO
+    return true;
+  }
 
   public readonly writeInfoLog = (text: string) => {
     this.duel.log.info(text, this);
@@ -465,6 +469,7 @@ export class Duelist {
     return selected ? selected[0] : undefined;
   };
 
+  public readonly waitYesNo = (title: string) => this.duel.view.waitYesOrNo(this, title);
   public readonly waitSelectText = <C extends { seq: number; text: string }>(
     choises: C[],
     title: string,

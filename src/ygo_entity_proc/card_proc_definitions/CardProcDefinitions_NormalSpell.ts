@@ -339,7 +339,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             throw new IllegalCancelError(myInfo);
           }
           await target.addToHand(["Effect"], myInfo.action.entity, myInfo.activator);
-
+          myInfo.activator.getDeckCell().shuffle();
           return true;
         },
         settle: async () => true,
@@ -454,8 +454,12 @@ export default function* generate(): Generator<EntityProcDefinition> {
             false,
             false
           );
+          if (!monster) {
+            return false;
+          }
+          myInfo.activator.getDeckCell().shuffle();
 
-          return Boolean(monster);
+          return true;
         },
         settle: async () => true,
       },

@@ -33,6 +33,10 @@ export class DuelEntityShortHands {
     return entity.info.isDying;
   };
 
+  public static readonly excavateFromDeck = async (target: Duelist, movedAs: TDuelCauseReason[], movedBy: DuelEntity, activator: Duelist) => {
+    const entities = await DuelEntityShortHands.excavateManyFromDeck(target, 1, movedAs, movedBy, activator);
+    return entities.length ? entities[0] : undefined;
+  };
   public static readonly excavateManyFromDeck = async (target: Duelist, qty: number, movedAs: TDuelCauseReason[], movedBy: DuelEntity, activator: Duelist) => {
     const entities = target.getDeckCell().cardEntities.slice(0, qty);
     await DuelEntity.moveMany(

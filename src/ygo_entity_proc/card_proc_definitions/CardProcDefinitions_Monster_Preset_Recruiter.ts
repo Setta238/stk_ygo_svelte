@@ -261,8 +261,12 @@ export default function* generate(): Generator<EntityProcDefinition> {
               (summoned) => item.qtyList.includes(summoned.length),
               false
             );
+            if (!monster) {
+              return false;
+            }
+            myInfo.activator.getDeckCell().shuffle();
 
-            return Boolean(monster);
+            return true;
           },
           settle: async () => true,
         },

@@ -210,7 +210,7 @@ export type CardActionDefinitionFunctions<T> = {
    * @param chainBlockInfos
    * @returns
    */
-  canExecute?: (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => boolean;
+  canExecute?: (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => boolean | "RemoveMe";
 
   getTargetableEntities?: (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => DuelEntity[];
 
@@ -299,8 +299,8 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
 
     return { action, dests, battlePosition, originSeq: origin?.seq ?? -1 };
   };
-  protected override get definition() {
-    return super.definition as CardActionDefinition<T>;
+  public override get definition() {
+    return super.definition as Readonly<CardActionDefinition<T>>;
   }
   public get playType() {
     return this.definition.playType;
@@ -479,7 +479,12 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
       }
     }
     if (this.definition.canExecute) {
-      if (!this.definition.canExecute(myInfo, this.playType === "AfterChainBlock" ? [] : chainBlockInfos)) {
+      const canExecute = this.definition.canExecute(myInfo, this.playType === "AfterChainBlock" ? [] : chainBlockInfos);
+      if (canExecute === "RemoveMe") {
+        this.entity.actions.reset(...this.entity.actions.filter((action) => action.seq !== this.seq));
+        return;
+      }
+      if (!canExecute) {
         return;
       }
     }

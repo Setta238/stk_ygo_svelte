@@ -21,7 +21,6 @@ import { createRegularProcFilterHandler, type ContinuousEffectBase } from "@ygo_
 import { ProcFilter } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
 import { damageStepPeriodKeys, duelPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
-import { defaultEffectSpecialSummonExecute, defaultCanPaySelfBanishCosts, defaultPaySelfBanishCosts } from "../card_actions/CommonCardAction";
 import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 
 export default function* generate(): Generator<EntityProcDefinition> {
@@ -81,55 +80,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
       },
     ],
   };
-  yield {
-    name: "Ｄ－ＨＥＲＯ ディアボリックガイ",
-    actions: [
-      defaultNormalSummonAction,
-      defaultAttackAction,
-      defaultBattlePotisionChangeAction,
-      defaultFlipSummonAction,
-      {
-        title: "①リクルート",
-        isMandatory: false,
-        playType: "IgnitionEffect",
-        spellSpeed: "Normal",
-        executableCells: ["Graveyard"],
-        executablePeriods: ["main1", "main2"],
-        executableDuelistTypes: ["Controller"],
-        priorityForNPC: 10,
-        canPayCosts: defaultCanPaySelfBanishCosts,
-        canExecute: (myInfo) => {
-          const nextOne = myInfo.activator.getDeckCell().cardEntities.find((card) => card.nm === "Ｄ－ＨＥＲＯ ディアボリックガイ");
-          if (!nextOne) {
-            return false;
-          }
-          const cells = myInfo.activator.getMonsterZones();
-          const list = myInfo.activator.getEnableSummonList(
-            myInfo.activator,
-            "SpecialSummon",
-            ["Effect"],
-            myInfo.action,
-            [{ monster: nextOne, posList: faceupBattlePositions, cells }],
-            [],
-            false
-          );
-          return list.length > 0;
-        },
-        payCosts: defaultPaySelfBanishCosts,
-        prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromDeck"], prepared: undefined };
-        },
-        execute: async (myInfo) => {
-          const newOne = myInfo.activator.getDeckCell().cardEntities.find((card) => card.nm === "Ｄ－ＨＥＲＯ ディアボリックガイ");
-          if (!newOne) {
-            return false;
-          }
-          return defaultEffectSpecialSummonExecute(myInfo, [newOne]);
-        },
-        settle: async () => true,
-      },
-    ],
-  };
+
   yield {
     name: "ゾンビキャリア",
     actions: [

@@ -55,6 +55,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           }
 
           await monster.addToHand(["Effect"], myInfo.action.entity, myInfo.activator);
+          myInfo.activator.getDeckCell().shuffle();
 
           return true;
         },
@@ -205,7 +206,12 @@ export default function* generate(): Generator<EntityProcDefinition> {
               (summoned) => summoned.length == 2,
               false
             )) ?? [];
-          return summoned.length == 2;
+          if (!summoned.length) {
+            return false;
+          }
+          myInfo.activator.getDeckCell().shuffle();
+
+          return true;
         },
         settle: async () => true,
       },

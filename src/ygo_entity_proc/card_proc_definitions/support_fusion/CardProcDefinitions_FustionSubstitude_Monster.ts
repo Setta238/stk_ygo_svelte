@@ -52,6 +52,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             return false;
           }
           await target.addToHand(["Effect"], myInfo.action.entity, myInfo.activator);
+          myInfo.activator.getDeckCell().shuffle();
 
           return true;
         },

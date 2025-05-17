@@ -98,7 +98,9 @@ export default function* generate(): Generator<EntityProcDefinition> {
           if (!takemitsu) {
             throw new IllegalCancelError(myInfo);
           }
-          return (await takemitsu.addToHand(["Effect"], myInfo.action.entity, myInfo.activator)).cellType === "Hand";
+          await takemitsu.addToHand(["Effect"], myInfo.action.entity, myInfo.activator);
+          myInfo.activator.getDeckCell().shuffle();
+          return true;
         },
         settle: async () => true,
       },
@@ -226,6 +228,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           }
 
           await takemitsu.putDirectly(cell, "Spell", ["Effect"], myInfo.action.entity, myInfo.activator);
+          myInfo.activator.getDeckCell().shuffle();
 
           const target = await myInfo.activator.waitSelectEntity(monsters, "装備する対象を選択。", false);
           if (!target) {

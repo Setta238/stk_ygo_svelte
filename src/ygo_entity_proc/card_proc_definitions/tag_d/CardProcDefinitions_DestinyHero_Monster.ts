@@ -103,22 +103,26 @@ export default function* generate(): Generator<EntityProcDefinition> {
             return true;
           }
 
-          const spawnTurn = myInfo.activator.duel.clock.turn;
+          const wasSpawnedAt = myInfo.activator.duel.clock.getClone();
 
           // 書き換えた効果を作成
           const definition = { ...action.definition };
           definition.title += `(${myInfo.action.entity.toString()})`;
           definition.playType = "IgnitionEffect";
           definition.canExecute = (myInfo, chainBlockInfos) => {
-            if (myInfo.activator.duel.clock.turn > spawnTurn + 2) {
+            if (myInfo.activator.duel.clock.turn > wasSpawnedAt.turn + 2) {
               // 次の自分のターン以降は削除
               return "RemoveMe";
-            } else if (myInfo.activator.duel.clock.turn < spawnTurn + 2) {
+            } else if (myInfo.action.entity.wasMovedAfter(wasSpawnedAt)) {
+              // 移動していた場合削除
+              return "RemoveMe";
+            } else if (myInfo.activator.duel.clock.turn < wasSpawnedAt.turn + 2) {
               return false;
             }
             return !action.definition.canExecute || action.definition.canExecute(myInfo, chainBlockInfos);
           };
           definition.executableCells = ["Graveyard"];
+          definition.meetsConditions = undefined;
           definition.canPayCosts = undefined;
           definition.payCosts = undefined;
           definition.settle = async () => true;

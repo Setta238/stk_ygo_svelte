@@ -87,17 +87,11 @@ const validateFusionMaterials = (
       ),
     ];
   }
-  patterns.forEach((pattern) => {
-    console.log(pattern.map((e) => e.material.toString()).join(","));
-  });
   // 重複する場合および、融合素材代用モンスターを複数使用したパターンを除外する。
   patterns = patterns
     .filter((pattern) => pattern.length === materials.length)
     .filter((pattern) => pattern.filter((info) => info.name && info.material.nm !== info.name).length < 2);
 
-  patterns.forEach((pattern) => {
-    console.log(pattern.map((e) => e.material.toString()).join(","));
-  });
   // 残ったパターンから実際に特殊召喚可能なパターンを検索し、最初の１つを返す。
   return patterns.find(
     (materialInfos) =>

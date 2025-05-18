@@ -22,6 +22,7 @@
   import type { ChoicesSweet } from "@ygo_duel/class/DuelUtilTypes";
   import type { DuelistProfile } from "@ygo/class/DuelistProfile";
   import DuelConfig from "./DuelConfig.svelte";
+  import DuelCutin from "./DuelCutin.svelte";
   export let duel: Duel;
   export let userProfile: DuelistProfile;
 
@@ -198,15 +199,14 @@
     </div>
   {/if}
 </div>
-<div style="position:absolute;left:0;bottom:0">{duel.clock.toString()}</div>
+<div style="position:absolute;left:0;bottom:0">{duel.clock.toFullString()}</div>
 
 <ModalContainer modalController={duel.view.modalController} />
 
-<!--
 <div style="position:absolute;top:0;left:0">
-  <DuelCutin {duel}></DuelCutin>
+  <DuelCutin {duel} />
 </div>
--->
+
 <style>
   .v_flex {
     display: flex;

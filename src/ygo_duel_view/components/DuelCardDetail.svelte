@@ -26,6 +26,7 @@
   export let mode: TCardDetailMode = "Normal";
   const onRightClick = () => {
     mode = mode === "Normal" ? "Debug" : "Normal";
+    console.info(entity);
     return true;
   };
 </script>

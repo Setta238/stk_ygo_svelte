@@ -1,4 +1,10 @@
-import { type CardActionDefinition, type ChainBlockInfo, type ChainBlockInfoBase, type TEffectTag } from "@ygo_duel/class/DuelEntityAction";
+import {
+  type CardActionDefinition,
+  type ChainBlockInfo,
+  type ChainBlockInfoBase,
+  type ChainBlockInfoPreparing,
+  type TEffectTag,
+} from "@ygo_duel/class/DuelEntityAction";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { type DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 import { defaultPrepare } from "@ygo_entity_proc/card_actions/CommonCardAction";
@@ -39,7 +45,7 @@ export const defaultContinuousSpellCardActivateAction = {
 } as CardActionDefinition<unknown>;
 
 export const defaultEquipSpellTrapPrepare = async <T>(
-  myInfo: ChainBlockInfoBase<T>,
+  myInfo: ChainBlockInfoPreparing<T>,
   chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
   cancelable: boolean,
   chainBlockTags: TEffectTag[] | undefined,

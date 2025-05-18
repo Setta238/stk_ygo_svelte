@@ -9,6 +9,7 @@ import {
   type ChainBlockInfo,
   type ChainBlockInfoBase,
   type ChainBlockInfoPrepared,
+  type ChainBlockInfoPreparing,
   type SummonMaterialInfo,
 } from "../../ygo_duel/class/DuelEntityAction";
 import { type TDuelCauseReason, type TSummonKindCauseReason, DuelEntity, namedSummonKindCauseReasons } from "@ygo_duel/class/DuelEntity";
@@ -72,7 +73,7 @@ const defaultNormalSummonPayCost = async (
   return { summonMaterialInfos };
 };
 
-const defaultNormalSummonPrepare = async (myInfo: ChainBlockInfoBase<unknown>): Promise<ChainBlockInfoPrepared<unknown> | undefined> => {
+const defaultNormalSummonPrepare = async (myInfo: ChainBlockInfoPreparing<unknown>): Promise<ChainBlockInfoPrepared<unknown> | undefined> => {
   const movedAs: TDuelCauseReason[] = ["Rule", "NormalSummon"];
   let summonKind: TDuelCauseReason = "NormalSummon";
   if (myInfo.costInfo.summonMaterialInfos?.length) {
@@ -84,7 +85,7 @@ const defaultNormalSummonPrepare = async (myInfo: ChainBlockInfoBase<unknown>): 
   return defaultRuleSummonPrepare(myInfo, summonKind, movedAs, ["Attack", "Set"], availableCells);
 };
 export const defaultRuleSummonPrepare = async (
-  myInfo: ChainBlockInfoBase<unknown>,
+  myInfo: ChainBlockInfoPreparing<unknown>,
   summonKind: TSummonKindCauseReason,
   movedAs: TDuelCauseReason[],
   posList: Readonly<TBattlePosition[]>,
@@ -325,7 +326,7 @@ export const defaultAttackAction: CardActionDefinition<unknown> = {
   settle: async () => true,
 };
 
-const defaultBattlePotisionChangePrepare = async (myInfo: ChainBlockInfoBase<unknown>): Promise<ChainBlockInfoPrepared<unknown> | undefined> => {
+const defaultBattlePotisionChangePrepare = async (myInfo: ChainBlockInfoPreparing<unknown>): Promise<ChainBlockInfoPrepared<unknown> | undefined> => {
   if (myInfo.action.entity.info.battlePotisionChangeCount > 0 || !myInfo.activator.isTurnPlayer) {
     return;
   }
@@ -555,7 +556,6 @@ export const getDefaultAccelSynchroACtion = <T>(options: Partial<CardActionDefin
             activator: myInfo.activator,
             targetChainBlock: undefined,
             isActivatedIn: action.entity.fieldCell,
-            isActivatedAt: myInfo.isActivatedAt,
             costInfo: {},
             state: "unloaded",
             dest: undefined,

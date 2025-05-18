@@ -8,7 +8,6 @@ import {
   type TDuelPhaseStepStage,
 } from "@ygo_duel/class/DuelPeriod";
 import { Duel, SystemError } from "./Duel";
-
 const duelClockSubKeys = ["turn", "phaseSeq", "stepSeq", "stageSeq", "chainSeq", "chainBlockSeq", "procSeq"] as const;
 export type TDuelClockSubKey = (typeof duelClockSubKeys)[number];
 
@@ -25,6 +24,16 @@ export type IDuelClock = Readonly<
 >;
 
 export class DuelClock implements IDuelClock {
+  public static readonly isSameChain = (left: IDuelClock, right: IDuelClock): boolean => {
+    return (
+      left.turn === right.turn &&
+      left.phaseSeq === right.phaseSeq &&
+      left.stepSeq === right.stepSeq &&
+      left.stageSeq === right.stageSeq &&
+      left.chainSeq === right.chainSeq
+    );
+  };
+
   private onClockChangeEvents: { [key in TDuelClockSubKey]: StkEvent<IDuelClock> } = {
     turn: new StkEvent<IDuelClock>(),
     phaseSeq: new StkEvent<IDuelClock>(),
@@ -227,7 +236,7 @@ export class DuelClock implements IDuelClock {
     // procSeqのイベントは毎回トリガする。
     this.onClockChangeEvents["procSeq"].trigger(this);
   };
-  public readonly toString = () => {
+  public readonly toFullString = () => {
     return `${this.totalProcSeq}(t${this.turn}-phs${this.phaseSeq}-stp${this.stepSeq}-stg${this.stepSeq}-c${this.chainSeq}-cb${this.chainBlockSeq}-prc${this.procSeq})`;
   };
   public readonly getClone = (): IDuelClock => {
@@ -246,15 +255,8 @@ export class DuelClock implements IDuelClock {
   public readonly isSameTurn = (other: IDuelClock): boolean => {
     return this.turn === other.turn;
   };
-  public readonly isSameChain = (other: IDuelClock): boolean => {
-    return (
-      this.turn === other.turn &&
-      this.phaseSeq === other.phaseSeq &&
-      this.stepSeq === other.stepSeq &&
-      this.stageSeq === other.stageSeq &&
-      this.chainSeq === other.chainSeq
-    );
-  };
+  public readonly isSameChain = (other: IDuelClock): boolean => DuelClock.isSameChain(this, other);
+
   public readonly isPreviousChain = (other: IDuelClock): boolean => {
     return (
       this.turn === other.turn &&

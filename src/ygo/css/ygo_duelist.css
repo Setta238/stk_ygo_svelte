@@ -1,0 +1,22 @@
+.duelist_below {
+  border: 0.3rem skyblue solid;
+}
+
+.duelist_above {
+  border: 0.3rem wheat solid;
+}
+
+.duelist_below_name {
+  border-left-color: deepskyblue;
+  background-color: azure;
+}
+
+.duelist_above_name {
+  border-left-color: tomato;
+  background-color: blanchedalmond;
+}
+.duelist_below_name,
+.duelist_above_name {
+  border-style: none;
+  border-left-style: solid;
+}

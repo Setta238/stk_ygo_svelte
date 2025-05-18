@@ -72,7 +72,7 @@ export class IllegalCancelError extends SystemError {
   }
 }
 export class Duel {
-  private onDuelEndEvent = new StkEvent<void>();
+  private readonly onDuelEndEvent = new StkEvent<void>();
   public get onDuelEnd() {
     return this.onDuelEndEvent.expose();
   }
@@ -904,10 +904,6 @@ export class Duel {
       }
 
       this.chainBlockLog.push(chainBlockInfo);
-
-      // エフェクト・ヴェーラーなどに発動場所を参照する無効を処理するため、この時点の情報をコピー
-      const enableCellTypes = [...chainBlockInfo.action.entity.info.isEffectiveIn];
-
       this._chainBlockInfos.push(chainBlockInfo);
 
       this.clock.incrementProcSeq();
@@ -924,73 +920,19 @@ export class Duel {
         await this.procChain(undefined, _triggerEffets.length ? _triggerEffets : undefined);
       }
 
-      if (chainBlockInfo.chainNumber) {
-        this.log.info(`チェーン${chainBlockInfo.chainNumber}: ${chainBlockInfo.action.toString()}の効果処理。`, activator);
-      }
+      await chainBlockInfo.action.execute(chainBlockInfo, this.chainBlockInfos);
 
-      // 有効無効判定
-      if (chainBlockInfo.isNegatedActivationBy) {
-        // 発動無効時は全ての処理を行わない
-        if (chainBlockInfo.chainNumber) {
-          this.log.info(
-            `チェーン${chainBlockInfo.chainNumber}: ${chainBlockInfo.action.toString()}を${chainBlockInfo.isNegatedActivationBy.toString()}によって発動を無効にした。`,
-            chainBlockInfo.activator
-          );
-        }
-      } else {
-        // 効果無効時は後処理のみ行う
-
-        // カードの効果が有効かどうか
-        let isEffective = chainBlockInfo.action.entity.isEffective;
-
-        // ログ出力するテキストを用意
-        let nagationText = "";
-
-        if (isEffective) {
-          if (chainBlockInfo.isNegatedEffectBy) {
-            // うららなどの効果処理のみ無効にするタイプ
-            nagationText = `チェーン${chainBlockInfo.chainNumber}: ${chainBlockInfo.action.toString()}を${chainBlockInfo.isNegatedEffectBy.toString()}によって効果を無効にした。`;
-            isEffective = false;
-          } else if (!enableCellTypes.includes(chainBlockInfo.isActivatedIn.cellType)) {
-            // 発動時にエフェクト・ヴェーラーなどに発動場所を参照する無効が適用されていた場合、移動ログを検索する。
-            const moveLogRecord = chainBlockInfo.action.entity.moveLog.records.findLast((rec) => rec.face === "FaceDown" && rec.orientation === "Horizontal");
-
-            // 同じチェーン中に、一度以上裏守備を経由していればいいはず
-            // TODO 要検討
-            isEffective = (moveLogRecord && this.clock.isSameChain(moveLogRecord.movedAt)) ?? false;
+      if (chainBlockInfo.state === "done" || chainBlockInfo.state === "failed") {
+        for (const duelist of [this.getTurnPlayer(), this.getNonTurnPlayer()]) {
+          // エクゾディア判定
+          for (const afterChainBlockEffect of this.getEnableActions(duelist, ["Exodia"], ["Normal"], [chainBlockInfo])) {
+            await afterChainBlockEffect.action.directExecute(duelist, chainBlockInfo, false);
           }
-        }
-
-        // 有効であれば、効果処理を行う。
-        if (isEffective) {
-          await chainBlockInfo.action.execute(chainBlockInfo, this.chainBlockInfos);
-          chainBlockInfo.state = "done";
-        } else {
-          chainBlockInfo.state = "failed";
-          if (chainBlockInfo.chainNumber) {
-            nagationText =
-              nagationText ||
-              `チェーン${chainBlockInfo.chainNumber}: カードの効果が無効となっているため${chainBlockInfo.action.toString()}の効果処理を行えない。`;
-          }
-
-          this.log.info(nagationText, chainBlockInfo.activator);
-        }
-
-        // 誓約効果などの適用
-        await chainBlock.action.settle(chainBlockInfo, this.chainBlockInfos);
-
-        if (chainBlockInfo.state === "done") {
-          for (const duelist of [this.getTurnPlayer(), this.getNonTurnPlayer()]) {
+          for (const afterChainBlockEffect of this.getEnableActions(duelist, ["AfterChainBlock"], ["Normal"], [chainBlockInfo])) {
+            await afterChainBlockEffect.action.directExecute(duelist, chainBlockInfo, false);
             // エクゾディア判定
             for (const afterChainBlockEffect of this.getEnableActions(duelist, ["Exodia"], ["Normal"], [chainBlockInfo])) {
               await afterChainBlockEffect.action.directExecute(duelist, chainBlockInfo, false);
-            }
-            for (const afterChainBlockEffect of this.getEnableActions(duelist, ["AfterChainBlock"], ["Normal"], [chainBlockInfo])) {
-              await afterChainBlockEffect.action.directExecute(duelist, chainBlockInfo, false);
-              // エクゾディア判定
-              for (const afterChainBlockEffect of this.getEnableActions(duelist, ["Exodia"], ["Normal"], [chainBlockInfo])) {
-                await afterChainBlockEffect.action.directExecute(duelist, chainBlockInfo, false);
-              }
             }
           }
         }

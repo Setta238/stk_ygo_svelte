@@ -45,8 +45,8 @@
   setLifePointLazy();
 </script>
 
-<div class="duelist {duelist.seat}">
-  <div class="duelist_name">{duelist.profile.name}</div>
+<div class="duelist duelist_{duelist.seat.toLowerCase()}">
+  <div class="duelist_name duelist_{duelist.seat.toLowerCase()}_name">{duelist.profile.name}</div>
   <div class="duelist_lp {resolve ? 'vibration' : ''}">{lifepoint}</div>
 </div>
 
@@ -60,12 +60,6 @@
     padding: 0.3rem;
     background-color: whitesmoke;
   }
-  .duelist.Below {
-    border: 0.3rem skyblue solid;
-  }
-  .duelist.Above {
-    border: 0.3rem wheat solid;
-  }
 
   .duelist_name {
     border-left-style: solid;
@@ -76,14 +70,6 @@
     word-wrap: break-word;
   }
 
-  .duelist.Below .duelist_name {
-    border-left-color: deepskyblue;
-    background-color: azure;
-  }
-  .duelist.Above .duelist_name {
-    border-left-color: tomato;
-    background-color: blanchedalmond;
-  }
   .duelist_lp {
     position: relative;
     text-align: right;

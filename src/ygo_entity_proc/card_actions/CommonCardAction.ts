@@ -6,6 +6,7 @@ import {
   type CardActionDefinition,
   type ChainBlockInfo,
   type ChainBlockInfoBase,
+  type ChainBlockInfoPreparing,
   type TEffectTag,
 } from "../../ygo_duel/class/DuelEntityAction";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
@@ -116,7 +117,7 @@ export const getSingleTargetActionPartical = <T>(
       getTargetableEntities(myInfo, chainBlockInfos).filter((monster) => monster.canBeTargetOfEffect(myInfo)).length > 0 &&
       (!options.canExecute || options.canExecute(myInfo, chainBlockInfos)),
     getDests: getDestsForSingleTargetAction,
-    prepare: async (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, cancelable: boolean) => {
+    prepare: async (myInfo: ChainBlockInfoPreparing<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, cancelable: boolean) => {
       let selectedEntities: DuelEntity[] = [];
       if (myInfo.dest) {
         selectedEntities = [myInfo.dest.cardEntities[0]];
@@ -139,7 +140,7 @@ export const getSingleTargetActionPartical = <T>(
 };
 
 export const defaultTargetMonstersRebornPrepare = async <T>(
-  myInfo: ChainBlockInfoBase<T>,
+  myInfo: ChainBlockInfoPreparing<T>,
   monsters: DuelEntity[],
   posList: Readonly<TBattlePosition[]> = faceupBattlePositions,
   validator: (selected: DuelEntity[]) => boolean = (selected) => selected.length === 1,

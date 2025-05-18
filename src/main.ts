@@ -1,6 +1,7 @@
 import { mount } from "svelte";
 import "@app/css/app.css";
 import "@ygo/css/ygo_card.css";
+import "@ygo/css/ygo_duelist.css";
 import App from "@app/components/App.svelte";
 
 const app = mount(App, {

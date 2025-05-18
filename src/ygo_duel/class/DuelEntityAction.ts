@@ -1,5 +1,5 @@
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
-import type { DuelFieldCell } from "./DuelFieldCell";
+import type { DuelFieldCell, DuelFieldCellType } from "./DuelFieldCell";
 import { type Duelist } from "./Duelist";
 import { DuelEntity } from "./DuelEntity";
 import { EntityActionBase, type EntityActionDefinitionBase } from "./DuelEntityActionBase";
@@ -7,6 +7,7 @@ import type { IDuelClock } from "./DuelClock";
 import { SystemError, type ResponseActionInfo } from "./Duel";
 import { max } from "@stk_utils/funcs/StkMathUtils";
 import { DuelEntityShortHands } from "./DuelEntityShortHands";
+import { Statable, type IStatable } from "./DuelUtilTypes";
 
 export const executableDuelistTypes = ["Controller", "Opponent"] as const;
 export type TExecutableDuelistType = (typeof executableDuelistTypes)[number];
@@ -119,6 +120,7 @@ export type DummyActionInfo = {
   battlePosition?: TBattlePosition;
   originSeq: number;
 };
+type TChainBlockInfoState = "unloaded" | "ready" | "processing" | "done" | "failed" | "nagated";
 export type ChainBlockInfoBase<T> = {
   /**
    * 配列上のindex
@@ -131,14 +133,18 @@ export type ChainBlockInfoBase<T> = {
   action: EntityAction<T>;
   activator: Duelist;
   targetChainBlock: ChainBlockInfo<unknown> | undefined;
+  state: TChainBlockInfoState;
+  dest: DuelFieldCell | undefined;
+  ignoreCost: boolean;
+};
+
+export type ChainBlockInfoPreparing<T> = ChainBlockInfoBase<T> & {
   isActivatedIn: DuelFieldCell;
   isActivatedAt: IDuelClock;
   isNegatedActivationBy?: EntityAction<unknown>;
   isNegatedEffectBy?: EntityAction<unknown>;
   costInfo: ActionCostInfo;
-  state: "unloaded" | "ready" | "done" | "failed";
-  dest: DuelFieldCell | undefined;
-  ignoreCost: boolean;
+  enableCellTypes: DuelFieldCellType[];
 };
 
 export type ChainBlockInfoPrepared<T> = {
@@ -150,7 +156,7 @@ export type ChainBlockInfoPrepared<T> = {
   /** 超融合など */
   nextChainBlockFilter?: (activator: Duelist, action: EntityAction<unknown>) => boolean;
 };
-export type ChainBlockInfo<T> = ChainBlockInfoBase<T> & ChainBlockInfoPrepared<T>;
+export type ChainBlockInfo<T> = ChainBlockInfoPreparing<T> & ChainBlockInfoPrepared<T> & IStatable<TChainBlockInfoState>;
 
 export type CardActionDefinitionAttrs = EntityActionDefinitionBase & {
   playType: TCardActionType;
@@ -232,7 +238,7 @@ export type CardActionDefinitionFunctions<T> = {
    * @returns
    */
   prepare: (
-    myInfo: ChainBlockInfoBase<T>,
+    myInfo: ChainBlockInfoPreparing<T>,
     chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
     cancelable: boolean
   ) => Promise<ChainBlockInfoPrepared<T> | undefined>;
@@ -322,7 +328,7 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
   }
   public readonly getTargetableEntities = (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => {
     if (this.definition.hasToTargetCards && !this.definition.getTargetableEntities) {
-      throw new SystemError(`処理定義が矛盾している。${this.toString()}`, this);
+      throw new SystemError(`処理定義が矛盾している。${this.toFullString()}`, this);
     }
     if (!this.definition.getTargetableEntities) {
       return [];
@@ -356,10 +362,16 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
   }
 
   public readonly toString = () => {
-    if (this.isWithChainBlock && this.playType !== "CardActivation") {
-      return `${this.entity.toString()}の«${this.title}»`;
+    if (this.playType === "CardActivation") {
+      return "カードの発動";
     }
-    return `${this.entity.toString()}の${this.title}`;
+    if (this.isWithChainBlock) {
+      return `«${this.title}»`;
+    }
+    return this.title;
+  };
+  public readonly toFullString = () => {
+    return `${this.entity.toString()}の${this.toString()}`;
   };
 
   /**
@@ -460,9 +472,6 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
       action: this,
       activator: activator,
       targetChainBlock: chainBlockInfos.slice(-1)[0],
-      isActivatedIn: this.entity.fieldCell,
-      isActivatedAt: this.duel.clock.getClone(),
-      costInfo: {},
       state: "unloaded",
       dest: undefined,
       ignoreCost: false,
@@ -558,7 +567,7 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
     chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
     cancelable: boolean,
     ignoreCosts: boolean
-  ) => {
+  ): Promise<ChainBlockInfo<T> | undefined> => {
     let _cell = cell;
     let _cancelable = cancelable;
     const chainNumber = this.isWithChainBlock ? max(0, ...chainBlockInfos.map((info) => info.chainNumber ?? -1)) + 1 : undefined;
@@ -649,13 +658,13 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
         await this.entity.setNonFieldMonsterPosition(this.entity.origin.kind, "FaceUp", ["Rule"]);
       }
     } else if (chainNumber !== undefined) {
-      logText += `${this.toString()}を発動。`;
+      logText += `${this.toFullString()}を発動。`;
 
       activator.writeInfoLog(logText);
     }
 
     // チェーンブロック情報の準備
-    const myInfo: ChainBlockInfoBase<T> = {
+    const myInfo: ChainBlockInfoPreparing<T> = {
       index: chainBlockInfos.length,
       chainNumber,
       action: this,
@@ -663,6 +672,7 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
       targetChainBlock,
       isActivatedIn: this.entity.fieldCell,
       isActivatedAt: this.duel.clock.getClone(),
+      enableCellTypes: [...this.entity.info.isEffectiveIn],
       costInfo: {},
       state: "ready",
       dest: _cell,
@@ -691,32 +701,93 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
       _prepared.nextChainBlockFilter = (activator, action) => action.negateSummon && tmpFilter(activator, action);
     }
 
-    return { ...myInfo, ..._prepared };
+    const result: Partial<ChainBlockInfo<T>> = new Statable<TChainBlockInfoState>(myInfo.state);
+    const temp = { ...myInfo, ..._prepared };
+    (Object.keys(temp) as (keyof typeof temp)[])
+      .filter((key) => key !== "state")
+      .forEach((key) => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
+        result[key] = temp[key];
+      });
+    return result as ChainBlockInfo<T>;
   };
 
   public readonly execute = async (myInfo: ChainBlockInfo<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => {
     if (myInfo.action.isLikeContinuousSpell && (myInfo.action.entity.face === "FaceDown" || !myInfo.action.entity.isOnField)) {
       // 永続魔法類は、フィールドに表側表示で存在しないと処理できない。
       this.entity.info.isPending = false;
+      myInfo.state = "failed";
       return false;
     }
 
-    const result = await this.definition.execute(myInfo, chainBlockInfos);
+    myInfo.state = "processing";
 
-    // TODO 確認：永続魔法類の発動時の効果処理と適用開始はどちらが先か？
-    // 一旦、早すぎた埋葬に便利なので、効果処理を先に行う。
-    this.entity.determine();
+    let result = false;
+    if (myInfo.chainNumber) {
+      myInfo.activator.writeInfoLog(`チェーン${myInfo.chainNumber}: ${myInfo.action.toFullString()}の効果処理。`);
+    }
+
+    // 有効無効判定
+    if (myInfo.isNegatedActivationBy) {
+      myInfo.state = "nagated";
+      // 発動無効時は全ての処理を行わない
+      if (myInfo.chainNumber) {
+        myInfo.activator.writeInfoLog(
+          `チェーン${myInfo.chainNumber}: ${myInfo.action.toFullString()}を${myInfo.isNegatedActivationBy.toFullString()}によって発動が無効にされた。`
+        );
+      }
+    } else {
+      // 効果無効時は後処理のみ行う
+
+      // カードの効果が有効かどうか
+      let isEffective = myInfo.action.entity.isEffective;
+
+      // ログ出力するテキストを用意
+      let nagationText = "";
+
+      if (isEffective) {
+        if (myInfo.isNegatedEffectBy) {
+          // うららなどの効果処理のみ無効にするタイプ
+          nagationText = `チェーン${myInfo.chainNumber}: ${myInfo.action.toFullString()}を${myInfo.isNegatedEffectBy.toFullString()}によって効果を無効にした。`;
+          isEffective = false;
+        } else if (this.isWithChainBlock && !myInfo.enableCellTypes.includes(myInfo.isActivatedIn.cellType)) {
+          // 発動時にエフェクト・ヴェーラーなどに発動場所を参照する無効が適用されていた場合、移動ログを検索する。
+          const moveLogRecord = myInfo.action.entity.moveLog.records.findLast((rec) => rec.face === "FaceDown" && rec.orientation === "Horizontal");
+
+          // 同じチェーン中に、一度以上裏守備を経由していればいいはず
+          // TODO 要検討
+          isEffective = (moveLogRecord && myInfo.activator.duel.clock.isSameChain(moveLogRecord.movedAt)) ?? false;
+        }
+      }
+
+      // 有効であれば、効果処理を行う。
+      if (isEffective) {
+        result = await this.definition.execute(myInfo, chainBlockInfos);
+        myInfo.state = result ? "done" : "failed";
+      } else {
+        myInfo.state = "nagated";
+        if (myInfo.chainNumber) {
+          nagationText =
+            nagationText || `チェーン${myInfo.chainNumber}: カードの効果が無効となっているため${myInfo.action.toFullString()}の効果処理を行えない。`;
+        }
+        myInfo.activator.writeInfoLog(nagationText);
+      }
+
+      // TODO 確認：永続魔法類の発動時の効果処理と適用開始はどちらが先か？
+      // 一旦、早すぎた埋葬に便利なので、効果処理を先に行う。
+      this.entity.determine();
+
+      // 誓約効果などの適用
+      if (this.isOnlyNTimesPerTurnIfFaceup > 0) {
+        this.entity.counterHolder.incrementActionCountPerTurn(this);
+      } else if (this.isOnlyNTimesIfFaceup > 0) {
+        this.entity.counterHolder.incrementActionCount(this);
+      }
+      this.definition.settle(myInfo, chainBlockInfos);
+    }
     return result;
   };
-  public readonly settle = (myInfo: ChainBlockInfo<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => {
-    if (this.isOnlyNTimesPerTurnIfFaceup > 0) {
-      this.entity.counterHolder.incrementActionCountPerTurn(this);
-    } else if (this.isOnlyNTimesIfFaceup > 0) {
-      this.entity.counterHolder.incrementActionCount(this);
-    }
-    return this.definition.settle(myInfo, chainBlockInfos);
-  };
-
   /**
    * 緊急同調など
    * @param activator
@@ -729,9 +800,7 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
     if (!myInfo) {
       throw new SystemError("想定されない状態", this, activator, ignoreCost);
     }
-    const flg = await this.execute(myInfo, []);
-    await this.settle(myInfo, []);
-    return flg;
+    return await this.execute(myInfo, []);
   };
 
   public readonly isSame = (other: EntityAction<unknown>) => this.entity.origin.name === other.entity.origin.name && this.title === other.title;

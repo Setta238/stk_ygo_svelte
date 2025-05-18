@@ -884,7 +884,14 @@ export class DuelEntity {
     this.continuousEffects.push(...continuousEffectBases.map((b) => ContinuousEffect.createNew(this, b)));
   }
 
-  public readonly toString = () => (this.entityType === "Card" ? `《${this.nm}》` : this.nm);
+  public readonly toString = () => {
+    let result = this.nm;
+    if (this.nm !== this.origin.name) {
+      result = `${result}(${this.origin.name})`;
+    }
+
+    return this.entityType === "Card" ? `《${result}》` : result;
+  };
 
   public readonly onUsedAsMaterial = (chainBlockInfo: ChainBlockInfo<unknown>, monster: DuelEntity) => {
     if (!this.definition) {

@@ -15,12 +15,14 @@
   } from "@ygo/class/YgoTypes";
   import type { SearchCondition } from "./DeckEditor.svelte";
   import { getKeys } from "@stk_utils/funcs/StkObjectUtils";
+  import { delay } from "@stk_utils/funcs/StkPromiseUtil";
 
   export let allCardInfos: CardInfoJson[];
   export let deckCardInfos: CardInfoJson[];
   export let mode: "List" | "Deck";
   export let onAttention: (cardInfo: CardInfoJson) => void;
   export let searchCondition: SearchCondition | undefined = undefined;
+
   const listGroup: { [key in TDeckTypes]: TCardKind[] } = {
     Deck: ["Monster", "Spell", "Trap"],
     ExtraDeck: ["Monster"],
@@ -65,6 +67,7 @@
   const getCardTree = () => {
     if (mode === "Deck") {
       createCardTree(deckCardInfos);
+      indexUpperBound = deckCardInfos.length;
     }
     return cardTree;
   };
@@ -104,7 +107,18 @@
     deckCardInfos.sort(cardSorter);
   };
 
-  const filter = (cardInfo: CardInfoJson) => {
+  // 重いので、描画を遅延させてみる。
+  let indexUpperBound = 100;
+  const afterDelay = () => {
+    if (indexUpperBound > allCardInfos.length + deckCardInfos.length) {
+      return;
+    }
+    indexUpperBound += 10;
+    delay(100).then(afterDelay);
+  };
+  delay(100).then(afterDelay);
+
+  const filter = (cardInfo: CardInfoJson, index: number) => {
     if (!searchCondition) {
       return true;
     }
@@ -147,62 +161,66 @@
   {:then}
     {@const tree = getCardTree()}
     {#each deckTypes as deckType}
+      {@const branch1all = Object.values(tree[deckType]).flatMap((cardInfos) => cardInfos)}
       <div class="deck_editor_deck_type">
-        <span>{deckTypeDic[deckType]}（{Object.values(tree[deckType]).flatMap((cardInfos) => cardInfos).length}枚）</span>
+        <span>{deckTypeDic[deckType]}（{branch1all.filter(filter).length} / {branch1all.length}枚）</span>
         {#each getKeys(tree[deckType]).filter((kind) => listGroup[deckType].includes(kind)) as kind}
+          {@const branch2 = tree[deckType][kind].filter(filter)}
           <div class="deck_editor_card_kind">
-            <span>{cardKindDic[kind]}（{tree[deckType][kind].length}枚）</span>
+            <span>{cardKindDic[kind]}（{branch2.length} / {tree[deckType][kind].length}枚）</span>
             <ul>
-              {#each tree[deckType][kind].filter(filter) as cardInfo}
-                <li class="deck_editor_item">
-                  <div
-                    role="listitem"
-                    class={`deck_editor_card duel_card ${cardInfo.kind} ${cardInfo?.monsterCategories?.join(" ")} ${cardInfo.isImplemented ? "is_implemented" : "is_not_implemented"}`}
-                    on:mouseenter={() => onAttention(cardInfo)}
-                  >
-                    <div>
+              {#each branch2 as cardInfo, index}
+                {#if index < indexUpperBound}
+                  <li class="deck_editor_item">
+                    <div
+                      role="listitem"
+                      class={`deck_editor_card duel_card ${cardInfo.kind} ${cardInfo?.monsterCategories?.join(" ")} ${cardInfo.isImplemented ? "is_implemented" : "is_not_implemented"}`}
+                      on:mouseenter={() => onAttention(cardInfo)}
+                    >
                       <div>
-                        {cardInfo.name}
-                      </div>
-                      <div style="display:flex">
                         <div>
-                          {#if cardInfo.kind === "Monster"}
-                            {#if cardInfo.level}
-                              ★{cardInfo.level}
-                            {/if}
-                            {#if cardInfo.rank}
-                              ☆{cardInfo.rank}
-                            {/if}
-                            {#each cardInfo.attributes ?? [] as attr}
-                              <div class="monster_attr {attr}"></div>
-                            {/each}
-                            {#each cardInfo.types ?? [] as type}
-                              {monsterTypeEmojiDic[type]}
-                            {/each}
-                            {#each cardInfo.monsterCategories ?? [] as cat}
-                              {monsterCategoryEmojiDic[cat]}
-                            {/each}
-                          {/if}
-                          {#if cardInfo.spellCategory !== undefined}
-                            {spellCategoryDic[cardInfo.spellCategory]}魔法
-                          {/if}
-                          {#if cardInfo.trapCategory !== undefined}
-                            {trapCategoryDic[cardInfo.trapCategory]}罠
-                          {/if}
+                          {cardInfo.name}
                         </div>
-                        <div style="flex-grow: 1; width:0.1rem"></div>
-                        <div>
-                          {#if cardInfo.kind === "Monster"}
-                            <span> {cardInfo.attack ?? "?"}</span> /
-                            <span style="display: inline-block;width:2rem;text-align: right;">{cardInfo.defense ?? "?"}</span>
-                          {/if}
+                        <div style="display:flex">
+                          <div>
+                            {#if cardInfo.kind === "Monster"}
+                              {#if cardInfo.level}
+                                ★{cardInfo.level}
+                              {/if}
+                              {#if cardInfo.rank}
+                                ☆{cardInfo.rank}
+                              {/if}
+                              {#each cardInfo.attributes ?? [] as attr}
+                                <div class="monster_attr {attr}"></div>
+                              {/each}
+                              {#each cardInfo.types ?? [] as type}
+                                {monsterTypeEmojiDic[type]}
+                              {/each}
+                              {#each cardInfo.monsterCategories ?? [] as cat}
+                                {monsterCategoryEmojiDic[cat]}
+                              {/each}
+                            {/if}
+                            {#if cardInfo.spellCategory !== undefined}
+                              {spellCategoryDic[cardInfo.spellCategory]}魔法
+                            {/if}
+                            {#if cardInfo.trapCategory !== undefined}
+                              {trapCategoryDic[cardInfo.trapCategory]}罠
+                            {/if}
+                          </div>
+                          <div style="flex-grow: 1; width:0.1rem"></div>
+                          <div>
+                            {#if cardInfo.kind === "Monster"}
+                              <span> {cardInfo.attack ?? "?"}</span> /
+                              <span style="display: inline-block;width:2rem;text-align: right;">{cardInfo.defense ?? "?"}</span>
+                            {/if}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                  <button class="button_style_reset" title="※shiftキー同時押しで一括投入" on:click={(ev) => onPlusButtonClick(ev, cardInfo)}>+</button>
-                  <button class="button_style_reset" title="※shiftキー同時押しで一括外し" on:click={(ev) => onMinusButtonClick(ev, cardInfo)}>-</button>
-                </li>
+                    <button class="button_style_reset" title="※shiftキー同時押しで一括投入" on:click={(ev) => onPlusButtonClick(ev, cardInfo)}>+</button>
+                    <button class="button_style_reset" title="※shiftキー同時押しで一括外し" on:click={(ev) => onMinusButtonClick(ev, cardInfo)}>-</button>
+                  </li>
+                {/if}
               {/each}
             </ul>
           </div>

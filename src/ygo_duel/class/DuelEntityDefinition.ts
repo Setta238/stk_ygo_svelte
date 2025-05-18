@@ -9,8 +9,9 @@ import type { SubstituteEffectDefinition } from "@ygo_duel/class/DuelSubstituteE
 import { cardInfoDic } from "@ygo/class/CardInfo";
 import {
   defaultNormalMonsterActions,
-  defaultSpecialSummonMonsterActions,
+  defaultActions,
   defaultSummonFilter,
+  defaultLinkMonsterActions,
 } from "../../ygo_entity_proc/card_actions/CommonCardAction_Monster";
 import { createDuelistProcDefinition } from "@ygo_entity_proc/duelist_proc_definitions/DuelistProcDefinitions";
 
@@ -101,7 +102,15 @@ export function* generateCardDefinitions(...names: string[]): Generator<EntityDe
               ...definition.fusionMaterialInfos.filter(isNameTypeFusionMaterialInfo).map((info) => info.cardName),
             ];
           }
-          yield { ...definition, summonFilter, staticInfo };
+          const _definition = { ...definition, summonFilter, staticInfo };
+          if (staticInfo.monsterCategories?.includes("Link")) {
+            _definition.actions = [...defaultLinkMonsterActions, ..._definition.actions];
+          } else if (staticInfo.monsterCategories?.includes("SpecialSummon")) {
+            _definition.actions = [...defaultActions, ..._definition.actions];
+          } else {
+            _definition.actions = [...defaultNormalMonsterActions, ...definition.actions];
+          }
+          yield _definition;
           _names.push(definition.name);
         }
       }
@@ -121,7 +130,7 @@ export function* generateCardDefinitions(...names: string[]): Generator<EntityDe
 
       return {
         name: info.name,
-        actions: info.monsterCategories?.includes("SpecialSummon") ? defaultSpecialSummonMonsterActions : defaultNormalMonsterActions,
+        actions: info.monsterCategories?.includes("SpecialSummon") ? defaultActions : defaultNormalMonsterActions,
         staticInfo: info,
       };
     });

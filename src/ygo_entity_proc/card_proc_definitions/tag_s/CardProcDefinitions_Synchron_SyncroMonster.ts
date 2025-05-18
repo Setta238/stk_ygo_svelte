@@ -1,9 +1,4 @@
-import {
-  defaultAttackAction,
-  defaultBattlePotisionChangeAction,
-  defaultFlipSummonAction,
-  getDefaultAccelSynchroACtion,
-} from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
+import { getDefaultAccelSynchroAction } from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
@@ -15,9 +10,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "フォーミュラ・シンクロン",
     actions: [
-      defaultAttackAction,
-      defaultBattlePotisionChangeAction,
-      defaultFlipSummonAction,
       getDefaultSynchroSummonAction(),
       {
         title: "①ドロー",
@@ -38,7 +30,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         },
         settle: async () => true,
       },
-      getDefaultAccelSynchroACtion({ title: "②シンクロ召喚", isOnlyNTimesPerChain: 1 }),
+      getDefaultAccelSynchroAction({ title: "②シンクロ召喚", isOnlyNTimesPerChain: 1 }),
     ],
   };
 }

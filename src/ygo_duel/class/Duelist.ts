@@ -183,7 +183,7 @@ export class Duelist {
         tmp.push("CardActivation", "IgnitionEffect", "TriggerEffect", "QuickEffect");
       }
       if (this.profile.npcLvl < 101) {
-        tmp.push("Battle");
+        tmp.push("DeclareAttack");
       }
     }
     this.actionBlackListForNPC = tmp;
@@ -819,7 +819,7 @@ export class Duelist {
 
     // 攻撃宣言がある場合、攻撃力の低いモンスターから戦闘破壊可能なモンスターを攻撃できるかチェックし、選択する
     const battleActions = _actionInfos
-      .filter((info) => info.action.playType === "Battle")
+      .filter((info) => info.action.playType === "DeclareAttack")
       .sort((left, right) => (left.action.entity.atk ?? 0) - (right.action.entity.atk ?? 0));
 
     // 攻撃宣言のタイミングは、攻撃宣言しかできないのでここでreturnする。
@@ -828,7 +828,7 @@ export class Duelist {
     }
 
     // 攻撃宣言は（念の為）この時点でフィルタリング
-    _actionInfos = _actionInfos.filter((info) => info.action.playType !== "Battle");
+    _actionInfos = _actionInfos.filter((info) => info.action.playType !== "DeclareAttack");
 
     // 一つ前のブロックの発動者が自分ではない場合、無効化効果を探して実行する。
     const previousBlock = _actionInfos.length ? chainBlockInfos.slice(-1)[0] : undefined;

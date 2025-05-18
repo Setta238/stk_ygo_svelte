@@ -1,9 +1,3 @@
-import {
-  defaultAttackAction,
-  defaultBattlePotisionChangeAction,
-  defaultFlipSummonAction,
-  defaultNormalSummonAction,
-} from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import type { CardActionDefinition, ChainBlockInfo, ChainBlockInfoBase } from "@ygo_duel/class/DuelEntityAction";
 import {
@@ -106,10 +100,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "魔導戦士 ブレイカー",
     actions: [
-      defaultAttackAction,
-      defaultBattlePotisionChangeAction,
-      defaultFlipSummonAction,
-      defaultNormalSummonAction,
       {
         title: "①魔力充填",
         isMandatory: true,
@@ -191,10 +181,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "王立魔法図書館",
     actions: [
-      defaultAttackAction,
-      defaultBattlePotisionChangeAction,
-      defaultFlipSummonAction,
-      defaultNormalSummonAction,
       { ...createSpellCounterChargeEffect("①", 1) },
       {
         title: "②ドロー",

@@ -1,8 +1,5 @@
 import {
   canSelfSepcialSummon,
-  defaultAttackAction,
-  defaultBattlePotisionChangeAction,
-  defaultFlipSummonAction,
   defaultSelfRebornExecute,
   defaultSelfReleaseCanPayCosts,
   defaultSelfReleasePayCosts,
@@ -32,9 +29,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "スターダスト・ドラゴン",
     actions: [
-      defaultAttackAction,
-      defaultBattlePotisionChangeAction,
-      defaultFlipSummonAction,
       getDefaultSynchroSummonAction(),
       {
         title: "①ヴィクテム・サンクチュアリ",
@@ -113,8 +107,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
     name: "閃珖竜 スターダスト",
 
     actions: [
-      defaultAttackAction,
-      defaultBattlePotisionChangeAction,
       getDefaultSynchroSummonAction(),
       {
         title: "波動音壁",
@@ -173,8 +165,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
     name: "真閃珖竜 スターダスト・クロニクル",
 
     actions: [
-      defaultAttackAction,
-      defaultBattlePotisionChangeAction,
       getDefaultSynchroSummonAction(
         (tuners) => tuners.length === 1 && tuners.every((tuner) => tuner.status.monsterCategories?.includes("Synchro")),
         (tuners) => tuners.length > 0 && tuners.every((tuner) => tuner.status.monsterCategories?.includes("Synchro"))
@@ -273,8 +263,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
     name: "聖珖神竜 スターダスト・シフル",
 
     actions: [
-      defaultAttackAction,
-      defaultBattlePotisionChangeAction,
       getDefaultSynchroSummonAction(
         (tuners) => tuners.length === 1 && tuners.every((tuner) => tuner.status.monsterCategories?.includes("Synchro")),
         (tuners) => tuners.length > 1 && tuners.every((tuner) => tuner.status.monsterCategories?.includes("Synchro"))

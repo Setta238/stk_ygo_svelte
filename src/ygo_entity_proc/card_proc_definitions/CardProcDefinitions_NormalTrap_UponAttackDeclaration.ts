@@ -23,22 +23,24 @@ export default function* generate(): Generator<EntityProcDefinition> {
           executableDuelistTypes: ["Controller"],
           hasToTargetCards: true,
           isNoticedForcibly: true,
-          canExecute: (myInfo) => {
-            if (!myInfo.activator.duel.clock.isUponAttackDeclaration()) {
-              return false;
-            }
+          meetsConditions: (myInfo, chainBlockInfos) => chainBlockInfos.some((info) => info.action.playType === "DeclareAttack"),
+          canExecute: (myInfo, chainBlockInfos) => {
+            console.log(chainBlockInfos);
             if (myInfo.activator.isTurnPlayer) {
               return false;
             }
             const attacker = myInfo.activator.duel.attackingMonster;
             if (!attacker) {
-              throw new SystemError("想定されない状態", myInfo, attacker);
+              return false;
             }
 
             if (!attacker.canBeTargetOfEffect(myInfo)) {
               return false;
             }
 
+            if (!attacker.isOnFieldAsMonsterStrictly) {
+              return false;
+            }
             // 王宮の鉄壁などが有効である場合、発動不可
             if (name === "次元幽閉" && !myInfo.activator.canTryBanish(attacker, "BanishAsEffect", myInfo.action)) {
               return false;

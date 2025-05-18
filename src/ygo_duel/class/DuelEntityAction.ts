@@ -16,11 +16,11 @@ export const cardActionRuleSummonTypes = ["NormalSummon", "SpecialSummon", "Flip
 export type TCardActionRuleSummonType = (typeof cardActionRuleSummonTypes)[number];
 export const cardActionChainBlockTypes = ["IgnitionEffect", "TriggerEffect", "QuickEffect", "CardActivation"] as const;
 export type TCardActionChainBlockType = (typeof cardActionChainBlockTypes)[number];
-export const cardActionCreateChainTypes = [...cardActionRuleSummonTypes, ...cardActionChainBlockTypes] as const;
+export const cardActionCreateChainTypes = [...cardActionRuleSummonTypes, ...cardActionChainBlockTypes, "DeclareAttack"] as const;
 export type TCardActionCreateChainTypes = (typeof cardActionCreateChainTypes)[number];
 export const cardActionDeclareTypes = ["Surrender", "ChangePhase"] as const;
 export type CardActionDeclareTypes = (typeof cardActionDeclareTypes)[number];
-export const cardActionNonChainBlockTypes = ["ChangeBattlePosition", "Battle", "SpellTrapSet", "LingeringEffect"] as const;
+export const cardActionNonChainBlockTypes = ["ChangeBattlePosition", "SpellTrapSet", "LingeringEffect", "Battle"] as const;
 export type TCardActionNonChainBlockType = (typeof cardActionNonChainBlockTypes)[number];
 export type TCardActionType =
   | TCardActionCreateChainTypes
@@ -679,8 +679,6 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
       ignoreCost: false,
     };
 
-    console.log(this.definition.payCosts, ignoreCosts);
-
     if (this.definition.payCosts && !ignoreCosts) {
       const costInfo = await this.definition.payCosts(myInfo, chainBlockInfos, _cancelable);
       if (!costInfo) {
@@ -800,6 +798,7 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
     if (!myInfo) {
       throw new SystemError("想定されない状態", this, activator, ignoreCost);
     }
+    activator.duel.chainBlockLog.push(myInfo);
     return await this.execute(myInfo, []);
   };
 

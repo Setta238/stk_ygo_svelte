@@ -1,8 +1,5 @@
 import {
   canSelfSepcialSummon,
-  defaultAttackAction,
-  defaultBattlePotisionChangeAction,
-  defaultFlipSummonAction,
   defaultRuleSummonExecute,
   defaultRuleSummonPrepare,
   getDestsForSelfSpecialSummon,
@@ -19,9 +16,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "アンカモフライト",
     actions: [
-      defaultAttackAction,
-      defaultBattlePotisionChangeAction,
-      defaultFlipSummonAction,
       defaultContinuousSpellCardActivateAction,
       {
         title: "特殊召喚",

@@ -1,5 +1,3 @@
-import { defaultAttackAction } from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
-
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { getDefaultLinkSummonAction } from "@ygo_entity_proc/card_actions/CommonCardAction_LinkMonster";
@@ -14,7 +12,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "ファイアウォール・ドラゴン・シンギュラリティ",
     actions: [
-      defaultAttackAction,
       getDefaultLinkSummonAction((selected) => selected.length > 2),
       {
         title: "①バウンス＆自己強化",

@@ -1,11 +1,4 @@
-import {
-  canSelfSepcialSummon,
-  defaultAttackAction,
-  defaultBattlePotisionChangeAction,
-  defaultFlipSummonAction,
-  defaultNormalSummonAction,
-  defaultSelfRebornExecute,
-} from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
+import { canSelfSepcialSummon, defaultSelfRebornExecute } from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 
@@ -18,10 +11,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "ドットスケーパー",
     actions: [
-      defaultAttackAction,
-      defaultBattlePotisionChangeAction,
-      defaultNormalSummonAction,
-      defaultFlipSummonAction,
       {
         title: "①自己再生",
         isMandatory: false,

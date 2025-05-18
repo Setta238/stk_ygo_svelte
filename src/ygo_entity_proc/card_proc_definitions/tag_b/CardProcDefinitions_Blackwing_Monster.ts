@@ -1,9 +1,5 @@
 import {
   canSelfSepcialSummon,
-  defaultAttackAction,
-  defaultBattlePotisionChangeAction,
-  defaultFlipSummonAction,
-  defaultNormalSummonAction,
   defaultRuleSummonExecute,
   defaultRuleSummonPrepare,
   getDestsForSelfSpecialSummon,
@@ -18,10 +14,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "ＢＦ－疾風のゲイル",
     actions: [
-      defaultNormalSummonAction,
-      defaultAttackAction,
-      defaultBattlePotisionChangeAction,
-      defaultFlipSummonAction,
       {
         title: "①特殊召喚",
         isMandatory: false,

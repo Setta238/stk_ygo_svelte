@@ -1,11 +1,4 @@
-import {
-  defaultAttackAction,
-  defaultBattlePotisionChangeAction,
-  defaultFlipSummonAction,
-  defaultNormalSummonAction,
-  defaultSelfReleaseCanPayCosts,
-  defaultSelfReleasePayCosts,
-} from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
+import { defaultSelfReleaseCanPayCosts, defaultSelfReleasePayCosts } from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 
@@ -18,10 +11,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "死霊騎士デスカリバー・ナイト",
     actions: [
-      defaultAttackAction,
-      defaultBattlePotisionChangeAction,
-      defaultNormalSummonAction,
-      defaultFlipSummonAction,
       {
         title: "①モンスター効果無効",
         isMandatory: true,

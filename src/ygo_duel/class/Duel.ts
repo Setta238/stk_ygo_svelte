@@ -254,6 +254,13 @@ export class Duel {
       }
     } catch (error) {
       if (error instanceof DuelEnd) {
+        this.chainBlockLog.records.forEach((record) => {
+          if (record.chainBlockInfo.state === "ready") {
+            record.chainBlockInfo.state = "failed";
+          } else if (record.chainBlockInfo.state === "processing") {
+            record.chainBlockInfo.state = "done";
+          }
+        });
         this.clock.incrementChainSeq();
         console.info(error);
         this.isEnded = true;
@@ -281,7 +288,7 @@ export class Duel {
     }
   };
 
-  public readonly declareAnAttack = (attacker: DuelEntity, defender: DuelEntity, reselect: boolean = false): void => {
+  public readonly declareAttack = (attacker: DuelEntity, defender: DuelEntity, reselect: boolean = false): void => {
     this.attackingMonster = attacker;
     this.targetForAttack = defender;
     let def = " (" + (defender.battlePosition === "Attack" ? defender.atk : defender.def)?.toString() + ")";
@@ -402,21 +409,18 @@ export class Duel {
     while (true) {
       this.clock.setStep(this, "battle");
       this.priorityHolder = this.getTurnPlayer();
-      const response = await this.view.waitFieldAction(this.getEnableActions(this.priorityHolder, ["Battle"], ["Normal"], []));
+      const response = await this.view.waitFieldAction(this.getEnableActions(this.priorityHolder, ["DeclareAttack"], ["Normal"], []));
 
       if (response.phaseChange) {
         //エンドステップへ（※優先権の移動はない）
         break;
       }
       if (response.actionInfo) {
-        const info = await response.actionInfo.action.prepare(this.priorityHolder, response.actionInfo.dest, undefined, [], true, false);
-        if (!info) {
+        // ユーザー入力がカードアクションだった場合、チェーン処理へ
+        const result = await this.procChain({ activator: this.priorityHolder, actionInfo: response.actionInfo }, undefined);
+        if (result === "cancel") {
           continue;
         }
-        //チェーンに乗らない処理を実行し、処理番号をインクリメント
-        await response.actionInfo.action.execute(info, []);
-        this.clock.incrementChainSeq();
-
         //フリーチェーン処理のループ。
         //一回のチェーンごとに、戦闘可否判定を行い、否であればループを抜ける。
         while (this.attackingMonster && this.targetForAttack) {
@@ -469,7 +473,7 @@ export class Duel {
               break;
             }
 
-            this.declareAnAttack(this.attackingMonster, this.targetForAttack, true);
+            this.declareAttack(this.attackingMonster, this.targetForAttack, true);
 
             continue;
           }
@@ -480,12 +484,12 @@ export class Duel {
 
         if (this.attackingMonster && this.targetForAttack) {
           //ダメージステップ処理へ
-          await this.procBattlePhaseDamageStep(info);
+          await this.procBattlePhaseDamageStep();
         }
       }
     }
   };
-  private readonly procBattlePhaseDamageStep = async (chainBlockInfo: ChainBlockInfo<unknown>) => {
+  private readonly procBattlePhaseDamageStep = async () => {
     if (!this.attackingMonster || !this.targetForAttack) {
       throw new SystemError("想定されない状態", this.attackingMonster, this.targetForAttack);
     }
@@ -501,7 +505,7 @@ export class Duel {
       this.procBattlePhaseDamageStep4,
       this.procBattlePhaseDamageStep5,
     ]) {
-      if (!(await procBattlePhaseDamageStep(chainBlockInfo))) {
+      if (!(await procBattlePhaseDamageStep())) {
         return;
       }
     }
@@ -531,7 +535,7 @@ export class Duel {
     //TODO 「ライトロード・モンク エイリン」「ドリルロイド」等、
     return await this.procFreeChain(this.canContinueBattle);
   };
-  private readonly procBattlePhaseDamageStep3 = async (chainBlockInfo: ChainBlockInfo<unknown>): Promise<boolean> => {
+  private readonly procBattlePhaseDamageStep3 = async (): Promise<boolean> => {
     if (!this.attackingMonster) {
       throw new SystemError("想定されない状態", this.attackingMonster);
     }
@@ -557,34 +561,50 @@ export class Duel {
     //ダメージ計算時③ダメージ計算 ～ ④ダメージ数値確定 ～ ⑤戦闘ダメージの発生
     const atkPoint = attacker.atk;
     const defPoint = (defender.battlePosition === "Attack" ? defender.atk : defender.def) ?? 0;
+    const activator = this.getTurnPlayer();
+
+    const battleAction = attacker.actions.find((action) => action.playType === "Battle");
+
+    if (!battleAction) {
+      throw new SystemError(`${attacker.toString()}に戦闘アクションが定義されていない。`);
+    }
+
+    const battleChainBlockInfo = await battleAction.prepare(activator, defender.fieldCell, undefined, [], false, false);
+
+    if (!battleChainBlockInfo) {
+      throw new IllegalCancelError(`戦闘アクションがキャンセルされた。`);
+    }
+    this.chainBlockLog.push(battleChainBlockInfo);
 
     if (defender.entityType === "Duelist") {
-      chainBlockInfo.activator.writeInfoLog(`ダメージ計算：${attacker.toString()} (${atkPoint}) ⇒ ${defender.toString()}`);
-      attacker.controller.getOpponentPlayer().battleDamage(atkPoint - defPoint, attacker, defender, chainBlockInfo);
+      activator.writeInfoLog(`ダメージ計算：${attacker.toString()} (${atkPoint}) ⇒ ${defender.toString()}`);
+      attacker.controller.getOpponentPlayer().battleDamage(atkPoint - defPoint, attacker, defender, battleChainBlockInfo);
     } else {
-      chainBlockInfo.activator.writeInfoLog(`ダメージ計算：${attacker.toString()} (${atkPoint}) ⇒ ${defender.toString()} (${defPoint})`);
+      activator.writeInfoLog(`ダメージ計算：${attacker.toString()} (${atkPoint}) ⇒ ${defender.toString()} (${defPoint})`);
       // 戦闘ダメージ計算
       if (atkPoint > 0 && atkPoint > defPoint) {
         if (defender.battlePosition === "Attack") {
-          attacker.controller.getOpponentPlayer().battleDamage(atkPoint - defPoint, attacker, defender, chainBlockInfo);
+          attacker.controller.getOpponentPlayer().battleDamage(atkPoint - defPoint, attacker, defender, battleChainBlockInfo);
         } else {
-          attacker.status.piercingTo.getDistinct().forEach((duelist) => duelist.battleDamage(atkPoint - defPoint, attacker, defender, chainBlockInfo));
+          attacker.status.piercingTo.getDistinct().forEach((duelist) => duelist.battleDamage(atkPoint - defPoint, attacker, defender, battleChainBlockInfo));
         }
       } else if (atkPoint < defPoint) {
         // 絶対防御将軍が守備表示で攻撃しても反射ダメージが発生するとのこと。
-        attacker.controller.battleDamage(defPoint - atkPoint, defender, attacker, chainBlockInfo);
+        attacker.controller.battleDamage(defPoint - atkPoint, defender, attacker, battleChainBlockInfo);
       }
 
       //ダメージ計算時 ⑥戦闘破壊確定
       // ※被破壊側の永続効果の終了、破壊側（混沌の黒魔術師、ハデスなど）の永続効果の適用
       // ※墓地送りはprocBattlePhaseDamageStep5で行う。
       if (atkPoint > 0 && (atkPoint > defPoint || (atkPoint === defPoint && defender.battlePosition === "Attack"))) {
-        await DuelEntityShortHands.tryMarkForDestory([defender], chainBlockInfo);
+        await DuelEntityShortHands.tryMarkForDestory([defender], battleChainBlockInfo);
       }
       if (defender.battlePosition === "Attack" && atkPoint <= defPoint) {
-        await DuelEntityShortHands.tryMarkForDestory([attacker], chainBlockInfo);
+        await DuelEntityShortHands.tryMarkForDestory([attacker], battleChainBlockInfo);
       }
     }
+
+    battleChainBlockInfo.state = atkPoint > defPoint ? "done" : "failed";
 
     attacker.info.battleLog.push({ enemy: defender, timestamp: this.clock.getClone() });
     defender.info.battleLog.push({ enemy: attacker, timestamp: this.clock.getClone() });
@@ -956,7 +976,7 @@ export class Duel {
 
         if (chainBlockInfo.nextActionInfo) {
           // ★★★★★ 再帰実行 ★★★★★
-          //   ※ 緊急同調など、直後にチェーンに乗らない特殊召喚を行う場合。チェーン１の場合、では昇天の角笛を発動できる。
+          //   ※ 緊急同調など、直後にチェーンに乗らない特殊召喚をチェーン１を行う場合は昇天の角笛を発動できる。
           //   ※ ！重要！ チェーン番号は同じまま進める。このチェーンが終わったあとに、誘発効果の収拾を行うため。
           await this.procChain({ activator: chainBlockInfo.activator, actionInfo: chainBlockInfo.nextActionInfo }, undefined);
         }

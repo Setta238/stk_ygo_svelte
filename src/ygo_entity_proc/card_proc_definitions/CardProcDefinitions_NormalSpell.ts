@@ -14,7 +14,7 @@ import {
 } from "@ygo_entity_proc/card_actions/CommonCardAction";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 import { executableDuelistTypes, type ChainBlockInfoBase } from "@ygo_duel/class/DuelEntityAction";
-import { defaultSpecialSummonMonsterActions } from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
+import { defaultActions } from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
@@ -241,7 +241,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
     myInfo.activator.duel.field.getWaitingRoomCell().cardEntities.find((entity) => entity.parent === myInfo.action.entity) ??
     DuelEntity.createTokenEntity(myInfo.activator, myInfo.action.entity, {
       name: "セキュリティトークン",
-      actions: defaultSpecialSummonMonsterActions,
+      actions: defaultActions,
       staticInfo: {
         name: "セキュリティトークン",
         kind: "Monster",

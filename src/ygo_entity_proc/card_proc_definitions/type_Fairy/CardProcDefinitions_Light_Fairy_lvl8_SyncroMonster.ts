@@ -1,10 +1,4 @@
-import {
-  canSelfSepcialSummon,
-  defaultAttackAction,
-  defaultBattlePotisionChangeAction,
-  defaultFlipSummonAction,
-  defaultSelfRebornExecute,
-} from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
+import { canSelfSepcialSummon, defaultSelfRebornExecute } from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
@@ -17,9 +11,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "ゼラの天使",
     actions: [
-      defaultAttackAction,
-      defaultBattlePotisionChangeAction,
-      defaultFlipSummonAction,
       getDefaultSynchroSummonAction(),
       {
         title: "②自己帰還",

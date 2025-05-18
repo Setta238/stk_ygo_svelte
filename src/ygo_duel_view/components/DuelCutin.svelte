@@ -8,7 +8,8 @@
   export let duel: Duel;
   type Record = ChainBlockLogRecord & { isKnown?: boolean };
   let records: (ChainBlockLogRecord & { isKnown?: boolean })[] = [];
-  let timerPromise = Promise.resolve();
+  let removeTimerPromise = Promise.resolve();
+  let insertTimerPromise = Promise.resolve();
 
   const minLifespan = 1000;
   const flipDuration = 500;
@@ -19,7 +20,7 @@
     _newRecord.isKnown = newRecord.chainBlockInfo.action.entity.controller.duelistType === "Player" || newRecord.chainBlockInfo.action.entity.face === "FaceUp";
     _newRecord.chainBlockInfo.onStateChange.append((newState) => {
       if (newState === "done" || newState === "failed" || newState === "nagated") {
-        timerPromise = timerPromise
+        removeTimerPromise = removeTimerPromise
           .then(async () => {
             const ms = new Date().getTime() - _newRecord.chainBlockInfo.wasSpawnedAt.getTime();
             if (ms < minLifespan) {
@@ -33,14 +34,17 @@
       }
       records = records;
     });
-    records = [_newRecord, ...records].sort((left, right) => {
-      if (DuelClock.isSameChain(left.clock, right.clock)) {
-        // 同じチェーン内であれば、処理順は逆転する。
-        return right.clock.totalProcSeq - left.clock.totalProcSeq;
-      }
-      return left.clock.totalProcSeq - right.clock.totalProcSeq;
+    insertTimerPromise = insertTimerPromise.then(async () => {
+      records = [_newRecord, ...records].sort((left, right) => {
+        if (DuelClock.isSameChain(left.clock, right.clock) && left.chainBlockInfo.action.isWithChainBlock && right.chainBlockInfo.action.isWithChainBlock) {
+          // 同じチェーン内であれば、処理順は逆転する。
+          return right.clock.totalProcSeq - left.clock.totalProcSeq;
+        }
+        return left.clock.totalProcSeq - right.clock.totalProcSeq;
+      });
+      await delay(300);
     });
-    timerPromise = timerPromise.then(() => delay(1000));
+    removeTimerPromise = removeTimerPromise.then(() => delay(1000));
   };
 
   duel.chainBlockLog.onInsert.append(onInsert);
@@ -64,11 +68,13 @@
         {/if}
         <div class="duelist_name duelist_{activator.seat.toLowerCase()}_name">{activator.profile.name}</div>
         <div
-          class="duel_card {record.isKnown ? (action.entity.status.monsterCategories ?? []).join(' ') : 'Token'} {record.isKnown
-            ? action.entity.origin.kind
-            : ''}  "
+          class="duel_card duel_card_{activator.seat.toLowerCase()} {record.isKnown
+            ? (action.entity.status.monsterCategories ?? []).join(' ')
+            : 'Token'} {record.isKnown ? action.entity.origin.kind : ''} {action.entity.entityType} "
         >
-          <div class="duel_card_row">{record.isKnown ? action.entity.nm : "？？？"}</div>
+          {#if action.entity.entityType === "Card" || action.entity.entityType === "Token"}
+            <div class="duel_card_row">{record.isKnown ? action.entity.nm : "？？？"}</div>
+          {/if}
           <div class="duel_card_row">{action.toString()}</div>
         </div>
       </div>

@@ -256,7 +256,14 @@ export class DuelEntity {
         _face = "FaceDown";
         _pos = entity.status.willReturnToDeck;
         _orientation = "Vertical";
-      } else if (entity.status.monsterCategories?.includes("Pendulum") && entity.isOnFieldStrictly && entity.face === "FaceUp" && to.isTrashCell) {
+      } else if (
+        entity.status.monsterCategories?.includes("Pendulum") &&
+        entity.isOnField &&
+        !entity.info.isPending &&
+        entity.kind !== "XyzMaterial" &&
+        entity.face === "FaceUp" &&
+        to.isTrashCell
+      ) {
         _to = entity.owner.getExtraDeck();
         _face = "FaceUp";
         _pos = "Top";
@@ -1358,25 +1365,9 @@ DuelEntity.prototype.getAttackTargets = function (): DuelEntity[] {
     .getMonstersOnField()
     .filter((enemy) => enemy.status.isSelectableForAttack);
 
-  console.log(this.toString(), enemies, this.status.canDirectAttack);
-
   if (this.status.canDirectAttack || !enemies.length) {
-    console.log(this.toString(), enemies, this.status.canDirectAttack);
     enemies.push(this.controller.getOpponentPlayer().entity);
   }
-
-  console.log(
-    this.toString(),
-    enemies,
-    this.status.canDirectAttack,
-    enemies
-      .filter((enemy) => enemy.canBeTargetOfBattle(this.controller, this))
-      .filter((enemy) =>
-        this.procFilterBundle.effectiveOperators
-          .filter((pf) => pf.procTypes.includes("BattleTarget"))
-          .every((pf) => pf.filter(this.controller, this, {}, [enemy]))
-      )
-  );
 
   // 自分、相手ともにフィルタリングが必要。
   return enemies

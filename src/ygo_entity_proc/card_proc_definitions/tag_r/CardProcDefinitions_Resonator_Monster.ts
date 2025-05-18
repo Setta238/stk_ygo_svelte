@@ -1,10 +1,4 @@
-import {
-  defaultAttackAction,
-  defaultBattlePotisionChangeAction,
-  defaultFlipSummonAction,
-  defaultNormalSummonAction,
-  getSelfBattleSubstituteEffectDefinition,
-} from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
+import { getSelfBattleSubstituteEffectDefinition } from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
@@ -12,17 +6,13 @@ import { getSingleTargetActionPartical } from "@ygo_entity_proc/card_actions/Com
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "ダーク・リゾネーター",
-    actions: [defaultAttackAction, defaultBattlePotisionChangeAction, defaultFlipSummonAction, defaultNormalSummonAction],
+    actions: [],
     substituteEffects: [getSelfBattleSubstituteEffectDefinition(1)],
   };
 
   yield {
     name: "レッド・リゾネーター",
     actions: [
-      defaultAttackAction,
-      defaultBattlePotisionChangeAction,
-      defaultFlipSummonAction,
-      defaultNormalSummonAction,
       {
         title: "①特殊召喚",
         isMandatory: false,

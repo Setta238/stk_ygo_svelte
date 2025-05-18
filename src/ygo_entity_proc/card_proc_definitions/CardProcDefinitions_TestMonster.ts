@@ -1,11 +1,4 @@
-import type { CardActionDefinition } from "@ygo_duel/class/DuelEntityAction";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
-import {
-  defaultAttackAction,
-  defaultBattlePotisionChangeAction,
-  defaultFlipSummonAction,
-  defaultNormalSummonAction,
-} from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 
@@ -21,7 +14,7 @@ import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNume
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "にせアバター",
-    actions: [defaultNormalSummonAction, defaultAttackAction, defaultBattlePotisionChangeAction, defaultFlipSummonAction] as CardActionDefinition<unknown>[],
+    actions: [],
     continuousEffects: [
       createRegularNumericStateOperatorHandler(
         "THE_DEVILS_AVATAR",
@@ -46,9 +39,9 @@ export default function* generate(): Generator<EntityProcDefinition> {
   };
   yield {
     name: "にせドレッド・ルート",
-    actions: [defaultNormalSummonAction, defaultAttackAction, defaultBattlePotisionChangeAction, defaultFlipSummonAction] as CardActionDefinition<unknown>[],
+    actions: [],
     continuousEffects: [
-      createBroadRegularNumericStateOperatorHandler("THE_DEVILS_DREAD-ROOT", "Monster", (entity: DuelEntity) => {
+      createBroadRegularNumericStateOperatorHandler("THE_DEVILS_DREAD-ROOT", "Monster", (entity) => {
         return (["attack", "defense"] as TEntityFlexibleNumericStatusKey[]).map((targetState) =>
           NumericStateOperator.createContinuous(
             "THE_DEVILS_DREAD-ROOT",
@@ -58,7 +51,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             targetState,
             "calculated",
             "THE_DEVILS_DREAD-ROOT",
-            (spawner: DuelEntity, monster: DuelEntity, current: number) => Math.round(current / 2)
+            (spawner, monster, current) => Math.round(current / 2)
           )
         );
       }),

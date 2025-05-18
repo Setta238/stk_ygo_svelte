@@ -1,11 +1,4 @@
-import {
-  defaultAttackAction,
-  defaultBattlePotisionChangeAction,
-  defaultFlipSummonAction,
-  defaultNormalSummonAction,
-  defaultSelfReleaseCanPayCosts,
-  defaultSelfReleasePayCosts,
-} from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
+import { defaultSelfReleaseCanPayCosts, defaultSelfReleasePayCosts } from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
@@ -18,10 +11,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "星杯の妖精リース",
     actions: [
-      defaultAttackAction,
-      defaultBattlePotisionChangeAction,
-      defaultFlipSummonAction,
-      defaultNormalSummonAction,
       {
         title: "①サーチ",
         isMandatory: false,
@@ -106,10 +95,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "星遺物－『星杯』",
     actions: [
-      defaultAttackAction,
-      defaultBattlePotisionChangeAction,
-      defaultFlipSummonAction,
-      defaultNormalSummonAction,
       {
         title: "①墓地送り",
         isMandatory: false,

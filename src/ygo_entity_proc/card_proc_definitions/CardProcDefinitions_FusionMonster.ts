@@ -1,5 +1,3 @@
-import { defaultAttackAction, defaultBattlePotisionChangeAction, defaultFlipSummonAction } from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
-
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { EntityProcDefinition, FusionMaterialInfo } from "@ygo_duel/class/DuelEntityDefinition";
 export default function* generate(): Generator<EntityProcDefinition> {
@@ -431,7 +429,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
   for (const baseDefinition of baseDefinitions) {
     yield {
       name: baseDefinition.name,
-      actions: [defaultAttackAction, defaultBattlePotisionChangeAction, defaultFlipSummonAction],
+      actions: [],
       fusionMaterialInfos: baseDefinition.materialInfos,
     };
   }

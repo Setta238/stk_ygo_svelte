@@ -113,7 +113,7 @@ export const defaultRuleSummonExecute = async (myInfo: ChainBlockInfo<unknown>):
   return true;
 };
 
-export const defaultNormalSummonAction: CardActionDefinition<unknown> = {
+const defaultNormalSummonAction: CardActionDefinition<unknown> = {
   title: "通常召喚",
   isMandatory: false,
   playType: "NormalSummon",
@@ -253,10 +253,10 @@ export const defaultRuleSpecialSummonExecute = async (myInfo: ChainBlockInfo<Sum
   return Boolean(monster);
 };
 
-export const defaultAttackAction: CardActionDefinition<unknown> = {
+const defaultDeclareAttackAction: CardActionDefinition<unknown> = {
   title: "攻撃宣言",
   isMandatory: false,
-  playType: "Battle",
+  playType: "DeclareAttack",
   spellSpeed: "Normal",
   executableCells: ["MonsterZone", "ExtraMonsterZone"],
   executablePeriods: ["b1Battle", "b2Battle"],
@@ -267,6 +267,9 @@ export const defaultAttackAction: CardActionDefinition<unknown> = {
     if (!myInfo.activator.isTurnPlayer) {
       return false;
     }
+    if (!myInfo.action.entity.isMonster) {
+      return false;
+    }
     if (!myInfo.action.entity.status.canAttack) {
       return false;
     }
@@ -275,21 +278,10 @@ export const defaultAttackAction: CardActionDefinition<unknown> = {
     }
     return myInfo.action.getTargetableEntities(myInfo, chainBlockInfos).length > 0;
   },
-  getDests: (myInfo, chainBlockInfos) =>
-    myInfo.action
-      .getTargetableEntities(myInfo, chainBlockInfos)
-      .filter((entity) => entity.isOnField)
-      .map((card) => card.fieldCell),
+  getDests: (myInfo, chainBlockInfos) => myInfo.action.getTargetableEntities(myInfo, chainBlockInfos).map((card) => card.fieldCell),
   prepare: async (myInfo, chainBlockInfos) => {
     if (myInfo.action.entity.info.attackDeclareCount > 0 || myInfo.action.entity.battlePosition !== "Attack") {
       return;
-    }
-
-    // ドラッグ・アンド・ドロップでセルを指定していた場合、エンティティに逆変換
-    if (myInfo.dest?.targetForAttack) {
-      const opponent = myInfo.dest.entities.find((entity) => entity.entityType === "Duelist");
-
-      return { selectedEntities: opponent ? [opponent] : myInfo.dest.cardEntities, chainBlockTags: [], prepared: undefined };
     }
 
     const choices = myInfo.action.getTargetableEntities(myInfo, chainBlockInfos);
@@ -297,32 +289,68 @@ export const defaultAttackAction: CardActionDefinition<unknown> = {
     if (choices.length === 0) {
       throw new SystemError("攻撃対象の選択肢がない状態で実行された。", myInfo);
     }
-    if (choices.length === 1) {
-      return { selectedEntities: choices, chainBlockTags: [], prepared: undefined };
-    }
+    let target = choices[0];
 
-    if (myInfo.activator.duelistType === "NPC") {
-      let target = myInfo.activator.selectAttackTargetForNPC(myInfo.action.entity, myInfo.action as EntityAction<unknown>);
-      if (!target) {
-        myInfo.activator.duel.log.warn("NPCの攻撃対象選択に失敗したため、ランダムに攻撃対象を選択。");
-        target = choices.randomPick();
+    while (true) {
+      if (choices.length === 1) {
+        break;
       }
-      return { selectedEntities: [target], chainBlockTags: [], prepared: undefined };
+
+      // ドラッグ・アンド・ドロップでセルを指定していた場合、エンティティに逆変換
+      if (myInfo.dest?.targetForAttack) {
+        const opponent = myInfo.dest.entities.find((entity) => entity.entityType === "Duelist");
+        target = opponent ?? myInfo.dest?.targetForAttack;
+        break;
+      }
+
+      if (myInfo.activator.duelistType === "NPC") {
+        let target = myInfo.activator.selectAttackTargetForNPC(myInfo.action.entity, myInfo.action as EntityAction<unknown>);
+        if (!target) {
+          myInfo.activator.duel.log.warn("NPCの攻撃対象選択に失敗したため、ランダムに攻撃対象を選択。");
+          target = choices.randomPick();
+        }
+        break;
+      }
+
+      const _target = await myInfo.activator.waitSelectEntity(choices, "攻撃対象を選択。", true);
+
+      if (!_target) {
+        return;
+      }
+      target = _target;
+
+      break;
     }
-
-    const target = await myInfo.activator.waitSelectEntity(choices, "攻撃対象を選択。", true);
-
-    if (!target) {
-      return;
-    }
-
+    myInfo.action.entity.field.duel.declareAttack(myInfo.action.entity, target);
     return { selectedEntities: [target], chainBlockTags: [], prepared: undefined };
   },
-  execute: async (myInfo) => {
-    myInfo.action.entity.field.duel.declareAnAttack(myInfo.action.entity, myInfo.selectedEntities[0]);
+  execute: async () => true,
+  settle: async () => true,
+};
 
-    return true;
+const defaultBattleAction: CardActionDefinition<unknown> = {
+  title: "戦闘",
+  isMandatory: false,
+  playType: "Battle",
+  spellSpeed: "Normal",
+  executableCells: ["MonsterZone", "ExtraMonsterZone"],
+  executablePeriods: ["b1DDmgCalc", "b2DDmgCalc"],
+  executableDuelistTypes: ["Controller"],
+  hasToTargetCards: true,
+  canExecute: (myInfo) =>
+    Boolean(myInfo.activator.duel.targetForAttack) && myInfo.activator.duel.attackingMonster === myInfo.action.entity && myInfo.action.entity.isMonster,
+  prepare: async (myInfo) => {
+    if (myInfo.activator.duel.attackingMonster !== myInfo.action.entity) {
+      throw new SystemError("canExecuteの判定が正しく行われなかった", myInfo, myInfo.activator.duel.attackingMonster, myInfo.activator.duel.targetForAttack);
+    }
+
+    if (!myInfo.activator.duel.targetForAttack) {
+      throw new SystemError("canExecuteの判定が正しく行われなかった", myInfo, myInfo.activator.duel.attackingMonster, myInfo.activator.duel.targetForAttack);
+    }
+
+    return { selectedEntities: [myInfo.activator.duel.targetForAttack], chainBlockTags: [], prepared: undefined };
   },
+  execute: async () => true,
   settle: async () => true,
 };
 
@@ -342,7 +370,7 @@ const defaultBattlePotisionChangePrepare = async (myInfo: ChainBlockInfoPreparin
   return { selectedEntities: [], chainBlockTags: [], prepared: undefined };
 };
 
-export const defaultFlipSummonAction: CardActionDefinition<unknown> = {
+const defaultFlipSummonAction: CardActionDefinition<unknown> = {
   title: "反転召喚",
   isMandatory: false,
   playType: "FlipSummon",
@@ -354,7 +382,8 @@ export const defaultFlipSummonAction: CardActionDefinition<unknown> = {
     myInfo.action.entity.info.battlePotisionChangeCount === 0 &&
     myInfo.action.entity.info.attackDeclareCount === 0 &&
     myInfo.activator.isTurnPlayer &&
-    myInfo.action.entity.face === "FaceDown",
+    myInfo.action.entity.face === "FaceDown" &&
+    myInfo.action.entity.isMonster,
   prepare: defaultBattlePotisionChangePrepare,
   execute: async (myInfo) => {
     myInfo.action.entity.determine();
@@ -363,10 +392,9 @@ export const defaultFlipSummonAction: CardActionDefinition<unknown> = {
   },
   settle: async () => true,
 };
-export const defaultBattlePotisionChangeAction: CardActionDefinition<unknown> = {
+const defaultBattlePotisionChangeAction: CardActionDefinition<unknown> = {
   title: "表示形式変更",
   isMandatory: false,
-
   playType: "ChangeBattlePosition",
   spellSpeed: "Normal",
   executableCells: ["MonsterZone", "ExtraMonsterZone"],
@@ -376,7 +404,9 @@ export const defaultBattlePotisionChangeAction: CardActionDefinition<unknown> = 
     myInfo.action.entity.info.battlePotisionChangeCount === 0 &&
     myInfo.action.entity.info.attackDeclareCount === 0 &&
     myInfo.activator.isTurnPlayer &&
-    myInfo.action.entity.face === "FaceUp",
+    myInfo.action.entity.face === "FaceUp" &&
+    myInfo.action.entity.isMonster,
+
   prepare: defaultBattlePotisionChangePrepare,
   execute: async (myInfo) => {
     myInfo.action.entity.determine();
@@ -395,8 +425,9 @@ export const defaultSelfRebornExecute = async <T>(myInfo: ChainBlockInfo<T>, pos
   return true;
 };
 
-export const defaultSpecialSummonMonsterActions = [defaultAttackAction, defaultBattlePotisionChangeAction, defaultFlipSummonAction] as const;
-export const defaultNormalMonsterActions = [...defaultSpecialSummonMonsterActions, defaultNormalSummonAction] as const;
+export const defaultLinkMonsterActions = [defaultDeclareAttackAction, defaultBattleAction] as const;
+export const defaultActions = [...defaultLinkMonsterActions, defaultBattlePotisionChangeAction, defaultFlipSummonAction] as const;
+export const defaultNormalMonsterActions = [defaultNormalSummonAction, ...defaultActions] as const;
 
 /**
  * 通常の特殊召喚モンスター用
@@ -531,7 +562,7 @@ export const defaultSelfReleasePayCosts = async <T>(myInfo: ChainBlockInfoBase<T
   return { release: [myInfo.action.entity] };
 };
 
-export const getDefaultAccelSynchroACtion = <T>(options: Partial<CardActionDefinition<T>>): CardActionDefinition<T> => {
+export const getDefaultAccelSynchroAction = <T>(options: Partial<CardActionDefinition<T>>): CardActionDefinition<T> => {
   return {
     title: "シンクロ召喚",
     isMandatory: false,

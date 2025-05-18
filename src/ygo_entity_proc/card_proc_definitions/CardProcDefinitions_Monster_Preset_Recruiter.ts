@@ -1,12 +1,6 @@
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
 import { DuelEntity, type TDestoryCauseReason } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
-import {
-  defaultAttackAction,
-  defaultBattlePotisionChangeAction,
-  defaultFlipSummonAction,
-  defaultNormalSummonAction,
-} from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
@@ -270,10 +264,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
           },
           settle: async () => true,
         },
-        defaultAttackAction,
-        defaultBattlePotisionChangeAction,
-        defaultFlipSummonAction,
-        defaultNormalSummonAction,
       ],
     };
   });

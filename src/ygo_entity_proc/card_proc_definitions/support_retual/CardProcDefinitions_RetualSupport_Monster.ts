@@ -2,12 +2,6 @@ import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { IllegalCancelError } from "@ygo_duel/class/Duel";
 import type { TCardKind } from "@ygo/class/YgoTypes";
-import {
-  defaultAttackAction,
-  defaultBattlePotisionChangeAction,
-  defaultFlipSummonAction,
-  defaultNormalSummonAction,
-} from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
 import { freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 
 export default function* generate(): Generator<EntityProcDefinition> {
@@ -19,10 +13,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
     yield {
       name: item.name,
       actions: [
-        defaultNormalSummonAction,
-        defaultAttackAction,
-        defaultBattlePotisionChangeAction,
-        defaultFlipSummonAction,
         {
           title: "①儀式サーチ",
           isMandatory: false,

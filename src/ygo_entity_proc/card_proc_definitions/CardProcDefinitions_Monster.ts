@@ -4,10 +4,6 @@ import {} from "@ygo_duel/class/DuelEntityShortHands";
 
 import {
   canSelfSepcialSummon,
-  defaultAttackAction,
-  defaultBattlePotisionChangeAction,
-  defaultFlipSummonAction,
-  defaultNormalSummonAction,
   defaultRuleSummonExecute,
   defaultRuleSummonPrepare,
   defaultSelfRebornExecute,
@@ -28,10 +24,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
     return {
       name: name,
       actions: [
-        defaultNormalSummonAction,
-        defaultAttackAction,
-        defaultBattlePotisionChangeAction,
-        defaultFlipSummonAction,
         {
           title: "特殊召喚",
           isMandatory: false,
@@ -60,10 +52,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "ジャンク・フォアード",
     actions: [
-      defaultNormalSummonAction,
-      defaultAttackAction,
-      defaultBattlePotisionChangeAction,
-      defaultFlipSummonAction,
       {
         title: "特殊召喚",
         isMandatory: false,
@@ -84,10 +72,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "ゾンビキャリア",
     actions: [
-      defaultNormalSummonAction,
-      defaultAttackAction,
-      defaultBattlePotisionChangeAction,
-      defaultFlipSummonAction,
       {
         title: "①自己再生",
         isMandatory: false,
@@ -139,10 +123,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "グローアップ・バルブ",
     actions: [
-      defaultNormalSummonAction,
-      defaultAttackAction,
-      defaultBattlePotisionChangeAction,
-      defaultFlipSummonAction,
       {
         title: "①自己再生",
         isMandatory: false,
@@ -171,10 +151,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "終末の騎士",
     actions: [
-      defaultNormalSummonAction,
-      defaultAttackAction,
-      defaultBattlePotisionChangeAction,
-      defaultFlipSummonAction,
       {
         title: "①墓地送り",
         isMandatory: false,
@@ -217,10 +193,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "マスマティシャン",
     actions: [
-      defaultNormalSummonAction,
-      defaultAttackAction,
-      defaultBattlePotisionChangeAction,
-      defaultFlipSummonAction,
       {
         title: "①墓地送り",
         isMandatory: false,
@@ -276,9 +248,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "ライトロード・ビースト ウォルフ",
     actions: [
-      defaultAttackAction,
-      defaultBattlePotisionChangeAction,
-      defaultFlipSummonAction,
       {
         title: "①自己再生",
         isMandatory: true,
@@ -301,10 +270,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "伝説の白石",
     actions: [
-      defaultAttackAction,
-      defaultBattlePotisionChangeAction,
-      defaultFlipSummonAction,
-      defaultNormalSummonAction,
       {
         title: "①サーチ",
         isMandatory: true,
@@ -346,10 +311,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
     yield {
       name: item.name,
       actions: [
-        defaultAttackAction,
-        defaultBattlePotisionChangeAction,
-        defaultFlipSummonAction,
-        defaultNormalSummonAction,
         {
           title: "①無効化",
           isMandatory: false,
@@ -382,7 +343,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
   for (const name of ["翻弄するエルフの剣士", "ロードランナー", "氷結界の修験者"]) {
     yield {
       name: name,
-      actions: [defaultAttackAction, defaultBattlePotisionChangeAction, defaultFlipSummonAction, defaultNormalSummonAction],
+      actions: [],
       continuousEffects: [
         createRegularProcFilterHandler(
           "①戦闘破壊耐性",

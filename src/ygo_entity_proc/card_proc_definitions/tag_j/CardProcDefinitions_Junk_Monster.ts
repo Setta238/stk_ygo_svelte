@@ -1,9 +1,3 @@
-import {
-  defaultAttackAction,
-  defaultBattlePotisionChangeAction,
-  defaultFlipSummonAction,
-  defaultNormalSummonAction,
-} from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
@@ -14,10 +8,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "ジャンク・コレクター",
     actions: [
-      defaultAttackAction,
-      defaultBattlePotisionChangeAction,
-      defaultFlipSummonAction,
-      defaultNormalSummonAction,
       {
         title: "罠コピー",
         isMandatory: false,
@@ -60,12 +50,12 @@ export default function* generate(): Generator<EntityProcDefinition> {
 
           const target = await myInfo.activator.waitSelectEntity(choices, "コピーする罠を選択。", cancelable);
           if (!target) {
-            throw new SystemError("想定されない状態", myInfo);
+            return;
           }
-          const cost = [myInfo.action.entity, target];
-          await DuelEntityShortHands.banishManyForTheSameReason(cost, ["Cost"], myInfo.action.entity, myInfo.activator);
+          const costs = [myInfo.action.entity, target];
+          await DuelEntityShortHands.banishManyForTheSameReason(costs, ["Cost"], myInfo.action.entity, myInfo.activator);
 
-          return { banish: cost };
+          return { banish: costs };
         },
         prepare: async (myInfo, chainBlockInfos) => {
           const cost = myInfo.costInfo.banish?.find((card) => card !== myInfo.action.entity);

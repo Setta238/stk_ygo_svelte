@@ -1,5 +1,3 @@
-import { defaultAttackAction } from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
-
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
@@ -14,7 +12,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "水晶機巧－ハリファイバー",
     actions: [
-      defaultAttackAction,
       getDefaultLinkSummonAction((materials) => materials.length === 2 && materials.some((material) => material.status.monsterCategories?.includes("Tuner"))),
       {
         title: "①リクルート",

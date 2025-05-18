@@ -1,17 +1,10 @@
-import {
-  defaultAttackAction,
-  defaultBattlePotisionChangeAction,
-  defaultFlipSummonAction,
-  defaultNormalSummonAction,
-} from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
-
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "エキセントリック・ボーイ",
-    actions: [defaultAttackAction, defaultBattlePotisionChangeAction, defaultNormalSummonAction, defaultFlipSummonAction],
+    actions: [],
     summonFilter: (filter, target, effectOwner, summoner, movedAs, attr, monster, materialInfos, posList, cells) => {
       const ok = { posList, cells };
       const notAllowed = { posList: [], cells: [] };

@@ -1,10 +1,3 @@
-import {
-  defaultAttackAction,
-  defaultBattlePotisionChangeAction,
-  defaultFlipSummonAction,
-  defaultNormalSummonAction,
-} from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
-
 import { type EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import {
   defaultCanPaySelfBanishCosts,
@@ -20,10 +13,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "Ｄ－ＨＥＲＯ ディアボリックガイ",
     actions: [
-      defaultNormalSummonAction,
-      defaultAttackAction,
-      defaultBattlePotisionChangeAction,
-      defaultFlipSummonAction,
       {
         title: "①リクルート",
         isMandatory: false,
@@ -69,10 +58,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "Ｄ－ＨＥＲＯ ダイヤモンドガイ",
     actions: [
-      defaultAttackAction,
-      defaultBattlePotisionChangeAction,
-      defaultNormalSummonAction,
-      defaultFlipSummonAction,
       {
         title: "魔法効果予約",
         isMandatory: false,

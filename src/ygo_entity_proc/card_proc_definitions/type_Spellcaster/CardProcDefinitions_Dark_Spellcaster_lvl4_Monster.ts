@@ -1,10 +1,3 @@
-import {
-  defaultAttackAction,
-  defaultBattlePotisionChangeAction,
-  defaultFlipSummonAction,
-  defaultNormalSummonAction,
-} from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
-
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { createRegularProcFilterHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { ProcFilter } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
@@ -17,10 +10,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "召喚僧サモンプリースト",
     actions: [
-      defaultAttackAction,
-      defaultBattlePotisionChangeAction,
-      defaultNormalSummonAction,
-      defaultFlipSummonAction,
       {
         title: "①表示形式変更",
         isMandatory: true,

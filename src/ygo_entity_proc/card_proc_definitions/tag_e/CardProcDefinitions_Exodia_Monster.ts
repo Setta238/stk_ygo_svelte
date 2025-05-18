@@ -1,10 +1,3 @@
-import {
-  defaultAttackAction,
-  defaultBattlePotisionChangeAction,
-  defaultFlipSummonAction,
-  defaultNormalSummonAction,
-} from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
-
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { duelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
@@ -15,10 +8,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "封印されしエクゾディア",
     actions: [
-      defaultAttackAction,
-      defaultBattlePotisionChangeAction,
-      defaultNormalSummonAction,
-      defaultFlipSummonAction,
       {
         title: "封印開放",
         isMandatory: true,

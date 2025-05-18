@@ -1,10 +1,3 @@
-import {
-  defaultAttackAction,
-  defaultBattlePotisionChangeAction,
-  defaultFlipSummonAction,
-  defaultNormalSummonAction,
-} from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
-
 import { isNameTypeFusionMaterialInfo, type EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { IllegalCancelError, SystemError } from "@ygo_duel/class/Duel";
 import { defaultPrepare } from "@ygo_entity_proc/card_actions/CommonCardAction";
@@ -13,10 +6,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "Ｅ・ＨＥＲＯ プリズマー",
     actions: [
-      defaultAttackAction,
-      defaultBattlePotisionChangeAction,
-      defaultNormalSummonAction,
-      defaultFlipSummonAction,
       {
         title: "リフレクト・チェンジ",
         isMandatory: false,

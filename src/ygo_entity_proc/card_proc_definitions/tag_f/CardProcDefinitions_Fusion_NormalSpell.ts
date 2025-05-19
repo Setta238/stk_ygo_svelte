@@ -73,7 +73,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           },
           payCosts: (myInfo, chainBlockInfos) => defaultPayLifePoint(myInfo, chainBlockInfos, 1000),
           prepare: async () => {
-            return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromExtraDeck"], prepared: undefined };
+            return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromExtraDeck"] };
           },
           execute: async (myInfo) => {
             const cells = myInfo.activator.getMonsterZones();
@@ -107,8 +107,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
                 myInfo.action.entity,
                 myInfo.action,
                 (ope, target) => target.face === "FaceUp" && target.isOnFieldAsMonsterStrictly,
-                (ope, wip) => {
-                  return { ...wip, canAttack: false };
+                () => {
+                  return { canAttack: false };
                 }
               )
             );

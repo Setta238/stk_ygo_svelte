@@ -8,6 +8,7 @@ import { executableDuelistTypes, type TEffectTag } from "@ygo_duel/class/DuelEnt
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { createRegularDamageFilterHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { DamageFilter } from "@ygo_duel/class_continuous_effect/DuelDamageFilter";
+import { SystemError } from "@ygo_duel/class/Duel";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
@@ -48,15 +49,19 @@ export default function* generate(): Generator<EntityProcDefinition> {
             return;
           }
 
-          return { selectedEntities: [], chainBlockTags: selected.tags, prepared: selected.seq, nextChainBlockFilter: () => false };
+          myInfo.data = selected.seq;
+
+          return { selectedEntities: [], chainBlockTags: selected.tags, nextChainBlockFilter: () => false };
         },
         execute: async (myInfo) => {
-          if (myInfo.prepared === 0) {
+          if (myInfo.data === 0) {
             await myInfo.activator.draw(1, myInfo.action.entity, myInfo.activator);
-          } else if (myInfo.prepared === 1) {
+          } else if (myInfo.data === 1) {
             await DuelEntityShortHands.tryDestroy([myInfo.action.entity], myInfo);
-          } else if (myInfo.prepared === 2) {
+          } else if (myInfo.data === 2) {
             myInfo.activator.getOpponentPlayer().heal(1000, myInfo.action.entity);
+          } else {
+            throw new SystemError("値が正しくない。", myInfo, myInfo.data);
           }
           return true;
         },

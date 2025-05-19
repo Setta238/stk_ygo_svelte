@@ -93,7 +93,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           return { returnToDeck: [cost] };
         },
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromGraveyard"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromGraveyard"] };
         },
         execute: async (myInfo) => {
           if (!(await defaultSelfRebornExecute(myInfo))) {
@@ -108,8 +108,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
               myInfo.action.entity,
               myInfo.action,
               (ope, target) => target.isOnFieldAsMonsterStrictly && target.face === "FaceUp",
-              (ope, wip) => {
-                return { ...wip, willBeBanished: true };
+              () => {
+                return { willBeBanished: true };
               }
             )
           );
@@ -141,7 +141,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           return { sendToGraveyard: [cost] };
         },
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromGraveyard"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromGraveyard"] };
         },
         execute: (myInfo) => defaultSelfRebornExecute(myInfo),
         settle: async () => true,
@@ -169,7 +169,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           } else if (myInfo.action.entity.moveLog.latestRecord.movedAs.includes("SpecialSummon")) {
             tags.push("IfSpecialSummonSucceed");
           }
-          return { selectedEntities: [], chainBlockTags: tags, prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: tags };
         },
         execute: async (myInfo) => {
           const choices = myInfo.activator.getDeckCell().cardEntities.filter((card) => card.attr.includes("Dark"));
@@ -204,7 +204,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         meetsConditions: (myInfo) => myInfo.action.entity.hasBeenSummonedNow(["NormalSummon"]),
         canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.some((card) => card.lvl && card.lvl < 5),
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["IfNormarlSummonSucceed", "SendToGraveyardFromDeck"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["IfNormarlSummonSucceed", "SendToGraveyardFromDeck"] };
         },
         execute: async (myInfo) => {
           const choices = myInfo.activator.getDeckCell().cardEntities.filter((card) => card.lvl && card.lvl < 5);
@@ -234,7 +234,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           myInfo.action.entity.moveLog.latestRecord.movedAs.includes("BattleDestroy") && myInfo.action.entity.wasMovedAtPreviousChain,
         canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.length > 0 && myInfo.activator.canDraw,
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["Draw"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["Draw"] };
         },
         execute: async (myInfo) => {
           await myInfo.activator.draw(1, myInfo.action.entity, myInfo.activator);
@@ -260,7 +260,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         getDests: (myInfo) => getDestsForSelfSpecialSummon(myInfo, faceupBattlePositions, [], ["Effect"]),
         canExecute: (myInfo) => canSelfSepcialSummon(myInfo, faceupBattlePositions, [], ["Effect"]),
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromGraveyard"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromGraveyard"] };
         },
         execute: (myInfo) => defaultSelfRebornExecute(myInfo),
         settle: async () => true,
@@ -281,7 +281,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         meetsConditions: (myInfo) => myInfo.action.entity.wasMovedAtPreviousChain && myInfo.action.entity.wasMovedFrom.cellType !== "Banished",
         canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.some((card) => card.nm === "青眼の白龍") && myInfo.activator.canAddToHandFromDeck,
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"] };
         },
         execute: async (myInfo) => {
           // 青眼の白龍固定なので、一枚見つけたらそれでよい。
@@ -328,7 +328,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             return { sendToGraveyard: [myInfo.action.entity] };
           },
           prepare: async () => {
-            return { selectedEntities: [], chainBlockTags: ["NegateCardEffect"], prepared: undefined };
+            return { selectedEntities: [], chainBlockTags: ["NegateCardEffect"] };
           },
           execute: async (myInfo, chainBlockInfos) => {
             const info = chainBlockInfos[myInfo.index - 1];

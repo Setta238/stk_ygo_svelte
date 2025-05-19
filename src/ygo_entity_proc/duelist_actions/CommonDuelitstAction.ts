@@ -116,7 +116,7 @@ export const ftkChallengeFailedAction: CardActionDefinition<unknown> = {
       myInfo.action.entity,
       myInfo.activator
     );
-    return { selectedEntities: [], chainBlockTags: [], prepared: undefined, nextChainBlockFilter: () => false };
+    return { selectedEntities: [], chainBlockTags: [], nextChainBlockFilter: () => false };
   },
   execute: async (myInfo) => {
     const items = [

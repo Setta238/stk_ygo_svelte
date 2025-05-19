@@ -42,8 +42,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
           myInfo.action.entity,
           myInfo.action,
           (ope, target) => target.isOnFieldAsMonsterStrictly && target.face === "FaceUp",
-          (ope, wip) => {
-            return { ...wip, willBeBanished: true };
+          () => {
+            return { willBeBanished: true };
           }
         )
       );

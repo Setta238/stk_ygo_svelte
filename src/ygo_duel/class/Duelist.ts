@@ -37,6 +37,7 @@ export const chainConfigDic: {
 export type TLifeLogReason = "BattleDamage" | "EffectDamage" | "Heal" | "Lost" | "Pay" | "Set";
 
 type LifeLogRecord = {
+  duelist: Duelist;
   clock: IDuelClock;
   reason: TLifeLogReason;
   beforeLp: number;
@@ -119,6 +120,26 @@ export class Duelist {
     return summonArgs.map((arg) => arg.monster);
   };
 
+  public static readonly effectDamage = (args: { to: Duelist; point: number }[], chainBlockInfo: ChainBlockInfo<unknown>) => {
+    if (!args.length) {
+      return [];
+    }
+
+    const result = args.flatMap((item) => item.to._effectDamage(item.point, chainBlockInfo));
+
+    const survivors = Object.values(args[0].to.duel.duelists).filter((duelist) => duelist.lp > 0);
+
+    if (survivors.length === 1) {
+      throw new DuelEnd(survivors[0], `${chainBlockInfo.action.toFullString()}により、${survivors[0].getOpponentPlayer().name}のライフポイントが0になった。`);
+    }
+
+    if (!survivors.length) {
+      throw new DuelEnd(undefined, `${chainBlockInfo.action.toFullString()}により、お互いのライフポイントが0になった。`);
+    }
+
+    return result;
+  };
+
   public readonly duel: Duel;
   public readonly seat: TSeat;
   public get entity() {
@@ -127,6 +148,9 @@ export class Duelist {
       return avatar;
     }
     return DuelEntity.createPlayerEntity(this);
+  }
+  public get name() {
+    return this.profile.name;
   }
   public readonly profile: IDuelistProfile;
   public readonly deckInfo: IDeckInfo;
@@ -256,13 +280,14 @@ export class Duelist {
 
     return this.damage(damageSource, damageInfo);
   };
-  public readonly effectDamage = (point: number, chainBlockInfo: ChainBlockInfo<unknown>): LifeLogRecord[] => {
-    const damageInfo = calcEffectDamage(point, chainBlockInfo, this);
-    return this.damage(chainBlockInfo.action.entity, damageInfo);
-  };
+  public readonly effectDamage = (point: number, chainBlockInfo: ChainBlockInfo<unknown>) => Duelist.effectDamage([{ to: this, point }], chainBlockInfo);
+
+  private readonly _effectDamage = (point: number, chainBlockInfo: ChainBlockInfo<unknown>) =>
+    this.damage(chainBlockInfo.action.entity, calcEffectDamage(point, chainBlockInfo, this));
 
   private readonly damage = (damageSource: DuelEntity, damageInfo: ReturnType<typeof calcBattleDamage>): LifeLogRecord[] => {
     const result: LifeLogRecord[] = [];
+
     if (damageInfo.point) {
       const diff = damageInfo.damageType === "Heal" ? damageInfo.point : damageInfo.point * -1;
       result.push(this.setLp(this._lp + diff, damageSource, damageInfo.damageType));
@@ -280,13 +305,20 @@ export class Duelist {
     return this.setLp(this._lp - point, entity, "Lost");
   };
   public readonly payLp = (point: number, entity: DuelEntity): LifeLogRecord => {
-    return this.setLp(this._lp - point, entity, "Pay");
+    const records = this.setLp(this._lp - point, entity, "Pay");
+
+    if (this.lp <= 0) {
+      throw new DuelEnd(this.getOpponentPlayer(), `${entity.toString()}へのライフポイント支払いにより、${this.name}のライフポイントが0になった。`);
+    }
+
+    return records;
   };
   public readonly heal = (point: number, entity: DuelEntity): LifeLogRecord => {
     return this.setLp(this._lp + point, entity, "Heal");
   };
   public readonly setLp = (lp: number, entity?: DuelEntity, reason?: TLifeLogReason): LifeLogRecord => {
     const log = {
+      duelist: this,
       clock: this.duel.clock.getClone(),
       reason: reason || "Set",
       beforeLp: this._lp,

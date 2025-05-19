@@ -212,7 +212,7 @@ export const getDefaultRitualSummonActionPartical = (
       if (summonFrom.includes("Deck")) {
         tags.push("SpecialSummonFromDeck");
       }
-      return { selectedEntities: [], chainBlockTags: tags, prepared: undefined };
+      return { selectedEntities: [], chainBlockTags: tags };
     },
     execute: (myInfo) => defaultRitualSummonExecute(myInfo, summonFrom, monsterValidator, materialsFrom, materialValidator, levelValiType),
     settle: async () => true,

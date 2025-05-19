@@ -24,7 +24,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         meetsConditions: (myInfo) => myInfo.action.entity.wasMovedAtPreviousChain && myInfo.action.entity.wasMovedFrom.cellType !== "Banished",
         canExecute: (myInfo) => canSelfSepcialSummon(myInfo, faceupBattlePositions, [], ["Effect"]),
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromGraveyard"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromGraveyard"] };
         },
         execute: (myInfo) => defaultSelfRebornExecute(myInfo),
         settle: async () => true,
@@ -42,7 +42,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         meetsConditions: (myInfo) => myInfo.action.entity.wasMovedAtPreviousChain,
         canExecute: (myInfo) => canSelfSepcialSummon(myInfo, faceupBattlePositions, [], ["Effect"]),
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromBanished"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromBanished"] };
         },
         execute: (myInfo) => defaultSelfRebornExecute(myInfo),
         settle: async () => true,

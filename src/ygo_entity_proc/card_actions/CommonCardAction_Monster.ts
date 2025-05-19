@@ -73,7 +73,7 @@ const defaultNormalSummonPayCost = async (
   return { summonMaterialInfos };
 };
 
-const defaultNormalSummonPrepare = async (myInfo: ChainBlockInfoPreparing<unknown>): Promise<ChainBlockInfoPrepared<unknown> | undefined> => {
+const defaultNormalSummonPrepare = async (myInfo: ChainBlockInfoPreparing<unknown>): Promise<ChainBlockInfoPrepared | undefined> => {
   const movedAs: TDuelCauseReason[] = ["Rule", "NormalSummon"];
   let summonKind: TDuelCauseReason = "NormalSummon";
   if (myInfo.costInfo.summonMaterialInfos?.length) {
@@ -90,7 +90,7 @@ export const defaultRuleSummonPrepare = async (
   movedAs: TDuelCauseReason[],
   posList: Readonly<TBattlePosition[]>,
   cells?: DuelFieldCell[]
-): Promise<ChainBlockInfoPrepared<unknown> | undefined> => {
+): Promise<ChainBlockInfoPrepared | undefined> => {
   let _cells = myInfo.dest ? [myInfo.dest] : cells;
 
   if (!_cells) {
@@ -104,7 +104,7 @@ export const defaultRuleSummonPrepare = async (
   }
 
   await myInfo.activator.summon(summonKind, movedAs, myInfo.action, myInfo.action.entity, posList, _cells, myInfo.costInfo.summonMaterialInfos ?? [], false);
-  return { selectedEntities: [], chainBlockTags: [], prepared: undefined };
+  return { selectedEntities: [], chainBlockTags: [] };
 };
 export const defaultRuleSummonExecute = async (myInfo: ChainBlockInfo<unknown>): Promise<boolean> => {
   myInfo.action.entity.info.isRebornable = !myInfo.action.entity.origin.monsterCategories?.includes("RegularSpecialSummonOnly");
@@ -232,27 +232,6 @@ export const getDestsForSelfSpecialSummon = <T>(
 
 export const canSelfSepcialSummon = <T>(...args: Parameters<typeof getDestsForSelfSpecialSummon<T>>) => getDestsForSelfSpecialSummon(...args).length > 0;
 
-export const defaultRuleSpecialSummonPrepare = async (
-  materialInfos: SummonMaterialInfo[]
-): Promise<ChainBlockInfoPrepared<SummonMaterialInfo[]> | undefined> => {
-  return { selectedEntities: [], chainBlockTags: [], prepared: materialInfos };
-};
-
-export const defaultRuleSpecialSummonExecute = async (myInfo: ChainBlockInfo<SummonMaterialInfo[]>, posList: Readonly<TBattlePosition[]>): Promise<boolean> => {
-  const movedAs: TDuelCauseReason[] = ["Rule", "SpecialSummon"];
-
-  // セルを取得
-  const cells = myInfo.activator.getMonsterZones();
-
-  // エクストラデッキにいる場合、エクストラモンスターゾーンも使用可能
-  if (myInfo.action.entity.fieldCell.cellType === "ExtraDeck") {
-    cells.push(...myInfo.activator.getAvailableExtraMonsterZones());
-  }
-  const monster = await myInfo.activator.summon("SpecialSummon", movedAs, myInfo.action, myInfo.action.entity, posList, cells, myInfo.prepared, false);
-
-  return Boolean(monster);
-};
-
 const defaultDeclareAttackAction: CardActionDefinition<unknown> = {
   title: "攻撃宣言",
   isMandatory: false,
@@ -322,7 +301,7 @@ const defaultDeclareAttackAction: CardActionDefinition<unknown> = {
       break;
     }
     myInfo.action.entity.field.duel.declareAttack(myInfo.action.entity, target);
-    return { selectedEntities: [target], chainBlockTags: [], prepared: undefined };
+    return { selectedEntities: [target], chainBlockTags: [] };
   },
   execute: async () => true,
   settle: async () => true,
@@ -348,13 +327,13 @@ const defaultBattleAction: CardActionDefinition<unknown> = {
       throw new SystemError("canExecuteの判定が正しく行われなかった", myInfo, myInfo.activator.duel.attackingMonster, myInfo.activator.duel.targetForAttack);
     }
 
-    return { selectedEntities: [myInfo.activator.duel.targetForAttack], chainBlockTags: [], prepared: undefined };
+    return { selectedEntities: [myInfo.activator.duel.targetForAttack], chainBlockTags: [] };
   },
   execute: async () => true,
   settle: async () => true,
 };
 
-const defaultBattlePotisionChangePrepare = async (myInfo: ChainBlockInfoPreparing<unknown>): Promise<ChainBlockInfoPrepared<unknown> | undefined> => {
+const defaultBattlePotisionChangePrepare = async (myInfo: ChainBlockInfoPreparing<unknown>): Promise<ChainBlockInfoPrepared | undefined> => {
   if (myInfo.action.entity.info.battlePotisionChangeCount > 0 || !myInfo.activator.isTurnPlayer) {
     return;
   }
@@ -367,7 +346,7 @@ const defaultBattlePotisionChangePrepare = async (myInfo: ChainBlockInfoPreparin
 
   myInfo.action.entity.info.battlePotisionChangeCount++;
 
-  return { selectedEntities: [], chainBlockTags: [], prepared: undefined };
+  return { selectedEntities: [], chainBlockTags: [] };
 };
 
 const defaultFlipSummonAction: CardActionDefinition<unknown> = {
@@ -703,8 +682,8 @@ export const defaultDirectAtackEffect = createRegularStatusOperatorHandler(
         source,
         {},
         (operator, target) => operator.isSpawnedBy === target,
-        (ope, wip) => {
-          return { ...wip, canDirectAttack: true };
+        () => {
+          return { canDirectAttack: true };
         }
       ),
     ];
@@ -725,7 +704,7 @@ export const defaultFusionSubstituteEffect = {
       source,
       {},
       () => true,
-      (ope, wip) => {
+      (bundleOwner, ope, wip) => {
         if (ope.isSpawnedBy.isEffective) {
           wip.fusionSubstitute = true;
         }

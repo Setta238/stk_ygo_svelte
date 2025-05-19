@@ -136,6 +136,7 @@ export type ChainBlockInfoBase<T> = {
   state: TChainBlockInfoState;
   dest: DuelFieldCell | undefined;
   ignoreCost: boolean;
+  data?: T;
 };
 
 export type ChainBlockInfoPreparing<T> = ChainBlockInfoBase<T> & {
@@ -147,16 +148,15 @@ export type ChainBlockInfoPreparing<T> = ChainBlockInfoBase<T> & {
   enableCellTypes: DuelFieldCellType[];
 };
 
-export type ChainBlockInfoPrepared<T> = {
+export type ChainBlockInfoPrepared = {
   chainBlockTags: TEffectTag[];
   selectedEntities: DuelEntity[];
-  prepared: T;
   /** 緊急同調など */
   nextActionInfo?: ResponseActionInfo;
   /** 超融合など */
   nextChainBlockFilter?: (activator: Duelist, action: EntityAction<unknown>) => boolean;
 };
-export type ChainBlockInfo<T> = ChainBlockInfoPreparing<T> & ChainBlockInfoPrepared<T> & IStatable<TChainBlockInfoState>;
+export type ChainBlockInfo<T> = ChainBlockInfoPreparing<T> & ChainBlockInfoPrepared & IStatable<TChainBlockInfoState>;
 
 export type CardActionDefinitionAttrs = EntityActionDefinitionBase & {
   playType: TCardActionType;
@@ -232,7 +232,6 @@ export type CardActionDefinitionFunctions<T> = {
   /**
    * 対象に取るなど
    * @param myInfo
-   * @param cell
    * @param chainBlockInfos
    * @param cancelable
    * @returns
@@ -241,13 +240,11 @@ export type CardActionDefinitionFunctions<T> = {
     myInfo: ChainBlockInfoPreparing<T>,
     chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
     cancelable: boolean
-  ) => Promise<ChainBlockInfoPrepared<T> | undefined>;
+  ) => Promise<ChainBlockInfoPrepared | undefined>;
   /**
    * 実際の処理部分
-   * @param entity
-   * @param activator
-   * @param cell
-   * @param prepared
+   * @param myInfo
+   * @param chainBlockInfos
    * @returns
    */
   execute: (myInfo: ChainBlockInfo<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => Promise<boolean>;

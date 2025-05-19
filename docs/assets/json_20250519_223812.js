@@ -1712,4 +1712,49 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 相手フィールドの表側表示のカード１枚を対象として発動できる。
 そのカードの効果をターン終了時まで無効にする。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Ritual","Effect","SpecialSummon"],level:4,attack:0,defense:2400,attributes:["Dark"],types:["WingedBeast"],wikiEncodedName:"%A1%D4%A5%C8%A5%E9%A5%F3%A5%BD%A5%CB%A5%C3%A5%AF%A5%D0%A1%BC%A5%C9%A1%D5"},ソニックバード:{name:"ソニックバード",nameKana:"",description:`(1)：このカードが召喚・反転召喚に成功した時に発動できる。
 デッキから儀式魔法カード１枚を手札に加える。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:4,attack:1400,defense:1e3,attributes:["Wind"],types:["WingedBeast"],wikiEncodedName:"%A1%D4%A5%BD%A5%CB%A5%C3%A5%AF%A5%D0%A1%BC%A5%C9%A1%D5"},魔導サイエンティスト:{name:"魔導サイエンティスト",nameKana:"",description:`１０００ライフポイントを払う事で、融合デッキからレベル６以下の融合モンスター１体を特殊召喚する。
-この融合モンスターは相手プレイヤーに直接攻撃する事はできず、ターン終了時に融合デッキに戻る。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],nameTags:["魔導"],level:1,attack:300,defense:300,attributes:["Dark"],types:["Spellcaster"],wikiEncodedName:"%A1%D4%CB%E2%C6%B3%A5%B5%A5%A4%A5%A8%A5%F3%A5%C6%A5%A3%A5%B9%A5%C8%A1%D5"}};export{e as j};
+この融合モンスターは相手プレイヤーに直接攻撃する事はできず、ターン終了時に融合デッキに戻る。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],nameTags:["魔導"],level:1,attack:300,defense:300,attributes:["Dark"],types:["Spellcaster"],wikiEncodedName:"%A1%D4%CB%E2%C6%B3%A5%B5%A5%A4%A5%A8%A5%F3%A5%C6%A5%A3%A5%B9%A5%C8%A1%D5"},"トゥーン・キャノン・ソルジャー":{name:"トゥーン・キャノン・ソルジャー",nameKana:"",description:`このカードは召喚・反転召喚・特殊召喚したターンには攻撃する事ができない。
+自分フィールド上に「トゥーン・ワールド」が存在し、相手フィールド上にトゥーンモンスターが存在しない場合、
+このカードは相手プレイヤーに直接攻撃する事ができる。
+フィールド上の「トゥーン・ワールド」が破壊された時、このカードを破壊する。
+また、自分フィールド上に存在するモンスター１体をリリースする事で、
+相手ライフに５００ポイントダメージを与える。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Toon","Effect"],nameTags:["トゥーン"],level:4,attack:1400,defense:1300,attributes:["Dark"],types:["Machine"],wikiEncodedName:"%A1%D4%A5%C8%A5%A5%A1%BC%A5%F3%A1%A6%A5%AD%A5%E3%A5%CE%A5%F3%A1%A6%A5%BD%A5%EB%A5%B8%A5%E3%A1%BC%A1%D5"},"キャノン・ソルジャー":{name:"キャノン・ソルジャー",nameKana:"",description:"自分フィールド上に存在するモンスター１体をリリースする事で、相手ライフに５００ポイントダメージを与える。",pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:4,attack:1400,defense:1300,attributes:["Dark"],types:["Machine"],wikiEncodedName:"%A1%D4%A5%AD%A5%E3%A5%CE%A5%F3%A1%A6%A5%BD%A5%EB%A5%B8%A5%E3%A1%BC%A1%D5"},"メガキャノン・ソルジャー":{name:"メガキャノン・ソルジャー",nameKana:"",description:"自分フィールド上に存在するモンスター２体を生け贄に捧げる度に、相手ライフに１５００ポイントダメージを与える。",pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:5,attack:1900,defense:1200,attributes:["Earth"],types:["Machine"],wikiEncodedName:"%A1%D4%A5%E1%A5%AC%A5%AD%A5%E3%A5%CE%A5%F3%A1%A6%A5%BD%A5%EB%A5%B8%A5%E3%A1%BC%A1%D5"},アマゾネスの射手:{name:"アマゾネスの射手",nameKana:"",description:`(1)：自分フィールドのモンスター２体をリリースして発動できる。
+相手に１２００ダメージを与える。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],nameTags:["アマゾネス"],level:4,attack:1400,defense:1e3,attributes:["Earth"],types:["Warrior"],wikiEncodedName:"%A1%D4%A5%A2%A5%DE%A5%BE%A5%CD%A5%B9%A4%CE%BC%CD%BC%EA%A1%D5"},"プリーステス・オーム":{name:"プリーステス・オーム",nameKana:"",description:`自分フィールド上に表側表示で存在する
+闇属性モンスター１体を生け贄に捧げる事で、相手ライフに８００ポイントダメージを与える。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:4,attack:1700,defense:1600,attributes:["Dark"],types:["Spellcaster"],wikiEncodedName:"%A1%D4%A5%D7%A5%EA%A1%BC%A5%B9%A5%C6%A5%B9%A1%A6%A5%AA%A1%BC%A5%E0%A1%D5"},"カタパルト・ウォリアー":{name:"カタパルト・ウォリアー",nameKana:"",description:`チューナー＋チューナー以外のモンスター１体以上
+自分フィールド上に存在する「ジャンク」と名のついたモンスター１体をリリースして発動する。
+リリースしたモンスターの元々の攻撃力分のダメージを相手ライフに与える。
+この効果は１ターンに１度しか使用できない。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Synchro","Effect","SpecialSummon"],nameTags:["ウォリアー"],level:5,attack:1e3,defense:1500,attributes:["Earth"],types:["Warrior"],wikiEncodedName:"%A1%D4%A5%AB%A5%BF%A5%D1%A5%EB%A5%C8%A1%A6%A5%A6%A5%A9%A5%EA%A5%A2%A1%BC%A1%D5"},"ＶＷ－タイガー・カタパルト":{name:"ＶＷ－タイガー・カタパルト",nameKana:"",description:`「Ｖ－タイガー・ジェット」＋「Ｗ－ウィング・カタパルト」
+自分フィールドの上記カードを除外した場合のみ、エクストラデッキから特殊召喚できる（「融合」は必要としない）。
+(1)：手札を１枚捨て、相手フィールドのモンスター１体を対象として発動できる。
+その相手モンスターの表示形式を変更する。
+この時、リバースモンスターの効果は発動しない。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Fusion","Effect","SpecialSummon"],level:6,attack:2e3,defense:2100,attributes:["Light"],types:["Machine"],wikiEncodedName:"%A1%D4%A3%D6%A3%D7%A1%DD%A5%BF%A5%A4%A5%AC%A1%BC%A1%A6%A5%AB%A5%BF%A5%D1%A5%EB%A5%C8%A1%D5"},"ＶＷＸＹＺ－ドラゴン・カタパルトキャノン":{name:"ＶＷＸＹＺ－ドラゴン・カタパルトキャノン",nameKana:"",description:`「ＶＷ－タイガー・カタパルト」＋「ＸＹＺ－ドラゴン・キャノン」
+自分フィールドの上記カードを除外した場合のみ、ＥＸデッキから特殊召喚できる（「融合」は必要としない）。
+(1)：１ターンに１度、相手フィールドのカード１枚を対象として発動できる。
+その相手のカードを除外する。
+(2)：このカードが相手モンスターに攻撃宣言した時、その攻撃対象モンスター１体を対象として発動できる。
+その攻撃対象モンスターの表示形式を変更する。
+この時、リバースモンスターの効果は発動しない。 `,pendulumDescription:"",kind:"Monster",monsterCategories:["Fusion","Effect","SpecialSummon"],level:8,attack:3e3,defense:2800,attributes:["Light"],types:["Machine"],wikiEncodedName:"%A1%D4%A3%D6%A3%D7%A3%D8%A3%D9%A3%DA%A1%DD%A5%C9%A5%E9%A5%B4%A5%F3%A1%A6%A5%AB%A5%BF%A5%D1%A5%EB%A5%C8%A5%AD%A5%E3%A5%CE%A5%F3%A1%D5"},"アームド・ドラゴン・カタパルトキャノン":{name:"アームド・ドラゴン・カタパルトキャノン",nameKana:"",description:`「ＶＷＸＹＺ－ドラゴン・カタパルトキャノン」＋「アームド・ドラゴン ＬＶ７」
+自分が上記のカード全ての特殊召喚に成功しているデュエル中に、自分のフィールド・墓地の上記のカードを除外した場合のみ、
+ＥＸデッキから特殊召喚できる（「融合」は必要としない）。
+(1)：このカードがモンスターゾーンに存在する限り、
+相手は除外されている自分・相手のカードと同名カードの効果を発動できない。
+(2)：相手ターンに１度、デッキ・ＥＸデッキからカード１枚を除外して発動できる。 
+相手のフィールド・墓地のカードを全て除外する。 `,pendulumDescription:"",kind:"Monster",monsterCategories:["Fusion","Effect","RegularSpecialSummonOnly","SpecialSummon"],nameTags:["アームド・ドラゴン"],level:10,attack:3500,defense:3e3,attributes:["Light"],types:["Machine"],wikiEncodedName:"%A1%D4%A5%A2%A1%BC%A5%E0%A5%C9%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%A6%A5%AB%A5%BF%A5%D1%A5%EB%A5%C8%A5%AD%A5%E3%A5%CE%A5%F3%A1%D5"},"Ｗ－ウィング・カタパルト":{name:"Ｗ－ウィング・カタパルト",nameKana:"",description:`(1)：１ターンに１度、以下の効果から１つを選択して発動できる。
+●自分フィールドの「Ｖ－タイガー・ジェット」１体を対象とし、このカードを装備カード扱いとしてそのモンスターに装備する。
+装備モンスターが戦闘・効果で破壊される場合、代わりにこのカードを破壊する。
+●装備されているこのカードを特殊召喚する。
+(2)：装備モンスターの攻撃力・守備力は４００アップする。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Union","Effect"],level:4,attack:1300,defense:1500,attributes:["Light"],types:["Machine"],wikiEncodedName:"%A1%D4%A3%D7%A1%DD%A5%A6%A5%A3%A5%F3%A5%B0%A1%A6%A5%AB%A5%BF%A5%D1%A5%EB%A5%C8%A1%D5"},"ＴＧ カタパルト・ドラゴン":{name:"ＴＧ カタパルト・ドラゴン",nameKana:"",description:`１ターンに１度、手札からレベル３以下の
+「ＴＧ」と名のついたチューナー１体を特殊召喚する事ができる。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],nameTags:["ＴＧ"],level:2,attack:900,defense:1300,attributes:["Earth"],types:["Dragon"],wikiEncodedName:"%A1%D4%A3%D4%A3%C7+%A5%AB%A5%BF%A5%D1%A5%EB%A5%C8%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5"},"カタパルト・タートル":{name:"カタパルト・タートル",nameKana:"",description:`１ターンに１度、自分フィールド上のモンスター１体をリリースして発動できる。
+リリースしたモンスターの攻撃力の半分のダメージを相手ライフに与える。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:5,attack:1e3,defense:2e3,attributes:["Water"],types:["Aqua"],wikiEncodedName:"%A1%D4%A5%AB%A5%BF%A5%D1%A5%EB%A5%C8%A1%A6%A5%BF%A1%BC%A5%C8%A5%EB%A1%D5"},"砲撃のカタパルト・タートル":{name:"砲撃のカタパルト・タートル",nameKana:"",description:`このカード名の効果は１ターンに１度しか使用できない。
+(1)：自分フィールドのモンスター１体をリリースして発動できる。
+手札・デッキから「暗黒騎士ガイア」モンスターまたはドラゴン族・レベル５モンスター１体を特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:4,attack:1e3,defense:2e3,attributes:["Water"],types:["Aqua"],wikiEncodedName:"%A1%D4%CB%A4%B7%E2%A4%CE%A5%AB%A5%BF%A5%D1%A5%EB%A5%C8%A1%A6%A5%BF%A1%BC%A5%C8%A5%EB%A1%D5"},"ゼアル・カタパルト":{name:"ゼアル・カタパルト",nameKana:"",description:`このカード名の(1)(2)の効果はそれぞれ１ターンに１度しか使用できない。
+(1)：手札から「ＺＷ」モンスターまたは「ＺＳ」モンスター１体を特殊召喚する。
+自分フィールドに「希望皇ホープ」モンスターが存在する場合、さらに自分フィールドの全てのモンスターのレベルを４または５にできる。
+(2)：「ＺＷ」モンスターまたは「ＺＳ」モンスター１体と、このカードを自分の墓地から除外し、
+相手フィールドのカード１枚を対象として発動できる。
+そのカードを破壊する。
+この効果はこのカードが墓地へ送られたターンには発動できない。`,kind:"Spell",spellCategory:"Normal",nameTags:["ゼアル"],wikiEncodedName:"%A1%D4%A5%BC%A5%A2%A5%EB%A1%A6%A5%AB%A5%BF%A5%D1%A5%EB%A5%C8%A1%D5"},"ダーク・ダイブ・ボンバー":{name:"ダーク・ダイブ・ボンバー",nameKana:"",description:`チューナー＋チューナー以外のモンスター１体以上
+「ダーク・ダイブ・ボンバー」の効果は１ターンに１度しか使用できない。
+(1)：自分メインフェイズ１に自分フィールドのモンスター１体をリリースして発動できる。
+リリースしたモンスターのレベル×２００ダメージを相手に与える。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Synchro","Effect","SpecialSummon"],level:7,attack:2600,defense:1800,attributes:["Dark"],types:["Machine"],wikiEncodedName:"%A1%D4%A5%C0%A1%BC%A5%AF%A1%A6%A5%C0%A5%A4%A5%D6%A1%A6%A5%DC%A5%F3%A5%D0%A1%BC%A1%D5"},人投げトロール:{name:"人投げトロール",nameKana:"",description:"自分フィールド上に存在する通常モンスター（トークンを除く）１体を生け贄に捧げる度に、相手ライフに８００ポイントダメージを与える。",pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:4,attack:1e3,defense:1e3,attributes:["Earth"],types:["BeastWarrior"],wikiEncodedName:"%A1%D4%BF%CD%C5%EA%A4%B2%A5%C8%A5%ED%A1%BC%A5%EB%A1%D5"},対空放花:{name:"対空放花",nameKana:"",description:"自分フィールド上に存在する昆虫族モンスター１体を生け贄に捧げる度に、相手ライフに８００ポイントダメージを与える。",pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:3,attack:0,defense:1600,attributes:["Earth"],types:["Plant"],wikiEncodedName:"%A1%D4%C2%D0%B6%F5%CA%FC%B2%D6%A1%D5"},墓守の大筒持ち:{name:"墓守の大筒持ち",nameKana:"",description:`自分フィールド上の「墓守の」という名のついた
+モンスターカード１体を生け贄に捧げる度に、相手に７００ポイントダメージを与える。
+この場合「墓守の大筒持ち」を生け贄に捧げる事はできない。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],nameTags:["墓守","墓守の"],level:4,attack:1400,defense:1200,attributes:["Dark"],types:["Spellcaster"],wikiEncodedName:"%A1%D4%CA%E8%BC%E9%A4%CE%C2%E7%C5%FB%BB%FD%A4%C1%A1%D5"}};export{e as j};

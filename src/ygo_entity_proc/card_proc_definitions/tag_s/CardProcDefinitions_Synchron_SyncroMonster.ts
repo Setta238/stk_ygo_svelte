@@ -22,7 +22,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         meetsConditions: (myInfo) => myInfo.action.entity.hasBeenSummonedJustNow(["SynchroSummon"]),
         canExecute: (myInfo) => myInfo.activator.canDraw && myInfo.activator.getDeckCell().cardEntities.length > 0,
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["Draw"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["Draw"] };
         },
         execute: async (myInfo): Promise<boolean> => {
           await myInfo.activator.draw(1, myInfo.action.entity, myInfo.activator);

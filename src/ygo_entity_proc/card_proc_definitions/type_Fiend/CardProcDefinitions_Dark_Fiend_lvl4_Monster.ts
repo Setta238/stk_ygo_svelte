@@ -29,7 +29,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           const prev = chainBlockInfos[myInfo.index - 1];
 
           if (target !== prev) {
-            return { selectedEntities: [], chainBlockTags: [], prepared: undefined };
+            return { selectedEntities: [], chainBlockTags: [] };
           }
 
           return {

@@ -1,8 +1,5 @@
-export const isNumber = (text?: string) => {
-  if (!text) {
-    return false;
-  }
-  return !isNaN(Number(text));
+export const isNumber = (value: unknown): value is number => {
+  return !isNaN(Number(value));
 };
 export const max = (...array: number[]) => {
   return array.length ? array.reduce((wip, item) => (wip > item ? wip : item)) : -Number.MAX_VALUE;

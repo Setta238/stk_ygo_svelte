@@ -28,7 +28,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             .cardEntities.filter((card) => card.kind === "Monster")
             .some((card) => card.status.nameTags?.includes("星杯")),
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"] };
         },
         execute: async (myInfo) => {
           const choices = myInfo.activator
@@ -76,7 +76,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           return { sendToGraveyard: [cost] };
         },
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"] };
         },
         execute: async (myInfo) => {
           if (myInfo.action.entity.wasMovedAfter(myInfo.isActivatedAt)) {
@@ -215,7 +215,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           myInfo.activator.getDeckCell().cardEntities.filter((card) => card.status.nameTags?.includes("星遺物")).length > 0,
         payCosts: defaultPaySelfBanishCosts,
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"] };
         },
         execute: async (myInfo) => {
           const selected = await myInfo.activator.waitSelectEntity(

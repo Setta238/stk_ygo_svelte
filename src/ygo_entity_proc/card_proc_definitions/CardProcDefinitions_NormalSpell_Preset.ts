@@ -33,7 +33,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           canExecute: (myInfo) => myInfo.action.entity.field.getMonstersOnFieldStrictly().some((card) => card.types.includes(item.type)),
           prepare: async (myInfo) => {
             const cards = myInfo.action.entity.field.getMonstersOnFieldStrictly().filter((card) => card.types.includes(item.type));
-            return { selectedEntities: [], chainBlockTags: myInfo.action.calcChainBlockTagsForDestroy(myInfo.activator, cards), prepared: undefined };
+            return { selectedEntities: [], chainBlockTags: myInfo.action.calcChainBlockTagsForDestroy(myInfo.activator, cards) };
           },
           execute: async (myInfo) => {
             const cards = myInfo.action.entity.field.getMonstersOnFieldStrictly().filter((card) => card.types.includes(item.type));
@@ -107,7 +107,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           priorityForNPC: 40,
           canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.some(item.filter) && myInfo.activator.canAddToHandFromDeck,
           prepare: async () => {
-            return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"], prepared: undefined };
+            return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"] };
           },
           execute: async (myInfo) => {
             const monsters = myInfo.activator.getDeckCell().cardEntities.filter(item.filter);
@@ -176,7 +176,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           priorityForNPC: 40,
           canExecute: (myInfo) => myInfo.activator.getGraveyard().cardEntities.filter(item.filter).length >= item.qty,
           prepare: async () => {
-            return { selectedEntities: [], chainBlockTags: ["AddToHandFromGraveyard"], prepared: undefined };
+            return { selectedEntities: [], chainBlockTags: ["AddToHandFromGraveyard"] };
           },
           execute: async (myInfo) => {
             const monsters = myInfo.activator.getGraveyard().cardEntities.filter(item.filter);
@@ -226,7 +226,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.length > 1,
           payCosts: async (...args) => defaultPayDiscardCosts(...args, item.filter),
           prepare: async () => {
-            return { selectedEntities: [], chainBlockTags: ["Draw"], prepared: undefined };
+            return { selectedEntities: [], chainBlockTags: ["Draw"] };
           },
           execute: async (myInfo) => {
             await myInfo.activator.draw(2, myInfo.action.entity, myInfo.activator);
@@ -314,7 +314,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               tags.push("DamageToOpponent");
             }
 
-            return { selectedEntities: [], chainBlockTags: tags, prepared: undefined };
+            return { selectedEntities: [], chainBlockTags: tags };
           },
           execute: async (myInfo) => {
             const [toSelf, toOpponent] = item.calcHeal();

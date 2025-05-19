@@ -42,7 +42,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           return list.length > 0;
         },
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromHand", "IfNormarlSummonSucceed"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromHand", "IfNormarlSummonSucceed"] };
         },
         execute: async (myInfo) => {
           const cells = myInfo.activator.getMonsterZones();

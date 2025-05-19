@@ -47,7 +47,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           return list.length > 0;
         },
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromDeck"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromDeck"] };
         },
         execute: async (myInfo): Promise<boolean> => {
           const tuners = [myInfo.activator.getHandCell(), myInfo.activator.getDeckCell()]

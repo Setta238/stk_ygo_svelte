@@ -23,7 +23,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         meetsConditions: (myInfo) => myInfo.action.entity.wasMovedAtPreviousTurn,
         canExecute: (myInfo) => canSelfSepcialSummon(myInfo, faceupBattlePositions, [], ["Effect"]),
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromBanished"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromBanished"] };
         },
         execute: (myInfo) => defaultSelfRebornExecute(myInfo),
         settle: async () => true,

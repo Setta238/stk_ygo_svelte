@@ -66,7 +66,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           if (!selectedEntities) {
             return;
           }
-          return { selectedEntities, chainBlockTags: [], prepared: undefined };
+          return { selectedEntities, chainBlockTags: [] };
         },
         execute: async (myInfo): Promise<boolean> => {
           const targets = myInfo.selectedEntities

@@ -2,7 +2,7 @@ import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CommonC
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { TEffectTag } from "@ygo_duel/class/DuelEntityAction";
-import { IllegalCancelError } from "@ygo_duel/class/Duel";
+import { IllegalCancelError, SystemError } from "@ygo_duel/class/Duel";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
@@ -35,14 +35,16 @@ export default function* generate(): Generator<EntityProcDefinition> {
             return;
           }
 
-          return { selectedEntities: [], chainBlockTags: selected.tags, prepared: selected.seq };
+          return { selectedEntities: [], chainBlockTags: selected.tags };
         },
         execute: async (myInfo) => {
-          if (myInfo.prepared === 1) {
+          if (myInfo.data === 0) {
+            myInfo.activator.heal(1200, myInfo.action.entity);
+          } else if (myInfo.data === 1) {
             myInfo.activator.getOpponentPlayer().effectDamage(800, myInfo);
-            return true;
+          } else {
+            throw new SystemError("値が正しくない。", myInfo, myInfo.data);
           }
-          myInfo.activator.heal(1200, myInfo.action.entity);
           return true;
         },
         settle: async () => true,
@@ -184,7 +186,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         },
         prepare: async () => {
           console.log("手札断殺");
-          return { selectedEntities: [], chainBlockTags: ["Draw"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["Draw"] };
         },
         execute: async (myInfo) => {
           if (myInfo.activator.getHandCell().cardEntities.length < 2) {
@@ -242,7 +244,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         // 自分のデッキが0枚でも発動できる。
         canExecute: (myInfo) => myInfo.activator.canDraw,
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["Draw"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["Draw"] };
         },
         execute: async (myInfo) => {
           const hands = myInfo.activator.getHandCell().cardEntities;

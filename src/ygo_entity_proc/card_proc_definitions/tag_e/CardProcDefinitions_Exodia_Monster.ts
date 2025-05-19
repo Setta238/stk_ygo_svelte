@@ -31,7 +31,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             myInfo.action.entity,
             myInfo.activator
           );
-          return { selectedEntities: [], chainBlockTags: [], prepared: undefined, nextChainBlockFilter: () => false };
+          return { selectedEntities: [], chainBlockTags: [], nextChainBlockFilter: () => false };
         },
         execute: async (myInfo) => {
           const isDraw =

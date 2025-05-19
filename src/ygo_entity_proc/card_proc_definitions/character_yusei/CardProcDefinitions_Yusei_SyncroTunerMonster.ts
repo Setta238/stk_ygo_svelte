@@ -26,7 +26,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           myInfo.action.entity.hasBeenSummonedNow(["SynchroSummon"]) &&
           myInfo.activator.getDeckCell().cardEntities.some((card) => (card.lvl ?? 12) < (myInfo.action.entity.lvl ?? 0)),
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SendToGraveyardFromDeck", "IfSpecialSummonSucceed"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["SendToGraveyardFromDeck", "IfSpecialSummonSucceed"] };
         },
         execute: async (myInfo): Promise<boolean> => {
           const choices = myInfo.activator.getDeckCell().cardEntities.filter((card) => (card.lvl ?? 12) < (myInfo.action.entity.lvl ?? 0));

@@ -31,7 +31,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         priorityForNPC: 40,
         canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.some((card) => card.kind === "Monster"),
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SendToGraveyardFromDeck"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["SendToGraveyardFromDeck"] };
         },
         execute: async (myInfo) => {
           const monsters = myInfo.activator.getDeckCell().cardEntities.filter((entity) => entity.kind === "Monster");
@@ -66,7 +66,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         priorityForNPC: 40,
         canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.some((card) => card.kind !== "Monster"),
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SendToGraveyardFromDeck"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["SendToGraveyardFromDeck"] };
         },
         execute: async (myInfo) => {
           const monsters = myInfo.activator.getDeckCell().cardEntities.filter((entity) => entity.kind !== "Monster");
@@ -172,7 +172,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               cards = cards.filter((card) => card.controller !== myInfo.activator);
             }
 
-            return { selectedEntities: [], chainBlockTags: myInfo.action.calcChainBlockTagsForDestroy(myInfo.activator, cards), prepared: undefined };
+            return { selectedEntities: [], chainBlockTags: myInfo.action.calcChainBlockTagsForDestroy(myInfo.activator, cards) };
           },
           execute: async (myInfo) => {
             let cards = myInfo.action.entity.field
@@ -210,7 +210,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             .flatMap((cell) => cell.cardEntities)
             .some((card) => card !== myInfo.action.entity),
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["BounceToHand"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["BounceToHand"] };
         },
         execute: async (myInfo, chainBlockInfos) => {
           // 発動済の魔法罠はバウンスできない
@@ -282,7 +282,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           return list.length > 0;
         },
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SpecialSummon"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["SpecialSummon"] };
         },
         execute: async (myInfo) => {
           const token = getOrCreateSecurityToken(myInfo);
@@ -323,7 +323,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           return { sendToGraveyard: cost };
         },
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"] };
         },
         execute: async (myInfo) => {
           const monsters = myInfo.activator
@@ -433,7 +433,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           return { sendToGraveyard: [cost] };
         },
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromDeck"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromDeck"] };
         },
         execute: async (myInfo) => {
           const monsters = [
@@ -481,7 +481,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         canExecute: (myInfo) =>
           myInfo.activator.getDeckCell().cardEntities.some((card) => myInfo.activator.canTryBanish(card, "BanishAsEffect", myInfo.action)),
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["BanishFromDeck"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["BanishFromDeck"] };
         },
         execute: async (myInfo) => {
           const cards = myInfo.activator.getDeckCell().cardEntities.filter((card) => myInfo.activator.canTryBanish(card, "BanishAsEffect", myInfo.action));
@@ -599,7 +599,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           ).length > 0,
         payCosts: (myInfo, chainBlockInfos) => defaultPayLifePoint(myInfo, chainBlockInfos, 800),
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromDeck"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromDeck"] };
         },
         execute: async (myInfo) => {
           if (myInfo.activator.getDeckCell().cardEntities.length < 4) {

@@ -20,7 +20,7 @@ export class StatusOperatorBundle extends StickyEffectOperatorBundle<StatusOpera
     this.entity.status = this._operators
       .filter((ope) => ope.isSpawnedBy.isEffective || !ope.isContinuous)
       .reduce((wip, ope) => {
-        return { ...wip, ...ope.statusCalculator(ope, wip) };
+        return { ...wip, ...ope.statusCalculator(this.entity, ope, wip) };
       }, this.entity.status);
     // 有効無効が切り替わったとき、再計算が必要
     return this.entity.isEffective === wasEffective;
@@ -29,7 +29,7 @@ export class StatusOperatorBundle extends StickyEffectOperatorBundle<StatusOpera
 }
 export class StatusOperator extends StickyEffectOperatorBase {
   public beforeRemove: () => void = () => {};
-  public readonly statusCalculator: (operator: StickyEffectOperatorBase, wipStatus: EntityStatus) => Partial<EntityStatus>;
+  public readonly statusCalculator: (bundleOwner: DuelEntity, operator: StickyEffectOperatorBase, wipStatus: EntityStatus) => Partial<EntityStatus>;
   public constructor(
     title: string,
     validateAlive: (operator: StickyEffectOperatorBase) => boolean,
@@ -37,7 +37,7 @@ export class StatusOperator extends StickyEffectOperatorBase {
     isSpawnedBy: DuelEntity,
     actionAttr: Partial<CardActionDefinitionAttrs>,
     isApplicableTo: (operator: StickyEffectOperatorBase, target: DuelEntity) => boolean,
-    statusCalculator: (operator: StickyEffectOperatorBase, wipStatus: EntityStatus) => Partial<EntityStatus>
+    statusCalculator: typeof StatusOperator.prototype.statusCalculator
   ) {
     super(title, validateAlive, isContinuous, isSpawnedBy, actionAttr, isApplicableTo);
     this.statusCalculator = statusCalculator;

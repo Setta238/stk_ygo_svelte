@@ -22,7 +22,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         canExecute: (myInfo) =>
           myInfo.activator.canDraw && myInfo.activator.status.canDiscardAsEffect && myInfo.activator.getDeckCell().cardEntities.length > 0,
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["Draw", "DiscordAsEffect"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["Draw", "DiscordAsEffect"] };
         },
         execute: async (myInfo) => {
           await myInfo.activator.draw(1, myInfo.action.entity, myInfo.activator);

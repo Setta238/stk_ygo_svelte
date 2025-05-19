@@ -63,6 +63,14 @@ export class EntityMoveLog {
     return this.records.filter((rec) => rec.movedAt.totalProcSeq === this.entity.duel.clock.totalProcSeq);
   }
 
+  public get latestArrivalRecord() {
+    if (!this.entity.isOnFieldAsMonsterStrictly) {
+      return undefined;
+    }
+
+    return this.records.findLast((rec) => rec.movedAs.union(["NormalSummon", "SpecialSummon", "FlipSummon", "Flip", "ComeBackAlive"]));
+  }
+
   public constructor(entity: DuelEntity) {
     this.entity = entity;
     this._records = [];

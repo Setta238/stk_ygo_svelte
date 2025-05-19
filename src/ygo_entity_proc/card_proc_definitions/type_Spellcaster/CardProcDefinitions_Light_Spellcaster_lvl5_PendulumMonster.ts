@@ -46,7 +46,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         meetsConditions: (myInfo) => myInfo.activator.getExtraDeck().cardEntities.every((card) => card.nm === "アンカモフライト"),
         canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.length > 0 && myInfo.activator.canDraw,
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["DestroySpellTrapOnField", "Draw"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["DestroySpellTrapOnField", "Draw"] };
         },
         execute: async (myInfo) => {
           const destroyed = await DuelEntityShortHands.tryDestroy([myInfo.action.entity], myInfo);
@@ -90,8 +90,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
             source,
             {},
             (ope, target) => target.isOnFieldAsMonsterStrictly && target.face === "FaceUp",
-            (ope, wip) => {
-              return { ...wip, willBeBanished: true };
+            () => {
+              return { willBeBanished: true };
             }
           ),
         ]

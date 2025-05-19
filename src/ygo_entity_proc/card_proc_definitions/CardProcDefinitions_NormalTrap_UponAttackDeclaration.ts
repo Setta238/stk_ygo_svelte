@@ -56,7 +56,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
 
             const tags: TEffectTag[] = name === "炸裂装甲" ? myInfo.action.calcChainBlockTagsForDestroy(myInfo.activator, [attacker]) : ["BanishFromField"];
 
-            return { selectedEntities: [attacker], chainBlockTags: tags, prepared: undefined };
+            return { selectedEntities: [attacker], chainBlockTags: tags };
           },
           execute: async (myInfo) => {
             if (name === "炸裂装甲") {

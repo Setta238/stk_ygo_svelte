@@ -28,7 +28,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableDuelistTypes: ["Controller"],
         canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.length > 1 && myInfo.activator.canDraw && myInfo.activator.canAddToHandFromDeck,
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["Draw"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["Draw"] };
         },
         execute: async (chainBlockInfo) => {
           await chainBlockInfo.activator.draw(1, chainBlockInfo.action.entity, chainBlockInfo.activator);

@@ -285,7 +285,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               myInfo.activator !== myInfo.targetChainBlock.activator
           ),
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["NegateCardEffect", "DestroyOnField"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["NegateCardEffect", "DestroyOnField"] };
         },
         execute: async (myInfo) => {
           if (!myInfo.targetChainBlock) {

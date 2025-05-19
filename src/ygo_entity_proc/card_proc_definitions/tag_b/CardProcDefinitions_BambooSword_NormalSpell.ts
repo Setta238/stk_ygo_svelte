@@ -21,7 +21,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             .some((takemitsu) => takemitsu.status.spellCategory === "Equip"),
         canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.length > 0 && myInfo.activator.canDraw,
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["Draw"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["Draw"] };
         },
         execute: async (chainBlockInfo) => {
           await chainBlockInfo.activator.draw(2, chainBlockInfo.action.entity, chainBlockInfo.activator);

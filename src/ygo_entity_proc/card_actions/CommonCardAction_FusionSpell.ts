@@ -285,7 +285,7 @@ export const getDefaultFusionSummonAction = (
         (pattern) => pattern.materialInfos.length
       ),
     prepare: async () => {
-      return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromExtraDeck"], prepared: undefined };
+      return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromExtraDeck"] };
     },
     execute: (myInfo) => defaultFusionSummonExecute(myInfo, summonFrom, monsterValidator, materialsFrom, materialsValidator, materialsTo),
     settle: async () => true,

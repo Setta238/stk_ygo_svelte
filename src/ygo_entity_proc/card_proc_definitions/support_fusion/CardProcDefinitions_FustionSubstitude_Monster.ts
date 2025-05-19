@@ -30,7 +30,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         getDests: (myInfo) => [myInfo.activator.getGraveyard()],
         payCosts: defaultPaySelfDiscardCosts,
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"] };
         },
         execute: async (myInfo) => {
           const spells = myInfo.activator.getDeckCell().cardEntities.filter((card) => card.nm === "融合");

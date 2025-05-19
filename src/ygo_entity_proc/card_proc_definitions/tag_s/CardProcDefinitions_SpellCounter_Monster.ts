@@ -28,9 +28,9 @@ const createSpellCounterCommonEffect = (kind: TCardKind, maxQty?: number) => {
           source,
           {},
           (operator, target) => operator.isSpawnedBy === target,
-          (ope, wip) => {
+          (bundleOwner, ope, wip) => {
             wip.maxCounterQty.SpellCounter = maxQty ?? Number.MAX_VALUE;
-            return { ...wip, maxCounterQty: wip.maxCounterQty };
+            return { maxCounterQty: wip.maxCounterQty };
           }
         ),
       ];
@@ -110,7 +110,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableDuelistTypes: ["Controller"],
         meetsConditions: (myInfo) => myInfo.action.entity.hasBeenSummonedNow(["NormalSummon"]),
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["IfNormarlSummonSucceed"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["IfNormarlSummonSucceed"] };
         },
         execute: async (myInfo) => {
           if (myInfo.action.entity.face === "FaceDown") {

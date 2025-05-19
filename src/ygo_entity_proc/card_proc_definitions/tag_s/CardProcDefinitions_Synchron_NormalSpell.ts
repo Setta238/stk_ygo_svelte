@@ -22,7 +22,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           return cards.filter((card) => card.status.nameTags?.includes("シンクロン")).some((card) => card.status.monsterCategories?.includes("Tuner"));
         },
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SearchFromDeck", "SendToGraveyardFromDeck"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["SearchFromDeck", "SendToGraveyardFromDeck"] };
         },
         execute: async (myInfo) => {
           const cards = myInfo.activator.getDeckCell().cardEntities;

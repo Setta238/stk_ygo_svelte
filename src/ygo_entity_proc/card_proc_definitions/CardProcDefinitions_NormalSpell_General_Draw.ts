@@ -23,7 +23,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         priorityForNPC: 20,
         canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.length > 1 && myInfo.activator.canDraw && myInfo.activator.canAddToHandFromDeck,
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["Draw"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["Draw"] };
         },
         execute: async (chainBlockInfo) => {
           await chainBlockInfo.activator.draw(2, chainBlockInfo.action.entity, chainBlockInfo.activator);
@@ -68,7 +68,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             return;
           }
 
-          return { selectedEntities: targets, chainBlockTags: ["Draw", "ReturnToDeckFromGraveyard"], prepared: undefined };
+          return { selectedEntities: targets, chainBlockTags: ["Draw", "ReturnToDeckFromGraveyard"] };
         },
         execute: async (myInfo) => {
           // いずれかが同一チェーン中に墓地を離れていたら不可
@@ -106,7 +106,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           myInfo.activator.canAddToHandFromDeck &&
           myInfo.activator.status.canDiscardAsEffect,
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["Draw", "DiscordAsEffect"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["Draw", "DiscordAsEffect"] };
         },
         execute: async (myInfo) => {
           await myInfo.activator.draw(3, myInfo.action.entity, myInfo.activator);
@@ -132,7 +132,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         priorityForNPC: 20,
         canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.length > 0 && myInfo.activator.canDraw && myInfo.activator.canAddToHandFromDeck,
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["Draw"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["Draw"] };
         },
         execute: async (myInfo) => {
           await myInfo.activator.draw(1, myInfo.action.entity, myInfo.activator);
@@ -170,7 +170,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             .flatMap((c) => c.cardEntities)
             .some((card) => card.seq !== myInfo.action.entity.seq),
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["Draw", "DiscordAsEffect"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["Draw", "DiscordAsEffect"] };
         },
         execute: async (myInfo) => {
           const qty1 = myInfo.activator.getHandCell().cardEntities.length;
@@ -210,7 +210,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           myInfo.activator.getOpponentPlayer().getDeckCell().cardEntities.length > 0 &&
           myInfo.activator.getOpponentPlayer().canDraw,
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["Draw"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["Draw"] };
         },
         execute: async (myInfo) => {
           await DuelEntityShortHands.drawAtSameTime(myInfo.activator, myInfo.action.entity, 1, 1);
@@ -252,7 +252,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableDuelistTypes: ["Controller"],
         canExecute: (myInfo) => myInfo.activator.canDraw,
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["Draw"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["Draw"] };
         },
         execute: async (myInfo) => {
           const hands = myInfo.activator.getHandCell().cardEntities;

@@ -20,7 +20,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableDuelistTypes: ["Controller"],
         meetsConditions: (myInfo) => myInfo.action.entity.hasBeenSummonedNow(["NormalSummon", "FlipSummon"]),
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["IfNormarlSummonSucceed"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["IfNormarlSummonSucceed"] };
         },
         execute: async (myInfo) => {
           if (myInfo.action.entity.battlePosition !== "Attack") {
@@ -88,7 +88,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           return { discard: [cost] };
         },
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromDeck"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromDeck"] };
         },
         execute: async (myInfo) => {
           const monsters = myInfo.activator.getDeckCell().cardEntities.filter((card) => card.lvl === 4);
@@ -118,8 +118,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
               myInfo.action.entity,
               myInfo.action,
               () => true,
-              (ope, wip) => {
-                return { ...wip, canAttack: false };
+              () => {
+                return { canAttack: false };
               }
             )
           );

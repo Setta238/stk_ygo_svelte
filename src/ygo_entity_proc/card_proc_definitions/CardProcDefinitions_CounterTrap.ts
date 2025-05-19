@@ -26,7 +26,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             myInfo.activator.duel.field.getPendingMonstersOnField().length === 1) ??
           false,
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["NegateSpecialSummon"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["NegateSpecialSummon"] };
         },
         execute: async (myInfo) => {
           const monsters = DuelEntityShortHands.negateSummonMany(myInfo.action.entity, myInfo.activator);

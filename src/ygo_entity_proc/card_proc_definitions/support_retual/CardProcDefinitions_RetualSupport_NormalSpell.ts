@@ -23,7 +23,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             .cardEntities.filter((card) => card.status.monsterCategories?.includes("Ritual"))
             .some((card) => card.lvl && card.lvl < 8) && myInfo.activator.canAddToHandFromDeck,
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SearchFromDeck", "ReturnToHandFromGraveyard"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["SearchFromDeck", "ReturnToHandFromGraveyard"] };
         },
         execute: async (myInfo) => {
           if (!myInfo.activator.canAddToHandFromDeck) {
@@ -102,7 +102,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             .some((card) => names.includes(card.nm));
         },
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SearchFromDeck", "ReturnToHandFromGraveyard"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["SearchFromDeck", "ReturnToHandFromGraveyard"] };
         },
         execute: async (myInfo) => {
           if (!myInfo.activator.canAddToHandFromDeck) {

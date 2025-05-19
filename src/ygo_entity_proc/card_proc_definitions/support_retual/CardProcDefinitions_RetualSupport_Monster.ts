@@ -29,7 +29,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               .cardEntities.filter((card) => item.kinds.includes(card.kind))
               .some((card) => card.status.spellCategory === "Ritual" || card.status.monsterCategories?.includes("Ritual")),
           prepare: async () => {
-            return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"], prepared: undefined };
+            return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"] };
           },
           execute: async (myInfo) => {
             if (!myInfo.activator.canAddToHandFromDeck) {

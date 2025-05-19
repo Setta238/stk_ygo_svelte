@@ -42,7 +42,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         },
         payCosts: defaultPaySelfBanishCosts,
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromDeck"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromDeck"] };
         },
         execute: async (myInfo) => {
           const newOne = myInfo.activator.getDeckCell().cardEntities.find((card) => card.nm === "Ｄ－ＨＥＲＯ ディアボリックガイ");

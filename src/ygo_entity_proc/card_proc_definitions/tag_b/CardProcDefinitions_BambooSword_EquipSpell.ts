@@ -57,8 +57,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
               myInfo.action.entity,
               myInfo.action,
               () => true,
-              (ope, wip) => {
-                return { ...wip, canDirectAttack: true };
+              () => {
+                return { canDirectAttack: true };
               }
             )
           );
@@ -83,7 +83,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             .cardEntities.filter((card) => card.status.nameTags?.includes("竹光"))
             .some((takemitsu) => takemitsu.status.name !== "妖刀竹光"),
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"] };
         },
         execute: async (myInfo) => {
           const takemitsus = myInfo.activator

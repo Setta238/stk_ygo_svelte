@@ -155,7 +155,8 @@ export type TDuelCauseReason =
   | "SummonNegated"
   | "PutDirectly"
   | "Excavate"
-  | "TokenBirth";
+  | "TokenBirth"
+  | "ComeBackAlive";
 
 export const duelEntityCardTypes = ["Card", "Token"] as const;
 export type TDuelEntityCardType = (typeof duelEntityCardTypes)[number];

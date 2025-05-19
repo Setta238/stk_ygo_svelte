@@ -34,7 +34,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.length > 0 && myInfo.activator.canDraw,
         prepare: async (myInfo) => {
           await myInfo.action.entity.returnToDeck("Random", ["Effect"], myInfo.action.entity, myInfo.activator);
-          return { selectedEntities: [], chainBlockTags: ["Draw"], prepared: undefined };
+          return { selectedEntities: [], chainBlockTags: ["Draw"] };
         },
         execute: async (myInfo) => {
           await myInfo.activator.draw(1, myInfo.action.entity, myInfo.activator);

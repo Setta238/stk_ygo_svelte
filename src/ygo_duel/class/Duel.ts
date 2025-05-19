@@ -340,7 +340,17 @@ export class Duel {
       const response = await this.view.waitFieldAction(
         this.getEnableActions(
           this.priorityHolder,
-          ["NormalSummon", "SpellTrapSet", "SpecialSummon", "FlipSummon", "ChangeBattlePosition", "IgnitionEffect", "QuickEffect", "CardActivation"],
+          [
+            "NormalSummon",
+            "SpellTrapSet",
+            "SpecialSummon",
+            "FlipSummon",
+            "ChangeBattlePosition",
+            "IgnitionEffect",
+            "QuickEffect",
+            "CardActivation",
+            "LingeringEffect",
+          ],
           ["Normal", "Quick", "Counter"],
           []
         )

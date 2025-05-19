@@ -102,7 +102,7 @@ export const pendulumSummonAction: CardActionDefinition<unknown> = {
 export const ftkChallengeFailedAction: CardActionDefinition<unknown> = {
   title: "強制勝利",
   isMandatory: true,
-  playType: "IgnitionEffect",
+  playType: "LingeringEffect",
   spellSpeed: "Normal",
   executableCells: ["Hand"],
   executablePeriods: ["main2"],
@@ -159,7 +159,7 @@ export const ftkChallengeFailedAction: CardActionDefinition<unknown> = {
         ])
       );
     }
-    throw new DuelEnd(myInfo.activator, `${myInfo.activator.getOpponentPlayer().profile.name}がワンターンキルに失敗した。`);
+    throw new DuelEnd(myInfo.activator, `${myInfo.activator.getOpponentPlayer().name}がワンターンキルに失敗した。`);
   },
   settle: async () => true,
 };

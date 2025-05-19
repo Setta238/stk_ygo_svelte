@@ -1710,5 +1710,6 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 この効果は、その儀式魔法カード発動時の儀式召喚する効果と同じになる。
 (3)：儀式召喚したこのカードがリリースされた場合、
 相手フィールドの表側表示のカード１枚を対象として発動できる。
-そのカードの効果をターン終了時まで無効にする。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Ritual","Effect"],level:4,attack:0,defense:2400,attributes:["Dark"],types:["WingedBeast"],wikiEncodedName:"%A1%D4%A5%C8%A5%E9%A5%F3%A5%BD%A5%CB%A5%C3%A5%AF%A5%D0%A1%BC%A5%C9%A1%D5"},ソニックバード:{name:"ソニックバード",nameKana:"",description:`(1)：このカードが召喚・反転召喚に成功した時に発動できる。
-デッキから儀式魔法カード１枚を手札に加える。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:4,attack:1400,defense:1e3,attributes:["Wind"],types:["WingedBeast"],wikiEncodedName:"%A1%D4%A5%BD%A5%CB%A5%C3%A5%AF%A5%D0%A1%BC%A5%C9%A1%D5"}};export{e as j};
+そのカードの効果をターン終了時まで無効にする。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Ritual","Effect","SpecialSummon"],level:4,attack:0,defense:2400,attributes:["Dark"],types:["WingedBeast"],wikiEncodedName:"%A1%D4%A5%C8%A5%E9%A5%F3%A5%BD%A5%CB%A5%C3%A5%AF%A5%D0%A1%BC%A5%C9%A1%D5"},ソニックバード:{name:"ソニックバード",nameKana:"",description:`(1)：このカードが召喚・反転召喚に成功した時に発動できる。
+デッキから儀式魔法カード１枚を手札に加える。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:4,attack:1400,defense:1e3,attributes:["Wind"],types:["WingedBeast"],wikiEncodedName:"%A1%D4%A5%BD%A5%CB%A5%C3%A5%AF%A5%D0%A1%BC%A5%C9%A1%D5"},魔導サイエンティスト:{name:"魔導サイエンティスト",nameKana:"",description:`１０００ライフポイントを払う事で、融合デッキからレベル６以下の融合モンスター１体を特殊召喚する。
+この融合モンスターは相手プレイヤーに直接攻撃する事はできず、ターン終了時に融合デッキに戻る。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],nameTags:["魔導"],level:1,attack:300,defense:300,attributes:["Dark"],types:["Spellcaster"],wikiEncodedName:"%A1%D4%CB%E2%C6%B3%A5%B5%A5%A4%A5%A8%A5%F3%A5%C6%A5%A3%A5%B9%A5%C8%A1%D5"}};export{e as j};

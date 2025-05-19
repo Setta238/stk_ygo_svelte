@@ -113,17 +113,15 @@ export abstract class StickyEffectOperatorBundle<OPE extends StickyEffectOperato
   public readonly push = (ope: OPE) => {
     // ProcFilterで弾かれる場合は追加しない。
 
-    if (
-      this.entity.procFilterBundle.effectiveOperators
-        .filter((ope) => ope.procTypes.includes("Effect"))
-        .some((ope) => !ope.filter(ope.effectOwner, ope.isSpawnedBy, ope.actionAttr, []))
-    ) {
-      return;
+    if (!this.entity.procFilterBundle.filter(["Effect"], ope.effectOwner, ope.isSpawnedBy, ope.actionAttr, [])) {
+      return false;
     }
 
     this.beforePush(ope);
 
     this._operators.push(ope);
+
+    return true;
   };
 
   public readonly removeItem = (seq: number): void => {

@@ -242,9 +242,7 @@ export class Duelist {
    * @param chainBlockInfo
    */
   public readonly canTryBanish = (target: DuelEntity, procType: TBanishProcType, action: CardActionDefinitionAttrs): boolean => {
-    return this.entity.procFilterBundle.effectiveOperators
-      .filter((pf) => pf.procTypes.includes(procType))
-      .every((pf) => pf.filter(this, this.entity, action, [target]));
+    return this.entity.procFilterBundle.filter([procType], this, this.entity, action, [target]);
   };
 
   public readonly battleDamage = (

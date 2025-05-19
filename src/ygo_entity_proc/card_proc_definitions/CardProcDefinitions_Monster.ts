@@ -351,15 +351,14 @@ export default function* generate(): Generator<EntityProcDefinition> {
           (source) => [source],
           (source) => {
             return [
-              new ProcFilter(
+              ProcFilter.createContinuous(
                 "①戦闘破壊耐性",
                 () => true,
-                true,
                 source,
                 {},
                 () => true,
                 ["BattleDestroy"],
-                (activator, enemy) => {
+                (bundleOwner, activator, enemy) => {
                   if (!source.isEffective) {
                     return true;
                   }

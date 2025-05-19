@@ -35,6 +35,15 @@
     "temporary": false,
     "isOnlyOnField": true
   },
+  "Curfew": {
+    "name": "Curfew",
+    "type": "System",
+    "text": "自発帰還",
+    "emoji": "",
+    "sticky": false,
+    "temporary": false,
+    "isOnlyOnField": true
+  },
   "SelfDestruction": {
     "name": "SelfDestruction",
     "type": "System",

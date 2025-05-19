@@ -49,6 +49,17 @@ export class ProcFilterBundle extends StickyEffectOperatorBundle<ProcFilter> {
     return this.entity.allStickyEffectOperators.length === len;
   };
 
+  public readonly filter = (
+    procTypes: TProcType[],
+    activator: Duelist,
+    entity: DuelEntity,
+    actionAttr: Partial<CardActionDefinitionAttrs>,
+    effectedEntites: DuelEntity[]
+  ) =>
+    this.effectiveOperators
+      .filter((pf) => pf.procTypes.union(procTypes).length)
+      .every((pf) => pf.filter(this.entity, activator, entity, actionAttr, effectedEntites));
+
   protected readonly beforePush = (pf: ProcFilter) => pf.eraseOperators(this.entity);
 }
 export class ProcFilter extends StickyEffectOperatorBase {
@@ -59,7 +70,7 @@ export class ProcFilter extends StickyEffectOperatorBase {
     actionAttr: Partial<CardActionDefinitionAttrs>,
     isApplicableTo: (operator: StickyEffectOperatorBase, target: DuelEntity) => boolean,
     procTypes: TProcType[],
-    filter: (activator: Duelist, entity: DuelEntity, actionAttr: Partial<CardActionDefinitionAttrs>, effectedEntites: DuelEntity[] | undefined) => boolean
+    filter: typeof ProcFilter.prototype.filter
   ) => {
     return new ProcFilter(title, validateAlive, true, isSpawnedBy, actionAttr, isApplicableTo, procTypes, filter);
   };
@@ -70,13 +81,19 @@ export class ProcFilter extends StickyEffectOperatorBase {
     actionAttr: Partial<CardActionDefinitionAttrs>,
     isApplicableTo: (operator: StickyEffectOperatorBase, target: DuelEntity) => boolean,
     procTypes: TProcType[],
-    filter: (activator: Duelist, entity: DuelEntity, actionAttr: Partial<CardActionDefinitionAttrs>, effectedEntites: DuelEntity[] | undefined) => boolean
+    filter: typeof ProcFilter.prototype.filter
   ) => {
     return new ProcFilter(title, validateAlive, false, isSpawnedBy, actionAttr, isApplicableTo, procTypes, filter);
   };
   public beforeRemove: () => void = () => {};
   public readonly procTypes: TProcType[];
-  public readonly filter: (activator: Duelist, entity: DuelEntity, actionAttr: Partial<CardActionDefinitionAttrs>, effectedEntites: DuelEntity[]) => boolean;
+  public readonly filter: (
+    bundleOwner: DuelEntity,
+    activator: Duelist,
+    entity: DuelEntity,
+    actionAttr: Partial<CardActionDefinitionAttrs>,
+    effectedEntites: DuelEntity[]
+  ) => boolean;
   public constructor(
     title: string,
     validateAlive: (operator: StickyEffectOperatorBase) => boolean,
@@ -85,7 +102,7 @@ export class ProcFilter extends StickyEffectOperatorBase {
     actionAttr: Partial<CardActionDefinitionAttrs>,
     isApplicableTo: (operator: StickyEffectOperatorBase, target: DuelEntity) => boolean,
     procTypes: TProcType[],
-    filter: (activator: Duelist, entity: DuelEntity, actionAttr: Partial<CardActionDefinitionAttrs>, effectedEntites: DuelEntity[] | undefined) => boolean
+    filter: typeof ProcFilter.prototype.filter
   ) {
     super(title, validateAlive, isContinuous, isSpawnedBy, actionAttr, isApplicableTo);
     this.procTypes = procTypes;
@@ -100,7 +117,7 @@ export class ProcFilter extends StickyEffectOperatorBase {
     // 効果処理をフィルタリングする場合、既存の永続型でフィルタリング対象のオペレータを全て除去する
     const expireds = entity.allStickyEffectOperators
       .filter((ope) => ope.isContinuous)
-      .filter((ope) => !this.filter(ope.effectOwner, ope.isSpawnedBy, ope.actionAttr, []))
+      .filter((ope) => !this.filter(entity, ope.effectOwner, ope.isSpawnedBy, ope.actionAttr, []))
       .map((ope) => ope.seq);
 
     expireds.forEach(entity.procFilterBundle.removeItem);

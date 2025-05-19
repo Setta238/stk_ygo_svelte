@@ -77,25 +77,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
           },
           execute: async (myInfo) => {
             const cells = myInfo.activator.getMonsterZones();
-            const list = myInfo.activator.getEnableSummonList(
-              myInfo.activator,
-              "FusionSummon",
-              ["Effect"],
-              myInfo.action,
-              myInfo.activator
-                .getExtraDeck()
-                .cardEntities.filter((card) => card.status.monsterCategories?.includes("Fusion"))
-                .filter((card) => card.lvl && card.lvl <= item.lvlUpperBound)
-                .filter(item.filter)
-                .map((monster) => {
-                  return { monster, posList: faceupBattlePositions, cells };
-                }),
-              [],
-              false
-            );
-            if (!list.length) {
-              return false;
-            }
             const summoned = await myInfo.activator.summonOne(
               myInfo.activator,
               "FusionSummon",

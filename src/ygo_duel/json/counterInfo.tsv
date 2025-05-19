@@ -3,6 +3,7 @@ SpellCounter	Actual	魔力カウンター	🔮	false	false	true
 KaijuCounter	Actual	壊獣カウンター	☢	false	false	true
 NamelessCounter	Actual	カウンター	💠	false	false	true
 IceCounter	Actual	アイスカウンター	❄	false	false	true
+Curfew	System	自発帰還		false	false	true
 SelfDestruction	System	自壊		false	false	true
 CycleFlip	System	サイクルリバース		true	true	true
 SonicBarrier	System	波動音壁		true	true	true

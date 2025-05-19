@@ -24078,7 +24078,8 @@
     "kind": "Monster",
     "monsterCategories": [
       "Ritual",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     "level": 4,
     "attack": 0,
@@ -24110,5 +24111,28 @@
       "WingedBeast"
     ],
     "wikiEncodedName": "%A1%D4%A5%BD%A5%CB%A5%C3%A5%AF%A5%D0%A1%BC%A5%C9%A1%D5"
+  },
+  "魔導サイエンティスト": {
+    "name": "魔導サイエンティスト",
+    "nameKana": "",
+    "description": "１０００ライフポイントを払う事で、融合デッキからレベル６以下の融合モンスター１体を特殊召喚する。\nこの融合モンスターは相手プレイヤーに直接攻撃する事はできず、ターン終了時に融合デッキに戻る。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "nameTags": [
+      "魔導"
+    ],
+    "level": 1,
+    "attack": 300,
+    "defense": 300,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Spellcaster"
+    ],
+    "wikiEncodedName": "%A1%D4%CB%E2%C6%B3%A5%B5%A5%A4%A5%A8%A5%F3%A5%C6%A5%A3%A5%B9%A5%C8%A1%D5"
   }
 }

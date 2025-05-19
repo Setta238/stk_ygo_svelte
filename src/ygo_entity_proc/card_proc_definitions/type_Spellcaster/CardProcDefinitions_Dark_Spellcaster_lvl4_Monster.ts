@@ -139,10 +139,9 @@ export default function* generate(): Generator<EntityProcDefinition> {
         "Monster",
         (source) => [source],
         (source) => [
-          new ProcFilter(
+          ProcFilter.createContinuous(
             "②リリース不可",
             () => true,
-            true,
             source,
             {},
             () => true,

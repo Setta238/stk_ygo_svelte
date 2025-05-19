@@ -549,24 +549,14 @@ export class DuelEntity {
     causedBy: DuelEntity,
     causedAs: ("AdvanceSummonRelease" | "ReleaseAsCost" | "ReleaseAsEffect" | "RitualMaterial")[],
     action: EntityAction<T>
-  ): boolean => {
-    return (
-      !this.isInTrashCell &&
-      this.procFilterBundle.effectiveOperators.filter((pf) => pf.procTypes.union(causedAs).length).every((pf) => pf.filter(activator, causedBy, action, [this]))
-    );
-  };
+  ): boolean => !this.isInTrashCell && this.procFilterBundle.filter(causedAs, activator, causedBy, action, [this]);
+
   public readonly canBeSentToGraveyard = <T>(
     activator: Duelist,
     causedBy: DuelEntity,
     causedAs: "SendToGraveyardAsEffect" | "SendToGraveyardAsCost",
     action: EntityAction<T>
-  ): boolean => {
-    return (
-      !this.status.willBeBanished &&
-      !this.status.willReturnToDeck &&
-      this.procFilterBundle.effectiveOperators.filter((pf) => pf.procTypes.includes(causedAs)).every((pf) => pf.filter(activator, causedBy, action, [this]))
-    );
-  };
+  ): boolean => this.status.willBeBanished && !this.status.willReturnToDeck && this.procFilterBundle.filter([causedAs], activator, causedBy, action, [this]);
 
   public get status() {
     return this._status as Readonly<EntityStatus>;
@@ -1372,18 +1362,11 @@ DuelEntity.prototype.getAttackTargets = function (): DuelEntity[] {
   // 自分、相手ともにフィルタリングが必要。
   return enemies
     .filter((enemy) => enemy.canBeTargetOfBattle(this.controller, this))
-    .filter((enemy) =>
-      this.procFilterBundle.effectiveOperators
-        .filter((pf) => pf.procTypes.includes("BattleTarget"))
-        .every((pf) => pf.filter(this.controller, this, {}, [enemy]))
-    );
+    .filter((enemy) => this.procFilterBundle.filter(["BattleTarget"], this.controller, this, {}, [enemy]));
 };
 
 DuelEntity.prototype.canBeEffected = function (activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionDefinitionAttrs>): boolean {
-  const entity = this as DuelEntity;
-  return entity.procFilterBundle.effectiveOperators
-    .filter((pf) => pf.procTypes.some((t) => t === "Effect"))
-    .every((pf) => pf.filter(activator, causedBy, action, [this]));
+  return this.procFilterBundle.filter(["Effect"], activator, causedBy, action, [this]);
 };
 
 const _canBeDoneSomethingByEffect = (
@@ -1392,19 +1375,10 @@ const _canBeDoneSomethingByEffect = (
   activator: Duelist,
   causedBy: DuelEntity,
   action: Partial<CardActionDefinitionAttrs>
-): boolean => {
-  return (
-    entity.canBeEffected(activator, causedBy, action) &&
-    entity.procFilterBundle.effectiveOperators
-      .filter((pf) => pf.procTypes.some((t) => t === procType))
-      .every((pf) => pf.filter(activator, causedBy, action, [entity]))
-  );
-};
+): boolean => entity.canBeEffected(activator, causedBy, action) && entity.procFilterBundle.filter([procType], activator, causedBy, action, [entity]);
 
 DuelEntity.prototype.canBeTargetOfEffect = function <T>(chainBlockInfo: ChainBlockInfoBase<T>): boolean {
-  return this.procFilterBundle.effectiveOperators
-    .filter((pf) => pf.procTypes.some((t) => t === "EffectTarget"))
-    .every((pf) => pf.filter(chainBlockInfo.activator, chainBlockInfo.action.entity, chainBlockInfo.action, [this]));
+  return this.procFilterBundle.filter(["EffectTarget"], chainBlockInfo.activator, chainBlockInfo.action.entity, chainBlockInfo.action, [this]);
 };
 
 DuelEntity.prototype.canBeBanished = function (
@@ -1420,10 +1394,7 @@ DuelEntity.prototype.canBeBanished = function (
 };
 
 DuelEntity.prototype.canBeTargetOfBattle = function (activator: Duelist, causedBy: DuelEntity): boolean {
-  const entity = this as DuelEntity;
-  return entity.procFilterBundle.effectiveOperators
-    .filter((pf) => pf.procTypes.some((t) => t === "BattleTarget"))
-    .every((pf) => pf.filter(activator, causedBy, {}, [entity]));
+  return this.procFilterBundle.filter(["BattleTarget"], activator, causedBy, {}, [this]);
 };
 
 DuelEntity.prototype.validateDestory = function (
@@ -1432,13 +1403,10 @@ DuelEntity.prototype.validateDestory = function (
   causedBy: DuelEntity,
   action: Partial<CardActionDefinitionAttrs>
 ): boolean {
-  const entity = this as DuelEntity;
-  let flg = entity.procFilterBundle.effectiveOperators
-    .filter((pf) => pf.procTypes.includes(destroyType))
-    .every((pf) => pf.filter(activator, causedBy, action ?? {}, [entity]));
+  let flg = this.procFilterBundle.filter([destroyType], activator, causedBy, action ?? {}, [this]);
 
   if (flg && destroyType === "EffectDestroy") {
-    flg = entity.canBeEffected(activator, causedBy, action);
+    flg = this.canBeEffected(activator, causedBy, action);
   }
 
   return flg;

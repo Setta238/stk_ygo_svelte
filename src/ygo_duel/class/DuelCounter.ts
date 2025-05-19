@@ -103,6 +103,12 @@ export class CounterHolder {
   public readonly getSelfDestructionFlg = (by: DuelEntity): boolean => {
     return this.getQty("SelfDestruction", by) > 0;
   };
+  public readonly setCurfewFlg = (by: DuelEntity) => {
+    this.add("Curfew", 1, by);
+  };
+  public readonly getCurfewFlg = (by: DuelEntity) => {
+    return this.getQty("Curfew", by) > 0;
+  };
   public readonly incrementActionCountPerTurn = (action: EntityActionBase) => {
     this.temporaryCounterNames.push(action.title);
     this.incrementActionCount(action);

@@ -557,7 +557,7 @@ export class DuelEntity {
     causedBy: DuelEntity,
     causedAs: "SendToGraveyardAsEffect" | "SendToGraveyardAsCost",
     action: EntityAction<T>
-  ): boolean => this.status.willBeBanished && !this.status.willReturnToDeck && this.procFilterBundle.filter([causedAs], activator, causedBy, action, [this]);
+  ): boolean => !this.status.willBeBanished && !this.status.willReturnToDeck && this.procFilterBundle.filter([causedAs], activator, causedBy, action, [this]);
 
   public get status() {
     return this._status as Readonly<EntityStatus>;

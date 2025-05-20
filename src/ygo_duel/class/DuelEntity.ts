@@ -1100,33 +1100,33 @@ export class DuelEntity {
         // 墓地送り予定情報を削除
         this.resetCauseOfDeath();
       }
-      if (this.kind !== "XyzMaterial") {
+      if ((this.fieldCell.isMonsterZoneLikeCell && !to.isMonsterZoneLikeCell) || kind !== "Monster") {
+        // 数値ステータスをリセット
+        // FIXME 情報リセットを一箇所に集約する
+        this.resetNumericStatus();
+        this.info.isEffectiveIn.push(...playFieldCellTypes);
+
         // モンスターゾーンを離れる時の処理
-        if ((this.fieldCell.isMonsterZoneLikeCell && !to.isMonsterZoneLikeCell) || kind !== "Monster") {
-          // 装備していたカードにマーキング
-          this.info.equipEntities
-            .filter((equip) => equip.isOnFieldAsSpellTrapStrictly)
-            .forEach((equip) => {
-              equip.info.isDying = true;
-              equip.info.causeOfDeath = ["RuleDestroy"];
-              this.controller.writeInfoLog(`装備対象${this.toString()}不在により${equip.toString()}は破壊された。`);
-            });
-          this.info.equipEntities = [];
+        // 装備していたカードにマーキング
+        this.info.equipEntities
+          .filter((equip) => equip.isOnFieldAsSpellTrapStrictly)
+          .forEach((equip) => {
+            equip.info.isDying = true;
+            equip.info.causeOfDeath = ["RuleDestroy"];
+            this.controller.writeInfoLog(`装備対象${this.toString()}不在により${equip.toString()}は破壊された。`);
+          });
+        this.info.equipEntities = [];
+
+        if (this.kind !== "XyzMaterial") {
           // XYZ素材にマーキング
           this.fieldCell.xyzMaterials.forEach((material) => {
             material.info.isDying = true;
             material.info.causeOfDeath = ["LostXyzOwner"];
             this.controller.writeInfoLog(`エクシーズモンスター${this.toString()}不在により${material.toString()}は墓地に送られた。`);
           });
-          // 数値ステータスをリセット
-          // FIXME 情報リセットを一箇所に集約する
-          this.resetNumericStatus();
-          this.info.isEffectiveIn.push(...playFieldCellTypes);
         }
-      }
-
-      // 魔法罠を離れる時の処理
-      if (this.fieldCell.cellType === "SpellAndTrapZone" && to.cellType !== "SpellAndTrapZone") {
+      } else if (this.fieldCell.cellType === "SpellAndTrapZone" && to.cellType !== "SpellAndTrapZone") {
+        // 魔法罠を離れる時の処理
         // 装備解除
         // FIXME 情報リセットを一箇所に集約する
         this.info.equipedBy = undefined;

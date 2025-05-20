@@ -54,7 +54,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           executableCells: ["SpellAndTrapZone"],
           executablePeriods: freeChainDuelPeriodKeys,
           executableDuelistTypes: ["Controller"],
-          fixedTags: ["SpecialSummonFromGraveyard"],
+          fixedTags: ["SpecialSummonFromGraveyard", "SpecialSummon"],
           canExecute: (myInfo) => {
             const cells = myInfo.activator.getMonsterZones();
             const list = myInfo.activator.getEnableSummonList(
@@ -133,8 +133,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
               if (
                 myInfo.action.entity.isOnFieldStrictly &&
                 myInfo.action.entity.face === "FaceUp" &&
-                data.entity.isEffective &&
-                movedAs.union(["EffectDestroy", "RuleDestroy"]).length
+                myInfo.action.entity.isEffective &&
+                movedAs.union(["EffectDestroy", "RuleDestroy", "BattleDestroy"]).length
               ) {
                 // この場所では破壊マーキングまで実行。
                 myInfo.activator.writeInfoLog(`${data.entity.toString()}が破壊されたため、${myInfo.action.entity.toString()}を破壊。`);

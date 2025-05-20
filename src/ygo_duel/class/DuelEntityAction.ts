@@ -694,7 +694,14 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
     }
     const _prepared = { ...prepared };
     _prepared.selectedEntities = _prepared.selectedEntities ?? [];
-    _prepared.chainBlockTags = [...(_prepared.chainBlockTags ?? []), ...(this.definition.fixedTags ?? [])].getDistinct();
+    _prepared.chainBlockTags = [...(_prepared.chainBlockTags ?? []), ...(this.definition.fixedTags ?? [])];
+
+    if (_prepared.chainBlockTags.some((tag) => tag.startsWith("SpecialSummon"))) {
+      _prepared.chainBlockTags.push("SpecialSummon");
+    }
+
+    _prepared.chainBlockTags = _prepared.chainBlockTags.getDistinct();
+
     if (cardActionRuleSummonTypes.some((type) => type === this.playType)) {
       const tmpFilter = prepared.nextChainBlockFilter ?? (() => true);
       _prepared.nextChainBlockFilter = (activator, action) => action.negateSummon && tmpFilter(activator, action);

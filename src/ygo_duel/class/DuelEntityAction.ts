@@ -161,6 +161,7 @@ export type ChainBlockInfo<T> = ChainBlockInfoPreparing<T> & ChainBlockInfoPrepa
 export type CardActionDefinitionAttrs = EntityActionDefinitionBase & {
   playType: TCardActionType;
   spellSpeed: TSpellSpeed;
+  fixedTags?: TEffectTag[];
   hasToTargetCards?: boolean;
   /**
    * コスト払う必要があるかどうか（コピー効果用）
@@ -691,6 +692,9 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
       return;
     }
     const _prepared = { ...prepared };
+    if (this.definition.fixedTags) {
+      _prepared.chainBlockTags = [..._prepared.chainBlockTags, ...this.definition.fixedTags];
+    }
     if (cardActionRuleSummonTypes.some((type) => type === this.playType)) {
       const tmpFilter = prepared.nextChainBlockFilter ?? (() => true);
       _prepared.nextChainBlockFilter = (activator, action) => action.negateSummon && tmpFilter(activator, action);

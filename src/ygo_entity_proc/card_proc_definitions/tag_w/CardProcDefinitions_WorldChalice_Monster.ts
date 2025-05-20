@@ -7,6 +7,7 @@ import { SystemError } from "@ygo_duel/class/Duel";
 import { defaultCanPaySelfBanishCosts, defaultPaySelfBanishCosts, defaultPrepare } from "../../card_actions/CommonCardAction";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
+import type { TEffectTag } from "@ygo_duel/class/DuelEntityAction";
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "星杯の妖精リース",
@@ -20,6 +21,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerTurn: 1,
+        fixedTags: ["SearchFromDeck"],
         meetsConditions: (myInfo) => myInfo.action.entity.hasBeenSummonedNow(["NormalSummon", "SpecialSummon"]),
         canExecute: (myInfo) =>
           myInfo.activator.canAddToHandFromDeck &&
@@ -27,8 +29,11 @@ export default function* generate(): Generator<EntityProcDefinition> {
             .getDeckCell()
             .cardEntities.filter((card) => card.kind === "Monster")
             .some((card) => card.status.nameTags?.includes("星杯")),
-        prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"] };
+        prepare: async (myInfo) => {
+          const chainBlockTags: TEffectTag[] = myInfo.action.entity.hasBeenSummonedNow(["NormalSummon"])
+            ? ["IfNormarlSummonSucceed"]
+            : ["IfSpecialSummonSucceed"];
+          return { selectedEntities: [], chainBlockTags };
         },
         execute: async (myInfo) => {
           const choices = myInfo.activator
@@ -75,9 +80,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
           await cost.sendToGraveyard(["Cost"], myInfo.action.entity, myInfo.activator);
           return { sendToGraveyard: [cost] };
         },
-        prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"] };
-        },
+        fixedTags: ["SearchFromDeck"],
+        prepare: defaultPrepare,
         execute: async (myInfo) => {
           if (myInfo.action.entity.wasMovedAfter(myInfo.isActivatedAt)) {
             return false;
@@ -214,9 +218,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
           myInfo.activator.canAddToHandFromDeck &&
           myInfo.activator.getDeckCell().cardEntities.filter((card) => card.status.nameTags?.includes("星遺物")).length > 0,
         payCosts: defaultPaySelfBanishCosts,
-        prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"] };
-        },
+        fixedTags: ["SearchFromDeck"],
+        prepare: defaultPrepare,
         execute: async (myInfo) => {
           const selected = await myInfo.activator.waitSelectEntity(
             myInfo.activator.getDeckCell().cardEntities.filter((card) => card.status.nameTags?.includes("星遺物")),

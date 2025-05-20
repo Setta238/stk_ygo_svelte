@@ -4,6 +4,7 @@ import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CommonC
 import type { DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
 import { IllegalCancelError, SystemError } from "@ygo_duel/class/Duel";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
+import { defaultPrepare } from "@ygo_entity_proc/card_actions/CommonCardAction";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
@@ -17,14 +18,13 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Hand", "SpellAndTrapZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
+        fixedTags: ["SearchFromDeck", "ReturnToHandFromGraveyard"],
         canExecute: (myInfo) =>
           myInfo.activator
             .getDeckCell()
             .cardEntities.filter((card) => card.status.monsterCategories?.includes("Ritual"))
             .some((card) => card.lvl && card.lvl < 8) && myInfo.activator.canAddToHandFromDeck,
-        prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SearchFromDeck", "ReturnToHandFromGraveyard"] };
-        },
+        prepare: defaultPrepare,
         execute: async (myInfo) => {
           if (!myInfo.activator.canAddToHandFromDeck) {
             return false;
@@ -83,6 +83,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerTurn: 1,
+        fixedTags: ["SearchFromDeck", "ReturnToHandFromGraveyard"],
         canExecute: (myInfo) => {
           if (!myInfo.activator.canAddToHandFromDeck) {
             return false;
@@ -101,9 +102,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             .filter((card) => card.status.monsterCategories?.includes("Ritual"))
             .some((card) => names.includes(card.nm));
         },
-        prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SearchFromDeck", "ReturnToHandFromGraveyard"] };
-        },
+        prepare: defaultPrepare,
         execute: async (myInfo) => {
           if (!myInfo.activator.canAddToHandFromDeck) {
             return false;

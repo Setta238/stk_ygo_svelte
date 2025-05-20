@@ -8,6 +8,7 @@ import { SystemError } from "@ygo_duel/class/Duel";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
+import { defaultPrepare } from "@ygo_entity_proc/card_actions/CommonCardAction";
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "シューティング・ライザー・ドラゴン",
@@ -21,13 +22,12 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: monsterZoneCellTypes,
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
+        fixedTags: ["SendToGraveyardFromDeck", "IfSpecialSummonSucceed"],
         isOnlyNTimesPerTurn: 1,
         canExecute: (myInfo) =>
           myInfo.action.entity.hasBeenSummonedNow(["SynchroSummon"]) &&
           myInfo.activator.getDeckCell().cardEntities.some((card) => (card.lvl ?? 12) < (myInfo.action.entity.lvl ?? 0)),
-        prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SendToGraveyardFromDeck", "IfSpecialSummonSucceed"] };
-        },
+        prepare: defaultPrepare,
         execute: async (myInfo): Promise<boolean> => {
           const choices = myInfo.activator.getDeckCell().cardEntities.filter((card) => (card.lvl ?? 12) < (myInfo.action.entity.lvl ?? 0));
           if (choices.length === 0) {

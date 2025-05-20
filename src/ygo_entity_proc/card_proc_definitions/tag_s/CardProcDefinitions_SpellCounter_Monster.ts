@@ -108,10 +108,9 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["MonsterZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
+        fixedTags: ["IfNormarlSummonSucceed"],
         meetsConditions: (myInfo) => myInfo.action.entity.hasBeenSummonedNow(["NormalSummon"]),
-        prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["IfNormarlSummonSucceed"] };
-        },
+        prepare: defaultPrepare,
         execute: async (myInfo) => {
           if (myInfo.action.entity.face === "FaceDown") {
             return false;
@@ -131,6 +130,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["MonsterZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
+        fixedTags: ["Destroy", "DestroyOnField", "DestroySpellTrapOnField"],
         canPayCosts: (myInfo, chainBlockInfos) => canPaySpellCounters(myInfo, chainBlockInfos, 1),
         payCosts: async (myInfo, chainBlockInfos, cancelable) => paySpellCounters(myInfo, chainBlockInfos, cancelable, [1]),
         ...getSingleTargetActionPartical(

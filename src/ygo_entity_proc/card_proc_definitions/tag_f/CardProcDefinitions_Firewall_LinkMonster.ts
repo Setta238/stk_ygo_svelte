@@ -22,6 +22,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerTurn: 1,
+        hasToTargetCards: true,
+        fixedTags: ["BounceToHand"],
         canExecute: (myInfo) => {
           const categories = [...myInfo.activator.getGraveyard().cardEntities, ...myInfo.activator.getMonstersOnField()]
             .flatMap((monster) => monster.status.monsterCategories ?? [])
@@ -55,9 +57,12 @@ export default function* generate(): Generator<EntityProcDefinition> {
           if (choices.length < 1) {
             return;
           }
+
+          const qty = choices.length === 1 ? 1 : undefined;
+
           const selectedEntities = await myInfo.activator.waitSelectEntities(
             choices,
-            undefined,
+            qty,
             (selected) => selected.length > 0 && selected.length <= maxQty,
             "手札に戻すカードを選択。",
             cancelable
@@ -66,7 +71,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           if (!selectedEntities) {
             return;
           }
-          return { selectedEntities, chainBlockTags: [] };
+          return { selectedEntities };
         },
         execute: async (myInfo): Promise<boolean> => {
           const targets = myInfo.selectedEntities
@@ -100,6 +105,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: duelPeriodKeys,
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerTurn: 1,
+        fixedTags: ["SpecialSummonFromGraveyard"],
         meetsConditions: (myInfo) => {
           const wasMovedAt = myInfo.action.entity.moveLog.latestRecord.movedAt;
           // 前のチェーンで移動したエンティティがどこから移動したかを取得。

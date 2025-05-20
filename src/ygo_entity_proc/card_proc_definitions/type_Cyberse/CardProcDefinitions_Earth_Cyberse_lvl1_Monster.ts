@@ -6,6 +6,7 @@ import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition"
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import {} from "@ygo_duel/class/DuelEntityShortHands";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
+import { defaultPrepare } from "@ygo_entity_proc/card_actions/CommonCardAction";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
@@ -21,11 +22,10 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerDuel: 1,
         actionGroupName: "ドットスケーパー",
+        fixedTags: ["SpecialSummonFromGraveyard"],
         meetsConditions: (myInfo) => myInfo.action.entity.wasMovedAtPreviousChain && myInfo.action.entity.wasMovedFrom.cellType !== "Banished",
         canExecute: (myInfo) => canSelfSepcialSummon(myInfo, faceupBattlePositions, [], ["Effect"]),
-        prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromGraveyard"] };
-        },
+        prepare: defaultPrepare,
         execute: (myInfo) => defaultSelfRebornExecute(myInfo),
         settle: async () => true,
       },
@@ -39,11 +39,10 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerDuel: 1,
         actionGroupName: "ドットスケーパー",
+        fixedTags: ["SpecialSummonFromBanished"],
         meetsConditions: (myInfo) => myInfo.action.entity.wasMovedAtPreviousChain,
         canExecute: (myInfo) => canSelfSepcialSummon(myInfo, faceupBattlePositions, [], ["Effect"]),
-        prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromBanished"] };
-        },
+        prepare: defaultPrepare,
         execute: (myInfo) => defaultSelfRebornExecute(myInfo),
         settle: async () => true,
       },

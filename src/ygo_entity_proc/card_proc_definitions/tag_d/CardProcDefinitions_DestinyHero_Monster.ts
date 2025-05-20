@@ -21,6 +21,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Graveyard"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
+        fixedTags: ["SpecialSummonFromDeck"],
         priorityForNPC: 10,
         canPayCosts: defaultCanPaySelfBanishCosts,
         canExecute: (myInfo) => {
@@ -41,9 +42,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           return list.length > 0;
         },
         payCosts: defaultPaySelfBanishCosts,
-        prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromDeck"] };
-        },
+        prepare: defaultPrepare,
         execute: async (myInfo) => {
           const newOne = myInfo.activator.getDeckCell().cardEntities.find((card) => card.nm === "Ｄ－ＨＥＲＯ ディアボリックガイ");
           if (!newOne) {

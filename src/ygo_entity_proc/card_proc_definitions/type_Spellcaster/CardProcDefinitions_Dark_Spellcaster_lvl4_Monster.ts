@@ -5,6 +5,7 @@ import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/D
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 import { IllegalCancelError } from "@ygo_duel/class/Duel";
 import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
+import { defaultPrepare } from "@ygo_entity_proc/card_actions/CommonCardAction";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
@@ -19,9 +20,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
         meetsConditions: (myInfo) => myInfo.action.entity.hasBeenSummonedNow(["NormalSummon", "FlipSummon"]),
-        prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["IfNormarlSummonSucceed"] };
-        },
+        fixedTags: ["IfNormarlSummonSucceed"],
+        prepare: defaultPrepare,
         execute: async (myInfo) => {
           if (myInfo.action.entity.battlePosition !== "Attack") {
             return false;
@@ -44,6 +44,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerTurnIfFaceup: 1,
+        fixedTags: ["SpecialSummonFromDeck"],
         canPayCosts: (myInfo) => {
           if (!myInfo.activator.status.canDiscardAsCost) {
             return false;
@@ -87,9 +88,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
 
           return { discard: [cost] };
         },
-        prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromDeck"] };
-        },
+        prepare: defaultPrepare,
         execute: async (myInfo) => {
           const monsters = myInfo.activator.getDeckCell().cardEntities.filter((card) => card.lvl === 4);
 

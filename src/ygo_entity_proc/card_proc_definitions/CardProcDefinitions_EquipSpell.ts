@@ -65,6 +65,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         hasToTargetCards: true,
+        fixedTags: ["SpecialSummonFromGraveyard"],
         canPayCosts: (myInfo) => myInfo.activator.lp >= 800,
         canExecute: (myInfo) => {
           const cells = myInfo.activator.getMonsterZones();

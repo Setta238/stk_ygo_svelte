@@ -2,7 +2,7 @@ import { getSelfBattleSubstituteEffectDefinition } from "@ygo_entity_proc/card_a
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
-import { getSingleTargetActionPartical } from "@ygo_entity_proc/card_actions/CommonCardAction";
+import { defaultPrepare, getSingleTargetActionPartical } from "@ygo_entity_proc/card_actions/CommonCardAction";
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "ダーク・リゾネーター",
@@ -21,6 +21,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["MonsterZone"],
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
+        fixedTags: ["SpecialSummonFromHand", "IfNormarlSummonSucceed", "SpecialSummon"],
         meetsConditions: (myInfo) => myInfo.action.entity.hasBeenSummonedNow(["NormalSummon"]),
         canExecute: (myInfo) => {
           const cells = myInfo.activator.getMonsterZones();
@@ -41,9 +42,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           );
           return list.length > 0;
         },
-        prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromHand", "IfNormarlSummonSucceed"] };
-        },
+        prepare: defaultPrepare,
         execute: async (myInfo) => {
           const cells = myInfo.activator.getMonsterZones();
           const summonArgs = myInfo.activator

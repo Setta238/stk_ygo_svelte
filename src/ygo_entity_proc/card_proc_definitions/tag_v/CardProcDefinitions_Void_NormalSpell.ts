@@ -18,12 +18,11 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Hand", "SpellAndTrapZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
+        fixedTags: ["Draw", "DiscordAsEffect"],
         meetsConditions: (myInfo) => myInfo.activator.getHandCell().cardEntities.length > 2,
         canExecute: (myInfo) =>
           myInfo.activator.canDraw && myInfo.activator.status.canDiscardAsEffect && myInfo.activator.getDeckCell().cardEntities.length > 0,
-        prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["Draw", "DiscordAsEffect"] };
-        },
+        prepare: defaultPrepare,
         execute: async (myInfo) => {
           await myInfo.activator.draw(1, myInfo.action.entity, myInfo.activator);
           myInfo.activator.entity.counterHolder.add("IntoTheVoid", 1, myInfo.action.entity);

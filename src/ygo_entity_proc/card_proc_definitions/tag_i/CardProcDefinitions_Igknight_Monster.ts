@@ -25,6 +25,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           executableCells: ["SpellAndTrapZone"],
           executablePeriods: ["main1", "main2"],
           executableDuelistTypes: ["Controller"],
+          fixedTags: ["Destroy", "DestroyMultiple", "DestroyMultipleOnField", "DestroySpellTrapOnField", "DestroySpellTrapsOnField"],
           meetsConditions: (myInfo) => {
             const theOther = myInfo.activator.getPendulumScaleMonsters().find((ps) => ps !== myInfo.action.entity);
 

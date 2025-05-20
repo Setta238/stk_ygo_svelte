@@ -1,5 +1,6 @@
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { defaultSpellTrapSetAction } from "../../card_actions/CommonCardAction_Spell";
+import { defaultPrepare } from "@ygo_entity_proc/card_actions/CommonCardAction";
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "黄金色の竹光",
@@ -13,6 +14,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         priorityForNPC: 20,
+        fixedTags: ["Draw"],
         meetsConditions: (myInfo) =>
           myInfo.activator
             .getSpellTrapsOnField()
@@ -20,9 +22,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             .filter((takemitsu) => takemitsu.face === "FaceUp")
             .some((takemitsu) => takemitsu.status.spellCategory === "Equip"),
         canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.length > 0 && myInfo.activator.canDraw,
-        prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["Draw"] };
-        },
+        prepare: defaultPrepare,
         execute: async (chainBlockInfo) => {
           await chainBlockInfo.activator.draw(2, chainBlockInfo.action.entity, chainBlockInfo.activator);
           return true;

@@ -5,7 +5,7 @@ import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardActionDefinition, TEffectTag } from "@ygo_duel/class/DuelEntityAction";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
-import { defaultCanPayDiscardCosts, defaultPayDiscardCosts } from "@ygo_entity_proc/card_actions/CommonCardAction";
+import { defaultCanPayDiscardCosts, defaultPayDiscardCosts, defaultPrepare } from "@ygo_entity_proc/card_actions/CommonCardAction";
 import type { TMonsterType } from "@ygo/class/YgoTypes";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 
@@ -104,11 +104,10 @@ export default function* generate(): Generator<EntityProcDefinition> {
           executableCells: ["Hand", "SpellAndTrapZone"],
           executablePeriods: ["main1", "main2"],
           executableDuelistTypes: ["Controller"],
+          fixedTags: ["SearchFromDeck"],
           priorityForNPC: 40,
           canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.some(item.filter) && myInfo.activator.canAddToHandFromDeck,
-          prepare: async () => {
-            return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"] };
-          },
+          prepare: defaultPrepare,
           execute: async (myInfo) => {
             const monsters = myInfo.activator.getDeckCell().cardEntities.filter(item.filter);
             if (!monsters.length) {
@@ -173,11 +172,10 @@ export default function* generate(): Generator<EntityProcDefinition> {
           executablePeriods: ["main1", "main2"],
           executableDuelistTypes: ["Controller"],
           hasToTargetCards: true,
+          fixedTags: ["AddToHandFromGraveyard"],
           priorityForNPC: 40,
           canExecute: (myInfo) => myInfo.activator.getGraveyard().cardEntities.filter(item.filter).length >= item.qty,
-          prepare: async () => {
-            return { selectedEntities: [], chainBlockTags: ["AddToHandFromGraveyard"] };
-          },
+          prepare: defaultPrepare,
           execute: async (myInfo) => {
             const monsters = myInfo.activator.getGraveyard().cardEntities.filter(item.filter);
             if (monsters.length === 0) {
@@ -221,12 +219,13 @@ export default function* generate(): Generator<EntityProcDefinition> {
           executableCells: ["Hand", "SpellAndTrapZone"],
           executablePeriods: ["main1", "main2"],
           executableDuelistTypes: ["Controller"],
+          fixedTags: ["Draw"],
           priorityForNPC: 40,
           canPayCosts: (...args) => defaultCanPayDiscardCosts(...args, item.filter),
           canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.length > 1,
           payCosts: async (...args) => defaultPayDiscardCosts(...args, item.filter),
           prepare: async () => {
-            return { selectedEntities: [], chainBlockTags: ["Draw"] };
+            return { selectedEntities: [] };
           },
           execute: async (myInfo) => {
             await myInfo.activator.draw(2, myInfo.action.entity, myInfo.activator);

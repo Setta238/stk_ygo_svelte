@@ -11,6 +11,7 @@ import type { CardActionDefinition, ChainBlockInfoBase } from "@ygo_duel/class/D
 import { getDefaultSynchroSummonAction } from "@ygo_entity_proc/card_actions/CommonCardAction_SynchroMonster";
 import { createRegularStatusOperatorHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
+import { defaultPrepare } from "@ygo_entity_proc/card_actions/CommonCardAction";
 
 const createCatapultAction = (args: {
   qty: number;
@@ -27,6 +28,7 @@ const createCatapultAction = (args: {
     executablePeriods: ["main1", "main2"],
     executableDuelistTypes: ["Controller"],
     needsToPayCost: true,
+    fixedTags: ["DamageToOpponent"],
     canPayCosts: (myInfo) =>
       myInfo.activator
         .getMonstersOnField()
@@ -54,9 +56,7 @@ const createCatapultAction = (args: {
 
       return { release: costs };
     },
-    prepare: async () => {
-      return { selectedEntities: [], chainBlockTags: ["DamageToOpponent"] };
-    },
+    prepare: defaultPrepare,
     execute: async (myInfo) => {
       if (!isNumber(myInfo.data)) {
         throw new SystemError("値が正しくない。", myInfo, myInfo.data);

@@ -19,6 +19,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: duelPeriodKeys,
         executableDuelistTypes: ["Controller"],
         negateSummon: true,
+        fixedTags: ["NegateSpecialSummon"],
         canExecute: (myInfo) =>
           (myInfo.targetChainBlock &&
             myInfo.targetChainBlock.action.playType === "SpecialSummon" &&
@@ -26,7 +27,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             myInfo.activator.duel.field.getPendingMonstersOnField().length === 1) ??
           false,
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["NegateSpecialSummon"] };
+          return { selectedEntities: [] };
         },
         execute: async (myInfo) => {
           const monsters = DuelEntityShortHands.negateSummonMany(myInfo.action.entity, myInfo.activator);

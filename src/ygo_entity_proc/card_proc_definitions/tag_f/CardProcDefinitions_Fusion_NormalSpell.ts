@@ -50,6 +50,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           executablePeriods: ["main1", "main2"],
           executableDuelistTypes: ["Controller"],
           isOnlyNTimesPerTurn: 1,
+          fixedTags: ["SpecialSummonFromExtraDeck"],
           canPayCosts: (myInfo) => myInfo.activator.lp >= 1000,
           canExecute: (myInfo) => {
             const cells = myInfo.activator.getMonsterZones();
@@ -72,9 +73,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             return list.length > 0;
           },
           payCosts: (myInfo, chainBlockInfos) => defaultPayLifePoint(myInfo, chainBlockInfos, 1000),
-          prepare: async () => {
-            return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromExtraDeck"] };
-          },
+          prepare: defaultPrepare,
           execute: async (myInfo) => {
             const cells = myInfo.activator.getMonsterZones();
             const summoned = await myInfo.activator.summonOne(

@@ -21,6 +21,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: monsterZoneCellTypes,
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
+        fixedTags: ["SpecialSummonFromDeck"],
         meetsConditions: (myInfo) => myInfo.action.entity.hasBeenSummonedNow(["LinkSummon"]),
         canExecute: (myInfo) => {
           const tuners = [myInfo.activator.getHandCell(), myInfo.activator.getDeckCell()]
@@ -46,9 +47,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           );
           return list.length > 0;
         },
-        prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromDeck"] };
-        },
+        prepare: defaultPrepare,
         execute: async (myInfo): Promise<boolean> => {
           const tuners = [myInfo.activator.getHandCell(), myInfo.activator.getDeckCell()]
             .flatMap((cell) => cell.cardEntities)

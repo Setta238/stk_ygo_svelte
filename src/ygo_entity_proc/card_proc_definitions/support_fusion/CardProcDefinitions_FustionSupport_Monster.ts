@@ -19,6 +19,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["MonsterZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
+        fixedTags: ["SpecialSummonFromExtraDeck"],
         canPayCosts: (myInfo) => myInfo.activator.lp >= 1000,
         canExecute: (myInfo) => {
           const cells = myInfo.activator.getMonsterZones();
@@ -40,9 +41,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           return list.length > 0;
         },
         payCosts: (myInfo, chainBlockInfos) => defaultPayLifePoint(myInfo, chainBlockInfos, 1000),
-        prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromExtraDeck"] };
-        },
+        prepare: defaultPrepare,
         execute: async (myInfo) => {
           const cells = myInfo.activator.getMonsterZones();
           const summoned = await myInfo.activator.summonOne(
@@ -62,12 +61,10 @@ export default function* generate(): Generator<EntityProcDefinition> {
             false
           );
 
-          console.log(summoned, summoned?.toString());
-
           if (!summoned) {
             return false;
           }
-          console.log(summoned.toString(), summoned.procFilterBundle.effectiveOperators.length);
+
           summoned.procFilterBundle.push(
             ProcFilter.createLingering(
               "直接攻撃不可",
@@ -84,7 +81,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
               }
             )
           );
-          console.log(summoned.toString(), summoned.procFilterBundle.effectiveOperators.length);
 
           summoned.counterHolder.setCurfewFlg(myInfo.action.entity);
 

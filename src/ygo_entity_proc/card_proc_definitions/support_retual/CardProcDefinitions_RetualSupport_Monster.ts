@@ -3,6 +3,7 @@ import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition"
 import { IllegalCancelError } from "@ygo_duel/class/Duel";
 import type { TCardKind } from "@ygo/class/YgoTypes";
 import { freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
+import { defaultPrepare } from "@ygo_entity_proc/card_actions/CommonCardAction";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   for (const item of [
@@ -21,6 +22,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           executableCells: ["MonsterZone"],
           executablePeriods: freeChainDuelPeriodKeys,
           executableDuelistTypes: ["Controller"],
+          fixedTags: ["SearchFromDeck"],
           meetsConditions: (myInfo) => myInfo.action.entity.hasBeenSummonedNow(["NormalSummon", "FlipSummon"]),
           canExecute: (myInfo) =>
             myInfo.activator.canAddToHandFromDeck &&
@@ -28,9 +30,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               .getDeckCell()
               .cardEntities.filter((card) => item.kinds.includes(card.kind))
               .some((card) => card.status.spellCategory === "Ritual" || card.status.monsterCategories?.includes("Ritual")),
-          prepare: async () => {
-            return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"] };
-          },
+          prepare: defaultPrepare,
           execute: async (myInfo) => {
             if (!myInfo.activator.canAddToHandFromDeck) {
               return false;

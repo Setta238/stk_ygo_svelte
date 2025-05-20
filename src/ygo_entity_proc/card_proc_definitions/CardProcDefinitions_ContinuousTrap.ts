@@ -54,6 +54,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           executableCells: ["SpellAndTrapZone"],
           executablePeriods: freeChainDuelPeriodKeys,
           executableDuelistTypes: ["Controller"],
+          fixedTags: ["SpecialSummonFromGraveyard"],
           canExecute: (myInfo) => {
             const cells = myInfo.activator.getMonsterZones();
             const list = myInfo.activator.getEnableSummonList(

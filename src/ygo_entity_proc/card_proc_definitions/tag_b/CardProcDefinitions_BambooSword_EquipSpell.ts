@@ -75,6 +75,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Graveyard"],
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
+        fixedTags: ["SearchFromDeck"],
         meetsConditions: (myInfo) => myInfo.action.entity.wasMovedAtPreviousChain && myInfo.action.entity.wasMovedFrom.cellType !== "Banished",
         canExecute: (myInfo) =>
           myInfo.activator.canAddToHandFromDeck &&
@@ -82,9 +83,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             .getDeckCell()
             .cardEntities.filter((card) => card.status.nameTags?.includes("竹光"))
             .some((takemitsu) => takemitsu.status.name !== "妖刀竹光"),
-        prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"] };
-        },
+        prepare: defaultPrepare,
         execute: async (myInfo) => {
           const takemitsus = myInfo.activator
             .getDeckCell()

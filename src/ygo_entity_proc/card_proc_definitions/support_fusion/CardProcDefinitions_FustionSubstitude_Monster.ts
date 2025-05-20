@@ -2,7 +2,7 @@ import { defaultFusionSubstituteEffect } from "@ygo_entity_proc/card_actions/Com
 
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
-import { defaultCanPaySelfDiscardCosts, defaultPaySelfDiscardCosts } from "@ygo_entity_proc/card_actions/CommonCardAction";
+import { defaultCanPaySelfDiscardCosts, defaultPaySelfDiscardCosts, defaultPrepare } from "@ygo_entity_proc/card_actions/CommonCardAction";
 import { freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { getDefaultFusionSummonAction } from "@ygo_entity_proc/card_actions/CommonCardAction_FusionSpell";
 
@@ -25,13 +25,12 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Hand"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
+        fixedTags: ["SearchFromDeck"],
         canPayCosts: defaultCanPaySelfDiscardCosts,
         canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.some((card) => card.nm === "融合") && myInfo.activator.canAddToHandFromDeck,
         getDests: (myInfo) => [myInfo.activator.getGraveyard()],
         payCosts: defaultPaySelfDiscardCosts,
-        prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"] };
-        },
+        prepare: defaultPrepare,
         execute: async (myInfo) => {
           const spells = myInfo.activator.getDeckCell().cardEntities.filter((card) => card.nm === "融合");
           if (!spells.length) {

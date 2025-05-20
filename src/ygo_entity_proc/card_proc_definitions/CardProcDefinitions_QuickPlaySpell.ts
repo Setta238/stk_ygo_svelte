@@ -9,7 +9,7 @@ import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/D
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import { getSingleTargetActionPartical } from "@ygo_entity_proc/card_actions/CommonCardAction";
+import { defaultPrepare, getSingleTargetActionPartical } from "@ygo_entity_proc/card_actions/CommonCardAction";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
@@ -164,6 +164,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Hand", "SpellAndTrapZone"],
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
+        fixedTags: ["Draw"],
         canExecute: (myInfo) => {
           for (const duelist of [myInfo.activator, myInfo.activator.getOpponentPlayer()]) {
             if (!duelist.canDraw) {
@@ -184,10 +185,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
 
           return true;
         },
-        prepare: async () => {
-          console.log("手札断殺");
-          return { selectedEntities: [], chainBlockTags: ["Draw"] };
-        },
+        prepare: defaultPrepare,
         execute: async (myInfo) => {
           if (myInfo.activator.getHandCell().cardEntities.length < 2) {
             return false;
@@ -240,12 +238,11 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Hand", "SpellAndTrapZone"],
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
+        fixedTags: ["Draw"],
         hasToTargetCards: true,
         // 自分のデッキが0枚でも発動できる。
         canExecute: (myInfo) => myInfo.activator.canDraw,
-        prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["Draw"] };
-        },
+        prepare: defaultPrepare,
         execute: async (myInfo) => {
           const hands = myInfo.activator.getHandCell().cardEntities;
 

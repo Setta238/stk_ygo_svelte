@@ -29,9 +29,10 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         priorityForNPC: 40,
+        fixedTags: ["SendToGraveyardFromDeck"],
         canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.some((card) => card.kind === "Monster"),
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SendToGraveyardFromDeck"] };
+          return { selectedEntities: [] };
         },
         execute: async (myInfo) => {
           const monsters = myInfo.activator.getDeckCell().cardEntities.filter((entity) => entity.kind === "Monster");
@@ -64,9 +65,10 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerTurn: 1,
         priorityForNPC: 40,
+        fixedTags: ["SendToGraveyardFromDeck"],
         canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.some((card) => card.kind !== "Monster"),
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SendToGraveyardFromDeck"] };
+          return { selectedEntities: [] };
         },
         execute: async (myInfo) => {
           const monsters = myInfo.activator.getDeckCell().cardEntities.filter((entity) => entity.kind !== "Monster");
@@ -98,6 +100,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Hand", "SpellAndTrapZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
+        fixedTags: ["SpecialSummonFromGraveyard"],
         hasToTargetCards: true,
         // 墓地に蘇生可能モンスター、場に空きが必要。
         canExecute: (myInfo) => {
@@ -153,6 +156,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           executableCells: ["Hand", "SpellAndTrapZone"],
           executablePeriods: ["main1", "main2"],
           executableDuelistTypes: ["Controller"],
+          fixedTags: ["DestroyOnField"],
           canExecute: (myInfo) => {
             let cards = myInfo.action.entity.field
               .getCells(...item.cellTypes)
@@ -204,13 +208,14 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Hand", "SpellAndTrapZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
+        fixedTags: ["BounceToHand"],
         canExecute: (myInfo) =>
           myInfo.action.entity.field
             .getCells("SpellAndTrapZone", "FieldSpellZone")
             .flatMap((cell) => cell.cardEntities)
             .some((card) => card !== myInfo.action.entity),
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["BounceToHand"] };
+          return { selectedEntities: [] };
         },
         execute: async (myInfo, chainBlockInfos) => {
           // 発動済の魔法罠はバウンスできない
@@ -267,6 +272,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerTurn: 1,
+        fixedTags: ["SpecialSummon", "SpecialSummonToken"],
         canExecute: (myInfo) => {
           const token = getOrCreateSecurityToken(myInfo);
           const cells = myInfo.activator.getMonsterZones();
@@ -282,7 +288,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           return list.length > 0;
         },
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SpecialSummon"] };
+          return { selectedEntities: [] };
         },
         execute: async (myInfo) => {
           const token = getOrCreateSecurityToken(myInfo);
@@ -307,6 +313,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Hand", "SpellAndTrapZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
+        fixedTags: ["SearchFromDeck"],
         priorityForNPC: 40,
         canPayCosts: (myInfo) => myInfo.activator.getDeckCell().cardEntities.length > 3,
         canExecute: (myInfo) =>
@@ -323,7 +330,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           return { sendToGraveyard: cost };
         },
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SearchFromDeck"] };
+          return { selectedEntities: [] };
         },
         execute: async (myInfo) => {
           const monsters = myInfo.activator
@@ -358,6 +365,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Hand", "SpellAndTrapZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
+        fixedTags: ["SpecialSummonFromDeck"],
         priorityForNPC: 40,
         canPayCosts: (myInfo) => {
           if (myInfo.activator.getDeckCell().cardEntities.every((card) => (card.lvl ?? 12) > 1)) {
@@ -433,7 +441,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           return { sendToGraveyard: [cost] };
         },
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromDeck"] };
+          return { selectedEntities: [] };
         },
         execute: async (myInfo) => {
           const monsters = [
@@ -478,10 +486,11 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Hand", "SpellAndTrapZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
+        fixedTags: ["BanishFromDeck"],
         canExecute: (myInfo) =>
           myInfo.activator.getDeckCell().cardEntities.some((card) => myInfo.activator.canTryBanish(card, "BanishAsEffect", myInfo.action)),
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["BanishFromDeck"] };
+          return { selectedEntities: [] };
         },
         execute: async (myInfo) => {
           const cards = myInfo.activator.getDeckCell().cardEntities.filter((card) => myInfo.activator.canTryBanish(card, "BanishAsEffect", myInfo.action));
@@ -578,6 +587,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Hand", "SpellAndTrapZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
+        fixedTags: ["SpecialSummonFromDeck"],
         canPayCosts: (myInfo) => myInfo.activator.lp >= 800,
         canExecute: (myInfo) =>
           myInfo.activator.getDeckCell().cardEntities.length > 0 &&
@@ -599,7 +609,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           ).length > 0,
         payCosts: (myInfo, chainBlockInfos) => defaultPayLifePoint(myInfo, chainBlockInfos, 800),
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromDeck"] };
+          return { selectedEntities: [] };
         },
         execute: async (myInfo) => {
           if (myInfo.activator.getDeckCell().cardEntities.length < 4) {

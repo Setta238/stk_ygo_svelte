@@ -43,10 +43,11 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableDuelistTypes: ["Controller"],
         priorityForNPC: 20,
         isOnlyNTimesPerTurn: 1,
+        fixedTags: ["DestroySpellTrapOnField", "Draw"],
         meetsConditions: (myInfo) => myInfo.activator.getExtraDeck().cardEntities.every((card) => card.nm === "アンカモフライト"),
         canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.length > 0 && myInfo.activator.canDraw,
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["DestroySpellTrapOnField", "Draw"] };
+          return { selectedEntities: [] };
         },
         execute: async (myInfo) => {
           const destroyed = await DuelEntityShortHands.tryDestroy([myInfo.action.entity], myInfo);

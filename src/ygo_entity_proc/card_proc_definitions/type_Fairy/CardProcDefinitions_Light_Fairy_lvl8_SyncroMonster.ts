@@ -6,6 +6,7 @@ import { getDefaultSynchroSummonAction } from "../../card_actions/CommonCardActi
 import { createRegularNumericStateOperatorHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
+import { defaultPrepare } from "@ygo_entity_proc/card_actions/CommonCardAction";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
@@ -20,11 +21,10 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Banished"],
         executablePeriods: ["stanby"],
         executableDuelistTypes: ["Controller"],
+        fixedTags: ["SpecialSummonFromBanished"],
         meetsConditions: (myInfo) => myInfo.action.entity.wasMovedAtPreviousTurn,
         canExecute: (myInfo) => canSelfSepcialSummon(myInfo, faceupBattlePositions, [], ["Effect"]),
-        prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromBanished"] };
-        },
+        prepare: defaultPrepare,
         execute: (myInfo) => defaultSelfRebornExecute(myInfo),
         settle: async () => true,
       },

@@ -13,8 +13,8 @@ import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { duelFieldCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import type { TDuelPeriodKey } from "@ygo_duel/class/DuelPeriod";
-export const defaultPrepare = async <T>() => {
-  return { selectedEntities: [] as DuelEntity[], chainBlockTags: [] as TEffectTag[] as T };
+export const defaultPrepare = async () => {
+  return { selectedEntities: [] as DuelEntity[] };
 };
 export const defaultPayLifePoint = async <T>(
   myInfo: ChainBlockInfoBase<T>,

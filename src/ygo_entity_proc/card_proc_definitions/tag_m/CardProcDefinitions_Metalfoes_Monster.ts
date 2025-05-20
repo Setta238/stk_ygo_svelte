@@ -20,6 +20,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           executablePeriods: ["main1", "main2"],
           executableDuelistTypes: ["Controller"],
           isOnlyNTimesPerTurnIfFaceup: 1,
+          fixedTags: ["Destroy"],
           ...getSingleTargetActionPartical(
             (myInfo) => {
               let targetables = myInfo.activator

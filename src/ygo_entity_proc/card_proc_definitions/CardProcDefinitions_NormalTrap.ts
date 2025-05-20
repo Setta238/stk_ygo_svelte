@@ -7,6 +7,7 @@ import { freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import {
   defaultCanPayDiscardCosts,
   defaultPayDiscardCosts,
+  defaultPrepare,
   defaultTargetMonstersRebornExecute,
   defaultTargetMonstersRebornPrepare,
   getSingleTargetActionPartical,
@@ -26,10 +27,9 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["SpellAndTrapZone"],
         executablePeriods: freeChainDuelPeriodKeys,
         executableDuelistTypes: ["Controller"],
+        fixedTags: ["Draw"],
         canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.length > 1 && myInfo.activator.canDraw && myInfo.activator.canAddToHandFromDeck,
-        prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["Draw"] };
-        },
+        prepare: defaultPrepare,
         execute: async (chainBlockInfo) => {
           await chainBlockInfo.activator.draw(1, chainBlockInfo.action.entity, chainBlockInfo.activator);
           return true;
@@ -51,6 +51,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: freeChainDuelPeriodKeys,
         executableDuelistTypes: ["Controller"],
         hasToTargetCards: true,
+        fixedTags: ["SpecialSummonFromGraveyard"],
         canExecute: (myInfo) => {
           // 墓地に蘇生可能モンスター、場に空きが必要。
           const cells = myInfo.activator.getMonsterZones();

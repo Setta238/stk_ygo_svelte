@@ -212,6 +212,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           executableCells: item.executableCells,
           executablePeriods: item.destoryTypes.includes("EffectDestroy") ? [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys] : ["b1DEnd", "b2DEnd"],
           executableDuelistTypes: ["Controller"],
+          fixedTags: ["SpecialSummonFromDeck"],
           meetsConditions: (myInfo) =>
             myInfo.action.entity.wasMovedAtPreviousChain && myInfo.action.entity.moveLog.latestRecord.movedAs.union(item.destoryTypes).length > 0,
           canExecute: (myInfo) => {
@@ -235,7 +236,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             return list.length > 0;
           },
           prepare: async () => {
-            return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromDeck"] };
+            return { selectedEntities: [] };
           },
           execute: async (myInfo) => {
             const monsters = myInfo.activator.getDeckCell().cardEntities.filter(item.filter);

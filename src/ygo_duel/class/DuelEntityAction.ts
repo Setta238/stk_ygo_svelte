@@ -76,6 +76,7 @@ export const effectTags = [
   "DestroySpellTrapsOnField", //アヌビスの裁き
   "SpecialSummonFromHand",
   "SpecialSummonFromExtraDeck",
+  "SpecialSummonToken",
   "IfNormarlSummonSucceed", //畳返し
   "IfSpecialSummonSucceed", //ツバメ返し
   "DamageToOpponent", //地獄の扉越し銃
@@ -149,8 +150,8 @@ export type ChainBlockInfoPreparing<T> = ChainBlockInfoBase<T> & {
 };
 
 export type ChainBlockInfoPrepared = {
-  chainBlockTags: TEffectTag[];
   selectedEntities: DuelEntity[];
+  chainBlockTags: TEffectTag[];
   /** 緊急同調など */
   nextActionInfo?: ResponseActionInfo;
   /** 超融合など */
@@ -241,7 +242,7 @@ export type CardActionDefinitionFunctions<T> = {
     myInfo: ChainBlockInfoPreparing<T>,
     chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
     cancelable: boolean
-  ) => Promise<ChainBlockInfoPrepared | undefined>;
+  ) => Promise<Partial<ChainBlockInfoPrepared> | undefined>;
   /**
    * 実際の処理部分
    * @param myInfo
@@ -692,9 +693,8 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
       return;
     }
     const _prepared = { ...prepared };
-    if (this.definition.fixedTags) {
-      _prepared.chainBlockTags = [..._prepared.chainBlockTags, ...this.definition.fixedTags];
-    }
+    _prepared.selectedEntities = _prepared.selectedEntities ?? [];
+    _prepared.chainBlockTags = [...(_prepared.chainBlockTags ?? []), ...(this.definition.fixedTags ?? [])].getDistinct();
     if (cardActionRuleSummonTypes.some((type) => type === this.playType)) {
       const tmpFilter = prepared.nextChainBlockFilter ?? (() => true);
       _prepared.nextChainBlockFilter = (activator, action) => action.negateSummon && tmpFilter(activator, action);

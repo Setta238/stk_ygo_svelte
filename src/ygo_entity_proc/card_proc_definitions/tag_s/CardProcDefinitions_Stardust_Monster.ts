@@ -71,6 +71,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Graveyard"],
         executablePeriods: ["end"],
         executableDuelistTypes: ["Controller"],
+        fixedTags: ["SpecialSummonFromGraveyard"],
         canExecute: (myInfo) => {
           const moveLogRecord = myInfo.action.entity.moveLog.latestRecord;
 
@@ -216,6 +217,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Banished"],
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
+        fixedTags: ["SpecialSummonFromGraveyard"],
         meetsConditions: (myInfo) =>
           myInfo.action.entity.wasMovedAtPreviousChain &&
           myInfo.action.entity.moveLog.latestRecord.actionOwner !== myInfo.activator &&
@@ -277,6 +279,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerTurnIfFaceup: 1,
         negatePreviousBlock: true,
+        fixedTags: ["NegateCardEffect", "DestroyOnField"],
         canExecute: (myInfo) =>
           Boolean(
             myInfo.targetChainBlock &&
@@ -284,9 +287,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               myInfo.targetChainBlock.action.isWithChainBlock &&
               myInfo.activator !== myInfo.targetChainBlock.activator
           ),
-        prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["NegateCardEffect", "DestroyOnField"] };
-        },
+        prepare: defaultPrepare,
         execute: async (myInfo) => {
           if (!myInfo.targetChainBlock) {
             return false;
@@ -311,6 +312,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         priorityForNPC: 10,
+        fixedTags: ["SpecialSummonFromGraveyard"],
         canPayCosts: defaultCanPaySelfBanishCosts,
         canExecute: (myInfo) => {
           const cells = myInfo.activator.getMonsterZones();

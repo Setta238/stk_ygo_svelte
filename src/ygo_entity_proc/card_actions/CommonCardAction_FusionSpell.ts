@@ -1,10 +1,11 @@
 import { faceupBattlePositions, type TBattlePosition } from "@ygo/class/YgoTypes";
-import type { ChainBlockInfoBase, SummonMaterialInfo, ChainBlockInfo, CardActionDefinitionFunctions } from "@ygo_duel/class/DuelEntityAction";
+import type { ChainBlockInfoBase, SummonMaterialInfo, ChainBlockInfo, CardActionDefinitionFunctions, TEffectTag } from "@ygo_duel/class/DuelEntityAction";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCell, DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
 import { SystemError } from "@ygo_duel/class/Duel";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { isFilterTypeFusionMaterialInfo, isNameTypeFusionMaterialInfo, isOvermuchTypeFusionMaterialInfo } from "@ygo_duel/class/DuelEntityDefinition";
+import { defaultPrepare } from "./CommonCardAction";
 
 /**
  * 追加素材分を含まないパターンとして合致する場合、値を返す
@@ -278,15 +279,14 @@ export const getDefaultFusionSummonAction = (
   materialsFrom: DuelFieldCellType[],
   materialsValidator: (myInfo: ChainBlockInfoBase<unknown>, monster: DuelEntity, materials: DuelEntity[]) => boolean,
   materialsTo: DuelFieldCellType
-): CardActionDefinitionFunctions<unknown> => {
+): CardActionDefinitionFunctions<unknown> & { fixedTags: TEffectTag[] } => {
   return {
+    fixedTags: ["SpecialSummonFromExtraDeck"],
     canExecute: (myInfo) =>
       getEnableFusionSummonPatterns(myInfo, summonFrom, monsterValidator, materialsFrom, materialsValidator, materialsTo).some(
         (pattern) => pattern.materialInfos.length
       ),
-    prepare: async () => {
-      return { selectedEntities: [], chainBlockTags: ["SpecialSummonFromExtraDeck"] };
-    },
+    prepare: defaultPrepare,
     execute: (myInfo) => defaultFusionSummonExecute(myInfo, summonFrom, monsterValidator, materialsFrom, materialsValidator, materialsTo),
     settle: async () => true,
   };

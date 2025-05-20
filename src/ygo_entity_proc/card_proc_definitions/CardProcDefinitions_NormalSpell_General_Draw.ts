@@ -7,6 +7,7 @@ import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition"
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { IllegalCancelError } from "@ygo_duel/class/Duel";
 import { DamageFilter } from "@ygo_duel/class_continuous_effect/DuelDamageFilter";
+import { defaultPrepare } from "@ygo_entity_proc/card_actions/CommonCardAction";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
@@ -21,9 +22,10 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         priorityForNPC: 20,
+        fixedTags: ["Draw"],
         canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.length > 1 && myInfo.activator.canDraw && myInfo.activator.canAddToHandFromDeck,
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["Draw"] };
+          return { selectedEntities: [] };
         },
         execute: async (chainBlockInfo) => {
           await chainBlockInfo.activator.draw(2, chainBlockInfo.action.entity, chainBlockInfo.activator);
@@ -45,6 +47,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Hand", "SpellAndTrapZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
+        fixedTags: ["Draw", "ReturnToDeckFromGraveyard"],
         priorityForNPC: 30,
         canExecute: (myInfo) =>
           myInfo.activator
@@ -68,7 +71,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             return;
           }
 
-          return { selectedEntities: targets, chainBlockTags: ["Draw", "ReturnToDeckFromGraveyard"] };
+          return { selectedEntities: targets };
         },
         execute: async (myInfo) => {
           // いずれかが同一チェーン中に墓地を離れていたら不可
@@ -99,6 +102,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Hand", "SpellAndTrapZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
+        fixedTags: ["Draw", "DiscordAsEffect"],
         priorityForNPC: 30,
         canExecute: (myInfo) =>
           myInfo.activator.getDeckCell().cardEntities.length > 2 &&
@@ -106,7 +110,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           myInfo.activator.canAddToHandFromDeck &&
           myInfo.activator.status.canDiscardAsEffect,
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["Draw", "DiscordAsEffect"] };
+          return { selectedEntities: [] };
         },
         execute: async (myInfo) => {
           await myInfo.activator.draw(3, myInfo.action.entity, myInfo.activator);
@@ -129,10 +133,11 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Hand", "SpellAndTrapZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
+        fixedTags: ["Draw"],
         priorityForNPC: 20,
         canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.length > 0 && myInfo.activator.canDraw && myInfo.activator.canAddToHandFromDeck,
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["Draw"] };
+          return { selectedEntities: [] };
         },
         execute: async (myInfo) => {
           await myInfo.activator.draw(1, myInfo.action.entity, myInfo.activator);
@@ -157,6 +162,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Hand", "SpellAndTrapZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
+        fixedTags: ["Draw", "DiscordAsEffect"],
         canExecute: (myInfo) =>
           myInfo.activator.getDeckCell().cardEntities.length >=
             myInfo.activator.getHandCell().cardEntities.filter((card) => card.seq !== myInfo.action.entity.seq).length &&
@@ -170,7 +176,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             .flatMap((c) => c.cardEntities)
             .some((card) => card.seq !== myInfo.action.entity.seq),
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["Draw", "DiscordAsEffect"] };
+          return { selectedEntities: [] };
         },
         execute: async (myInfo) => {
           const qty1 = myInfo.activator.getHandCell().cardEntities.length;
@@ -204,14 +210,13 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Hand", "SpellAndTrapZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
+        fixedTags: ["Draw"],
         canExecute: (myInfo) =>
           myInfo.activator.getDeckCell().cardEntities.length > 0 &&
           myInfo.activator.canDraw &&
           myInfo.activator.getOpponentPlayer().getDeckCell().cardEntities.length > 0 &&
           myInfo.activator.getOpponentPlayer().canDraw,
-        prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["Draw"] };
-        },
+        prepare: defaultPrepare,
         execute: async (myInfo) => {
           await DuelEntityShortHands.drawAtSameTime(myInfo.activator, myInfo.action.entity, 1, 1);
           [myInfo.activator, myInfo.activator.getOpponentPlayer()].forEach((duelist) =>
@@ -250,9 +255,10 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Hand", "SpellAndTrapZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
+        fixedTags: ["Draw"],
         canExecute: (myInfo) => myInfo.activator.canDraw,
         prepare: async () => {
-          return { selectedEntities: [], chainBlockTags: ["Draw"] };
+          return { selectedEntities: [] };
         },
         execute: async (myInfo) => {
           const hands = myInfo.activator.getHandCell().cardEntities;

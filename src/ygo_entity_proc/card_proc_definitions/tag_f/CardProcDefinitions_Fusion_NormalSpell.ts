@@ -99,17 +99,17 @@ export default function* generate(): Generator<EntityProcDefinition> {
             }
 
             summoned.statusOperatorBundle.push(
-              new StatusOperator(
-                "攻撃不可",
-                () => true,
-                false,
-                myInfo.action.entity,
-                myInfo.action,
-                (ope, target) => target.face === "FaceUp" && target.isOnFieldAsMonsterStrictly,
-                () => {
+              new StatusOperator({
+                title: "攻撃不可",
+                validateAlive: () => true,
+                isContinuous: false,
+                isSpawnedBy: myInfo.action.entity,
+                actionAttr: myInfo.action,
+                isApplicableTo: (ope, target) => target.face === "FaceUp" && target.isOnFieldAsMonsterStrictly,
+                statusCalculator: () => {
                   return { canAttack: false };
-                }
-              )
+                },
+              })
             );
             summoned.counterHolder.setSelfDestructionFlg(myInfo.action.entity);
             summoned.info.isRebornable = !summoned.origin.monsterCategories?.includes("RegularSpecialSummonOnly");

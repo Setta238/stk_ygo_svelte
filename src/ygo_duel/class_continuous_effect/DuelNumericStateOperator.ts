@@ -4,6 +4,7 @@ import {
   StickyEffectOperatorBundle,
   StickyEffectOperatorPool,
   type IOperatorBundle,
+  type StickyEffectOperatorArgs,
 } from "@ygo_duel/class_continuous_effect/DuelStickyEffectOperatorBase";
 import { Duel, SystemError } from "@ygo_duel/class/Duel";
 import { entityFlexibleStatusKeys, type TEntityFlexibleNumericStatusGen, type TEntityFlexibleNumericStatusKey } from "@ygo/class/YgoTypes";
@@ -251,6 +252,14 @@ export class NumericStateOperatorBundle extends StickyEffectOperatorBundle<Numer
     this.entity.numericStatus.calculated[targetState] = wipValue;
   };
 }
+
+export type NumericStateOperatorArgs = StickyEffectOperatorArgs & {
+  targetState: TEntityFlexibleNumericStatusKey;
+  targetStateGen: TEntityFlexibleNumericStatusGen;
+  stateOperationType: TStateOperationType;
+  calcValue: (spawner: DuelEntity, target: DuelEntity, current: number) => number;
+};
+
 export class NumericStateOperator extends StickyEffectOperatorBase {
   public beforeRemove: <OPE extends StickyEffectOperatorBase>(bundle: IOperatorBundle<OPE>) => void = () => {};
   public static readonly createContinuous = (
@@ -263,7 +272,18 @@ export class NumericStateOperator extends StickyEffectOperatorBase {
     stateOperationType: TStateOperationType,
     calcValue: (spawner: DuelEntity, target: DuelEntity, current: number) => number
   ) => {
-    return new NumericStateOperator(title, validateAlive, true, isSpawnedBy, {}, isApplicableTo, targetState, targetStateGen, stateOperationType, calcValue);
+    return new NumericStateOperator({
+      title,
+      validateAlive,
+      isContinuous: true,
+      isSpawnedBy,
+      actionAttr: {},
+      isApplicableTo,
+      targetState,
+      targetStateGen,
+      stateOperationType,
+      calcValue,
+    });
   };
   private static readonly createLingering = (
     title: string,
@@ -274,18 +294,18 @@ export class NumericStateOperator extends StickyEffectOperatorBase {
     stateOperationType: TStateOperationType,
     calcValue: (spawner: DuelEntity, target: DuelEntity, current: number) => number
   ) => {
-    return new NumericStateOperator(
+    return new NumericStateOperator({
       title,
       validateAlive,
-      false,
+      isContinuous: false,
       isSpawnedBy,
       actionAttr,
-      (operator, target) => target.isOnFieldAsMonsterStrictly,
+      isApplicableTo: (operator, target) => target.isOnFieldAsMonsterStrictly,
       targetState,
-      "wip",
+      targetStateGen: "wip",
       stateOperationType,
-      calcValue
-    );
+      calcValue,
+    });
   };
   public static readonly createLingeringFixation = (
     title: string,
@@ -343,24 +363,13 @@ export class NumericStateOperator extends StickyEffectOperatorBase {
     throw new SystemError("矛盾したプロパティ", this);
   }
 
-  public constructor(
-    title: string,
-    validateAlive: (operator: StickyEffectOperatorBase) => boolean,
-    isContinuous: boolean,
-    isSpawnedBy: DuelEntity,
-    actionAttr: Partial<CardActionDefinitionAttrs>,
-    isApplicableTo: (operator: StickyEffectOperatorBase, target: DuelEntity) => boolean,
-    targetState: TEntityFlexibleNumericStatusKey,
-    targetStateGen: TEntityFlexibleNumericStatusGen,
-    stateOperationType: TStateOperationType,
-    calcValue: (spawner: DuelEntity, target: DuelEntity, current: number) => number
-  ) {
-    super(title, validateAlive, isContinuous, isSpawnedBy, actionAttr, isApplicableTo);
+  public constructor(args: NumericStateOperatorArgs) {
+    super(args);
     this._isEffective = true;
-    this.targetState = targetState;
-    this.targetStateGen = targetStateGen;
-    this.stateOperationType = stateOperationType;
-    this.calcValue = (target: DuelEntity, current: number) => calcValue(this.isSpawnedBy, target, current);
+    this.targetState = args.targetState;
+    this.targetStateGen = args.targetStateGen;
+    this.stateOperationType = args.stateOperationType;
+    this.calcValue = (target: DuelEntity, current: number) => args.calcValue(this.isSpawnedBy, target, current);
   }
 
   public readonly negate = () => {

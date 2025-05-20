@@ -1,5 +1,5 @@
 import type { CardActionDefinitionAttrs } from "../class/DuelEntityAction";
-import { StickyEffectOperatorBase, StickyEffectOperatorBundle, StickyEffectOperatorPool } from "./DuelStickyEffectOperatorBase";
+import { StickyEffectOperatorBase, StickyEffectOperatorBundle, StickyEffectOperatorPool, type StickyEffectOperatorArgs } from "./DuelStickyEffectOperatorBase";
 import { type DuelEntity, type TMaterialCauseReason } from "../class/DuelEntity";
 import { type Duelist } from "../class/Duelist";
 
@@ -62,17 +62,22 @@ export class ProcFilterBundle extends StickyEffectOperatorBundle<ProcFilter> {
 
   protected readonly beforePush = (pf: ProcFilter) => pf.eraseOperators(this.entity);
 }
+
+export type ProcFilterArgs = StickyEffectOperatorArgs & {
+  procTypes: TProcType[];
+  filter: typeof ProcFilter.prototype.filter;
+};
+
 export class ProcFilter extends StickyEffectOperatorBase {
   public static readonly createContinuous = (
     title: string,
     validateAlive: (operator: StickyEffectOperatorBase) => boolean,
     isSpawnedBy: DuelEntity,
-    actionAttr: Partial<CardActionDefinitionAttrs>,
     isApplicableTo: (operator: StickyEffectOperatorBase, target: DuelEntity) => boolean,
     procTypes: TProcType[],
     filter: typeof ProcFilter.prototype.filter
   ) => {
-    return new ProcFilter(title, validateAlive, true, isSpawnedBy, actionAttr, isApplicableTo, procTypes, filter);
+    return new ProcFilter({ title, validateAlive, isContinuous: true, isSpawnedBy, actionAttr: {}, isApplicableTo, procTypes, filter });
   };
   public static readonly createLingering = (
     title: string,
@@ -83,7 +88,7 @@ export class ProcFilter extends StickyEffectOperatorBase {
     procTypes: TProcType[],
     filter: typeof ProcFilter.prototype.filter
   ) => {
-    return new ProcFilter(title, validateAlive, false, isSpawnedBy, actionAttr, isApplicableTo, procTypes, filter);
+    return new ProcFilter({ title, validateAlive, isContinuous: false, isSpawnedBy, actionAttr, isApplicableTo, procTypes, filter });
   };
   public beforeRemove: () => void = () => {};
   public readonly procTypes: TProcType[];
@@ -94,19 +99,10 @@ export class ProcFilter extends StickyEffectOperatorBase {
     actionAttr: Partial<CardActionDefinitionAttrs>,
     effectedEntites: DuelEntity[]
   ) => boolean;
-  public constructor(
-    title: string,
-    validateAlive: (operator: StickyEffectOperatorBase) => boolean,
-    isContinuous: boolean,
-    isSpawnedBy: DuelEntity,
-    actionAttr: Partial<CardActionDefinitionAttrs>,
-    isApplicableTo: (operator: StickyEffectOperatorBase, target: DuelEntity) => boolean,
-    procTypes: TProcType[],
-    filter: typeof ProcFilter.prototype.filter
-  ) {
-    super(title, validateAlive, isContinuous, isSpawnedBy, actionAttr, isApplicableTo);
-    this.procTypes = procTypes;
-    this.filter = filter;
+  public constructor(args: ProcFilterArgs) {
+    super(args);
+    this.procTypes = args.procTypes;
+    this.filter = args.filter;
   }
 
   public readonly eraseOperators = (entity: DuelEntity) => {

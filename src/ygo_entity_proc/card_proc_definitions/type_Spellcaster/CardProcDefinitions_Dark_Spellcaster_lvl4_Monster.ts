@@ -110,17 +110,17 @@ export default function* generate(): Generator<EntityProcDefinition> {
           }
 
           monster.statusOperatorBundle.push(
-            new StatusOperator(
-              "攻撃不可",
-              (ope) => ope.effectOwner.duel.clock.isSameTurn(ope.isSpawnedAt),
-              false,
-              myInfo.action.entity,
-              myInfo.action,
-              () => true,
-              () => {
+            new StatusOperator({
+              title: "攻撃不可",
+              validateAlive: (ope) => ope.effectOwner.duel.clock.isSameTurn(ope.isSpawnedAt),
+              isContinuous: false,
+              isSpawnedBy: myInfo.action.entity,
+              actionAttr: myInfo.action,
+              isApplicableTo: () => true,
+              statusCalculator: () => {
                 return { canAttack: false };
-              }
-            )
+              },
+            })
           );
           if (!monster) {
             return false;
@@ -142,7 +142,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
             "②リリース不可",
             () => true,
             source,
-            {},
             () => true,
             ["AdvanceSummonRelease", "ReleaseAsEffect", "ReleaseAsCost"],
             () => false

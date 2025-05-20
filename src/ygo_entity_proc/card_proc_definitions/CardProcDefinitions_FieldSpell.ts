@@ -74,15 +74,15 @@ export default function* generate(): Generator<EntityProcDefinition> {
         "Spell",
         (source) => [source.controller, source.controller.getOpponentPlayer()].map((duelist) => duelist.entity),
         (source) => [
-          new DamageFilter(
-            "①ダメージ無効",
-            () => true,
-            true,
-            source,
-            {},
-            () => true,
-            "zero_typeA",
-            (filter, point, activator, damageTo) => {
+          new DamageFilter({
+            title: "①ダメージ無効",
+            validateAlive: () => true,
+            isContinuous: true,
+            isSpawnedBy: source,
+            actionAttr: {},
+            isApplicableTo: () => true,
+            calcType: "zero_typeA",
+            filter: (filter, point, activator, damageTo) => {
               if (filter.isSpawnedBy.fieldCell.cellType !== "FieldSpellZone") {
                 return {};
               }
@@ -91,8 +91,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
               }
               activator.writeInfoLog(`${damageTo.profile.name}はチキンレースの効果でダメージを受けない。`);
               return { zero_typeA: true };
-            }
-          ),
+            },
+          }),
         ]
       ) as ContinuousEffectBase<unknown>,
     ],

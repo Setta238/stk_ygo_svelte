@@ -1,5 +1,5 @@
 import type { CardActionDefinitionAttrs, SummonMaterialInfo } from "../class/DuelEntityAction";
-import { StickyEffectOperatorBase, StickyEffectOperatorBundle, StickyEffectOperatorPool } from "./DuelStickyEffectOperatorBase";
+import { StickyEffectOperatorBase, StickyEffectOperatorBundle, StickyEffectOperatorPool, type StickyEffectOperatorArgs } from "./DuelStickyEffectOperatorBase";
 import { type DuelEntity, type TDuelCauseReason, type TSummonKindCauseReason } from "../class/DuelEntity";
 import { type Duelist, type SummonChoice } from "../class/Duelist";
 import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
@@ -41,11 +41,16 @@ export class SummonFilterBundle extends StickyEffectOperatorBundle<SummonFilter>
       }, summonChoice);
 }
 
+export type SummonFilterArgs = StickyEffectOperatorArgs & {
+  summonKinds: Readonly<TSummonKindCauseReason[]>;
+  filter: (filter: SummonFilter, ...args: Parameters<typeof SummonFilter.prototype.filter>) => ReturnType<typeof SummonFilter.prototype.filter>;
+};
+
 export class SummonFilter extends StickyEffectOperatorBase {
   public beforeRemove: () => void = () => {};
   public readonly summonKinds: Readonly<TSummonKindCauseReason[]>;
   public readonly filter: (
-    filterTarget: DuelEntity,
+    bundleOwner: DuelEntity,
     effectOwner: Duelist,
     summoner: Duelist,
     movedAs: TDuelCauseReason[],
@@ -59,33 +64,9 @@ export class SummonFilter extends StickyEffectOperatorBase {
     posList: Readonly<TBattlePosition[]>;
     cells: DuelFieldCell[];
   };
-  public constructor(
-    title: string,
-    validateAlive: (operator: StickyEffectOperatorBase) => boolean,
-    isContinuous: boolean,
-    isSpawnedBy: DuelEntity,
-    actionAttr: Partial<CardActionDefinitionAttrs>,
-    isApplicableTo: (operator: StickyEffectOperatorBase, target: DuelEntity) => boolean,
-    summonKinds: Readonly<TSummonKindCauseReason[]>,
-    filter: (
-      filter: SummonFilter,
-      filterTarget: DuelEntity,
-      effectOwner: Duelist,
-      summoner: Duelist,
-      movedAs: TDuelCauseReason[],
-      actDefAttr: CardActionDefinitionAttrs & { entity: DuelEntity },
-      monster: DuelEntity,
-      materialInfos: SummonMaterialInfo[],
-      posList: Readonly<TBattlePosition[]>,
-      cells: DuelFieldCell[],
-      ignoreSummoningConditions: boolean
-    ) => {
-      posList: Readonly<TBattlePosition[]>;
-      cells: DuelFieldCell[];
-    }
-  ) {
-    super(title, validateAlive, isContinuous, isSpawnedBy, actionAttr, isApplicableTo);
-    this.summonKinds = summonKinds;
-    this.filter = (...args) => filter(this, ...args);
+  public constructor(args: SummonFilterArgs) {
+    super(args);
+    this.summonKinds = args.summonKinds;
+    this.filter = (..._args) => args.filter(this, ..._args);
   }
 }

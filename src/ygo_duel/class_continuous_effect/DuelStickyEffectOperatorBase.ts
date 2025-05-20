@@ -136,6 +136,15 @@ export abstract class StickyEffectOperatorBundle<OPE extends StickyEffectOperato
   };
 }
 
+export type StickyEffectOperatorArgs = {
+  title: string;
+  validateAlive: (operator: StickyEffectOperatorBase) => boolean;
+  isContinuous: boolean;
+  isSpawnedBy: DuelEntity;
+  actionAttr: Partial<CardActionDefinitionAttrs>;
+  isApplicableTo: (operator: StickyEffectOperatorBase, target: DuelEntity) => boolean;
+};
+
 export abstract class StickyEffectOperatorBase {
   private static nextSeq = 0;
 
@@ -162,22 +171,15 @@ export abstract class StickyEffectOperatorBase {
     return this.isSpawnedBy.isEffective;
   }
 
-  protected constructor(
-    title: string,
-    validateAlive: (operator: StickyEffectOperatorBase) => boolean,
-    isContinuous: boolean,
-    isSpawnedBy: DuelEntity,
-    actionAttr: Partial<CardActionDefinitionAttrs>,
-    isApplicableTo: (operator: StickyEffectOperatorBase, target: DuelEntity) => boolean
-  ) {
+  protected constructor(args: StickyEffectOperatorArgs) {
     this.seq = StickyEffectOperatorBase.nextSeq++;
-    this.title = title;
-    this.validateAlive = () => validateAlive(this);
-    this.isContinuous = isContinuous;
-    this.isSpawnedBy = isSpawnedBy;
-    this.isSpawnedAt = isSpawnedBy.duel.clock.getClone();
-    this.isApplicableTo = (target: DuelEntity) => isApplicableTo(this, target);
-    this.actionAttr = actionAttr;
+    this.title = args.title;
+    this.validateAlive = () => args.validateAlive(this);
+    this.isContinuous = args.isContinuous;
+    this.isSpawnedBy = args.isSpawnedBy;
+    this.isSpawnedAt = args.isSpawnedBy.duel.clock.getClone();
+    this.isApplicableTo = (target: DuelEntity) => args.isApplicableTo(this, target);
+    this.actionAttr = args.actionAttr;
     this.activateType = this.actionAttr.playType ? getEffectActiovationType(this.actionAttr.playType) : "NonActivate";
     this.effectOwner = this.isSpawnedBy.controller;
   }

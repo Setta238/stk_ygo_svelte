@@ -1,6 +1,5 @@
-import { StickyEffectOperatorBase, StickyEffectOperatorBundle, StickyEffectOperatorPool } from "./DuelStickyEffectOperatorBase";
+import { StickyEffectOperatorBase, StickyEffectOperatorBundle, StickyEffectOperatorPool, type StickyEffectOperatorArgs } from "./DuelStickyEffectOperatorBase";
 import type { DuelEntity, EntityStatus } from "../class/DuelEntity";
-import type { CardActionDefinitionAttrs } from "../class/DuelEntityAction";
 import type { Duel } from "@ygo_duel/class/Duel";
 
 export class StatusOperatorPool extends StickyEffectOperatorPool<StatusOperator, StatusOperatorBundle> {
@@ -27,19 +26,16 @@ export class StatusOperatorBundle extends StickyEffectOperatorBundle<StatusOpera
   };
   protected readonly beforePush: (ope: StatusOperator) => void = () => {};
 }
+
+export type StatusOperatorArgs = StickyEffectOperatorArgs & {
+  statusCalculator: typeof StatusOperator.prototype.statusCalculator;
+};
+
 export class StatusOperator extends StickyEffectOperatorBase {
   public beforeRemove: () => void = () => {};
   public readonly statusCalculator: (bundleOwner: DuelEntity, operator: StickyEffectOperatorBase, wipStatus: EntityStatus) => Partial<EntityStatus>;
-  public constructor(
-    title: string,
-    validateAlive: (operator: StickyEffectOperatorBase) => boolean,
-    isContinuous: boolean,
-    isSpawnedBy: DuelEntity,
-    actionAttr: Partial<CardActionDefinitionAttrs>,
-    isApplicableTo: (operator: StickyEffectOperatorBase, target: DuelEntity) => boolean,
-    statusCalculator: typeof StatusOperator.prototype.statusCalculator
-  ) {
-    super(title, validateAlive, isContinuous, isSpawnedBy, actionAttr, isApplicableTo);
-    this.statusCalculator = statusCalculator;
+  public constructor(args: StatusOperatorArgs) {
+    super(args);
+    this.statusCalculator = args.statusCalculator;
   }
 }

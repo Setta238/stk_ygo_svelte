@@ -75,17 +75,18 @@ export default function* generate(): Generator<EntityProcDefinition> {
             throw new IllegalCancelError(myInfo);
           }
           tuner.statusOperatorBundle.push(
-            new StatusOperator(
-              "効果発動不可",
-              (operator) => operator.effectOwner.duel.clock.isSameTurn(operator.isSpawnedAt),
-              false,
-              myInfo.action.entity,
-              myInfo.action,
-              (operator, target) => operator.effectOwner.duel.clock.isSameTurn(operator.isSpawnedAt) && target.isOnFieldAsMonsterStrictly,
-              () => {
+            new StatusOperator({
+              title: "効果発動不可",
+              validateAlive: (operator) => operator.effectOwner.duel.clock.isSameTurn(operator.isSpawnedAt),
+              isContinuous: false,
+              isSpawnedBy: myInfo.action.entity,
+              actionAttr: myInfo.action,
+              isApplicableTo: (operator, target) =>
+                operator.effectOwner.duel.clock.isSameTurn(operator.isSpawnedAt) && target.isOnFieldAsMonsterStrictly && target.face === "FaceUp",
+              statusCalculator: () => {
                 return { canActivateEffect: false };
-              }
-            )
+              },
+            })
           );
           return true;
         },

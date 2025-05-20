@@ -84,17 +84,17 @@ export default function* generate(): Generator<EntityProcDefinition> {
         "Monster",
         (source) => [source],
         (source) => [
-          new StatusOperator(
-            "除外予定",
-            () => true,
-            true,
-            source,
-            {},
-            (ope, target) => target.isOnFieldAsMonsterStrictly && target.face === "FaceUp",
-            () => {
+          new StatusOperator({
+            title: "除外予定",
+            validateAlive: () => true,
+            isContinuous: true,
+            isSpawnedBy: source,
+            actionAttr: {},
+            isApplicableTo: (ope, target) => target.isOnFieldAsMonsterStrictly && target.face === "FaceUp",
+            statusCalculator: () => {
               return { willBeBanished: true };
-            }
-          ),
+            },
+          }),
         ]
       ) as ContinuousEffectBase<unknown>,
     ],

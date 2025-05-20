@@ -1,5 +1,5 @@
 import type { CardActionDefinitionAttrs, ChainBlockInfo } from "../class/DuelEntityAction";
-import { StickyEffectOperatorBase, StickyEffectOperatorBundle, StickyEffectOperatorPool } from "./DuelStickyEffectOperatorBase";
+import { StickyEffectOperatorBase, StickyEffectOperatorBundle, StickyEffectOperatorPool, type StickyEffectOperatorArgs } from "./DuelStickyEffectOperatorBase";
 import { DuelEntity } from "../class/DuelEntity";
 import { type Duelist, type TLifeLogReason } from "../class/Duelist";
 /*
@@ -40,6 +40,10 @@ export class DamageFilterBundle extends StickyEffectOperatorBundle<DamageFilter>
   protected beforePush = () => {};
 }
 
+export type DamageFilterArgs = StickyEffectOperatorArgs & {
+  calcType: keyof DamageCalcTypeFlags;
+  filter: (filter: DamageFilter, ...args: Parameters<typeof DamageFilter.prototype.filter>) => Partial<DamageCalcTypeFlags>;
+};
 export class DamageFilter extends StickyEffectOperatorBase {
   public beforeRemove: () => void = () => {};
   public readonly calcType: keyof DamageCalcTypeFlags;
@@ -52,19 +56,10 @@ export class DamageFilter extends StickyEffectOperatorBase {
     damageType: TLifeLogReason,
     actionAttr: CardActionDefinitionAttrs
   ) => Partial<DamageCalcTypeFlags>;
-  public constructor(
-    title: string,
-    validateAlive: (operator: StickyEffectOperatorBase) => boolean,
-    isContinuous: boolean,
-    isSpawnedBy: DuelEntity,
-    actionAttr: Partial<CardActionDefinitionAttrs>,
-    isApplicableTo: (operator: StickyEffectOperatorBase, target: DuelEntity) => boolean,
-    calcType: keyof DamageCalcTypeFlags,
-    filter: (filter: DamageFilter, ...args: Parameters<typeof DamageFilter.prototype.filter>) => Partial<DamageCalcTypeFlags>
-  ) {
-    super(title, validateAlive, isContinuous, isSpawnedBy, actionAttr, isApplicableTo);
-    this.calcType = calcType;
-    this.filter = (...args) => filter(this, ...args);
+  public constructor(args: DamageFilterArgs) {
+    super(args);
+    this.calcType = args.calcType;
+    this.filter = (..._args) => args.filter(this, ..._args);
   }
 }
 

@@ -221,19 +221,19 @@ export default function* generate(): Generator<EntityProcDefinition> {
           await DuelEntityShortHands.drawAtSameTime(myInfo.activator, myInfo.action.entity, 1, 1);
           [myInfo.activator, myInfo.activator.getOpponentPlayer()].forEach((duelist) =>
             duelist.entity.damageFilterBundle.push(
-              new DamageFilter(
-                "ダメージ無効",
-                (ope) => ope.effectOwner.duel.clock.turn - ope.isSpawnedAt.turn < 2,
-                false,
-                myInfo.action.entity,
-                myInfo.action,
-                () => true,
-                "zero_typeA",
-                (filter, point, activator, damageTo) => {
+              new DamageFilter({
+                title: "ダメージ無効",
+                validateAlive: (ope) => ope.effectOwner.duel.clock.turn - ope.isSpawnedAt.turn < 2,
+                isContinuous: false,
+                isSpawnedBy: myInfo.action.entity,
+                actionAttr: myInfo.action,
+                isApplicableTo: () => true,
+                calcType: "zero_typeA",
+                filter: (filter, point, activator, damageTo) => {
                   activator.writeInfoLog(`${damageTo.profile.name}は${filter.isSpawnedBy}の効果でダメージを受けない。`);
                   return { zero_typeA: true };
-                }
-              )
+                },
+              })
             )
           );
 

@@ -675,17 +675,17 @@ export const defaultDirectAtackEffect = createRegularStatusOperatorHandler(
   (source) => [source],
   (source) => {
     return [
-      new StatusOperator(
-        "直接攻撃",
-        () => true,
-        true,
-        source,
-        {},
-        (operator, target) => operator.isSpawnedBy === target,
-        () => {
+      new StatusOperator({
+        title: "直接攻撃",
+        validateAlive: () => true,
+        isContinuous: true,
+        isSpawnedBy: source,
+        actionAttr: {},
+        isApplicableTo: (operator, target) => operator.isSpawnedBy === target,
+        statusCalculator: () => {
           return { canDirectAttack: true };
-        }
-      ),
+        },
+      }),
     ];
   }
 ) as ContinuousEffectBase<unknown>;
@@ -697,20 +697,20 @@ export const defaultFusionSubstituteEffect = {
   faceList: ["FaceUp", "FaceDown"],
   canStart: () => true,
   start: async (source: DuelEntity): Promise<{ targets: DuelEntity[]; seq: number }> => {
-    const ope = new StatusOperator(
-      "融合素材代用",
-      () => true,
-      true,
-      source,
-      {},
-      () => true,
-      (bundleOwner, ope, wip) => {
+    const ope = new StatusOperator({
+      title: "融合素材代用",
+      validateAlive: () => true,
+      isContinuous: true,
+      isSpawnedBy: source,
+      actionAttr: {},
+      isApplicableTo: () => true,
+      statusCalculator: (bundleOwner, ope, wip) => {
         if (ope.isSpawnedBy.isEffective) {
           wip.fusionSubstitute = true;
         }
         return wip;
-      }
-    );
+      },
+    });
     source.statusOperatorBundle.push(ope);
 
     return { targets: [source], seq: ope.seq };

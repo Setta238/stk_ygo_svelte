@@ -21,18 +21,18 @@ const createSpellCounterCommonEffect = (kind: TCardKind, maxQty?: number) => {
     (source) => [source],
     (source) => {
       return [
-        new StatusOperator(
+        new StatusOperator({
           title,
-          () => true,
-          true,
-          source,
-          {},
-          (operator, target) => operator.isSpawnedBy === target,
-          (bundleOwner, ope, wip) => {
+          validateAlive: () => true,
+          isContinuous: true,
+          isSpawnedBy: source,
+          actionAttr: {},
+          isApplicableTo: (operator, target) => operator.isSpawnedBy === target,
+          statusCalculator: (bundleOwner, ope, wip) => {
             wip.maxCounterQty.SpellCounter = maxQty ?? Number.MAX_VALUE;
             return { maxCounterQty: wip.maxCounterQty };
-          }
-        ),
+          },
+        }),
       ];
     }
   ) as ContinuousEffectBase<unknown>;

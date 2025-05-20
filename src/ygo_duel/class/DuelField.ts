@@ -11,6 +11,7 @@ import { SummonFilterPool } from "@ygo_duel/class_continuous_effect/DuelSummonFi
 import { BroadEntityMoveLog } from "./DuelEntityMoveLog";
 import type { SummonMaterialInfo } from "./DuelEntityAction";
 import { DamageFilterPool } from "@ygo_duel/class_continuous_effect/DuelDamageFilter";
+import { ImmediatelyActionPool } from "@ygo_duel/class_continuous_effect/DuelImmediatelyAction";
 export class DuelField {
   public readonly cells: DuelFieldCell[][];
   public readonly duel: Duel;
@@ -19,6 +20,7 @@ export class DuelField {
   public readonly numericStateOperatorPool: NumericStateOperatorPool;
   public readonly statusOperatorPool: StatusOperatorPool;
   public readonly damageFilterPool: DamageFilterPool;
+  public readonly immediatelyActionPool: ImmediatelyActionPool;
   public readonly moveLog: BroadEntityMoveLog;
 
   public constructor(duel: Duel) {
@@ -39,6 +41,7 @@ export class DuelField {
     this.numericStateOperatorPool = new NumericStateOperatorPool();
     this.statusOperatorPool = new StatusOperatorPool();
     this.damageFilterPool = new DamageFilterPool();
+    this.immediatelyActionPool = new ImmediatelyActionPool();
     this.moveLog = new BroadEntityMoveLog(this);
   }
 

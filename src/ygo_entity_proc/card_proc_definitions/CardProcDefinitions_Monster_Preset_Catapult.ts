@@ -9,9 +9,14 @@ import { SystemError } from "@ygo_duel/class/Duel";
 import { isNumber } from "@stk_utils/funcs/StkMathUtils";
 import type { CardActionDefinition, ChainBlockInfoBase } from "@ygo_duel/class/DuelEntityAction";
 import { getDefaultSynchroSummonAction } from "@ygo_entity_proc/card_actions/CommonCardAction_SynchroMonster";
-import { createRegularStatusOperatorHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
+import {
+  createRegularOperatorHandler,
+  createRegularStatusOperatorHandler,
+  type ContinuousEffectBase,
+} from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 import { defaultPrepare } from "@ygo_entity_proc/card_actions/CommonCardAction";
+import { ImmediatelyAction } from "@ygo_duel/class_continuous_effect/DuelImmediatelyAction";
 
 const createCatapultAction = (args: {
   qty: number;
@@ -177,9 +182,9 @@ export default function* generate(): Generator<EntityProcDefinition> {
         (source) => [source],
         (source) => {
           return [
-            new StatusOperator(
-              "召喚酔い",
-              (operator) => {
+            new StatusOperator({
+              title: "召喚酔い",
+              validateAlive: (operator) => {
                 const arrivalRecord = operator.isSpawnedBy.moveLog.latestArrivalRecord;
                 if (!arrivalRecord) {
                   return false;
@@ -190,14 +195,14 @@ export default function* generate(): Generator<EntityProcDefinition> {
 
                 return arrivalRecord.movedAs.union(["NormalSummon", "FlipSummon", "SpecialSummon"]).length > 0;
               },
-              true,
-              source,
-              {},
-              () => true,
-              () => {
+              isContinuous: true,
+              isSpawnedBy: source,
+              actionAttr: {},
+              isApplicableTo: () => true,
+              statusCalculator: () => {
                 return { canAttack: false };
-              }
-            ),
+              },
+            }),
           ];
         }
       ) as ContinuousEffectBase<unknown>,
@@ -207,14 +212,14 @@ export default function* generate(): Generator<EntityProcDefinition> {
         (source) => [source],
         (source) => {
           return [
-            new StatusOperator(
-              "直接攻撃",
-              () => true,
-              true,
-              source,
-              {},
-              () => true,
-              (bundleOwner) => {
+            new StatusOperator({
+              title: "直接攻撃",
+              validateAlive: () => true,
+              isContinuous: true,
+              isSpawnedBy: source,
+              actionAttr: {},
+              isApplicableTo: () => true,
+              statusCalculator: (bundleOwner) => {
                 if (
                   !bundleOwner.controller
                     .getEntiteisOnField()
@@ -233,10 +238,59 @@ export default function* generate(): Generator<EntityProcDefinition> {
                   return {};
                 }
                 return { canDirectAttack: true };
-              }
-            ),
+              },
+            }),
           ];
         }
+      ) as ContinuousEffectBase<unknown>,
+      createRegularOperatorHandler(
+        "自壊",
+        "Monster",
+        (source) => [source],
+        (source) => [
+          new ImmediatelyAction({
+            title: "自壊",
+            validateAlive: () => true,
+            isContinuous: true,
+            isSpawnedBy: source,
+            actionAttr: {},
+            isApplicableTo: () => true,
+            act: async (bundleOwner, triggerEntity, movedAs) => {
+              if (bundleOwner.info.isDying) {
+                return "RemoveMe";
+              }
+
+              if (!triggerEntity) {
+                return;
+              }
+
+              if (triggerEntity.nm !== "トゥーン・ワールド") {
+                return;
+              }
+
+              if (!movedAs) {
+                return;
+              }
+
+              if (movedAs.every((reason) => !reason.endsWith("Destory"))) {
+                return;
+              }
+
+              // https://yugioh-wiki.net/index.php?%A5%C0%A5%E1%A1%BC%A5%B8%B7%D7%BB%BB%C1%B0
+              // また、リバースした《雷電娘々》《Ｇ・コザッキー》などもこの段階では自壊せず、ダメージ計算後を待って自壊する。
+              if (bundleOwner.duel.clock.period.stage === "beforeDmgCalc") {
+                return;
+              }
+              if (bundleOwner.duel.clock.period.stage === "dmgCalc") {
+                return;
+              }
+              bundleOwner.info.isDying = true;
+              bundleOwner.info.causeOfDeath = ["EffectDestroy"];
+              return "RemoveMe";
+            },
+          }),
+        ],
+        (target) => target.immediatelyActionBundle
       ) as ContinuousEffectBase<unknown>,
     ],
   };

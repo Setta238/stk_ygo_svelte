@@ -35,17 +35,17 @@ export default function* generate(): Generator<EntityProcDefinition> {
       }
 
       myInfo.action.entity.statusOperatorBundle.push(
-        new StatusOperator(
-          "除外予定",
-          () => true,
-          false,
-          myInfo.action.entity,
-          myInfo.action,
-          (ope, target) => target.isOnFieldAsMonsterStrictly && target.face === "FaceUp",
-          () => {
+        new StatusOperator({
+          title: "除外予定",
+          validateAlive: () => true,
+          isContinuous: false,
+          isSpawnedBy: myInfo.action.entity,
+          actionAttr: myInfo.action,
+          isApplicableTo: (ope, target) => target.isOnFieldAsMonsterStrictly && target.face === "FaceUp",
+          statusCalculator: () => {
             return { willBeBanished: true };
-          }
-        )
+          },
+        })
       );
 
       monster.info.isEffectiveIn = monster.info.isEffectiveIn

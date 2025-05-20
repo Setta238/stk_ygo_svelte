@@ -76,17 +76,17 @@ export default function* generate(): Generator<EntityProcDefinition> {
           }
           const cost = costs[0];
           myInfo.action.entity.statusOperatorBundle.push(
-            new StatusOperator(
-              myInfo.action.title,
-              (ope) => ope.effectOwner.duel.clock.isSameTurn(ope.isSpawnedAt),
-              false,
-              myInfo.action.entity,
-              myInfo.action,
-              () => true,
-              () => {
+            new StatusOperator({
+              title: myInfo.action.title,
+              validateAlive: (ope) => ope.effectOwner.duel.clock.isSameTurn(ope.isSpawnedAt),
+              isContinuous: false,
+              isSpawnedBy: myInfo.action.entity,
+              actionAttr: myInfo.action,
+              isApplicableTo: (ope, target) => target.isOnFieldAsMonsterStrictly && target.face === "FaceUp",
+              statusCalculator: () => {
                 return { name: cost.origin.name };
-              }
-            )
+              },
+            })
           );
           return true;
         },

@@ -47,20 +47,20 @@ export default function* generate(): Generator<EntityProcDefinition> {
           await DuelEntityShortHands.returnManyToHandForTheSameReason(myInfo.selectedEntities, ["Effect"], myInfo.action.entity, myInfo.activator);
 
           equipOwner.statusOperatorBundle.push(
-            new StatusOperator(
-              "直接攻撃",
-              (ope) => {
+            new StatusOperator({
+              title: "直接攻撃",
+              validateAlive: (ope) => {
                 console.log(ope.effectOwner.duel.clock.turn, ope.isSpawnedAt.turn);
                 return ope.effectOwner.duel.clock.isSameTurn(ope.isSpawnedAt);
               },
-              false,
-              myInfo.action.entity,
-              myInfo.action,
-              () => true,
-              () => {
+              isContinuous: false,
+              isSpawnedBy: myInfo.action.entity,
+              actionAttr: myInfo.action,
+              isApplicableTo: (operator, target) => target.isOnFieldAsMonsterStrictly && target.face === "FaceUp",
+              statusCalculator: () => {
                 return { canDirectAttack: true };
-              }
-            )
+              },
+            })
           );
 
           return true;

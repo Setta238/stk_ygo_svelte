@@ -44,6 +44,7 @@ import { DuelEntityShortHands } from "./DuelEntityShortHands";
 import type { IDuelClock } from "./DuelClock";
 import { DamageFilterBundle } from "@ygo_duel/class_continuous_effect/DuelDamageFilter";
 import { delay } from "@stk_utils/funcs/StkPromiseUtil";
+import { ImmediatelyActionBundle } from "@ygo_duel/class_continuous_effect/DuelImmediatelyAction";
 export type EntityStatus = {
   canAttack: boolean;
   canDirectAttack: boolean;
@@ -512,6 +513,7 @@ export class DuelEntity {
   public readonly numericOprsBundle: NumericStateOperatorBundle;
   public readonly statusOperatorBundle: StatusOperatorBundle;
   public readonly damageFilterBundle: DamageFilterBundle;
+  public readonly immediatelyActionBundle: ImmediatelyActionBundle;
   public readonly moveLog: EntityMoveLog;
   public readonly counterHolder: CounterHolder;
   public readonly parent: DuelEntity | undefined;
@@ -840,6 +842,7 @@ export class DuelEntity {
     this.numericOprsBundle = new NumericStateOperatorBundle(fieldCell.field.numericStateOperatorPool, this);
     this.statusOperatorBundle = new StatusOperatorBundle(fieldCell.field.statusOperatorPool, this);
     this.damageFilterBundle = new DamageFilterBundle(fieldCell.field.damageFilterPool, this);
+    this.immediatelyActionBundle = new ImmediatelyActionBundle(fieldCell.field.immediatelyActionPool, this);
     this._exists = this.entityType === "Card";
 
     fieldCell.acceptEntities(this, "Top");
@@ -853,29 +856,29 @@ export class DuelEntity {
 
     if (this.origin.kind === "Monster" && this.entityType === "Card" && definition.summonFilter) {
       this.summonFilterBundle.push(
-        new SummonFilter(
-          "default",
-          () => true,
-          true,
-          this,
-          {},
-          () => true,
-          summonKindCauseReasons,
-          definition.summonFilter
-        )
+        new SummonFilter({
+          title: "default",
+          validateAlive: () => true,
+          isContinuous: true,
+          isSpawnedBy: this,
+          actionAttr: {},
+          isApplicableTo: () => true,
+          summonKinds: summonKindCauseReasons,
+          filter: definition.summonFilter,
+        })
       );
     }
     if (definition.defaultStatus) {
       this.statusOperatorBundle.push(
-        new StatusOperator(
-          "default",
-          () => true,
-          true,
-          this,
-          {},
-          () => true,
-          () => definition.defaultStatus ?? {}
-        )
+        new StatusOperator({
+          title: "default",
+          validateAlive: () => true,
+          isContinuous: true,
+          isSpawnedBy: this,
+          actionAttr: {},
+          isApplicableTo: () => true,
+          statusCalculator: () => definition.defaultStatus ?? {},
+        })
       );
     }
     this.actions.push(...definition.actions.map((b) => EntityAction.createNew(this, b)));
@@ -892,9 +895,6 @@ export class DuelEntity {
   };
 
   public readonly onUsedAsMaterial = (chainBlockInfo: ChainBlockInfo<unknown>, monster: DuelEntity) => {
-    if (!this.definition) {
-      return;
-    }
     if (!this.definition.onUsedAsMaterial) {
       return;
     }
@@ -1068,6 +1068,11 @@ export class DuelEntity {
       entity: this,
       args: [to, kind, face, orientation, pos, movedAs, movedBy, actionOwner, chooser],
     });
+
+    for (const another of this.field.getCardsOnFieldStrictly().filter((card) => card !== this)) {
+      await another.immediatelyActionBundle.act(this, movedAs);
+    }
+
     this.face = face;
     this.orientation = orientation;
     let appearFlg = false;

@@ -381,6 +381,7 @@
     position: absolute;
     right: 1rem;
     bottom: 1rem;
+    pointer-events: none;
   }
   .debug_info * {
     padding: 0rem 2rem;

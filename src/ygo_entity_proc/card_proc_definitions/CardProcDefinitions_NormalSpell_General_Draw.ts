@@ -267,10 +267,15 @@ export default function* generate(): Generator<EntityProcDefinition> {
             return false;
           }
 
-          const cards = await myInfo.activator.waitSelectEntities(hands, undefined, (selected) => selected.length > 0, "デッキに戻すカードを選択。", false);
+          let cards = [...hands];
 
-          if (!cards) {
-            throw new IllegalCancelError(myInfo);
+          if (cards.length > 1 && !(await myInfo.activator.waitYesNo("全ての手札を入れ替える？"))) {
+            const _cards = await myInfo.activator.waitSelectEntities(hands, undefined, (selected) => selected.length > 0, "デッキに戻すカードを選択。", false);
+
+            if (!_cards) {
+              throw new IllegalCancelError(myInfo);
+            }
+            cards = _cards;
           }
 
           await DuelEntityShortHands.returnManyToDeckForTheSameReason("Random", cards, ["Effect"], myInfo.action.entity, myInfo.activator);

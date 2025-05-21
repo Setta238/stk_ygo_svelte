@@ -144,19 +144,22 @@ export const ftkChallengeFailedAction: CardActionDefinition<unknown> = {
       }
       console.log(exodiaParts);
       await DuelEntity.moveMany(
-        exodiaParts.map((part) => [
-          part,
-          part.controller.getMonsterZones().find((cell) => cell.column === (part.controller.seat === "Above" ? 6 - item.column : item.column)) ??
-            part.controller.getFieldZone(),
-          "Monster",
-          "FaceUp",
-          "Vertical",
-          "Top",
-          ["Rule"],
-          undefined,
-          undefined,
-          undefined,
-        ])
+        exodiaParts.map((part) => {
+          return {
+            entity: part,
+            to:
+              part.controller.getMonsterZones().find((cell) => cell.column === (part.controller.seat === "Above" ? 6 - item.column : item.column)) ??
+              part.controller.getFieldZone(),
+            kind: "Monster",
+            face: "FaceUp",
+            orientation: "Vertical",
+            pos: "Top",
+            movedAs: ["Rule"],
+            movedBy: undefined,
+            actionOwner: undefined,
+            chooser: undefined,
+          };
+        })
       );
     }
     throw new DuelEnd(myInfo.activator, `${myInfo.activator.getOpponentPlayer().name}がワンターンキルに失敗した。`);

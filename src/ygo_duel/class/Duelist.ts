@@ -6,19 +6,13 @@ import type { IDuelClock } from "./DuelClock";
 import type { DuelFieldCell, DuelFieldCellType } from "./DuelFieldCell";
 import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
-import {
-  EntityAction,
-  type CardActionDefinitionAttrs,
-  type ChainBlockInfo,
-  type SummonMaterialInfo,
-  type TCardActionType,
-  type ValidatedActionInfo,
-} from "./DuelEntityAction";
+import { EntityAction, type CardActionDefinitionAttrs, type ChainBlockInfo, type SummonMaterialInfo, type ValidatedActionInfo } from "./DuelEntityAction";
 import { max, min } from "@stk_utils/funcs/StkMathUtils";
 import type { TBanishProcType } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
 import { DuelEntityShortHands } from "./DuelEntityShortHands";
 import type { EntityDefinition } from "./DuelEntityDefinition";
 import { calcBattleDamage, calcEffectDamage } from "@ygo_duel/class_continuous_effect/DuelDamageFilter";
+import type { TEntityActionType } from "./DuelEntityActionBase";
 
 export type TDuelistType = "NPC" | "Player";
 
@@ -160,7 +154,7 @@ export class Duelist {
   public readonly statusOrigin: DuelistStatus;
   public readonly duelistType: TDuelistType;
   public readonly lifeLog: LifeLogRecord[];
-  private readonly actionBlackListForNPC: Readonly<TCardActionType[]>;
+  private readonly actionBlackListForNPC: Readonly<TEntityActionType[]>;
   private _lp: number;
   public readonly initHand: Readonly<string[]>;
   public readonly chainConfig: ChainConfig;
@@ -197,7 +191,7 @@ export class Duelist {
 
     this._lp = 8000;
 
-    const tmp: TCardActionType[] = [];
+    const tmp: TEntityActionType[] = [];
 
     if (this.duelistType === "NPC") {
       if (this.profile.npcLvl < 0) {

@@ -223,9 +223,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             .map((info) => info.action)
             .filter((action) => action.playType === "CardActivation")
             .map((action) => action.entity)
-            .filter((entity) => entity.isOnFieldStrictly)
-            .filter((card) => card.face === "FaceUp")
-            .filter((card) => !card.isLikeContinuousSpell);
+            .filter((card) => card.face === "FaceUp");
 
           // ※自分自身も上のリストに含まれているはず
           const cards = myInfo.action.entity.field

@@ -499,6 +499,7 @@ export const getSelfBattleSubstituteEffectDefinition = (times: number): Substitu
   if (!_selfBattleSubstituteEffectDefinitionDic[times]) {
     _selfBattleSubstituteEffectDefinitionDic[times] = {
       title: `戦闘破壊耐性(${times})`,
+      playType: "ContinuousEffect",
       isMandatory: true,
       executableCells: ["MonsterZone"],
       executablePeriods: ["b1DDmgCalc", "b2DDmgCalc"],

@@ -1,5 +1,4 @@
-import type { ChainBlockInfo } from "./DuelEntityAction";
-import { EntityActionBase, type EntityActionDefinitionBase } from "./DuelEntityActionBase";
+import { EntityActionBase, type EntityActionDefinitionBase, type EntityActionExecuteInfo } from "./DuelEntityActionBase";
 import type { DuelEntity } from "./DuelEntity";
 
 export type SubstituteEffectDefinition = EntityActionDefinitionBase & {
@@ -7,13 +6,13 @@ export type SubstituteEffectDefinition = EntityActionDefinitionBase & {
     effect: SubstituteEffect,
     destroyType: "BattleDestroy" | "EffectDestroy",
     targets: DuelEntity[],
-    chainBlockInfo: ChainBlockInfo<unknown>
+    actExeInfo: EntityActionExecuteInfo
   ) => DuelEntity[];
   substitute: (
     effect: SubstituteEffect,
     destroyType: "BattleDestroy" | "EffectDestroy",
     targets: DuelEntity[],
-    chainBlockInfo: ChainBlockInfo<unknown>
+    actExeInfo: EntityActionExecuteInfo
   ) => Promise<DuelEntity[]>;
 };
 
@@ -24,7 +23,7 @@ export class SubstituteEffect extends EntityActionBase {
   protected override get definition() {
     return super.definition as SubstituteEffectDefinition;
   }
-  public readonly isApplicableTo = (destroyType: "BattleDestroy" | "EffectDestroy", targets: DuelEntity[], chainBlockInfo: ChainBlockInfo<unknown>) => {
+  public readonly isApplicableTo = (destroyType: "BattleDestroy" | "EffectDestroy", targets: DuelEntity[], chainBlockInfo: EntityActionExecuteInfo) => {
     const actionCount = this.entity.counterHolder.getActionCount(this);
     if (this.isOnlyNTimesPerTurnIfFaceup > 0 && actionCount >= this.isOnlyNTimesPerTurnIfFaceup) {
       this.entity.counterHolder.incrementActionCountPerTurn(this);
@@ -34,7 +33,7 @@ export class SubstituteEffect extends EntityActionBase {
 
     return this.definition.isApplicableTo(this, destroyType, targets, chainBlockInfo);
   };
-  public readonly substitute = async (destroyType: "BattleDestroy" | "EffectDestroy", targets: DuelEntity[], chainBlockInfo: ChainBlockInfo<unknown>) => {
+  public readonly substitute = async (destroyType: "BattleDestroy" | "EffectDestroy", targets: DuelEntity[], chainBlockInfo: EntityActionExecuteInfo) => {
     const result = await this.definition.substitute(this, destroyType, targets, chainBlockInfo);
     if (this.isOnlyNTimesPerTurnIfFaceup > 0) {
       this.entity.counterHolder.incrementActionCountPerTurn(this);

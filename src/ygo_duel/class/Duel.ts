@@ -8,20 +8,14 @@ import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { DuelViewController } from "@ygo_duel_view/class/DuelViewController";
 import { DuelClock, type IDuelClock } from "./DuelClock";
 import DuelChainBlockLog from "./DuelChainBlockLog";
-import {
-  type EntityAction,
-  type ChainBlockInfo,
-  type TCardActionType,
-  type TSpellSpeed,
-  type ValidatedActionInfo,
-  cardActionCreateChainTypes,
-} from "./DuelEntityAction";
+import { type EntityAction, type ChainBlockInfo, type TSpellSpeed, type ValidatedActionInfo } from "./DuelEntityAction";
 import type { TDuelPhase } from "./DuelPeriod";
 import { DuelEntityShortHands } from "./DuelEntityShortHands";
 import { StkEvent } from "@stk_utils/class/StkEvent";
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
 import { type DuelFieldCell } from "./DuelFieldCell";
 import type { EntityDefinition } from "./DuelEntityDefinition";
+import type { TEntityActionType } from "./DuelEntityActionBase";
 export const duelStartModes = ["PlayFirst", "DrawFirst", "Random"] as const;
 export type TDuelStartMode = (typeof duelStartModes)[number];
 export const duelStartModeDic: { [key in TDuelStartMode]: string } = {
@@ -945,7 +939,7 @@ export class Duel {
         .filter((e) => e.actionInfo.action.seq !== chainBlock?.action.seq)
         .filter((e) => e.actionInfo.action.validateCount(e.activator, this.chainBlockInfos));
 
-      if (cardActionCreateChainTypes.some((tp) => tp === chainBlockInfo.action.playType)) {
+      if (chainBlockInfo.action.isChainable) {
         // ★★★★★ 再帰実行 ★★★★★
         await this.procChain(undefined, _triggerEffets.length ? _triggerEffets : undefined);
       }
@@ -1045,7 +1039,7 @@ export class Duel {
   };
   private readonly getEnableActions = (
     duelist: Duelist,
-    enableCardPlayTypes: TCardActionType[],
+    enableCardPlayTypes: TEntityActionType[],
     enableSpellSpeeds: TSpellSpeed[],
     chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>
   ): ValidatedActionInfo[] => {
@@ -1053,10 +1047,8 @@ export class Duel {
 
     return [...this.field.getAllCardEntities(), duelist.entity]
       .flatMap((entity) => entity.actions)
-      .filter((action) => action.executableCells.includes(action.entity.fieldCell.cellType))
-      .filter((action) => action.executablePeriods.includes(this.clock.period.key))
+      .filter((action) => action.canExecute(duelist))
       .filter((action) => enableSpellSpeeds.includes(action.spellSpeed))
-      .filter((action) => action.validateDuelist(duelist))
       .filter((action) => enableCardPlayTypes.includes(action.playType))
       .filter((action) => nextChainBlockFilter(duelist, action))
       .map((action) => action.validate(duelist, chainBlockInfos))

@@ -62,19 +62,22 @@ export default function* generate(): Generator<EntityProcDefinition> {
               throw new SystemError("想定されない状態", myInfo.activator.getHandCell().cardEntities, item.name);
             }
             await DuelEntity.moveMany(
-              exodiaParts.map((part) => [
-                part,
-                part.controller.getMonsterZones().find((cell) => cell.column === (part.controller.seat === "Above" ? 6 - item.column : item.column)) ??
-                  part.controller.getFieldZone(),
-                "Monster",
-                "FaceUp",
-                "Vertical",
-                "Top",
-                ["Rule"],
-                undefined,
-                undefined,
-                undefined,
-              ])
+              exodiaParts.map((part) => {
+                return {
+                  entity: part,
+                  to:
+                    part.controller.getMonsterZones().find((cell) => cell.column === (part.controller.seat === "Above" ? 6 - item.column : item.column)) ??
+                    part.controller.getFieldZone(),
+                  kind: "Monster",
+                  face: "FaceUp",
+                  orientation: "Vertical",
+                  pos: "Top",
+                  movedAs: ["Rule"],
+                  movedBy: undefined,
+                  actionOwner: undefined,
+                  chooser: undefined,
+                };
+              })
             );
           }
           if (isDraw) {

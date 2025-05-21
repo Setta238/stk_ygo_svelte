@@ -14,6 +14,7 @@ import {
   defaultLinkMonsterActions,
 } from "../../ygo_entity_proc/card_actions/CommonCardAction_Monster";
 import { createDuelistProcDefinition } from "@ygo_entity_proc/duelist_proc_definitions/DuelistProcDefinitions";
+import type { ImmediatelyActionDefinition } from "./DuelEntityImmediatelyAction";
 
 export type NameTypeFusionMaterialInfo = {
   type: "Name";
@@ -37,6 +38,7 @@ export const isOvermuchTypeFusionMaterialInfo = (info: FusionMaterialInfo): info
 export type EntityProcDefinition = {
   name: string;
   actions: Readonly<EntityActionDefinition<unknown>[]>;
+  immediatelyActions?: Readonly<ImmediatelyActionDefinition[]>;
   continuousEffects?: ContinuousEffectBase<unknown>[];
   summonFilter?: (
     filter: SummonFilter,

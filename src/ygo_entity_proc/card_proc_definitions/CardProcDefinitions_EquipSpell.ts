@@ -13,6 +13,7 @@ import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNume
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { defaultPayLifePoint, defaultTargetMonstersRebornExecute, defaultTargetMonstersRebornPrepare } from "../card_actions/CommonCardAction";
 import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
+import { duelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield* (
@@ -108,26 +109,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
             return false;
           }
 
-          myInfo.action.entity.onBeforeMove.append(async (data) => {
-            if (data.entity.face !== "FaceUp" || !data.entity.isOnFieldAsSpellTrapStrictly) {
-              return "RemoveMe";
-            }
-            const target = data.entity.info.equipedBy;
-            if (!target) {
-              return "RemoveMe";
-            }
-
-            const [, , , , , movedAs] = data.args;
-
-            if (target.isOnFieldStrictly && target.face === "FaceUp" && data.entity.isEffective && movedAs.union(["EffectDestroy", "RuleDestroy"]).length) {
-              // この場所では破壊マーキングまで実行。
-              data.entity.controller.writeInfoLog(`${myInfo.action.entity.toString()}が破壊されたため、装備対象モンスター${target.toString()}を破壊。`);
-              DuelEntityShortHands.tryMarkForDestory([target], myInfo);
-            }
-
-            return "RemoveMe";
-          });
-
           return defaultEquipSpellTrapExecute(myInfo, chainBlockInfos, (equipOwner, equip) =>
             equip.info.effectTargets[myInfo.action.seq]?.includes(equipOwner)
           );
@@ -135,6 +116,41 @@ export default function* generate(): Generator<EntityProcDefinition> {
         settle: async () => true,
       },
       defaultSpellTrapSetAction,
+    ],
+    immediatelyActions: [
+      {
+        title: "自壊",
+        executableCells: ["SpellAndTrapZone"],
+        executablePeriods: duelPeriodKeys,
+        executableFaces: ["FaceUp"],
+        execute: async (action, triggerEntity, moveParam) => {
+          console.log(action.toFullString(), triggerEntity?.toString(), moveParam, action.entity.info.equipedBy);
+          if (!moveParam) {
+            return;
+          }
+
+          const target = action.entity.info.equipedBy;
+          if (!target) {
+            return;
+          }
+          if (triggerEntity === action.entity) {
+            if (
+              target.isOnFieldStrictly &&
+              target.face === "FaceUp" &&
+              action.entity.isEffective &&
+              !moveParam.to.isSpellTrapZoneLikeCell &&
+              moveParam.movedAs.some((reason) => reason.endsWith("Destroy"))
+            ) {
+              // この場所では破壊マーキングまで実行。
+              action.entity.controller.writeInfoLog(`${action.entity.toString()}が破壊されたため、対象モンスター${target.toString()}を破壊。`);
+              await DuelEntityShortHands.tryMarkForDestory([target], { action, activator: action.entity.controller, selectedEntities: [target] });
+            }
+
+            return;
+          }
+          return undefined;
+        },
+      },
     ],
   };
   yield {

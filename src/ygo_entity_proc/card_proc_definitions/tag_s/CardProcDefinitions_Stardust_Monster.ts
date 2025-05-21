@@ -141,6 +141,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
     substituteEffects: [
       {
         title: `波動音壁（適用）`,
+        playType: "LingeringEffect",
         isMandatory: true,
         executableCells: duelFieldCellTypes,
         executablePeriods: duelPeriodKeys,
@@ -352,6 +353,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
     substituteEffects: [
       {
         title: `波動聖句`,
+        playType: "ContinuousEffect",
         isMandatory: true,
         executableCells: ["MonsterZone"],
         executablePeriods: duelPeriodKeys,

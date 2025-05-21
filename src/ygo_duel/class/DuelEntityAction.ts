@@ -2,7 +2,13 @@ import type { TBattlePosition } from "@ygo/class/YgoTypes";
 import type { DuelFieldCell, DuelFieldCellType } from "./DuelFieldCell";
 import { type Duelist } from "./Duelist";
 import { DuelEntity } from "./DuelEntity";
-import { EntityActionBase, type EntityActionDefinitionBase } from "./DuelEntityActionBase";
+import {
+  cardActionChainableTypes,
+  cardActionChainBlockTypes,
+  cardActionRuleSummonTypes,
+  EntityActionBase,
+  type EntityActionDefinitionBase,
+} from "./DuelEntityActionBase";
 import type { IDuelClock } from "./DuelClock";
 import { SystemError, type ResponseActionInfo } from "./Duel";
 import { max } from "@stk_utils/funcs/StkMathUtils";
@@ -11,39 +17,6 @@ import { Statable, type IStatable } from "./DuelUtilTypes";
 
 export const executableDuelistTypes = ["Controller", "Opponent"] as const;
 export type TExecutableDuelistType = (typeof executableDuelistTypes)[number];
-
-export const cardActionRuleSummonTypes = ["NormalSummon", "SpecialSummon", "FlipSummon"] as const;
-export type TCardActionRuleSummonType = (typeof cardActionRuleSummonTypes)[number];
-export const cardActionChainBlockTypes = ["IgnitionEffect", "TriggerEffect", "QuickEffect", "CardActivation"] as const;
-export type TCardActionChainBlockType = (typeof cardActionChainBlockTypes)[number];
-export const cardActionCreateChainTypes = [...cardActionRuleSummonTypes, ...cardActionChainBlockTypes, "DeclareAttack"] as const;
-export type TCardActionCreateChainTypes = (typeof cardActionCreateChainTypes)[number];
-export const cardActionDeclareTypes = ["Surrender", "ChangePhase"] as const;
-export type CardActionDeclareTypes = (typeof cardActionDeclareTypes)[number];
-export const cardActionNonChainBlockTypes = ["ChangeBattlePosition", "SpellTrapSet", "LingeringEffect", "Battle"] as const;
-export type TCardActionNonChainBlockType = (typeof cardActionNonChainBlockTypes)[number];
-export type TCardActionType =
-  | TCardActionCreateChainTypes
-  | TCardActionNonChainBlockType
-  | "Dammy"
-  | "RuleDraw"
-  | "SystemPeriodAction"
-  | "AfterChainBlock"
-  | "Exodia";
-
-export const effectActiovationTypes = ["CardActivation", "EffectActivation", "NonActivate"] as const;
-export type TEffectActiovationType = (typeof effectActiovationTypes)[number];
-export const getEffectActiovationType = (actionType: TCardActionType): TEffectActiovationType => {
-  if (actionType === "CardActivation") {
-    return "CardActivation";
-  }
-
-  if (cardActionChainBlockTypes.some((at) => at === actionType)) {
-    return "EffectActivation";
-  }
-
-  return "NonActivate";
-};
 
 export type TSpellSpeed = "Normal" | "Quick" | "Counter" | "Dammy";
 export const effectTags = [
@@ -160,7 +133,6 @@ export type ChainBlockInfoPrepared = {
 export type ChainBlockInfo<T> = ChainBlockInfoPreparing<T> & ChainBlockInfoPrepared & IStatable<TChainBlockInfoState>;
 
 export type CardActionDefinitionAttrs = EntityActionDefinitionBase & {
-  playType: TCardActionType;
   spellSpeed: TSpellSpeed;
   fixedTags?: TEffectTag[];
   hasToTargetCards?: boolean;
@@ -324,6 +296,9 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
 
   public get isWithChainBlock() {
     return cardActionChainBlockTypes.some((t) => t === this.playType);
+  }
+  public get isChainable() {
+    return cardActionChainableTypes.some((t) => t === this.playType);
   }
   public readonly getTargetableEntities = (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => {
     if (this.definition.hasToTargetCards && !this.definition.getTargetableEntities) {

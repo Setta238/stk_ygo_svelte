@@ -4,9 +4,10 @@ import { DuelEntity, type TDuelCauseReason, type TDuelEntityFace, type TDuelEnti
 import type { Duelist } from "./Duelist";
 import type { TBanishProcType } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
 import type { DuelFieldCell, TBundleCellType, TDuelEntityMovePos } from "./DuelFieldCell";
+import type { EntityActionExecuteInfo } from "./DuelEntityActionBase";
 
 export class DuelEntityShortHands {
-  private static readonly _tryMarkForDestory = (entity: DuelEntity, chainBlockInfo: ChainBlockInfo<unknown>): boolean => {
+  private static readonly _tryMarkForDestory = (entity: DuelEntity, chainBlockInfo: EntityActionExecuteInfo): boolean => {
     if (entity.info.isDying) {
       return false;
     }
@@ -41,7 +42,18 @@ export class DuelEntityShortHands {
     const entities = target.getDeckCell().cardEntities.slice(0, qty);
     await DuelEntity.moveMany(
       entities.map((entity) => {
-        return [entity, entity.fieldCell, entity.kind, "FaceUp", entity.orientation, "Fix", ["Excavate", ...movedAs], movedBy, activator, undefined];
+        return {
+          entity,
+          to: entity.fieldCell,
+          kind: entity.kind,
+          face: "FaceUp",
+          orientation: entity.orientation,
+          pos: "Fix",
+          movedAs: ["Excavate", ...movedAs],
+          movedBy,
+          actionOwner: activator,
+          chooser: undefined,
+        };
       })
     );
     return entities;
@@ -183,11 +195,24 @@ export class DuelEntityShortHands {
       activator.writeInfoLog(`${entities.map((entity) => entity.toString()).join(" ")}によって、オーバーレイネットワークを構築――、`);
     }
     return DuelEntity.moveMany(
-      entities.map((entity) => [entity, entity.fieldCell, "XyzMaterial", "FaceUp", "Vertical", "Top", movedAs, movedBy, activator, activator])
+      entities.map((entity) => {
+        return {
+          entity,
+          to: entity.fieldCell,
+          kind: "XyzMaterial",
+          face: "FaceUp",
+          orientation: "Vertical",
+          pos: "Top",
+          movedAs,
+          movedBy,
+          actionOwner: activator,
+          chooser: activator,
+        };
+      })
     );
   };
   public static readonly moveToXyzOwner = (
-    dest: DuelFieldCell,
+    to: DuelFieldCell,
     xyzMaterials: DuelEntity[],
     movedAs: TDuelCauseReason[],
     movedBy: DuelEntity,
@@ -200,7 +225,20 @@ export class DuelEntityShortHands {
       activator.writeInfoLog(`${xyzMaterials.map((entity) => entity.toString()).join(" ")}をXYZ素材として吸収。`);
     }
     return DuelEntity.moveMany(
-      xyzMaterials.map((entity) => [entity, dest, "XyzMaterial", "FaceUp", "Vertical", "Top", movedAs, movedBy, activator, activator])
+      xyzMaterials.map((entity) => {
+        return {
+          entity,
+          to,
+          kind: "XyzMaterial",
+          face: "FaceUp",
+          orientation: "Vertical",
+          pos: "Top",
+          movedAs,
+          movedBy,
+          actionOwner: activator,
+          chooser: activator,
+        };
+      })
     );
   };
 
@@ -212,8 +250,8 @@ export class DuelEntityShortHands {
   public static readonly banishMany = (
     items: {
       entity: DuelEntity;
-      causedAs: TDuelCauseReason[];
-      causedBy: DuelEntity | undefined;
+      movedAs: TDuelCauseReason[];
+      movedBy: DuelEntity | undefined;
       activator: Duelist | undefined;
     }[],
     excludedList?: DuelEntity[]
@@ -246,8 +284,8 @@ export class DuelEntityShortHands {
           entity: entity,
           face: face,
           orientation: orientation,
-          causedAs: movedAs,
-          causedBy: movedBy,
+          movedAs,
+          movedBy,
           activator: activator,
         };
       })
@@ -269,8 +307,8 @@ export class DuelEntityShortHands {
         .map((entity) => {
           return {
             entity: entity,
-            causedAs: entity.info.causeOfDeath ?? [],
-            causedBy: entity.info.isKilledBy,
+            movedAs: entity.info.causeOfDeath ?? [],
+            movedBy: entity.info.isKilledBy,
             activator: entity.info.isKilledByWhom,
           };
         })
@@ -282,7 +320,7 @@ export class DuelEntityShortHands {
    * @param chainBlockInfo
    * @returns 引数に指定されたもののうち、最終的に破壊マーキングができたものを返す
    */
-  public static readonly tryMarkForDestory = async (cards: DuelEntity[], chainBlockInfo: ChainBlockInfo<unknown>): Promise<DuelEntity[]> => {
+  public static readonly tryMarkForDestory = async (cards: DuelEntity[], chainBlockInfo: EntityActionExecuteInfo): Promise<DuelEntity[]> => {
     // 破壊できるもののみ一旦マーキング
     let _cards = cards.filter((card) => DuelEntityShortHands._tryMarkForDestory(card, chainBlockInfo));
     if (!_cards.length) {

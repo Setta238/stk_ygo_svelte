@@ -1,8 +1,9 @@
 import type { Duelist } from "@ygo_duel/class/Duelist";
 import { Duel, SystemError } from "../class/Duel";
 import type { DuelEntity } from "../class/DuelEntity";
-import { getEffectActiovationType, type CardActionDefinitionAttrs, type TEffectActiovationType } from "../class/DuelEntityAction";
+import { type CardActionDefinitionAttrs } from "../class/DuelEntityAction";
 import type { IDuelClock } from "@ygo_duel/class/DuelClock";
+import { getEffectActiovationType, type TEffectActiovationType } from "@ygo_duel/class/DuelEntityActionBase";
 export interface IOperatorPool<OPE extends StickyEffectOperatorBase> {
   push: (ope: OPE) => void;
   append(bundle: StickyEffectOperatorBundle<OPE>): void; // NOTE error回避のため、bivariantになるメソッド記法で定義

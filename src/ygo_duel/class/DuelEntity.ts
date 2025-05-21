@@ -36,7 +36,6 @@ import { EntityMoveLog } from "./DuelEntityMoveLog";
 import { CounterHolder, type TCounterName } from "./DuelCounter";
 import { StatusOperator, StatusOperatorBundle } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 
-import { StkAsyncEvent } from "@stk_utils/class/StkEvent";
 import { createDuelistEntityDefinition, type EntityDefinition } from "./DuelEntityDefinition";
 import { SubstituteEffect } from "./DuelSubstituteEffect";
 import { SummonFilter, SummonFilterBundle } from "@ygo_duel/class_continuous_effect/DuelSummonFilter";
@@ -44,7 +43,7 @@ import { DuelEntityShortHands } from "./DuelEntityShortHands";
 import type { IDuelClock } from "./DuelClock";
 import { DamageFilterBundle } from "@ygo_duel/class_continuous_effect/DuelDamageFilter";
 import { delay } from "@stk_utils/funcs/StkPromiseUtil";
-import { ImmediatelyActionBundle } from "@ygo_duel/class_continuous_effect/DuelImmediatelyAction";
+import { ImmediatelyAction } from "./DuelEntityImmediatelyAction";
 export type EntityStatus = {
   canAttack: boolean;
   canDirectAttack: boolean;
@@ -90,7 +89,8 @@ export type DuelEntityInfomation = {
   battleLog: { enemy: DuelEntity; timestamp: IDuelClock }[];
 };
 
-export type TDuelEntityFace = "FaceUp" | "FaceDown";
+export const duelEntityFaces = ["FaceUp", "FaceDown"] as const;
+export type TDuelEntityFace = (typeof duelEntityFaces)[number];
 export type TDuelEntityOrientation = "Horizontal" | "Vertical";
 export const namedSummonKindCauseReasons = [
   "FusionSummon",
@@ -176,6 +176,18 @@ export const cardEntitySorter = (left: DuelEntity, right: DuelEntity): number =>
 };
 
 export type SummonArg = { summoner: Duelist; monster: DuelEntity; pos: TBattlePosition; dest: DuelFieldCell };
+
+export type MoveParameters = {
+  to: DuelFieldCell;
+  kind: "Monster" | "Spell" | "Trap" | "XyzMaterial";
+  face: "FaceUp" | "FaceDown";
+  orientation: TDuelEntityOrientation;
+  pos: TDuelEntityMovePos;
+  movedAs: TDuelCauseReason[];
+  movedBy: DuelEntity | undefined;
+  actionOwner: Duelist | undefined;
+  chooser: Duelist | undefined;
+};
 export class DuelEntity {
   private static nextEntitySeq = 0;
 
@@ -222,27 +234,24 @@ export class DuelEntity {
    * @param items
    * @param excludedList 再帰処理時のみ指定する想定
    */
-  public static readonly moveMany = async (
-    items: [entity: DuelEntity, ...Parameters<typeof DuelEntity.prototype._move>][],
-    excludedList?: DuelEntity[]
-  ): Promise<void> => {
+  public static readonly moveMany = async (items: ({ entity: DuelEntity } & MoveParameters)[], excludedList?: DuelEntity[]): Promise<void> => {
     if (!items.length) {
       return;
     }
 
-    const duel = items[0][0].duel;
+    const duel = items[0].entity.duel;
 
     // 除外対象を配列にしておく
     // TODO 不要かも？
     const entitiesWithAnimation = items
-      .filter(([entity, to]) => entity.fieldCell !== to)
-      .map(([entity]) => entity)
+      .filter((item) => item.entity.fieldCell !== item.to)
+      .map((item) => item.entity)
       .filter((entity) => !(excludedList ?? []).includes(entity));
     const _excludedList = [...entitiesWithAnimation, ...duel.field.getCardsOnFieldStrictly().filter((entity) => entity.info.isDying)];
 
     // 目的地ごとに仕分ける
-    const destMap = new Map<DuelFieldCell, [entity: DuelEntity, ...Parameters<typeof DuelEntity.prototype._move>][]>();
-    items.forEach(([entity, to, kind, face, orientation, pos, ...rest]) => {
+    const destMap = new Map<DuelFieldCell, ({ entity: DuelEntity } & MoveParameters)[]>();
+    items.forEach(({ entity, to, kind, face, orientation, pos, ...rest }) => {
       // 状態によって、行き先や表裏の情報を書き換える。
       let _to = to;
       let _kind = kind;
@@ -293,7 +302,7 @@ export class DuelEntity {
         _orientation = "Vertical";
       }
 
-      destMap.set(_to, [[entity, _to, _kind, _face, _orientation, _pos, ...rest], ...(destMap.get(_to) ?? [])]);
+      destMap.set(_to, [{ entity, to: _to, kind: _kind, face: _face, orientation: _orientation, pos: _pos, ...rest }, ...(destMap.get(_to) ?? [])]);
     });
 
     // 取り出せなくなるまでループ
@@ -302,7 +311,7 @@ export class DuelEntity {
       const promises = Array.from(destMap.values())
         .map((array) => array.pop())
         .filter((e) => e !== undefined)
-        .map(([entity, ...rest]) => entity._move(...rest));
+        .map((item) => item.entity._move(item));
 
       // 取り出せなくなったら終了
       if (!promises.length) {
@@ -312,16 +321,17 @@ export class DuelEntity {
       // 取り出せたらアニメーションを全て待機
       await Promise.all(promises);
 
+      console.log("hoge");
+
       // 新しく発生したものを検知（※ここまでのどこかでアニメーションしたものを除く）
       const newTargets = duel.field
-        .getCardsOnFieldStrictly()
-        .filter((entity) => entity.info.isDying)
+        .getDyingCardsOnField()
         .filter((newOne) => !_excludedList.includes(newOne))
         .map((newOne) => {
           return {
             entity: newOne,
-            causedAs: newOne.info.causeOfDeath ?? [],
-            causedBy: newOne.info.isKilledBy,
+            movedAs: newOne.info.causeOfDeath ?? [],
+            movedBy: newOne.info.isKilledBy,
             activator: newOne.info.isKilledByWhom,
           };
         });
@@ -354,7 +364,7 @@ export class DuelEntity {
     };
 
     const promises = items
-      .map(({ monster: entity, dest: to, pos, summoner: chooser }) => {
+      .map<{ entity: DuelEntity; args: MoveParameters }>(({ monster: entity, dest: to, pos, summoner: chooser }) => {
         entity.info.summonKinds = [summonKind];
         if (summonKind === "NormalSummon" || summonKind === "AdvanceSummon") {
           entity.info.summonKinds.push("NormalSummon");
@@ -392,12 +402,20 @@ export class DuelEntity {
         }
         return {
           entity,
-          args: [to, "Monster", face, orientation, "Top", [summonKind, movedAsDic[pos], ...movedAs], movedBy, actionOwner, chooser] as Parameters<
-            typeof DuelEntity.prototype._move
-          >,
+          args: {
+            to,
+            kind: "Monster",
+            face,
+            orientation,
+            pos: "Top",
+            movedAs: [summonKind, movedAsDic[pos], ...movedAs],
+            movedBy,
+            actionOwner,
+            chooser,
+          },
         };
       })
-      .map((item) => item.entity._move(...item.args));
+      .map((item) => item.entity._move(item.args));
 
     await Promise.all(promises);
 
@@ -428,8 +446,8 @@ export class DuelEntity {
   public static readonly sendManyToGraveyard = (
     items: {
       entity: DuelEntity;
-      causedAs: TDuelCauseReason[];
-      causedBy: DuelEntity | undefined;
+      movedAs: TDuelCauseReason[];
+      movedBy: DuelEntity | undefined;
       activator: Duelist | undefined;
     }[],
     excludedList?: DuelEntity[]
@@ -451,25 +469,23 @@ export class DuelEntity {
       entity: DuelEntity;
       face: TDuelEntityFace;
       orientation: TDuelEntityOrientation;
-      causedAs: TDuelCauseReason[];
-      causedBy: DuelEntity | undefined;
+      movedAs: TDuelCauseReason[];
+      movedBy: DuelEntity | undefined;
       activator: Duelist | undefined;
     }[],
     excludedList?: DuelEntity[]
   ) => {
     await DuelEntity.moveMany(
-      items.map((item) => [
-        item.entity,
-        item.entity.field.getCells(to).filter((cell) => cell.owner === item.entity.owner)[0],
-        item.entity.origin.kind,
-        item.face,
-        item.orientation,
-        pos,
-        item.causedAs,
-        item.causedBy,
-        item.activator,
-        item.activator,
-      ]),
+      items.map((item) => {
+        return {
+          ...item,
+          to: item.entity.field.getCells(to).filter((cell) => cell.owner === item.entity.owner)[0],
+          kind: item.entity.origin.kind,
+          pos,
+          chooser: item.activator,
+          actionOwner: item.activator,
+        };
+      }),
       excludedList
     );
     return items.map((item) => item.entity).filter((entity) => entity.fieldCell.cellType === to);
@@ -493,18 +509,6 @@ export class DuelEntity {
       .map((cell) => cell.shuffle());
   };
 
-  private readonly onBeforeMoveEvent = new StkAsyncEvent<{
-    entity: DuelEntity;
-    args: Readonly<Parameters<typeof DuelEntity.prototype._move>>;
-  }>();
-  public get onBeforeMove() {
-    return this.onBeforeMoveEvent.expose();
-  }
-  private readonly onAfterMoveEvent = new StkAsyncEvent<DuelEntity>();
-  public get onAfterMove() {
-    return this.onAfterMoveEvent.expose();
-  }
-
   public readonly seq: number;
   public readonly origin: EntityStatusBase;
   public readonly entityType: TDuelEntityType;
@@ -513,7 +517,6 @@ export class DuelEntity {
   public readonly numericOprsBundle: NumericStateOperatorBundle;
   public readonly statusOperatorBundle: StatusOperatorBundle;
   public readonly damageFilterBundle: DamageFilterBundle;
-  public readonly immediatelyActionBundle: ImmediatelyActionBundle;
   public readonly moveLog: EntityMoveLog;
   public readonly counterHolder: CounterHolder;
   public readonly parent: DuelEntity | undefined;
@@ -545,6 +548,7 @@ export class DuelEntity {
   private _info: DuelEntityInfomation;
 
   public readonly actions: EntityAction<unknown>[] = [];
+  public readonly immediatelyActions: ImmediatelyAction[] = [];
   public readonly continuousEffects: ContinuousEffect<unknown>[] = [];
   public readonly substituteEffects: SubstituteEffect[] = [];
   public readonly canBeReleased = <T>(
@@ -842,7 +846,6 @@ export class DuelEntity {
     this.numericOprsBundle = new NumericStateOperatorBundle(fieldCell.field.numericStateOperatorPool, this);
     this.statusOperatorBundle = new StatusOperatorBundle(fieldCell.field.statusOperatorPool, this);
     this.damageFilterBundle = new DamageFilterBundle(fieldCell.field.damageFilterPool, this);
-    this.immediatelyActionBundle = new ImmediatelyActionBundle(fieldCell.field.immediatelyActionPool, this);
     this._exists = this.entityType === "Card";
 
     fieldCell.acceptEntities(this, "Top");
@@ -882,6 +885,7 @@ export class DuelEntity {
       );
     }
     this.actions.push(...definition.actions.map((b) => EntityAction.createNew(this, b)));
+    this.immediatelyActions.push(...(definition.immediatelyActions ?? []).map((def) => ImmediatelyAction.createNew(this, def)));
     this.continuousEffects.push(...continuousEffectBases.map((b) => ContinuousEffect.createNew(this, b)));
   }
 
@@ -1022,7 +1026,7 @@ export class DuelEntity {
     actionOwner: Duelist | undefined,
     chooser: Duelist | undefined
   ): Promise<DuelFieldCell> => {
-    await DuelEntity.moveMany([[this, to, kind, face, orientation, pos, movedAs, movedBy, actionOwner, chooser]], undefined);
+    await DuelEntity.moveMany([{ entity: this, to, kind, face, orientation, pos, movedAs, movedBy, actionOwner, chooser }], undefined);
     return this.fieldCell;
   };
 
@@ -1048,64 +1052,49 @@ export class DuelEntity {
    * @param chooser
    * @returns
    */
-  private readonly _move = async (
-    to: DuelFieldCell,
-    kind: TCardKind,
-    face: TDuelEntityFace,
-    orientation: TDuelEntityOrientation,
-    pos: TDuelEntityMovePos,
-    movedAs: TDuelCauseReason[],
-    movedBy: DuelEntity | undefined,
-    actionOwner: Duelist | undefined,
-    chooser: Duelist | undefined
-  ): Promise<DuelFieldCell | undefined> => {
-    if (!to) {
+  private readonly _move = async (args: MoveParameters): Promise<DuelFieldCell | undefined> => {
+    if (!args.to) {
       // ミスで一回あったので念の為おいておく
       throw new Error("illegal argument: to");
     }
 
-    await this.onBeforeMoveEvent.trigger({
-      entity: this,
-      args: [to, kind, face, orientation, pos, movedAs, movedBy, actionOwner, chooser],
-    });
-
-    for (const another of this.field.getCardsOnFieldStrictly().filter((card) => card !== this)) {
-      await another.immediatelyActionBundle.act(this, movedAs);
+    for (const immdAct of [this, ...this.field.getCardsOnFieldStrictly()].getDistinct().flatMap((card) => card.immediatelyActions)) {
+      await immdAct.execute(this, args);
     }
 
-    this.face = face;
-    this.orientation = orientation;
+    this.face = args.face;
+    this.orientation = args.orientation;
     let appearFlg = false;
     // 異なるセルに移動する場合
-    if (to !== this.fieldCell) {
+    if (args.to !== this.fieldCell) {
       if (this.fieldCell.cellType === "WaitingRoom") {
-        this.duel.log.info(`生成：${this.toString()}`, actionOwner);
+        this.duel.log.info(`生成：${this.toString()}`, args.actionOwner);
         appearFlg = true;
-      } else if (to.cellType === "WaitingRoom") {
-        this.duel.log.info(`消滅：${this.toString()}`, actionOwner);
+      } else if (args.to.cellType === "WaitingRoom") {
+        this.duel.log.info(`消滅：${this.toString()}`, args.actionOwner);
         this._exists = false;
         // ★★★★★ 消滅アニメーション ★★★★★
         await this.duel.view.waitTokenAnimation();
       } else if (this.field.duel.clock.turn) {
-        this.duel.log.info(`移動：${this.toString()}  ${this.fieldCell.toString()} ⇒ ${to.toString()}`, actionOwner);
+        this.duel.log.info(`移動：${this.toString()}  ${this.fieldCell.toString()} ⇒ ${args.to.toString()}`, args.actionOwner);
         // ★★★★★ 移動アニメーション ★★★★★
-        await this.field.duel.view.waitAnimation({ entity: this, to: to, index: pos, count: 0 });
+        await this.field.duel.view.waitAnimation({ entity: this, to: args.to, index: args.pos, count: 0 });
       }
     }
 
-    if (to !== this.fieldCell || pos === "Random") {
+    if (args.to !== this.fieldCell || args.pos === "Random") {
       // セルから自分自身を取り除く
       this.fieldCell.releaseEntities(this);
 
       // 場を離れる場合の処理
-      if (this.fieldCell.isPlayFieldCell && !to.isPlayFieldCell) {
+      if (this.fieldCell.isPlayFieldCell && !args.to.isPlayFieldCell) {
         // カウンター類を全て除去
         this.counterHolder.clear();
 
         // 墓地送り予定情報を削除
         this.resetCauseOfDeath();
       }
-      if ((this.fieldCell.isMonsterZoneLikeCell && !to.isMonsterZoneLikeCell) || kind !== "Monster") {
+      if ((this.fieldCell.isMonsterZoneLikeCell && !args.to.isMonsterZoneLikeCell) || args.kind !== "Monster") {
         // 数値ステータスをリセット
         // FIXME 情報リセットを一箇所に集約する
         this.resetNumericStatus();
@@ -1130,7 +1119,7 @@ export class DuelEntity {
             this.controller.writeInfoLog(`エクシーズモンスター${this.toString()}不在により${material.toString()}は墓地に送られた。`);
           });
         }
-      } else if (this.fieldCell.cellType === "SpellAndTrapZone" && to.cellType !== "SpellAndTrapZone") {
+      } else if (this.fieldCell.cellType === "SpellAndTrapZone" && args.to.cellType !== "SpellAndTrapZone") {
         // 魔法罠を離れる時の処理
         // 装備解除
         // FIXME 情報リセットを一箇所に集約する
@@ -1140,7 +1129,7 @@ export class DuelEntity {
       }
 
       // セルに自分を所属させる
-      to.acceptEntities(this, pos);
+      args.to.acceptEntities(this, args.pos);
 
       if (appearFlg) {
         // FIXME 一度awaitを掛けないと、生成アニメーションが上手く行かない。
@@ -1151,7 +1140,7 @@ export class DuelEntity {
       }
       // ★情報のリセット、再セット
       //    後処理は後続で行う
-      if (to === this.isBelongTo || to.cellType === "Hand" || (to.cellType === "Banished" && this.face === "FaceDown")) {
+      if (args.to === this.isBelongTo || args.to.cellType === "Hand" || (args.to.cellType === "Banished" && this.face === "FaceDown")) {
         // FIXME 情報リセットを一箇所に集約する
         // 非公開情報になった場合、全ての情報をリセット
         this.counterHolder.clear();
@@ -1160,7 +1149,7 @@ export class DuelEntity {
       }
     }
 
-    if ((this.isOnFieldStrictly && this.face === "FaceDown") || kind === "XyzMaterial") {
+    if ((this.isOnFieldStrictly && this.face === "FaceDown") || args.kind === "XyzMaterial") {
       // セット状態になった場合、またはエクシーズ素材になった場合。
 
       // 装備していたカードにマーキング
@@ -1185,13 +1174,11 @@ export class DuelEntity {
       // セットしたターンに発動できない制約を付与
       this.info.isSettingSickness = this.kind === "Trap" || this.status.spellCategory === "QuickPlay";
     }
-    this._info.kind = kind;
+    this._info.kind = args.kind;
     // 移動ログ追加
-    this.moveLog.push(kind, movedAs, movedBy, actionOwner, chooser);
+    this.moveLog.push(args.kind, args.movedAs, args.movedBy, args.actionOwner, args.chooser);
 
-    await this.onAfterMoveEvent.trigger(this);
-
-    return to;
+    return args.to;
   };
   public readonly initForTurn = () => {
     this.info.isSettingSickness = false;

@@ -129,11 +129,17 @@
     });
   };
   duel.main();
+  const getScreenMode = () => {
+    if (innerWidth <= 1400) {
+      return "compact";
+    }
+    return "wide";
+  };
 </script>
 
 <svelte:window bind:innerWidth bind:innerHeight />
-<div class="flex duel_desk {innerWidth <= 1400 ? 'compact_mode' : ''}">
-  {#if innerWidth > 1400}
+<div class="flex duel_desk {getScreenMode()}_mode">
+  {#if getScreenMode() === "wide"}
     <div class="duel_desk_left v_flex">
       <DuelDuelist duelist={duel.duelists.Above}></DuelDuelist>
       <DuelCardDetail entity={focusedCard} mode={focusedCardMode}></DuelCardDetail>
@@ -203,8 +209,8 @@
 
 <ModalContainer modalController={duel.view.modalController} />
 
-<div style="position:absolute;top:0;left:0">
-  <DuelCutin {duel} />
+<div class="cutin {getScreenMode()}_mode">
+  <DuelCutin {duel} position={getScreenMode() === "wide" ? "right" : "left"} />
 </div>
 
 <style>
@@ -310,5 +316,15 @@
     width: 100%;
     text-align: center;
     border-collapse: collapse;
+  }
+
+  .cutin {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+  .cutin.compact_mode {
+    right: initial;
+    left: 0;
   }
 </style>

@@ -380,7 +380,6 @@
     right: 0.5rem;
     bottom: 0.5rem;
     background: rgba(255, 255, 255, 0.7);
-    z-index: 100;
     pointer-events: none;
   }
   .debug_info * {

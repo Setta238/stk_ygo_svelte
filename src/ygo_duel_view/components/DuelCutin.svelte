@@ -6,6 +6,10 @@
   import type { ChainBlockLogRecord } from "@ygo_duel/class/DuelChainBlockLog";
   import { DuelClock } from "@ygo_duel/class/DuelClock";
   export let duel: Duel;
+  export let position: "left" | "right" = "left";
+  const flyY = -100;
+  const getFlyX = () => (position === "left" ? -100 : 100);
+
   type Record = ChainBlockLogRecord & { isKnown?: boolean };
   let records: (ChainBlockLogRecord & { isKnown?: boolean })[] = [];
   let removeTimerPromise = Promise.resolve();
@@ -50,7 +54,7 @@
   duel.chainBlockLog.onInsert.append(onInsert);
 </script>
 
-<div class="cut_in_container">
+<div class="cut_in_container cut_in_container_{position}">
   {#each records as record (record.seq)}
     {@const { activator, action, appendix } = record.chainBlockInfo}
     <div
@@ -60,8 +64,8 @@
       <div
         class="cut_in_item cut_in_item_{activator.seat.toLowerCase()} cut_in_item_{record.chainBlockInfo.state}"
         transition:fly={new Date().getTime() - record.chainBlockInfo.wasSpawnedAt.getTime() < minLifespan
-          ? { x: -100, duration: flyDuration }
-          : { y: -100, duration: flyDuration }}
+          ? { x: getFlyX(), duration: flyDuration }
+          : { y: flyY, duration: flyDuration }}
       >
         {#if record.chainBlockInfo.chainNumber}
           <div class="chain_number">チェーン：{record.chainBlockInfo.chainNumber}</div>
@@ -95,7 +99,8 @@
 
 <style>
   .cut_in_container {
-    position: relative;
+    position: fixed;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     pointer-events: none;
@@ -103,6 +108,13 @@
     z-index: 2;
     padding: 5rem;
     font-weight: bold;
+    min-width: 36rem;
+  }
+  .cut_in_container_right {
+    right: 0;
+  }
+  .cut_in_container_left {
+    left: 0;
   }
   .cut_in_row {
     width: 30rem;
@@ -131,7 +143,7 @@
   .cut_in_item > *:first-child {
     margin-left: 0.3rem;
   }
-  .cut_in_item_left {
+  .cut_in_item_below {
     margin-right: auto;
     margin-left: 0px;
   }
@@ -180,6 +192,7 @@
     padding-left: 0.5rem;
   }
   .appendix_wrapper .appendix {
+    color: black;
     background-color: azure;
     border-radius: 1rem;
     padding: 0px 1rem;

@@ -683,7 +683,7 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
     }
 
     const result: Partial<ChainBlockInfo<T>> = new Statable<TChainBlockInfoState>(myInfo.state);
-    const temp = { ...myInfo, ..._prepared };
+    const temp = { ..._prepared, ...myInfo };
     (Object.keys(temp) as (keyof typeof temp)[])
       .filter((key) => key !== "state")
       .forEach((key) => {

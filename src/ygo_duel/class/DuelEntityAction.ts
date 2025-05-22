@@ -125,6 +125,7 @@ export type ChainBlockInfoPreparing<T> = ChainBlockInfoBase<T> & {
 export type ChainBlockInfoPrepared = {
   selectedEntities: DuelEntity[];
   chainBlockTags: TEffectTag[];
+  appendix?: string[];
   /** 緊急同調など */
   nextActionInfo?: ResponseActionInfo;
   /** 超融合など */

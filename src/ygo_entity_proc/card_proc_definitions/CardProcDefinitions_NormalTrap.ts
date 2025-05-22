@@ -102,7 +102,11 @@ export default function* generate(): Generator<EntityProcDefinition> {
         canPayCosts: defaultCanPayDiscardCosts,
         payCosts: defaultPayDiscardCosts,
         ...getSingleTargetActionPartical(
-          (myInfo) => myInfo.action.entity.field.getCardsOnFieldStrictly().filter((monster) => monster.canBeTargetOfEffect(myInfo)),
+          (myInfo) =>
+            myInfo.action.entity.field
+              .getCardsOnFieldStrictly()
+              .filter((card) => card !== myInfo.action.entity)
+              .filter((card) => card.canBeTargetOfEffect(myInfo)),
           { message: "対象とするカードを選択。", destoryTargets: true }
         ),
         execute: async (myInfo) => {

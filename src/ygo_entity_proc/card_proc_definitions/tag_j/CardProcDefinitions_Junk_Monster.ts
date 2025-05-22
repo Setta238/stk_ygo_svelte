@@ -67,7 +67,11 @@ export default function* generate(): Generator<EntityProcDefinition> {
             throw new SystemError("想定されない状況", myInfo, myInfo.costInfo, cost);
           }
 
-          return await action.prepare(myInfo.activator, undefined, undefined, chainBlockInfos, false, true);
+          const prepared = { ...(await action.prepare(myInfo.activator, undefined, undefined, chainBlockInfos, false, true)) };
+
+          prepared.appendix = [`コピー対象：${cost.toString()}`, ...(prepared.appendix ?? [])];
+
+          return prepared;
         },
         execute: async (myInfo, chainBlockInfos) => {
           const cost = myInfo.costInfo.banish?.find((card) => card !== myInfo.action.entity);

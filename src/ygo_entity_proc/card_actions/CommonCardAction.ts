@@ -134,7 +134,8 @@ export const getSingleTargetActionPartical = <T>(
       if (options.destoryTargets) {
         chainBlockTags.push(...myInfo.action.calcChainBlockTagsForDestroy(myInfo.activator, selectedEntities));
       }
-      return { selectedEntities, chainBlockTags };
+
+      return { selectedEntities, chainBlockTags, appendix: [`対象：${selectedEntities.map((card) => card.toString()).join(", ")}`] };
     },
   };
 };

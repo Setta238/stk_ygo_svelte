@@ -52,7 +52,7 @@
 
 <div class="cut_in_container">
   {#each records as record (record.seq)}
-    {@const { activator, action } = record.chainBlockInfo}
+    {@const { activator, action, appendix } = record.chainBlockInfo}
     <div
       class="cut_in_row {!record.chainBlockInfo.chainNumber || record.chainBlockInfo.chainNumber === 1 ? `cut_in_row_first` : ''}"
       animate:flip={{ duration: flipDuration }}
@@ -75,7 +75,18 @@
           {#if action.entity.entityType === "Card" || action.entity.entityType === "Token"}
             <div class="duel_card_row">{record.isKnown ? action.entity.nm : "？？？"}</div>
           {/if}
-          <div class="duel_card_row">{action.toString()}</div>
+          <div class="duel_card_row">
+            <div>
+              {action.toString()}
+            </div>
+            {#if appendix}
+              <div class="appendix_wrapper">
+                {#each appendix as text}
+                  <div class="appendix">{text}</div>
+                {/each}
+              </div>
+            {/if}
+          </div>
         </div>
       </div>
     </div>
@@ -153,10 +164,27 @@
     padding-left: 0.3rem;
   }
   .duel_card_row {
-    padding: 0.123rem;
+    display: flex;
+    flex-direction: row;
+    padding: 0.23rem;
     text-align: left;
     font-size: 1rem;
     text-wrap-mode: nowrap;
     margin-left: 0.4rem;
+  }
+  .appendix_wrapper {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-left: 0.4rem;
+    padding-left: 0.5rem;
+  }
+  .appendix_wrapper .appendix {
+    background-color: azure;
+    border-radius: 1rem;
+    padding: 0px 1rem;
+    font-size: 0.8rem;
+    margin: 0.2rem;
+    vertical-align: middle;
   }
 </style>

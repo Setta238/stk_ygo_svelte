@@ -199,7 +199,7 @@
     </div>
   {/if}
 </div>
-<div style="position:absolute;left:0;bottom:0">{duel.clock.toFullString()}</div>
+<div style="position:fixed;left:0;bottom:0">{duel.clock.toFullString()}</div>
 
 <ModalContainer modalController={duel.view.modalController} />
 

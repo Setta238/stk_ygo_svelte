@@ -376,15 +376,30 @@
     cursor: pointer;
   }
   .debug_info {
-    display: flex;
-    text-align: right;
-    position: absolute;
-    right: 1rem;
-    bottom: 1rem;
+    position: fixed;
+    right: 0.5rem;
+    bottom: 0.5rem;
+    background: rgba(255, 255, 255, 0.7);
+    z-index: 100;
     pointer-events: none;
   }
   .debug_info * {
-    padding: 0rem 2rem;
+    padding: 0.1rem 0.5rem;
+    font-size: 1rem;
+  }
+
+  /* スマホ用に調整 */
+  @media screen and (max-width: 600px) {
+    .debug_info {
+      right: 0.1rem;
+      bottom: 0.1rem;
+      font-size: 0.8rem;
+      padding: 0.2rem 0.2rem;
+    }
+    .debug_info * {
+      font-size: 0.8rem;
+      padding: 0.05rem 0.2rem;
+    }
   }
   .config_row * {
     font-size: 1.4rem;

@@ -11,11 +11,10 @@
   import DuelDesk from "@ygo_duel_view/components/DuelDesk.svelte";
   import DeckEditor from "@ygo_deck_editor/components/DeckEditor.svelte";
   import { StkIndexedDB } from "@stk_utils/class/StkIndexedDB";
-  import timestampJson from "@stk_utils/json/timestamp.json";
   import { getKeys } from "@stk_utils/funcs/StkObjectUtils";
   import { fade, slide } from "svelte/transition";
   import { userAgentInfo } from "@stk_utils/class/StkUserAgentInfo";
-  import { chainConfigDic, chainConfigKeys } from "@ygo_duel/class/Duelist";
+
   const idb = new StkIndexedDB<TTblNames>("stk_ygo_svelte", currentVersion, tblNames);
 
   let innerWidth = 0;
@@ -307,7 +306,7 @@
     </div>
   {/if}
   <div class="debug_info">
-    <span>build at: {timestampJson.timestamp}</span>
+    <span>build at: {import.meta.env.VITE_BUILD_TIMESTAMP}</span>
     <span class="user_agent_info">{userAgentInfo.text}</span>
     <span class="screen_info">w:{innerWidth}px h:{innerHeight}px</span>
   </div>

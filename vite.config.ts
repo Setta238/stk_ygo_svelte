@@ -15,7 +15,7 @@ const h = ("0" + tmpDate.getHours()).slice(-2);
 const n = ("0" + tmpDate.getMinutes()).slice(-2);
 const s = ("0" + tmpDate.getSeconds()).slice(-2);
 const timestamp = `${y}${m}${d}_${h}${n}${s}`;
-
+console.log(timestamp);
 export default defineConfig({
   plugins: [
     svelte(),
@@ -59,6 +59,7 @@ export default defineConfig({
       },
     },
   },
+  define: {
+    "import.meta.env.VITE_BUILD_TIMESTAMP": JSON.stringify(timestamp),
+  },
 });
-
-console.log(process.env.DEV);

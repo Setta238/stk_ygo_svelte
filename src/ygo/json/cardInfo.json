@@ -24517,5 +24517,13 @@
       "Spellcaster"
     ],
     "wikiEncodedName": "%A1%D4%CA%E8%BC%E9%A4%CE%C2%E7%C5%FB%BB%FD%A4%C1%A1%D5"
+  },
+  "苦渋の選択": {
+    "name": "苦渋の選択",
+    "nameKana": "",
+    "description": "自分のデッキからカードを５枚選択して相手に見せる。相手はその中から１枚を選択する。\n相手が選択したカード１枚を自分の手札に加え、残りのカードを墓地へ捨てる。",
+    "kind": "Spell",
+    "spellCategory": "Normal",
+    "wikiEncodedName": "%A1%D4%B6%EC%BD%C2%A4%CE%C1%AA%C2%F2%A1%D5"
   }
 }

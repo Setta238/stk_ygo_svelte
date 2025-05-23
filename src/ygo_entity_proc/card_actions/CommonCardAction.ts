@@ -11,7 +11,7 @@ import {
 } from "../../ygo_duel/class/DuelEntityAction";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import { duelFieldCellTypes } from "@ygo_duel/class/DuelFieldCell";
+import { duelFieldCellTypes, type DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
 import type { TDuelPeriodKey } from "@ygo_duel/class/DuelPeriod";
 export const defaultPrepare = async () => {
   return { selectedEntities: [] as DuelEntity[] };
@@ -101,6 +101,37 @@ export const getDestsForSingleTargetAction = <T>(myInfo: ChainBlockInfoBase<T>, 
     .filter((entity) => entity.isOnField)
     .map((card) => card.fieldCell);
 
+export const getPayReleaseCostActionPartical = <T>(
+  filter: (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, entity: DuelEntity) => boolean = () => true,
+  cellTypes: Readonly<DuelFieldCellType[]> = ["MonsterZone", "ExtraMonsterZone"],
+  qty: number = 1
+) => {
+  return {
+    canPayCosts: (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => {
+      const cards = myInfo.activator
+        .getCells(...cellTypes)
+        .flatMap((cell) => cell.cardEntities)
+        .filter((card) => card.kind === "Monster")
+        .filter((card) => card.canBeReleased(myInfo.activator, myInfo.action.entity, ["ReleaseAsCost"], myInfo.action))
+        .filter((card) => filter(myInfo, chainBlockInfos, card));
+      return cards.length >= qty;
+    },
+    payCosts: async (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, cancelable: boolean) => {
+      const cards = myInfo.activator
+        .getCells(...cellTypes)
+        .flatMap((cell) => cell.cardEntities)
+        .filter((card) => card.kind === "Monster")
+        .filter((card) => card.canBeReleased(myInfo.activator, myInfo.action.entity, ["ReleaseAsCost"], myInfo.action))
+        .filter((card) => filter(myInfo, chainBlockInfos, card));
+      const costs = await myInfo.activator.waitSelectEntities(cards, qty, (selected) => selected.length === qty, "コストとするモンスターを選択", cancelable);
+      if (!costs) {
+        return;
+      }
+      await DuelEntityShortHands.releaseManyForTheSameReason(costs, ["Cost"], myInfo.action.entity, myInfo.activator);
+      return { release: costs };
+    },
+  };
+};
 export const getSingleTargetActionPartical = <T>(
   getTargetableEntities: (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => DuelEntity[],
   options: {

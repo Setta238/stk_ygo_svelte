@@ -1015,6 +1015,9 @@ export class DuelEntity {
     await this.moveAlone(to, this.origin.kind, face, orientation, pos, ["Rule", ...movedAs], movedBy, actionOwner, actionOwner);
   };
 
+  public readonly excavate = async (movedAs: TDuelCauseReason[], movedBy: DuelEntity, activator: Duelist) =>
+    this.moveAlone(this.fieldCell, this.kind, "FaceUp", this.orientation, "Fix", ["Excavate", ...movedAs], movedBy, activator, undefined);
+
   private readonly moveAlone = async (
     to: DuelFieldCell,
     kind: TCardKind,

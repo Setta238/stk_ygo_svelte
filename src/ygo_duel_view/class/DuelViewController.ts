@@ -262,6 +262,22 @@ export class DuelViewController {
     );
   };
 
+  public readonly waitSelectNumber = async (chooser: Duelist, title: string, list: number[], cancelable: boolean): Promise<number | undefined> => {
+    const res = await this.waitSelectText(
+      chooser,
+      list
+        .getDistinct()
+        .toSorted()
+        .map((item) => ({ seq: item, text: item.toString() })),
+      title,
+      cancelable
+    );
+    if (!res) {
+      return;
+    }
+    return res.seq;
+  };
+
   public readonly waitYesOrNo = async (chooser: Duelist, title: string): Promise<boolean> => {
     const res = await this.waitSelectText(
       chooser,

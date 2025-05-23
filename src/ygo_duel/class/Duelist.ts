@@ -4,7 +4,7 @@ import { Duel, DuelEnd, SystemError, type ResponseActionInfo, type TSeat } from 
 import { DuelEntity, type SummonArg, type TDuelCauseReason, type TSummonKindCauseReason } from "./DuelEntity";
 import type { IDuelClock } from "./DuelClock";
 import type { DuelFieldCell, DuelFieldCellType } from "./DuelFieldCell";
-import {} from "@stk_utils/funcs/StkArrayUtils";
+import { getSequenceNumbers } from "@stk_utils/funcs/StkArrayUtils";
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
 import { EntityAction, type CardActionDefinitionAttrs, type ChainBlockInfo, type SummonMaterialInfo, type ValidatedActionInfo } from "./DuelEntityAction";
 import { max, min } from "@stk_utils/funcs/StkMathUtils";
@@ -478,6 +478,10 @@ export class Duelist {
       )) ?? [];
     return monsters[0];
   };
+  public readonly waitSelectNumberFromRange = (title: string, min: number, max: number, cancelable: boolean) =>
+    this.waitSelectNumber(title, getSequenceNumbers(min, max), cancelable);
+  public readonly waitSelectNumber = (title: string, list: number[], cancelable: boolean) => this.duel.view.waitSelectNumber(this, title, list, cancelable);
+
   public readonly waitSelectEntities = (
     choices: DuelEntity[],
     qty: number | undefined,

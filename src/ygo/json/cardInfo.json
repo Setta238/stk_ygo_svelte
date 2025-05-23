@@ -24525,5 +24525,21 @@
     "kind": "Spell",
     "spellCategory": "Normal",
     "wikiEncodedName": "%A1%D4%B6%EC%BD%C2%A4%CE%C1%AA%C2%F2%A1%D5"
+  },
+  "モンスターゲート": {
+    "name": "モンスターゲート",
+    "nameKana": "",
+    "description": "(1)：自分フィールドのモンスター１体をリリースして発動できる。\n通常召喚可能なモンスターが出るまで自分のデッキの上からカードをめくり、そのモンスターを特殊召喚する。\n残りのめくったカードは全て墓地へ送る。",
+    "kind": "Spell",
+    "spellCategory": "Normal",
+    "wikiEncodedName": "%A1%D4%A5%E2%A5%F3%A5%B9%A5%BF%A1%BC%A5%B2%A1%BC%A5%C8%A1%D5"
+  },
+  "名推理": {
+    "name": "名推理",
+    "nameKana": "",
+    "description": "(1)：相手は１～１２までの任意のレベルを宣言する。\n通常召喚可能なモンスターが出るまで自分のデッキの上からカードをめくり、そのモンスターのレベルが宣言されたレベルと同じ場合、めくったカードを全て墓地へ送る。\n違った場合、そのモンスターを特殊召喚し、残りのめくったカードは全て墓地へ送る。",
+    "kind": "Spell",
+    "spellCategory": "Normal",
+    "wikiEncodedName": "%A1%D4%CC%BE%BF%E4%CD%FD%A1%D5"
   }
 }

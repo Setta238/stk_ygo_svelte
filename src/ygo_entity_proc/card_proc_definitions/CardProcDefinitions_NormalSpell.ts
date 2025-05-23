@@ -10,7 +10,6 @@ import {
   defaultPrepare,
   defaultTargetMonstersRebornExecute,
   defaultTargetMonstersRebornPrepare,
-  getSingleTargetActionPartical,
   getSystemPeriodAction,
 } from "@ygo_entity_proc/card_actions/CommonCardAction";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
@@ -18,125 +17,6 @@ import { executableDuelistTypes, type ChainBlockInfoBase } from "@ygo_duel/class
 import { defaultActions } from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
 
 export default function* generate(): Generator<EntityProcDefinition> {
-  yield {
-    name: "おろかな埋葬",
-    actions: [
-      {
-        title: "発動",
-        isMandatory: false,
-        playType: "CardActivation",
-        spellSpeed: "Normal",
-        executableCells: ["Hand", "SpellAndTrapZone"],
-        executablePeriods: ["main1", "main2"],
-        executableDuelistTypes: ["Controller"],
-        priorityForNPC: 40,
-        fixedTags: ["SendToGraveyardFromDeck"],
-        canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.some((card) => card.kind === "Monster"),
-        prepare: defaultPrepare,
-        execute: async (myInfo) => {
-          const monsters = myInfo.activator.getDeckCell().cardEntities.filter((entity) => entity.kind === "Monster");
-          if (monsters.length === 0) {
-            return false;
-          }
-          const target = await myInfo.activator.waitSelectEntity(monsters, "墓地に送るモンスターを選択", false);
-          if (!target) {
-            throw new IllegalCancelError(myInfo);
-          }
-          await target.sendToGraveyard(["Effect"], myInfo.action.entity, myInfo.activator);
-          myInfo.activator.getDeckCell().shuffle();
-          return true;
-        },
-        settle: async () => true,
-      },
-      defaultSpellTrapSetAction,
-    ],
-  };
-  yield {
-    name: "おろかな副葬",
-    actions: [
-      {
-        title: "発動",
-        isMandatory: false,
-        playType: "CardActivation",
-        spellSpeed: "Normal",
-        executableCells: ["Hand", "SpellAndTrapZone"],
-        executablePeriods: ["main1", "main2"],
-        executableDuelistTypes: ["Controller"],
-        isOnlyNTimesPerTurn: 1,
-        priorityForNPC: 40,
-        fixedTags: ["SendToGraveyardFromDeck"],
-        canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.some((card) => card.kind !== "Monster"),
-        prepare: defaultPrepare,
-        execute: async (myInfo) => {
-          const monsters = myInfo.activator.getDeckCell().cardEntities.filter((entity) => entity.kind !== "Monster");
-          if (monsters.length === 0) {
-            return false;
-          }
-          const target = await myInfo.activator.waitSelectEntity(monsters, "墓地に送る魔法罠を選択", false);
-          if (!target) {
-            throw new IllegalCancelError(myInfo);
-          }
-          await target.sendToGraveyard(["Effect"], myInfo.action.entity, myInfo.activator);
-          myInfo.activator.getDeckCell().shuffle();
-
-          return true;
-        },
-        settle: async () => true,
-      },
-      defaultSpellTrapSetAction,
-    ],
-  };
-  yield {
-    name: "苦渋の選択",
-    actions: [
-      {
-        title: "発動",
-        isMandatory: false,
-        playType: "CardActivation",
-        spellSpeed: "Normal",
-        executableCells: ["Hand", "SpellAndTrapZone"],
-        executablePeriods: ["main1", "main2"],
-        executableDuelistTypes: ["Controller"],
-        priorityForNPC: 40,
-        fixedTags: ["SendToGraveyardFromDeck", "SearchFromDeck"],
-        canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.length > 4,
-        prepare: defaultPrepare,
-        execute: async (myInfo) => {
-          const cards = myInfo.activator.getDeckCell().cardEntities;
-          if (cards.length < 5) {
-            return false;
-          }
-          const list = await myInfo.activator.waitSelectEntities(cards, 5, (selected) => selected.length === 5, "相手に見せるカードを選択。", false);
-          if (!list) {
-            throw new IllegalCancelError(myInfo);
-          }
-
-          const selected = await myInfo.activator.getOpponentPlayer().waitSelectEntity(list, "手札に加えさせるカードを選択。", false);
-          if (!selected) {
-            throw new IllegalCancelError(myInfo, list);
-          }
-
-          myInfo.activator.writeInfoLog(`${myInfo.activator.getOpponentPlayer().name}は${selected.toString()}を選択。`);
-
-          //選択したカードを手札に加える
-          await selected.addToHand(["Effect"], myInfo.action.entity, myInfo.activator);
-
-          await DuelEntityShortHands.sendManyToGraveyardForTheSameReason(
-            list.filter((card) => card !== selected),
-            ["Effect"],
-            myInfo.action.entity,
-            myInfo.activator
-          );
-
-          myInfo.activator.getDeckCell().shuffle();
-
-          return true;
-        },
-        settle: async () => true,
-      },
-      defaultSpellTrapSetAction,
-    ],
-  };
   yield {
     name: "死者蘇生",
     actions: [
@@ -674,7 +554,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             await myInfo.activator.summonMany(
               myInfo.activator,
               "SpecialSummon",
-              ["Effect"],
+              ["Effect", "Excavate"],
               myInfo.action,
               monsters.map((monster) => {
                 return {
@@ -692,7 +572,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           }
           await DuelEntityShortHands.sendManyToGraveyardForTheSameReason(
             monsters.filter((monster) => !monster.isOnFieldAsMonsterStrictly),
-            ["Effect"],
+            ["Effect", "Excavate"],
             myInfo.action.entity,
             myInfo.activator
           );
@@ -713,60 +593,4 @@ export default function* generate(): Generator<EntityProcDefinition> {
       defaultSpellTrapSetAction,
     ],
   };
-  const props: { name: string; filter: (card: DuelEntity) => boolean; discard: boolean }[] = [
-    { name: "魔法石の採掘", filter: () => true, discard: true },
-    { name: "魔法再生", filter: (card) => card.kind === "Spell", discard: false },
-  ];
-  for (const item of props) {
-    yield {
-      name: item.name,
-      actions: [
-        {
-          title: "発動",
-          isMandatory: false,
-          playType: "CardActivation",
-          spellSpeed: "Normal",
-          executableCells: ["Hand", "SpellAndTrapZone"],
-          executablePeriods: ["main1", "main2"],
-          executableDuelistTypes: ["Controller"],
-          fixedTags: ["AddToHandFromGraveyard"],
-          canPayCosts: (myInfo) => myInfo.activator.getHandCell().cardEntities.filter(item.filter).length > 1,
-          payCosts: async (myInfo, chainBlockInfos, cancelable) => {
-            const cards = myInfo.activator.getHandCell().cardEntities.filter(item.filter);
-            const costs = await myInfo.activator.waitSelectEntities(cards, 2, (selected) => selected.length === 2, "コストとするカードを選択", cancelable);
-            if (!costs) {
-              return;
-            }
-
-            if (item.discard) {
-              await DuelEntityShortHands.discardManyForTheSameReason(costs, ["Cost"], myInfo.action.entity, myInfo.activator);
-              return { discard: costs };
-            }
-
-            await DuelEntityShortHands.sendManyToGraveyardForTheSameReason(costs, ["Cost"], myInfo.action.entity, myInfo.activator);
-            return { sendToGraveyard: costs };
-          },
-          ...getSingleTargetActionPartical((myInfo) => myInfo.activator.getGraveyard().cardEntities.filter((card) => card.kind === "Spell"), {
-            message: "手札に加える魔法カードを選択",
-          }),
-          execute: async (myInfo) => {
-            if (!myInfo.selectedEntities.length) {
-              throw new SystemError("想定されない状態", myInfo);
-            }
-
-            const target = myInfo.selectedEntities[0];
-
-            if (target.wasMovedAfter(myInfo.isActivatedAt)) {
-              return false;
-            }
-
-            await target.addToHand(["Effect"], myInfo.action.entity, myInfo.activator);
-            return true;
-          },
-          settle: async () => true,
-        },
-        defaultSpellTrapSetAction,
-      ],
-    };
-  }
 }

@@ -14,6 +14,8 @@ declare global {
   }
 }
 
+export const getSequenceNumbers = (min: number, max: number) => Array.from({ length: max - min }, (_, i) => min + i);
+
 // 拡張メソッドの実装側
 Array.prototype.shuffle = function <T>(): T[] {
   const items = this as T[];

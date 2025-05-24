@@ -314,7 +314,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           ];
           const handMonsters = myInfo.activator.getHandCell().cardEntities;
 
-          if (handMonsters.length < 2 || !myInfo.ignoreCost) {
+          if (handMonsters.length < 2 || !myInfo.ignoreCosts) {
             allLvl1Monsters = allLvl1Monsters.filter((lvl1) => !handMonsters.includes(lvl1));
           }
           const cells = myInfo.activator.getMonsterZones();

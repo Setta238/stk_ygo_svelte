@@ -158,7 +158,7 @@ export const getDefaultXyzSummonAction = (
     getEnableMaterialPatterns: (myInfo) => getEnableXyzSummonPatterns(myInfo, qtyLowerBound, qtyUpperBound, validator),
     canPayCosts: (myInfo) => myInfo.action.getEnableMaterialPatterns(myInfo).some((infos) => infos.length),
     canExecute: (myInfo) =>
-      !myInfo.ignoreCost || myInfo.activator.getAvailableExtraMonsterZones().length + myInfo.activator.getAvailableMonsterZones().length > 0,
+      !myInfo.ignoreCosts || myInfo.activator.getAvailableExtraMonsterZones().length + myInfo.activator.getAvailableMonsterZones().length > 0,
     payCosts: defaultXyzSummonPayCost,
     prepare: (myInfo) => defaultRuleSummonPrepare(myInfo, "XyzSummon", ["Rule", "SpecialSummon", "XyzSummon"], ["Attack", "Defense"]),
     execute: defaultRuleSummonExecute,

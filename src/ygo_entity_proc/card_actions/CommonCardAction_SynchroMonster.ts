@@ -168,7 +168,7 @@ export const getDefaultSynchroSummonAction = (
     getEnableMaterialPatterns: (myInfo) => getEnableSynchroSummonPatterns(myInfo, tunersValidator, nonTunersValidator),
     canPayCosts: (myInfo) => myInfo.action.getEnableMaterialPatterns(myInfo).some((infos) => infos.length),
     canExecute: (myInfo) =>
-      !myInfo.ignoreCost || myInfo.activator.getAvailableExtraMonsterZones().length + myInfo.activator.getAvailableMonsterZones().length > 0,
+      !myInfo.ignoreCosts || myInfo.activator.getAvailableExtraMonsterZones().length + myInfo.activator.getAvailableMonsterZones().length > 0,
     payCosts: defaultSynchroSummonPayCost,
     prepare: (myInfo) => defaultRuleSummonPrepare(myInfo, "SynchroSummon", ["Rule", "SpecialSummon", "SynchroSummon"], ["Attack", "Defense"]),
     execute: defaultRuleSummonExecute,

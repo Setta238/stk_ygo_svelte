@@ -81,7 +81,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             return false;
           }
           await card.sendToGraveyard(["Effect"], myInfo.action.entity, myInfo.activator);
-          const action = card.actions.filter((action) => action.playType === "CardActivation").find((action) => !action.needsToPayCost);
+          const action = card.actions.filter((action) => action.playType === "CardActivation").find((action) => !action.needsToPayRegularCosts);
           if (!action) {
             myInfo.activator.writeInfoLog(`${card.toString()}は${myInfo.action.entity.toString()}の効果では発動できない。`);
             return true;

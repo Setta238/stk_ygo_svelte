@@ -18,7 +18,10 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableDuelistTypes: ["Controller"],
         needsToPayCost: true,
         canPayCosts: (myInfo) => {
-          const traps = myInfo.activator
+          if (!defaultCanPaySelfBanishCosts(myInfo)) {
+            return false;
+          }
+          return myInfo.activator
             .getGraveyard()
             .cardEntities.filter((card) => card.kind === "Trap")
             .filter((card) => card.status.trapCategory === "Normal")
@@ -26,14 +29,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
             .filter((card) => card.canBeBanished("BanishAsCost", myInfo.activator, myInfo.action.entity, myInfo.action))
             .flatMap((card) => card.actions)
             .filter((action) => action.playType === "CardActivation")
-            .filter((action) => !action.needsToPayCost)
-            .filter((action) => action.validate(myInfo.activator, [], ["IgnoreCosts", "CopyEffectOnly"]));
-
-          if (!traps.length) {
-            return false;
-          }
-
-          return defaultCanPaySelfBanishCosts(myInfo);
+            .filter((action) => !action.needsToPayRegularCosts)
+            .some((action) => action.validate(myInfo.activator, [], ["IgnoreRegularCosts", "CopyEffectOnly"], { banish: [myInfo.action.entity] }));
         },
         payCosts: async (myInfo, chainBlockInfos, cancelable) => {
           const choices = myInfo.activator
@@ -44,8 +41,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
             .filter((card) => card.canBeBanished("BanishAsCost", myInfo.activator, myInfo.action.entity, myInfo.action))
             .flatMap((card) => card.actions)
             .filter((action) => action.playType === "CardActivation")
-            .filter((action) => !action.needsToPayCost)
-            .filter((action) => action.validate(myInfo.activator, [], ["IgnoreCosts", "CopyEffectOnly"]))
+            .filter((action) => !action.needsToPayRegularCosts)
+            .filter((action) => action.validate(myInfo.activator, [], ["IgnoreRegularCosts", "CopyEffectOnly"], { banish: [myInfo.action.entity] }))
             .map((action) => action.entity);
 
           const target = await myInfo.activator.waitSelectEntity(choices, "コピーする罠を選択。", cancelable);

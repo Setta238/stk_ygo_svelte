@@ -570,7 +570,7 @@ export const getDefaultAccelSynchroAction = <T>(options: Partial<CardActionDefin
             costInfo: {},
             state: "unloaded",
             dest: undefined,
-            ignoreCost: false,
+            ignoreCosts: false,
           } as ChainBlockInfoBase<unknown>;
         })
         .some((childInfo) =>
@@ -615,7 +615,7 @@ export const getDefaultAccelSynchroAction = <T>(options: Partial<CardActionDefin
             costInfo: {},
             state: "unloaded",
             dest: undefined,
-            ignoreCost: false,
+            ignoreCosts: false,
           } as ChainBlockInfoBase<unknown>;
         })
         .filter((childInfo) =>

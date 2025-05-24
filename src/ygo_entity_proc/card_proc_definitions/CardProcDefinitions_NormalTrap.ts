@@ -13,6 +13,7 @@ import {
   getSingleTargetActionPartical,
 } from "../card_actions/CommonCardAction";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
+import { EntityCostTypes } from "@ygo_duel/class/DuelEntityAction";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
@@ -102,11 +103,20 @@ export default function* generate(): Generator<EntityProcDefinition> {
         canPayCosts: defaultCanPayDiscardCosts,
         payCosts: defaultPayDiscardCosts,
         ...getSingleTargetActionPartical(
-          (myInfo) =>
+          (myInfo, chainBlockInfos, irregularCosts) =>
             myInfo.action.entity.field
               .getCardsOnFieldStrictly()
               .filter((card) => card !== myInfo.action.entity)
-              .filter((card) => card.canBeTargetOfEffect(myInfo)),
+              .filter((card) => card.canBeTargetOfEffect(myInfo))
+              .filter((card) => {
+                if (!irregularCosts) {
+                  return true;
+                }
+                // コストに含まれているカード及び、それに装備されているカードは対象になりえない
+                const costs = EntityCostTypes.flatMap((type) => irregularCosts[type] ?? []);
+                costs.push(...costs.flatMap((cost) => cost.info.equipEntities));
+                return !costs.includes(card);
+              }),
           { message: "対象とするカードを選択。", destoryTargets: true }
         ),
         execute: async (myInfo) => {

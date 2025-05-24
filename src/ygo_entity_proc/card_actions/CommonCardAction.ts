@@ -4,6 +4,7 @@ import {
   executableDuelistTypes,
   type ActionCostInfo,
   type CardActionDefinition,
+  type CardActionDefinitionFunctions,
   type ChainBlockInfo,
   type ChainBlockInfoBase,
   type ChainBlockInfoPreparing,
@@ -133,22 +134,22 @@ export const getPayReleaseCostActionPartical = <T>(
   };
 };
 export const getSingleTargetActionPartical = <T>(
-  getTargetableEntities: (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => DuelEntity[],
+  getTargetableEntities: (...args: Parameters<NonNullable<CardActionDefinitionFunctions<T>["canExecute"]>>) => DuelEntity[],
   options: {
     message?: string;
     tags?: TEffectTag[];
     destoryTargets?: boolean;
-    canExecute?: (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => boolean;
+    canExecute?: (...args: Parameters<NonNullable<CardActionDefinitionFunctions<T>["canExecute"]>>) => boolean;
   } = {}
-) => {
+): Omit<CardActionDefinitionFunctions<T>, "execute" | "settle"> & { hasToTargetCards: boolean } => {
   return {
     hasToTargetCards: true,
     getTargetableEntities,
-    canExecute: (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>): boolean =>
-      getTargetableEntities(myInfo, chainBlockInfos).filter((monster) => monster.canBeTargetOfEffect(myInfo)).length > 0 &&
-      (!options.canExecute || options.canExecute(myInfo, chainBlockInfos)),
+    canExecute: (myInfo, chainBlockInfos, irregularCostInfo): boolean =>
+      getTargetableEntities(myInfo, chainBlockInfos, irregularCostInfo).filter((monster) => monster.canBeTargetOfEffect(myInfo)).length > 0 &&
+      (!options.canExecute || options.canExecute(myInfo, chainBlockInfos, irregularCostInfo)),
     getDests: getDestsForSingleTargetAction,
-    prepare: async (myInfo: ChainBlockInfoPreparing<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, cancelable: boolean) => {
+    prepare: async (myInfo, chainBlockInfos, cancelable) => {
       let selectedEntities: DuelEntity[] = [];
       if (myInfo.dest) {
         selectedEntities = [myInfo.dest.cardEntities[0]];

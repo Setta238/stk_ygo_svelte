@@ -109,7 +109,7 @@ export type ChainBlockInfoBase<T> = {
   targetChainBlock: ChainBlockInfo<unknown> | undefined;
   state: TChainBlockInfoState;
   dest: DuelFieldCell | undefined;
-  ignoreCost: boolean;
+  ignoreCosts: boolean;
   data?: T;
 };
 
@@ -191,7 +191,7 @@ export type CardActionDefinitionFunctions<T> = {
    * @param chainBlockInfos
    * @returns
    */
-  canExecute?: (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => boolean | "RemoveMe";
+  canExecute?: (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, irregularCosts?: ActionCostInfo) => boolean | "RemoveMe";
 
   getTargetableEntities?: (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => DuelEntity[];
 
@@ -287,7 +287,7 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
   public get spellSpeed() {
     return this.definition.spellSpeed;
   }
-  public get needsToPayCost() {
+  public get needsToPayRegularCosts() {
     return this.definition.needsToPayCost ?? false;
   }
 
@@ -421,9 +421,10 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
   public readonly validate = (
     activator: Duelist,
     chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
-    options: ("IgnoreCosts" | "IgnoreConditions" | "CopyEffectOnly")[] = []
+    options: ("IgnoreRegularCosts" | "IgnoreConditions" | "CopyEffectOnly" | "")[] = [],
+    irregularCostInfo?: ActionCostInfo
   ): ValidatedActionInfo | undefined => {
-    const ignoreCosts = options.includes("IgnoreCosts");
+    const ignoreRegularCosts = options.includes("IgnoreRegularCosts");
     const ignoreConditions = options.includes("IgnoreConditions");
     const copyEffectOnly = options.includes("CopyEffectOnly");
 
@@ -431,7 +432,7 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
       return;
     }
 
-    if (ignoreCosts && this.needsToPayCost) {
+    if (ignoreRegularCosts && this.needsToPayRegularCosts) {
       return;
     }
 
@@ -449,10 +450,10 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
       targetChainBlock: chainBlockInfos.slice(-1)[0],
       state: "unloaded",
       dest: undefined,
-      ignoreCost: false,
+      ignoreCosts: false,
     };
 
-    if (this.definition.canPayCosts && !ignoreCosts) {
+    if (this.definition.canPayCosts && !ignoreRegularCosts) {
       if (!this.definition.canPayCosts(myInfo, this.playType === "AfterChainBlock" ? [] : chainBlockInfos)) {
         return;
       }
@@ -463,7 +464,7 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
       }
     }
     if (this.definition.canExecute) {
-      const canExecute = this.definition.canExecute(myInfo, this.playType === "AfterChainBlock" ? [] : chainBlockInfos);
+      const canExecute = this.definition.canExecute(myInfo, this.playType === "AfterChainBlock" ? [] : chainBlockInfos, irregularCostInfo);
       if (canExecute === "RemoveMe") {
         this.entity.actions.reset(...this.entity.actions.filter((action) => action.seq !== this.seq));
         return;
@@ -651,7 +652,7 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
       costInfo: {},
       state: "ready",
       dest: _cell,
-      ignoreCost: false,
+      ignoreCosts: false,
     };
 
     if (this.definition.payCosts && !ignoreCosts) {

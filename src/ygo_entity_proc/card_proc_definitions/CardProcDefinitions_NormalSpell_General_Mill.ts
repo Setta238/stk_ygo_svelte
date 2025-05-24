@@ -137,8 +137,12 @@ export default function* generate(): Generator<EntityProcDefinition> {
       executableCells: ["Hand", "SpellAndTrapZone"],
       executablePeriods: ["main1", "main2"],
       executableDuelistTypes: ["Controller"],
-      fixedTags: ["SpecialSummonFromDeck", "SendToGraveyardFromDeck"],
-      canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.some((card) => card.kind === "Monster"),
+      fixedTags: ["SpecialSummonFromDeck", "SendToGraveyardFromDeck", "SpecialSummon"],
+      canExecute: (myInfo) =>
+        myInfo.activator
+          .getDeckCell()
+          .cardEntities.filter((card) => card.kind === "Monster")
+          .some((card) => !card.status.monsterCategories?.includes("SpecialSummon")),
       prepare: defaultPrepare,
       execute: async (myInfo) => {
         if (!myInfo.activator.getDeckCell().cardEntities.length) {
@@ -159,6 +163,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
           myInfo.activator.writeInfoLog(`${myInfo.activator.getOpponentPlayer().name}は${lvl}を選択。`);
         }
 
+        const deckCards = [...myInfo.activator.getDeckCell().cardEntities];
+
         for (const card of myInfo.activator.getDeckCell().cardEntities) {
           await card.excavate(["Effect"], myInfo.action.entity, myInfo.activator);
           if (card.kind !== "Monster") {
@@ -172,12 +178,12 @@ export default function* generate(): Generator<EntityProcDefinition> {
           if (card.status.monsterCategories?.includes("NormalSummonOnly")) {
             await card.sendToGraveyard(["Effect", "Excavate"], myInfo.action.entity, myInfo.activator);
             myInfo.activator.writeInfoLog(`${card.toString()}は通常召喚可能だが特殊召喚できないため、墓地に送られた。`);
-            break;
+            return false;
           }
           if (card.lvl === lvl) {
             await card.sendToGraveyard(["Effect", "Excavate"], myInfo.action.entity, myInfo.activator);
             myInfo.activator.writeInfoLog(`${card.toString()}のレベルは${lvl}のため、墓地に送られた。`);
-            break;
+            return false;
           }
           const monster = await myInfo.activator.summon(
             "SpecialSummon",
@@ -191,6 +197,9 @@ export default function* generate(): Generator<EntityProcDefinition> {
           );
           return Boolean(monster);
         }
+        myInfo.activator.writeInfoLog(`通常召喚可能なモンスターがめくられなかったため、全てのカードをデッキに戻す。`);
+
+        await DuelEntityShortHands.returnManyToDeckForTheSameReason("Random", deckCards, ["Effect"], myInfo.action.entity, myInfo.activator);
 
         return false;
       },

@@ -63,12 +63,30 @@
                 <div class="title">{phaseArray[0][0].clock.period.name}</div>
               {/if}
               {#each phaseArray as duelistArray}
+                {@const chainNumber = duelistArray.find((record) => record.chainNumber !== undefined)?.chainNumber ?? 0}
                 <div class="duel_log_block_duelist duel_log_block_duelist_{duelistArray[0].duelist?.seat ?? 'system'}">
-                  <div class="duelist {duelistArray[0].duelist?.seat}" style=" white-space: nowrap;text-align: center;">
-                    {duelistArray[0].duelist?.profile.name || "SYSTEM"}
+                  <div style="display: flex;    justify-content: space-between;">
+                    <div class="duelist {duelistArray[0].duelist?.seat}" style=" white-space: nowrap;text-align: center;">
+                      {duelistArray[0].duelist?.profile.name || "SYSTEM"}
+                    </div>
+                    {#if chainNumber}
+                      <div class="duel_log_chain_number">チェーン：{chainNumber}</div>
+                    {/if}
                   </div>
                   {#each duelistArray as record}
-                    <div class="duel_log_record">{record.text}</div>
+                    <div class="duel_log_record duel_log_record_{record.type.toSnakeCase()}">
+                      {#if record.type === "ChainBlockHeader"}
+                        {record.text}
+                      {:else if record.type === "EntityMove"}
+                        移動：{record.mainEntity?.toString()} {record.from?.toString()} ⇒ {record.to?.toString()}
+                      {:else if record.type === "EntityAppear"}
+                        生成：{record.mainEntity?.toString()} void ⇒ {record.to?.toString()}
+                      {:else if record.type === "EntityDisappear"}
+                        消滅：{record.mainEntity?.toString()} {record.from?.toString()} ⇒ void
+                      {:else}
+                        {record.text}
+                      {/if}
+                    </div>
                   {/each}
                 </div>
               {/each}
@@ -132,22 +150,8 @@
     background-color: whitesmoke;
     border: solid black thin;
   }
-
-  .duel_log_record {
-    display: flex;
-    flex-direction: column;
-    padding: 0.1rem;
-  }
-  .duel_log_record {
-    margin: 0.2rem 0.5rem;
-  }
-  .duel_log_block_duelist > .duelist {
-    border-left-style: solid;
-    border-left-width: 0.3rem;
-    padding: 0.2rem 0.5rem;
-    width: fit-content;
-    border-left-color: gray;
-    background-color: whitesmoke;
+  .duelist {
+    font-size: 0.8rem;
   }
   .duelist.Below {
     border-left-color: deepskyblue;
@@ -156,5 +160,33 @@
   .duelist.Above {
     border-left-color: tomato;
     background-color: blanchedalmond;
+  }
+  .duel_log_chain_number {
+    font-size: 0.8rem;
+    font-weight: bold;
+    background-color: lemonchiffon;
+    border: solid black 0.1px;
+    width: fit-content;
+    padding: 0.1rem 0.7rem;
+    border-radius: 0.7rem;
+  }
+  .duel_log_record {
+    display: flex;
+    flex-direction: column;
+    padding: 0.1rem;
+    margin: 0.2rem 0.7rem;
+  }
+
+  .duel_log_record.duel_log_record_chain_block_header {
+    font-weight: bold;
+    margin: 0.2rem 0.4rem;
+  }
+  .duelist {
+    border-left-style: solid;
+    border-left-width: 0.3rem;
+    padding: 0.2rem 0.5rem;
+    width: fit-content;
+    border-left-color: gray;
+    background-color: whitesmoke;
   }
 </style>

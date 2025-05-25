@@ -86,7 +86,7 @@ export class DuelViewController {
   //  private draggingAction: CardAction | undefined;
   private _message: string;
   public get message() {
-    return (this._message || this.duel.log.lastRecord?.text) ?? "";
+    return (this._message || this.duel.log.records.filter((record) => record.type === "Others" || record.type === "System").slice(-1)[0]?.text) ?? "";
   }
   public waitMode: TDuelWaitMode;
   public infoBoardState: TDuelDeskInfoBoardState;

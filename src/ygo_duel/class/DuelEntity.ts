@@ -1085,16 +1085,14 @@ export class DuelEntity {
 
     // 異なるセルに移動する場合
     if (args.to !== this.fieldCell) {
+      this.duel.log.pushMoveLog(logOwner, this, this.fieldCell, args.to);
       if (this.fieldCell.cellType === "WaitingRoom") {
-        this.duel.log.info(`生成：${this.toString()}`, logOwner);
         appearFlg = true;
       } else if (args.to.cellType === "WaitingRoom") {
-        this.duel.log.info(`消滅：${this.toString()}`, logOwner);
         this._exists = false;
         // ★★★★★ 消滅アニメーション ★★★★★
         await this.duel.view.waitTokenAnimation();
       } else if (this.field.duel.clock.turn) {
-        this.duel.log.info(`移動：${this.toString()}  ${this.fieldCell.toString()} ⇒ ${args.to.toString()}`, logOwner);
         // ★★★★★ 移動アニメーション ★★★★★
         await this.field.duel.view.waitAnimation({ entity: this, to: args.to, index: args.pos, count: 0 });
       }

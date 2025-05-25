@@ -12,7 +12,6 @@ import {
 import type { IDuelClock } from "./DuelClock";
 import { SystemError, type ResponseActionInfo } from "./Duel";
 import { max } from "@stk_utils/funcs/StkMathUtils";
-import { DuelEntityShortHands } from "./DuelEntityShortHands";
 import { Statable, type IStatable } from "./DuelUtilTypes";
 
 export const executableDuelistTypes = ["Controller", "Opponent"] as const;
@@ -538,21 +537,31 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
 
   public readonly prepare = async (
     activator: Duelist,
-    cell: DuelFieldCell | undefined,
+    dest: DuelFieldCell | undefined,
     targetChainBlock: ChainBlockInfo<unknown> | undefined,
     chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
     cancelable: boolean,
     ignoreCosts: boolean
   ): Promise<ChainBlockInfo<T> | undefined> => {
-    let _cell = cell;
+    /**
+     * ドラッグ・アンド・ドロップで指定されたセル。魔法罠の発動セット位置に使用された場合、以降の処理には伝達しない
+     */
+    let _dest = dest;
+
+    /**
+     * キャンセル可能かどうか。キャンセル不可となる処理以降はfalseに設定される。
+     * 例えば、魔法・罠カードの発動やセットは、コスト支払い前に移動処理を行うため、キャンセル不可となる。
+     */
     let _cancelable = cancelable;
+
+    // チェーン番号を設定
     const chainNumber = this.isWithChainBlock ? max(0, ...chainBlockInfos.map((info) => info.chainNumber ?? -1)) + 1 : undefined;
 
+    // 発動ログの書き出し用変数
     let logText = "";
 
-    if (chainNumber !== undefined) {
-      logText += `チェーン${chainNumber}: `;
-    }
+    // 発動ログの順番を操作するため、一旦callbackを配列に格納しておく。
+    const setupCallbacks: (() => Promise<unknown>)[] = [];
 
     if (this.playType === "CardActivation" || this.playType === "SpellTrapSet") {
       if (this.entity.fieldCell.cellType === "Hand") {
@@ -564,11 +573,11 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
           // ペンデュラムの場合、発動先はペンデュラムゾーンのみ
           availableCells = availableCells.filter((cell) => cell.isAvailableForPendulum);
         }
-        if (_cell && availableCells.includes(_cell)) {
+        if (_dest && availableCells.includes(_dest)) {
           // ドラッグ・アンド・ドロップが移動先の指定として行われていた場合、置き換え
-          availableCells = [_cell];
+          availableCells = [_dest];
           // 以降の処理に渡さないために初期化
-          _cell = undefined;
+          _dest = undefined;
         }
 
         if (this.entity.status.spellCategory === "Field") {
@@ -576,8 +585,10 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
           const olds = activator.getFieldZone().cardEntities;
           if (olds.length) {
             const oldOne = olds[0];
-            await DuelEntityShortHands.sendManyToGraveyardForTheSameReason(activator.getFieldZone().cardEntities, ["Rule"], this.entity, activator);
-            activator.writeInfoLog(`フィールド魔法の上書きにより、${oldOne.toString()}は墓地に送られた。`);
+            setupCallbacks.push(async () => {
+              await oldOne.sendToGraveyard(["Rule"], this.entity, activator);
+              activator.writeInfoLog(`フィールド魔法の上書きにより、${oldOne.toString()}は墓地に送られた。`);
+            });
             _cancelable = false;
           }
         }
@@ -613,11 +624,11 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
           this.entity.info.isPending = true;
         }
         if (this.entity.status.monsterCategories?.includes("Pendulum")) {
-          await this.entity.activateAsPendulumScale(dest, ["CardActivation"], this.entity, activator);
+          setupCallbacks.push(() => this.entity.activateAsPendulumScale(dest, ["CardActivation"], this.entity, activator));
         } else if (this.playType === "CardActivation") {
-          await this.entity.activateSpellTrapFromHand(dest, this.entity.kind, ["CardActivation"], this.entity, activator);
+          setupCallbacks.push(() => this.entity.activateSpellTrapFromHand(dest, this.entity.kind, ["CardActivation"], this.entity, activator));
         } else {
-          await this.entity.setAsSpellTrap(dest, this.entity.kind, ["SpellTrapSet"], this.entity, activator);
+          setupCallbacks.push(() => this.entity.setAsSpellTrap(dest, this.entity.kind, ["SpellTrapSet"], this.entity, activator));
         }
       } else if (this.entity.isOnField && this.entity.face === "FaceDown") {
         logText += `セットされていた${this.entity.toString()}を発動。`;
@@ -628,12 +639,24 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
         }
 
         // セット状態からの発動ならば、表にする。
-        await this.entity.setNonFieldMonsterPosition(this.entity.origin.kind, "FaceUp", ["Rule"]);
+        setupCallbacks.push(() => this.entity.setNonFieldMonsterPosition(this.entity.origin.kind, "FaceUp", ["Rule"]));
       } else {
         logText = "";
       }
     } else if (chainNumber !== undefined) {
       logText += `${this.toFullString()}を発動。`;
+    }
+
+    // キャンセルされる可能性があるので、ログの書き出しを保留状態にする。
+    using logTransaction = this.duel.log.openTransaction();
+
+    // 発動ログの書き出し
+    if (logText && chainNumber) {
+      activator.writeChainBlockHeaderLog(chainNumber, logText);
+    }
+    // プールしていた処理を実行する。
+    for (const callback of setupCallbacks) {
+      await callback();
     }
 
     // チェーンブロック情報の準備
@@ -648,15 +671,9 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
       enableCellTypes: [...this.entity.info.isEffectiveIn],
       costInfo: {},
       state: "ready",
-      dest: _cell,
+      dest: _dest,
       ignoreCosts: false,
     };
-
-    // キャンセルされる可能性があるので、ログの書き出しを保留状態にする。
-    using logTransaction = this.duel.log.openTransaction();
-
-    // 発動ログの書き出し
-    activator.writeInfoLog(logText);
 
     if (this.definition.payCosts && !ignoreCosts) {
       const costInfo = await this.definition.payCosts(myInfo, chainBlockInfos, _cancelable);
@@ -721,7 +738,7 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
     let result = false;
 
     if (!indirectly && myInfo.chainNumber) {
-      myInfo.activator.writeInfoLog(`チェーン${myInfo.chainNumber}: ${myInfo.action.toFullString()}の効果処理。`);
+      myInfo.activator.writeChainBlockHeaderLog(myInfo.chainNumber, `${myInfo.action.toFullString()}の効果処理。`);
     }
 
     // 有効無効判定

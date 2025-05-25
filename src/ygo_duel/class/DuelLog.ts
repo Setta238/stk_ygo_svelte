@@ -4,15 +4,22 @@ import { Duel } from "./Duel";
 import { type Duelist } from "./Duelist";
 import type { IDuelClock } from "./DuelClock";
 import type { DuelEntity } from "./DuelEntity";
-import type DuelFieldCell from "@ygo_duel_view/components/DuelFieldCell.svelte";
+import { type DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 import { EzTransactionController } from "./DuelUtilTypes";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const logLevels = ["info", "warn", "error"] as const;
 type TLogLevel = (typeof logLevels)[number];
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const logTypes = ["System", "EntityMove", "LifePoint", "Message", "Others"] as const;
+const logTypes = ["System", "ChainBlockHeader", "EntityMove", "EntityAppear", "EntityDisappear", "LifePoint", "Message", "Others"] as const;
 type TLogType = (typeof logTypes)[number];
+type DuelLogRecordOptions = {
+  chainNumber?: number | undefined;
+  mainEntity?: DuelEntity | undefined;
+  subEntities?: DuelEntity[];
+  from?: DuelFieldCell | undefined;
+  to?: DuelFieldCell | undefined;
+};
 export type DuelLogRecord = {
   seq: number;
   lvl: TLogLevel;
@@ -20,11 +27,7 @@ export type DuelLogRecord = {
   clock: IDuelClock;
   duelist: Duelist | undefined;
   text: string;
-  mainEntity: DuelEntity | undefined;
-  subEntities: DuelEntity[];
-  from: DuelFieldCell | undefined;
-  to: DuelFieldCell | undefined;
-};
+} & DuelLogRecordOptions;
 export default class DuelLog {
   private onUpdateEvent = new StkEvent<number>();
   public get onUpdate() {
@@ -92,31 +95,33 @@ export default class DuelLog {
     }
     console.error(error);
     console.error(lines);
-    this.write("error", "System", lines, undefined, undefined, undefined, undefined, undefined);
+    this.write("error", "System", lines, undefined);
   };
 
   public readonly warn = (text: string) => {
-    this.write("warn", "System", ["【注意】", text], undefined, undefined, undefined, undefined, undefined);
+    this.write("warn", "System", ["【注意】", text], undefined);
   };
 
   public readonly info = (text: string, duelist?: Duelist) => {
-    this.write("info", "Others", [text], duelist, undefined, undefined, undefined, undefined);
+    this.write("info", "Others", [text], duelist);
+  };
+
+  public readonly pushChainBlockHeaderLog = (duelist: Duelist, chainNumber: number, text: string) => {
+    this.write("info", "ChainBlockHeader", [text], duelist, { chainNumber });
   };
 
   public readonly pushMoveLog = (duelist: Duelist | undefined, entity: DuelEntity, from: DuelFieldCell, to: DuelFieldCell) => {
-    this.write("info", "EntityMove", ["移動"], duelist, entity, undefined, from, to);
+    const _from = from.cellType === "WaitingRoom" ? undefined : from;
+    const _to = to.cellType === "WaitingRoom" ? undefined : to;
+    if (!_from && !_to) {
+      throw new SystemError("移動元、移動先ともにWaitingRoomが指定されている。", duelist, entity, from, to);
+    }
+
+    const type = _from && _to ? "EntityMove" : _to ? "EntityAppear" : "EntityDisappear";
+    this.write("info", type, [], duelist, { mainEntity: entity, from: _from, to: _to });
   };
 
-  private readonly write = (
-    lvl: TLogLevel,
-    type: TLogType,
-    lines: string[],
-    duelist: Duelist | undefined,
-    mainEntity: DuelEntity | undefined,
-    subEntities: DuelEntity[] | undefined,
-    from: DuelFieldCell | undefined,
-    to: DuelFieldCell | undefined
-  ) => {
+  private readonly write = (lvl: TLogLevel, type: TLogType, lines: string[], duelist: Duelist | undefined, options: DuelLogRecordOptions = {}) => {
     const text = lines.join("\n");
     const newRecord: DuelLogRecord = {
       seq: this.nextSeq++,
@@ -125,10 +130,8 @@ export default class DuelLog {
       clock: this.duel.clock.getClone(),
       text,
       duelist,
-      mainEntity,
-      subEntities: subEntities ?? [],
-      from,
-      to,
+      subEntities: [],
+      ...options,
     };
     if (this._state === "Opened" || lvl !== "info") {
       this.records.push(newRecord);

@@ -226,9 +226,9 @@ export class Duelist {
     return true;
   }
 
-  public readonly writeInfoLog = (text: string) => {
-    this.duel.log.info(text, this);
-  };
+  public readonly writeInfoLog = (text: string) => this.duel.log.info(text, this);
+
+  public readonly writeChainBlockHeaderLog = (chainNumber: number, text: string) => this.duel.log.pushChainBlockHeaderLog(this, chainNumber, text);
 
   public readonly initForDrawPhase = () => {
     this.info = { ...this.infoOrigin };

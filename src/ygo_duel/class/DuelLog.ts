@@ -79,9 +79,9 @@ export default class DuelLog {
     const lines = ["エラー発生"];
 
     if (error instanceof Error) {
+      lines.push("-- エラーメッセージ --");
+      lines.push(error.message);
       if (error instanceof SystemError) {
-        lines.push("-- エラーメッセージ --");
-        lines.push(error.message);
         lines.push("-- 関連オブジェクト --");
         error.items.forEach((item) => lines.push(JSON.stringify(item)));
       }

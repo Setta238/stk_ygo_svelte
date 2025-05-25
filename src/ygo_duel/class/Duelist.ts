@@ -442,9 +442,7 @@ export class Duelist {
             ? `デッキからカードを${times}枚ドローしようとしたが、${cardNames.length}枚しかドローできなかった。${cardNames}`
             : "デッキからカードをドローできなかった。"
         );
-        this.duel.isEnded = true;
-        this.setLp(0);
-        throw new DuelEnd(this.getOpponentPlayer(), "対戦相手がデッキからカードをドローできなかった。");
+        throw new DuelEnd(this.getOpponentPlayer(), `${this.name}がデッキからカードをドローできなかった。`);
       }
       const card = deckCell.cardEntities[0];
       await card.draw(causedBy ? ["Effect"] : ["Rule"], causedBy, causedByWhome);

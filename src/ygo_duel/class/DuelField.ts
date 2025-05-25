@@ -210,7 +210,7 @@ export class DuelField {
     }
 
     if (winners.length === 1) {
-      throw new DuelEnd(winners[0], "対戦相手がデッキからドローできなかった。");
+      throw new DuelEnd(winners[0], `${winners[0].getOpponentPlayer().name}がデッキからドローできなかった。`);
     }
 
     throw new DuelEnd(undefined, "お互いにデッキからカードをドローできなかった。");

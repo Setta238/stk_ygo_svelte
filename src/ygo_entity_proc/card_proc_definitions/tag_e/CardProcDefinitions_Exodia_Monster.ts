@@ -83,7 +83,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           if (isDraw) {
             throw new DuelEnd(undefined, `お互いが、${myInfo.action.entity.toString()}の特殊勝利条件を同時に満たした。`);
           }
-          throw new DuelEnd(myInfo.activator, `${myInfo.action.entity.toString()}の特殊勝利条件を満たした。`);
+          throw new DuelEnd(myInfo.activator, `${myInfo.activator.name}が${myInfo.action.entity.toString()}の特殊勝利条件を満たした。`);
         },
         settle: async () => true,
       },

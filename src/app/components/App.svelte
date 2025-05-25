@@ -321,6 +321,7 @@
       {:else}
         <div class="result_title result_draw">DRAW</div>
       {/if}
+      <div class="reason_of_end">{duel.reasonOfEnd}</div>
       <button class="white_button" on:click={onReturnToTopClick}>TOPへ戻る</button>
     </div>
   {/if}
@@ -458,7 +459,8 @@
     font-size: 5rem;
     font-weight: bold;
     background-color: beige;
-    padding: 1rem 3rem;
+    border-radius: 0.3rem;
+    padding: 1.5rem 5rem;
     line-height: normal;
   }
   .result > .result_win {
@@ -469,6 +471,12 @@
   }
   .result > .result_draw {
     color: black;
+  }
+  .reason_of_end {
+    background-color: blanchedalmond;
+    border-radius: 0.3rem;
+    font-size: 1.6rem;
+    padding: 0.9rem 2rem;
   }
   .white_button {
     background-color: #ffffff;

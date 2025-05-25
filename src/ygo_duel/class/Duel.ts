@@ -104,6 +104,7 @@ export class Duel {
 
   public isEnded: boolean;
   public winner: Duelist | undefined;
+  public reasonOfEnd: string = "";
   private coin = false;
   private readonly startMode: TDuelStartMode;
   public constructor(
@@ -259,7 +260,9 @@ export class Duel {
         console.info(error);
         this.isEnded = true;
         this.winner = error.winner;
+        this.reasonOfEnd = error.message;
         this.log.info(error.winner ? `デュエル終了。勝者${error.winner.profile.name}。${error.message}` : `デュエル終了。引き分け。${error.message}`);
+        this.view.requireUpdate();
         this.onDuelEndEvent.trigger();
       } else if (error instanceof Error) {
         this.log.error(error);
@@ -617,7 +620,7 @@ export class Duel {
 
     if (losers.length) {
       if (losers.length === 1) {
-        throw new DuelEnd(losers[0].getOpponentPlayer(), "戦闘ダメージによって、相手のライフポイントをゼロにした。");
+        throw new DuelEnd(losers[0].getOpponentPlayer(), `戦闘ダメージによって、${losers[0].name}のライフポイントがゼロになった。`);
       }
       throw new DuelEnd(undefined, "戦闘ダメージによって、お互いのライフポイントがゼロになった。");
     }

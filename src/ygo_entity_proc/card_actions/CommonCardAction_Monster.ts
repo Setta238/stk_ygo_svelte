@@ -466,9 +466,14 @@ export const defaultSummonFilter = (
     return ok;
   }
 
+  // 特殊召喚モンスターであっても、蘇生制限のないモンスターは全て可
+  if (monster.origin.monsterCategories.includes("FreeReborn")) {
+    return ok;
+  }
+
   // 墓地に存在する場合、蘇生制限を満たしていれば可
   if (monster.isInTrashCell && !monster.origin.monsterCategories.includes("RegularSpecialSummonOnly")) {
-    return monster.info.isRebornable || monster.origin.monsterCategories.includes("FreeReborn") ? ok : notAllowed;
+    return monster.info.isRebornable ? ok : notAllowed;
   }
 
   // カードの効果でのみ特殊召喚できる特殊召喚モンスターは、ペンデュラム召喚不可

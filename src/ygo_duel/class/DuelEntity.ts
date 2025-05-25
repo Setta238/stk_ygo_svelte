@@ -71,7 +71,7 @@ export type DuelEntityInfomation = {
   isEffectiveIn: DuelFieldCellType[];
   isPending: boolean;
   isDying: boolean;
-  causeOfDeath: (TDestoryCauseReason | "CardActivation" | "LostXyzOwner" | "LostEquipOwner")[];
+  causeOfDeath: (TDestoryCauseReason | "CardActivation" | "LostXyzOwner" | "LostEquipOwner" | "LostDestinyBond")[];
   isKilledBy: DuelEntity | undefined;
   isKilledByWhom: Duelist | undefined;
   isVanished: boolean;
@@ -86,6 +86,7 @@ export type DuelEntityInfomation = {
   equipedAs: ChainBlockInfo<unknown> | undefined;
   validateEquipOwner: (owner: DuelEntity, equip: DuelEntity) => boolean;
   equipEntities: DuelEntity[];
+  xyzOwner: DuelEntity | undefined;
   battleLog: { enemy: DuelEntity; timestamp: IDuelClock }[];
 };
 
@@ -153,6 +154,7 @@ export type TDuelCauseReason =
   | "System"
   | "LostXyzOwner"
   | "LostEquipOwner"
+  | "LostDestinyBond"
   | "SummonNegated"
   | "PutDirectly"
   | "Excavate"
@@ -320,8 +322,6 @@ export class DuelEntity {
 
       // 取り出せたらアニメーションを全て待機
       await Promise.all(promises);
-
-      console.log("hoge");
 
       // 新しく発生したものを検知（※ここまでのどこかでアニメーションしたものを除く）
       const newTargets = duel.field
@@ -836,6 +836,7 @@ export class DuelEntity {
       equipedAs: undefined,
       validateEquipOwner: () => true,
       equipEntities: [],
+      xyzOwner: undefined,
       battleLog: [],
     };
     this.resetInfoAll();
@@ -1068,18 +1069,32 @@ export class DuelEntity {
     this.face = args.face;
     this.orientation = args.orientation;
     let appearFlg = false;
+
+    /**
+     * ログ上の移動主体
+     */
+    let logOwner = args.actionOwner;
+
+    if (!logOwner && args.movedAs.includes("LostDestinyBond")) {
+      // 道連れ元を失っての移動の場合、ログ上の移動主体を道連れ元の移動主体とする。
+      const destinyBond = this.info.equipedBy ?? this.info.xyzOwner;
+      if (destinyBond) {
+        logOwner = destinyBond.moveLog.latestRecord.actionOwner;
+      }
+    }
+
     // 異なるセルに移動する場合
     if (args.to !== this.fieldCell) {
       if (this.fieldCell.cellType === "WaitingRoom") {
-        this.duel.log.info(`生成：${this.toString()}`, args.actionOwner);
+        this.duel.log.info(`生成：${this.toString()}`, logOwner);
         appearFlg = true;
       } else if (args.to.cellType === "WaitingRoom") {
-        this.duel.log.info(`消滅：${this.toString()}`, args.actionOwner);
+        this.duel.log.info(`消滅：${this.toString()}`, logOwner);
         this._exists = false;
         // ★★★★★ 消滅アニメーション ★★★★★
         await this.duel.view.waitTokenAnimation();
       } else if (this.field.duel.clock.turn) {
-        this.duel.log.info(`移動：${this.toString()}  ${this.fieldCell.toString()} ⇒ ${args.to.toString()}`, args.actionOwner);
+        this.duel.log.info(`移動：${this.toString()}  ${this.fieldCell.toString()} ⇒ ${args.to.toString()}`, logOwner);
         // ★★★★★ 移動アニメーション ★★★★★
         await this.field.duel.view.waitAnimation({ entity: this, to: args.to, index: args.pos, count: 0 });
       }
@@ -1109,7 +1124,7 @@ export class DuelEntity {
           .filter((equip) => equip.isOnFieldAsSpellTrapStrictly)
           .forEach((equip) => {
             equip.info.isDying = true;
-            equip.info.causeOfDeath = ["RuleDestroy"];
+            equip.info.causeOfDeath = ["RuleDestroy", "LostEquipOwner", "LostDestinyBond"];
             this.controller.writeInfoLog(`装備対象${this.toString()}不在により${equip.toString()}は破壊された。`);
           });
         this.info.equipEntities = [];
@@ -1118,10 +1133,12 @@ export class DuelEntity {
           // XYZ素材にマーキング
           this.fieldCell.xyzMaterials.forEach((material) => {
             material.info.isDying = true;
-            material.info.causeOfDeath = ["LostXyzOwner"];
-            this.controller.writeInfoLog(`エクシーズモンスター${this.toString()}不在により${material.toString()}は墓地に送られた。`);
+            material.info.causeOfDeath = ["LostXyzOwner", "LostDestinyBond"];
+            this.controller.writeInfoLog(`${this.toString()}不在により、XYZ素材${material.toString()}は墓地に送られた。`);
           });
         }
+
+        this.info.xyzOwner = undefined;
       } else if (this.fieldCell.cellType === "SpellAndTrapZone" && args.to.cellType !== "SpellAndTrapZone") {
         // 魔法罠を離れる時の処理
         // 装備解除
@@ -1233,6 +1250,7 @@ export class DuelEntity {
       equipedAs: undefined,
       validateEquipOwner: () => true,
       equipEntities: [],
+      xyzOwner: undefined,
       battleLog: [],
     };
 

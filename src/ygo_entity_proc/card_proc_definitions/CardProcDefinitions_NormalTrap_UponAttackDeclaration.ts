@@ -24,8 +24,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           hasToTargetCards: true,
           isNoticedForcibly: true,
           meetsConditions: (myInfo, chainBlockInfos) => chainBlockInfos.some((info) => info.action.playType === "DeclareAttack"),
-          canExecute: (myInfo, chainBlockInfos) => {
-            console.log(chainBlockInfos);
+          canExecute: (myInfo) => {
             if (myInfo.activator.isTurnPlayer) {
               return false;
             }

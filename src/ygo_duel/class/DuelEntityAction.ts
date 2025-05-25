@@ -140,7 +140,7 @@ export type CardActionDefinitionAttrs = EntityActionDefinitionBase & {
   /**
    * コスト払う必要があるかどうか（コピー効果用）
    */
-  needsToPayCost?: boolean;
+  needsToPayRegularCost?: boolean;
   /**
    * 光の護封剣などの例外のみ指定が必要
    */
@@ -288,7 +288,7 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
     return this.definition.spellSpeed;
   }
   public get needsToPayRegularCosts() {
-    return this.definition.needsToPayCost ?? false;
+    return this.definition.needsToPayRegularCost ?? false;
   }
 
   public get hasToTargetCards() {
@@ -629,6 +629,8 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
 
         // セット状態からの発動ならば、表にする。
         await this.entity.setNonFieldMonsterPosition(this.entity.origin.kind, "FaceUp", ["Rule"]);
+      } else {
+        logText = "";
       }
     } else if (chainNumber !== undefined) {
       logText += `${this.toFullString()}を発動。`;
@@ -704,7 +706,9 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
     return result;
   };
 
-  public readonly execute = async (myInfo: ChainBlockInfo<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => {
+  public readonly execute = async (myInfo: ChainBlockInfo<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, options?: { indirectly?: boolean }) => {
+    const indirectly = options?.indirectly ?? false;
+
     if (myInfo.action.isLikeContinuousSpell && (myInfo.action.entity.face === "FaceDown" || !myInfo.action.entity.isOnField)) {
       // 永続魔法類は、フィールドに表側表示で存在しないと処理できない。
       this.entity.info.isPending = false;
@@ -715,7 +719,8 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
     myInfo.state = "processing";
 
     let result = false;
-    if (myInfo.chainNumber) {
+
+    if (!indirectly && myInfo.chainNumber) {
       myInfo.activator.writeInfoLog(`チェーン${myInfo.chainNumber}: ${myInfo.action.toFullString()}の効果処理。`);
     }
 

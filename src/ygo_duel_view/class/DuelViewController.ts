@@ -524,7 +524,7 @@ export class DuelViewController {
 
     // TODO セルの初期化が終わっていないことがあるので待機が必要だが、判定方法が正しくない。
     while (this.onDuelUpdateEvent.length < 38) {
-      console.log(this.onDuelUpdateEvent.length);
+      console.log("this.onDuelUpdateEvent.length", this.onDuelUpdateEvent.length);
       await delay(1);
     }
     this.onDuelUpdateEvent.trigger();

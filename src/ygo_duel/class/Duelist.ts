@@ -103,6 +103,7 @@ export class Duelist {
 
     await DuelEntityShortHands.moveToXyzOwner(
       summonArgs[0].dest,
+      summonArgs[0].monster,
       materialInfos.map((info) => info.material).filter((monster) => monster.kind === "XyzMaterial"),
       ["XyzMaterial", "Rule"],
       summonArgs[0].monster,

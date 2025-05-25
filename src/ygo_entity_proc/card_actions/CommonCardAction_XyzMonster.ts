@@ -117,7 +117,7 @@ const defaultXyzSummonPayCost = async (
       "エクシーズ素材とするモンスターを選択",
       cancelable
     );
-    //墓地へ送らなければキャンセル。
+    // 素材を選択しなければキャンセル
     if (!_materials) {
       return;
     }

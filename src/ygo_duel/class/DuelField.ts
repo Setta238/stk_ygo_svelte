@@ -93,9 +93,7 @@ export class DuelField {
   };
   public readonly getDyingCardsOnField = (): DuelEntity[] => {
     return this.getCells(...playFieldCellTypes)
-      .map((cell) => cell.cardEntities)
-      .filter((entities) => entities.length > 0)
-      .map((entities) => entities[0])
+      .flatMap((cell) => [...cell.cardEntities, ...cell.xyzMaterials])
       .filter((card) => card.info.isDying);
   };
   public readonly getPendingMonstersOnField = (): DuelEntity[] => this.getPendingCardsOnField().filter((monster) => monster.kind === "Monster");

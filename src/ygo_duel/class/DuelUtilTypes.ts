@@ -53,7 +53,7 @@ export class Statable<S extends string> implements IStatable<S> {
   }
 }
 
-export class TransactionController implements Disposable {
+export class EzTransactionController implements Disposable {
   private _dispose: () => void;
   private _commit: () => void;
   public constructor(dispose: () => void, commit: () => void) {

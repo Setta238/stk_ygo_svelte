@@ -15,7 +15,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerTurnIfFaceup: 1,
-        needsToPayCost: true,
+        needsToPayRegularCost: true,
         canPayCosts: (myInfo) => {
           const names = myInfo.activator
             .getExtraDeck()

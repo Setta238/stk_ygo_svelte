@@ -35,8 +35,7 @@ export const pendulumSummonAction: CardActionDefinition<unknown> = {
     }
 
     const cells = [...myInfo.activator.getMonsterZones(), ...myInfo.activator.getAvailableMonsterZones()];
-    console.log(...myInfo.activator.getExtraMonsterZones());
-    console.log(...cells);
+
     const list = myInfo.activator.getEnableSummonList(
       myInfo.activator,
       "PendulumSummon",
@@ -142,7 +141,7 @@ export const ftkChallengeFailedAction: CardActionDefinition<unknown> = {
       if (!exodiaParts.length) {
         throw new SystemError("想定されない状態", myInfo.activator.getHandCell().cardEntities, item.name);
       }
-      console.log(exodiaParts);
+
       await DuelEntity.moveMany(
         exodiaParts.map((part) => {
           return {

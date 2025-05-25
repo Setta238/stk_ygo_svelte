@@ -211,20 +211,19 @@ export class DuelEntityShortHands {
       })
     );
   };
-  public static readonly moveToXyzOwner = (
+  public static readonly moveToXyzOwner = async (
     to: DuelFieldCell,
+    xyzMonster: DuelEntity,
     xyzMaterials: DuelEntity[],
     movedAs: TDuelCauseReason[],
     movedBy: DuelEntity,
     activator: Duelist
   ): Promise<void> => {
     if (!xyzMaterials.length) {
-      return Promise.resolve();
+      return;
     }
-    if (movedAs.includes("Effect")) {
-      activator.writeInfoLog(`${xyzMaterials.map((entity) => entity.toString()).join(" ")}をXYZ素材として吸収。`);
-    }
-    return DuelEntity.moveMany(
+
+    await DuelEntity.moveMany(
       xyzMaterials.map((entity) => {
         return {
           entity,
@@ -240,6 +239,9 @@ export class DuelEntityShortHands {
         };
       })
     );
+
+    // XYZ素材の所有者を設定
+    xyzMaterials.forEach((entity) => (entity.info.xyzOwner = xyzMonster));
   };
 
   /**

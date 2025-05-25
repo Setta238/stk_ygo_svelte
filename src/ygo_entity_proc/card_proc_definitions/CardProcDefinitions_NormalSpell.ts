@@ -570,13 +570,13 @@ export default function* generate(): Generator<EntityProcDefinition> {
               false
             );
           }
+
           await DuelEntityShortHands.sendManyToGraveyardForTheSameReason(
             monsters.filter((monster) => !monster.isOnFieldAsMonsterStrictly),
             ["Effect", "Excavate"],
             myInfo.action.entity,
             myInfo.activator
           );
-          console.log(cards.filter((card) => card.fieldCell.cellType === "Deck"));
 
           await DuelEntityShortHands.returnManyToDeckForTheSameReason(
             "Random",

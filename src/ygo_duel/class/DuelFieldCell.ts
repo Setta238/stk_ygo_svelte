@@ -194,7 +194,6 @@ export class DuelFieldCell {
       }
 
       if (pos === "Random") {
-        console.log(this._needsShuffle, pos);
         this._needsShuffle = true;
       }
       this._entities.forEach((entity) => {

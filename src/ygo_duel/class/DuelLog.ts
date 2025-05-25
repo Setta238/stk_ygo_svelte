@@ -5,7 +5,7 @@ import { type Duelist } from "./Duelist";
 import type { IDuelClock } from "./DuelClock";
 import type { DuelEntity } from "./DuelEntity";
 import type DuelFieldCell from "@ygo_duel_view/components/DuelFieldCell.svelte";
-import { TransactionController as EzTransactionController } from "./DuelUtilTypes";
+import { EzTransactionController } from "./DuelUtilTypes";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const logLevels = ["info", "warn", "error"] as const;

@@ -60,9 +60,12 @@ export class EzTransactionController implements Disposable {
     this._dispose = dispose;
     this._commit = commit;
   }
-  public readonly commit = () => this._commit();
-
-  public [Symbol.dispose]() {
+  public [Symbol.dispose](): void {
     this._dispose();
   }
+  public [Symbol.for("Symbol.dispose")](): void {
+    // iPhone用のフォールバック
+    this._dispose();
+  }
+  public readonly commit = () => this._commit();
 }

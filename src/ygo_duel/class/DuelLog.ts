@@ -5,6 +5,7 @@ import { type Duelist } from "./Duelist";
 import type { IDuelClock } from "./DuelClock";
 import type { DuelEntity } from "./DuelEntity";
 import type DuelFieldCell from "@ygo_duel_view/components/DuelFieldCell.svelte";
+import { TransactionController as EzTransactionController } from "./DuelUtilTypes";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const logLevels = ["info", "warn", "error"] as const;
@@ -31,6 +32,8 @@ export default class DuelLog {
   }
   private nextSeq: number;
   public readonly records: DuelLogRecord[] = [];
+  private _state: "Opened" | "Pending" = "Opened";
+  private pooledRecords: DuelLogRecord[] = [];
   public readonly duel: Duel;
   public get lastRecord() {
     return this.records.slice(-1)[0];
@@ -39,11 +42,37 @@ export default class DuelLog {
     this.nextSeq = 0;
     this.duel = duel;
   }
+
+  public readonly openTransaction = () => {
+    if (this._state !== "Opened") {
+      console.info("ログの二重トランザクションを開始しようとしたため、ダミーを返す。");
+      return new EzTransactionController(
+        () => {},
+        () => {}
+      );
+    }
+
+    this._state = "Pending";
+    return new EzTransactionController(this.closeTransaction, this.commit);
+  };
+
+  private readonly commit = () => {
+    if (this._state !== "Pending") {
+      throw new SystemError("DuelLog is not in Pending state.");
+    }
+    this.records.push(...this.pooledRecords);
+    this.pooledRecords = [];
+    this.onUpdateEvent.trigger(this.nextSeq - 1);
+  };
+  private readonly closeTransaction = () => {
+    this._state = "Opened";
+    this.pooledRecords = [];
+    this.onUpdateEvent.trigger(this.nextSeq - 1);
+  };
   public readonly dispose = () => {
     this.onUpdateEvent.clear();
   };
   public readonly error = (error: unknown) => {
-    console.error(error);
     const lines = ["エラー発生"];
 
     if (error instanceof Error) {
@@ -52,7 +81,6 @@ export default class DuelLog {
         lines.push(error.message);
         lines.push("-- 関連オブジェクト --");
         error.items.forEach((item) => lines.push(JSON.stringify(item)));
-        console.error(error.items);
       }
       lines.push("-- エラー名称 --");
       lines.push(error.name || "エラー名称取得失敗");
@@ -62,6 +90,8 @@ export default class DuelLog {
       lines.push("-- エラー型特定失敗 --");
       lines.push(JSON.stringify(error));
     }
+    console.error(error);
+    console.error(lines);
     this.write("error", "System", lines, undefined, undefined, undefined, undefined, undefined);
   };
 
@@ -88,8 +118,7 @@ export default class DuelLog {
     to: DuelFieldCell | undefined
   ) => {
     const text = lines.join("\n");
-
-    this.records.push({
+    const newRecord: DuelLogRecord = {
       seq: this.nextSeq++,
       lvl,
       type,
@@ -100,7 +129,12 @@ export default class DuelLog {
       subEntities: subEntities ?? [],
       from,
       to,
-    });
-    this.onUpdateEvent.trigger(this.nextSeq - 1);
+    };
+    if (this._state === "Opened" || lvl !== "info") {
+      this.records.push(newRecord);
+      this.onUpdateEvent.trigger(this.nextSeq - 1);
+    } else {
+      this.pooledRecords.push(newRecord);
+    }
   };
 }

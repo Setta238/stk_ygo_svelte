@@ -608,8 +608,6 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
           logText += `${this.entity.toString()}を発動。`;
         }
 
-        activator.writeInfoLog(logText);
-
         _cancelable = false;
         if (this.playType === "CardActivation") {
           this.entity.info.isPending = true;
@@ -624,7 +622,6 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
       } else if (this.entity.isOnField && this.entity.face === "FaceDown") {
         logText += `セットされていた${this.entity.toString()}を発動。`;
 
-        activator.writeInfoLog(logText);
         _cancelable = false;
         if (this.playType === "CardActivation") {
           this.entity.info.isPending = true;
@@ -635,8 +632,6 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
       }
     } else if (chainNumber !== undefined) {
       logText += `${this.toFullString()}を発動。`;
-
-      activator.writeInfoLog(logText);
     }
 
     // チェーンブロック情報の準備
@@ -655,6 +650,12 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
       ignoreCosts: false,
     };
 
+    // キャンセルされる可能性があるので、ログの書き出しを保留状態にする。
+    using logTransaction = this.duel.log.openTransaction();
+
+    // 発動ログの書き出し
+    activator.writeInfoLog(logText);
+
     if (this.definition.payCosts && !ignoreCosts) {
       const costInfo = await this.definition.payCosts(myInfo, chainBlockInfos, _cancelable);
       if (!costInfo) {
@@ -669,6 +670,8 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
     if (prepared === undefined) {
       return;
     }
+
+    // ここまでの情報を元に、ChainBlockInfoを作成する。
     const _prepared = { ...prepared };
     _prepared.selectedEntities = _prepared.selectedEntities ?? [];
     _prepared.chainBlockTags = [...(_prepared.chainBlockTags ?? []), ...(this.definition.fixedTags ?? [])];
@@ -684,16 +687,21 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
       _prepared.nextChainBlockFilter = (activator, action) => action.negateSummon && tmpFilter(activator, action);
     }
 
-    const result: Partial<ChainBlockInfo<T>> = new Statable<TChainBlockInfoState>(myInfo.state);
+    const _result: Partial<ChainBlockInfo<T>> = new Statable<TChainBlockInfoState>(myInfo.state);
     const temp = { ..._prepared, ...myInfo };
     (Object.keys(temp) as (keyof typeof temp)[])
       .filter((key) => key !== "state")
       .forEach((key) => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-expect-error
-        result[key] = temp[key];
+        _result[key] = temp[key];
       });
-    return result as ChainBlockInfo<T>;
+    const result = _result as ChainBlockInfo<T>;
+
+    // ログの書き出し停止を解除
+    logTransaction.commit();
+
+    return result;
   };
 
   public readonly execute = async (myInfo: ChainBlockInfo<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => {

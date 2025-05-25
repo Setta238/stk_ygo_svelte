@@ -31,7 +31,6 @@ export class ImmediatelyAction extends EntityActionBase {
   }
 
   public readonly execute = async (triggerEntity?: DuelEntity, moveParam?: MoveParameters): Promise<"RemoveMe" | undefined> => {
-    console.log(this.toFullString());
     if (!this.canExecute()) {
       return;
     }

@@ -52,3 +52,17 @@ export class Statable<S extends string> implements IStatable<S> {
     this._state = state;
   }
 }
+
+export class TransactionController implements Disposable {
+  private _dispose: () => void;
+  private _commit: () => void;
+  public constructor(dispose: () => void, commit: () => void) {
+    this._dispose = dispose;
+    this._commit = commit;
+  }
+  public readonly commit = () => this._commit();
+
+  public [Symbol.dispose]() {
+    this._dispose();
+  }
+}

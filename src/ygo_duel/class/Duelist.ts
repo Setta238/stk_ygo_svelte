@@ -535,7 +535,7 @@ export class Duelist {
       }
       selectedList = _selectedList;
     }
-    this.writeInfoLog(`手札からカードを${selectedList.length}枚捨てた。${selectedList.map((e) => e.origin?.name)}。`);
+    this.writeInfoLog(`手札からカードを${selectedList.length}枚捨てた。${selectedList.map((e) => e.toString())}。`);
 
     await DuelEntityShortHands.discardManyForTheSameReason(selectedList, ["Discard", reason], causedBy, activator);
 

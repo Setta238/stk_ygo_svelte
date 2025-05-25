@@ -124,7 +124,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: duelPeriodKeys,
         executableFaces: ["FaceUp"],
         execute: async (action, triggerEntity, moveParam) => {
-          console.log(action.toFullString(), triggerEntity?.toString(), moveParam, action.entity.info.equipedBy);
           if (!moveParam) {
             return;
           }

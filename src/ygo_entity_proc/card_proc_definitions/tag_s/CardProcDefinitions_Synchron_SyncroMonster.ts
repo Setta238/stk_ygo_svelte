@@ -1,11 +1,10 @@
-import { getDefaultAccelSynchroAction } from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
+import { getDefaultAccelSynchroAction } from "@ygo_entity_proc/card_actions/CardActions_Monster";
 
-import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
-import { getDefaultSynchroSummonAction } from "../../card_actions/CommonCardAction_SynchroMonster";
+import { getDefaultSynchroSummonAction } from "../../card_actions/CardActions_SynchroMonster";
 import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
-import { defaultPrepare } from "@ygo_entity_proc/card_actions/CommonCardAction";
+import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {

@@ -1,6 +1,6 @@
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { duelFieldCellTypes, monsterZoneCellTypes, spellTrapZoneCellTypes, type DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
-import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CommonCardAction_Spell";
+import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CardActions_Spell";
 import { IllegalCancelError, SystemError } from "@ygo_duel/class/Duel";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
@@ -11,10 +11,10 @@ import {
   defaultTargetMonstersRebornExecute,
   defaultTargetMonstersRebornPrepare,
   getSystemPeriodAction,
-} from "@ygo_entity_proc/card_actions/CommonCardAction";
+} from "@ygo_entity_proc/card_actions/CardActions";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 import { executableDuelistTypes, type ChainBlockInfoBase } from "@ygo_duel/class/DuelEntityAction";
-import { defaultActions } from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
+import { defaultActions } from "@ygo_entity_proc/card_actions/CardActions_Monster";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
@@ -60,7 +60,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               .filter((card) => card.kind === "Monster")
               .filter((card) => card.canBeTargetOfEffect(myInfo))
           ),
-        execute: async (myInfo) => defaultTargetMonstersRebornExecute(myInfo),
+        execute: defaultTargetMonstersRebornExecute,
         settle: async () => true,
       },
       defaultSpellTrapSetAction,

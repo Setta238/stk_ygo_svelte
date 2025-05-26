@@ -1,8 +1,8 @@
-import { getSelfBattleSubstituteEffectDefinition } from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
+import { getSelfBattleSubstituteEffectDefinition } from "@ygo_entity_proc/card_actions/CardActions_Monster";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
-import { defaultPrepare, getSingleTargetActionPartical } from "@ygo_entity_proc/card_actions/CommonCardAction";
+import { defaultPrepare, getSingleTargetActionPartical } from "@ygo_entity_proc/card_actions/CardActions";
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "ダーク・リゾネーター",

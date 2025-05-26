@@ -1,4 +1,3 @@
-import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { EntityProcDefinition, FusionMaterialInfo } from "@ygo_duel/class/DuelEntityDefinition";
 export default function* generate(): Generator<EntityProcDefinition> {
   const baseDefinitions: { name: string; materialInfos: FusionMaterialInfo[] }[] = [

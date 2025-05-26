@@ -1,11 +1,9 @@
-import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CommonCardAction_Spell";
-
-import {} from "@stk_utils/funcs/StkArrayUtils";
+import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CardActions_Spell";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
-import { getSingleTargetActionPartical } from "@ygo_entity_proc/card_actions/CommonCardAction";
+import { getSingleTargetActionPartical } from "@ygo_entity_proc/card_actions/CardActions";
 import { SystemError } from "@ygo_duel/class/Duel";
 
 export default function* generate(): Generator<EntityProcDefinition> {

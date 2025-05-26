@@ -5,7 +5,7 @@
   import { DuelFieldCell as FieldCell } from "@ygo_duel/class/DuelFieldCell";
   import { DuelEntity } from "@ygo_duel/class/DuelEntity";
   import type { AnimationStartEventArg, DuelistResponseBase, DuelViewController, WaitStartEventArg } from "@ygo_duel_view/class/DuelViewController";
-  import {} from "@stk_utils/funcs/StkArrayUtils";
+  
   import { cardCrossFade } from "@ygo_duel_view/components/DuelDesk.svelte";
   import { type DummyActionInfo } from "@ygo_duel/class/DuelEntityAction";
   import { getCounterEmoji } from "@ygo_duel/class/DuelCounter";

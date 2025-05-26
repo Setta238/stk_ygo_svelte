@@ -1,10 +1,9 @@
-import { defaultFusionSubstituteEffect } from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
+import { defaultFusionSubstituteEffect } from "@ygo_entity_proc/card_actions/CardActions_Monster";
 
-import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
-import { defaultCanPaySelfDiscardCosts, defaultPaySelfDiscardCosts, defaultPrepare } from "@ygo_entity_proc/card_actions/CommonCardAction";
+import { defaultCanPaySelfDiscardCosts, defaultPaySelfDiscardCosts, defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
 import { freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
-import { getDefaultFusionSummonAction } from "@ygo_entity_proc/card_actions/CommonCardAction_FusionSpell";
+import { getDefaultFusionSummonAction } from "@ygo_entity_proc/card_actions/CardActions_FusionSpell";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   for (const name of ["心眼の女神", "沼地の魔獣王", "イリュージョン・シープ", "破壊神 ヴァサーゴ"]) {

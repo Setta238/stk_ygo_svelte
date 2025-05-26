@@ -1,6 +1,5 @@
-import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
-import { defaultPayLifePoint, defaultPrepare } from "@ygo_entity_proc/card_actions/CommonCardAction";
+import { defaultPayLifePoint, defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 import { duelFieldCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import { executableDuelistTypes } from "@ygo_duel/class/DuelEntityAction";

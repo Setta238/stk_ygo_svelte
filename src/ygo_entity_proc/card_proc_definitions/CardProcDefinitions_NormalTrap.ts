@@ -1,6 +1,4 @@
-import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CommonCardAction_Spell";
-
-import {} from "@stk_utils/funcs/StkArrayUtils";
+import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CardActions_Spell";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
@@ -11,7 +9,7 @@ import {
   defaultTargetMonstersRebornExecute,
   defaultTargetMonstersRebornPrepare,
   getSingleTargetActionPartical,
-} from "../card_actions/CommonCardAction";
+} from "../card_actions/CardActions";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { EntityCostTypes } from "@ygo_duel/class/DuelEntityAction";
 
@@ -83,7 +81,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             ["Defense"]
           ),
 
-        execute: async (myInfo) => defaultTargetMonstersRebornExecute(myInfo, ["Defense"]),
+        execute: (...args) => defaultTargetMonstersRebornExecute(...args, ["Defense"]),
         settle: async () => true,
       },
       defaultSpellTrapSetAction,
@@ -117,7 +115,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
                 costs.push(...costs.flatMap((cost) => cost.info.equipEntities));
                 return !costs.includes(card);
               }),
-          { message: "対象とするカードを選択。", destoryTargets: true }
+          { message: "対象とするカードを選択。", do: "Destroy" }
         ),
         execute: async (myInfo) => {
           // フィールドにいなければ効果なし

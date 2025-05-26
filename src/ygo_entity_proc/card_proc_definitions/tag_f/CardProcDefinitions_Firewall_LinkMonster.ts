@@ -1,11 +1,10 @@
-import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
-import { getDefaultLinkSummonAction } from "@ygo_entity_proc/card_actions/CommonCardAction_LinkMonster";
+import { getDefaultLinkSummonAction } from "@ygo_entity_proc/card_actions/CardActions_LinkMonster";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { damageStepPeriodKeys, duelPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
-import { defaultTargetMonstersRebornExecute, defaultTargetMonstersRebornPrepare } from "../../card_actions/CommonCardAction";
+import { defaultTargetMonstersRebornExecute, defaultTargetMonstersRebornPrepare } from "../../card_actions/CardActions";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 export default function* generate(): Generator<EntityProcDefinition> {
@@ -151,7 +150,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               .filter((card) => card.canBeTargetOfEffect(myInfo)),
             faceupBattlePositions
           ),
-        execute: (myInfo) => defaultTargetMonstersRebornExecute(myInfo, faceupBattlePositions),
+        execute: defaultTargetMonstersRebornExecute,
         settle: async () => true,
       },
     ],

@@ -3,12 +3,12 @@ import {
   defaultRuleSummonExecute,
   defaultRuleSummonPrepare,
   getDestsForSelfSpecialSummon,
-} from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
+} from "@ygo_entity_proc/card_actions/CardActions_Monster";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import { faceupBattlePositions, type TEntityFlexibleNumericStatusKey } from "@ygo/class/YgoTypes";
 import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
-import { getSingleTargetActionPartical } from "@ygo_entity_proc/card_actions/CommonCardAction";
+import { getSingleTargetActionPartical } from "@ygo_entity_proc/card_actions/CardActions";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {

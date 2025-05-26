@@ -5,7 +5,7 @@ import type { DuelFieldCell, DuelFieldCellType } from "@ygo_duel/class/DuelField
 import { SystemError } from "@ygo_duel/class/Duel";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { isFilterTypeFusionMaterialInfo, isNameTypeFusionMaterialInfo, isOvermuchTypeFusionMaterialInfo } from "@ygo_duel/class/DuelEntityDefinition";
-import { defaultPrepare } from "./CommonCardAction";
+import { defaultPrepare } from "./CardActions";
 
 /**
  * 追加素材分を含まないパターンとして合致する場合、値を返す

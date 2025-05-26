@@ -1,14 +1,13 @@
-import { getDefaultAccelSynchroAction } from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
+import { getDefaultAccelSynchroAction } from "@ygo_entity_proc/card_actions/CardActions_Monster";
 
-import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
-import { getDefaultSynchroSummonAction } from "../../card_actions/CommonCardAction_SynchroMonster";
+import { getDefaultSynchroSummonAction } from "../../card_actions/CardActions_SynchroMonster";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { SystemError } from "@ygo_duel/class/Duel";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
-import { defaultPrepare } from "@ygo_entity_proc/card_actions/CommonCardAction";
+import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "シューティング・ライザー・ドラゴン",

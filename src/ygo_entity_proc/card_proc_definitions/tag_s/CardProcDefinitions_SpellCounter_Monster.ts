@@ -10,7 +10,7 @@ import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOper
 import type { TCardKind } from "@ygo/class/YgoTypes";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { duelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
-import { defaultPrepare, getSingleTargetActionPartical } from "../../card_actions/CommonCardAction";
+import { defaultPrepare, getSingleTargetActionPartical } from "../../card_actions/CardActions";
 
 const createSpellCounterCommonEffect = (kind: TCardKind, maxQty?: number) => {
   const title = maxQty ? `魔力充填可能(${maxQty})` : "魔力充填可能";
@@ -135,7 +135,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         payCosts: async (myInfo, chainBlockInfos, cancelable) => paySpellCounters(myInfo, chainBlockInfos, cancelable, [1]),
         ...getSingleTargetActionPartical(
           (myInfo) => myInfo.activator.duel.field.getSpellTrapsOnFieldStrictly().filter((card) => card.canBeTargetOfEffect(myInfo)),
-          { message: "破壊する対象を選択。", destoryTargets: true }
+          { message: "破壊する対象を選択。", do: "Destroy" }
         ),
         execute: async (myInfo) => {
           if (myInfo.selectedEntities.every((target) => !target.isOnFieldAsSpellTrapStrictly)) {

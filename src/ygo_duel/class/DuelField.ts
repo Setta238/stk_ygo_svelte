@@ -2,7 +2,7 @@ import { Duel, DuelEnd, SystemError } from "./Duel";
 import { type TDuelCauseReason, DuelEntity } from "@ygo_duel/class/DuelEntity";
 
 import { type Duelist } from "./Duelist";
-import {} from "@stk_utils/funcs/StkArrayUtils";
+
 import { cellTypeMaster, DuelFieldCell, playFieldCellTypes, type DuelFieldCellType } from "./DuelFieldCell";
 import { ProcFilterPool } from "../class_continuous_effect/DuelProcFilter";
 import { NumericStateOperatorPool } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";

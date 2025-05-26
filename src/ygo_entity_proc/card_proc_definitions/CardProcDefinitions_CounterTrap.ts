@@ -1,6 +1,4 @@
-import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CommonCardAction_Spell";
-
-import {} from "@stk_utils/funcs/StkArrayUtils";
+import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CardActions_Spell";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { duelPeriodKeys } from "@ygo_duel/class/DuelPeriod";

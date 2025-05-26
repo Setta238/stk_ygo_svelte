@@ -65,6 +65,17 @@ export const defaultPayBanishCosts = async <T>(
   return { banish: cost };
 };
 
+export const getPayBanishCostsActionPartical = <T>(
+  getCostableEntities: (...args: Parameters<NonNullable<CardActionDefinitionFunctions<T>["canPayCosts"]>>) => DuelEntity[],
+  validator: (selected: DuelEntity[]) => boolean = () => true,
+  minQty: number = 1,
+  maxQty: number = 1
+): Pick<CardActionDefinitionFunctions<T>, "canPayCosts" | "payCosts"> => {
+  return {
+    canPayCosts: (...args) => defaultCanPayBanishCosts(args[0], getCostableEntities(...args), minQty),
+    payCosts: (...args) => defaultPayBanishCosts(args[0], getCostableEntities(args[0], args[1]), validator, minQty === maxQty ? minQty : undefined),
+  };
+};
 export const defaultCanPayDiscardCosts = <T>(
   myInfo: ChainBlockInfoBase<T>,
   chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
@@ -133,44 +144,6 @@ export const getPayReleaseCostActionPartical = <T>(
     },
   };
 };
-export const getSingleTargetActionPartical = <T>(
-  getTargetableEntities: (...args: Parameters<NonNullable<CardActionDefinitionFunctions<T>["canExecute"]>>) => DuelEntity[],
-  options: {
-    message?: string;
-    tags?: TEffectTag[];
-    destoryTargets?: boolean;
-    canExecute?: (...args: Parameters<NonNullable<CardActionDefinitionFunctions<T>["canExecute"]>>) => boolean;
-  } = {}
-): Omit<CardActionDefinitionFunctions<T>, "execute" | "settle"> & { hasToTargetCards: boolean } => {
-  return {
-    hasToTargetCards: true,
-    getTargetableEntities,
-    canExecute: (myInfo, chainBlockInfos, irregularCostInfo): boolean =>
-      getTargetableEntities(myInfo, chainBlockInfos, irregularCostInfo).filter((monster) => monster.canBeTargetOfEffect(myInfo)).length > 0 &&
-      (!options.canExecute || options.canExecute(myInfo, chainBlockInfos, irregularCostInfo)),
-    getDests: getDestsForSingleTargetAction,
-    prepare: async (myInfo, chainBlockInfos, cancelable) => {
-      let selectedEntities: DuelEntity[] = [];
-      if (myInfo.dest) {
-        selectedEntities = [myInfo.dest.cardEntities[0]];
-      } else {
-        const targets = myInfo.action.getTargetableEntities(myInfo, chainBlockInfos).filter((monster) => monster.canBeTargetOfEffect(myInfo));
-        const target = await myInfo.activator.waitSelectEntity(targets, options.message ?? "対象とするカードを選択。", cancelable);
-        if (!target) {
-          return;
-        }
-        selectedEntities = [target];
-      }
-      const chainBlockTags: TEffectTag[] = options.tags ?? [];
-
-      if (options.destoryTargets) {
-        chainBlockTags.push(...myInfo.action.calcChainBlockTagsForDestroy(myInfo.activator, selectedEntities));
-      }
-
-      return { selectedEntities, chainBlockTags, appendix: [`対象：${selectedEntities.map((card) => card.toString()).join(", ")}`] };
-    },
-  };
-};
 
 export const defaultTargetMonstersRebornPrepare = async <T>(
   myInfo: ChainBlockInfoPreparing<T>,
@@ -218,6 +191,7 @@ export const defaultTargetMonstersRebornPrepare = async <T>(
 
 export const defaultTargetMonstersRebornExecute = async <T>(
   myInfo: ChainBlockInfo<T>,
+  chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
   posList: Readonly<TBattlePosition[]> = ["Attack", "Defense"],
   allOrNothing: boolean = true
 ) => {
@@ -249,6 +223,80 @@ export const defaultEffectSpecialSummonExecute = async <T>(
   await myInfo.activator.summonAll(myInfo.activator, "SpecialSummon", ["Effect"], myInfo.action, list, [], false, false);
 
   return true;
+};
+
+export const getSingleTargetActionPartical = <T>(
+  getTargetableEntities: (...args: Parameters<NonNullable<CardActionDefinitionFunctions<T>["canExecute"]>>) => DuelEntity[],
+  options: {
+    message?: string;
+    tags?: TEffectTag[];
+    do?: "Destroy" | "Reborn";
+    posList?: Readonly<TBattlePosition[]>;
+    canExecute?: (...args: Parameters<NonNullable<CardActionDefinitionFunctions<T>["canExecute"]>>) => boolean;
+  } = {}
+): Omit<CardActionDefinitionFunctions<T>, "execute" | "settle"> & { hasToTargetCards: boolean } => {
+  return {
+    hasToTargetCards: true,
+    getTargetableEntities,
+    canExecute: (myInfo, chainBlockInfos, irregularCostInfo): boolean =>
+      getTargetableEntities(myInfo, chainBlockInfos, irregularCostInfo).filter((monster) => monster.canBeTargetOfEffect(myInfo)).length > 0 &&
+      (!options.canExecute || options.canExecute(myInfo, chainBlockInfos, irregularCostInfo)),
+    getDests: getDestsForSingleTargetAction,
+    prepare: async (myInfo, chainBlockInfos, cancelable) => {
+      let selectedEntities: DuelEntity[] = [];
+      const chainBlockTags = options.tags ?? [];
+      const msg =
+        options.message ??
+        (options.do === "Destroy" ? "破壊するモンスターを選択。" : options.do === "Reborn" ? "特殊召喚するモンスターを選択。" : "対象とするカードを選択。");
+
+      if (myInfo.dest) {
+        selectedEntities = [myInfo.dest.cardEntities[0]];
+      } else {
+        let targets = myInfo.action.getTargetableEntities(myInfo, chainBlockInfos).filter((monster) => monster.canBeTargetOfEffect(myInfo));
+
+        if (options.do === "Reborn") {
+          const cells = myInfo.activator.getMonsterZones();
+          const posList = options.posList ?? faceupBattlePositions;
+          const list = myInfo.activator.getEnableSummonList(
+            myInfo.activator,
+            "SpecialSummon",
+            ["Effect"],
+            myInfo.action,
+            targets
+              .filter((card) => card.kind === "Monster")
+              .filter((card) => card.canBeTargetOfEffect(myInfo))
+              .map((monster) => {
+                return { monster, posList, cells };
+              }),
+            [],
+            false
+          );
+
+          targets = list.map((item) => item.monster);
+        }
+
+        const target = await myInfo.activator.waitSelectEntity(targets, msg, cancelable);
+        if (!target) {
+          return;
+        }
+
+        selectedEntities = [target];
+      }
+      if (options.do === "Reborn") {
+        chainBlockTags.push(
+          ...selectedEntities
+            .map((monster) => monster.fieldCell.cellType)
+            .getDistinct()
+            .filter((ct) => ct === "Graveyard" || ct === "Banished")
+            .map((ct) => (ct === "Graveyard" ? "SpecialSummonFromGraveyard" : "SpecialSummonFromBanished"))
+        );
+      } else if (options.do === "Destroy") {
+        chainBlockTags.push(...myInfo.action.calcChainBlockTagsForDestroy(myInfo.activator, selectedEntities));
+      }
+
+      return { selectedEntities, chainBlockTags, appendix: [`対象：${selectedEntities.map((card) => card.toString()).join(", ")}`] };
+    },
+  };
 };
 export const getSystemPeriodAction = (
   title: string,

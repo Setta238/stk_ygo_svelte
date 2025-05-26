@@ -3,7 +3,7 @@ import type { ChainBlockInfoBase, ChainBlockInfo, CardActionDefinition, SummonMa
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 import { SystemError } from "@ygo_duel/class/Duel";
-import { defaultRuleSummonExecute, defaultRuleSummonPrepare } from "./CommonCardAction_Monster";
+import { defaultRuleSummonExecute, defaultRuleSummonPrepare } from "./CardActions_Monster";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 
 const defaultXyzMaterialsValidator = (

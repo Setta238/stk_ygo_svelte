@@ -1,6 +1,5 @@
-import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CommonCardAction_Spell";
+import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CardActions_Spell";
 
-import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { TEffectTag } from "@ygo_duel/class/DuelEntityAction";
 import { IllegalCancelError, SystemError } from "@ygo_duel/class/Duel";
 
@@ -9,7 +8,7 @@ import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/D
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import { defaultPrepare, getSingleTargetActionPartical } from "@ygo_entity_proc/card_actions/CommonCardAction";
+import { defaultPrepare, getSingleTargetActionPartical } from "@ygo_entity_proc/card_actions/CardActions";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
@@ -216,7 +215,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           }
 
           // タイミングを逃させる要因になる。
-          myInfo.activator.duel.clock.incrementTotalProcSeq();
+          myInfo.activator.duel.clock.incrementProcSeq();
 
           await DuelEntityShortHands.drawAtSameTime(myInfo.activator, myInfo.action.entity, 2, 2);
 
@@ -253,7 +252,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           await DuelEntityShortHands.returnManyToDeckForTheSameReason("Random", hands, ["Effect"], myInfo.action.entity, myInfo.activator);
 
           // タイミングを逃させる要因になる。
-          myInfo.activator.duel.clock.incrementTotalProcSeq();
+          myInfo.activator.duel.clock.incrementProcSeq();
 
           await myInfo.activator.draw(hands.length, myInfo.action.entity, myInfo.activator);
 

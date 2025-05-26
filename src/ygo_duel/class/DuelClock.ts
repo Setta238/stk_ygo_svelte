@@ -213,7 +213,7 @@ export class DuelClock implements IDuelClock {
     this._procSeq++;
     this.incrementTotalProcSeq();
   };
-  public readonly incrementTotalProcSeq = () => {
+  private readonly incrementTotalProcSeq = () => {
     this._totalProcSeq++;
 
     // 開始点のセット

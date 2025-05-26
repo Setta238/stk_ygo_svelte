@@ -8,9 +8,7 @@ import {
   defaultRuleSummonPrepare,
   defaultSelfRebornExecute,
   getDestsForSelfSpecialSummon,
-} from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
-
-import {} from "@stk_utils/funcs/StkArrayUtils";
+} from "@ygo_entity_proc/card_actions/CardActions_Monster";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { createRegularProcFilterHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
@@ -18,7 +16,7 @@ import { ProcFilter } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
 import { damageStepPeriodKeys, duelPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
-import { defaultPrepare } from "@ygo_entity_proc/card_actions/CommonCardAction";
+import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield* ["サイバー・ドラゴン", "六武衆のご隠居", "アンノウン・シンクロン"].map((name): EntityProcDefinition => {

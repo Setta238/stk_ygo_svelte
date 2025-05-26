@@ -1,13 +1,11 @@
-import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CommonCardAction_Spell";
-
-import {} from "@stk_utils/funcs/StkArrayUtils";
+import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CardActions_Spell";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { duelPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
-import { defaultTargetMonstersRebornExecute, defaultTargetMonstersRebornPrepare } from "../card_actions/CommonCardAction";
+import { defaultTargetMonstersRebornExecute, defaultTargetMonstersRebornPrepare } from "../card_actions/CardActions";
 import type { ImmediatelyAction } from "@ygo_duel/class/DuelEntityImmediatelyAction";
 
 export default function* generate(): Generator<EntityProcDefinition> {
@@ -85,8 +83,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
                 .filter((card) => card.canBeTargetOfEffect(myInfo)),
               ["Attack"]
             ),
-          execute: async (myInfo) => {
-            const flg = await defaultTargetMonstersRebornExecute(myInfo, ["Attack"]);
+          execute: async (myInfo, chainBlockInfos) => {
+            const flg = await defaultTargetMonstersRebornExecute(myInfo, chainBlockInfos, ["Attack"]);
 
             // 蘇生できなかった場合、無意味に残り続ける。
             if (!flg) {

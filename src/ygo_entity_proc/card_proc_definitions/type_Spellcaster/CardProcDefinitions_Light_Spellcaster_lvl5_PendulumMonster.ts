@@ -3,10 +3,10 @@ import {
   defaultRuleSummonExecute,
   defaultRuleSummonPrepare,
   getDestsForSelfSpecialSummon,
-} from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
+} from "@ygo_entity_proc/card_actions/CardActions_Monster";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
-import { defaultContinuousSpellCardActivateAction } from "@ygo_entity_proc/card_actions/CommonCardAction_Spell";
+import { defaultContinuousSpellCardActivateAction } from "@ygo_entity_proc/card_actions/CardActions_Spell";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 import { createRegularStatusOperatorHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";

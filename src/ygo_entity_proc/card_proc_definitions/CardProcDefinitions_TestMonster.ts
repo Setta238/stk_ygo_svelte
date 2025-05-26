@@ -1,7 +1,5 @@
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 
-import {} from "@stk_utils/funcs/StkArrayUtils";
-
 import { type EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import {
   createBroadRegularNumericStateOperatorHandler,

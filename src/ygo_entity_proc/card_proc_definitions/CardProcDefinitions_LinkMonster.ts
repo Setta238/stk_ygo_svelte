@@ -1,6 +1,5 @@
-import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
-import { getDefaultLinkSummonAction } from "../card_actions/CommonCardAction_LinkMonster";
+import { getDefaultLinkSummonAction } from "../card_actions/CardActions_LinkMonster";
 import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
 
 export default function* generate(): Generator<EntityProcDefinition> {

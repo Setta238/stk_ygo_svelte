@@ -1,6 +1,6 @@
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import type { CardActionDefinition, ChainBlockInfo } from "../../ygo_duel/class/DuelEntityAction";
-import { defaultPrepare } from "../card_actions/CommonCardAction";
+import { defaultPrepare } from "../card_actions/CardActions";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 import { DuelEnd, SystemError } from "@ygo_duel/class/Duel";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";

@@ -15,6 +15,7 @@
   import { fade, slide } from "svelte/transition";
   import { userAgentInfo } from "@stk_utils/class/StkUserAgentInfo";
   import {} from "@stk_utils/funcs/StkStringUtils";
+  import {} from "@stk_utils/funcs/StkArrayUtils";
   const idb = new StkIndexedDB<TTblNames>("stk_ygo_svelte", currentVersion, tblNames);
 
   let innerWidth = 0;

@@ -1,7 +1,7 @@
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
-import { defaultCanPaySelfBanishCosts } from "../../card_actions/CommonCardAction";
+import { defaultCanPaySelfBanishCosts } from "../../card_actions/CardActions";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { SystemError } from "@ygo_duel/class/Duel";
 import type { ChainBlockInfoBase } from "@ygo_duel/class/DuelEntityAction";

@@ -1,7 +1,7 @@
-import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CommonCardAction_Spell";
+import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CardActions_Spell";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
-import { getDefaultRitualSummonActionPartical } from "@ygo_entity_proc/card_actions/CommonCardAction_RitualSpell";
+import { getDefaultRitualSummonActionPartical } from "@ygo_entity_proc/card_actions/CardActions_RitualSpell";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   for (const item of [

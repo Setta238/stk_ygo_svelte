@@ -14,7 +14,7 @@
   import DuelDuelist from "./DuelDuelist.svelte";
   import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
   import type { DuelistResponseBase, WaitStartEventArg } from "@ygo_duel_view/class/DuelViewController";
-  import {} from "@stk_utils/funcs/StkArrayUtils";
+  
   import ModalContainer from "@ygo_duel_view/components/DuelModalContainer.svelte";
   import DuelCardDetail, { type TCardDetailMode } from "./DuelCardDetail.svelte";
   import DuelFieldCellInfo from "./DuelFieldCellInfo.svelte";

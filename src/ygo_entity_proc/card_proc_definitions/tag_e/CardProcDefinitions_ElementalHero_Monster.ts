@@ -1,6 +1,6 @@
 import { isNameTypeFusionMaterialInfo, type EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { IllegalCancelError, SystemError } from "@ygo_duel/class/Duel";
-import { defaultPrepare } from "@ygo_entity_proc/card_actions/CommonCardAction";
+import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
 import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {

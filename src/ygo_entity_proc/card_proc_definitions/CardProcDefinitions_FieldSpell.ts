@@ -1,9 +1,7 @@
-import { defaultContinuousSpellCardActivateAction, defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CommonCardAction_Spell";
-
-import {} from "@stk_utils/funcs/StkArrayUtils";
+import { defaultContinuousSpellCardActivateAction, defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CardActions_Spell";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
-import { defaultPayLifePoint } from "@ygo_entity_proc/card_actions/CommonCardAction";
+import { defaultPayLifePoint } from "@ygo_entity_proc/card_actions/CardActions";
 import { executableDuelistTypes, type TEffectTag } from "@ygo_duel/class/DuelEntityAction";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { createRegularDamageFilterHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";

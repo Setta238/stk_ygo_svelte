@@ -1,8 +1,7 @@
-import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
-import { defaultContinuousSpellCardActivateAction } from "../../card_actions/CommonCardAction_Spell";
+import { defaultContinuousSpellCardActivateAction } from "../../card_actions/CardActions_Spell";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import { getSingleTargetActionPartical } from "@ygo_entity_proc/card_actions/CommonCardAction";
+import { getSingleTargetActionPartical } from "@ygo_entity_proc/card_actions/CardActions";
 import { IllegalCancelError } from "@ygo_duel/class/Duel";
 
 export default function* generate(): Generator<EntityProcDefinition> {
@@ -37,7 +36,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             },
             {
               message: "破壊するカードを選択。",
-              destoryTargets: true,
+              do: "Destroy",
               canExecute: (myInfo) =>
                 myInfo.activator.canSet &&
                 myInfo.activator

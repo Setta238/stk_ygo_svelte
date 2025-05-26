@@ -1,4 +1,4 @@
-import { canSelfSepcialSummon, defaultSelfRebornExecute, getDestsForSelfSpecialSummon } from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
+import { canSelfSepcialSummon, defaultSelfRebornExecute, getDestsForSelfSpecialSummon } from "@ygo_entity_proc/card_actions/CardActions_Monster";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";

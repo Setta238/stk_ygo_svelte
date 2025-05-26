@@ -1,9 +1,8 @@
-import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { IllegalCancelError } from "@ygo_duel/class/Duel";
 import type { TCardKind } from "@ygo/class/YgoTypes";
 import { freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
-import { defaultPrepare } from "@ygo_entity_proc/card_actions/CommonCardAction";
+import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   for (const item of [

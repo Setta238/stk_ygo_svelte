@@ -1,4 +1,3 @@
-import {} from "@stk_utils/funcs/StkArrayUtils";
 import { type TBattlePosition } from "@ygo/class/YgoTypes";
 import { SystemError } from "@ygo_duel/class/Duel";
 import {
@@ -18,7 +17,7 @@ import type { Duelist } from "@ygo_duel/class/Duelist";
 import type { SubstituteEffectDefinition } from "@ygo_duel/class/DuelSubstituteEffect";
 import type { SummonFilter } from "@ygo_duel/class_continuous_effect/DuelSummonFilter";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import { defaultPrepare } from "./CommonCardAction";
+import { defaultPrepare } from "./CardActions";
 import { createRegularStatusOperatorHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 import { duelPeriodKeys } from "@ygo_duel/class/DuelPeriod";

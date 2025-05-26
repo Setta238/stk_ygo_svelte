@@ -7,7 +7,7 @@ import {
 } from "@ygo_duel/class/DuelEntityAction";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { type DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
-import { defaultPrepare } from "@ygo_entity_proc/card_actions/CommonCardAction";
+import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
 import { SystemError } from "@ygo_duel/class/Duel";
 export const defaultSpellTrapSetValidate = (myInfo: ChainBlockInfoBase<unknown>): DuelFieldCell[] | undefined => {
   if (myInfo.action.entity.status.spellCategory === "Field") {

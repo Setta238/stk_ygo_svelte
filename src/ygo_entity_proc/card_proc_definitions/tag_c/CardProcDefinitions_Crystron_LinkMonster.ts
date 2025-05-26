@@ -1,10 +1,9 @@
-import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
-import { defaultPrepare, defaultCanPaySelfBanishCosts, defaultPaySelfBanishCosts } from "@ygo_entity_proc/card_actions/CommonCardAction";
+import { defaultPrepare, defaultCanPaySelfBanishCosts, defaultPaySelfBanishCosts } from "@ygo_entity_proc/card_actions/CardActions";
 import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
-import { getDefaultLinkSummonAction } from "../../card_actions/CommonCardAction_LinkMonster";
+import { getDefaultLinkSummonAction } from "../../card_actions/CardActions_LinkMonster";
 import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 import { IllegalCancelError } from "@ygo_duel/class/Duel";
 

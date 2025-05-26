@@ -3,9 +3,8 @@ import {
   defaultSelfRebornExecute,
   defaultSelfReleaseCanPayCosts,
   defaultSelfReleasePayCosts,
-} from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
+} from "@ygo_entity_proc/card_actions/CardActions_Monster";
 
-import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { damageStepPeriodKeys, duelPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import {
@@ -17,9 +16,9 @@ import {
   defaultPayBanishCosts,
   defaultCanPayBanishCosts,
   getSingleTargetActionPartical,
-} from "@ygo_entity_proc/card_actions/CommonCardAction";
+} from "@ygo_entity_proc/card_actions/CardActions";
 import { duelFieldCellTypes, monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
-import { getDefaultSynchroSummonAction } from "../../card_actions/CommonCardAction_SynchroMonster";
+import { getDefaultSynchroSummonAction } from "../../card_actions/CardActions_SynchroMonster";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 import { ProcFilter } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
@@ -256,7 +255,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               .filter((card) => card.status.monsterCategories?.includes("Synchro"))
               .filter((card) => card.canBeTargetOfEffect(myInfo))
           ),
-        execute: async (myInfo) => defaultTargetMonstersRebornExecute(myInfo),
+        execute: defaultTargetMonstersRebornExecute,
         settle: async () => true,
       },
     ],
@@ -346,7 +345,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             faceupBattlePositions,
             (selected) => selected.length === 1
           ),
-        execute: (myInfo) => defaultTargetMonstersRebornExecute(myInfo, faceupBattlePositions),
+        execute: defaultTargetMonstersRebornExecute,
         settle: async () => true,
       },
     ],

@@ -4,7 +4,7 @@ import {
   defaultEffectSpecialSummonExecute,
   defaultPaySelfBanishCosts,
   defaultPrepare,
-} from "@ygo_entity_proc/card_actions/CommonCardAction";
+} from "@ygo_entity_proc/card_actions/CardActions";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { EntityAction } from "@ygo_duel/class/DuelEntityAction";
 import { delay } from "@stk_utils/funcs/StkPromiseUtil";

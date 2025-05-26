@@ -1,6 +1,6 @@
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
-import { defaultSpellTrapSetAction } from "../../card_actions/CommonCardAction_Spell";
-import { defaultPrepare } from "@ygo_entity_proc/card_actions/CommonCardAction";
+import { defaultSpellTrapSetAction } from "../../card_actions/CardActions_Spell";
+import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "黄金色の竹光",

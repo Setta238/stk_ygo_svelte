@@ -5,7 +5,7 @@ import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/D
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 import { IllegalCancelError } from "@ygo_duel/class/Duel";
 import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
-import { defaultPrepare } from "@ygo_entity_proc/card_actions/CommonCardAction";
+import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {

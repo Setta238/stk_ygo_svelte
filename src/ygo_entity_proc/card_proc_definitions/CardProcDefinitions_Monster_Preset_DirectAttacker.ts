@@ -1,6 +1,5 @@
-import { defaultDirectAtackEffect } from "@ygo_entity_proc/card_actions/CommonCardAction_Monster";
+import { defaultDirectAtackEffect } from "@ygo_entity_proc/card_actions/CardActions_Monster";
 
-import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 
 export default function* generate(): Generator<EntityProcDefinition> {

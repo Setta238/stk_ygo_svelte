@@ -1,17 +1,16 @@
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 
-import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { SystemError } from "@ygo_duel/class/Duel";
 import { isNumber } from "@stk_utils/funcs/StkMathUtils";
 import type { CardActionDefinition, ChainBlockInfoBase } from "@ygo_duel/class/DuelEntityAction";
-import { getDefaultSynchroSummonAction } from "@ygo_entity_proc/card_actions/CommonCardAction_SynchroMonster";
+import { getDefaultSynchroSummonAction } from "@ygo_entity_proc/card_actions/CardActions_SynchroMonster";
 import { createRegularStatusOperatorHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
-import { defaultPrepare } from "@ygo_entity_proc/card_actions/CommonCardAction";
+import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
 import { duelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 
 const createCatapultAction = (args: {

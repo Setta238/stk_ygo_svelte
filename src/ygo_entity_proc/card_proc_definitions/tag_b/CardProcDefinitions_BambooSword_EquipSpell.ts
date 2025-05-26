@@ -1,6 +1,6 @@
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
-import { defaultSpellTrapSetAction, getDefaultEquipSpellTrapAction } from "../../card_actions/CommonCardAction_Spell";
+import { defaultSpellTrapSetAction, getDefaultEquipSpellTrapAction } from "../../card_actions/CardActions_Spell";
 import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { IllegalCancelError } from "@ygo_duel/class/Duel";
@@ -9,7 +9,7 @@ import {
   defaultPaySelfSendToGraveyardCost,
   defaultPrepare,
   getSingleTargetActionPartical,
-} from "../../card_actions/CommonCardAction";
+} from "../../card_actions/CardActions";
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "折れ竹光",

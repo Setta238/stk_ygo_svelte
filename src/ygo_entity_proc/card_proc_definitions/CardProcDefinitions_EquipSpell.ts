@@ -1,6 +1,5 @@
-import { defaultEquipSpellTrapExecute, defaultSpellTrapSetAction, getDefaultEquipSpellTrapAction } from "@ygo_entity_proc/card_actions/CommonCardAction_Spell";
+import { defaultEquipSpellTrapExecute, defaultSpellTrapSetAction, getDefaultEquipSpellTrapAction } from "@ygo_entity_proc/card_actions/CardActions_Spell";
 
-import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { CardActionDefinition } from "@ygo_duel/class/DuelEntityAction";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
@@ -11,7 +10,7 @@ import {
 } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import { defaultPayLifePoint, defaultTargetMonstersRebornExecute, defaultTargetMonstersRebornPrepare } from "../card_actions/CommonCardAction";
+import { defaultPayLifePoint, defaultTargetMonstersRebornExecute, defaultTargetMonstersRebornPrepare } from "../card_actions/CardActions";
 import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { duelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 
@@ -101,7 +100,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             return false;
           }
 
-          const flg = await defaultTargetMonstersRebornExecute(myInfo, ["Attack"]);
+          const flg = await defaultTargetMonstersRebornExecute(myInfo, chainBlockInfos, ["Attack"]);
 
           // 蘇生できなかった場合、破壊して処理を終了する。
           if (!flg) {

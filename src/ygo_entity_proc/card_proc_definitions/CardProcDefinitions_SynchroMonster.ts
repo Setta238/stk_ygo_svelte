@@ -1,7 +1,6 @@
-import {} from "@stk_utils/funcs/StkArrayUtils";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
-import { defaultPrepare } from "@ygo_entity_proc/card_actions/CommonCardAction";
-import { getDefaultSynchroSummonAction } from "@ygo_entity_proc/card_actions/CommonCardAction_SynchroMonster";
+import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
+import { getDefaultSynchroSummonAction } from "@ygo_entity_proc/card_actions/CardActions_SynchroMonster";
 export default function* generate(): Generator<EntityProcDefinition> {
   for (const name of ["大地の騎士ガイアナイト", "スクラップ・デスデーモン"]) {
     yield {

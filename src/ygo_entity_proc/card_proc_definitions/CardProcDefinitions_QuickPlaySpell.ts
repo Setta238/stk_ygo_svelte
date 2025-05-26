@@ -137,7 +137,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           target.numericOprsBundle.push(
             NumericStateOperator.createLingeringAddition(
               "攻撃力上昇",
-              (operator) => operator.effectOwner.duel.clock.isSameTurn(operator.isSpawnedAt),
+              (operator) => operator.duel.clock.isSameTurn(operator.isSpawnedAt),
               myInfo.action.entity,
               myInfo.action,
               "attack",

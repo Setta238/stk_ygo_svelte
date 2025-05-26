@@ -12,8 +12,52 @@ import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 import { defaultPrepare, getSingleTargetActionPartical } from "@ygo_entity_proc/card_actions/CardActions";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
+import { getCommonLightswormEndPhaseAction } from "@ygo_entity_proc/card_actions/tag_l/CardActions_Lightsworn_Monster";
+import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 
 export default function* generate(): Generator<EntityProcDefinition> {
+  yield {
+    name: "ライトロード・アサシン ライデン",
+    actions: [
+      {
+        title: `①墓地送り＆自己強化`,
+        isMandatory: false,
+        playType: "IgnitionEffect",
+        spellSpeed: "Normal",
+        executableCells: monsterZoneCellTypes,
+        executablePeriods: ["main1", "main2"],
+        executableDuelistTypes: ["Controller"],
+        executableFaces: ["FaceUp"],
+        isOnlyNTimesPerTurn: 1,
+        canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.length > 1,
+        prepare: defaultPrepare,
+        execute: async (myInfo) => {
+          const cards = myInfo.activator.getDeckCell().cardEntities.slice(0, 2);
+
+          await DuelEntityShortHands.sendManyToGraveyardForTheSameReason(cards, ["Effect"], myInfo.action.entity, myInfo.activator);
+
+          const qty = cards.filter((card) => card.kind === "Monster").filter((monster) => monster.status.nameTags?.includes("ライトロード")).length;
+
+          if (qty) {
+            myInfo.action.entity.numericOprsBundle.push(
+              NumericStateOperator.createLingeringAddition(
+                myInfo.action.title,
+                (operator) => operator.isSpawnedBy.isEffective && operator.duel.clock.turn - operator.isSpawnedAt.turn < 2,
+                myInfo.action.entity,
+                myInfo.action,
+                "attack",
+                (spawner, monster, current) => current + 200 * qty
+              )
+            );
+          }
+
+          return true;
+        },
+        settle: async () => true,
+      },
+      getCommonLightswormEndPhaseAction("②", 2),
+    ],
+  };
   yield {
     name: "ライトロード・ビースト ウォルフ",
     actions: [
@@ -59,7 +103,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         settle: async () => true,
       },
       {
-        title: "②モンスター破壊",
+        title: "②モンスター破壊＆墓地送り",
         isMandatory: false,
         playType: "IgnitionEffect",
         spellSpeed: "Normal",

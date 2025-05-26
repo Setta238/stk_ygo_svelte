@@ -214,7 +214,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
                 if (!arrivalRecord) {
                   return false;
                 }
-                if (!operator.effectOwner.duel.clock.isSameTurn(arrivalRecord.movedAt)) {
+                if (!operator.duel.clock.isSameTurn(arrivalRecord.movedAt)) {
                   return false;
                 }
 

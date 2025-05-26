@@ -196,7 +196,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           myInfo.action.entity.procFilterBundle.push(
             ProcFilter.createLingering(
               myInfo.action.title,
-              (operator) => operator.effectOwner.duel.clock.isSameTurn(operator.isSpawnedAt),
+              (operator) => operator.duel.clock.isSameTurn(operator.isSpawnedAt),
               myInfo.action.entity,
               myInfo.action,
               () => true,

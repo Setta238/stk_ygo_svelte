@@ -49,7 +49,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           equipOwner.statusOperatorBundle.push(
             new StatusOperator({
               title: "直接攻撃",
-              validateAlive: (ope) => ope.effectOwner.duel.clock.isSameTurn(ope.isSpawnedAt),
+              validateAlive: (ope) => ope.duel.clock.isSameTurn(ope.isSpawnedAt),
               isContinuous: false,
               isSpawnedBy: myInfo.action.entity,
               actionAttr: myInfo.action,

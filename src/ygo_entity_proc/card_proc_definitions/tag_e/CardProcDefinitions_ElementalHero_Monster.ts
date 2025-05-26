@@ -78,7 +78,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           myInfo.action.entity.statusOperatorBundle.push(
             new StatusOperator({
               title: myInfo.action.title,
-              validateAlive: (ope) => ope.effectOwner.duel.clock.isSameTurn(ope.isSpawnedAt),
+              validateAlive: (ope) => ope.duel.clock.isSameTurn(ope.isSpawnedAt),
               isContinuous: false,
               isSpawnedBy: myInfo.action.entity,
               actionAttr: myInfo.action,

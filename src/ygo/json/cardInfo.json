@@ -15580,8 +15580,7 @@
     "monsterCategories": [
       "SpecialSummon",
       "Effect",
-      "FreeReborn",
-      "RegularSpecialSummonOnly"
+      "FreeReborn"
     ],
     "level": 4,
     "attack": 2100,

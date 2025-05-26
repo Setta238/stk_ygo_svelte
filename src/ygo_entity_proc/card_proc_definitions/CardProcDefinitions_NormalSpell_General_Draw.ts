@@ -222,7 +222,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             duelist.entity.damageFilterBundle.push(
               new DamageFilter({
                 title: "ダメージ無効",
-                validateAlive: (ope) => ope.effectOwner.duel.clock.turn - ope.isSpawnedAt.turn < 2,
+                validateAlive: (ope) => ope.duel.clock.turn - ope.isSpawnedAt.turn < 2,
                 isContinuous: false,
                 isSpawnedBy: myInfo.action.entity,
                 actionAttr: myInfo.action,

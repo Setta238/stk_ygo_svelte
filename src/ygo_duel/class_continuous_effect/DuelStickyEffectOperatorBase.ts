@@ -159,6 +159,9 @@ export abstract class StickyEffectOperatorBase {
   public readonly actionAttr: Partial<CardActionDefinitionAttrs>;
   public readonly isApplicableTo: (target: DuelEntity) => boolean;
   public readonly effectOwner: Duelist;
+  public get duel() {
+    return this.effectOwner.duel;
+  }
   public abstract readonly beforeRemove: <OPE extends StickyEffectOperatorBase>(bundle: IOperatorBundle<OPE>) => void;
 
   public get isEffective() {

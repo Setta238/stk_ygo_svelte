@@ -112,7 +112,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           monster.statusOperatorBundle.push(
             new StatusOperator({
               title: "攻撃不可",
-              validateAlive: (ope) => ope.effectOwner.duel.clock.isSameTurn(ope.isSpawnedAt),
+              validateAlive: (ope) => ope.duel.clock.isSameTurn(ope.isSpawnedAt),
               isContinuous: false,
               isSpawnedBy: myInfo.action.entity,
               actionAttr: myInfo.action,

@@ -76,12 +76,12 @@ export default function* generate(): Generator<EntityProcDefinition> {
           tuner.statusOperatorBundle.push(
             new StatusOperator({
               title: "効果発動不可",
-              validateAlive: (operator) => operator.effectOwner.duel.clock.isSameTurn(operator.isSpawnedAt),
+              validateAlive: (operator) => operator.duel.clock.isSameTurn(operator.isSpawnedAt),
               isContinuous: false,
               isSpawnedBy: myInfo.action.entity,
               actionAttr: myInfo.action,
               isApplicableTo: (operator, target) =>
-                operator.effectOwner.duel.clock.isSameTurn(operator.isSpawnedAt) && target.isOnFieldAsMonsterStrictly && target.face === "FaceUp",
+                operator.duel.clock.isSameTurn(operator.isSpawnedAt) && target.isOnFieldAsMonsterStrictly && target.face === "FaceUp",
               statusCalculator: () => {
                 return { canActivateEffect: false };
               },

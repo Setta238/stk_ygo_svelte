@@ -1,5 +1,6 @@
 import { type CardActionDefinition } from "@ygo_duel/class/DuelEntityAction";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
+import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
 
@@ -9,7 +10,7 @@ export const getCommonLightswormEndPhaseAction = (titlePrefix: string, qty: numb
     isMandatory: true,
     playType: "IgnitionEffect",
     spellSpeed: "Normal",
-    executableCells: ["MonsterZone", "ExtraMonsterZone"],
+    executableCells: monsterZoneCellTypes,
     executablePeriods: ["end"],
     executableDuelistTypes: ["Controller"],
     executableFaces: ["FaceUp"],
@@ -19,6 +20,7 @@ export const getCommonLightswormEndPhaseAction = (titlePrefix: string, qty: numb
     execute: async (myInfo) => {
       const cards = myInfo.activator.getDeckCell().cardEntities.slice(0, qty);
 
+      // 発動時にデッキ枚数は確認せず、処理時に枚数未満なら全て墓地に送る。
       await DuelEntityShortHands.sendManyToGraveyardForTheSameReason(cards, ["Effect"], myInfo.action.entity, myInfo.activator);
 
       return true;
@@ -32,7 +34,7 @@ export const getCommonTwillightswormEndPhaseAction = (titlePrefix: string, qty: 
     isMandatory: true,
     playType: "TriggerEffect",
     spellSpeed: "Normal",
-    executableCells: ["MonsterZone", "ExtraMonsterZone"],
+    executableCells: monsterZoneCellTypes,
     executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
     executableDuelistTypes: ["Controller"],
     executableFaces: ["FaceUp"],
@@ -50,6 +52,7 @@ export const getCommonTwillightswormEndPhaseAction = (titlePrefix: string, qty: 
     execute: async (myInfo) => {
       const cards = myInfo.activator.getDeckCell().cardEntities.slice(0, qty);
 
+      // 発動時にデッキ枚数は確認せず、処理時に枚数未満なら全て墓地に送る。
       await DuelEntityShortHands.sendManyToGraveyardForTheSameReason(cards, ["Effect"], myInfo.action.entity, myInfo.activator);
 
       return true;

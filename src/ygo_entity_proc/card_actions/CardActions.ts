@@ -247,7 +247,7 @@ export const getSingleTargetActionPartical = <T>(
       const chainBlockTags = options.tags ?? [];
       const msg =
         options.message ??
-        (options.do === "Destroy" ? "破壊するモンスターを選択。" : options.do === "Reborn" ? "特殊召喚するモンスターを選択。" : "対象とするカードを選択。");
+        (options.do === "Destroy" ? "破壊するカードを選択。" : options.do === "Reborn" ? "特殊召喚するモンスターを選択。" : "対象とするカードを選択。");
 
       if (myInfo.dest) {
         selectedEntities = [myInfo.dest.cardEntities[0]];

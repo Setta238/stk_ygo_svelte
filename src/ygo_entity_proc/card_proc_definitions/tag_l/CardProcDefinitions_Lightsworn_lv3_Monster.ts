@@ -1,4 +1,5 @@
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
+import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import {
   defaultCanPayDiscardCosts,
   defaultPayDiscardCosts,
@@ -17,7 +18,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         isMandatory: false,
         playType: "IgnitionEffect",
         spellSpeed: "Normal",
-        executableCells: ["MonsterZone"],
+        executableCells: monsterZoneCellTypes,
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerTurnIfFaceup: 1,
@@ -47,7 +48,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         isMandatory: false,
         playType: "IgnitionEffect",
         spellSpeed: "Normal",
-        executableCells: ["MonsterZone"],
+        executableCells: monsterZoneCellTypes,
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerTurnIfFaceup: 1,

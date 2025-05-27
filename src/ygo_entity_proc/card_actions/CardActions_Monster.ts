@@ -299,7 +299,7 @@ const defaultDeclareAttackAction: CardActionDefinition<unknown> = {
 
       break;
     }
-    myInfo.action.entity.field.duel.declareAttack(myInfo.action.entity, target);
+    myInfo.action.entity.field.duel.declareAttack(myInfo.action.entity, target, false);
     return { selectedEntities: [target] };
   },
   execute: async () => true,

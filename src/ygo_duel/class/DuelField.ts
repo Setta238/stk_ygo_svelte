@@ -11,6 +11,7 @@ import { SummonFilterPool } from "@ygo_duel/class_continuous_effect/DuelSummonFi
 import { BroadEntityMoveLog } from "./DuelEntityMoveLog";
 import type { SummonMaterialInfo } from "./DuelEntityAction";
 import { DamageFilterPool } from "@ygo_duel/class_continuous_effect/DuelDamageFilter";
+import type { IDuelClock } from "./DuelClock";
 export class DuelField {
   public readonly cells: DuelFieldCell[][];
   public readonly duel: Duel;
@@ -19,6 +20,10 @@ export class DuelField {
   public readonly numericStateOperatorPool: NumericStateOperatorPool;
   public readonly statusOperatorPool: StatusOperatorPool;
   public readonly damageFilterPool: DamageFilterPool;
+  public get stickyOperatorPools() {
+    return [this.procFilterPool, this.statusOperatorPool, this.numericStateOperatorPool, this.summonFilterPool, this.damageFilterPool];
+  }
+
   public readonly moveLog: BroadEntityMoveLog;
 
   public constructor(duel: Duel) {
@@ -40,7 +45,36 @@ export class DuelField {
     this.statusOperatorPool = new StatusOperatorPool();
     this.damageFilterPool = new DamageFilterPool();
     this.moveLog = new BroadEntityMoveLog(this);
+    this.duel.clock.onStageChange.append(this.distributeOperators);
   }
+
+  public readonly distributeOperators = (clock: IDuelClock) => {
+    console.info(`[totalProcSeq]:${clock.totalProcSeq}`);
+    let loopCount = 0;
+
+    while (true) {
+      loopCount++;
+
+      if (loopCount > 10) {
+        throw new SystemError("無限ループ発生");
+      }
+
+      let isOk = true;
+
+      for (const pool of this.stickyOperatorPools) {
+        if (!pool.distributeAll(this.duel)) {
+          isOk = false;
+          break;
+        }
+      }
+
+      if (!isOk) {
+        continue;
+      }
+
+      return;
+    }
+  };
 
   public readonly getAllCells = (): DuelFieldCell[] => {
     return this.cells.flat();

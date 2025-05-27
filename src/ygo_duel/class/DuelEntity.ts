@@ -491,7 +491,7 @@ export class DuelEntity {
   };
   private static readonly settleEntityMove = (duel: Duel) => {
     duel.field.recalcLinkArrows();
-    duel.distributeOperators(duel.clock);
+    duel.field.distributeOperators(duel.clock);
     const entities = duel.field.getAllEntities().filter((entity) => entity.wasMovedAtCurrentProc);
     entities.filter((entity) => !entity.isOnFieldStrictly && !entity.info.isPending).forEach((entity) => entity.resetInfoIfLeavesTheField());
     entities

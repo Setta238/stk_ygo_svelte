@@ -6,7 +6,14 @@ import type { IDuelClock } from "./DuelClock";
 import type { DuelFieldCell, DuelFieldCellType } from "./DuelFieldCell";
 import { getSequenceNumbers } from "@stk_utils/funcs/StkArrayUtils";
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
-import { EntityAction, type CardActionDefinitionAttrs, type ChainBlockInfo, type SummonMaterialInfo, type ValidatedActionInfo } from "./DuelEntityAction";
+import {
+  EntityAction,
+  type CardActionDefinitionAttrs,
+  type ChainBlockInfo,
+  type SummonMaterialInfo,
+  type TSpellSpeed,
+  type ValidatedActionInfo,
+} from "./DuelEntityAction";
 import { max, min } from "@stk_utils/funcs/StkMathUtils";
 import type { TBanishProcType } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
 import { DuelEntityShortHands } from "./DuelEntityShortHands";
@@ -502,6 +509,23 @@ export class Duelist {
     title: string,
     cancelable: boolean = false
   ): Promise<C | undefined> => this.duel.view.waitSelectText(this, choises, title, cancelable);
+
+  public readonly getEnableActions = (
+    enableCardPlayTypes: TEntityActionType[],
+    enableSpellSpeeds: TSpellSpeed[],
+    chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>
+  ): ValidatedActionInfo[] => {
+    const nextChainBlockFilter = chainBlockInfos.slice(-1)[0]?.nextChainBlockFilter ?? (() => true);
+
+    return [...this.duel.field.getAllCardEntities(), this.entity]
+      .flatMap((entity) => entity.actions)
+      .filter((action) => action.canExecute(this))
+      .filter((action) => enableSpellSpeeds.includes(action.spellSpeed))
+      .filter((action) => enableCardPlayTypes.includes(action.playType))
+      .filter((action) => nextChainBlockFilter(this, action))
+      .map((action) => action.validate(this, chainBlockInfos))
+      .filter((info): info is ValidatedActionInfo => info !== undefined);
+  };
 
   public readonly discard = async (
     qty: number,

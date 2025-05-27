@@ -54,8 +54,8 @@ export default defineConfig({
             return "entity_proc";
           }
         },
-        chunkFileNames: `assets/[name]_${timestamp}.js`,
-        assetFileNames: `[name]_${timestamp}.[ext]`,
+        chunkFileNames: `chunk/[name]_${timestamp}.js`,
+        assetFileNames: `asset/[name].[ext]`,
       },
     },
   },

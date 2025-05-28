@@ -824,7 +824,7 @@ export class Duelist {
         return false;
       }
       // 戦闘破壊可能であれば、攻撃する。
-      return enemy.validateDestory("BattleDestroy", this, attacker, action);
+      return enemy.validateDestroy("Battle", this, attacker, action);
     });
   };
 

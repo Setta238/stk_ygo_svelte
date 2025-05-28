@@ -21,7 +21,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
         fixedTags: ["SpecialSummonFromDeck"],
-        meetsConditions: (myInfo) => myInfo.action.entity.hasBeenSummonedNow(["LinkSummon"]),
+        meetsConditions: (myInfo) => myInfo.action.entity.hasBeenArrivalNow(["LinkSummon"]),
         canExecute: (myInfo) => {
           const tuners = [myInfo.activator.getHandCell(), myInfo.activator.getDeckCell()]
             .flatMap((cell) => cell.cardEntities)

@@ -3,7 +3,7 @@ import {
   type ChainBlockInfo,
   type ChainBlockInfoBase,
   type ChainBlockInfoPreparing,
-  type TEffectTag,
+  type TActionTag,
 } from "@ygo_duel/class/DuelEntityAction";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { type DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
@@ -48,7 +48,7 @@ export const defaultEquipSpellTrapPrepare = async <T>(
   myInfo: ChainBlockInfoPreparing<T>,
   chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
   cancelable: boolean,
-  chainBlockTags: TEffectTag[] | undefined,
+  chainBlockTags: TActionTag[] | undefined,
   prepared: T
 ) => {
   const entities = myInfo.action.getTargetableEntities(myInfo, chainBlockInfos);
@@ -74,7 +74,7 @@ export const defaultEquipSpellTrapExecute = async <T>(
   myInfo.action.entity.info.equipedBy = target;
   myInfo.action.entity.info.effectTargets[myInfo.action.seq] = [target];
   if (!validateEquipOwner(target, myInfo.action.entity)) {
-    await myInfo.action.entity.ruleDestory();
+    await myInfo.action.entity.ruleDestroy();
     myInfo.activator.writeInfoLog(`${target.toString()}が装備条件を満たさなくなったため、${myInfo.action.entity.toString()}は破壊された。`);
     return false;
   }

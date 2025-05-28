@@ -24,7 +24,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         fixedTags: ["SendToGraveyardFromDeck", "IfSpecialSummonSucceed"],
         isOnlyNTimesPerTurn: 1,
         canExecute: (myInfo) =>
-          myInfo.action.entity.hasBeenSummonedNow(["SynchroSummon"]) &&
+          myInfo.action.entity.hasBeenArrivalNow(["SynchroSummon"]) &&
           myInfo.activator.getDeckCell().cardEntities.some((card) => (card.lvl ?? 12) < (myInfo.action.entity.lvl ?? 0)),
         prepare: defaultPrepare,
         execute: async (myInfo): Promise<boolean> => {

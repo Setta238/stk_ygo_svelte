@@ -111,8 +111,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           const froms = myInfo.action.duel.field.moveLog
             .getPriviousChainLog()
             .filter((record) => {
-              console.log(record, record.entity.fieldCell.cellType === "Graveyard", record.movedAs.includes("BattleDestroy"));
-              return record.entity.fieldCell.cellType === "Graveyard" || record.movedAs.includes("BattleDestroy");
+              return record.entity.fieldCell.cellType === "Graveyard" || (record.movedAs.includes("Battle") && record.movedAs.includes("Destroy"));
             })
             .filter((record) => record.movedAt.totalProcSeq > wasMovedAt.totalProcSeq)
             .map((record) => record.entity.wasMovedFrom)

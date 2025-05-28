@@ -1,4 +1,4 @@
-import type { TBattlePosition } from "@ygo/class/YgoTypes";
+import { type TBattlePosition } from "@ygo/class/YgoTypes";
 import type { DuelFieldCell, DuelFieldCellType } from "./DuelFieldCell";
 import { type Duelist } from "./Duelist";
 import { DuelEntity } from "./DuelEntity";
@@ -18,7 +18,41 @@ export const executableDuelistTypes = ["Controller", "Opponent"] as const;
 export type TExecutableDuelistType = (typeof executableDuelistTypes)[number];
 
 export type TSpellSpeed = "Normal" | "Quick" | "Counter" | "Dammy";
-export const effectTags = [
+export const actionArrivalTriggerTags = [
+  "IfNormarlSummonSucceed",
+  "IfSpecialSummonSucceed",
+  "IfFusionSummonSucceed",
+  "IfRitualSummonSucceed",
+  "IfSynchroSummonSucceed",
+  "IfXyzSummonSucceed",
+  "IfLinkSummonSucceed",
+  "IfFlipSummonSucceed",
+  "IfFlip",
+] as const;
+export type TActionArrivalTriggerTags = (typeof actionArrivalTriggerTags)[number];
+
+export const actionArrivalPosTriggerTags = ["IfSummonSucceedInAttackPosition", "IfSummonSucceedInDefensePosition", "IfSummonSucceedInSetPosition"] as const;
+export type TActionArrivalPosTriggerTags = (typeof actionArrivalPosTriggerTags)[number];
+
+export const actionTriggerTags = [
+  ...actionArrivalTriggerTags,
+  ...actionArrivalPosTriggerTags,
+  "IfSentToGraveyard",
+  "IfBanished",
+  "IfReturnedToHand",
+  "IfReturnedToDeck",
+  "IfReturnedToExtraDeck",
+  "IfBanished",
+  "IfLeftField",
+  "IfDestroyed",
+  "IfDoneByBattle",
+  "IfDoneByEffect",
+  "IfDoneByOpponent",
+  "IfDoneJustNow", //タイミングを逃す場合
+] as const;
+export type TActionTriggerTag = (typeof actionTriggerTags)[number];
+
+export const actionTags = [
   "NormalSummon",
   "AdvanceSummon",
   "SpecialSummon",
@@ -49,8 +83,6 @@ export const effectTags = [
   "SpecialSummonFromHand",
   "SpecialSummonFromExtraDeck",
   "SpecialSummonToken",
-  "IfNormarlSummonSucceed", //畳返し
-  "IfSpecialSummonSucceed", //ツバメ返し
   "DamageToOpponent", //地獄の扉越し銃
   "DamageToSelf", //地獄の扉越し銃（セルフチェーン）
   "PayLifePoint", //キャッシュバック
@@ -62,8 +94,9 @@ export const effectTags = [
   "NegateCardActivation",
   "NegateNormalSummon",
   "NegateSpecialSummon",
+  ...actionTriggerTags,
 ] as const;
-export type TEffectTag = (typeof effectTags)[number];
+export type TActionTag = (typeof actionTags)[number];
 
 export type SummonMaterialInfo = {
   material: DuelEntity;
@@ -123,7 +156,7 @@ export type ChainBlockInfoPreparing<T> = ChainBlockInfoBase<T> & {
 
 export type ChainBlockInfoPrepared = {
   selectedEntities: DuelEntity[];
-  chainBlockTags: TEffectTag[];
+  chainBlockTags: TActionTag[];
   appendix?: string[];
   /** 緊急同調など */
   nextActionInfo?: ResponseActionInfo;
@@ -134,7 +167,8 @@ export type ChainBlockInfo<T> = ChainBlockInfoPreparing<T> & ChainBlockInfoPrepa
 
 export type CardActionDefinitionAttrs = EntityActionDefinitionBase & {
   spellSpeed: TSpellSpeed;
-  fixedTags?: TEffectTag[];
+  triggerTags?: TActionTriggerTag[];
+  fixedTags?: TActionTag[];
   hasToTargetCards?: boolean;
   /**
    * コスト払う必要があるかどうか（コピー効果用）
@@ -373,50 +407,6 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
     }
   }
 
-  public readonly validateCount = (activator: Duelist, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>): boolean => {
-    // このチェーン上で、同一の効果が発動している回数をカウント。
-    const currentChainCount = chainBlockInfos.filter((info) => this.isSameGroup(info.action)).length;
-    if (this.isOnlyNTimesPerDuel > 0) {
-      if (
-        this.entity.field.duel.chainBlockLog.records
-          .filter((rec) => !rec.chainBlockInfo.isNegatedActivationBy)
-          .filter((rec) => this.isSameGroup(rec.chainBlockInfo.action))
-          .filter((rec) => rec.chainBlockInfo.activator === activator).length +
-          currentChainCount >=
-        this.isOnlyNTimesPerDuel
-      ) {
-        return false;
-      }
-    }
-    if (this.isOnlyNTimesPerTurn > 0) {
-      if (
-        this.entity.field.duel.chainBlockLog.records
-          .filter((rec) => !rec.chainBlockInfo.isNegatedActivationBy)
-          .filter((rec) => this.isSameGroup(rec.chainBlockInfo.action))
-          .filter((rec) => rec.clock.turn === this.entity.field.duel.clock.turn)
-          .filter((rec) => rec.chainBlockInfo.activator === activator).length +
-          currentChainCount >=
-        this.isOnlyNTimesPerTurn
-      ) {
-        return false;
-      }
-    }
-    if (this.isOnlyNTimesPerChain > 0 && currentChainCount >= this.isOnlyNTimesPerChain) {
-      return false;
-    }
-
-    // このターンに発動した回数を加算
-    const count = currentChainCount + this.entity.counterHolder.getActionCount(this);
-
-    if (this.isOnlyNTimesPerTurnIfFaceup > 0 && count >= this.isOnlyNTimesPerTurnIfFaceup) {
-      return false;
-    }
-    if (this.isOnlyNTimesIfFaceup > 0 && count >= this.isOnlyNTimesIfFaceup) {
-      return false;
-    }
-    return true;
-  };
-
   public readonly validate = (
     activator: Duelist,
     chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
@@ -492,6 +482,50 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
       }
     }
     return { action: this as EntityAction<unknown>, dests, originSeq: this.seq };
+  };
+
+  public readonly validateCount = (activator: Duelist, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>): boolean => {
+    // このチェーン上で、同一の効果が発動している回数をカウント。
+    const currentChainCount = chainBlockInfos.filter((info) => this.isSameGroup(info.action)).length;
+    if (this.isOnlyNTimesPerDuel > 0) {
+      if (
+        this.entity.field.duel.chainBlockLog.records
+          .filter((rec) => !rec.chainBlockInfo.isNegatedActivationBy)
+          .filter((rec) => this.isSameGroup(rec.chainBlockInfo.action))
+          .filter((rec) => rec.chainBlockInfo.activator === activator).length +
+          currentChainCount >=
+        this.isOnlyNTimesPerDuel
+      ) {
+        return false;
+      }
+    }
+    if (this.isOnlyNTimesPerTurn > 0) {
+      if (
+        this.entity.field.duel.chainBlockLog.records
+          .filter((rec) => !rec.chainBlockInfo.isNegatedActivationBy)
+          .filter((rec) => this.isSameGroup(rec.chainBlockInfo.action))
+          .filter((rec) => rec.clock.turn === this.entity.field.duel.clock.turn)
+          .filter((rec) => rec.chainBlockInfo.activator === activator).length +
+          currentChainCount >=
+        this.isOnlyNTimesPerTurn
+      ) {
+        return false;
+      }
+    }
+    if (this.isOnlyNTimesPerChain > 0 && currentChainCount >= this.isOnlyNTimesPerChain) {
+      return false;
+    }
+
+    // このターンに発動した回数を加算
+    const count = currentChainCount + this.entity.counterHolder.getActionCount(this);
+
+    if (this.isOnlyNTimesPerTurnIfFaceup > 0 && count >= this.isOnlyNTimesPerTurnIfFaceup) {
+      return false;
+    }
+    if (this.isOnlyNTimesIfFaceup > 0 && count >= this.isOnlyNTimesIfFaceup) {
+      return false;
+    }
+    return true;
   };
 
   private readonly getDestForCardActivation = (activator: Duelist): DuelFieldCell[] | undefined => {
@@ -821,13 +855,13 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
   public readonly isSameGroup = (other: EntityAction<unknown>) =>
     this.actionGroupName ? this.entity.origin.name === other.entity.origin.name && this.actionGroupName === other.actionGroupName : this.isSame(other);
 
-  public readonly calcChainBlockTagsForDestroy = (activator: Duelist, entities: DuelEntity[]): TEffectTag[] => {
-    if (!effectTags.length) {
+  public readonly calcChainBlockTagsForDestroy = (activator: Duelist, entities: DuelEntity[]): TActionTag[] => {
+    if (!actionTags.length) {
       return [];
     }
-    const tags: TEffectTag[] = ["Destroy"];
+    const tags: TActionTag[] = ["Destroy"];
 
-    if (effectTags.length > 1) {
+    if (actionTags.length > 1) {
       tags.push("DestroyMultiple");
     }
 

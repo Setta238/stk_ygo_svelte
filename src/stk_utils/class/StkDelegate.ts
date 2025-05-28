@@ -1,7 +1,7 @@
 interface IStkDelegate<A, R> {
   call: { (args: A): R };
 }
-interface IStkAsyncDelegate<A, R> {
+export interface IStkAsyncDelegate<A, R> {
   call: { (args: A): Promise<R> };
 }
 

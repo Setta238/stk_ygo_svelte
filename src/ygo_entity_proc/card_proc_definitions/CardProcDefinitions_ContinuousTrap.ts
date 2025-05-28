@@ -32,7 +32,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         }
         if (monster.battlePosition === "Defense") {
           action.entity.controller.writeInfoLog(`${monster.toString()}が守備表示になったため、${action.entity.toString()}とともに破壊される。`);
-          await DuelEntityShortHands.tryMarkForDestory([monster, action.entity], { action, activator: action.entity.controller, selectedEntities: [monster] });
+          await DuelEntityShortHands.tryMarkForDestroy([monster, action.entity], { action, activator: action.entity.controller, selectedEntities: [monster] });
           return "RemoveMe";
         }
         return;
@@ -121,7 +121,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               if (target.isOnFieldStrictly && target.face === "FaceUp" && action.entity.isEffective && !moveParam.to.isSpellTrapZoneLikeCell) {
                 // この場所では破壊マーキングまで実行。
                 action.entity.controller.writeInfoLog(`${action.entity.toString()}がフィールドを離れたため、対象モンスター${target.toString()}を破壊。`);
-                await DuelEntityShortHands.tryMarkForDestory([target], { action, activator: action.entity.controller, selectedEntities: targets });
+                await DuelEntityShortHands.tryMarkForDestroy([target], { action, activator: action.entity.controller, selectedEntities: targets });
               }
 
               return "RemoveMe";

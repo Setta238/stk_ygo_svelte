@@ -96,7 +96,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         execute: async (myInfo, chainBlockInfos) => {
           // 力の集約などですでに何かに装備されている場合、破壊して処理を終了する。
           if (myInfo.action.entity.info.equipedBy) {
-            await myInfo.action.entity.ruleDestory();
+            await myInfo.action.entity.ruleDestroy();
             return false;
           }
 
@@ -104,7 +104,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
 
           // 蘇生できなかった場合、破壊して処理を終了する。
           if (!flg) {
-            await myInfo.action.entity.ruleDestory();
+            await myInfo.action.entity.ruleDestroy();
             return false;
           }
 
@@ -141,7 +141,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             ) {
               // この場所では破壊マーキングまで実行。
               action.entity.controller.writeInfoLog(`${action.entity.toString()}が破壊されたため、対象モンスター${target.toString()}を破壊。`);
-              await DuelEntityShortHands.tryMarkForDestory([target], { action, activator: action.entity.controller, selectedEntities: [target] });
+              await DuelEntityShortHands.tryMarkForDestroy([target], { action, activator: action.entity.controller, selectedEntities: [target] });
             }
 
             return;

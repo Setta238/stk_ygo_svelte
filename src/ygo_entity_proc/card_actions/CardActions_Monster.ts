@@ -506,7 +506,7 @@ export const getSelfBattleSubstituteEffectDefinition = (times: number): Substitu
         if (!targets.includes(effect.entity)) {
           return [];
         }
-        if (destroyType !== "BattleDestroy") {
+        if (destroyType !== "Battle") {
           return [];
         }
         return [effect.entity];
@@ -515,7 +515,7 @@ export const getSelfBattleSubstituteEffectDefinition = (times: number): Substitu
         if (!targets.includes(effect.entity)) {
           return [];
         }
-        if (destroyType !== "BattleDestroy") {
+        if (destroyType !== "Battle") {
           return [];
         }
         if (!effect.entity.isEffective) {

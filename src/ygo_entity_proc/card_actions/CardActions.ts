@@ -8,7 +8,7 @@ import {
   type ChainBlockInfo,
   type ChainBlockInfoBase,
   type ChainBlockInfoPreparing,
-  type TEffectTag,
+  type TActionTag,
 } from "../../ygo_duel/class/DuelEntityAction";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
@@ -180,7 +180,7 @@ export const defaultTargetMonstersRebornPrepare = async <T>(
     throw new IllegalCancelError(myInfo);
   }
 
-  const tags: TEffectTag[] = targets
+  const tags: TActionTag[] = targets
     .map((monster) => monster.fieldCell.cellType)
     .getDistinct()
     .filter((ct) => ct === "Graveyard" || ct === "Banished")
@@ -229,7 +229,7 @@ export const getSingleTargetActionPartical = <T>(
   getTargetableEntities: (...args: Parameters<NonNullable<CardActionDefinitionFunctions<T>["canExecute"]>>) => DuelEntity[],
   options: {
     message?: string;
-    tags?: TEffectTag[];
+    tags?: TActionTag[];
     do?: "Destroy" | "Reborn";
     posList?: Readonly<TBattlePosition[]>;
     canExecute?: (...args: Parameters<NonNullable<CardActionDefinitionFunctions<T>["canExecute"]>>) => boolean;

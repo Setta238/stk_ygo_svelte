@@ -1,5 +1,5 @@
 import { faceupBattlePositions, type TBattlePosition } from "@ygo/class/YgoTypes";
-import type { ChainBlockInfoBase, SummonMaterialInfo, ChainBlockInfo, CardActionDefinitionFunctions, TEffectTag } from "@ygo_duel/class/DuelEntityAction";
+import type { ChainBlockInfoBase, SummonMaterialInfo, ChainBlockInfo, CardActionDefinitionFunctions, TActionTag } from "@ygo_duel/class/DuelEntityAction";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCell, DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
 import { SystemError } from "@ygo_duel/class/Duel";
@@ -279,7 +279,7 @@ export const getDefaultFusionSummonAction = (
   materialsFrom: DuelFieldCellType[],
   materialsValidator: (myInfo: ChainBlockInfoBase<unknown>, monster: DuelEntity, materials: DuelEntity[]) => boolean,
   materialsTo: DuelFieldCellType
-): CardActionDefinitionFunctions<unknown> & { fixedTags: TEffectTag[] } => {
+): CardActionDefinitionFunctions<unknown> & { fixedTags: TActionTag[] } => {
   return {
     fixedTags: ["SpecialSummonFromExtraDeck"],
     canExecute: (myInfo) =>

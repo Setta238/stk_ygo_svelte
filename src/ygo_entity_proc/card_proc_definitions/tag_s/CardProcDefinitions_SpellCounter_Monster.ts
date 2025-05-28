@@ -109,7 +109,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         fixedTags: ["IfNormarlSummonSucceed"],
-        meetsConditions: (myInfo) => myInfo.action.entity.hasBeenSummonedNow(["NormalSummon"]),
+        meetsConditions: (myInfo) => myInfo.action.entity.hasBeenArrivalNow(["NormalSummon"]),
         prepare: defaultPrepare,
         execute: async (myInfo) => {
           if (myInfo.action.entity.face === "FaceDown") {

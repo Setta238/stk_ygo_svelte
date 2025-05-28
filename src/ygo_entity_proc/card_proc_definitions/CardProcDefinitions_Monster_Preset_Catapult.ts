@@ -193,9 +193,9 @@ export default function* generate(): Generator<EntityProcDefinition> {
           }
 
           action.entity.controller.writeInfoLog(`${triggerEntity.toString()}が破壊されたため、${action.entity.toString()}は破壊される。`);
-          DuelEntityShortHands.tryMarkForDestory([action.entity], { activator: action.entity.controller, action, selectedEntities: [] });
+          DuelEntityShortHands.tryMarkForDestroy([action.entity], { activator: action.entity.controller, action, selectedEntities: [] });
           action.entity.info.isDying = true;
-          action.entity.info.causeOfDeath = ["EffectDestroy"];
+          action.entity.info.causeOfDeath = ["Effect", "Destroy"];
           return undefined;
         },
       },

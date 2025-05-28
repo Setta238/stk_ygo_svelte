@@ -1,13 +1,13 @@
 import { Duel, DuelEnd, SystemError } from "./Duel";
 import { type ChainBlockInfo } from "./DuelEntityAction";
-import { DuelEntity, type TDuelCauseReason, type TDuelEntityFace, type TDuelEntityOrientation, destoryCauseReasonDic } from "./DuelEntity";
+import { DuelEntity, type TDuelCauseReason, type TDuelEntityFace, type TDuelEntityOrientation } from "./DuelEntity";
 import type { Duelist } from "./Duelist";
 import type { TBanishProcType } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
 import type { DuelFieldCell, TBundleCellType, TDuelEntityMovePos } from "./DuelFieldCell";
 import type { EntityActionExecuteInfo } from "./DuelEntityActionBase";
 
 export class DuelEntityShortHands {
-  private static readonly _tryMarkForDestory = (entity: DuelEntity, chainBlockInfo: EntityActionExecuteInfo): boolean => {
+  private static readonly _tryMarkForDestroy = (entity: DuelEntity, chainBlockInfo: EntityActionExecuteInfo): boolean => {
     if (entity.info.isDying) {
       return false;
     }
@@ -18,16 +18,15 @@ export class DuelEntityShortHands {
       return false;
     }
 
-    const destroyType = chainBlockInfo.action.playType === "Battle" ? "BattleDestroy" : "EffectDestroy";
-    const movedBy =
-      destroyType === "BattleDestroy" && chainBlockInfo.action.entity === entity ? chainBlockInfo.selectedEntities[0] : chainBlockInfo.action.entity;
-    entity.info.isDying = entity.validateDestory(destroyType, chainBlockInfo.activator, movedBy, chainBlockInfo.action);
+    const destroyType = chainBlockInfo.action.playType === "Battle" ? "Battle" : "Effect";
+    const movedBy = destroyType === "Battle" && chainBlockInfo.action.entity === entity ? chainBlockInfo.selectedEntities[0] : chainBlockInfo.action.entity;
+    entity.info.isDying = entity.validateDestroy(destroyType, chainBlockInfo.activator, movedBy, chainBlockInfo.action);
     if (entity.info.isDying) {
-      entity.info.causeOfDeath = [destroyType];
+      entity.info.causeOfDeath = [destroyType, "Destroy"];
       entity.info.isKilledBy = movedBy;
       entity.info.isKilledByWhom = chainBlockInfo.activator;
       // 戦闘破壊のみ、情報を書き換え。
-      if (destroyType === "BattleDestroy") {
+      if (destroyType === "Battle") {
         entity.info.isKilledByWhom = movedBy.controller;
       }
     }
@@ -295,7 +294,7 @@ export class DuelEntityShortHands {
   };
 
   public static readonly tryDestroy = async (cards: DuelEntity[], chainBlockInfo: ChainBlockInfo<unknown>): Promise<DuelEntity[]> => {
-    const result = await DuelEntityShortHands.tryMarkForDestory(cards, chainBlockInfo);
+    const result = await DuelEntityShortHands.tryMarkForDestroy(cards, chainBlockInfo);
 
     await DuelEntityShortHands.waitCorpseDisposal(chainBlockInfo.activator.duel);
 
@@ -322,15 +321,15 @@ export class DuelEntityShortHands {
    * @param chainBlockInfo
    * @returns 引数に指定されたもののうち、最終的に破壊マーキングができたものを返す
    */
-  public static readonly tryMarkForDestory = async (cards: DuelEntity[], chainBlockInfo: EntityActionExecuteInfo): Promise<DuelEntity[]> => {
+  public static readonly tryMarkForDestroy = async (cards: DuelEntity[], chainBlockInfo: EntityActionExecuteInfo): Promise<DuelEntity[]> => {
     // 破壊できるもののみ一旦マーキング
-    let _cards = cards.filter((card) => DuelEntityShortHands._tryMarkForDestory(card, chainBlockInfo));
+    let _cards = cards.filter((card) => DuelEntityShortHands._tryMarkForDestroy(card, chainBlockInfo));
     if (!_cards.length) {
       return [];
     }
 
     // 破壊種別
-    const destroyType = chainBlockInfo.action.playType === "Battle" ? "BattleDestroy" : "EffectDestroy";
+    const destroyType = chainBlockInfo.action.playType === "Battle" ? "Battle" : "Effect";
 
     // 強制効果で破壊を免れたもののマークを元に戻す。
     (
@@ -403,7 +402,12 @@ export class DuelEntityShortHands {
     const result = _cards.filter((card) => card.info.isDying);
 
     // ログ出力
-    result.forEach((card) => card.duel.log.info(`${card.toString()}を${destoryCauseReasonDic[destroyType]}。`, card.info.isKilledByWhom));
+    result.forEach((card) =>
+      card.duel.log.info(
+        `${card.toString()}を${destroyType === "Battle" ? "戦闘" : destroyType === "Effect" ? "効果" : "ルール"}破壊。`,
+        card.info.isKilledByWhom
+      )
+    );
 
     return result;
   };

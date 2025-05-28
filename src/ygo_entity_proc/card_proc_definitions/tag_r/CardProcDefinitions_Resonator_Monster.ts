@@ -22,7 +22,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
         fixedTags: ["SpecialSummonFromHand", "IfNormarlSummonSucceed", "SpecialSummon"],
-        meetsConditions: (myInfo) => myInfo.action.entity.hasBeenSummonedNow(["NormalSummon"]),
+        meetsConditions: (myInfo) => myInfo.action.entity.hasBeenArrivalNow(["NormalSummon"]),
         canExecute: (myInfo) => {
           const cells = myInfo.activator.getMonsterZones();
           const list = myInfo.activator.getEnableSummonList(
@@ -68,7 +68,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerTurn: 1,
-        meetsConditions: (myInfo) => myInfo.action.entity.hasBeenSummonedNow(["SpecialSummon"]),
+        meetsConditions: (myInfo) => myInfo.action.entity.hasBeenArrivalNow(["SpecialSummon"]),
         ...getSingleTargetActionPartical(
           (myInfo) =>
             myInfo.activator

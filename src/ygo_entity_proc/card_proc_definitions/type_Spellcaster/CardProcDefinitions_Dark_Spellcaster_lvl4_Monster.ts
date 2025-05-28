@@ -19,7 +19,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["MonsterZone"],
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
-        meetsConditions: (myInfo) => myInfo.action.entity.hasBeenSummonedNow(["NormalSummon", "FlipSummon"]),
+        meetsConditions: (myInfo) => myInfo.action.entity.hasBeenArrivalNow(["NormalSummon", "FlipSummon"]),
         fixedTags: ["IfNormarlSummonSucceed"],
         prepare: defaultPrepare,
         execute: async (myInfo) => {

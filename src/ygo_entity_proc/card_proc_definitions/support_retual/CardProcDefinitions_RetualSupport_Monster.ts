@@ -22,7 +22,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           executablePeriods: freeChainDuelPeriodKeys,
           executableDuelistTypes: ["Controller"],
           fixedTags: ["SearchFromDeck"],
-          meetsConditions: (myInfo) => myInfo.action.entity.hasBeenSummonedNow(["NormalSummon", "FlipSummon"]),
+          meetsConditions: (myInfo) => myInfo.action.entity.hasBeenArrivalNow(["NormalSummon", "FlipSummon"]),
           canExecute: (myInfo) =>
             myInfo.activator.canAddToHandFromDeck &&
             myInfo.activator

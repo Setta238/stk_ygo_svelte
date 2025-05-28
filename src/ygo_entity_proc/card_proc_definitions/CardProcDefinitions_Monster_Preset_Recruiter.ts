@@ -1,5 +1,5 @@
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
-import { DuelEntity, type TDestoryCauseReason } from "@ygo_duel/class/DuelEntity";
+import { DuelEntity, type TDestroyCauseReason } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
@@ -12,7 +12,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
       filter: (card: DuelEntity) => card.attr.includes("Dark") && (card.atk ?? 9999) <= 1500,
       qtyList: [1],
       posList: ["Attack"] as TBattlePosition[],
-      destoryTypes: ["EffectDestroy"] as TDestoryCauseReason[],
+      destroyTypes: ["Effect"] as TDestroyCauseReason[],
       executableCells: ["Graveyard"] as DuelFieldCellType[],
     },
     {
@@ -20,7 +20,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
       filter: (card: DuelEntity) => card.attr.includes("Dark") && (card.atk ?? 9999) <= 1500,
       qtyList: [1],
       posList: ["Attack"] as TBattlePosition[],
-      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      destroyTypes: ["Battle"] as TDestroyCauseReason[],
       executableCells: ["Graveyard"] as DuelFieldCellType[],
     },
     {
@@ -28,7 +28,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
       filter: (card: DuelEntity) => card.attr.includes("Earth") && (card.atk ?? 9999) <= 1500,
       qtyList: [1],
       posList: ["Attack"] as TBattlePosition[],
-      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      destroyTypes: ["Battle"] as TDestroyCauseReason[],
       executableCells: ["Graveyard"] as DuelFieldCellType[],
     },
     {
@@ -36,7 +36,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
       filter: (card: DuelEntity) => card.attr.includes("Water") && (card.atk ?? 9999) <= 1500,
       qtyList: [1],
       posList: ["Attack"] as TBattlePosition[],
-      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      destroyTypes: ["Battle"] as TDestroyCauseReason[],
       executableCells: ["Graveyard"] as DuelFieldCellType[],
     },
     {
@@ -44,7 +44,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
       filter: (card: DuelEntity) => card.attr.includes("Light") && (card.atk ?? 9999) <= 1500,
       qtyList: [1],
       posList: ["Attack"] as TBattlePosition[],
-      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      destroyTypes: ["Battle"] as TDestroyCauseReason[],
       executableCells: ["Graveyard"] as DuelFieldCellType[],
     },
     {
@@ -52,7 +52,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
       filter: (card: DuelEntity) => card.attr.includes("Wind") && (card.atk ?? 9999) <= 1500,
       qtyList: [1],
       posList: ["Attack"] as TBattlePosition[],
-      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      destroyTypes: ["Battle"] as TDestroyCauseReason[],
       executableCells: ["Graveyard"] as DuelFieldCellType[],
     },
     {
@@ -60,7 +60,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
       filter: (card: DuelEntity) => card.attr.includes("Fire") && (card.atk ?? 9999) <= 1500,
       qtyList: [1],
       posList: ["Attack"] as TBattlePosition[],
-      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      destroyTypes: ["Battle"] as TDestroyCauseReason[],
       executableCells: ["Graveyard"] as DuelFieldCellType[],
     },
     {
@@ -68,7 +68,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
       filter: (card: DuelEntity) => card.attr.includes("Earth") && card.types.includes("Warrior") && (card.atk ?? 9999) <= 1500,
       qtyList: [1],
       posList: ["Attack"] as TBattlePosition[],
-      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      destroyTypes: ["Battle"] as TDestroyCauseReason[],
       executableCells: ["Graveyard"] as DuelFieldCellType[],
     },
     {
@@ -76,7 +76,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
       filter: (card: DuelEntity) => card.types.includes("Warrior") && (card.lvl ?? 9999) < 3,
       qtyList: [1],
       posList: ["Set"] as TBattlePosition[],
-      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      destroyTypes: ["Battle"] as TDestroyCauseReason[],
       executableCells: ["Graveyard", "Banished"] as DuelFieldCellType[],
     },
     {
@@ -84,7 +84,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
       filter: (card: DuelEntity) => card.types.includes("Warrior") && (card.def ?? 9999) <= 1500,
       qtyList: [1],
       posList: ["Attack", "Defense"] as TBattlePosition[],
-      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      destroyTypes: ["Battle"] as TDestroyCauseReason[],
       executableCells: ["Graveyard"] as DuelFieldCellType[],
     },
     {
@@ -92,7 +92,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
       filter: (card: DuelEntity) => card.types.includes("Insect") && (card.atk ?? 9999) <= 1500,
       qtyList: [1],
       posList: ["Attack", "Defense"] as TBattlePosition[],
-      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      destroyTypes: ["Battle"] as TDestroyCauseReason[],
       executableCells: ["Graveyard"] as DuelFieldCellType[],
     },
     {
@@ -100,7 +100,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
       filter: (card: DuelEntity) => card.types.includes("Zombie") && (card.def ?? 9999) <= 2000,
       qtyList: [1],
       posList: ["Attack", "Defense"] as TBattlePosition[],
-      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      destroyTypes: ["Battle"] as TDestroyCauseReason[],
       executableCells: ["Graveyard"] as DuelFieldCellType[],
     },
     {
@@ -108,7 +108,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
       filter: (card: DuelEntity) => card.types.includes("Machine") && (card.atk ?? 9999) <= 1500,
       qtyList: [1],
       posList: ["Attack"] as TBattlePosition[],
-      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      destroyTypes: ["Battle"] as TDestroyCauseReason[],
       executableCells: ["Graveyard"] as DuelFieldCellType[],
     },
     {
@@ -116,7 +116,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
       filter: (card: DuelEntity) => card.types.includes("Fiend") && (card.lvl ?? 9999) === 1,
       qtyList: [1],
       posList: ["Attack", "Defense"] as TBattlePosition[],
-      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      destroyTypes: ["Battle"] as TDestroyCauseReason[],
       executableCells: ["Graveyard"] as DuelFieldCellType[],
     },
     {
@@ -124,7 +124,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
       filter: (card: DuelEntity) => (card.status.nameTags ?? []).includes("ガスタ") && (card.status.monsterCategories ?? []).includes("Tuner"),
       qtyList: [1],
       posList: ["Attack", "Defense"] as TBattlePosition[],
-      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      destroyTypes: ["Battle"] as TDestroyCauseReason[],
       executableCells: ["Graveyard"] as DuelFieldCellType[],
     },
     {
@@ -132,7 +132,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
       filter: (card: DuelEntity) => (card.status.nameTags ?? []).includes("ＨＥＲＯ") && (card.atk ?? 9999) <= 1000,
       qtyList: [1],
       posList: ["Defense"] as TBattlePosition[],
-      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      destroyTypes: ["Battle"] as TDestroyCauseReason[],
       executableCells: ["Graveyard"] as DuelFieldCellType[],
     },
     {
@@ -140,7 +140,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
       filter: (card: DuelEntity) => (card.status.nameTags ?? []).includes("ジェネクス") && (card.atk ?? 9999) <= 1500,
       qtyList: [1],
       posList: ["Attack"] as TBattlePosition[],
-      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      destroyTypes: ["Battle"] as TDestroyCauseReason[],
       executableCells: ["Graveyard"] as DuelFieldCellType[],
     },
     {
@@ -148,7 +148,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
       filter: (card: DuelEntity) => (card.status.nameTags ?? []).includes("六武衆") && (card.lvl ?? 12) <= 3,
       qtyList: [1],
       posList: ["Attack", "Defense"] as TBattlePosition[],
-      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      destroyTypes: ["Battle"] as TDestroyCauseReason[],
       executableCells: ["Graveyard"] as DuelFieldCellType[],
     },
     {
@@ -156,7 +156,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
       filter: (card: DuelEntity) => (card.status.nameTags ?? []).includes("剣闘獣") && (card.lvl ?? 12) <= 4,
       qtyList: [1],
       posList: ["Attack", "Defense"] as TBattlePosition[],
-      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      destroyTypes: ["Battle"] as TDestroyCauseReason[],
       executableCells: ["Graveyard"] as DuelFieldCellType[],
     },
     {
@@ -164,7 +164,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
       filter: (card: DuelEntity) => (card.status.nameTags ?? []).includes("ゼンマイ") && (card.lvl ?? 12) <= 4,
       qtyList: [1],
       posList: ["Attack", "Defense"] as TBattlePosition[],
-      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      destroyTypes: ["Battle"] as TDestroyCauseReason[],
       executableCells: ["Graveyard"] as DuelFieldCellType[],
     },
     {
@@ -172,7 +172,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
       filter: (card: DuelEntity) => (card.status.nameTags ?? []).includes("Ｘ－セイバー") && (card.lvl ?? 12) <= 4,
       qtyList: [1],
       posList: ["Attack", "Defense"] as TBattlePosition[],
-      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      destroyTypes: ["Battle"] as TDestroyCauseReason[],
       executableCells: ["Graveyard"] as DuelFieldCellType[],
     },
     {
@@ -180,7 +180,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
       filter: (card: DuelEntity) => card.nm === "軍隊竜",
       qtyList: [1],
       posList: ["Attack", "Defense"] as TBattlePosition[],
-      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      destroyTypes: ["Battle"] as TDestroyCauseReason[],
       executableCells: ["Graveyard"] as DuelFieldCellType[],
     },
     {
@@ -188,7 +188,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
       filter: (card: DuelEntity) => card.nm === "アサルト・ガンドッグ",
       qtyList: [1, 2, 3, 4, 5],
       posList: ["Attack", "Defense"] as TBattlePosition[],
-      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      destroyTypes: ["Battle"] as TDestroyCauseReason[],
       executableCells: ["Graveyard"] as DuelFieldCellType[],
     },
     {
@@ -196,7 +196,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
       filter: (card: DuelEntity) => card.nm === "ハイエナ",
       qtyList: [1, 2, 3, 4, 5],
       posList: ["Attack", "Defense"] as TBattlePosition[],
-      destoryTypes: ["BattleDestroy"] as TDestoryCauseReason[],
+      destroyTypes: ["Battle"] as TDestroyCauseReason[],
       executableCells: ["Graveyard"] as DuelFieldCellType[],
     },
   ].map((item): EntityProcDefinition => {
@@ -209,11 +209,13 @@ export default function* generate(): Generator<EntityProcDefinition> {
           playType: "TriggerEffect",
           spellSpeed: "Normal",
           executableCells: item.executableCells,
-          executablePeriods: item.destoryTypes.includes("EffectDestroy") ? [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys] : ["b1DEnd", "b2DEnd"],
+          executablePeriods: item.destroyTypes.includes("Effect") ? [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys] : ["b1DEnd", "b2DEnd"],
           executableDuelistTypes: ["Controller"],
           fixedTags: ["SpecialSummonFromDeck"],
           meetsConditions: (myInfo) =>
-            myInfo.action.entity.wasMovedAtPreviousChain && myInfo.action.entity.moveLog.latestRecord.movedAs.union(item.destoryTypes).length > 0,
+            myInfo.action.entity.wasMovedAtPreviousChain &&
+            myInfo.action.entity.moveLog.latestRecord.movedAs.includes("Destroy") &&
+            myInfo.action.entity.moveLog.latestRecord.movedAs.union(item.destroyTypes).length > 0,
           canExecute: (myInfo) => {
             const cells = myInfo.activator.getMonsterZones();
             const list = myInfo.activator.getEnableSummonList(

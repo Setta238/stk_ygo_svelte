@@ -1,5 +1,5 @@
 import { faceupBattlePositions, type TBattlePosition } from "@ygo/class/YgoTypes";
-import type { ChainBlockInfoBase, SummonMaterialInfo, TEffectTag, ChainBlockInfo, CardActionDefinitionFunctions } from "@ygo_duel/class/DuelEntityAction";
+import type { ChainBlockInfoBase, SummonMaterialInfo, TActionTag, ChainBlockInfo, CardActionDefinitionFunctions } from "@ygo_duel/class/DuelEntityAction";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCell, DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
 import { SystemError } from "@ygo_duel/class/Duel";
@@ -196,7 +196,7 @@ export const getDefaultRitualSummonActionPartical = (
         (pattern) => pattern.materialInfos.length
       ),
     prepare: async () => {
-      const tags: TEffectTag[] = [];
+      const tags: TActionTag[] = [];
       if (summonFrom.includes("Hand")) {
         tags.push("SpecialSummonFromHand");
       }

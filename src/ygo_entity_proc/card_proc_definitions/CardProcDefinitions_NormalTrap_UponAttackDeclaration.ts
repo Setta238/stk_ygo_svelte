@@ -1,6 +1,6 @@
 import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CardActions_Spell";
 
-import type { TEffectTag } from "@ygo_duel/class/DuelEntityAction";
+import type { TActionTag } from "@ygo_duel/class/DuelEntityAction";
 import { SystemError } from "@ygo_duel/class/Duel";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
@@ -52,7 +52,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               throw new SystemError("想定されない状態", myInfo, attacker);
             }
 
-            const tags: TEffectTag[] = name === "炸裂装甲" ? myInfo.action.calcChainBlockTagsForDestroy(myInfo.activator, [attacker]) : ["BanishFromField"];
+            const tags: TActionTag[] = name === "炸裂装甲" ? myInfo.action.calcChainBlockTagsForDestroy(myInfo.activator, [attacker]) : ["BanishFromField"];
 
             return { selectedEntities: [attacker], chainBlockTags: tags };
           },

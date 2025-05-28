@@ -7,7 +7,7 @@ declare global {
     randomPickMany(num: number): T[];
     shuffle(): T[];
     reset(...newArray: T[]): void;
-    union(another: Readonly<T[]>): T[];
+    union<A extends T>(another: Readonly<A[]>): A[];
     getAllOnOffPattern(): Generator<T[]>;
     getDistinct(): T[];
     distinct(): void;

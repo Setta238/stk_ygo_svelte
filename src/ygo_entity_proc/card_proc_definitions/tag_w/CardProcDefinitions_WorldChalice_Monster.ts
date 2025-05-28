@@ -6,7 +6,7 @@ import { SystemError } from "@ygo_duel/class/Duel";
 import { defaultCanPaySelfBanishCosts, defaultPaySelfBanishCosts, defaultPrepare } from "../../card_actions/CardActions";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import type { TEffectTag } from "@ygo_duel/class/DuelEntityAction";
+import type { TActionTag } from "@ygo_duel/class/DuelEntityAction";
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "星杯の妖精リース",
@@ -21,7 +21,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerTurn: 1,
         fixedTags: ["SearchFromDeck"],
-        meetsConditions: (myInfo) => myInfo.action.entity.hasBeenSummonedNow(["NormalSummon", "SpecialSummon"]),
+        meetsConditions: (myInfo) => myInfo.action.entity.hasBeenArrivalNow(["NormalSummon", "SpecialSummon"]),
         canExecute: (myInfo) =>
           myInfo.activator.canAddToHandFromDeck &&
           myInfo.activator
@@ -29,7 +29,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             .cardEntities.filter((card) => card.kind === "Monster")
             .some((card) => card.status.nameTags?.includes("星杯")),
         prepare: async (myInfo) => {
-          const chainBlockTags: TEffectTag[] = myInfo.action.entity.hasBeenSummonedNow(["NormalSummon"])
+          const chainBlockTags: TActionTag[] = myInfo.action.entity.hasBeenArrivalNow(["NormalSummon"])
             ? ["IfNormarlSummonSucceed"]
             : ["IfSpecialSummonSucceed"];
           return { selectedEntities: [], chainBlockTags };

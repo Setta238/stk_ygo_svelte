@@ -2,7 +2,7 @@ import { defaultContinuousSpellCardActivateAction, defaultSpellTrapSetAction } f
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { defaultPayLifePoint } from "@ygo_entity_proc/card_actions/CardActions";
-import { executableDuelistTypes, type TEffectTag } from "@ygo_duel/class/DuelEntityAction";
+import { executableDuelistTypes, type TActionTag } from "@ygo_duel/class/DuelEntityAction";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { createRegularDamageFilterHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { DamageFilter } from "@ygo_duel/class_continuous_effect/DuelDamageFilter";
@@ -27,7 +27,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         canExecute: (myInfo) => myInfo.action.entity.face === "FaceUp",
         payCosts: (myInfo, chainBlockInfos) => defaultPayLifePoint(myInfo, chainBlockInfos, 1000),
         prepare: async (myInfo, chainBlockInfos, cancelable) => {
-          let choices: { seq: number; text: string; tags: TEffectTag[] }[] = [
+          let choices: { seq: number; text: string; tags: TActionTag[] }[] = [
             { seq: 0, text: "●デッキから１枚ドローする。", tags: ["Draw"] },
             {
               seq: 1,

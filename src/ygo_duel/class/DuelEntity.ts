@@ -13,6 +13,7 @@ import {
   type TCardKind,
   linkArrowDic,
   type LinkArrow,
+  faceupBattlePositions,
 } from "@ygo/class/YgoTypes";
 import { Duel, SystemError } from "./Duel";
 import {
@@ -70,7 +71,7 @@ export type DuelEntityInfomation = {
   isEffectiveIn: DuelFieldCellType[];
   isPending: boolean;
   isDying: boolean;
-  causeOfDeath: (TDestoryCauseReason | "CardActivation" | "LostXyzOwner" | "LostEquipOwner" | "LostDestinyBond")[];
+  causeOfDeath: (TDestroyCauseReason | "CardActivation" | "LostXyzOwner" | "LostEquipOwner" | "LostDestinyBond" | "Destroy")[];
   isKilledBy: DuelEntity | undefined;
   isKilledByWhom: Duelist | undefined;
   isVanished: boolean;
@@ -101,6 +102,7 @@ export const namedSummonKindCauseReasons = [
   "RitualSummon",
   "FlipSummon",
 ] as const;
+
 export type TNamedSummonKindCauseReason = (typeof namedSummonKindCauseReasons)[number];
 export const summonNameDic: { [key in TNamedSummonKindCauseReason]: string } = {
   FusionSummon: "融合召喚",
@@ -113,13 +115,11 @@ export const summonNameDic: { [key in TNamedSummonKindCauseReason]: string } = {
 };
 export const summonKindCauseReasons = [...namedSummonKindCauseReasons, "AdvanceSummon", "NormalSummon", "SpecialSummon"] as const;
 export type TSummonKindCauseReason = (typeof summonKindCauseReasons)[number];
-export const destoryCauseReasons = ["BattleDestroy", "EffectDestroy", "RuleDestroy"] as const;
-export type TDestoryCauseReason = (typeof destoryCauseReasons)[number];
-export const destoryCauseReasonDic: { [key in TDestoryCauseReason]: string } = {
-  BattleDestroy: "戦闘破壊",
-  EffectDestroy: "効果破壊",
-  RuleDestroy: "ルール破壊",
-};
+export const arrivalCauseReasons = [...summonKindCauseReasons, "Flip", "FlipSummon", "TokenBirth", "ComeBackAlive"] as const;
+export type TArrivalCauseReason = (typeof arrivalCauseReasons)[number];
+
+export const DestroyCauseReasons = ["Battle", "Effect", "Rule"] as const;
+export type TDestroyCauseReason = (typeof DestroyCauseReasons)[number];
 export const summonPosCauseReasons = ["AttackSummon", "SetSummon", "DefenseSummon"] as const;
 export const posToSummonPos = (pos: TBattlePosition) => (pos + "Summon") as TSummonPosCauseReason;
 export type TSummonPosCauseReason = (typeof summonPosCauseReasons)[number];
@@ -134,10 +134,10 @@ export const materialCauseReason = [
 ] as const;
 export type TMaterialCauseReason = (typeof materialCauseReason)[number];
 export type TDuelCauseReason =
-  | TSummonKindCauseReason
+  | TArrivalCauseReason
   | TSummonPosCauseReason
   | TMaterialCauseReason
-  | TDestoryCauseReason
+  | TDestroyCauseReason
   | "Draw"
   | "Effect"
   | "Release"
@@ -147,9 +147,6 @@ export type TDuelCauseReason =
   | "Spawn"
   | "SpellTrapSet"
   | "CardActivation"
-  | "Flip"
-  | "FlipByBattle"
-  | "FlipSummon"
   | "System"
   | "LostXyzOwner"
   | "LostEquipOwner"
@@ -157,8 +154,7 @@ export type TDuelCauseReason =
   | "SummonNegated"
   | "PutDirectly"
   | "Excavate"
-  | "TokenBirth"
-  | "ComeBackAlive";
+  | "Destroy";
 
 export const duelEntityCardTypes = ["Card", "Token"] as const;
 export type TDuelEntityCardType = (typeof duelEntityCardTypes)[number];
@@ -1121,7 +1117,7 @@ export class DuelEntity {
           .filter((equip) => equip.isOnFieldAsSpellTrapStrictly)
           .forEach((equip) => {
             equip.info.isDying = true;
-            equip.info.causeOfDeath = ["RuleDestroy", "LostEquipOwner", "LostDestinyBond"];
+            equip.info.causeOfDeath = ["Rule", "Destroy", "LostEquipOwner", "LostDestinyBond"];
             this.controller.writeInfoLog(`装備対象${this.toString()}不在により${equip.toString()}は破壊された。`);
           });
         this.info.equipEntities = [];
@@ -1172,7 +1168,7 @@ export class DuelEntity {
       // 装備していたカードにマーキング
       this.info.equipEntities.forEach((equip) => {
         equip.info.isDying = true;
-        equip.info.causeOfDeath = ["RuleDestroy"];
+        equip.info.causeOfDeath = ["Rule", "Destroy"];
         this.controller.writeInfoLog(`装備対象${this.toString()}不在により${equip.toString()}は破壊された。`);
       });
 
@@ -1301,21 +1297,20 @@ export class DuelEntity {
 
 declare module "./DuelEntity" {
   interface DuelEntity {
-    hasBeenSummonedNow(summonKinds: TSummonKindCauseReason[], posList?: TBattlePosition[]): boolean;
-    hasBeenSummonedJustNow(summonKinds: TSummonKindCauseReason[], posList?: TBattlePosition[]): boolean;
+    hasBeenArrivalNow(summonKinds: TArrivalCauseReason[], posList?: Readonly<TBattlePosition[]>, justNow?: boolean): boolean;
     getAttackTargets(): DuelEntity[];
 
     canBeEffected(activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionDefinitionAttrs>): boolean;
     canBeBanished(procType: TBanishProcType, activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionDefinitionAttrs>): boolean;
     canBeTargetOfEffect<T>(chainBlockInfo: ChainBlockInfoBase<T>): boolean;
     canBeTargetOfBattle(activator: Duelist, entity: DuelEntity): boolean;
-    validateDestory(destroyType: TDestoryCauseReason, activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionDefinitionAttrs>): boolean;
+    validateDestroy(destroyType: TDestroyCauseReason, activator: Duelist, causedBy: DuelEntity, action: Partial<CardActionDefinitionAttrs>): boolean;
     getIndexInCell(): number;
     getXyzMaterials(): DuelEntity[];
     wasMovedAfter(clock: IDuelClock): boolean;
     hadArrivedToFieldAt(): IDuelClock;
     release(movedAs: TDuelCauseReason[], movedBy: DuelEntity | undefined, movedByWhom: Duelist | undefined): Promise<DuelFieldCell | undefined>;
-    ruleDestory(): Promise<DuelFieldCell | undefined>;
+    ruleDestroy(): Promise<DuelFieldCell | undefined>;
     sendToGraveyard(movedAs: TDuelCauseReason[], movedBy: DuelEntity | undefined, activator: Duelist | undefined): Promise<void>;
     discard(movedAs: TDuelCauseReason[], movedBy: DuelEntity | undefined, activator: Duelist | undefined): Promise<void>;
     returnToDeck(pos: TDuelEntityMovePos, movedAs: TDuelCauseReason[], movedBy: DuelEntity | undefined, activator: Duelist | undefined): Promise<void>;
@@ -1326,30 +1321,18 @@ declare module "./DuelEntity" {
   }
 }
 
-DuelEntity.prototype.hasBeenSummonedNow = function (summonKinds: TSummonKindCauseReason[], posList: TBattlePosition[] = ["Attack", "Defense"]): boolean {
-  const entity = this as DuelEntity;
+DuelEntity.prototype.hasBeenArrivalNow = function (summonKinds, posList = faceupBattlePositions, justNow = false): boolean {
   const _posList = posList.map(posToSummonPos);
-  const movedAs = entity.moveLog.latestRecord.movedAs;
-
-  if (!entity.wasMovedAtPreviousChain) {
+  const latestArrivalRecord = this.moveLog.latestArrivalRecord;
+  if (!latestArrivalRecord) {
     return false;
   }
-  if (!movedAs.union(summonKinds).length) {
+  if (!this.field.duel.clock.isPreviousChain(latestArrivalRecord.movedAt)) {
+    return false;
+  } else if (justNow && !this.field.duel.clock.isPreviousProc(latestArrivalRecord.movedAt)) {
     return false;
   }
-  if (!movedAs.union(_posList).length) {
-    return false;
-  }
-  return true;
-};
-DuelEntity.prototype.hasBeenSummonedJustNow = function (summonKinds: TSummonKindCauseReason[], posList: TBattlePosition[] = ["Attack", "Defense"]): boolean {
-  const entity = this as DuelEntity;
-  const _posList = posList.map(posToSummonPos);
-  const movedAs = entity.moveLog.latestRecord.movedAs;
-
-  if (!entity.wasMovedAtPreviousProc) {
-    return false;
-  }
+  const movedAs = latestArrivalRecord.movedAs;
   if (!movedAs.union(summonKinds).length) {
     return false;
   }
@@ -1408,15 +1391,15 @@ DuelEntity.prototype.canBeTargetOfBattle = function (activator: Duelist, causedB
   return this.procFilterBundle.filter(["BattleTarget"], activator, causedBy, {}, [this]);
 };
 
-DuelEntity.prototype.validateDestory = function (
-  destroyType: "BattleDestroy" | "EffectDestroy",
+DuelEntity.prototype.validateDestroy = function (
+  destroyType: "Battle" | "Effect",
   activator: Duelist,
   causedBy: DuelEntity,
   action: Partial<CardActionDefinitionAttrs>
 ): boolean {
-  let flg = this.procFilterBundle.filter([destroyType], activator, causedBy, action ?? {}, [this]);
+  let flg = this.procFilterBundle.filter([destroyType === "Battle" ? "BattleDestroy" : "EffectDestroy"], activator, causedBy, action ?? {}, [this]);
 
-  if (flg && destroyType === "EffectDestroy") {
+  if (flg && destroyType === "Effect") {
     flg = this.canBeEffected(activator, causedBy, action);
   }
 
@@ -1478,8 +1461,8 @@ DuelEntity.prototype.release = async function (
   await this.sendToGraveyard([...movedAs, "Release"], movedBy, movedByWhom);
   return this.info.isVanished ? undefined : this.fieldCell;
 };
-DuelEntity.prototype.ruleDestory = async function (): Promise<DuelFieldCell | undefined> {
-  await this.sendToGraveyard(["RuleDestroy"], undefined, undefined);
+DuelEntity.prototype.ruleDestroy = async function (): Promise<DuelFieldCell | undefined> {
+  await this.sendToGraveyard(["Rule", "Destroy"], undefined, undefined);
   return this.info.isVanished ? undefined : this.fieldCell;
 };
 

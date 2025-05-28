@@ -1,6 +1,6 @@
 import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CardActions_Spell";
 
-import type { TEffectTag } from "@ygo_duel/class/DuelEntityAction";
+import type { TActionTag } from "@ygo_duel/class/DuelEntityAction";
 import { IllegalCancelError, SystemError } from "@ygo_duel/class/Duel";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
@@ -24,7 +24,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: freeChainDuelPeriodKeys,
         executableDuelistTypes: ["Controller"],
         prepare: async (myInfo, chainBlockInfos, cancelable) => {
-          const choices: { seq: number; text: string; tags: TEffectTag[] }[] = [
+          const choices: { seq: number; text: string; tags: TActionTag[] }[] = [
             { seq: 0, text: "●自分は１２００ＬＰ回復する。", tags: [] },
             { seq: 1, text: "●相手に８００ダメージを与える。", tags: ["DamageToOpponent"] },
           ];

@@ -185,7 +185,7 @@ export class DuelFacilitator_BattlePhase extends DuelFacilitatorBase {
     this.setStage("beforeDmgCalc");
     //ダメージ計算前 ※裏側守備表示モンスターを表にする
     if (defender.battlePosition === "Set") {
-      defender.setBattlePosition("Defense", ["Flip", "FlipByBattle"], attacker, attacker.controller);
+      defender.setBattlePosition("Defense", ["Flip", "Battle"], attacker, attacker.controller);
     }
     //TODO 「ライトロード・モンク エイリン」「ドリルロイド」等、
     return await this.procFreeChain(this.canContinueBattle);
@@ -252,10 +252,10 @@ export class DuelFacilitator_BattlePhase extends DuelFacilitatorBase {
       // ※被破壊側の永続効果の終了、破壊側（混沌の黒魔術師、ハデスなど）の永続効果の適用
       // ※墓地送りはprocBattlePhaseDamageStep5で行う。
       if (atkPoint > 0 && (atkPoint > defPoint || (atkPoint === defPoint && defender.battlePosition === "Attack"))) {
-        await DuelEntityShortHands.tryMarkForDestory([defender], battleChainBlockInfo);
+        await DuelEntityShortHands.tryMarkForDestroy([defender], battleChainBlockInfo);
       }
       if (defender.battlePosition === "Attack" && atkPoint <= defPoint) {
-        await DuelEntityShortHands.tryMarkForDestory([attacker], battleChainBlockInfo);
+        await DuelEntityShortHands.tryMarkForDestroy([attacker], battleChainBlockInfo);
       }
     }
 

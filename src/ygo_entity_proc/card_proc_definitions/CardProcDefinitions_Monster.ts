@@ -1,5 +1,5 @@
 import { IllegalCancelError } from "@ygo_duel/class/Duel";
-import type { EntityAction, TEffectTag } from "@ygo_duel/class/DuelEntityAction";
+import type { EntityAction, TActionTag } from "@ygo_duel/class/DuelEntityAction";
 import {} from "@ygo_duel/class/DuelEntityShortHands";
 
 import {
@@ -160,10 +160,10 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["MonsterZone"],
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
-        meetsConditions: (myInfo) => myInfo.action.entity.hasBeenSummonedNow(["NormalSummon", "SpecialSummon", "FlipSummon"]),
+        meetsConditions: (myInfo) => myInfo.action.entity.hasBeenArrivalNow(["NormalSummon", "SpecialSummon", "FlipSummon"]),
         canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.some((card) => card.attr.includes("Dark")),
         prepare: async (myInfo) => {
-          const tags = ["SendToGraveyardFromDeck"] as TEffectTag[];
+          const tags = ["SendToGraveyardFromDeck"] as TActionTag[];
 
           if (myInfo.action.entity.moveLog.latestRecord.movedAs.includes("NormalSummon")) {
             tags.push("IfNormarlSummonSucceed");
@@ -203,7 +203,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
         fixedTags: ["IfNormarlSummonSucceed", "SendToGraveyardFromDeck"],
-        meetsConditions: (myInfo) => myInfo.action.entity.hasBeenSummonedNow(["NormalSummon"]),
+        meetsConditions: (myInfo) => myInfo.action.entity.hasBeenArrivalNow(["NormalSummon"]),
         canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.some((card) => card.lvl && card.lvl < 5),
         prepare: async () => {
           return { selectedEntities: [] };
@@ -234,7 +234,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableDuelistTypes: ["Controller"],
         fixedTags: ["Draw"],
         meetsConditions: (myInfo) =>
-          myInfo.action.entity.moveLog.latestRecord.movedAs.includes("BattleDestroy") && myInfo.action.entity.wasMovedAtPreviousChain,
+          myInfo.action.entity.moveLog.latestRecord.movedAs.union(["Battle", "Destroy"]).length > 1 && myInfo.action.entity.wasMovedAtPreviousChain,
         canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.length > 0 && myInfo.activator.canDraw,
         prepare: async () => {
           return { selectedEntities: [] };
@@ -290,7 +290,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
       name: "屋敷わらし",
       chainBlockTags: ["BanishFromGraveyard", "SpecialSummonFromGraveyard", "AddToHandFromGraveyard"],
     },
-  ] as { name: string; chainBlockTags: TEffectTag[] }[]) {
+  ] as { name: string; chainBlockTags: TActionTag[] }[]) {
     yield {
       name: item.name,
       actions: [

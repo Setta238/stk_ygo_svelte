@@ -1,7 +1,7 @@
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CardActions_Spell";
 
-import type { CardActionDefinition, TEffectTag } from "@ygo_duel/class/DuelEntityAction";
+import type { CardActionDefinition, TActionTag } from "@ygo_duel/class/DuelEntityAction";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { defaultCanPayDiscardCosts, defaultPayDiscardCosts, defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
@@ -304,7 +304,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           prepare: async () => {
             const [toSelf, toOpponent] = item.calcHeal();
 
-            const tags: TEffectTag[] = [];
+            const tags: TActionTag[] = [];
             if (toSelf < 0) {
               tags.push("DamageToSelf");
             }

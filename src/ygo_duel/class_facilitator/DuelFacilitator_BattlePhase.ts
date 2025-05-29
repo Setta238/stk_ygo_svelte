@@ -248,15 +248,20 @@ export class DuelFacilitator_BattlePhase extends DuelFacilitatorBase {
         attacker.controller.battleDamage(defPoint - atkPoint, defender, attacker, battleChainBlockInfo);
       }
 
+      const destroyed: DuelEntity[] = [];
+
       //ダメージ計算時 ⑥戦闘破壊確定
       // ※被破壊側の永続効果の終了、破壊側（混沌の黒魔術師、ハデスなど）の永続効果の適用
       // ※墓地送りはprocBattlePhaseDamageStep5で行う。
       if (atkPoint > 0 && (atkPoint > defPoint || (atkPoint === defPoint && defender.battlePosition === "Attack"))) {
-        await DuelEntityShortHands.tryMarkForDestroy([defender], battleChainBlockInfo);
+        destroyed.push(defender);
       }
+
       if (defender.battlePosition === "Attack" && atkPoint <= defPoint) {
-        await DuelEntityShortHands.tryMarkForDestroy([attacker], battleChainBlockInfo);
+        destroyed.push(attacker);
       }
+
+      await DuelEntityShortHands.tryMarkForDestroy(destroyed, battleChainBlockInfo);
     }
 
     battleChainBlockInfo.state = atkPoint > defPoint ? "done" : "failed";

@@ -21,11 +21,10 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: monsterZoneCellTypes,
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
+        triggerPattern: { triggerType: "Arrival", arrivalReasons: ["SynchroSummon"] },
         fixedTags: ["SendToGraveyardFromDeck", "IfSpecialSummonSucceed"],
         isOnlyNTimesPerTurn: 1,
-        canExecute: (myInfo) =>
-          myInfo.action.entity.hasBeenArrivalNow(["SynchroSummon"]) &&
-          myInfo.activator.getDeckCell().cardEntities.some((card) => (card.lvl ?? 12) < (myInfo.action.entity.lvl ?? 0)),
+        canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.some((card) => (card.lvl ?? 12) < (myInfo.action.entity.lvl ?? 0)),
         prepare: defaultPrepare,
         execute: async (myInfo): Promise<boolean> => {
           const choices = myInfo.activator.getDeckCell().cardEntities.filter((card) => (card.lvl ?? 12) < (myInfo.action.entity.lvl ?? 0));

@@ -46,6 +46,7 @@ export const getCommonTwillightswormEndPhaseAction = (titlePrefix: string, qty: 
         .filter((record) => record.chainBlockInfo.action.entity !== myInfo.action.entity)
         .filter((record) => record.chainBlockInfo.action.isWithChainBlock)
         .filter((record) => myInfo.activator.duel.clock.isPreviousChain(record.clock))
+        .filter((record) => record.clock.totalProcSeq > myInfo.action.entity.moveLog.latestRecord.movedAt.totalProcSeq)
         .filter((rec) => !rec.chainBlockInfo.isNegatedActivationBy)
         .some((rec) => rec.chainBlockInfo.activator === myInfo.activator),
     prepare: defaultPrepare,

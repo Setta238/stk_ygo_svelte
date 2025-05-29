@@ -69,8 +69,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Graveyard"],
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
+        triggerPattern: { triggerType: "Departure", from: ["Deck"] },
         fixedTags: ["SpecialSummonFromGraveyard"],
-        meetsConditions: (myInfo) => myInfo.action.entity.wasMovedAtPreviousChain && myInfo.action.entity.wasMovedFrom.cellType === "Deck",
         getDests: (myInfo) => getDestsForSelfSpecialSummon(myInfo, faceupBattlePositions, [], ["Effect"]),
         canExecute: (myInfo) => canSelfSepcialSummon(myInfo, faceupBattlePositions, [], ["Effect"]),
         prepare: defaultPrepare,
@@ -90,12 +90,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Graveyard"],
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
+        triggerPattern: { triggerType: "Departure", from: ["Deck"], needsByEffect: true, causerFilter: (me, causer) => causer.kind === "Monster" },
         fixedTags: ["SpecialSummonFromGraveyard"],
-        meetsConditions: (myInfo) =>
-          myInfo.action.entity.wasMovedAtPreviousChain &&
-          myInfo.action.entity.wasMovedFrom.cellType === "Deck" &&
-          myInfo.action.entity.moveLog.latestRecord.entity.kind === "Monster" &&
-          myInfo.action.entity.moveLog.latestRecord.movedAs.includes("Effect"),
         getDests: (myInfo) => getDestsForSelfSpecialSummon(myInfo, faceupBattlePositions, [], ["Effect"]),
         canExecute: (myInfo) => canSelfSepcialSummon(myInfo, faceupBattlePositions, [], ["Effect"]),
         prepare: defaultPrepare,

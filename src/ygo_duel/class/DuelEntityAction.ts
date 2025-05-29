@@ -1,7 +1,7 @@
-import { type TBattlePosition } from "@ygo/class/YgoTypes";
+import { faceupBattlePositions, type TBattlePosition } from "@ygo/class/YgoTypes";
 import type { DuelFieldCell, DuelFieldCellType } from "./DuelFieldCell";
 import { type Duelist } from "./Duelist";
-import { DuelEntity } from "./DuelEntity";
+import { DuelEntity, type TArrivalCauseReason } from "./DuelEntity";
 import {
   cardActionChainableTypes,
   cardActionChainBlockTypes,
@@ -20,36 +20,45 @@ export type TExecutableDuelistType = (typeof executableDuelistTypes)[number];
 export type TSpellSpeed = "Normal" | "Quick" | "Counter" | "Dammy";
 export const actionArrivalTriggerTags = [
   "IfNormarlSummonSucceed",
+  "IfAdvanceSummonSucceed",
   "IfSpecialSummonSucceed",
   "IfFusionSummonSucceed",
   "IfRitualSummonSucceed",
   "IfSynchroSummonSucceed",
   "IfXyzSummonSucceed",
+  "IfPendulumSummonSucceed",
   "IfLinkSummonSucceed",
   "IfFlipSummonSucceed",
   "IfFlip",
 ] as const;
 export type TActionArrivalTriggerTags = (typeof actionArrivalTriggerTags)[number];
 
-export const actionArrivalPosTriggerTags = ["IfSummonSucceedInAttackPosition", "IfSummonSucceedInDefensePosition", "IfSummonSucceedInSetPosition"] as const;
-export type TActionArrivalPosTriggerTags = (typeof actionArrivalPosTriggerTags)[number];
+// TODO 要否検討
+// const arrivalTagToReason: { [tag in TActionArrivalTriggerTags]: TArrivalCauseReason } = {
+//   IfNormarlSummonSucceed: "NormalSummon",
+//   IfAdvanceSummonSucceed: "AdvanceSummon",
+//   IfSpecialSummonSucceed: "SpecialSummon",
+//   IfFusionSummonSucceed: "FusionSummon",
+//   IfRitualSummonSucceed: "RitualSummon",
+//   IfSynchroSummonSucceed: "SynchroSummon",
+//   IfXyzSummonSucceed: "XyzSummon",
+//   IfPendulumSummonSucceed: "PendulumSummon",
+//   IfLinkSummonSucceed: "LinkSummon",
+//   IfFlipSummonSucceed: "FlipSummon",
+//   IfFlip: "Flip",
+// } as const;
 
-export const actionTriggerTags = [
-  ...actionArrivalTriggerTags,
-  ...actionArrivalPosTriggerTags,
-  "IfSentToGraveyard",
-  "IfBanished",
-  "IfReturnedToHand",
-  "IfReturnedToDeck",
-  "IfReturnedToExtraDeck",
-  "IfBanished",
-  "IfLeftField",
-  "IfDestroyed",
-  "IfDoneByBattle",
-  "IfDoneByEffect",
-  "IfDoneByOpponent",
-  "IfDoneJustNow", //タイミングを逃す場合
-] as const;
+// TODO 要否検討
+// const arrivalReasonToTriggerTag = actionArrivalTriggerTags.reduce(
+//   (wip, current) => {
+//     wip[arrivalTagToReason[current]] = current;
+//     return wip;
+//   },
+//   {} as { [tag in TArrivalCauseReason]: TActionArrivalTriggerTags }
+// );
+
+// TODO 要否検討
+export const actionTriggerTags = [...actionArrivalTriggerTags, "IfDestroyed", "IfDoneByBattle", "IfDoneByEffect"] as const;
 export type TActionTriggerTag = (typeof actionTriggerTags)[number];
 
 export const actionTags = [
@@ -165,9 +174,35 @@ export type ChainBlockInfoPrepared = {
 };
 export type ChainBlockInfo<T> = ChainBlockInfoPreparing<T> & ChainBlockInfoPrepared & IStatable<TChainBlockInfoState>;
 
+export type TriggerPatternBase = {
+  triggerType: "Arrival" | "Departure";
+  causerFilter?: (me: DuelEntity, causer: DuelEntity) => boolean;
+  from?: DuelFieldCellType[];
+  needsJustNow?: boolean;
+  needsByOpponent?: boolean;
+  needsByEffect?: boolean;
+};
+export type ArrivalTriggerPattern = TriggerPatternBase & {
+  triggerType: "Arrival";
+  arrivalReasons: TArrivalCauseReason[];
+  battlePositions?: TBattlePosition[];
+};
+
+export type DepartureTriggerPattern = TriggerPatternBase & {
+  triggerType: "Departure";
+  needsByDestory?: boolean;
+  needsByBattle?: boolean;
+};
+
+export type TriggerPattern = ArrivalTriggerPattern | DepartureTriggerPattern;
+
+export const isArrivalTriggerPattern = (triggerPattern: TriggerPattern): triggerPattern is ArrivalTriggerPattern => triggerPattern.triggerType === "Arrival";
+export const isDepartureTriggerPattern = (triggerPattern: TriggerPattern): triggerPattern is DepartureTriggerPattern =>
+  triggerPattern.triggerType === "Departure";
+
 export type CardActionDefinitionAttrs = EntityActionDefinitionBase & {
   spellSpeed: TSpellSpeed;
-  triggerTags?: TActionTriggerTag[];
+  triggerPattern?: TriggerPattern;
   fixedTags?: TActionTag[];
   hasToTargetCards?: boolean;
   /**
@@ -278,6 +313,102 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
     return new EntityAction<T>("AutoSeq", entity, definition);
   };
 
+  private static readonly validateArrivalTrigger = (entity: DuelEntity, arrivalTriggerPattern: ArrivalTriggerPattern): boolean => {
+    // タイミングを逃すかどうかのフラグ
+    const needsJustNow = arrivalTriggerPattern.needsJustNow ?? false;
+
+    if (!entity.hasBeenArrivalNow(arrivalTriggerPattern.arrivalReasons, arrivalTriggerPattern.battlePositions ?? faceupBattlePositions, needsJustNow)) {
+      return false;
+    }
+    const record = entity.moveLog.latestArrivalRecord;
+    if (!record) {
+      throw new SystemError("想定されない状態");
+    }
+    if (arrivalTriggerPattern.needsByOpponent) {
+      if (record.chooser === entity.controller) {
+        return false;
+      }
+    }
+
+    if (arrivalTriggerPattern.needsByEffect) {
+      if (!record.movedAs.includes("Effect")) {
+        return false;
+      }
+    }
+
+    if (arrivalTriggerPattern.causerFilter) {
+      if (!record.movedBy) {
+        return false;
+      }
+      if (!arrivalTriggerPattern.causerFilter(entity, record.movedBy)) {
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+  private static readonly validateDepartureTrigger = (entity: DuelEntity, departureTriggerPattern: DepartureTriggerPattern): boolean => {
+    // タイミングを逃すかどうかのフラグ
+    const needsJustNow = departureTriggerPattern.needsJustNow ?? false;
+    // こちらの場合は最後のmoveLogをみるだけでいい（はず）
+    const record = entity.moveLog.latestRecord;
+
+    if (!entity.duel.clock.isPreviousChain(record.movedAt)) {
+      return false;
+    }
+
+    if (needsJustNow && !entity.duel.clock.isPreviousProc(record.movedAt)) {
+      return false;
+    }
+
+    if (departureTriggerPattern.from) {
+      if (!departureTriggerPattern.from.includes(entity.wasMovedFrom.cellType)) {
+        return false;
+      }
+    }
+
+    if (entity.fieldCell.cellType === "Graveyard" && entity.wasMovedFrom.cellType === "Banished") {
+      return false;
+    }
+
+    if (departureTriggerPattern.needsByDestory) {
+      if (!record.movedAs.includes("Destroy")) {
+        return false;
+      }
+    }
+    if (departureTriggerPattern.needsByBattle || departureTriggerPattern.needsByEffect) {
+      let flg = false;
+      if (departureTriggerPattern.needsByBattle && record.movedAs.includes("Battle")) {
+        flg = true;
+      } else if (departureTriggerPattern.needsByEffect && record.movedAs.includes("Effect")) {
+        flg = true;
+      }
+      if (!flg) {
+        return false;
+      }
+    }
+    if (departureTriggerPattern.needsByOpponent) {
+      if (entity.wasMovedFrom.owner === entity.controller.getOpponentPlayer()) {
+        return false;
+      }
+
+      if (record.actionOwner === entity.controller && !record.movedAs.includes("Battle")) {
+        return false;
+      }
+    }
+
+    if (departureTriggerPattern.causerFilter) {
+      if (!record.movedBy) {
+        return false;
+      }
+      if (!departureTriggerPattern.causerFilter(entity, record.movedBy)) {
+        return false;
+      }
+    }
+
+    return true;
+  };
   /**
    * @param entity
    * @param title
@@ -448,6 +579,17 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
       }
     }
     if (this.definition.meetsConditions && !ignoreConditions) {
+      if (this.definition.triggerPattern) {
+        if (isArrivalTriggerPattern(this.definition.triggerPattern)) {
+          if (!EntityAction.validateArrivalTrigger(this.entity, this.definition.triggerPattern)) {
+            return;
+          }
+        } else if (isDepartureTriggerPattern(this.definition.triggerPattern)) {
+          if (!EntityAction.validateDepartureTrigger(this.entity, this.definition.triggerPattern)) {
+            return;
+          }
+        }
+      }
       if (!this.definition.meetsConditions(myInfo, this.playType === "AfterChainBlock" ? [] : chainBlockInfos)) {
         return;
       }

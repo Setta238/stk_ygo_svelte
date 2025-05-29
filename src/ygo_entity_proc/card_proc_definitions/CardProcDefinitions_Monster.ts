@@ -160,7 +160,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["MonsterZone"],
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
-        meetsConditions: (myInfo) => myInfo.action.entity.hasBeenArrivalNow(["NormalSummon", "SpecialSummon", "FlipSummon"]),
+        triggerPattern: { triggerType: "Arrival", arrivalReasons: ["NormalSummon", "SpecialSummon", "FlipSummon"] },
         canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.some((card) => card.attr.includes("Dark")),
         prepare: async (myInfo) => {
           const tags = ["SendToGraveyardFromDeck"] as TActionTag[];
@@ -202,8 +202,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["MonsterZone"],
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
+        triggerPattern: { triggerType: "Arrival", arrivalReasons: ["NormalSummon"] },
         fixedTags: ["IfNormarlSummonSucceed", "SendToGraveyardFromDeck"],
-        meetsConditions: (myInfo) => myInfo.action.entity.hasBeenArrivalNow(["NormalSummon"]),
         canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.some((card) => card.lvl && card.lvl < 5),
         prepare: async () => {
           return { selectedEntities: [] };
@@ -232,9 +232,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Graveyard"],
         executablePeriods: [...freeChainDuelPeriodKeys, ...damageStepPeriodKeys],
         executableDuelistTypes: ["Controller"],
+        triggerPattern: { triggerType: "Departure", needsByBattle: true, needsByDestory: true },
         fixedTags: ["Draw"],
-        meetsConditions: (myInfo) =>
-          myInfo.action.entity.moveLog.latestRecord.movedAs.union(["Battle", "Destroy"]).length > 1 && myInfo.action.entity.wasMovedAtPreviousChain,
         canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.length > 0 && myInfo.activator.canDraw,
         prepare: async () => {
           return { selectedEntities: [] };
@@ -260,8 +259,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Graveyard"],
         executablePeriods: duelPeriodKeys,
         executableDuelistTypes: ["Controller"],
+        triggerPattern: { triggerType: "Departure" },
         fixedTags: ["SearchFromDeck"],
-        meetsConditions: (myInfo) => myInfo.action.entity.wasMovedAtPreviousChain && myInfo.action.entity.wasMovedFrom.cellType !== "Banished",
         canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.some((card) => card.nm === "青眼の白龍") && myInfo.activator.canAddToHandFromDeck,
         prepare: async () => {
           return { selectedEntities: [] };

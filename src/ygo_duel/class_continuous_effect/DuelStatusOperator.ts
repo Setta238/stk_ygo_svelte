@@ -15,6 +15,7 @@ export class StatusOperatorBundle extends StickyEffectOperatorBundle<StatusOpera
   public readonly calcStatus = (): boolean => {
     const wasEffective = this.entity.isEffective;
     this.entity.resetStatus();
+
     // 対象ステータスのオペレータを抽出
     this.entity.status = this._operators
       .filter((ope) => ope.isSpawnedBy.isEffective || !ope.isContinuous)

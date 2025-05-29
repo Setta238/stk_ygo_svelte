@@ -58,7 +58,7 @@ export type EntityProcDefinition = {
   };
   substituteEffects?: SubstituteEffectDefinition[];
   defaultStatus?: Partial<EntityStatus>;
-  onUsedAsMaterial?: (chainBlockInfo: ChainBlockInfo<unknown>, monster: DuelEntity) => void;
+  onUsedAsMaterial?: (me: DuelEntity, chainBlockInfo: ChainBlockInfo<unknown>, monster: DuelEntity) => void;
   fusionMaterialInfos?: FusionMaterialInfo[];
   validateFusionMaterials?: (entites: DuelEntity[]) => boolean;
 };

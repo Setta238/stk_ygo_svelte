@@ -29,7 +29,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
       return materialInfos.filter((info) => info !== myInfo).every((info) => info.cell.cellType === "Hand") ? ok : notAllowed;
     },
     defaultStatus: { allowHandSynchro: true },
-    onUsedAsMaterial: (myInfo, monster) => {
+    onUsedAsMaterial: (me, myInfo, monster) => {
       if (!monster.info.summonKinds.includes("SynchroSummon")) {
         return;
       }
@@ -39,12 +39,10 @@ export default function* generate(): Generator<EntityProcDefinition> {
           title: "除外予定",
           validateAlive: () => true,
           isContinuous: false,
-          isSpawnedBy: myInfo.action.entity,
+          isSpawnedBy: me,
           actionAttr: myInfo.action,
           isApplicableTo: (ope, target) => target.isOnFieldAsMonsterStrictly && target.face === "FaceUp",
-          statusCalculator: () => {
-            return { willBeBanished: true };
-          },
+          statusCalculator: () => ({ willBeBanished: true }),
         })
       );
 

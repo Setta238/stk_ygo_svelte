@@ -125,7 +125,7 @@
             <div>{"],"}</div>
             <div>"procFilters" :{"["}</div>
             {#each entity.procFilterBundle.operators as pf}
-              <div>"{pf.isSpawnedBy.toString()} {pf.title}",</div>
+              <div>"{pf.isSpawnedBy.toString()} {pf.title} {pf.isEffective} ",</div>
             {/each}
             <div>{"],"}</div>
             <div>"numericStateOperators" :{"["}</div>
@@ -135,7 +135,7 @@
             <div>{"],"}</div>
             <div>"stateOperators" :{"["}</div>
             {#each entity.statusOperatorBundle.operators as pf}
-              <div>"{pf.isSpawnedBy.toString()} {pf.title}",</div>
+              <div>"{pf.isSpawnedBy.toString()} {pf.title} {pf.isEffective} ",</div>
             {/each}
             <div>{"],"}</div>
             <div>"lastMoveLogRecord" :{"{"}</div>

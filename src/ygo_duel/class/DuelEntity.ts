@@ -899,7 +899,7 @@ export class DuelEntity {
       return;
     }
 
-    this.definition.onUsedAsMaterial(chainBlockInfo, monster);
+    this.definition.onUsedAsMaterial(this, chainBlockInfo, monster);
   };
 
   public readonly setBattlePosition = async (pos: TBattlePosition, movedAs: TDuelCauseReason[], movedBy?: DuelEntity, actionOwner?: Duelist): Promise<void> => {

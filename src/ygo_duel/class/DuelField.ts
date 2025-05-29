@@ -71,7 +71,6 @@ export class DuelField {
       if (!isOk) {
         continue;
       }
-
       return;
     }
   };

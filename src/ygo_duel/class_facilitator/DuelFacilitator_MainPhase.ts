@@ -7,7 +7,7 @@ import { DuelFacilitator_EndPhase } from "./DuelFacilitator_EndPhase";
 
 export class DuelFacilitator_MainPhase extends DuelFacilitatorBase {
   public get nextPhaseList(): TDuelPhase[] {
-    return this.duel.phase === "main1" ? ["battle1", "end"] : ["end"];
+    return this.duel.phase === "main1" && this.duel.clock.turn > 1 ? ["battle1", "end"] : ["end"];
   }
   public get attackingMonster(): DuelEntity | undefined {
     return undefined;

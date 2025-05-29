@@ -10,7 +10,8 @@ export class SummonFilterPool extends StickyEffectOperatorPool<SummonFilter, Sum
 }
 
 export class SummonFilterBundle extends StickyEffectOperatorBundle<SummonFilter> {
-  protected beforePush = () => {};
+  protected override beforePush = () => {};
+  protected override readonly afterPush = () => {};
   public readonly filter = (
     effectOwner: Duelist,
     summonKind: TSummonKindCauseReason,

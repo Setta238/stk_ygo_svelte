@@ -25,7 +25,10 @@ export class StatusOperatorBundle extends StickyEffectOperatorBundle<StatusOpera
     // 有効無効が切り替わったとき、再計算が必要
     return this.entity.isEffective === wasEffective;
   };
-  protected readonly beforePush: (ope: StatusOperator) => void = () => {};
+  protected override readonly beforePush: (ope: StatusOperator) => void = () => {};
+  protected override readonly afterPush: (ope: StatusOperator) => void = () => {
+    this.calcStatus();
+  };
 }
 
 export type StatusOperatorArgs = StickyEffectOperatorArgs & {

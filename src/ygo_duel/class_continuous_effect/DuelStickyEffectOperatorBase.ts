@@ -110,6 +110,7 @@ export abstract class StickyEffectOperatorBundle<OPE extends StickyEffectOperato
     });
   };
   protected abstract readonly beforePush: (ope: OPE) => void;
+  protected abstract readonly afterPush: (ope: OPE) => void;
 
   public readonly push = (ope: OPE) => {
     // ProcFilterで弾かれる場合は追加しない。
@@ -121,6 +122,8 @@ export abstract class StickyEffectOperatorBundle<OPE extends StickyEffectOperato
     this.beforePush(ope);
 
     this._operators.push(ope);
+
+    this.afterPush(ope);
 
     return true;
   };

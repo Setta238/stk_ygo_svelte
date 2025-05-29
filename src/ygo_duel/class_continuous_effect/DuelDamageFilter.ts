@@ -37,7 +37,8 @@ export class DamageFilterPool extends StickyEffectOperatorPool<DamageFilter, Dam
 }
 
 export class DamageFilterBundle extends StickyEffectOperatorBundle<DamageFilter> {
-  protected beforePush = () => {};
+  protected override beforePush = () => {};
+  protected override readonly afterPush = () => {};
 }
 
 export type DamageFilterArgs = StickyEffectOperatorArgs & {

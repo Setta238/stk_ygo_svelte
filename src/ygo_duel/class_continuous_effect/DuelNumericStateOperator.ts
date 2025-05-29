@@ -146,6 +146,7 @@ export class NumericStateOperatorBundle extends StickyEffectOperatorBundle<Numer
       return;
     }
   };
+  protected override readonly afterPush = () => {};
 
   public readonly calcStateAll = (): void => entityFlexibleStatusKeys.forEach(this.calcState);
 

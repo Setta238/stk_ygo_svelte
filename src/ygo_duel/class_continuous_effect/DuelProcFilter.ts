@@ -60,7 +60,8 @@ export class ProcFilterBundle extends StickyEffectOperatorBundle<ProcFilter> {
       .filter((pf) => pf.procTypes.union(procTypes).length)
       .every((pf) => pf.filter(this.entity, activator, entity, actionAttr, effectedEntites));
 
-  protected readonly beforePush = (pf: ProcFilter) => pf.eraseOperators(this.entity);
+  protected override readonly beforePush = (pf: ProcFilter) => pf.eraseOperators(this.entity);
+  protected override readonly afterPush = () => {};
 }
 
 export type ProcFilterArgs = StickyEffectOperatorArgs & {

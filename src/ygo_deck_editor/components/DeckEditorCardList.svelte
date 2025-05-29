@@ -41,6 +41,8 @@
     },
   };
 
+  const isBelongTo = (cardInfo: CardInfoJson) => (cardInfo.monsterCategories?.union(exMonsterCategories).length ? "ExtraDeck" : "Deck");
+
   const createCardTree = (cardInfos: CardInfoJson[]) => {
     Object.values(cardTree).forEach((branch) => Object.values(branch).forEach((array) => array.reset()));
     cardInfos
@@ -70,6 +72,10 @@
       indexUpperBound = deckCardInfos.length;
     }
     return cardTree;
+  };
+
+  const onClearButtonClick = (ev: MouseEvent, deckType: TDeckTypes, kind?: TCardKind) => {
+    deckCardInfos = deckCardInfos.filter((cardInfo) => isBelongTo(cardInfo) !== deckType || (cardInfo.kind !== kind && kind));
   };
 
   const onPlusButtonClick = (ev: MouseEvent, cardInfo: CardInfoJson) => {
@@ -163,11 +169,29 @@
     {#each deckTypes as deckType}
       {@const branch1all = Object.values(tree[deckType]).flatMap((cardInfos) => cardInfos)}
       <div class="deck_editor_deck_type">
-        <span>{deckTypeDic[deckType]}（{branch1all.filter(filter).length} / {branch1all.length}枚）</span>
+        <div class="deck_editor_deck_type_header">
+          <div>{deckTypeDic[deckType]}（{branch1all.filter(filter).length} / {branch1all.length}枚）</div>
+          {#if mode === "Deck" && branch1all.some(filter)}
+            <div>
+              <button class="button_style_reset" title="※shiftキー同時押しで一括外し" on:click={(ev) => onClearButtonClick(ev, deckType, undefined)}>
+                クリア
+              </button>
+            </div>
+          {/if}
+        </div>
         {#each getKeys(tree[deckType]).filter((kind) => listGroup[deckType].includes(kind)) as kind}
           {@const branch2 = tree[deckType][kind].filter(filter)}
           <div class="deck_editor_card_kind">
-            <span>{cardKindDic[kind]}（{branch2.length} / {tree[deckType][kind].length}枚）</span>
+            <div class="deck_editor_card_kind_header">
+              <div>{cardKindDic[kind]}（{branch2.length} / {tree[deckType][kind].length}枚）</div>
+              {#if mode === "Deck" && branch2.length}
+                <div>
+                  <button class="button_style_reset" title="※shiftキー同時押しで一括外し" on:click={(ev) => onClearButtonClick(ev, deckType, kind)}>
+                    クリア
+                  </button>
+                </div>
+              {/if}
+            </div>
             <ul>
               {#each branch2 as cardInfo, index}
                 {#if index < indexUpperBound}
@@ -249,22 +273,7 @@
     font-weight: 1000;
     vertical-align: top;
   }
-  .deck_editor_item button {
-    background-color: #ffffff;
-    display: inline-block;
-    padding: 0em 1em;
-    text-decoration: none;
-    color: #67c5ff;
-    border: solid 0.2rem #67c5ff;
-    border-radius: 3px;
-    transition: 0.4s;
-    margin: 0.1rem 0.3rem;
-  }
 
-  .deck_editor_item button:hover {
-    background: #67c5ff;
-    color: white;
-  }
   .deck_editor_deck_type {
     padding: 0.4rem;
     margin-bottom: 0.4rem;
@@ -279,6 +288,14 @@
   .deck_editor_deck_type > *:first-child {
     margin-left: 0rem;
   }
+  .deck_editor_deck_type_header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.3rem;
+  }
+  .deck_editor_deck_type_header button {
+    font-size: 0.7rem;
+  }
   .deck_editor_card_kind {
     margin: 0.4rem 0rem 0.4rem 0.7rem;
     background-color: azure;
@@ -289,6 +306,14 @@
   }
   .deck_editor_card_kind > *:first-child {
     margin-left: 0rem;
+  }
+  .deck_editor_card_kind_header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.3rem;
+  }
+  .deck_editor_card_kind_header button {
+    font-size: 0.7rem;
   }
   .duel_card {
     margin-bottom: 0.1rem;
@@ -306,5 +331,21 @@
     display: inline-block;
     position: relative;
     font-size: 0.7rem;
+  }
+  button {
+    background-color: #ffffff;
+    display: inline-block;
+    padding: 0em 1em;
+    text-decoration: none;
+    color: #67c5ff;
+    border: solid 0.2rem #67c5ff;
+    border-radius: 3px;
+    transition: 0.4s;
+    margin: 0.1rem 0.3rem;
+  }
+
+  button:hover {
+    background: #67c5ff;
+    color: white;
   }
 </style>

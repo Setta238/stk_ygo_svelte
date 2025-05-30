@@ -26,17 +26,17 @@
   modalController?.onUpdate?.append(onModalControllerUpdate);
 </script>
 
-<div class="base">
+<div class="base {isDragging ? 'base_is_dragging' : ''}">
   {#if modalController.modals.some((modal) => modal.state === "Shown")}
     <button class="overlay {isDragging ? 'pointer_events_none' : ''}" onclick={close}>☆</button>
     {#if modalController.entitySelector.state === "Shown"}
-      <DuelEntitiesSelector args={modalController.entitySelector.args} resolve={modalController.entitySelector.resolve} />
+      <DuelEntitiesSelector view={modalController.view} args={modalController.entitySelector.args} resolve={modalController.entitySelector.resolve} />
     {/if}
     {#if modalController.actionSelector.state === "Shown"}
       <DuelActionSelector view={modalController.view} args={modalController.actionSelector.args} resolve={modalController.actionSelector.resolve} />
     {/if}
     {#if modalController.textSelector.state === "Shown"}
-      <DuelTextSelector args={modalController.textSelector.args} resolve={modalController.textSelector.resolve} />
+      <DuelTextSelector view={modalController.view} args={modalController.textSelector.args} resolve={modalController.textSelector.resolve} />
     {/if}
   {/if}
 </div>
@@ -53,8 +53,12 @@
     align-items: center;
     pointer-events: none;
   }
+  .base_is_dragging {
+    opacity: 0.5;
+  }
   .overlay {
     display: block;
+    color: grey;
     position: fixed;
     top: 0;
     left: 0;

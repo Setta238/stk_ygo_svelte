@@ -24,18 +24,11 @@
   export let resolve: (selected?: ResolvedDummyActionInfo) => void;
 
   let isShown = true;
-
-  let isDragging = writable(false);
-
-  const onDragStart = () => isDragging.set(true);
-  const onDragEnd = () => isDragging.set(false);
-  view.onDragStart.append(onDragStart);
-  view.onDragEnd.append(onDragEnd);
 </script>
 
 {#if isShown}
-  <DuelModalWindow {args}>
-    <div slot="body" style="display: flex;">
+  <DuelModalWindow {view} {args}>
+    <div slot="body" style="display: flex; justify-content: space-around;">
       {#each args.dummyActionInfos as info}
         <div class="duel_card_wrapper">
           <DuelCard

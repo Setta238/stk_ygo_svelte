@@ -1,5 +1,6 @@
 <script lang="ts" module>
   import type { ModalArgsBase } from "@ygo_duel_view/class/DuelModalBase";
+  import type { DuelViewController } from "@ygo_duel_view/class/DuelViewController";
 
   export type DuelTextSelectorArgs = ModalArgsBase & {
     choises: { seq: number; text: string }[];
@@ -8,13 +9,14 @@
 
 <script lang="ts">
   import DuelModalWindow from "@ygo_duel_view/components_modal/DuelModalWindow.svelte";
+  export let view: DuelViewController;
   export let args: DuelTextSelectorArgs;
   export let resolve: (selected?: number) => void;
   let isShown = true;
 </script>
 
 {#if isShown}
-  <DuelModalWindow {args}>
+  <DuelModalWindow {view} {args}>
     <ui slot="body" class="text_list">
       {#each args.choises as { seq, text }}
         <li class="text_item {seq}"><button onclick={() => resolve(seq)}> {text} </button></li>

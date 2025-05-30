@@ -20,6 +20,20 @@ export const duelFieldCellTypes = [...bundleCellTypes, ...playFieldCellTypes, ..
 export type DuelFieldCellType = (typeof duelFieldCellTypes)[number];
 export type TDuelEntityMovePos = "Top" | "Bottom" | "Random" | "Fix";
 
+export const cellTypeShortNameDic: { [type in DuelFieldCellType]: string } = {
+  Deck: "デッキ",
+  ExtraDeck: "EXデッキ",
+  Graveyard: "墓地",
+  Banished: "除外",
+  Hand: "手札",
+  MonsterZone: "場",
+  ExtraMonsterZone: "場",
+  SpellAndTrapZone: "場",
+  FieldSpellZone: "場",
+  XyzMaterialZone: "XYZ素材",
+  WaitingRoom: "虚無",
+};
+
 export const cellTypeMaster = {
   0: {
     0: "Hand",
@@ -162,6 +176,9 @@ export class DuelFieldCell {
       .map((cell) => cell.cardEntities[0]);
   };
   private _entities: DuelEntity[];
+  public get shortName() {
+    return cellTypeShortNameDic[this.cellType];
+  }
   public constructor(duelField: DuelField, row: number, column: number, owner?: Duelist) {
     this.field = duelField;
     this.row = row;

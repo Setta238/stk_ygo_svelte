@@ -13,7 +13,8 @@
   import type { ChoicesSweet } from "@ygo_duel/class/DuelUtilTypes";
   import type { ModalArgsBase } from "@ygo_duel_view/class/DuelModalBase";
   import DuelModalWindow from "./DuelModalWindow.svelte";
-  let { args, resolve }: { args: DuelEntitiesSelectorArg; resolve: (selected: DuelEntity[] | undefined) => void } = $props();
+  import type { DuelViewController } from "@ygo_duel_view/class/DuelViewController";
+  let { view, args, resolve }: { view: DuelViewController; args: DuelEntitiesSelectorArg; resolve: (selected: DuelEntity[] | undefined) => void } = $props();
   let selectedList = $state([] as DuelEntity[]);
 
   let isShown = true;
@@ -24,7 +25,7 @@
 </script>
 
 {#if isShown}
-  <DuelModalWindow {args}>
+  <DuelModalWindow {view} {args}>
     <div slot="body">
       {#each args.entitiesChoices.selectables.map((e) => e.controller.seat).getDistinct() as seat}
         <div class="entities_list {seat}">
@@ -39,6 +40,7 @@
                 cardActionResolve={undefined}
                 bind:selectedList
               />
+              <div class="cell_type_name">〈{entity.fieldCell.shortName}〉</div>
             </div>
           {/each}
         </div>
@@ -61,7 +63,7 @@
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    justify-content: space-between;
+    justify-content: space-around;
     margin: 0.3rem;
     padding: 0.5rem;
   }
@@ -102,5 +104,8 @@
   }
   .entities_list.Above {
     background-color: blanchedalmond;
+  }
+  .cell_type_name {
+    font-size: 1rem;
   }
 </style>

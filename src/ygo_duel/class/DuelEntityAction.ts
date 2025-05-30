@@ -354,6 +354,7 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
     // こちらの場合は最後のmoveLogをみるだけでいい（はず）
     const record = entity.moveLog.latestRecord;
 
+    console.log(entity.toString(), entity.duel.clock.toFullString(), record.movedAt);
     if (!entity.duel.clock.isPreviousChain(record.movedAt)) {
       return false;
     }
@@ -578,18 +579,18 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
         return;
       }
     }
-    if (this.definition.meetsConditions && !ignoreConditions) {
-      if (this.definition.triggerPattern) {
-        if (isArrivalTriggerPattern(this.definition.triggerPattern)) {
-          if (!EntityAction.validateArrivalTrigger(this.entity, this.definition.triggerPattern)) {
-            return;
-          }
-        } else if (isDepartureTriggerPattern(this.definition.triggerPattern)) {
-          if (!EntityAction.validateDepartureTrigger(this.entity, this.definition.triggerPattern)) {
-            return;
-          }
+    if (this.definition.triggerPattern) {
+      if (isArrivalTriggerPattern(this.definition.triggerPattern)) {
+        if (!EntityAction.validateArrivalTrigger(this.entity, this.definition.triggerPattern)) {
+          return;
+        }
+      } else if (isDepartureTriggerPattern(this.definition.triggerPattern)) {
+        if (!EntityAction.validateDepartureTrigger(this.entity, this.definition.triggerPattern)) {
+          return;
         }
       }
+    }
+    if (this.definition.meetsConditions && !ignoreConditions) {
       if (!this.definition.meetsConditions(myInfo, this.playType === "AfterChainBlock" ? [] : chainBlockInfos)) {
         return;
       }

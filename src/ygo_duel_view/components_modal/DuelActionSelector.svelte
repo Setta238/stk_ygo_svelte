@@ -28,7 +28,7 @@
 
 {#if isShown}
   <DuelModalWindow {view} {args}>
-    <div slot="body" style="display: flex; justify-content: space-around;">
+    <div class="action_list" slot="body" style="display: flex; justify-content: space-around;">
       {#each args.dummyActionInfos as info}
         <div class="duel_card_wrapper">
           <DuelCard

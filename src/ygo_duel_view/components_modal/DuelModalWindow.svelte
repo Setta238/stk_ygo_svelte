@@ -35,9 +35,8 @@
       0 1.5px 6px 0 rgba(0, 0, 0, 0.08);
     border-radius: 1.2rem;
     opacity: 0.98;
+    min-width: 28rem;
     max-width: 95vw;
-    min-width: 18rem;
-    width: 32rem;
     padding: 1.2rem 1.5rem 1.2rem 1.5rem;
     margin: 2rem auto;
     transition:
@@ -89,6 +88,8 @@
     color: #333;
     text-align: center;
     word-break: break-word;
+    max-width: 90vw;
+    overflow-x: auto;
   }
   .modal_window_footer {
     display: flex;

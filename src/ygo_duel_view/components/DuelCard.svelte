@@ -79,6 +79,7 @@
     view.modalController.actionSelector
       .show({
         title: "行動を選択。",
+        position: "Bottom",
         activator,
         dummyActionInfos,
         cancelable: true,

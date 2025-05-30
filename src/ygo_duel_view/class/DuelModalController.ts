@@ -1,9 +1,9 @@
 import { StkEvent } from "@stk_utils/class/StkEvent";
 import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
-import type { CardActionSelectorArgs } from "@ygo_duel_view/components/DuelActionSelector.svelte";
-import type { DuelEntitiesSelectorArg } from "@ygo_duel_view/components/DuelEntitiesSelector.svelte";
+import type { CardActionSelectorArgs } from "@ygo_duel_view/components_modal/DuelActionSelector.svelte";
+import type { DuelEntitiesSelectorArg } from "@ygo_duel_view/components_modal/DuelEntitiesSelector.svelte";
 import type { DuelViewController, ResolvedDummyActionInfo } from "./DuelViewController";
-import type { DuelTextSelectorArg } from "@ygo_duel_view/components/DuelTextSelector.svelte";
+import type { DuelTextSelectorArgs } from "@ygo_duel_view/components_modal/DuelTextSelector.svelte";
 import { DuelModalBase } from "./DuelModalBase";
 
 export class DuelModalController {
@@ -14,18 +14,21 @@ export class DuelModalController {
 
   public readonly actionSelector = new DuelModalBase<CardActionSelectorArgs, ResolvedDummyActionInfo>({
     title: "カード操作を選択。",
+    position: "Bottom",
     activator: undefined!,
     dummyActionInfos: [],
     cancelable: false,
   });
   public readonly entitySelector = new DuelModalBase<DuelEntitiesSelectorArg, DuelEntity[]>({
     title: "対象を選択",
+    position: "Middle",
     entitiesChoices: { selectables: [], validator: () => true, cancelable: false },
     cancelable: false,
     chainBlockInfos: [],
   });
-  public readonly textSelector = new DuelModalBase<DuelTextSelectorArg, number>({
+  public readonly textSelector = new DuelModalBase<DuelTextSelectorArgs, number>({
     title: "カード操作を選択。",
+    position: "Middle",
     choises: [],
     cancelable: false,
   });

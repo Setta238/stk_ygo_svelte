@@ -5,6 +5,7 @@ export type TModalState = "Disable" | "Shown";
 export type ModalArgsBase = {
   title: string;
   cancelable: boolean;
+  position: "Top" | "Middle" | "Bottom";
 };
 export class DuelModalBase<A extends ModalArgsBase, R> {
   private onUpdateEvent = new StkEvent<void>();

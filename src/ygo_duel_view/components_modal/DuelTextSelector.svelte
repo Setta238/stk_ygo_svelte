@@ -1,43 +1,34 @@
 <script lang="ts" module>
-  export type DuelTextSelectorArg = {
-    title: string;
+  import type { ModalArgsBase } from "@ygo_duel_view/class/DuelModalBase";
+
+  export type DuelTextSelectorArgs = ModalArgsBase & {
     choises: { seq: number; text: string }[];
-    cancelable: boolean;
   };
 </script>
 
 <script lang="ts">
-  export let arg: DuelTextSelectorArg;
+  import DuelModalWindow from "@ygo_duel_view/components_modal/DuelModalWindow.svelte";
+  export let args: DuelTextSelectorArgs;
   export let resolve: (selected?: number) => void;
   let isShown = true;
 </script>
 
 {#if isShown}
-  <div class="modal_window">
-    <div>{arg.title}</div>
-    <ui class="text_list">
-      {#each arg.choises as { seq, text }}
+  <DuelModalWindow {args}>
+    <ui slot="body" class="text_list">
+      {#each args.choises as { seq, text }}
         <li class="text_item {seq}"><button onclick={() => resolve(seq)}> {text} </button></li>
       {/each}
     </ui>
-    {#if arg.cancelable}
-      <button class="cancel_button" onclick={() => resolve(undefined)}>Cancel</button>
-    {/if}
-  </div>
+    <div slot="footer">
+      {#if args.cancelable}
+        <button class="cancel_button" onclick={() => resolve(undefined)}>Cancel</button>
+      {/if}
+    </div>
+  </DuelModalWindow>
 {/if}
 
 <style>
-  .modal_window {
-    display: block;
-    background-color: white;
-    opacity: 0.9;
-    max-width: 50%;
-    width: fit-content;
-    padding: 1rem;
-  }
-  .modal_window * {
-    pointer-events: initial;
-  }
   .text_list {
     padding: 0.2rem;
     display: flex;
@@ -47,17 +38,6 @@
     padding: 0.2rem;
     display: flex;
     flex-direction: column;
-  }
-  .base {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    pointer-events: initial;
   }
   .text_list button {
     background-color: #ffffff;

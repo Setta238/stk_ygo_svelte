@@ -5,7 +5,7 @@
   import { DuelFieldCell as FieldCell } from "@ygo_duel/class/DuelFieldCell";
   import { DuelEntity } from "@ygo_duel/class/DuelEntity";
   import type { AnimationStartEventArg, DuelistResponseBase, DuelViewController, WaitStartEventArg } from "@ygo_duel_view/class/DuelViewController";
-  
+
   import { cardCrossFade } from "@ygo_duel_view/components/DuelDesk.svelte";
   import { type DummyActionInfo } from "@ygo_duel/class/DuelEntityAction";
   import { getCounterEmoji } from "@ygo_duel/class/DuelCounter";
@@ -156,6 +156,7 @@
         view.modalController.actionSelector
           .show({
             title: "カードを選択。",
+            position: "Bottom",
             activator,
             dummyActionInfos: cellActionInfos,
             cancelable: true,
@@ -199,6 +200,7 @@
           cell.field.duel.view.modalController.actionSelector
             .show({
               title: "選択",
+              position: "Bottom",
               activator,
               dummyActionInfos: draggingDummyActionInfos.map((info) => {
                 return { ...info, dest: cell };

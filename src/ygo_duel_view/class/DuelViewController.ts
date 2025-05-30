@@ -165,6 +165,7 @@ export class DuelViewController {
     const promiseList = [
       this.modalController.actionSelector.show({
         title: message,
+        position: "Bottom",
         activator: activator,
         dummyActionInfos: validatedActionInfos,
         cancelable: cancelable,
@@ -301,7 +302,7 @@ export class DuelViewController {
       return choises.randomPick();
     }
 
-    const selected = await this.modalController.textSelector.show({ title, choises, cancelable });
+    const selected = await this.modalController.textSelector.show({ title, position: "Middle", choises, cancelable });
 
     if (selected === undefined) {
       if (!cancelable) {
@@ -452,6 +453,7 @@ export class DuelViewController {
       const promises = [
         this.modalController.actionSelector.show({
           title: message,
+          position: "Bottom",
           activator: chooser,
           dummyActionInfos,
           cancelable,

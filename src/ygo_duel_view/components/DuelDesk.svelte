@@ -14,8 +14,8 @@
   import DuelDuelist from "./DuelDuelist.svelte";
   import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
   import type { DuelistResponseBase, WaitStartEventArg } from "@ygo_duel_view/class/DuelViewController";
-  
-  import ModalContainer from "@ygo_duel_view/components/DuelModalContainer.svelte";
+
+  import ModalContainer from "@ygo_duel_view/components_modal/DuelModalContainer.svelte";
   import DuelCardDetail, { type TCardDetailMode } from "./DuelCardDetail.svelte";
   import DuelFieldCellInfo from "./DuelFieldCellInfo.svelte";
   import type { DummyActionInfo } from "@ygo_duel/class/DuelEntityAction";
@@ -64,6 +64,7 @@
         duel.view.modalController.entitySelector
           .show({
             title: duel.view.message,
+            position: "Middle",
             entitiesChoices: args.entitiesChoices,
             chainBlockInfos: args.chainBlockInfos,
             cancelable: args.entitiesChoices.cancelable,

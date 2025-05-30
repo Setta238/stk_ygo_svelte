@@ -1,8 +1,8 @@
 <script lang="ts">
-  import DuelEntitiesSelector from "@ygo_duel_view/components/DuelEntitiesSelector.svelte";
-  import DuelActionSelector from "@ygo_duel_view/components/DuelActionSelector.svelte";
+  import DuelEntitiesSelector from "@ygo_duel_view/components_modal/DuelEntitiesSelector.svelte";
+  import DuelActionSelector from "@ygo_duel_view/components_modal/DuelActionSelector.svelte";
+  import DuelTextSelector from "@ygo_duel_view/components_modal/DuelTextSelector.svelte";
   import { DuelModalController } from "@ygo_duel_view/class/DuelModalController";
-  import DuelTextSelector from "./DuelTextSelector.svelte";
   export let modalController: DuelModalController;
   let isDragging = false;
   const onModalControllerUpdate = () => {
@@ -36,7 +36,7 @@
       <DuelActionSelector view={modalController.view} args={modalController.actionSelector.args} resolve={modalController.actionSelector.resolve} />
     {/if}
     {#if modalController.textSelector.state === "Shown"}
-      <DuelTextSelector arg={modalController.textSelector.args} resolve={modalController.textSelector.resolve} />
+      <DuelTextSelector args={modalController.textSelector.args} resolve={modalController.textSelector.resolve} />
     {/if}
   {/if}
 </div>

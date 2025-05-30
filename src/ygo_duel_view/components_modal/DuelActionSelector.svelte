@@ -1,12 +1,10 @@
 <script lang="ts" module>
   import { writable } from "svelte/store";
   import type { DummyActionInfo } from "@ygo_duel/class/DuelEntityAction";
-  export type CardActionSelectorArgs = {
-    title: string;
+  export type CardActionSelectorArgs = ModalArgsBase & {
     activator: Duelist;
     dummyActionInfos: DummyActionInfo[];
     dragAndDropOnly?: boolean;
-    cancelable: boolean;
   };
   export const dataKeys = {
     action_entity_name: "action_entity_name",
@@ -19,6 +17,8 @@
   import DuelCard from "@ygo_duel_view/components/DuelCard.svelte";
   import type { DuelViewController, ResolvedDummyActionInfo } from "@ygo_duel_view/class/DuelViewController";
   import type { Duelist } from "@ygo_duel/class/Duelist";
+  import type { ModalArgsBase } from "@ygo_duel_view/class/DuelModalBase";
+  import DuelModalWindow from "./DuelModalWindow.svelte";
   export let view: DuelViewController;
   export let args: CardActionSelectorArgs;
   export let resolve: (selected?: ResolvedDummyActionInfo) => void;
@@ -34,9 +34,8 @@
 </script>
 
 {#if isShown}
-  <div class="modal_window">
-    <div>{args.title}</div>
-    <div class="flex" style="display: flex;">
+  <DuelModalWindow {args}>
+    <div slot="body" style="display: flex;">
       {#each args.dummyActionInfos as info}
         <div class="duel_card_wrapper">
           <DuelCard
@@ -50,18 +49,15 @@
         </div>
       {/each}
     </div>
-    {#if args.cancelable}
-      <div>
-        <button class="cancel_button" onclick={() => resolve()}>Cancel</button>
-      </div>
-    {/if}
-  </div>
+    <div slot="footer">
+      {#if args.cancelable}
+        <button class="cancel_button" onclick={() => resolve(undefined)}>Cancel</button>
+      {/if}
+    </div>
+  </DuelModalWindow>
 {/if}
 
 <style>
-  .flex {
-    display: flex;
-  }
   button.cancel_button {
     border: 1px solid #000;
     background: #fff;
@@ -76,21 +72,6 @@
   button.cancel_button:hover {
     color: #fff;
     background: #000;
-  }
-  .modal_window {
-    display: block;
-    background-color: white;
-    opacity: 0.9;
-    position: absolute;
-    bottom: 0;
-    pointer-events: initial;
-    width: fit-content;
-    max-width: 90vw;
-    min-width: 10vw;
-    height: fit-content;
-    max-height: 40vh;
-    min-height: 10vh;
-    overflow-x: auto;
   }
   .duel_card_wrapper {
     font-size: 0.9rem;

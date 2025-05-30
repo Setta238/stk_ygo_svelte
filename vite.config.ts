@@ -55,7 +55,7 @@ export default defineConfig({
           }
         },
         chunkFileNames: `chunk/[name]_${timestamp}.js`,
-        assetFileNames: `asset/[name].[ext]`,
+        assetFileNames: `assets/[name].[ext]`,
       },
     },
   },

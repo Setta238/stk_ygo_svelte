@@ -3,7 +3,7 @@ import { Duel, DuelEnd, IllegalCancelError, SystemError, type DuelistResponse, t
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { DuelFieldCell, type TDuelEntityMovePos } from "@ygo_duel/class/DuelFieldCell";
 import { type Duelist } from "@ygo_duel/class/Duelist";
-import { DuelModalController } from "./DuelModalController";
+import { DuelModalControllerFactory, type DuelModalController } from "@ygo_duel_view/components_modal/DuelModalContainer.svelte";
 import { EntityAction, type ChainBlockInfo, type DummyActionInfo, type ICardAction, type ValidatedActionInfo } from "../../ygo_duel/class/DuelEntityAction";
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
 import { createPromiseSweet, delay } from "@stk_utils/funcs/StkPromiseUtil";
@@ -97,7 +97,7 @@ export class DuelViewController {
     this.waitMode = "None";
     this.infoBoardState = "Default";
     this.infoBoardCell = duel.duelists.Below.getExtraDeck();
-    this.modalController = new DuelModalController(this);
+    this.modalController = DuelModalControllerFactory.createModalController(this);
   }
   public readonly getCell = (row: number, column: number): DuelFieldCell => {
     return this.duel.field.cells[row][column];

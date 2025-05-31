@@ -1,4 +1,5 @@
 <script lang="ts" module>
+  import type { ModalArgsBase } from "@stk_utils/components/modal_container/StkModalDefinitionBase";
   import type { ChainBlockInfo } from "@ygo_duel/class/DuelEntityAction";
 
   export type DuelEntitiesSelectorArg = ModalArgsBase & {
@@ -8,24 +9,22 @@
 </script>
 
 <script lang="ts">
-  import { cardEntitySorter, type DuelEntity } from "../../ygo_duel/class/DuelEntity";
+  import { cardEntitySorter, type DuelEntity } from "@ygo_duel/class/DuelEntity";
   import DuelCard from "@ygo_duel_view/components/DuelCard.svelte";
   import type { ChoicesSweet } from "@ygo_duel/class/DuelUtilTypes";
-  import type { ModalArgsBase } from "@ygo_duel_view/class/DuelModalBase";
-  import DuelModalWindow from "./DuelModalWindow.svelte";
-  import type { DuelViewController } from "@ygo_duel_view/class/DuelViewController";
-  let { view, args, resolve }: { view: DuelViewController; args: DuelEntitiesSelectorArg; resolve: (selected: DuelEntity[] | undefined) => void } = $props();
+  import StkModalWindow from "@stk_utils/components/modal_container/StkModalWindow.svelte";
+  import type { EventHolder } from "@stk_utils/components/modal_container/StkModalController";
+  let { eventHolder, args, resolve }: { eventHolder: EventHolder; args: DuelEntitiesSelectorArg; resolve: (selected: DuelEntity[] | undefined) => void } =
+    $props();
   let selectedList = $state([] as DuelEntity[]);
 
   let isShown = true;
   let targetsInPreviousChainBlocks = args.chainBlockInfos.flatMap((info) => info.selectedEntities).getDistinct();
-  const _resolve = () => {
-    resolve(selectedList);
-  };
+  const _resolve = () => resolve(selectedList);
 </script>
 
 {#if isShown}
-  <DuelModalWindow {view} {args}>
+  <StkModalWindow {eventHolder} {args}>
     <div slot="body">
       {#each args.entitiesChoices.selectables.map((e) => e.controller.seat).getDistinct() as seat}
         <div class="entities_list {seat}">
@@ -55,7 +54,7 @@
         <button class="cancel_button" onclick={() => resolve(undefined)}>Cancel</button>
       {/if}
     </div>
-  </DuelModalWindow>
+  </StkModalWindow>
 {/if}
 
 <style>

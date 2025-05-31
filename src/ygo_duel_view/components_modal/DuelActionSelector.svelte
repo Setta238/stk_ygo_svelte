@@ -1,6 +1,6 @@
 <script lang="ts" module>
-  import { writable } from "svelte/store";
   import type { DummyActionInfo } from "@ygo_duel/class/DuelEntityAction";
+  import type { ModalArgsBase } from "@stk_utils/components/modal_container/StkModalDefinitionBase";
   export type CardActionSelectorArgs = ModalArgsBase & {
     activator: Duelist;
     dummyActionInfos: DummyActionInfo[];
@@ -14,12 +14,12 @@
 </script>
 
 <script lang="ts">
+  import StkModalWindow from "@stk_utils/components/modal_container/StkModalWindow.svelte";
+  import type { EventHolder } from "@stk_utils/components/modal_container/StkModalController";
   import DuelCard from "@ygo_duel_view/components/DuelCard.svelte";
-  import type { DuelViewController, ResolvedDummyActionInfo } from "@ygo_duel_view/class/DuelViewController";
+  import type { ResolvedDummyActionInfo } from "@ygo_duel_view/class/DuelViewController";
   import type { Duelist } from "@ygo_duel/class/Duelist";
-  import type { ModalArgsBase } from "@ygo_duel_view/class/DuelModalBase";
-  import DuelModalWindow from "./DuelModalWindow.svelte";
-  export let view: DuelViewController;
+  export let eventHolder: EventHolder;
   export let args: CardActionSelectorArgs;
   export let resolve: (selected?: ResolvedDummyActionInfo) => void;
 
@@ -27,7 +27,7 @@
 </script>
 
 {#if isShown}
-  <DuelModalWindow {view} {args}>
+  <StkModalWindow {eventHolder} {args}>
     <div class="action_list" slot="body" style="display: flex; justify-content: space-around;">
       {#each args.dummyActionInfos as info}
         <div class="duel_card_wrapper">
@@ -47,7 +47,7 @@
         <button class="cancel_button" onclick={() => resolve(undefined)}>Cancel</button>
       {/if}
     </div>
-  </DuelModalWindow>
+  </StkModalWindow>
 {/if}
 
 <style>

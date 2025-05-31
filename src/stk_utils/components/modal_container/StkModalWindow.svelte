@@ -1,8 +1,8 @@
 <script lang="ts">
-  import type { ModalArgsBase } from "@ygo_duel_view/class/DuelModalBase";
-  import type { DuelViewController } from "@ygo_duel_view/class/DuelViewController";
+  import type { ModalArgsBase } from "@stk_utils/components/modal_container/StkModalDefinitionBase";
+  import type { EventHolder } from "@stk_utils/components/modal_container/StkModalController";
   export let args: ModalArgsBase;
-  export let view: DuelViewController;
+  export let eventHolder: EventHolder;
 
   let isDragging = false;
   const onDragStart = () => {
@@ -11,8 +11,8 @@
   const onDragEnd = () => {
     isDragging = false;
   };
-  view.onDragStart.append(onDragStart);
-  view.onDragEnd.append(onDragEnd);
+  eventHolder.onDragStart.append(onDragStart);
+  eventHolder.onDragEnd.append(onDragEnd);
 </script>
 
 <div class="modal_window modal_window_{args.position.toLowerCase()} {isDragging ? 'modal_window_is_dragging' : ''}">

@@ -1,75 +1,58 @@
+<script lang="ts" module>
+  import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
+  import type { CardActionSelectorArgs } from "@ygo_duel_view/components_modal/DuelActionSelector.svelte";
+  import type { DuelEntitiesSelectorArg } from "@ygo_duel_view/components_modal/DuelEntitiesSelector.svelte";
+  import type { DuelViewController, ResolvedDummyActionInfo } from "@ygo_duel_view/class/DuelViewController";
+  import { StkModalDefinitionBase } from "@stk_utils/components/modal_container/StkModalDefinitionBase";
+  import { StkModalControllerBase } from "@stk_utils/components/modal_container/StkModalController";
+  type ModalMap = {
+    actionSelector: StkModalDefinitionBase<CardActionSelectorArgs, ResolvedDummyActionInfo>;
+    entitySelector: StkModalDefinitionBase<DuelEntitiesSelectorArg, DuelEntity[]>;
+  };
+  export type DuelModalController = DuelModalControllerFactory & ModalMap;
+  export class DuelModalControllerFactory extends StkModalControllerBase {
+    public static readonly createModalController = (view: DuelViewController): DuelModalController => {
+      const modalMap = {
+        actionSelector: new StkModalDefinitionBase<CardActionSelectorArgs, ResolvedDummyActionInfo>({
+          title: "カード操作を選択。",
+          position: "Bottom",
+          activator: undefined!,
+          dummyActionInfos: [],
+          cancelable: false,
+        }),
+        entitySelector: new StkModalDefinitionBase<DuelEntitiesSelectorArg, DuelEntity[]>({
+          title: "対象を選択",
+          position: "Middle",
+          entitiesChoices: { selectables: [], validator: () => true, cancelable: false },
+          cancelable: false,
+          chainBlockInfos: [],
+        }),
+      } as const;
+      return Object.assign(new DuelModalControllerFactory(view, modalMap), modalMap);
+    };
+
+    private constructor(view: DuelViewController, modalMap: ModalMap) {
+      super(view, ...Object.values(modalMap));
+    }
+  }
+</script>
+
 <script lang="ts">
   import DuelEntitiesSelector from "@ygo_duel_view/components_modal/DuelEntitiesSelector.svelte";
   import DuelActionSelector from "@ygo_duel_view/components_modal/DuelActionSelector.svelte";
-  import DuelTextSelector from "@ygo_duel_view/components_modal/DuelTextSelector.svelte";
-  import { DuelModalController } from "@ygo_duel_view/class/DuelModalController";
+  import StkModalContainer from "@stk_utils/components/modal_container/StkModalContainer.svelte";
   export let modalController: DuelModalController;
-  let isDragging = false;
-  const onModalControllerUpdate = () => {
-    modalController = modalController;
-  };
-
-  const onDragStart = () => {
-    isDragging = true;
-    onModalControllerUpdate();
-  };
-  const onDragEnd = () => {
-    isDragging = false;
-    onModalControllerUpdate();
-  };
-  modalController.view.onDragStart.append(onDragStart);
-  modalController.view.onDragEnd.append(onDragEnd);
-  const close = () => {
-    modalController.modals.filter((modal) => modal.args.cancelable).forEach((modal) => modal.cancel());
-  };
-
-  modalController?.onUpdate?.append(onModalControllerUpdate);
 </script>
 
-<div class="base {isDragging ? 'base_is_dragging' : ''}">
-  {#if modalController.modals.some((modal) => modal.state === "Shown")}
-    <button class="overlay {isDragging ? 'pointer_events_none' : ''}" onclick={close}>☆</button>
-    {#if modalController.entitySelector.state === "Shown"}
-      <DuelEntitiesSelector view={modalController.view} args={modalController.entitySelector.args} resolve={modalController.entitySelector.resolve} />
-    {/if}
-    {#if modalController.actionSelector.state === "Shown"}
-      <DuelActionSelector view={modalController.view} args={modalController.actionSelector.args} resolve={modalController.actionSelector.resolve} />
-    {/if}
-    {#if modalController.textSelector.state === "Shown"}
-      <DuelTextSelector view={modalController.view} args={modalController.textSelector.args} resolve={modalController.textSelector.resolve} />
-    {/if}
+<StkModalContainer {modalController}>
+  {#if modalController.entitySelector.state === "Shown"}
+    <DuelEntitiesSelector
+      eventHolder={modalController.eventHolder}
+      args={modalController.entitySelector.args}
+      resolve={modalController.entitySelector.resolve}
+    />
   {/if}
-</div>
-
-<style>
-  .base {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    pointer-events: none;
-  }
-  .base_is_dragging {
-    opacity: 0.5;
-  }
-  .overlay {
-    display: block;
-    color: grey;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: gray;
-    opacity: 0.5;
-    border-radius: 0%;
-    pointer-events: initial;
-  }
-  .overlay.pointer_events_none {
-    pointer-events: none;
-  }
-</style>
+  {#if modalController.actionSelector.state === "Shown"}
+    <DuelActionSelector eventHolder={modalController.eventHolder} args={modalController.actionSelector.args} resolve={modalController.actionSelector.resolve} />
+  {/if}
+</StkModalContainer>

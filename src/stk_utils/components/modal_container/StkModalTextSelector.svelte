@@ -1,6 +1,5 @@
 <script lang="ts" module>
-  import type { ModalArgsBase } from "@ygo_duel_view/class/DuelModalBase";
-  import type { DuelViewController } from "@ygo_duel_view/class/DuelViewController";
+  import type { ModalArgsBase } from "@stk_utils/components/modal_container/StkModalDefinitionBase";
 
   export type DuelTextSelectorArgs = ModalArgsBase & {
     choises: { seq: number; text: string }[];
@@ -8,15 +7,16 @@
 </script>
 
 <script lang="ts">
-  import DuelModalWindow from "@ygo_duel_view/components_modal/DuelModalWindow.svelte";
-  export let view: DuelViewController;
+  import StkModalWindow from "@stk_utils/components/modal_container/StkModalWindow.svelte";
+  import type { EventHolder } from "@stk_utils/components/modal_container/StkModalController";
+  export let eventHolder: EventHolder;
   export let args: DuelTextSelectorArgs;
   export let resolve: (selected?: number) => void;
   let isShown = true;
 </script>
 
 {#if isShown}
-  <DuelModalWindow {view} {args}>
+  <StkModalWindow {eventHolder} {args}>
     <ui slot="body" class="text_list">
       {#each args.choises as { seq, text }}
         <li class="text_item {seq}"><button onclick={() => resolve(seq)}> {text} </button></li>
@@ -27,7 +27,7 @@
         <button class="cancel_button" onclick={() => resolve(undefined)}>Cancel</button>
       {/if}
     </div>
-  </DuelModalWindow>
+  </StkModalWindow>
 {/if}
 
 <style>

@@ -11,7 +11,6 @@
     trapCategoryDic,
     type CardInfoJson,
   } from "@ygo/class/YgoTypes";
-  import { writable } from "svelte/store";
   export let cardInfo: CardInfoJson | undefined = undefined;
   const getInfo = () => (cardInfo ? cardInfoDic[cardInfo.name] : undefined);
 </script>

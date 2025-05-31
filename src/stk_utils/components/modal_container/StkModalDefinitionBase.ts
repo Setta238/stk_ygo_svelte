@@ -1,4 +1,4 @@
-import { StkEvent } from "@stk_utils/class/StkEvent";
+import { StkEvent, type IStkEvent } from "@stk_utils/class/StkEvent";
 import { createPromiseSweet } from "@stk_utils/funcs/StkPromiseUtil";
 
 export type TModalState = "Disable" | "Shown";
@@ -7,7 +7,16 @@ export type ModalArgsBase = {
   cancelable: boolean;
   position: "Top" | "Middle" | "Bottom";
 };
-export class DuelModalBase<A extends ModalArgsBase, R> {
+
+export interface IStkModalDefinition {
+  onUpdate: IStkEvent<void>;
+  state: TModalState;
+  args: ModalArgsBase;
+  cancel: () => void;
+  terminate: () => void;
+}
+
+export class StkModalDefinitionBase<A extends ModalArgsBase, R> implements IStkModalDefinition {
   private onUpdateEvent = new StkEvent<void>();
   public get onUpdate() {
     return this.onUpdateEvent.expose();
@@ -30,6 +39,7 @@ export class DuelModalBase<A extends ModalArgsBase, R> {
   public readonly show = (args: A): Promise<R | undefined> => {
     this._args = args;
     this._state = "Shown";
+    console.log(this, this.onUpdateEvent);
     this.onUpdateEvent.trigger();
 
     const { promise, resolve } = createPromiseSweet<R | undefined>();

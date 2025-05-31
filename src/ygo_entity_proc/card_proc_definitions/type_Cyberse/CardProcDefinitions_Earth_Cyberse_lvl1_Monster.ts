@@ -1,4 +1,4 @@
-import { canSelfSepcialSummon, defaultSelfRebornExecute } from "@ygo_entity_proc/card_actions/CardActions_Monster";
+import { canSelfSepcialSummon, defaultSelfSpecialSummonExecute } from "@ygo_entity_proc/card_actions/CardActions_Monster";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
@@ -24,7 +24,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         meetsConditions: (myInfo) => myInfo.action.entity.wasMovedAtPreviousChain && myInfo.action.entity.wasMovedFrom.cellType !== "Banished",
         canExecute: (myInfo) => canSelfSepcialSummon(myInfo, faceupBattlePositions, [], ["Effect"]),
         prepare: defaultPrepare,
-        execute: (myInfo) => defaultSelfRebornExecute(myInfo),
+        execute: (myInfo) => defaultSelfSpecialSummonExecute(myInfo),
         settle: async () => true,
       },
       {
@@ -41,7 +41,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         meetsConditions: (myInfo) => myInfo.action.entity.wasMovedAtPreviousChain,
         canExecute: (myInfo) => canSelfSepcialSummon(myInfo, faceupBattlePositions, [], ["Effect"]),
         prepare: defaultPrepare,
-        execute: (myInfo) => defaultSelfRebornExecute(myInfo),
+        execute: (myInfo) => defaultSelfSpecialSummonExecute(myInfo),
         settle: async () => true,
       },
     ],

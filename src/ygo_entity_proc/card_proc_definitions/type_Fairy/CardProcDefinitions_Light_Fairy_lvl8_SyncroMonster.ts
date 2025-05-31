@@ -1,4 +1,4 @@
-import { canSelfSepcialSummon, defaultSelfRebornExecute } from "@ygo_entity_proc/card_actions/CardActions_Monster";
+import { canSelfSepcialSummon, defaultSelfSpecialSummonExecute } from "@ygo_entity_proc/card_actions/CardActions_Monster";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { getDefaultSynchroSummonAction } from "../../card_actions/CardActions_SynchroMonster";
@@ -24,7 +24,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         meetsConditions: (myInfo) => myInfo.action.entity.wasMovedAtPreviousTurn,
         canExecute: (myInfo) => canSelfSepcialSummon(myInfo, faceupBattlePositions, [], ["Effect"]),
         prepare: defaultPrepare,
-        execute: (myInfo) => defaultSelfRebornExecute(myInfo),
+        execute: (myInfo) => defaultSelfSpecialSummonExecute(myInfo),
         settle: async () => true,
       },
     ],

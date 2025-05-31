@@ -522,7 +522,7 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
   protected constructor(
     seq: "AutoSeq" | number,
     entity: DuelEntity,
-    definition: EntityActionDefinitionBase,
+    definition: CardActionDefinition<T>,
     addhocMaterialLimitation?: (materialInfos: SummonMaterialInfo[]) => boolean
   ) {
     super(seq, entity, definition);

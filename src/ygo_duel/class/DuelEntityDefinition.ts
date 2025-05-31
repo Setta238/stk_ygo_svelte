@@ -112,6 +112,12 @@ export function* generateCardDefinitions(...names: string[]): Generator<EntityDe
           } else {
             _definition.actions = [...defaultNormalMonsterActions, ...definition.actions];
           }
+
+          _definition.actions
+            .filter(
+              (action) => action.fixedTags && action.fixedTags.some((tag) => tag.startsWith("SpecialSummon")) && !action.fixedTags.includes("SpecialSummon")
+            )
+            .forEach((action) => action.fixedTags?.push("SpecialSummon"));
           yield _definition;
           _names.push(definition.name);
         }

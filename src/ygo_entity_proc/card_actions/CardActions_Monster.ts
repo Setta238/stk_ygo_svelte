@@ -393,7 +393,7 @@ const defaultBattlePotisionChangeAction: CardActionDefinition<unknown> = {
   settle: async () => true,
 };
 
-export const defaultSelfRebornExecute = async <T>(myInfo: ChainBlockInfo<T>, posList: TBattlePosition[] = ["Attack", "Defense"]) => {
+export const defaultSelfSpecialSummonExecute = async <T>(myInfo: ChainBlockInfo<T>, posList: TBattlePosition[] = ["Attack", "Defense"]) => {
   const cells = myInfo.activator.getMonsterZones();
   if (myInfo.action.entity.wasMovedAfter(myInfo.isActivatedAt)) {
     return false;

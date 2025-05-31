@@ -6,7 +6,7 @@ import {
   canSelfSepcialSummon,
   defaultRuleSummonExecute,
   defaultRuleSummonPrepare,
-  defaultSelfRebornExecute,
+  defaultSelfSpecialSummonExecute,
   getDestsForSelfSpecialSummon,
 } from "@ygo_entity_proc/card_actions/CardActions_Monster";
 
@@ -81,7 +81,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableDuelistTypes: ["Controller"],
         fixedTags: ["SpecialSummonFromGraveyard"],
         canPayCosts: (myInfo) => myInfo.activator.getHandCell().cardEntities.length > 0,
-        getDests: (myInfo) => getDestsForSelfSpecialSummon(myInfo, faceupBattlePositions, [], ["Effect"]),
         canExecute: (myInfo) => canSelfSepcialSummon(myInfo, faceupBattlePositions, [], ["Effect"]),
         payCosts: async (myInfo, chainBlockInfos, cancelable) => {
           const hands = myInfo.activator.getHandCell().cardEntities;
@@ -96,7 +95,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           return { selectedEntities: [] };
         },
         execute: async (myInfo) => {
-          if (!(await defaultSelfRebornExecute(myInfo))) {
+          if (!(await defaultSelfSpecialSummonExecute(myInfo))) {
             return false;
           }
 
@@ -144,7 +143,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         prepare: async () => {
           return { selectedEntities: [] };
         },
-        execute: (myInfo) => defaultSelfRebornExecute(myInfo),
+        execute: (myInfo) => defaultSelfSpecialSummonExecute(myInfo),
         settle: async () => true,
       },
     ],

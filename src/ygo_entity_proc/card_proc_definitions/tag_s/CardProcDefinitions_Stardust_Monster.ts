@@ -1,6 +1,6 @@
 import {
   canSelfSepcialSummon,
-  defaultSelfRebornExecute,
+  defaultSelfSpecialSummonExecute,
   defaultSelfReleaseCanPayCosts,
   defaultSelfReleasePayCosts,
 } from "@ygo_entity_proc/card_actions/CardActions_Monster";
@@ -97,7 +97,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           return canSelfSepcialSummon(myInfo, faceupBattlePositions, [], ["Effect"]);
         },
         prepare: defaultPrepare,
-        execute: (myInfo) => defaultSelfRebornExecute(myInfo),
+        execute: (myInfo) => defaultSelfSpecialSummonExecute(myInfo),
         settle: async () => true,
       },
     ],

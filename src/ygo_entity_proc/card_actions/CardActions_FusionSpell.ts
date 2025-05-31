@@ -78,7 +78,7 @@ const validateFusionMaterials = (
             //重複する場合、追加しない（※後で除外する）
             return [...pattern];
           }
-          const info: SummonMaterialInfo = { material, cell: material.fieldCell };
+          const info: SummonMaterialInfo = { material, cell: material.cell };
           if (isNameTypeFusionMaterialInfo(row.require)) {
             //名称指定の場合、素材情報に明記する。
             info.name = row.require.cardName;
@@ -241,7 +241,7 @@ const defaultFusionSummonExecute = async (myInfo: ChainBlockInfo<unknown>, ...ar
       .map((material) => {
         return {
           material,
-          cell: material.fieldCell,
+          cell: material.cell,
         };
       })
   );

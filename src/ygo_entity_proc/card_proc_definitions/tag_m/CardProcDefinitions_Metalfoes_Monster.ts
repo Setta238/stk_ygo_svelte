@@ -29,7 +29,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
                 .filter((card) => card !== myInfo.action.entity);
 
               if (!myInfo.activator.getAvailableSpellTrapZones.length) {
-                targetables = targetables.filter((card) => card.fieldCell.cellType === "SpellAndTrapZone");
+                targetables = targetables.filter((card) => card.cell.cellType === "SpellAndTrapZone");
               }
 
               return targetables;

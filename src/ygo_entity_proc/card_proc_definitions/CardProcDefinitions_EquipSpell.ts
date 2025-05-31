@@ -13,6 +13,7 @@ import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { defaultPayLifePoint, defaultTargetMonstersRebornExecute, defaultTargetMonstersRebornPrepare } from "../card_actions/CardActions";
 import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { duelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
+import { trashCellTypes } from "@ygo_duel/class/DuelFieldCell";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield* (
@@ -119,33 +120,34 @@ export default function* generate(): Generator<EntityProcDefinition> {
     immediatelyActions: [
       {
         title: "自壊",
-        executableCells: ["SpellAndTrapZone"],
+        executableCells: ["SpellAndTrapZone", ...trashCellTypes],
         executablePeriods: duelPeriodKeys,
         executableFaces: ["FaceUp"],
-        execute: async (action, triggerEntity, moveParam) => {
-          if (!moveParam) {
+        execute: async (action, triggerEntity, oldProps) => {
+          if (triggerEntity !== action.entity) {
             return;
           }
 
-          const target = action.entity.info.equipedBy;
+          if (!oldProps) {
+            return;
+          }
+          const target = oldProps.info.equipedBy;
           if (!target) {
             return;
           }
-          if (triggerEntity === action.entity) {
-            if (
-              target.isOnFieldStrictly &&
-              target.face === "FaceUp" &&
-              action.entity.isEffective &&
-              !moveParam.to.isSpellTrapZoneLikeCell &&
-              moveParam.movedAs.some((reason) => reason.endsWith("Destroy"))
-            ) {
-              // この場所では破壊マーキングまで実行。
-              action.entity.controller.writeInfoLog(`${action.entity.toString()}が破壊されたため、対象モンスター${target.toString()}を破壊。`);
-              await DuelEntityShortHands.tryMarkForDestroy([target], { action, activator: action.entity.controller, selectedEntities: [target] });
-            }
-
-            return;
+          if (
+            target.isOnFieldStrictly &&
+            target.face === "FaceUp" &&
+            oldProps.status.isEffective &&
+            oldProps.info.isEffectiveIn.includes(oldProps.cell.cellType) &&
+            !triggerEntity.cell.isSpellTrapZoneLikeCell &&
+            triggerEntity.moveLog.latestRecord.movedAs.some((reason) => reason.endsWith("Destroy"))
+          ) {
+            // この場所では破壊マーキングまで実行。
+            action.entity.controller.writeInfoLog(`${action.entity.toString()}が破壊されたため、対象モンスター${target.toString()}を破壊。`);
+            await DuelEntityShortHands.tryMarkForDestroy([target], { action, activator: action.entity.controller, selectedEntities: [target] });
           }
+
           return undefined;
         },
       },

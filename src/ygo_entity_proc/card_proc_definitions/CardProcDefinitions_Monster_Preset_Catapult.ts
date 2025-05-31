@@ -177,18 +177,18 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: duelPeriodKeys.filter(
           (key) => key !== "b1DBeforeDmgCalc" && key !== "b2DBeforeDmgCalc" && key !== "b1DDmgCalc" && key !== "b2DDmgCalc"
         ),
-        execute: async (action, triggerEntity, moveParam) => {
+        execute: async (action, triggerEntity, oldProps) => {
           if (!triggerEntity) {
             return;
           }
 
-          if (!moveParam) {
+          if (!oldProps) {
             return;
           }
-          if (triggerEntity.nm !== "トゥーン・ワールド") {
+          if (oldProps.status.name !== "トゥーン・ワールド") {
             return;
           }
-          if (moveParam.movedAs.every((reason) => !reason.endsWith("Destroy"))) {
+          if (triggerEntity.moveLog.latestRecord.movedAs.every((reason) => !reason.endsWith("Destroy"))) {
             return;
           }
 

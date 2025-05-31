@@ -529,7 +529,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
 
           await DuelEntityShortHands.returnManyToDeckForTheSameReason(
             "Random",
-            cards.filter((card) => card.fieldCell.cellType === "Deck"),
+            cards.filter((card) => card.cell.cellType === "Deck"),
             ["Effect"],
             myInfo.action.entity,
             myInfo.activator

@@ -15580,7 +15580,8 @@
     "monsterCategories": [
       "SpecialSummon",
       "Effect",
-      "FreeReborn"
+      "FreeReborn",
+      "RegularSpecialSummonOnly"
     ],
     "level": 4,
     "attack": 2100,
@@ -24540,5 +24541,49 @@
     "kind": "Spell",
     "spellCategory": "Normal",
     "wikiEncodedName": "%A1%D4%CC%BE%BF%E4%CD%FD%A1%D5"
+  },
+  "Ｇ・コザッキー": {
+    "name": "Ｇ・コザッキー",
+    "nameKana": "",
+    "description": "フィールド上に「コザッキー」が表側表示で存在していない場合、このカードを破壊する。\nフィールド上に表側表示で存在するこのカードが破壊された場合、その時のコントローラーにこのカードの元々の攻撃力分のダメージを与える。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "level": 4,
+    "attack": 2500,
+    "defense": 2400,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Fiend"
+    ],
+    "wikiEncodedName": "%A1%D4%A3%C7%A1%A6%A5%B3%A5%B6%A5%C3%A5%AD%A1%BC%A1%D5"
+  },
+  "コザッキーの研究成果": {
+    "name": "コザッキーの研究成果",
+    "nameKana": "",
+    "description": "自分のデッキのカードを上から３枚確認し、そのカードを好きな順番に入れ替えてデッキの上に戻す。",
+    "kind": "Trap",
+    "trapCategory": "Normal",
+    "wikiEncodedName": "%A1%D4%A5%B3%A5%B6%A5%C3%A5%AD%A1%BC%A4%CE%B8%A6%B5%E6%C0%AE%B2%CC%A1%D5"
+  },
+  "コザッキーの自爆装置": {
+    "name": "コザッキーの自爆装置",
+    "nameKana": "",
+    "description": "セットされたこのカードを破壊したプレイヤーに１０００ポイントダメージを与える。",
+    "kind": "Trap",
+    "trapCategory": "Normal",
+    "wikiEncodedName": "%A1%D4%A5%B3%A5%B6%A5%C3%A5%AD%A1%BC%A4%CE%BC%AB%C7%FA%C1%F5%C3%D6%A1%D5"
+  },
+  "ギブ＆テイク": {
+    "name": "ギブ＆テイク",
+    "nameKana": "",
+    "description": "(1)：自分の墓地のモンスター１体と、自分フィールドの表側表示モンスター１体を対象として発動できる。\n対象の墓地のモンスターを相手フィールドに守備表示で特殊召喚し、対象のフィールドのモンスターのレベルはターン終了時まで、\nその特殊召喚したモンスターのレベル分だけ上がる。",
+    "kind": "Trap",
+    "trapCategory": "Normal",
+    "wikiEncodedName": "%A1%D4%A5%AE%A5%D6%A1%F5%A5%C6%A5%A4%A5%AF%A1%D5"
   }
 }

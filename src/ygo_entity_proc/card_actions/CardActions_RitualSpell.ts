@@ -50,7 +50,7 @@ const defaultRitualMaterialsValidator = (
 
   const materialInfos = [
     ...materials.map((material) => {
-      return { material, cell: material.fieldCell };
+      return { material, cell: material.cell };
     }),
   ];
 

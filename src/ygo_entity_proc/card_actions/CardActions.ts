@@ -12,7 +12,7 @@ import {
 } from "../../ygo_duel/class/DuelEntityAction";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import { duelFieldCellTypes, type DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
+import { DuelFieldCell, duelFieldCellTypes, type DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
 import type { TDuelPeriodKey } from "@ygo_duel/class/DuelPeriod";
 export const defaultPrepare = async () => {
   return { selectedEntities: [] as DuelEntity[] };
@@ -111,7 +111,7 @@ export const getDestsForSingleTargetAction = <T>(myInfo: ChainBlockInfoBase<T>, 
   myInfo.action
     .getTargetableEntities(myInfo, chainBlockInfos)
     .filter((entity) => entity.isOnField)
-    .map((card) => card.fieldCell);
+    .map((card) => card.cell);
 
 export const getPayReleaseCostActionPartical = <T>(
   filter: (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, entity: DuelEntity) => boolean = () => true,
@@ -181,7 +181,7 @@ export const defaultTargetMonstersRebornPrepare = async <T>(
   }
 
   const tags: TActionTag[] = targets
-    .map((monster) => monster.fieldCell.cellType)
+    .map((monster) => monster.cell.cellType)
     .getDistinct()
     .filter((ct) => ct === "Graveyard" || ct === "Banished")
     .map((ct) => (ct === "Graveyard" ? "SpecialSummonFromGraveyard" : "SpecialSummonFromBanished"));
@@ -214,9 +214,13 @@ export const defaultTargetMonstersRebornExecute = async <T>(
 export const defaultEffectSpecialSummonExecute = async <T>(
   myInfo: ChainBlockInfo<T>,
   monsters: DuelEntity[],
-  posList: TBattlePosition[] = ["Attack", "Defense"]
+  options?: Partial<{
+    cells: DuelFieldCell[];
+    posList: TBattlePosition[];
+  }>
 ) => {
-  const cells = myInfo.activator.getMonsterZones();
+  const cells = options?.cells ?? myInfo.activator.getMonsterZones();
+  const posList = options?.posList ?? faceupBattlePositions;
   const list = monsters.map((monster) => {
     return { monster, posList, cells };
   });
@@ -285,7 +289,7 @@ export const getSingleTargetActionPartical = <T>(
       if (options.do === "Reborn") {
         chainBlockTags.push(
           ...selectedEntities
-            .map((monster) => monster.fieldCell.cellType)
+            .map((monster) => monster.cell.cellType)
             .getDistinct()
             .filter((ct) => ct === "Graveyard" || ct === "Banished")
             .map((ct) => (ct === "Graveyard" ? "SpecialSummonFromGraveyard" : "SpecialSummonFromBanished"))

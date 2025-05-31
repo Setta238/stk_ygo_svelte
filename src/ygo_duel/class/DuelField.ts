@@ -172,7 +172,7 @@ export class DuelField {
     // 素材にするモンスター以外でそこにアローヘッドが向いているモンスターかつ、新しいリンクモンスターと相互リンクするモンスターを取得。
     let coLinkedMonsters = emptyExZoneCell.linkArrowSources
       .filter((monster) => !materials.includes(monster))
-      .filter((monster) => newLinkArrowDests.includes(monster.fieldCell));
+      .filter((monster) => newLinkArrowDests.includes(monster.cell));
 
     // 上の条件のモンスターが存在しない場合、エクストラリンク不可
     if (!coLinkedMonsters.length) {
@@ -187,7 +187,7 @@ export class DuelField {
       const _tmp = coLinkedMonsters.flatMap((monster) => monster.coLinkedEntities).filter((monster) => !materials.includes(monster));
 
       // エクストラモンスターゾーンのものがいれば、エクストラリンク可能。
-      if (_tmp.some((monster) => monster.fieldCell.cellType === "ExtraMonsterZone")) {
+      if (_tmp.some((monster) => monster.cell.cellType === "ExtraMonsterZone")) {
         return true;
       }
 

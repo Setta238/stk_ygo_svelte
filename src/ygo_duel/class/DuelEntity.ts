@@ -241,7 +241,7 @@ export class DuelEntity {
     // 除外対象を配列にしておく
     // TODO 不要かも？
     const entitiesWithAnimation = items
-      .filter((item) => item.entity.fieldCell !== item.to)
+      .filter((item) => item.entity.cell !== item.to)
       .map((item) => item.entity)
       .filter((entity) => !(excludedList ?? []).includes(entity));
     const _excludedList = [...entitiesWithAnimation, ...duel.field.getCardsOnFieldStrictly().filter((entity) => entity.info.isDying)];
@@ -483,7 +483,7 @@ export class DuelEntity {
       }),
       excludedList
     );
-    return items.map((item) => item.entity).filter((entity) => entity.fieldCell.cellType === to);
+    return items.map((item) => item.entity).filter((entity) => entity.cell.cellType === to);
   };
   private static readonly settleEntityMove = (duel: Duel) => {
     duel.field.recalcLinkArrows();
@@ -492,7 +492,7 @@ export class DuelEntity {
     entities.filter((entity) => !entity.isOnFieldStrictly && !entity.info.isPending).forEach((entity) => entity.resetInfoIfLeavesTheField());
     entities
       .filter((entity) => entity.face === "FaceDown")
-      .filter((entity) => entity.fieldCell === entity.isBelongTo)
+      .filter((entity) => entity.cell === entity.isBelongTo)
       .forEach((entity) => {
         entity.resetInfoAll();
         entity.resetStatusAll();
@@ -517,12 +517,12 @@ export class DuelEntity {
   public readonly parent: DuelEntity | undefined;
   public face: TDuelEntityFace;
   public get isUnderControl() {
-    return this.face === "FaceUp" || deckCellTypes.every((t) => t !== this.fieldCell.cellType);
+    return this.face === "FaceUp" || deckCellTypes.every((t) => t !== this.cell.cellType);
   }
 
   public orientation: TDuelEntityOrientation;
   public get controller() {
-    return this.fieldCell.owner ?? this.owner;
+    return this.cell.owner ?? this.owner;
   }
   public readonly owner: Duelist;
   public get field() {
@@ -536,11 +536,23 @@ export class DuelEntity {
     return this.duel.chainBlockLog.records.filter((rec) => rec.chainBlockInfo.action.entity === this);
   }
 
-  public fieldCell: DuelFieldCell;
+  public cell: DuelFieldCell;
 
-  private _status: EntityStatus;
+  private _status: Readonly<EntityStatus>;
+  public get status() {
+    return this._status as Readonly<EntityStatus>;
+  }
+  public set status(newStatus) {
+    this._status = { ...newStatus };
+  }
   private _numericStatus: EntityNumericStatus;
+  public get numericStatus() {
+    return this._numericStatus;
+  }
   private _info: DuelEntityInfomation;
+  public get info() {
+    return this._info;
+  }
 
   public readonly actions: EntityAction<unknown>[] = [];
   public readonly immediatelyActions: ImmediatelyAction[] = [];
@@ -559,19 +571,6 @@ export class DuelEntity {
     causedAs: "SendToGraveyardAsEffect" | "SendToGraveyardAsCost",
     action: EntityAction<T>
   ): boolean => !this.status.willBeBanished && !this.status.willReturnToDeck && this.procFilterBundle.filter([causedAs], activator, causedBy, action, [this]);
-
-  public get status() {
-    return this._status as Readonly<EntityStatus>;
-  }
-  public set status(newStatus) {
-    this._status = { ...newStatus };
-  }
-  public get numericStatus() {
-    return this._numericStatus;
-  }
-  public get info() {
-    return this._info;
-  }
 
   public get kind() {
     return this.info.kind;
@@ -624,7 +623,7 @@ export class DuelEntity {
       return [];
     }
     return this.linkArrows
-      .map((ah) => [this.fieldCell.row + ah.offsetRow, this.fieldCell.column + ah.offsetColumn])
+      .map((ah) => [this.cell.row + ah.offsetRow, this.cell.column + ah.offsetColumn])
       .map(([row, column]) => this.field.cells[row][column])
       .filter((cell) => cell.isMonsterZoneLikeCell);
   }
@@ -634,7 +633,7 @@ export class DuelEntity {
       return [];
     }
 
-    return [...this.linkArrowDests.map((cell) => cell.cardEntities[0]).map((monster) => monster), ...this.fieldCell.linkArrowSources].getDistinct();
+    return [...this.linkArrowDests.map((cell) => cell.cardEntities[0]).map((monster) => monster), ...this.cell.linkArrowSources].getDistinct();
   }
   public get coLinkedEntities(): DuelEntity[] {
     if (!this.isOnFieldAsMonsterStrictly) {
@@ -647,11 +646,11 @@ export class DuelEntity {
     return this.linkArrowDests
       .map((cell) => cell.cardEntities[0])
       .filter((monster) => monster)
-      .union(this.fieldCell.linkArrowSources);
+      .union(this.cell.linkArrowSources);
   }
 
   public get isEffective() {
-    return this.status.isEffective && this.info.isEffectiveIn.includes(this.fieldCell.cellType);
+    return this.status.isEffective && this.info.isEffectiveIn.includes(this.cell.cellType);
   }
   public get canBeSet() {
     return this.entityType === "Card" && !this.status.monsterCategories?.includes("Link");
@@ -713,7 +712,7 @@ export class DuelEntity {
       return false;
     }
 
-    if (!this.fieldCell.isSpellTrapZoneLikeCell) {
+    if (!this.cell.isSpellTrapZoneLikeCell) {
       return false;
     }
     if (this.status.spellCategory) {
@@ -723,14 +722,14 @@ export class DuelEntity {
   }
 
   public get isOnField() {
-    return this.fieldCell.isPlayFieldCell;
+    return this.cell.isPlayFieldCell;
   }
   public get isOnFieldStrictly() {
     return this.isOnField && !this.info.isPending && !this.info.isDying && this.kind !== "XyzMaterial";
   }
   public get isOnFieldAsMonsterStrictly() {
     // フィールド上の場合、モンスターゾーンにいればモンスターである。
-    return this.fieldCell.isMonsterZoneLikeCell && this.isOnFieldStrictly;
+    return this.cell.isMonsterZoneLikeCell && this.isOnFieldStrictly;
   }
   public get isMonster() {
     // カードの種類がモンスターであるか、モンスターゾーンにいればモンスターである。
@@ -741,7 +740,7 @@ export class DuelEntity {
     return this.isOnFieldStrictly && (this.kind === "Spell" || this.kind === "Trap");
   }
   public get isInTrashCell() {
-    return this.fieldCell.isTrashCell;
+    return this.cell.isTrashCell;
   }
 
   public get isLikeContinuousSpell() {
@@ -804,7 +803,7 @@ export class DuelEntity {
     this.counterHolder = new CounterHolder(this);
     this.definition = definition;
     this.owner = owner;
-    this.fieldCell = fieldCell;
+    this.cell = fieldCell;
     this.entityType = entityType;
     this.parent = parent;
     this.origin = definition.staticInfo;
@@ -921,7 +920,7 @@ export class DuelEntity {
     }
     this.duel.log.info(logText, actionOwner);
     await this.moveAlone(
-      this.fieldCell,
+      this.cell,
       "Monster",
       pos === "Set" ? "FaceDown" : "FaceUp",
       pos === "Attack" ? "Vertical" : "Horizontal",
@@ -943,7 +942,7 @@ export class DuelEntity {
     movedBy?: DuelEntity,
     actionOwner?: Duelist
   ): Promise<void> => {
-    this.moveAlone(this.fieldCell, kind, pos === "FaceUp" ? "FaceUp" : "FaceDown", "Vertical", "Top", movedAs, movedBy, actionOwner, actionOwner);
+    this.moveAlone(this.cell, kind, pos === "FaceUp" ? "FaceUp" : "FaceDown", "Vertical", "Top", movedAs, movedBy, actionOwner, actionOwner);
   };
 
   public readonly setAsSpellTrap = async (
@@ -975,7 +974,7 @@ export class DuelEntity {
   };
 
   public readonly activateSpellTrapOnField = async (kind: TCardKind, movedAs: TDuelCauseReason[], movedBy: DuelEntity, actionOwner: Duelist): Promise<void> => {
-    await this.moveAlone(this.fieldCell, kind, "FaceUp", "Vertical", "Top", [...movedAs, "CardActivation"], movedBy, actionOwner, actionOwner);
+    await this.moveAlone(this.cell, kind, "FaceUp", "Vertical", "Top", [...movedAs, "CardActivation"], movedBy, actionOwner, actionOwner);
   };
 
   public readonly draw = async (movedAs: TDuelCauseReason[], movedBy: DuelEntity | undefined, actionOwner: Duelist | undefined): Promise<DuelFieldCell> => {
@@ -1012,7 +1011,7 @@ export class DuelEntity {
   };
 
   public readonly excavate = async (movedAs: TDuelCauseReason[], movedBy: DuelEntity, activator: Duelist) =>
-    this.moveAlone(this.fieldCell, this.kind, "FaceUp", this.orientation, "Fix", ["Excavate", ...movedAs], movedBy, activator, undefined);
+    this.moveAlone(this.cell, this.kind, "FaceUp", this.orientation, "Fix", ["Excavate", ...movedAs], movedBy, activator, undefined);
 
   private readonly moveAlone = async (
     to: DuelFieldCell,
@@ -1026,16 +1025,18 @@ export class DuelEntity {
     chooser: Duelist | undefined
   ): Promise<DuelFieldCell> => {
     await DuelEntity.moveMany([{ entity: this, to, kind, face, orientation, pos, movedAs, movedBy, actionOwner, chooser }], undefined);
-    return this.fieldCell;
+    return this.cell;
   };
 
-  public readonly determine = () => {
+  public readonly determine = async () => {
     if (!this.info.isPending) {
       return;
     }
     this.info.isPending = false;
     this.moveLog.finalize();
     this.continuousEffects.forEach((ce) => ce.updateState());
+    await this.fireImmediatelyActions();
+    await DuelEntityShortHands.waitCorpseDisposal(this.duel);
   };
 
   /**
@@ -1057,9 +1058,7 @@ export class DuelEntity {
       throw new Error("illegal argument: to");
     }
 
-    for (const immdAct of [this, ...this.field.getCardsOnFieldStrictly()].getDistinct().flatMap((card) => card.immediatelyActions)) {
-      await immdAct.execute(this, args);
-    }
+    const oldProps = { cell: this.cell, status: this.status, info: this.info };
 
     this.face = args.face;
     this.orientation = args.orientation;
@@ -1071,6 +1070,7 @@ export class DuelEntity {
     let logOwner = args.actionOwner;
 
     if (!logOwner && args.movedAs.includes("LostDestinyBond")) {
+      console.log(this.toString(), this.info.equipedBy?.toString(), this.info.xyzOwner?.toString());
       // 道連れ元を失っての移動の場合、ログ上の移動主体を道連れ元の移動主体とする。
       const destinyBond = this.info.equipedBy ?? this.info.xyzOwner;
       if (destinyBond) {
@@ -1079,9 +1079,9 @@ export class DuelEntity {
     }
 
     // 異なるセルに移動する場合
-    if (args.to !== this.fieldCell) {
-      this.duel.log.pushMoveLog(logOwner, this, this.fieldCell, args.to);
-      if (this.fieldCell.cellType === "WaitingRoom") {
+    if (args.to !== this.cell) {
+      this.duel.log.pushMoveLog(logOwner, this, this.cell, args.to);
+      if (this.cell.cellType === "WaitingRoom") {
         appearFlg = true;
       } else if (args.to.cellType === "WaitingRoom") {
         this._exists = false;
@@ -1093,19 +1093,19 @@ export class DuelEntity {
       }
     }
 
-    if (args.to !== this.fieldCell || args.pos === "Random") {
+    if (args.to !== this.cell || args.pos === "Random") {
       // セルから自分自身を取り除く
-      this.fieldCell.releaseEntities(this);
+      this.cell.releaseEntities(this);
 
       // 場を離れる場合の処理
-      if (this.fieldCell.isPlayFieldCell && !args.to.isPlayFieldCell) {
+      if (this.cell.isPlayFieldCell && !args.to.isPlayFieldCell) {
         // カウンター類を全て除去
         this.counterHolder.clear();
 
         // 墓地送り予定情報を削除
         this.resetCauseOfDeath();
       }
-      if ((this.fieldCell.isMonsterZoneLikeCell && !args.to.isMonsterZoneLikeCell) || args.kind !== "Monster") {
+      if ((this.cell.isMonsterZoneLikeCell && !args.to.isMonsterZoneLikeCell) || args.kind !== "Monster") {
         // 数値ステータスをリセット
         // FIXME 情報リセットを一箇所に集約する
         this.resetNumericStatus();
@@ -1124,15 +1124,13 @@ export class DuelEntity {
 
         if (this.kind !== "XyzMaterial") {
           // XYZ素材にマーキング
-          this.fieldCell.xyzMaterials.forEach((material) => {
+          this.cell.xyzMaterials.forEach((material) => {
             material.info.isDying = true;
             material.info.causeOfDeath = ["LostXyzOwner", "LostDestinyBond"];
             this.controller.writeInfoLog(`${this.toString()}不在により、XYZ素材${material.toString()}は墓地に送られた。`);
           });
         }
-
-        this.info.xyzOwner = undefined;
-      } else if (this.fieldCell.cellType === "SpellAndTrapZone" && args.to.cellType !== "SpellAndTrapZone") {
+      } else if (this.cell.cellType === "SpellAndTrapZone" && args.to.cellType !== "SpellAndTrapZone") {
         // 魔法罠を離れる時の処理
         // 装備解除
         // FIXME 情報リセットを一箇所に集約する
@@ -1168,7 +1166,7 @@ export class DuelEntity {
       // 装備していたカードにマーキング
       this.info.equipEntities.forEach((equip) => {
         equip.info.isDying = true;
-        equip.info.causeOfDeath = ["Rule", "Destroy"];
+        equip.info.causeOfDeath = ["Rule", "Destroy", "LostEquipOwner", "LostDestinyBond"];
         this.controller.writeInfoLog(`装備対象${this.toString()}不在により${equip.toString()}は破壊された。`);
       });
 
@@ -1178,7 +1176,7 @@ export class DuelEntity {
       this.info.materials = [];
 
       // 無効化状態を解除
-      this._status.isEffective = true;
+      this.status = { ...this._status, isEffective: true };
       this.info.isEffectiveIn = [...duelFieldCellTypes];
 
       //ステータスをリセット
@@ -1191,8 +1189,28 @@ export class DuelEntity {
     // 移動ログ追加
     this.moveLog.push(args.kind, args.movedAs, args.movedBy, args.actionOwner, args.chooser);
 
+    // 永続の即時実行処理
+    await this.fireImmediatelyActions(oldProps);
+
     return args.to;
   };
+
+  private readonly fireImmediatelyActions = async (
+    oldProps?: Readonly<{
+      status: Readonly<EntityStatus>;
+      info: Readonly<DuelEntityInfomation>;
+      cell: DuelFieldCell;
+    }>
+  ) => {
+    for (const immdAct of [this, ...this.field.getCardsOnFieldStrictly()]
+      .getDistinct()
+      .filter((card) => card.immediatelyActions.length)
+      .toSorted((left, right) => left.hadArrivedToFieldAt().totalProcSeq - right.hadArrivedToFieldAt().totalProcSeq)
+      .flatMap((card) => card.immediatelyActions)) {
+      await immdAct.execute(this, oldProps);
+    }
+  };
+
   public readonly initForTurn = () => {
     this.info.isSettingSickness = false;
     this.info.attackDeclareCount = 0;
@@ -1381,7 +1399,7 @@ DuelEntity.prototype.canBeBanished = function (
   causedBy: DuelEntity,
   action: Partial<CardActionDefinitionAttrs>
 ): boolean {
-  if (this.fieldCell.cellType === "Banished") {
+  if (this.cell.cellType === "Banished") {
     return false;
   }
   return _canBeDoneSomethingByEffect(this, procType, activator, causedBy, action);
@@ -1413,10 +1431,10 @@ DuelEntity.prototype.getIndexInCell = function (): number {
     return -1;
   }
 
-  const index = entity.fieldCell.cardEntities.indexOf(entity);
+  const index = entity.cell.cardEntities.indexOf(entity);
 
   if (index < 0) {
-    throw new SystemError("エンティティとセルの状態が矛盾している。", [entity, entity.fieldCell]);
+    throw new SystemError("エンティティとセルの状態が矛盾している。", [entity, entity.cell]);
   }
 
   return index;
@@ -1425,7 +1443,7 @@ DuelEntity.prototype.getIndexInCell = function (): number {
 DuelEntity.prototype.getXyzMaterials = function (): DuelEntity[] {
   const entity = this as DuelEntity;
 
-  return (entity.status.monsterCategories ?? []).includes("Xyz") ? entity.fieldCell.xyzMaterials : [];
+  return (entity.status.monsterCategories ?? []).includes("Xyz") ? entity.cell.xyzMaterials : [];
 };
 DuelEntity.prototype.wasMovedAfter = function (clock: IDuelClock): boolean {
   return this.moveLog.latestRecord.movedAt.totalProcSeq > clock.totalProcSeq;
@@ -1459,11 +1477,11 @@ DuelEntity.prototype.release = async function (
   movedByWhom: Duelist | undefined
 ): Promise<DuelFieldCell | undefined> {
   await this.sendToGraveyard([...movedAs, "Release"], movedBy, movedByWhom);
-  return this.info.isVanished ? undefined : this.fieldCell;
+  return this.info.isVanished ? undefined : this.cell;
 };
 DuelEntity.prototype.ruleDestroy = async function (): Promise<DuelFieldCell | undefined> {
   await this.sendToGraveyard(["Rule", "Destroy"], undefined, undefined);
-  return this.info.isVanished ? undefined : this.fieldCell;
+  return this.info.isVanished ? undefined : this.cell;
 };
 
 DuelEntity.prototype.sendToGraveyard = async function (

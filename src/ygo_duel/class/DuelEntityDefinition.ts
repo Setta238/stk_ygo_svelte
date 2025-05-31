@@ -37,7 +37,8 @@ export const isOvermuchTypeFusionMaterialInfo = (info: FusionMaterialInfo): info
 
 export type EntityProcDefinition = {
   name: string;
-  actions: Readonly<EntityActionDefinition<unknown>[]>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  actions: Readonly<EntityActionDefinition<any>[]>;
   immediatelyActions?: Readonly<ImmediatelyActionDefinition[]>;
   continuousEffects?: ContinuousEffectBase<unknown>[];
   summonFilter?: (

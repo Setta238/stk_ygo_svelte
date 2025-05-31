@@ -74,11 +74,11 @@ export default function* generate(): Generator<EntityProcDefinition> {
         },
         execute: async (myInfo): Promise<boolean> => {
           const targets = myInfo.selectedEntities
-            .filter((card) => card.isOnFieldStrictly || card.fieldCell.cellType === "Graveyard")
+            .filter((card) => card.isOnFieldStrictly || card.cell.cellType === "Graveyard")
             .filter((card) => card.canBeEffected(myInfo.activator, myInfo.action.entity, myInfo.action));
           await DuelEntityShortHands.returnManyToHandForTheSameReason(targets, ["Effect"], myInfo.action.entity, myInfo.activator);
 
-          const qty = targets.filter((card) => card.fieldCell.cellType === "Hand" || card.fieldCell.cellType === "ExtraDeck").length;
+          const qty = targets.filter((card) => card.cell.cellType === "Hand" || card.cell.cellType === "ExtraDeck").length;
 
           myInfo.action.entity.numericOprsBundle.push(
             NumericStateOperator.createLingeringAddition(
@@ -111,7 +111,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           const froms = myInfo.action.duel.field.moveLog
             .getPriviousChainLog()
             .filter((record) => {
-              return record.entity.fieldCell.cellType === "Graveyard" || (record.movedAs.includes("Battle") && record.movedAs.includes("Destroy"));
+              return record.entity.cell.cellType === "Graveyard" || (record.movedAs.includes("Battle") && record.movedAs.includes("Destroy"));
             })
             .filter((record) => record.movedAt.totalProcSeq > wasMovedAt.totalProcSeq)
             .map((record) => record.entity.wasMovedFrom)

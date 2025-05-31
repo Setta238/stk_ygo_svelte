@@ -4,6 +4,7 @@ import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition"
 import { freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import {
   defaultCanPayDiscardCosts,
+  defaultEffectSpecialSummonExecute,
   defaultPayDiscardCosts,
   defaultPrepare,
   defaultTargetMonstersRebornExecute,
@@ -11,7 +12,10 @@ import {
   getSingleTargetActionPartical,
 } from "../card_actions/CardActions";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import { EntityCostTypes } from "@ygo_duel/class/DuelEntityAction";
+import { EntityCostTypes, type CardActionDefinition } from "@ygo_duel/class/DuelEntityAction";
+import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
+import { SystemError } from "@ygo_duel/class/Duel";
+import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
@@ -132,4 +136,109 @@ export default function* generate(): Generator<EntityProcDefinition> {
       defaultSpellTrapSetAction,
     ],
   };
+
+  {
+    const giveAndTakeAction: CardActionDefinition<{ give: DuelEntity; take: DuelEntity }> = {
+      title: "発動",
+      isMandatory: false,
+      playType: "CardActivation",
+      spellSpeed: "Quick",
+      executableCells: ["SpellAndTrapZone"],
+      executablePeriods: freeChainDuelPeriodKeys,
+      executableDuelistTypes: ["Controller"],
+      hasToTargetCards: true,
+      fixedTags: ["SpecialSummonFromGraveyard"],
+      canExecute: (myInfo) => {
+        // 墓地に蘇生可能モンスター、場に空きが必要。
+        const cells = myInfo.activator.getOpponentPlayer().getMonsterZones();
+        const list = myInfo.activator.getEnableSummonList(
+          myInfo.activator,
+          "SpecialSummon",
+          ["Effect"],
+          myInfo.action,
+          myInfo.activator
+            .getGraveyard()
+            .cardEntities.filter((monster) => monster.lvl)
+            .filter((card) => card.canBeTargetOfEffect(myInfo))
+            .map((monster) => {
+              return { monster, posList: ["Defense"], cells };
+            }),
+          [],
+          false
+        );
+        if (!list.length) {
+          return false;
+        }
+
+        return myInfo.activator
+          .getMonstersOnField()
+          .filter((monster) => monster.lvl)
+          .some((monster) => monster.canBeTargetOfEffect(myInfo));
+      },
+      prepare: async (myInfo, chainBlockInfos, cancelable) => {
+        const target = await myInfo.activator.waitSelectEntity(
+          myInfo.activator.getMonstersOnField().filter((monster) => monster.lvl),
+          "レベルを上げるモンスターを選択。",
+          cancelable
+        );
+
+        if (!target) {
+          return;
+        }
+
+        const result = await defaultTargetMonstersRebornPrepare(
+          myInfo,
+          myInfo.activator
+            .getGraveyard()
+            .cardEntities.filter((monster) => monster.lvl)
+            .filter((card) => card.canBeTargetOfEffect(myInfo)),
+          ["Defense"]
+        );
+
+        const selectedEntities = [target, ...result.selectedEntities];
+        myInfo.data = { give: result.selectedEntities[0], take: target };
+
+        return { ...result, selectedEntities };
+      },
+      execute: async (myInfo) => {
+        if (!myInfo.data) {
+          throw new SystemError("正しくない形でギブ＆テイクの効果処理を実行しようとした。");
+        }
+        const { give, take } = myInfo.data;
+        if (!take.isOnFieldAsMonsterStrictly) {
+          return false;
+        }
+
+        const result = await defaultEffectSpecialSummonExecute(myInfo, [give], {
+          cells: myInfo.activator.getOpponentPlayer().getMonsterZones(),
+          posList: ["Defense"],
+        });
+
+        if (!result) {
+          return false;
+        }
+
+        const lvl = give.lvl ?? 0;
+
+        take.numericOprsBundle.push(
+          NumericStateOperator.createLingeringAddition(
+            "ギブ＆テイク",
+            (operator) => operator.duel.clock.isSameTurn(operator.isSpawnedAt),
+            myInfo.action.entity,
+            myInfo.action,
+            "level",
+            (spawner, target, current) => current + lvl
+          )
+        );
+
+        return true;
+      },
+      settle: async () => true,
+    };
+
+    yield {
+      name: "ギブ＆テイク",
+      actions: [giveAndTakeAction, defaultSpellTrapSetAction],
+    };
+  }
 }

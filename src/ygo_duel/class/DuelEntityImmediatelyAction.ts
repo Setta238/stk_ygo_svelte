@@ -1,5 +1,6 @@
-import type { DuelEntity, MoveParameters } from "@ygo_duel/class/DuelEntity";
+import type { DuelEntity, DuelEntityInfomation, EntityStatus } from "@ygo_duel/class/DuelEntity";
 import { EntityActionBase, type EntityActionDefinitionBase } from "@ygo_duel/class/DuelEntityActionBase";
+import type { DuelFieldCell } from "./DuelFieldCell";
 export type ImmediatelyActionDefinition = Omit<EntityActionDefinitionBase, "isMandatory" | "executableDuelistTypes" | "playType"> & {
   execute: (
     action: ImmediatelyAction,
@@ -30,12 +31,19 @@ export class ImmediatelyAction extends EntityActionBase {
     super(seq, entity, { ...definition, playType: "ContinuousEffect", isMandatory: false, executableDuelistTypes: ["Controller"] });
   }
 
-  public readonly execute = async (triggerEntity?: DuelEntity, moveParam?: MoveParameters): Promise<"RemoveMe" | undefined> => {
+  public readonly execute = async (
+    triggerEntity?: DuelEntity,
+    oldProps?: Readonly<{
+      status: Readonly<EntityStatus>;
+      info: Readonly<DuelEntityInfomation>;
+      cell: DuelFieldCell;
+    }>
+  ): Promise<"RemoveMe" | undefined> => {
     if (!this.canExecute()) {
       return;
     }
 
-    const result = await this.definition.execute(this, triggerEntity, moveParam);
+    const result = await this.definition.execute(this, triggerEntity, oldProps);
 
     if (result === "RemoveMe") {
       this.entity.immediatelyActions.reset(...this.entity.immediatelyActions.filter((item) => item !== this));

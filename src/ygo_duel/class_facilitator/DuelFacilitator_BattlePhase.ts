@@ -224,7 +224,7 @@ export class DuelFacilitator_BattlePhase extends DuelFacilitatorBase {
       throw new SystemError(`${attacker.toString()}に戦闘アクションが定義されていない。`);
     }
 
-    const battleChainBlockInfo = await battleAction.prepare(activator, defender.fieldCell, undefined, [], false, false);
+    const battleChainBlockInfo = await battleAction.prepare(activator, defender.cell, undefined, [], false, false);
 
     if (!battleChainBlockInfo) {
       throw new IllegalCancelError(`戦闘アクションがキャンセルされた。`);

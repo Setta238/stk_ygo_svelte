@@ -214,7 +214,7 @@ export class DuelFieldCell {
         this._needsShuffle = true;
       }
       this._entities.forEach((entity) => {
-        entity.fieldCell = this;
+        entity.cell = this;
       });
 
       if (this.isMonsterZoneLikeCell && entity.origin.monsterCategories?.includes("Link")) {

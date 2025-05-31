@@ -120,7 +120,7 @@ export class EntityActionBase {
   }
 
   public readonly canExecute = (duelist?: Duelist): boolean =>
-    this.executableCells.includes(this.entity.fieldCell.cellType) &&
+    this.executableCells.includes(this.entity.cell.cellType) &&
     this.executableFaces.includes(this.entity.face) &&
     this.executablePeriods.includes(this.entity.duel.clock.period.key) &&
     this.validateDuelist(duelist ?? this.entity.controller);

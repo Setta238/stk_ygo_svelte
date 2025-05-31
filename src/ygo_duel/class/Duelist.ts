@@ -404,8 +404,8 @@ export class Duelist {
       return undefined;
     }
 
-    const left = monsters.find((monster) => monster.fieldCell.column === (this.seat === "Below" ? 1 : 5));
-    const right = monsters.find((monster) => monster.fieldCell.column === (this.seat === "Below" ? 5 : 1));
+    const left = monsters.find((monster) => monster.cell.column === (this.seat === "Below" ? 1 : 5));
+    const right = monsters.find((monster) => monster.cell.column === (this.seat === "Below" ? 5 : 1));
 
     if (!left || !right) {
       throw new SystemError("想定されない状態", monsters);
@@ -611,7 +611,7 @@ export class Duelist {
         };
       })
       .map((item) => {
-        if (item.monster.fieldCell.cellType === "ExtraDeck") {
+        if (item.monster.cell.cellType === "ExtraDeck") {
           // エクストラデッキからの特殊召喚の場合
           if (item.monster.status.monsterCategories?.includes("Link") || item.monster.status.monsterCategories?.includes("Pendulum")) {
             // リンクモンスターまたはペンデュラムモンスターの場合、エクストラモンスターゾーンまたはリンクマーカーの先にしか特殊召喚できない

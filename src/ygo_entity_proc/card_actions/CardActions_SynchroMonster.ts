@@ -43,10 +43,10 @@ const defaultSynchroMaterialsValidator = (
 
   const materialInfos = [
     ...tuners.map((tuner) => {
-      return { material: tuner, cell: tuner.fieldCell, isAsTuner: true };
+      return { material: tuner, cell: tuner.cell, isAsTuner: true };
     }),
     ...nonTuners.map((nonTuner) => {
-      return { material: nonTuner, cell: nonTuner.fieldCell, isAsTuner: false };
+      return { material: nonTuner, cell: nonTuner.cell, isAsTuner: false };
     }),
   ];
 
@@ -79,7 +79,7 @@ function* getEnableSynchroSummonPatterns(
 
   // 手札シンクロを許容するカードがない場合、手札のカードを排除する。
   if (materials.every((m) => !m.status.allowHandSynchro)) {
-    materials = materials.filter((m) => m.fieldCell.isPlayFieldCell);
+    materials = materials.filter((m) => m.cell.isPlayFieldCell);
   }
 
   // 二枚以下はシンクロ召喚不可

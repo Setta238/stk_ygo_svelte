@@ -2,18 +2,22 @@ import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CardAct
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { duelPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
-import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
+import { duelEntityFaces, type DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
 import { defaultTargetMonstersRebornExecute, defaultTargetMonstersRebornPrepare } from "../card_actions/CardActions";
 import type { ImmediatelyAction } from "@ygo_duel/class/DuelEntityImmediatelyAction";
+import { duelFieldCellTypes } from "@ygo_duel/class/DuelFieldCell";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   const props: Readonly<{
     name: string;
     pos: TBattlePosition;
     filter: (monster: DuelEntity) => boolean;
-    targetImmdAction?: (action: ImmediatelyAction, ...args: Required<Parameters<typeof ImmediatelyAction.prototype.execute>>) => Promise<void | "RemoveMe">;
+    targetImmdAction?: (
+      action: ImmediatelyAction,
+      ...args: Parameters<typeof ImmediatelyAction.prototype.execute>
+    ) => ReturnType<typeof ImmediatelyAction.prototype.execute>;
   }>[] = [
     { name: "リビングデッドの呼び声", pos: "Attack", filter: () => true },
     { name: "エンジェル・リフト", pos: "Attack", filter: (monster) => (monster.lvl ?? 12) < 3 },
@@ -24,6 +28,10 @@ export default function* generate(): Generator<EntityProcDefinition> {
       pos: "Attack",
       filter: (monster) => (monster.atk ?? 9999) <= 1000,
       targetImmdAction: async (action, monster) => {
+        if (!monster) {
+          return;
+        }
+
         if (!monster.isOnFieldAsMonsterStrictly || monster.face === "FaceDown") {
           return "RemoveMe";
         }
@@ -104,30 +112,48 @@ export default function* generate(): Generator<EntityProcDefinition> {
       immediatelyActions: [
         {
           title: "自壊",
-          executableCells: ["SpellAndTrapZone"],
+          executableCells: duelFieldCellTypes,
           executablePeriods: duelPeriodKeys,
-          executableFaces: ["FaceUp"],
-          execute: async (action, triggerEntity, moveParam) => {
-            if (!moveParam) {
+          executableFaces: duelEntityFaces,
+          execute: async (action, triggerEntity, oldProps) => {
+            if (
+              item.targetImmdAction &&
+              triggerEntity &&
+              Object.values(action.entity.info.effectTargets)
+                .flatMap((a) => a)
+                .includes(triggerEntity)
+            ) {
+              item.targetImmdAction(action, triggerEntity, oldProps);
               return;
             }
-            const targets = Object.values(action.entity.info.effectTargets).flatMap((a) => a);
+            console.log(action.entity.toString(), action, triggerEntity, oldProps);
+            if (triggerEntity !== action.entity) {
+              return;
+            }
+            console.log(action.entity.toString(), action, triggerEntity, oldProps);
+            if (!oldProps) {
+              return;
+            }
 
+            console.log(action.entity.toString(), action, triggerEntity, oldProps);
+            const targets = Object.values(oldProps.info.effectTargets).flatMap((a) => a);
             if (!targets.length) {
               return;
             }
-            const target = targets[0];
-            if (triggerEntity === action.entity) {
-              if (target.isOnFieldStrictly && target.face === "FaceUp" && action.entity.isEffective && !moveParam.to.isSpellTrapZoneLikeCell) {
-                // この場所では破壊マーキングまで実行。
-                action.entity.controller.writeInfoLog(`${action.entity.toString()}がフィールドを離れたため、対象モンスター${target.toString()}を破壊。`);
-                await DuelEntityShortHands.tryMarkForDestroy([target], { action, activator: action.entity.controller, selectedEntities: targets });
-              }
 
-              return "RemoveMe";
-            } else if (triggerEntity === target && item.targetImmdAction) {
-              item.targetImmdAction(action, triggerEntity, moveParam);
+            console.log(action.entity.toString(), action, triggerEntity, oldProps);
+            const target = targets[0];
+            if (
+              target.isOnFieldAsMonsterStrictly &&
+              target.face === "FaceUp" &&
+              oldProps.status.isEffective &&
+              oldProps.info.isEffectiveIn.includes(oldProps.cell.cellType)
+            ) {
+              // この場所では破壊マーキングまで実行。
+              action.entity.controller.writeInfoLog(`${action.entity.toString()}がフィールドを離れたため、対象モンスター${target.toString()}を破壊。`);
+              await DuelEntityShortHands.tryMarkForDestroy([target], { action, activator: action.entity.controller, selectedEntities: targets });
             }
+
             return undefined;
           },
         },

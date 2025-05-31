@@ -42,7 +42,7 @@ const defaultNormalSummonPayCost = async (
   const qty = myInfo.action.entity.lvl < 7 ? 1 : 2;
 
   if (exZoneMonsters.length >= qty) {
-    releasableMonsters = releasableMonsters.filter((monster) => monster.fieldCell.cellType !== "ExtraMonsterZone");
+    releasableMonsters = releasableMonsters.filter((monster) => monster.cell.cellType !== "ExtraMonsterZone");
   }
 
   const materials =
@@ -52,7 +52,7 @@ const defaultNormalSummonPayCost = async (
       (selected) =>
         (cancelable || selected.length > 0) &&
         (qty < 0 || selected.length === qty) &&
-        (availableCells.length > 0 || selected.some((matetial) => matetial.fieldCell.cellType === "ExtraMonsterZone")),
+        (availableCells.length > 0 || selected.some((matetial) => matetial.cell.cellType === "ExtraMonsterZone")),
       "リリースするモンスターを選択",
       cancelable
     )) ?? [];
@@ -66,7 +66,7 @@ const defaultNormalSummonPayCost = async (
 
   // 詰め直し
   const summonMaterialInfos = materials.map((material) => {
-    return { material, cell: material.fieldCell };
+    return { material, cell: material.cell };
   });
 
   return { summonMaterialInfos };
@@ -97,7 +97,7 @@ export const defaultRuleSummonPrepare = async (
     _cells = myInfo.activator.getMonsterZones();
 
     // エクストラデッキにいる場合、エクストラモンスターゾーンも使用可能
-    if (myInfo.action.entity.fieldCell.cellType === "ExtraDeck") {
+    if (myInfo.action.entity.cell.cellType === "ExtraDeck") {
       _cells.push(...myInfo.activator.duel.field.getCells("ExtraMonsterZone"));
     }
   }
@@ -107,7 +107,7 @@ export const defaultRuleSummonPrepare = async (
 };
 export const defaultRuleSummonExecute = async (myInfo: ChainBlockInfo<unknown>): Promise<boolean> => {
   myInfo.action.entity.info.isRebornable = !myInfo.action.entity.origin.monsterCategories?.includes("RegularSpecialSummonOnly");
-  myInfo.action.entity.determine();
+  await myInfo.action.entity.determine();
   myInfo.costInfo.summonMaterialInfos?.map((info) => info.material).forEach((material) => material.onUsedAsMaterial(myInfo, myInfo.action.entity));
   return true;
 };
@@ -162,7 +162,7 @@ const defaultNormalSummonAction: CardActionDefinition<unknown> = {
           myInfo.action,
           [{ monster: myInfo.action.entity, posList: ["Attack", "Set"], cells: myInfo.activator.getMonsterZones() }],
           pattern.map((material) => {
-            return { material, cell: material.fieldCell };
+            return { material, cell: material.cell };
           }),
           false
         ).length
@@ -213,7 +213,7 @@ export const getDestsForSelfSpecialSummon = <T>(
   const cells = myInfo.activator.getMonsterZones();
 
   // エクストラデッキにいる場合、エクストラモンスターゾーンも使用可能
-  if (myInfo.action.entity.fieldCell.cellType === "ExtraDeck") {
+  if (myInfo.action.entity.cell.cellType === "ExtraDeck") {
     cells.push(...myInfo.activator.getAvailableExtraMonsterZones());
   }
   const summmonList = myInfo.activator.getEnableSummonList(
@@ -256,7 +256,7 @@ const defaultDeclareAttackAction: CardActionDefinition<unknown> = {
     }
     return myInfo.action.getTargetableEntities(myInfo, chainBlockInfos).length > 0;
   },
-  getDests: (myInfo, chainBlockInfos) => myInfo.action.getTargetableEntities(myInfo, chainBlockInfos).map((card) => card.fieldCell),
+  getDests: (myInfo, chainBlockInfos) => myInfo.action.getTargetableEntities(myInfo, chainBlockInfos).map((card) => card.cell),
   prepare: async (myInfo, chainBlockInfos) => {
     if (myInfo.action.entity.info.attackDeclareCount > 0 || myInfo.action.entity.battlePosition !== "Attack") {
       return;
@@ -364,7 +364,7 @@ const defaultFlipSummonAction: CardActionDefinition<unknown> = {
     myInfo.action.entity.isMonster,
   prepare: defaultBattlePotisionChangePrepare,
   execute: async (myInfo) => {
-    myInfo.action.entity.determine();
+    await myInfo.action.entity.determine();
 
     return true;
   },
@@ -387,7 +387,7 @@ const defaultBattlePotisionChangeAction: CardActionDefinition<unknown> = {
 
   prepare: defaultBattlePotisionChangePrepare,
   execute: async (myInfo) => {
-    myInfo.action.entity.determine();
+    await myInfo.action.entity.determine();
     return true;
   },
   settle: async () => true,
@@ -563,7 +563,7 @@ export const getDefaultAccelSynchroAction = <T>(options: Partial<CardActionDefin
             action,
             activator: myInfo.activator,
             targetChainBlock: undefined,
-            isActivatedIn: action.entity.fieldCell,
+            isActivatedIn: action.entity.cell,
             costInfo: {},
             state: "unloaded",
             dest: undefined,
@@ -607,7 +607,7 @@ export const getDefaultAccelSynchroAction = <T>(options: Partial<CardActionDefin
             action,
             activator: myInfo.activator,
             targetChainBlock: undefined,
-            isActivatedIn: action.entity.fieldCell,
+            isActivatedIn: action.entity.cell,
             isActivatedAt: myInfo.isActivatedAt,
             costInfo: {},
             state: "unloaded",

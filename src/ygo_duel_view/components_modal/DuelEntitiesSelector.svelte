@@ -39,7 +39,7 @@
                 cardActionResolve={undefined}
                 bind:selectedList
               />
-              <div class="cell_type_name">〈{entity.fieldCell.shortName}〉</div>
+              <div class="cell_type_name">〈{entity.cell.shortName}〉</div>
             </div>
           {/each}
         </div>

@@ -69,7 +69,7 @@ export class ContinuousEffect<T> {
   };
 
   private get hasToStart() {
-    if (!this.appliableCellTypes.includes(this.entity.fieldCell.cellType)) {
+    if (!this.appliableCellTypes.includes(this.entity.cell.cellType)) {
       return false;
     }
     if (!this.appliableDuelPeriodKeys.includes(this.entity.duel.clock.period.key)) {

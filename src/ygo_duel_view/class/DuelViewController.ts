@@ -247,7 +247,7 @@ export class DuelViewController {
     if (entitiesChoices.selectables.some((e) => e.entityType === "Duelist")) {
       cellsChoices = {
         ...entitiesChoices,
-        selectables: entitiesChoices.selectables.filter((e) => e.entityType === "Duelist").map((e) => e.fieldCell),
+        selectables: entitiesChoices.selectables.filter((e) => e.entityType === "Duelist").map((e) => e.cell),
         qty: 1,
         validator: (selected) => selected.length === 1,
       };

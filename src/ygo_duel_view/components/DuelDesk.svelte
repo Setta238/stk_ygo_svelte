@@ -55,8 +55,8 @@
       if (
         !entitiesChoices.selectables.every(
           (e) =>
-            (e.fieldCell.isPlayFieldCell && e.getIndexInCell() === 0) ||
-            (e.fieldCell.cellType === "Hand" && e.controller.duelistType === "Player") ||
+            (e.cell.isPlayFieldCell && e.getIndexInCell() === 0) ||
+            (e.cell.cellType === "Hand" && e.controller.duelistType === "Player") ||
             e.entityType === "Duelist"
         )
       ) {

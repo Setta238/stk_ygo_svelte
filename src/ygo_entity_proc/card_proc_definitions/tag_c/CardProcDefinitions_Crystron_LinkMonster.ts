@@ -116,7 +116,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             synchroTuners.map((monster) => {
               return { monster, cells, posList: faceupBattlePositions };
             }),
-            [{ material: myInfo.action.entity, cell: myInfo.action.entity.fieldCell }],
+            [{ material: myInfo.action.entity, cell: myInfo.action.entity.cell }],
             false
           );
           return list.length > 0;

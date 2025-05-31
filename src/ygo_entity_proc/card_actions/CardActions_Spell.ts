@@ -107,7 +107,7 @@ export const getDefaultEquipSpellTrapAction = (
       myInfo.action
         .getTargetableEntities(myInfo, chainBlockInfos)
         .filter((entity) => entity.isOnFieldAsMonsterStrictly)
-        .map((monster) => monster.fieldCell),
+        .map((monster) => monster.cell),
     prepare: (myInfo, chainBlockInfos, cancelable) => defaultEquipSpellTrapPrepare(myInfo, chainBlockInfos, cancelable, [], undefined),
     execute: defaultEquipSpellTrapExecute,
     settle: async () => true,

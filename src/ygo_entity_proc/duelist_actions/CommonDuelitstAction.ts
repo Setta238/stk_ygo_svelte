@@ -93,7 +93,9 @@ export const pendulumSummonAction: CardActionDefinition<unknown> = {
     return defaultPrepare();
   },
   execute: async (myInfo: ChainBlockInfo<unknown>): Promise<boolean> => {
-    myInfo.activator.getPendingMonstersOnField().forEach((monster) => monster.determine());
+    for (const monster of myInfo.activator.getPendingMonstersOnField()) {
+      await monster.determine();
+    }
     return true;
   },
   settle: async () => true,

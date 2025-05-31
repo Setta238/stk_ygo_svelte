@@ -57,7 +57,7 @@ export class EntityMoveLog {
     return this.records.slice(-1)[0];
   }
   public get previousPlaceRecord() {
-    return this.records.findLast((rec) => rec.cell.cellType !== this.entity.fieldCell.cellType) ?? this._records[0];
+    return this.records.findLast((rec) => rec.cell.cellType !== this.entity.cell.cellType) ?? this._records[0];
   }
   public get currentProcRecords() {
     return this.records.filter((rec) => rec.movedAt.totalProcSeq === this.entity.duel.clock.totalProcSeq);
@@ -85,7 +85,7 @@ export class EntityMoveLog {
     this._push({
       entity: this.entity,
       kind: this.entity.origin.kind,
-      cell: this.entity.fieldCell,
+      cell: this.entity.cell,
       face: this.entity.face,
       orientation: this.entity.orientation,
       isPending: this.entity.info.isPending,
@@ -95,7 +95,7 @@ export class EntityMoveLog {
   };
 
   public readonly push = (kind: TCardKind, movedAs: TDuelCauseReason[], movedBy?: DuelEntity, actionOwner?: Duelist, chooser?: Duelist) => {
-    let cell = this.entity.fieldCell;
+    let cell = this.entity.cell;
 
     // XYZ素材のみ、ログ上「XYZ素材ゾーン」にいたことにする。
     if (this.entity.kind === "XyzMaterial") {

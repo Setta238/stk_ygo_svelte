@@ -177,7 +177,7 @@ export type ChainBlockInfo<T> = ChainBlockInfoPreparing<T> & ChainBlockInfoPrepa
 export type TriggerPatternBase = {
   triggerType: "Arrival" | "Departure";
   causerFilter?: (me: DuelEntity, causer: DuelEntity) => boolean;
-  from?: DuelFieldCellType[];
+  from?: Readonly<DuelFieldCellType[]>;
   needsJustNow?: boolean;
   needsByOpponent?: boolean;
   needsByEffect?: boolean;
@@ -369,7 +369,7 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
       }
     }
 
-    if (entity.fieldCell.cellType === "Graveyard" && entity.wasMovedFrom.cellType === "Banished") {
+    if (entity.cell.cellType === "Graveyard" && entity.wasMovedFrom.cellType === "Banished") {
       return false;
     }
 
@@ -690,7 +690,7 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
     }
 
     // フィールドにも手札にもない場合、不可
-    if (this.entity.fieldCell.cellType !== "Hand") {
+    if (this.entity.cell.cellType !== "Hand") {
       return;
     }
 
@@ -741,7 +741,7 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
     const setupCallbacks: (() => Promise<unknown>)[] = [];
 
     if (this.playType === "CardActivation" || this.playType === "SpellTrapSet") {
-      if (this.entity.fieldCell.cellType === "Hand") {
+      if (this.entity.cell.cellType === "Hand") {
         //魔法・罠・ペンデュラムスケールのカードの発動またはセットの場合、コスト支払いの前に移動処理を行う。
 
         let availableCells = this.entity.status.spellCategory === "Field" ? [activator.getFieldZone()] : activator.getAvailableSpellTrapZones();
@@ -843,7 +843,7 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
       action: this,
       activator: activator,
       targetChainBlock,
-      isActivatedIn: this.entity.fieldCell,
+      isActivatedIn: this.entity.cell,
       isActivatedAt: this.duel.clock.getClone(),
       enableCellTypes: [...this.entity.info.isEffectiveIn],
       costInfo: {},
@@ -966,7 +966,7 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
 
       // TODO 確認：永続魔法類の発動時の効果処理と適用開始はどちらが先か？
       // 一旦、早すぎた埋葬に便利なので、効果処理を先に行う。
-      this.entity.determine();
+      await this.entity.determine();
 
       // 誓約効果などの適用
       if (this.isOnlyNTimesPerTurnIfFaceup > 0) {

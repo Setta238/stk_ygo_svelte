@@ -14,7 +14,7 @@ export class DuelEntityShortHands {
     if (entity.kind === "XyzMaterial") {
       return false;
     }
-    if (!entity.isOnFieldStrictly && entity.fieldCell.cellType !== "Deck" && entity.fieldCell.cellType !== "Hand") {
+    if (!entity.isOnFieldStrictly && entity.cell.cellType !== "Deck" && entity.cell.cellType !== "Hand") {
       return false;
     }
 
@@ -43,7 +43,7 @@ export class DuelEntityShortHands {
       entities.map((entity) => {
         return {
           entity,
-          to: entity.fieldCell,
+          to: entity.cell,
           kind: entity.kind,
           face: "FaceUp",
           orientation: entity.orientation,
@@ -197,7 +197,7 @@ export class DuelEntityShortHands {
       entities.map((entity) => {
         return {
           entity,
-          to: entity.fieldCell,
+          to: entity.cell,
           kind: "XyzMaterial",
           face: "FaceUp",
           orientation: "Vertical",
@@ -337,7 +337,7 @@ export class DuelEntityShortHands {
         cards[0].field.getAllEntities().flatMap((sacrifice) =>
           sacrifice.substituteEffects
             .filter((effect) => effect.isMandatory)
-            .filter((effect) => effect.executableCells.includes(sacrifice.fieldCell.cellType))
+            .filter((effect) => effect.executableCells.includes(sacrifice.cell.cellType))
             .filter((effect) => effect.isApplicableTo(destroyType, cards, chainBlockInfo).length)
             .flatMap((effect) => effect.substitute(destroyType, cards, chainBlockInfo))
         )
@@ -355,7 +355,7 @@ export class DuelEntityShortHands {
     let substituteEffectItems = cards[0].field.getAllEntities().flatMap((sacrifice) =>
       sacrifice.substituteEffects
         .filter((effect) => !effect.isMandatory)
-        .filter((effect) => effect.executableCells.includes(sacrifice.fieldCell.cellType))
+        .filter((effect) => effect.executableCells.includes(sacrifice.cell.cellType))
         .filter((effect) => effect.isApplicableTo(destroyType, cards, chainBlockInfo).length)
         .map((effect) => {
           return { chooser: sacrifice.owner, effect, sacrifice };
@@ -415,7 +415,7 @@ export class DuelEntityShortHands {
   public static readonly tryBanish = async (procType: TBanishProcType, cards: DuelEntity[], chainBlockInfo: ChainBlockInfo<unknown>): Promise<DuelEntity[]> => {
     const _cards = cards.filter((card) => card.canBeBanished(procType, chainBlockInfo.activator, chainBlockInfo.action.entity, chainBlockInfo.action));
     await DuelEntityShortHands.banishManyForTheSameReason(_cards, ["Effect"], chainBlockInfo.action.entity, chainBlockInfo.activator);
-    return _cards.filter((card) => card.fieldCell.cellType === "Banished").filter((card) => card.moveLog.latestRecord.movedBy === chainBlockInfo.action.entity);
+    return _cards.filter((card) => card.cell.cellType === "Banished").filter((card) => card.moveLog.latestRecord.movedBy === chainBlockInfo.action.entity);
   };
 
   public static readonly negateSummonMany = (movedBy: DuelEntity, activator: Duelist): DuelEntity[] => {

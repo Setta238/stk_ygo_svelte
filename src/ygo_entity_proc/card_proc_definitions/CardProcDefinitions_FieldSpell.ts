@@ -81,7 +81,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             isApplicableTo: () => true,
             calcType: "zero_typeA",
             filter: (filter, point, activator, damageTo) => {
-              if (filter.isSpawnedBy.fieldCell.cellType !== "FieldSpellZone") {
+              if (filter.isSpawnedBy.cell.cellType !== "FieldSpellZone") {
                 return {};
               }
               if (damageTo.lp >= damageTo.getOpponentPlayer().lp) {

@@ -36,7 +36,7 @@
     border-radius: 1.2rem;
     opacity: 0.98;
     min-width: 28rem;
-    max-width: 95vw;
+    max-width: 45vw;
     padding: 1.2rem 1.5rem 1.2rem 1.5rem;
     margin: 2rem auto;
     transition:
@@ -48,6 +48,7 @@
     position: fixed;
     bottom: 0px;
     margin: 0px;
+    max-width: 95vw;
   }
   .modal_window_is_dragging {
     transform: scale(0.5);

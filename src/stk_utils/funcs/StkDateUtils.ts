@@ -76,10 +76,7 @@ class StkDateUtils {
    * @param {Date | string} date
    * @param {string} Separator セパレータ
    */
-  formatToYYYYMMDD = (
-    date: Date | string | undefined,
-    Separator1 = this.DefaultSeparator1
-  ) => {
+  formatToYYYYMMDD = (date: Date | string | undefined, Separator1 = this.DefaultSeparator1) => {
     const tmpDate = this.createDate(date);
     if (!tmpDate) {
       return "";
@@ -97,10 +94,7 @@ class StkDateUtils {
    * @param {Date | string} date
    * @param {string} Separator セパレータ
    */
-  formatToYYYYMM = (
-    date: Date | string | undefined,
-    Separator1 = this.DefaultSeparator1
-  ) => {
+  formatToYYYYMM = (date: Date | string | undefined, Separator1 = this.DefaultSeparator1) => {
     const tmpDate = this.createDate(date);
     if (!tmpDate) {
       return "";
@@ -118,10 +112,7 @@ class StkDateUtils {
    * @param {Date | string} date
    * @param {string} Separator3 セパレータ
    */
-  formatToHHMMSS = (
-    date: Date | string | undefined,
-    Separator3 = this.DefaultSeparator3
-  ) => {
+  formatToHHMMSS = (date: Date | string | undefined, Separator3 = this.DefaultSeparator3) => {
     const tmpDate = this.createDate(date);
     if (!tmpDate) {
       return "";
@@ -133,13 +124,7 @@ class StkDateUtils {
     const m = tmpDate.getMinutes();
     const s = tmpDate.getSeconds();
 
-    return (
-      ("0" + h).slice(-2) +
-      Separator3 +
-      ("0" + m).slice(-2) +
-      Separator3 +
-      ("0" + s).slice(-2)
-    );
+    return ("0" + h).slice(-2) + Separator3 + ("0" + m).slice(-2) + Separator3 + ("0" + s).slice(-2);
   };
 
   /**
@@ -147,10 +132,7 @@ class StkDateUtils {
    * @param {Date | string} date
    * @param {string} Separator3 セパレータ
    */
-  formatToHHMM = (
-    date: Date | string | undefined,
-    Separator3 = this.DefaultSeparator3
-  ) => {
+  formatToHHMM = (date: Date | string | undefined, Separator3 = this.DefaultSeparator3) => {
     const tmpDate = this.createDate(date);
     if (!tmpDate) {
       return "";
@@ -182,11 +164,7 @@ class StkDateUtils {
       return "";
     }
 
-    return (
-      this.formatToYYYYMMDD(tmpDate, Separator1) +
-      Separator2 +
-      this.formatToHHMM(tmpDate, Separator3)
-    );
+    return this.formatToYYYYMMDD(tmpDate, Separator1) + Separator2 + this.formatToHHMM(tmpDate, Separator3);
   };
 
   /**
@@ -206,11 +184,7 @@ class StkDateUtils {
     if (!tmpDate) {
       return "";
     }
-    return (
-      this.formatToYYYYMMDD(tmpDate, Separator1) +
-      Separator2 +
-      this.formatToHHMMSS(tmpDate, Separator3)
-    );
+    return this.formatToYYYYMMDD(tmpDate, Separator1) + Separator2 + this.formatToHHMMSS(tmpDate, Separator3);
   };
 }
 // 拡張メソッドの定義
@@ -225,16 +199,8 @@ declare global {
     getDayOfWeek(format?: string): string;
     formatToYYYYMM(Separator1?: string): string;
     formatToYYYYMMDD(Separator1?: string): string;
-    formatToYYYYMMDD_HHMM(
-      Separator1?: string,
-      Separator2?: string,
-      Separator3?: string
-    ): string;
-    formatToYYYYMMDD_HHMMSS(
-      Separator1?: string,
-      Separator2?: string,
-      Separator3?: string
-    ): string;
+    formatToYYYYMMDD_HHMM(Separator1?: string, Separator2?: string, Separator3?: string): string;
+    formatToYYYYMMDD_HHMMSS(Separator1?: string, Separator2?: string, Separator3?: string): string;
     formatToHHMM(Separator3?: string): string;
     formatToHHMMSS(Separator3?: string): string;
   }
@@ -269,18 +235,10 @@ Date.prototype.formatToYYYYMM = function (Separator1?: string) {
 Date.prototype.formatToYYYYMMDD = function (Separator1?: string) {
   return hoge.formatToYYYYMMDD(this, Separator1);
 };
-Date.prototype.formatToYYYYMMDD_HHMM = function (
-  Separator1?: string,
-  Separator2?: string,
-  Separator3?: string
-) {
+Date.prototype.formatToYYYYMMDD_HHMM = function (Separator1?: string, Separator2?: string, Separator3?: string) {
   return hoge.formatToYYYYMMDD_HHMM(this, Separator1, Separator2, Separator3);
 };
-Date.prototype.formatToYYYYMMDD_HHMMSS = function (
-  Separator1?: string,
-  Separator2?: string,
-  Separator3?: string
-) {
+Date.prototype.formatToYYYYMMDD_HHMMSS = function (Separator1?: string, Separator2?: string, Separator3?: string) {
   return hoge.formatToYYYYMMDD_HHMMSS(this, Separator1, Separator2, Separator3);
 };
 Date.prototype.formatToHHMM = function (Separator3?: string) {

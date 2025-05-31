@@ -90,7 +90,8 @@
     text-align: center;
     word-break: break-word;
     max-width: 90vw;
-    overflow-x: auto;
+    max-height: 45vh;
+    overflow: auto;
   }
   .modal_window_footer {
     display: flex;

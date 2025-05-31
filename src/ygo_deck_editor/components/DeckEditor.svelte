@@ -13,14 +13,13 @@
 
 <script lang="ts">
   import { cardInfoDic, definitionCount, nonDefinitionCount } from "@ygo/class/CardInfo";
-  import { DeckInfo, type IDeckInfo } from "@ygo/class/DeckInfo";
-  import { type TDuelEntityFace } from "@ygo_duel/class/DuelEntity";
+  import { DeckInfo } from "@ygo/class/DeckInfo";
   import DeckEditorCardList from "./DeckEditorCardList.svelte";
-  import DuelCardDetail from "@ygo_duel_view/components/DuelCardDetail.svelte";
   import DeckEditiorCardDetail from "./DeckEditiorCardDetail.svelte";
   import {
     cardKindDic,
     cardKinds,
+    exMonsterCategories,
     monsterAttributeDic,
     monsterAttributes,
     monsterCategories,
@@ -42,7 +41,12 @@
     type TTrapCategory,
   } from "@ygo/class/YgoTypes";
   import {} from "@stk_utils/funcs/StkDateUtils";
-  import { fade, slide } from "svelte/transition";
+  import { slide } from "svelte/transition";
+  import DeckEditorModalContainer, { DeckEditorModalControllerFactory } from "@ygo_deck_editor/components_modal/DeckEditorModalContainer.svelte";
+  const modalController = DeckEditorModalControllerFactory.createModalController({
+    onDragStart: { append: () => {}, remove: () => {} },
+    onDragEnd: { append: () => {}, remove: () => {} },
+  });
   const seachConditionDefaultValues: SearchCondition = {
     name: "",
     cardKinds: cardKinds.filter((kind) => kind !== "XyzMaterial"),
@@ -159,6 +163,40 @@
       return;
     }
     await deckInfo.delete();
+    reloadAllDeckInfo();
+  };
+
+  const onUploadClick = async () => {
+    const result = await modalController.deckUploader.show({
+      title: "デッキ情報アップロード",
+      position: "Middle",
+      cancelable: true,
+      mainCardNames: Object.values(cardInfoDic)
+        .filter((info) => !info.monsterCategories?.union(exMonsterCategories).length)
+        .map((info) => info.name),
+      exCardNames: Object.values(cardInfoDic)
+        .filter((info) => info.monsterCategories?.union(exMonsterCategories).length)
+        .map((info) => info.name),
+    });
+    if (!result) {
+      return;
+    }
+
+    const expiredIdList: number[] = [];
+
+    if (result.replaceAll) {
+      if (!confirm(`既存デッキ情報を全て削除し、アップロードしたファイルに置き換えます。\nよろしいですか？`)) {
+        return;
+      }
+
+      expiredIdList.push(...(await deckInfosPromise).map((deckInfo) => deckInfo.id));
+    }
+    await Promise.all(result.deckInfos.map((deckInfo) => DeckInfo.createNewDeck(deckInfo.name, deckInfo.description, deckInfo.cardNames, deckInfo.lastUsedAt)));
+
+    if (expiredIdList.length) {
+      await Promise.all(expiredIdList.map(DeckInfo.remove));
+    }
+
     reloadAllDeckInfo();
   };
 </script>
@@ -309,8 +347,9 @@
             {#await deckInfosObjectURLPromise}
               <div></div>
             {:then url}
-              <div><a class="white_button" href={url} download="SVS_DeckInfos.json">ダウンロード（一括）</a></div>
+              <div><a class="white_button" href={url} download="SVS_DeckInfos.json">ダウンロード(一括)</a></div>
             {/await}
+            <div><button class="white_button" on:click={onUploadClick}>アップロード</button></div>
           </div>
         </div>
         <DeckEditorCardList mode="Deck" allCardInfos={[]} bind:deckCardInfos={tmpDeck.cardInfos} {onAttention} />
@@ -331,6 +370,7 @@
   </div>
   <div class="footer">実装済カード{definitionCount + nonDefinitionCount}枚（内、効果のないモンスター{nonDefinitionCount}枚）</div>
 </div>
+<DeckEditorModalContainer {modalController} />
 
 <style>
   .deck_editor {

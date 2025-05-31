@@ -4,6 +4,8 @@ import { cardInfoDic } from "@ygo/class/CardInfo";
 import type { TTblNames } from "@app/components/App.svelte";
 import { cardSorter } from "./YgoTypes";
 import sampleDeckInfos from "@ygo/json/SampleDeckInfos.json";
+import { isObject } from "@stk_utils/funcs/StkObjectUtils";
+import { isNumber } from "@stk_utils/funcs/StkMathUtils";
 // ヘッダと明細を分ける意味はなかった気がする……
 
 type TDeckType = "User" | "NPC" | "Preset";
@@ -25,6 +27,30 @@ export interface IDeckInfo {
   cardNames: Readonly<string[]>;
 }
 
+export interface IDeckInfoJson {
+  id: number;
+  name: string;
+  description: string;
+  lastUsedAt: string;
+  cardNames: Readonly<string[]>;
+}
+const isIDeckInfoJson = (object: unknown): object is IDeckInfoJson => {
+  if (!isObject(object)) {
+    return false;
+  }
+
+  const deckInfo: Partial<IDeckInfoJson> = object;
+
+  return (
+    isNumber(deckInfo.id) &&
+    typeof deckInfo.name === "string" &&
+    typeof deckInfo.description === "string" &&
+    typeof deckInfo.lastUsedAt === "string" &&
+    Array.isArray(deckInfo.cardNames) &&
+    deckInfo.cardNames.every((name: unknown) => typeof name === "string")
+  );
+};
+
 export class DeckInfo implements IDeckInfo {
   public static readonly toJson = (deckInfos: IDeckInfo[]): string => {
     const _deckInfos = deckInfos.map((info) => {
@@ -40,6 +66,36 @@ export class DeckInfo implements IDeckInfo {
     });
 
     return JSON.stringify(_deckInfos, null, 2);
+  };
+
+  public static readonly createfromJson = async (jsonFile: File): Promise<IDeckInfo[]> => {
+    let json: ReturnType<typeof JSON.parse> = undefined;
+
+    try {
+      const text = await jsonFile.text();
+      json = JSON.parse(text);
+    } catch (error) {
+      console.error(error);
+      throw new Error(`${jsonFile.name}は正しいJSONファイル形式ではない。`);
+    }
+
+    if (!Array.isArray(json)) {
+      throw new Error(`${jsonFile.name}は正しいデッキ情報の形式ではない。`);
+    }
+
+    if (!json.length) {
+      throw new Error(`${jsonFile.name}にデッキ情報が含まれていない。`);
+    }
+
+    const deckInfos = json
+      .filter(isIDeckInfoJson)
+      .map<IDeckInfo>((json) => ({ ...json, deckType: "User", id: Number(json.id), lastUsedAt: new Date(json.lastUsedAt) }));
+
+    if (json.length !== deckInfos.length) {
+      throw new Error(`${jsonFile.name}のデッキ情報${json.length}件のうち、${json.length - deckInfos.length}件が正しいデッキ情報の形式ではなかった。`);
+    }
+
+    return deckInfos;
   };
   public static readonly convertToObjectURL = (deckInfos: IDeckInfo[]) => {
     const json = DeckInfo.toJson(deckInfos);
@@ -74,12 +130,12 @@ export class DeckInfo implements IDeckInfo {
     return headers.map((header) => new DeckInfo(header, details));
   };
 
-  public static createNewDeck = async (deckName: string, description: string, cardNames: Readonly<string[]>): Promise<DeckInfo> => {
+  public static createNewDeck = async (deckName: string, description: string, cardNames: Readonly<string[]>, lastUsedAt?: Date): Promise<DeckInfo> => {
     const header = await DeckInfo.tblHeader.insert({
       name: deckName,
       description: description,
       deckType: "User",
-      lastUsedAt: new Date(),
+      lastUsedAt: lastUsedAt ?? new Date(),
     });
 
     const details = await DeckInfo.tblDetail.insertMany(
@@ -99,6 +155,13 @@ export class DeckInfo implements IDeckInfo {
   public static prepareSampleDeck = async () => {
     const sampleDeck = sampleDeckInfos.find((info) => info.deckType === "Preset") ?? sampleDeckInfos.slice(-1)[0];
     return await DeckInfo.createNewDeck(sampleDeck.name, sampleDeck.description, sampleDeck.cardNames);
+  };
+  public static remove = async (id: number) => {
+    await DeckInfo.tblHeader.delete([id]);
+
+    //旧明細削除
+    const oldDetails = (await DeckInfo.tblDetail.getAll()).filter((detail) => detail.deckId === id);
+    await DeckInfo.tblDetail.delete(oldDetails.map((detail) => detail.id));
   };
 
   public readonly id: number;
@@ -175,11 +238,7 @@ export class DeckInfo implements IDeckInfo {
     return new DeckInfo(await DeckInfo.tblHeader.get(this.id), newDetails);
   };
   public readonly delete = async () => {
-    await DeckInfo.tblHeader.delete([this.id]);
-
-    //旧明細削除
-    const oldDetails = (await DeckInfo.tblDetail.getAll()).filter((detail) => detail.deckId === this.id);
-    await DeckInfo.tblDetail.delete(oldDetails.map((detail) => detail.id));
+    await DeckInfo.remove(this.id);
   };
 }
 

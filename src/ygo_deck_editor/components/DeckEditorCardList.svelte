@@ -131,8 +131,12 @@
     if (!searchCondition.cardKinds.includes(cardInfo.kind)) {
       return false;
     }
-    if (searchCondition.name.trim().length && !cardInfo.name.includes(searchCondition.name)) {
-      return false;
+
+    if (searchCondition.name.trim().length) {
+      const tags = [cardInfo.name, ...(cardInfo.nameTags ?? []), ...(cardInfo.textTags ?? [])];
+      if (tags.every((tag) => !tag.includes(searchCondition.name))) {
+        return false;
+      }
     }
 
     if (cardInfo.isForTest && !searchCondition.others.includes("test")) {

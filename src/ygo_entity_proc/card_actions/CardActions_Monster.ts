@@ -378,13 +378,11 @@ const defaultBattlePotisionChangeAction: CardActionDefinition<unknown> = {
   executableCells: ["MonsterZone", "ExtraMonsterZone"],
   executablePeriods: ["main1", "main2"],
   executableDuelistTypes: ["Controller"],
-  canExecute: (myInfo) =>
+  meetsConditions: (myInfo) =>
     myInfo.action.entity.info.battlePotisionChangeCount === 0 &&
     myInfo.action.entity.info.attackDeclareCount === 0 &&
-    myInfo.activator.isTurnPlayer &&
-    myInfo.action.entity.face === "FaceUp" &&
-    myInfo.action.entity.isMonster,
-
+    myInfo.action.entity.status.canBattlePositionChange,
+  canExecute: (myInfo) => myInfo.activator.isTurnPlayer && myInfo.action.entity.face === "FaceUp" && myInfo.action.entity.isOnFieldAsMonsterStrictly,
   prepare: defaultBattlePotisionChangePrepare,
   execute: async (myInfo) => {
     await myInfo.action.entity.determine();

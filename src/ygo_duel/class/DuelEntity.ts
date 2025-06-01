@@ -48,9 +48,11 @@ export type EntityStatus = {
   canAttack: boolean;
   canDirectAttack: boolean;
   canActivateEffect: boolean;
+  canBattlePositionChange: boolean;
   allowHandSynchro: boolean;
   allowHandLink: boolean;
   isEffective: boolean;
+  isFaithful: boolean;
   willBeBanished: boolean;
   willReturnToDeck: TDuelEntityMovePos | undefined;
   /**
@@ -540,7 +542,7 @@ export class DuelEntity {
 
   private _status: Readonly<EntityStatus>;
   public get status() {
-    return this._status as Readonly<EntityStatus>;
+    return this._status;
   }
   public set status(newStatus) {
     this._status = { ...newStatus };
@@ -1285,12 +1287,14 @@ export class DuelEntity {
   };
 
   public readonly resetStatus = () => {
-    this._status = {
+    this.status = {
       ...this.origin,
+      canBattlePositionChange: true,
       canAttack: true,
-      isEffective: true,
       canDirectAttack: false,
       canActivateEffect: true,
+      isEffective: true,
+      isFaithful: false,
       isSelectableForAttack: true,
       allowHandSynchro: false,
       allowHandLink: false,

@@ -844,7 +844,6 @@ export class Duelist {
     }
 
     let _actionInfos = actionInfos.filter((info) => !this.actionBlackListForNPC.includes(info.action.playType));
-    console.log(_actionInfos);
     // 優先度高を発動
     const highPriorities = _actionInfos
       .filter((info) => !Number.isNaN(info.action.priorityForNPC))
@@ -884,7 +883,7 @@ export class Duelist {
     // 一つ前のブロックの発動者が自分ではない場合、無効化効果を探して実行する。
     const previousBlock = _actionInfos.length ? chainBlockInfos.slice(-1)[0] : undefined;
     const negationEffects = _actionInfos.filter((info) => info.action.negatePreviousBlock);
-    if (previousBlock && previousBlock.activator !== this && negationEffects) {
+    if (previousBlock && previousBlock.activator !== this && negationEffects.length) {
       return negationEffects.randomPick();
     }
 
@@ -973,7 +972,7 @@ export class Duelist {
       }
 
       // 空きが二箇所以上なら、魔法罠のセットを行う
-      if (this.getAvailableSpellTrapZones.length > 1) {
+      if (this.getAvailableSpellTrapZones().length > 1) {
         return actionInfos
           .filter((info) => info.action.playType === "SpellTrapSet")
           .filter((info) => info.action.entity.kind !== "Spell" || info.action.entity.status.spellCategory === "QuickPlay")

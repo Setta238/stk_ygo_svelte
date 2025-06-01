@@ -63,6 +63,7 @@
     isSelected = false;
     isSelectable = args.cellsChoices?.selectables.includes(cell) ?? false;
     canDirectResoleve = isSelectable && args.cellsChoices?.qty === 1;
+    onCellUpdate();
   };
   view.onWaitStart.append(onWaitStart);
   const onWaitEnd = () => {
@@ -172,7 +173,7 @@
       }
     }
     view.requireUpdate();
-    console.info(cell);
+    console.info(cell, validateActions(...cell.visibleEntities));
   };
 
   const dragover = (ev: DragEvent) => {
@@ -333,6 +334,7 @@
           })
           .toReversed() as item}
           {#if animationArgs.every((args) => args.entity.seq !== item.entity.seq)}
+            {@const state = !cell.isStackCell && item.index === 0 ? validateActions(...cell.visibleEntities) : undefined}
             {#if targetsInBuildingChain.includes(item.entity)}
               <div style="position: absolute; top:0rem">｛効果対象｝</div>
             {/if}
@@ -343,7 +345,7 @@
             >
               <DuelCard
                 entity={item.entity}
-                state={!cell.isStackCell && item.index === 0 ? validateActions(...cell.visibleEntities) : undefined}
+                {state}
                 dummyActionInfos={item.index === 0 ? dummyActionInfos.filter((info) => cell.visibleEntities.includes(info.action.entity)) : undefined}
                 cardActionResolve={undefined}
                 bind:selectedList={selectedEntities}

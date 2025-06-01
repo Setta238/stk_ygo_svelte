@@ -192,7 +192,7 @@
     <div>裏守備</div>
   </button>
 {:else}
-  <div class="duel_card duel_card_face_down"><div>セット</div></div>
+  <button class="duel_card duel_card_face_down {state}  {isSelected ? 'duel_card_selected' : ''}" on:click={onClick}><div>セット</div></button>
 {/if}
 
 <style>
@@ -270,16 +270,12 @@
     pointer-events: painted;
   }
   .duel_card.Selectable {
-    display: block;
     min-width: 1px;
-    height: fit-content;
     border: dotted 0.2rem blue;
     pointer-events: initial;
   }
   .duel_card.duel_card_selected {
-    display: block;
     min-width: 1px;
-    height: fit-content;
     margin: 1px 5px;
     border: solid 4px red;
   }

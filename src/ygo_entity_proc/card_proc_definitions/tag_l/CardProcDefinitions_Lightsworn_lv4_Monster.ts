@@ -14,6 +14,7 @@ import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import { getCommonLightswormEndPhaseAction } from "@ygo_entity_proc/card_actions/tag_l/CardActions_Lightsworn_Monster";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import { IllegalCancelError } from "@ygo_duel/class/Duel";
+import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
@@ -294,6 +295,52 @@ export default function* generate(): Generator<EntityProcDefinition> {
         execute: defaultTargetMonstersRebornExecute,
         settle: async () => true,
       },
+    ],
+  };
+  yield {
+    name: "ライトロード・マジシャン ライラ",
+    actions: [
+      {
+        title: "③マナブレイク",
+        isMandatory: false,
+        playType: "IgnitionEffect",
+        spellSpeed: "Normal",
+        executableCells: ["MonsterZone"],
+        executablePeriods: ["main1", "main2"],
+        executableDuelistTypes: ["Controller"],
+        fixedTags: ["Destroy", "DestroyOnField", "DestroySpellTrapOnField"],
+        ...getSingleTargetActionPartical(
+          (myInfo) =>
+            myInfo.activator
+              .getOpponentPlayer()
+              .getSpellTrapsOnField()
+              .filter((card) => card.canBeTargetOfEffect(myInfo)),
+          { message: "破壊する対象を選択。", do: "Destroy", canExecute: (myInfo) => myInfo.action.entity.battlePosition === "Attack" }
+        ),
+        execute: async (myInfo) => {
+          if (myInfo.action.entity.battlePosition === "Attack") {
+            await DuelEntityShortHands.tryDestroy(myInfo.selectedEntities, myInfo);
+
+            await myInfo.action.entity.setBattlePosition("Defense", ["Effect"], myInfo.action.entity, myInfo.activator);
+          }
+
+          myInfo.action.entity.statusOperatorBundle.push(
+            new StatusOperator({
+              title: "表示形式変更不可",
+              validateAlive: (operator) => operator.duel.clock.turn - operator.isSpawnedAt.turn < 3,
+              isContinuous: false,
+              isSpawnedBy: myInfo.action.entity,
+              actionAttr: myInfo.action,
+              isApplicableTo: () => true,
+              statusCalculator: () => ({ canBattlePositionChange: false }),
+            })
+          );
+
+          return true;
+        },
+        settle: async () => true,
+      },
+      getCommonLightswormEndPhaseAction("②", 3),
     ],
   };
 }

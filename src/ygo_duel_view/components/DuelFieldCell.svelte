@@ -396,25 +396,6 @@
     padding: 0px;
     border: solid 1px #778ca3;
   }
-  .duel_field_cell_linked {
-    background-color: #ffe9a7;
-    z-index: -1;
-    background-image:
-      linear-gradient(30deg, #ffc107 12%, transparent 12.5%, transparent 87%, #ffc107 87.5%, #ffc107),
-      linear-gradient(150deg, #ffc107 12%, transparent 12.5%, transparent 87%, #ffc107 87.5%, #ffc107),
-      linear-gradient(30deg, #ffc107 12%, transparent 12.5%, transparent 87%, #ffc107 87.5%, #ffc107),
-      linear-gradient(150deg, #ffc107 12%, transparent 12.5%, transparent 87%, #ffc107 87.5%, #ffc107),
-      linear-gradient(60deg, #ffc10777 25%, transparent 25.5%, transparent 75%, #ffc10777 75%, #ffc10777),
-      linear-gradient(60deg, #ffc10777 25%, transparent 25.5%, transparent 75%, #ffc10777 75%, #ffc10777);
-    background-size: 40px 70px;
-    background-position:
-      0 0,
-      0 0,
-      20px 35px,
-      20px 35px,
-      0 0,
-      20px 35px;
-  }
   .duel_field_cell > div {
     padding: 0px;
     display: flex;
@@ -582,6 +563,26 @@
   .duel_field_cell_ExtraMonsterZone {
     background-color: steelblue;
   }
+
+  .duel_field_cell_MonsterZone.duel_field_cell_linked {
+    background-color: lightsalmon;
+    background-image:
+      repeating-linear-gradient(135deg, #3af0fc22 0 2px, transparent 2px 40px), repeating-linear-gradient(45deg, #3af0fc22 0 2px, transparent 2px 40px),
+      linear-gradient(120deg, #00ffd055 0%, #00bfff22 100%);
+    box-shadow: 0 0 12px 2px #00eaff44 inset;
+    border: 1.5px solid #00eaff55;
+    z-index: -1;
+  }
+  .duel_field_cell_ExtraMonsterZone.duel_field_cell_linked {
+    background-color: steelblue;
+    background-image:
+      repeating-linear-gradient(135deg, #3af0fc22 0 2px, transparent 2px 40px), repeating-linear-gradient(45deg, #3af0fc22 0 2px, transparent 2px 40px),
+      linear-gradient(120deg, #00ffd055 0%, #00bfff22 100%);
+    box-shadow: 0 0 12px 2px #00eaff44 inset;
+    border: 1.5px solid #00eaff55;
+    z-index: -1;
+  }
+
   /* ボタンの波紋 */
   .can_action::before,
   .can_action::before,

@@ -1,3 +1,6 @@
+.duel_card {
+  color: black;
+}
 .duel_card.Normal {
   background-color: cornsilk;
 }

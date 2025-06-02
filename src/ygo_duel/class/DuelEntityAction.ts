@@ -114,6 +114,7 @@ export type SummonMaterialInfo = {
   link?: number;
   isAsTuner?: boolean;
   name?: string;
+  isAsEffectCost?: boolean;
 };
 export const summonMaterialCostTypes = ["summonMaterialInfos"] as const;
 export type TSummonMaterialCostType = (typeof summonMaterialCostTypes)[number];

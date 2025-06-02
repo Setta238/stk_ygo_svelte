@@ -8,7 +8,7 @@ import {
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
-import { defaultPrepare, defaultTargetMonstersRebornExecute, getSingleTargetActionPartical } from "@ygo_entity_proc/card_actions/CardActions";
+import { defaultPrepare, getMultiTargetsRebornActionPartical, getSingleTargetActionPartical } from "@ygo_entity_proc/card_actions/CardActions";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import { getCommonLightswormEndPhaseAction } from "@ygo_entity_proc/card_actions/tag_l/CardActions_Lightsworn_Monster";
@@ -74,7 +74,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         fixedTags: ["SpecialSummonFromGraveyard"],
         canExecute: (myInfo) => canSelfSepcialSummon(myInfo, faceupBattlePositions, [], ["Effect"]),
         prepare: defaultPrepare,
-        execute: (myInfo) => defaultSelfSpecialSummonExecute(myInfo),
+        execute: defaultSelfSpecialSummonExecute,
         settle: async () => true,
       },
     ],
@@ -94,7 +94,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         fixedTags: ["SpecialSummonFromGraveyard"],
         canExecute: (myInfo) => canSelfSepcialSummon(myInfo, faceupBattlePositions, [], ["Effect"]),
         prepare: defaultPrepare,
-        execute: (myInfo) => defaultSelfSpecialSummonExecute(myInfo),
+        execute: defaultSelfSpecialSummonExecute,
         settle: async () => true,
       },
       {
@@ -162,7 +162,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             .cardEntities.filter((card) => card.kind === "Monster")
             .some((card) => card.status.nameTags?.includes("ライトロード")),
         prepare: defaultPrepare,
-        execute: (myInfo) => defaultSelfSpecialSummonExecute(myInfo),
+        execute: defaultSelfSpecialSummonExecute,
         settle: async () => true,
       },
       {
@@ -283,16 +283,13 @@ export default function* generate(): Generator<EntityProcDefinition> {
         isOnlyNTimesPerTurn: 1,
         triggerPattern: { triggerType: "Departure", from: ["Deck"] },
         fixedTags: ["SpecialSummonFromGraveyard"],
-        ...getSingleTargetActionPartical(
-          (myInfo) =>
-            myInfo.activator
-              .getGraveyard()
-              .cardEntities.filter((card) => card.kind === "Monster")
-              .filter((monster) => monster.status.nameTags?.includes("ライトロード"))
-              .filter((monster) => monster.nm !== "ライトロード・デーモン ヴァイス"),
-          { do: "Reborn" }
+        ...getMultiTargetsRebornActionPartical((myInfo) =>
+          myInfo.activator
+            .getGraveyard()
+            .cardEntities.filter((card) => card.kind === "Monster")
+            .filter((monster) => monster.status.nameTags?.includes("ライトロード"))
+            .filter((monster) => monster.nm !== "ライトロード・デーモン ヴァイス")
         ),
-        execute: defaultTargetMonstersRebornExecute,
         settle: async () => true,
       },
     ],

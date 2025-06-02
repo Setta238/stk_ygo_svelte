@@ -24,7 +24,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         meetsConditions: (myInfo) => myInfo.action.entity.wasMovedAtPreviousChain && myInfo.action.entity.wasMovedFrom.cellType !== "Banished",
         canExecute: (myInfo) => canSelfSepcialSummon(myInfo, faceupBattlePositions, [], ["Effect"]),
         prepare: defaultPrepare,
-        execute: (myInfo) => defaultSelfSpecialSummonExecute(myInfo),
+        execute: defaultSelfSpecialSummonExecute,
         settle: async () => true,
       },
       {
@@ -41,7 +41,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         meetsConditions: (myInfo) => myInfo.action.entity.wasMovedAtPreviousChain,
         canExecute: (myInfo) => canSelfSepcialSummon(myInfo, faceupBattlePositions, [], ["Effect"]),
         prepare: defaultPrepare,
-        execute: (myInfo) => defaultSelfSpecialSummonExecute(myInfo),
+        execute: defaultSelfSpecialSummonExecute,
         settle: async () => true,
       },
     ],

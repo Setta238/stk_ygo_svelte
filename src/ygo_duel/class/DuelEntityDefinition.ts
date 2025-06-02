@@ -40,7 +40,8 @@ export type EntityProcDefinition = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   actions: Readonly<EntityActionDefinition<any>[]>;
   immediatelyActions?: Readonly<ImmediatelyActionDefinition[]>;
-  continuousEffects?: ContinuousEffectBase<unknown>[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  continuousEffects?: ContinuousEffectBase<any>[];
   summonFilter?: (
     filter: SummonFilter,
     filterTarget: DuelEntity,

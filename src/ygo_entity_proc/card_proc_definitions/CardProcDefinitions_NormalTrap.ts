@@ -7,8 +7,8 @@ import {
   defaultEffectSpecialSummonExecute,
   defaultPayDiscardCosts,
   defaultPrepare,
-  defaultTargetMonstersRebornExecute,
   defaultTargetMonstersRebornPrepare,
+  getMultiTargetsRebornActionPartical,
   getSingleTargetActionPartical,
 } from "../card_actions/CardActions";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
@@ -53,39 +53,15 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["SpellAndTrapZone"],
         executablePeriods: freeChainDuelPeriodKeys,
         executableDuelistTypes: ["Controller"],
-        hasToTargetCards: true,
         fixedTags: ["SpecialSummonFromGraveyard"],
-        canExecute: (myInfo) => {
-          // 墓地に蘇生可能モンスター、場に空きが必要。
-          const cells = myInfo.activator.getMonsterZones();
-          const list = myInfo.activator.getEnableSummonList(
-            myInfo.activator,
-            "SpecialSummon",
-            ["Effect"],
-            myInfo.action,
-            myInfo.activator
-              .getGraveyard()
-              .cardEntities.filter((card) => card.kind === "Monster")
-              .filter((card) => card.canBeTargetOfEffect(myInfo))
-              .map((monster) => {
-                return { monster, posList: ["Defense"], cells };
-              }),
-            [],
-            false
-          );
-          return list.length > 0;
-        },
-        prepare: (myInfo) =>
-          defaultTargetMonstersRebornPrepare(
-            myInfo,
+        ...getMultiTargetsRebornActionPartical(
+          (myInfo) =>
             myInfo.activator
               .getGraveyard()
               .cardEntities.filter((card) => card.kind === "Monster")
               .filter((card) => card.canBeTargetOfEffect(myInfo)),
-            ["Defense"]
-          ),
-
-        execute: (...args) => defaultTargetMonstersRebornExecute(...args, ["Defense"]),
+          { posList: ["Defense"] }
+        ),
         settle: async () => true,
       },
       defaultSpellTrapSetAction,

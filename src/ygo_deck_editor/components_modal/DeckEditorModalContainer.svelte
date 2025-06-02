@@ -1,5 +1,4 @@
 <script lang="ts" module>
-  import type { ModalArgsBase } from "@stk_utils/components/modal_container/StkModalDefinitionBase";
   import { StkModalDefinitionBase } from "@stk_utils/components/modal_container/StkModalDefinitionBase";
   import { StkModalControllerBase, type EventHolder } from "@stk_utils/components/modal_container/StkModalController";
   type ModalMap = {

@@ -5,13 +5,7 @@ import { IllegalCancelError, SystemError } from "@ygo_duel/class/Duel";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import {
-  defaultPayLifePoint,
-  defaultPrepare,
-  defaultTargetMonstersRebornExecute,
-  defaultTargetMonstersRebornPrepare,
-  getSystemPeriodAction,
-} from "@ygo_entity_proc/card_actions/CardActions";
+import { defaultPayLifePoint, defaultPrepare, getMultiTargetsRebornActionPartical, getSystemPeriodAction } from "@ygo_entity_proc/card_actions/CardActions";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 import { executableDuelistTypes, type ChainBlockInfoBase } from "@ygo_duel/class/DuelEntityAction";
 import { defaultActions } from "@ygo_entity_proc/card_actions/CardActions_Monster";
@@ -29,38 +23,12 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         fixedTags: ["SpecialSummonFromGraveyard"],
-        hasToTargetCards: true,
-        // 墓地に蘇生可能モンスター、場に空きが必要。
-        canExecute: (myInfo) => {
-          const cells = myInfo.activator.getMonsterZones();
-          const list = myInfo.activator.getEnableSummonList(
-            myInfo.activator,
-            "SpecialSummon",
-            ["Effect"],
-            myInfo.action,
-            myInfo.activator.duel.field
-              .getCells("Graveyard")
-              .flatMap((cell) => cell.cardEntities)
-              .filter((card) => card.kind === "Monster")
-              .filter((card) => card.canBeTargetOfEffect(myInfo))
-              .map((monster) => {
-                return { monster, posList: faceupBattlePositions, cells };
-              }),
-            [],
-            false
-          );
-          return list.length > 0;
-        },
-        prepare: (myInfo) =>
-          defaultTargetMonstersRebornPrepare(
-            myInfo,
-            myInfo.activator.duel.field
-              .getCells("Graveyard")
-              .flatMap((cell) => cell.cardEntities)
-              .filter((card) => card.kind === "Monster")
-              .filter((card) => card.canBeTargetOfEffect(myInfo))
-          ),
-        execute: defaultTargetMonstersRebornExecute,
+        ...getMultiTargetsRebornActionPartical((myInfo) =>
+          myInfo.activator
+            .getGraveyard()
+            .cardEntities.filter((card) => card.kind === "Monster")
+            .filter((card) => card.canBeTargetOfEffect(myInfo))
+        ),
         settle: async () => true,
       },
       defaultSpellTrapSetAction,

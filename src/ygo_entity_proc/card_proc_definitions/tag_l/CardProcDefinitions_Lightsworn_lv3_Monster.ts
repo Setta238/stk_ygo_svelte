@@ -5,9 +5,8 @@ import {
   defaultCanPayDiscardCosts,
   defaultPayDiscardCosts,
   defaultPrepare,
-  defaultTargetMonstersRebornExecute,
+  getMultiTargetsRebornActionPartical,
   getPayBanishCostsActionPartical,
-  getSingleTargetActionPartical,
 } from "@ygo_entity_proc/card_actions/CardActions";
 import { getCommonLightswormEndPhaseAction, getCommonTwillightswormEndPhaseAction } from "@ygo_entity_proc/card_actions/tag_l/CardActions_Lightsworn_Monster";
 
@@ -27,16 +26,13 @@ export default function* generate(): Generator<EntityProcDefinition> {
         fixedTags: ["SpecialSummonFromGraveyard", "DiscordAsCost"],
         canPayCosts: defaultCanPayDiscardCosts,
         payCosts: defaultPayDiscardCosts,
-        ...getSingleTargetActionPartical(
-          (myInfo) =>
-            myInfo.activator
-              .getGraveyard()
-              .cardEntities.filter((card) => card.kind === "Monster")
-              .filter((monster) => (monster.lvl ?? 12) < 5)
-              .filter((monster) => monster.status.nameTags?.includes("ライトロード")),
-          { do: "Reborn" }
+        ...getMultiTargetsRebornActionPartical((myInfo) =>
+          myInfo.activator
+            .getGraveyard()
+            .cardEntities.filter((card) => card.kind === "Monster")
+            .filter((monster) => (monster.lvl ?? 12) < 5)
+            .filter((monster) => monster.status.nameTags?.includes("ライトロード"))
         ),
-        execute: defaultTargetMonstersRebornExecute,
         settle: async () => true,
       },
       getCommonLightswormEndPhaseAction("②", 3),
@@ -62,15 +58,12 @@ export default function* generate(): Generator<EntityProcDefinition> {
             .filter((card) => card.status.nameTags?.includes("ライトロード"))
             .filter((card) => card.kind === "Monster")
         ),
-        ...getSingleTargetActionPartical(
-          (myInfo) =>
-            myInfo.activator
-              .getBanished()
-              .cardEntities.filter((card) => card.kind === "Monster")
-              .filter((monster) => monster.status.nameTags?.includes("ライトロード")),
-          { do: "Reborn" }
+        ...getMultiTargetsRebornActionPartical((myInfo) =>
+          myInfo.activator
+            .getBanished()
+            .cardEntities.filter((card) => card.kind === "Monster")
+            .filter((monster) => monster.status.nameTags?.includes("ライトロード"))
         ),
-        execute: defaultTargetMonstersRebornExecute,
         settle: async () => true,
       },
       getCommonTwillightswormEndPhaseAction("②", 3),

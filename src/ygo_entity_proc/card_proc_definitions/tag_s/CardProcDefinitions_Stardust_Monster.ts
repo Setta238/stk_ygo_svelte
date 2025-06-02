@@ -11,11 +11,10 @@ import {
   defaultPrepare,
   defaultCanPaySelfBanishCosts,
   defaultPaySelfBanishCosts,
-  defaultTargetMonstersRebornExecute,
-  defaultTargetMonstersRebornPrepare,
   defaultPayBanishCosts,
   defaultCanPayBanishCosts,
   getSingleTargetActionPartical,
+  getMultiTargetsRebornActionPartical,
 } from "@ygo_entity_proc/card_actions/CardActions";
 import { duelFieldCellTypes, monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import { getDefaultSynchroSummonAction } from "../../card_actions/CardActions_SynchroMonster";
@@ -97,7 +96,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           return canSelfSepcialSummon(myInfo, faceupBattlePositions, [], ["Effect"]);
         },
         prepare: defaultPrepare,
-        execute: (myInfo) => defaultSelfSpecialSummonExecute(myInfo),
+        execute: defaultSelfSpecialSummonExecute,
         settle: async () => true,
       },
     ],
@@ -222,40 +221,15 @@ export default function* generate(): Generator<EntityProcDefinition> {
           myInfo.action.entity.wasMovedAtPreviousChain &&
           myInfo.action.entity.moveLog.latestRecord.actionOwner !== myInfo.activator &&
           (myInfo.action.entity.wasMovedFrom.owner === myInfo.activator || myInfo.action.entity.wasMovedFrom.cellType === "ExtraMonsterZone"),
-        canExecute: (myInfo) => {
-          const cells = myInfo.activator.getMonsterZones();
-          const list = myInfo.activator.getEnableSummonList(
-            myInfo.activator,
-            "SpecialSummon",
-            ["Effect"],
-            myInfo.action,
-            myInfo.activator
-              .getBanished()
-              .cardEntities.filter((card) => card.kind === "Monster")
-              .filter((card) => card.face === "FaceUp")
-              .filter((card) => card.types.includes("Dragon"))
-              .filter((card) => card.status.monsterCategories?.includes("Synchro"))
-              .filter((card) => card.canBeTargetOfEffect(myInfo))
-              .map((monster) => {
-                return { monster, posList: faceupBattlePositions, cells };
-              }),
-            [],
-            false
-          );
-          return list.length > 0;
-        },
-        prepare: (myInfo) =>
-          defaultTargetMonstersRebornPrepare(
-            myInfo,
-            myInfo.activator
-              .getBanished()
-              .cardEntities.filter((card) => card.kind === "Monster")
-              .filter((card) => card.face === "FaceUp")
-              .filter((card) => card.types.includes("Dragon"))
-              .filter((card) => card.status.monsterCategories?.includes("Synchro"))
-              .filter((card) => card.canBeTargetOfEffect(myInfo))
-          ),
-        execute: defaultTargetMonstersRebornExecute,
+        ...getMultiTargetsRebornActionPartical((myInfo) =>
+          myInfo.activator
+            .getBanished()
+            .cardEntities.filter((card) => card.kind === "Monster")
+            .filter((card) => card.face === "FaceUp")
+            .filter((card) => card.types.includes("Dragon"))
+            .filter((card) => card.status.monsterCategories?.includes("Synchro"))
+            .filter((card) => card.canBeTargetOfEffect(myInfo))
+        ),
         settle: async () => true,
       },
     ],
@@ -314,38 +288,13 @@ export default function* generate(): Generator<EntityProcDefinition> {
         priorityForNPC: 10,
         fixedTags: ["SpecialSummonFromGraveyard"],
         canPayCosts: defaultCanPaySelfBanishCosts,
-        canExecute: (myInfo) => {
-          const cells = myInfo.activator.getMonsterZones();
-          const list = myInfo.activator.getEnableSummonList(
-            myInfo.activator,
-            "SpecialSummon",
-            ["Effect"],
-            myInfo.action,
-            myInfo.activator
-              .getGraveyard()
-              .cardEntities.filter((card) => card.status.nameTags?.includes("スターダスト"))
-              .filter((card) => (card.lvl ?? 12) < 9)
-              .filter((card) => card.canBeTargetOfEffect(myInfo))
-              .map((monster) => {
-                return { monster, posList: faceupBattlePositions, cells };
-              }),
-            [],
-            false
-          );
-          return list.length > 0;
-        },
         payCosts: defaultPaySelfBanishCosts,
-        prepare: (myInfo) =>
-          defaultTargetMonstersRebornPrepare(
-            myInfo,
-            myInfo.activator
-              .getGraveyard()
-              .cardEntities.filter((card) => card.status.nameTags?.includes("スターダスト"))
-              .filter((card) => (card.lvl ?? 12) < 9),
-            faceupBattlePositions,
-            (selected) => selected.length === 1
-          ),
-        execute: defaultTargetMonstersRebornExecute,
+        ...getMultiTargetsRebornActionPartical((myInfo) =>
+          myInfo.activator
+            .getGraveyard()
+            .cardEntities.filter((card) => card.status.nameTags?.includes("スターダスト"))
+            .filter((card) => (card.lvl ?? 12) < 9)
+        ),
         settle: async () => true,
       },
     ],

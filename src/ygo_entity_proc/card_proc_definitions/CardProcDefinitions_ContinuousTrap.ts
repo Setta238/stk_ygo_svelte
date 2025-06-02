@@ -5,7 +5,7 @@ import { duelPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPer
 import { duelEntityFaces, type DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
-import { defaultTargetMonstersRebornExecute, defaultTargetMonstersRebornPrepare } from "../card_actions/CardActions";
+import { getMultiTargetsRebornActionPartical } from "../card_actions/CardActions";
 import type { ImmediatelyAction } from "@ygo_duel/class/DuelEntityImmediatelyAction";
 import { duelFieldCellTypes } from "@ygo_duel/class/DuelFieldCell";
 
@@ -61,50 +61,27 @@ export default function* generate(): Generator<EntityProcDefinition> {
           executablePeriods: freeChainDuelPeriodKeys,
           executableDuelistTypes: ["Controller"],
           fixedTags: ["SpecialSummonFromGraveyard", "SpecialSummon"],
-          canExecute: (myInfo) => {
-            const cells = myInfo.activator.getMonsterZones();
-            const list = myInfo.activator.getEnableSummonList(
-              myInfo.activator,
-              "SpecialSummon",
-              ["Effect"],
-              myInfo.action,
-              myInfo.activator
-                .getGraveyard()
-                .cardEntities.filter((card) => card.kind === "Monster")
-                .filter(item.filter)
-                .filter((card) => card.canBeTargetOfEffect(myInfo))
-                .map((monster) => {
-                  return { monster, posList: ["Attack"], cells };
-                }),
-              [],
-              false
-            );
-            return list.length > 0;
-          },
-          prepare: (myInfo) =>
-            defaultTargetMonstersRebornPrepare(
-              myInfo,
+          ...getMultiTargetsRebornActionPartical(
+            (myInfo) =>
               myInfo.activator
                 .getGraveyard()
                 .cardEntities.filter((card) => card.kind === "Monster")
                 .filter(item.filter)
                 .filter((card) => card.canBeTargetOfEffect(myInfo)),
-              ["Attack"]
-            ),
-          execute: async (myInfo, chainBlockInfos) => {
-            const flg = await defaultTargetMonstersRebornExecute(myInfo, chainBlockInfos, ["Attack"]);
-
-            // 蘇生できなかった場合、無意味に残り続ける。
-            if (!flg) {
-              return false;
+            {
+              posList: ["Attack"],
+              afterExecute: async (isSucceed, myInfo) => {
+                if (!isSucceed) {
+                  return false;
+                }
+                if (!myInfo.selectedEntities.length) {
+                  return false;
+                }
+                myInfo.action.entity.info.effectTargets[myInfo.action.seq] = myInfo.selectedEntities;
+                return true;
+              },
             }
-
-            if (!myInfo.selectedEntities.length) {
-              return false;
-            }
-            myInfo.action.entity.info.effectTargets[myInfo.action.seq] = myInfo.selectedEntities;
-            return true;
-          },
+          ),
           settle: async () => true,
         },
         defaultSpellTrapSetAction,

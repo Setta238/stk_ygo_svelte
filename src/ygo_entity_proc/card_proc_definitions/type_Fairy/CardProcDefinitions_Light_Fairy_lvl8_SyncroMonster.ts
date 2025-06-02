@@ -24,7 +24,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         meetsConditions: (myInfo) => myInfo.action.entity.wasMovedAtPreviousTurn,
         canExecute: (myInfo) => canSelfSepcialSummon(myInfo, faceupBattlePositions, [], ["Effect"]),
         prepare: defaultPrepare,
-        execute: (myInfo) => defaultSelfSpecialSummonExecute(myInfo),
+        execute: defaultSelfSpecialSummonExecute,
         settle: async () => true,
       },
     ],

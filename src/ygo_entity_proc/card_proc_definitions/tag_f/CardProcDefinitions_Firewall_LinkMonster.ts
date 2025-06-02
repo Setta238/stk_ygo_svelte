@@ -4,8 +4,7 @@ import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { damageStepPeriodKeys, duelPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
-import { defaultTargetMonstersRebornExecute, defaultTargetMonstersRebornPrepare } from "../../card_actions/CardActions";
-import { faceupBattlePositions } from "@ygo/class/YgoTypes";
+import { getMultiTargetsRebornActionPartical } from "../../card_actions/CardActions";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
@@ -119,37 +118,13 @@ export default function* generate(): Generator<EntityProcDefinition> {
 
           return myInfo.action.entity.linkArrowDests.union(froms).length > 0;
         },
-        canExecute: (myInfo) => {
-          const cells = myInfo.activator.getMonsterZones();
-          const list = myInfo.activator.getEnableSummonList(
-            myInfo.activator,
-            "SpecialSummon",
-            ["Effect"],
-            myInfo.action,
-            myInfo.activator
-              .getGraveyard()
-              .cardEntities.filter((card) => card.kind === "Monster")
-              .filter((monster) => monster.types.includes("Cyberse"))
-              .filter((card) => card.canBeTargetOfEffect(myInfo))
-              .map((monster) => {
-                return { monster, posList: faceupBattlePositions, cells };
-              }),
-            [],
-            false
-          );
-          return list.length > 0;
-        },
-        prepare: (myInfo) =>
-          defaultTargetMonstersRebornPrepare(
-            myInfo,
-            myInfo.activator
-              .getGraveyard()
-              .cardEntities.filter((card) => card.kind === "Monster")
-              .filter((monster) => monster.types.includes("Cyberse"))
-              .filter((card) => card.canBeTargetOfEffect(myInfo)),
-            faceupBattlePositions
-          ),
-        execute: defaultTargetMonstersRebornExecute,
+        ...getMultiTargetsRebornActionPartical((myInfo) =>
+          myInfo.activator
+            .getGraveyard()
+            .cardEntities.filter((card) => card.kind === "Monster")
+            .filter((monster) => monster.types.includes("Cyberse"))
+            .filter((card) => card.canBeTargetOfEffect(myInfo))
+        ),
         settle: async () => true,
       },
     ],

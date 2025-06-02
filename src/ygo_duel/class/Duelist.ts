@@ -79,23 +79,51 @@ export class Duelist {
     validator: (summoned: DuelEntity[]) => boolean,
     cancelable: boolean,
     msg: string = "特殊召喚するモンスターを選択。"
+  ) =>
+    Duelist._summonMany(
+      effectOwner,
+      summonType,
+      movedAs,
+      actDefAttr,
+      summonChoices
+        .map((choice) => choice.summoner)
+        .getDistinct()
+        .map((summoner) => ({ summoner, summonChoices: summonChoices.filter((summonChoice) => summonChoice.summoner === summoner) })),
+      materialInfos,
+      ignoreSummoningConditions,
+      qty,
+      validator,
+      cancelable,
+      msg
+    );
+  private static readonly _summonMany = async (
+    effectOwner: Duelist,
+    summonType: TSummonKindCauseReason,
+    movedAs: TDuelCauseReason[],
+    actDefAttr: CardActionDefinitionAttrs & { entity: DuelEntity },
+    groupedSummonChoices: { summoner: Duelist; msg?: string; summonChoices: Omit<SummonChoice, "summoner">[] }[],
+    materialInfos: SummonMaterialInfo[],
+    ignoreSummoningConditions: boolean,
+    qty: number | undefined,
+    validator: (summoned: DuelEntity[]) => boolean,
+    cancelable: boolean,
+    msg: string = "特殊召喚するモンスターを選択。"
   ) => {
-    const summoners = summonChoices.map((choice) => choice.summoner).getDistinct();
     const summonArgs: SummonArg[] = [];
 
-    for (const summoner of summoners) {
-      const selected = await summoner.prepareToSummonMany(
+    for (const item of groupedSummonChoices) {
+      const selected = await item.summoner.prepareToSummonMany(
         effectOwner,
         summonType,
         movedAs,
         actDefAttr,
-        summonChoices.filter((choice) => choice.summoner === summoner),
+        item.summonChoices.map((sc) => ({ ...sc, summoner: item.summoner })),
         materialInfos,
         ignoreSummoningConditions,
         qty,
         validator,
         cancelable,
-        msg
+        item.msg ?? msg
       );
 
       summonArgs.push(...selected);
@@ -121,7 +149,6 @@ export class Duelist {
 
     return summonArgs.map((arg) => arg.monster);
   };
-
   public static readonly effectDamage = (args: { to: Duelist; point: number }[], chainBlockInfo: ChainBlockInfo<unknown>) => {
     if (!args.length) {
       return [];
@@ -797,6 +824,38 @@ export class Duelist {
       validator,
       cancelable,
       msg
+    );
+
+  public readonly summonEachFields = (
+    effectOwner: Duelist,
+    summonType: TSummonKindCauseReason,
+    movedAs: TDuelCauseReason[],
+    actDefAttr: CardActionDefinitionAttrs & { entity: DuelEntity },
+    summonChoices: Omit<SummonChoice, "summoner">[],
+    materialInfos: SummonMaterialInfo[],
+    ignoreSummoningConditions: boolean,
+    qty: number | undefined,
+    validator: (summoned: DuelEntity[]) => boolean,
+    cancelable: boolean
+  ) =>
+    Duelist._summonMany(
+      effectOwner,
+      summonType,
+      movedAs,
+      actDefAttr,
+      [
+        { duelist: this, msg: "自分" },
+        { duelist: this.getOpponentPlayer(), msg: "相手" },
+      ].map((item) => ({
+        summoner: this,
+        msg: `${item.msg}フィールドに特殊召喚するモンスターを選択。`,
+        summonChoices: summonChoices.map((sc) => ({ ...sc, cells: sc.cells.filter((cell) => cell.owner === item.duelist) })),
+      })),
+      materialInfos,
+      ignoreSummoningConditions,
+      qty,
+      validator,
+      cancelable
     );
   public readonly selectAttackTargetForNPC = (attacker: DuelEntity, action: EntityAction<unknown>): DuelEntity | undefined => {
     // 攻撃力と攻撃対象を抽出。

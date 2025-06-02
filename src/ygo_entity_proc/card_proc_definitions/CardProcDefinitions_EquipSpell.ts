@@ -10,7 +10,7 @@ import {
 } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import { defaultPayLifePoint, defaultTargetMonstersRebornExecute, defaultTargetMonstersRebornPrepare } from "../card_actions/CardActions";
+import { defaultPayLifePoint, getMultiTargetsRebornActionPartical } from "../card_actions/CardActions";
 import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { duelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { trashCellTypes } from "@ygo_duel/class/DuelFieldCell";
@@ -65,54 +65,30 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Hand", "SpellAndTrapZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
-        hasToTargetCards: true,
-        fixedTags: ["SpecialSummonFromGraveyard"],
+        fixedTags: ["SpecialSummonFromGraveyard", "PayLifePoint"],
         canPayCosts: (myInfo) => myInfo.activator.lp >= 800,
-        canExecute: (myInfo) => {
-          const cells = myInfo.activator.getMonsterZones();
-          const list = myInfo.activator.getEnableSummonList(
-            myInfo.activator,
-            "SpecialSummon",
-            ["Effect"],
-            myInfo.action,
+        payCosts: (myInfo, chainBlockInfos) => defaultPayLifePoint(myInfo, chainBlockInfos, 800),
+        ...getMultiTargetsRebornActionPartical(
+          (myInfo) =>
             myInfo.activator
               .getGraveyard()
               .cardEntities.filter((card) => card.kind === "Monster")
-              .filter((card) => card.canBeTargetOfEffect(myInfo))
-              .map((monster) => {
-                return { monster, posList: ["Attack"], cells };
-              }),
-            [],
-            false
-          );
-          return list.length > 0;
-        },
-        payCosts: (myInfo, chainBlockInfos) => defaultPayLifePoint(myInfo, chainBlockInfos, 800),
-        prepare: async (myInfo) => {
-          const result = await defaultTargetMonstersRebornPrepare(myInfo, myInfo.activator.getGraveyard().cardEntities, ["Attack"]);
-          result.chainBlockTags.push("PayLifePoint");
+              .filter((card) => card.canBeTargetOfEffect(myInfo)),
+          {
+            posList: ["Attack"],
+            afterExecute: async (isSucceed, myInfo, chainBlockInfos) => {
+              // 蘇生できなかった場合、破壊して処理を終了する。
+              if (!isSucceed) {
+                await myInfo.action.entity.ruleDestroy();
+                return false;
+              }
 
-          return result;
-        },
-        execute: async (myInfo, chainBlockInfos) => {
-          // 力の集約などですでに何かに装備されている場合、破壊して処理を終了する。
-          if (myInfo.action.entity.info.equipedBy) {
-            await myInfo.action.entity.ruleDestroy();
-            return false;
+              return defaultEquipSpellTrapExecute(myInfo, chainBlockInfos, (equipOwner, equip) =>
+                equip.info.effectTargets[myInfo.action.seq]?.includes(equipOwner)
+              );
+            },
           }
-
-          const flg = await defaultTargetMonstersRebornExecute(myInfo, chainBlockInfos, ["Attack"]);
-
-          // 蘇生できなかった場合、破壊して処理を終了する。
-          if (!flg) {
-            await myInfo.action.entity.ruleDestroy();
-            return false;
-          }
-
-          return defaultEquipSpellTrapExecute(myInfo, chainBlockInfos, (equipOwner, equip) =>
-            equip.info.effectTargets[myInfo.action.seq]?.includes(equipOwner)
-          );
-        },
+        ),
         settle: async () => true,
       },
       defaultSpellTrapSetAction,

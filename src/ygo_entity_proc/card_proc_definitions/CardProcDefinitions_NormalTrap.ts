@@ -124,7 +124,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
       executableDuelistTypes: ["Controller"],
       hasToTargetCards: true,
       fixedTags: ["SpecialSummonFromGraveyard"],
-      canExecute: (myInfo) => {
+      canExecute: (myInfo, chainBlockInfos, irregularCosts) => {
         // 墓地に蘇生可能モンスター、場に空きが必要。
         const cells = myInfo.activator.getOpponentPlayer().getMonsterZones();
         const list = myInfo.activator.getEnableSummonList(
@@ -136,6 +136,15 @@ export default function* generate(): Generator<EntityProcDefinition> {
             .getGraveyard()
             .cardEntities.filter((monster) => monster.lvl)
             .filter((card) => card.canBeTargetOfEffect(myInfo))
+            .filter((card) => {
+              if (!irregularCosts) {
+                return true;
+              }
+              // コストに含まれているカード及び、それに装備されているカードは対象になりえない
+              const costs = EntityCostTypes.flatMap((type) => irregularCosts[type] ?? []);
+              costs.push(...costs.flatMap((cost) => cost.info.equipEntities));
+              return !costs.includes(card);
+            })
             .map((monster) => {
               return { monster, posList: ["Defense"], cells };
             }),

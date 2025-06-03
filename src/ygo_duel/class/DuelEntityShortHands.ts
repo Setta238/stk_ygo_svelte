@@ -301,10 +301,14 @@ export class DuelEntityShortHands {
     return result;
   };
 
-  public static readonly waitCorpseDisposal = (duel: Duel) => {
+  public static readonly waitCorpseDisposal = (duel: Duel, options: { excludedList?: DuelEntity[] } = {}) => {
+    const excludedList = options.excludedList ?? [];
+
     return DuelEntity.sendManyToGraveyard(
-      [...duel.field.getDyingCardsOnField(), ...duel.field.getPendingCardsOnField()]
+      duel.field
+        .getDyingCardsOnField()
         .filter((entity) => entity.info.isDying)
+        .filter((entity) => !excludedList.includes(entity))
         .map((entity) => {
           return {
             entity: entity,

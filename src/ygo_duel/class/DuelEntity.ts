@@ -6,7 +6,7 @@ import {
   type CardInfoDescription,
   type TNonBattlePosition,
   type EntityStatusBase,
-  entityFlexibleStatusKeys,
+  entityFlexibleNumericStatusKeys,
   type TEntityFlexibleNumericStatusKey,
   type EntityNumericStatus,
   cardSorter,
@@ -320,23 +320,8 @@ export class DuelEntity {
       // 取り出せたらアニメーションを全て待機
       await Promise.all(promises);
 
-      // 新しく発生したものを検知（※ここまでのどこかでアニメーションしたものを除く）
-      const newTargets = duel.field
-        .getDyingCardsOnField()
-        .filter((newOne) => !_excludedList.includes(newOne))
-        .map((newOne) => {
-          return {
-            entity: newOne,
-            movedAs: newOne.info.causeOfDeath ?? [],
-            movedBy: newOne.info.isKilledBy,
-            activator: newOne.info.isKilledByWhom,
-          };
-        });
-
-      // 新しく発生したものがあれば、全て墓地送り（※間接的な再帰実行）
-      if (newTargets.length) {
-        await DuelEntity.sendManyToGraveyard(newTargets, _excludedList);
-      }
+      // 新しく発生したものを検知し、あれば、全て墓地送り（※間接的な再帰実行）
+      await DuelEntityShortHands.waitCorpseDisposal(duel, { excludedList: _excludedList });
     }
 
     // 色々更新処理
@@ -353,6 +338,8 @@ export class DuelEntity {
     if (!items.length) {
       return;
     }
+
+    const duel = actionOwner.duel;
 
     const movedAsDic: { [pos in TBattlePosition]: TDuelCauseReason } = {
       Attack: "AttackSummon",
@@ -431,6 +418,8 @@ export class DuelEntity {
         }
       });
 
+    // 新しく発生したものを検知し、あれば、全て墓地送り（※間接的な再帰実行）
+    await DuelEntityShortHands.waitCorpseDisposal(duel);
     // 色々更新処理
     DuelEntity.settleEntityMove(items[0].monster.duel);
   };
@@ -1271,7 +1260,7 @@ export class DuelEntity {
   };
 
   private readonly resetNumericStatus = () => {
-    const master = entityFlexibleStatusKeys.reduce(
+    const master = entityFlexibleNumericStatusKeys.reduce(
       (wip, key) => {
         wip[key] = this.origin[key];
         return wip;

@@ -24585,5 +24585,101 @@
     "kind": "Trap",
     "trapCategory": "Normal",
     "wikiEncodedName": "%A1%D4%A5%AE%A5%D6%A1%F5%A5%C6%A5%A4%A5%AF%A1%D5"
+  },
+  "アルバスの落胤": {
+    "name": "アルバスの落胤",
+    "nameKana": "",
+    "description": "このカード名の効果は１ターンに１度しか使用できない。\n(1)：このカードが召喚・特殊召喚した場合、手札を１枚捨てて発動できる。\nこのカードを含む自分・相手フィールドのモンスターを融合素材とし、融合モンスター１体を融合召喚する。\nその際、自分フィールドの他のモンスターを融合素材にできない。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "level": 4,
+    "attack": 1800,
+    "defense": 0,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Dragon"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%A2%A5%EB%A5%D0%A5%B9%A4%CE%CD%EE%B0%FD%A1%D5"
+  },
+  "真炎竜アルビオン": {
+    "name": "真炎竜アルビオン",
+    "nameKana": "",
+    "description": "「アルバスの落胤」＋魔法使い族・光属性モンスター\nこのカードは融合素材にできない。\nこのカード名の(2)(3)の効果はそれぞれ１ターンに１度しか使用できない。\n(1)：相手はフィールドのこのカードを効果の対象にできない。\n(2)：相手ターンに、自分・相手の墓地のモンスターを合計２体対象として発動できる。\nその２体をお互いのフィールドに１体ずつ特殊召喚する。\n(3)：このカードが墓地に存在する場合に発動できる。\nＥＸモンスターゾーン及びお互いの中央のメインモンスターゾーンのモンスター４体をリリースし、このカードを特殊召喚する。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "Effect",
+      "SpecialSummon"
+    ],
+    "level": 8,
+    "attack": 3000,
+    "defense": 2500,
+    "attributes": [
+      "Light"
+    ],
+    "types": [
+      "Dragon"
+    ],
+    "wikiEncodedName": "%A1%D4%BF%BF%B1%EA%CE%B5%A5%A2%A5%EB%A5%D3%A5%AA%A5%F3%A1%D5",
+    "textTags": [
+      "アルバスの落胤"
+    ]
+  },
+  "烙印竜アルビオン": {
+    "name": "烙印竜アルビオン",
+    "nameKana": "",
+    "description": "「アルバスの落胤」＋光属性モンスター\nこのカード名の(1)(2)の効果はそれぞれ１ターンに１度しか使用できない。\n(1)：このカードが融合召喚した場合に発動できる。\n自分の手札・フィールド・墓地のモンスターを融合素材として除外し、「烙印竜アルビオン」を除くレベル８以下の融合モンスター１体を融合召喚する。\n(2)：このカードが墓地へ送られたターンのエンドフェイズに発動できる。\nデッキから「烙印」魔法・罠カード１枚を選び、手札に加えるか自分フィールドにセットする。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "Effect",
+      "SpecialSummon"
+    ],
+    "nameTags": [
+      "烙印"
+    ],
+    "level": 8,
+    "attack": 2500,
+    "defense": 2000,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Dragon"
+    ],
+    "wikiEncodedName": "%A1%D4%DF%E0%B0%F5%CE%B5%A5%A2%A5%EB%A5%D3%A5%AA%A5%F3%A1%D5",
+    "textTags": [
+      "アルバスの落胤"
+    ]
+  },
+  "黒衣竜アルビオン": {
+    "name": "黒衣竜アルビオン",
+    "nameKana": "",
+    "description": "このカード名の(2)の効果は１ターンに１度しか使用できない。\n(1)：このカードのカード名は、フィールド・墓地に存在する限り「アルバスの落胤」として扱う。\n(2)：このカードが手札・墓地に存在する場合、「アルバスの落胤」１体か「烙印」魔法・罠カード１枚を手札・デッキから墓地へ送って発動できる。\nそのカードをどこから墓地へ送ったかによって以下の効果を適用する。\n●手札：このカードを特殊召喚する。\n●デッキ：このカードをデッキの一番下に戻す。\n手札から戻した場合、さらに自分は１枚ドローする。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "level": 8,
+    "attack": 2500,
+    "defense": 2000,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Dragon"
+    ],
+    "wikiEncodedName": "%A1%D4%B9%F5%B0%E1%CE%B5%A5%A2%A5%EB%A5%D3%A5%AA%A5%F3%A1%D5",
+    "textTags": [
+      "アルバスの落胤"
+    ]
   }
 }

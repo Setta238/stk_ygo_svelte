@@ -112,18 +112,20 @@ export class Duelist {
     const summonArgs: SummonArg[] = [];
 
     for (const item of groupedSummonChoices) {
-      const selected = await item.summoner.prepareToSummonMany(
+      const _item = { ...item };
+      _item.summonChoices = _item.summonChoices.filter((sc) => !summonArgs.map((sa) => sa.monster).includes(sc.monster));
+      const selected = await _item.summoner.prepareToSummonMany(
         effectOwner,
         summonType,
         movedAs,
         actDefAttr,
-        item.summonChoices.map((sc) => ({ ...sc, summoner: item.summoner })),
+        _item.summonChoices.map((sc) => ({ ...sc, summoner: _item.summoner })),
         materialInfos,
         ignoreSummoningConditions,
         qty,
         validator,
         cancelable,
-        item.msg ?? msg
+        _item.msg ?? msg
       );
 
       summonArgs.push(...selected);

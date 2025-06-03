@@ -146,11 +146,28 @@ export type CardInfoWiki = {
   wikiTextAll: string;
 };
 
-export const entityFlexibleStatusKeys = ["level", "rank", "attack", "defense", "pendulumScaleR", "pendulumScaleL"] as const;
-export type TEntityFlexibleNumericStatusKey = (typeof entityFlexibleStatusKeys)[number];
-export type TEntityFlexibleNumericStatusGen = "origin" | "wip" | "calculated";
+/**
+ * 数値ステータスのキー
+ */
+export const entityFlexibleNumericStatusKeys = ["level", "rank", "attack", "defense", "pendulumScaleR", "pendulumScaleL"] as const;
+/**
+ * 数値ステータスのキー
+ */
+export type TEntityFlexibleNumericStatusKey = (typeof entityFlexibleNumericStatusKeys)[number];
+/**
+ * 数値ステータス
+ */
 export type TEntityFlexibleNumericStatus = { [key in TEntityFlexibleNumericStatusKey]: number | undefined };
 
+/**
+ * 数値ステータスの世代（詳細はDuelNumericStateOperatorを参照）
+ */
+export type TEntityFlexibleNumericStatusGen = "origin" | "wip" | "calculated";
+
+/**
+ * 世代ごとの数値ステータス（詳細はDuelNumericStateOperatorを参照）
+ */
+export type EntityNumericStatus = { [key in TEntityFlexibleNumericStatusGen]: TEntityFlexibleNumericStatus };
 /**
  * 変更されない、または変更されたとしても変更原因の状態を監視する必要がないステータス
  */
@@ -211,7 +228,6 @@ export type EntityStatusBase = {
   isImplemented?: boolean;
 } & EntityStaticStatus &
   Partial<TEntityFlexibleNumericStatus> & { wikiEncodedName: string };
-export type EntityNumericStatus = { [key in TEntityFlexibleNumericStatusGen]: TEntityFlexibleNumericStatus };
 export type CardInfoDescription = {
   nameKana?: string;
   description?: string;

@@ -7,7 +7,7 @@ import {
   type StickyEffectOperatorArgs,
 } from "@ygo_duel/class_continuous_effect/DuelStickyEffectOperatorBase";
 import { Duel, SystemError } from "@ygo_duel/class/Duel";
-import { entityFlexibleStatusKeys, type TEntityFlexibleNumericStatusGen, type TEntityFlexibleNumericStatusKey } from "@ygo/class/YgoTypes";
+import { entityFlexibleNumericStatusKeys, type TEntityFlexibleNumericStatusGen, type TEntityFlexibleNumericStatusKey } from "@ygo/class/YgoTypes";
 import type { CardActionDefinitionAttrs } from "../class/DuelEntityAction";
 
 export const stateOperationTypes = ["Addition", "Fixation", "THE_DEVILS_DREAD-ROOT", "THE_DEVILS_AVATAR", "Gradius'_Option"] as const;
@@ -148,7 +148,7 @@ export class NumericStateOperatorBundle extends StickyEffectOperatorBundle<Numer
   };
   protected override readonly afterPush = () => {};
 
-  public readonly calcStateAll = (): void => entityFlexibleStatusKeys.forEach(this.calcState);
+  public readonly calcStateAll = (): void => entityFlexibleNumericStatusKeys.forEach(this.calcState);
 
   public readonly calcState = (targetState: TEntityFlexibleNumericStatusKey): void => {
     if (!this.entity.isPendulumScale && !this.entity.isMonster) {

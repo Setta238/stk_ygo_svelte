@@ -23,12 +23,10 @@ export default function* generate(): Generator<EntityProcDefinition> {
               .flatMap((cell) => cell.cardEntities)
               .filter((card) => card.isMonster)
               .filter((card) => card.canBeTargetOfEffect(myInfo));
-      console.log(monsters);
       //二体未満なら不可
       if (monsters.length < 2) {
         return;
       }
-      console.log(monsters);
 
       // それぞれプレイヤーの場に出せるパターンを抽出
       let patterns = [myInfo.activator, myInfo.activator.getOpponentPlayer()].map((duelist) =>
@@ -43,12 +41,10 @@ export default function* generate(): Generator<EntityProcDefinition> {
         )
       );
 
-      console.log(monsters, patterns);
       // どちらかのプレイヤーの場に出せないなら不可
       if (patterns.some((pattern) => !pattern.length)) {
         return;
       }
-      console.log(monsters, patterns);
 
       if (patterns.every((pattern) => pattern.length === 1)) {
         // どちらのプレイヤーの場に出すパターンも１種類しかなく、そのモンスターが一致するなら不可

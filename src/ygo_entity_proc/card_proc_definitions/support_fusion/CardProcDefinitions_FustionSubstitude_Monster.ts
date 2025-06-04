@@ -60,12 +60,12 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["MonsterZone"],
         executablePeriods: freeChainDuelPeriodKeys,
         executableDuelistTypes: ["Controller"],
+        triggerPattern: { triggerType: "Arrival", arrivalReasons: ["SpecialSummon"] },
         ...getDefaultFusionSummonAction(
           ["ExtraDeck"],
           () => true,
           ["MonsterZone", "ExtraMonsterZone"],
-          (myInfo, monster, materials) => materials.includes(myInfo.action.entity),
-          "Graveyard"
+          (myInfo, monster, materials) => materials.includes(myInfo.action.entity)
         ),
         settle: async () => true,
       },

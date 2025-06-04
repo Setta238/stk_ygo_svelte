@@ -18,8 +18,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           ["ExtraDeck"],
           (myInfo, monster) => Boolean(monster.status.nameTags?.includes("メタルフォーゼ")),
           ["Hand", "MonsterZone", "ExtraMonsterZone"],
-          () => true,
-          "Graveyard"
+          () => true
         ),
       },
       {

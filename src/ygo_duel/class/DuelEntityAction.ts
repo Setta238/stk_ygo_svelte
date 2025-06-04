@@ -120,9 +120,9 @@ export const summonMaterialCostTypes = ["summonMaterialInfos"] as const;
 export type TSummonMaterialCostType = (typeof summonMaterialCostTypes)[number];
 export const NumericCostTypes = ["lifePoint", "xyzMaterial", "counter"] as const;
 export type TNumericCostType = (typeof NumericCostTypes)[number];
-export const EntityCostTypes = ["discard", "banish", "release", "returnToDeck", "returnToHand", "sendToGraveyard"] as const;
-export type TEntityCostType = (typeof EntityCostTypes)[number];
-export const CostTypes = [...NumericCostTypes, ...EntityCostTypes, ...summonMaterialCostTypes] as const;
+export const entityCostTypes = ["discard", "banish", "release", "returnToDeck", "returnToHand", "sendToGraveyard"] as const;
+export type TEntityCostType = (typeof entityCostTypes)[number];
+export const CostTypes = [...NumericCostTypes, ...entityCostTypes, ...summonMaterialCostTypes] as const;
 export type TCostType = (typeof CostTypes)[number];
 
 export type ActionCostInfo = {

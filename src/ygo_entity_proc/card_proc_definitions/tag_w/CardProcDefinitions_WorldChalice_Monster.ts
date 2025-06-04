@@ -165,7 +165,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             [],
             false
           );
-          return list.length > 1;
+          return list.length > 1 && list.flatMap((sc) => sc.cells).getDistinct().length > 1;
         },
         prepare: defaultPrepare,
         execute: async (myInfo) => {

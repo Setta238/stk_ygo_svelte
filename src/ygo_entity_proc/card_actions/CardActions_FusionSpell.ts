@@ -245,15 +245,31 @@ const defaultFusionSummonExecute = async (myInfo: ChainBlockInfo<unknown>, ...ar
         };
       })
   );
-
-  // 素材を墓地送り
-  await DuelEntityShortHands.sendManyToGraveyardForTheSameReason(
-    materials,
-    ["FusionMaterial", "Effect", "SpecialSummonMaterial"],
-    myInfo.action.entity,
-    myInfo.activator
-  );
-
+  const [, , , , options] = args;
+  const materialsTo = options?.materialsTo ?? "Graveyard";
+  if (materialsTo === "Banished") {
+    await DuelEntityShortHands.banishManyForTheSameReason(
+      materials,
+      ["FusionMaterial", "Effect", "SpecialSummonMaterial"],
+      myInfo.action.entity,
+      myInfo.activator
+    );
+  } else if (materialsTo === "Deck") {
+    await DuelEntityShortHands.returnManyToDeckForTheSameReason(
+      "Random",
+      materials,
+      ["FusionMaterial", "Effect", "SpecialSummonMaterial"],
+      myInfo.action.entity,
+      myInfo.activator
+    );
+  } else {
+    await DuelEntityShortHands.sendManyToGraveyardForTheSameReason(
+      materials,
+      ["FusionMaterial", "Effect", "SpecialSummonMaterial"],
+      myInfo.action.entity,
+      myInfo.activator
+    );
+  }
   //融合召喚
   await myInfo.activator.summon(
     "FusionSummon",
@@ -274,20 +290,20 @@ const defaultFusionSummonExecute = async (myInfo: ChainBlockInfo<unknown>, ...ar
 };
 
 export const getDefaultFusionSummonAction = (
-  summonFrom: DuelFieldCellType[],
+  summonFrom: Readonly<DuelFieldCellType[]>,
   monsterValidator: (myInfo: ChainBlockInfoBase<unknown>, monster: DuelEntity) => boolean,
-  materialsFrom: DuelFieldCellType[],
+  materialsFrom: Readonly<DuelFieldCellType[]>,
   materialsValidator: (myInfo: ChainBlockInfoBase<unknown>, monster: DuelEntity, materials: DuelEntity[]) => boolean,
-  materialsTo: DuelFieldCellType
+  options: { materialsTo?: DuelFieldCellType; requisitionFrom?: Readonly<DuelFieldCellType[]> } = {}
 ): CardActionDefinitionFunctions<unknown> & { fixedTags: TActionTag[] } => {
   return {
     fixedTags: ["SpecialSummonFromExtraDeck"],
     canExecute: (myInfo) =>
-      getEnableFusionSummonPatterns(myInfo, summonFrom, monsterValidator, materialsFrom, materialsValidator, materialsTo).some(
+      getEnableFusionSummonPatterns(myInfo, summonFrom, monsterValidator, materialsFrom, materialsValidator, options).some(
         (pattern) => pattern.materialInfos.length
       ),
     prepare: defaultPrepare,
-    execute: (myInfo) => defaultFusionSummonExecute(myInfo, summonFrom, monsterValidator, materialsFrom, materialsValidator, materialsTo),
+    execute: (myInfo) => defaultFusionSummonExecute(myInfo, summonFrom, monsterValidator, materialsFrom, materialsValidator, options),
     settle: async () => true,
   };
 };

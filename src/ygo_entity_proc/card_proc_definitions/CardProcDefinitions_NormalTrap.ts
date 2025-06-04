@@ -12,7 +12,7 @@ import {
   getSingleTargetActionPartical,
 } from "../card_actions/CardActions";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import { EntityCostTypes, type CardActionDefinition } from "@ygo_duel/class/DuelEntityAction";
+import { entityCostTypes, type CardActionDefinition } from "@ygo_duel/class/DuelEntityAction";
 import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { SystemError } from "@ygo_duel/class/Duel";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
@@ -91,7 +91,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
                   return true;
                 }
                 // コストに含まれているカード及び、それに装備されているカードは対象になりえない
-                const costs = EntityCostTypes.flatMap((type) => irregularCosts[type] ?? []);
+                const costs = entityCostTypes.flatMap((type) => irregularCosts[type] ?? []);
                 costs.push(...costs.flatMap((cost) => cost.info.equipEntities));
                 return !costs.includes(card);
               }),
@@ -141,7 +141,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
                 return true;
               }
               // コストに含まれているカード及び、それに装備されているカードは対象になりえない
-              const costs = EntityCostTypes.flatMap((type) => irregularCosts[type] ?? []);
+              const costs = entityCostTypes.flatMap((type) => irregularCosts[type] ?? []);
               costs.push(...costs.flatMap((cost) => cost.info.equipEntities));
               return !costs.includes(card);
             })

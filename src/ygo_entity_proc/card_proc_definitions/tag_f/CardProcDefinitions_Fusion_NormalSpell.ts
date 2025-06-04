@@ -27,8 +27,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           ["ExtraDeck"],
           () => true,
           ["Hand", "MonsterZone", "ExtraMonsterZone"],
-          () => true,
-          "Graveyard"
+          () => true
         ),
       },
       defaultSpellTrapSetAction,

@@ -74,7 +74,9 @@ export class DuelFacilitator_MainPhase extends DuelFacilitatorBase {
           // 相手が行動した場合、フェイズ移行はキャンセル。
           if (actionInfo) {
             result = await this.procChain({ activator: this.priorityHolder, actionInfo }, undefined);
+
             if (result === "done") {
+              await this.procTriggerEffects();
               break;
             }
           }

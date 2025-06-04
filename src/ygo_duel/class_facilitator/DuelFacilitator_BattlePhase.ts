@@ -63,84 +63,102 @@ export class DuelFacilitator_BattlePhase extends DuelFacilitatorBase {
   private readonly procBattlePhaseBattleStep = async () => {
     while (true) {
       this.setStep("battle");
+
+      // 初期化
       this.priorityHolder = this.turnPlayer;
-      const response = await this.duel.view.waitFieldAction(this.priorityHolder.getEnableActions(["DeclareAttack"], ["Normal"], []));
+      this._attackingMonster = undefined;
+      this._targetForAttack = undefined;
+
+      //ユーザー入力を待機。
+      const response = await this.duel.view.waitFieldAction(
+        this.priorityHolder.getEnableActions(["DeclareAttack", "QuickEffect", "CardActivation"], ["Normal", "Quick", "Counter"], [])
+      );
 
       if (response.phaseChange) {
         //エンドステップへ（※優先権の移動はない）
         break;
       }
-      if (response.actionInfo) {
-        // ユーザー入力がカードアクションだった場合、チェーン処理へ
-        const result = await this.procChain({ activator: this.priorityHolder, actionInfo: response.actionInfo }, undefined);
-        if (result === "cancel") {
-          continue;
+      if (!response.actionInfo) {
+        continue;
+      }
+
+      // ユーザー入力がカードアクションだった場合、チェーン処理へ
+      const result = await this.procChain({ activator: this.priorityHolder, actionInfo: response.actionInfo }, undefined);
+      if (result === "cancel") {
+        continue;
+      }
+
+      if (!this.attackingMonster || !this.targetForAttack) {
+        await this.procTriggerEffects();
+
+        continue;
+      }
+      //フリーチェーン処理のループ。
+      //一回のチェーンごとに、戦闘可否判定を行い、否であればループを抜ける。
+      while (this.attackingMonster && this.targetForAttack) {
+        // 巻き戻し計算のために値を控える。
+        const oldTotalProcSeq = this.duel.clock.totalProcSeq;
+        const oldMonsters = this.nonTurnPlayer.getMonstersOnField();
+
+        const procChainResult = await this.procChain(undefined, undefined);
+        await this.procTriggerEffects();
+
+        if (!this.attackingMonster) {
+          throw new SystemError("想定されない状態");
         }
-        //フリーチェーン処理のループ。
-        //一回のチェーンごとに、戦闘可否判定を行い、否であればループを抜ける。
-        while (this.attackingMonster && this.targetForAttack) {
-          // 巻き戻し計算のために値を控える。
-          const oldTotalProcSeq = this.duel.clock.totalProcSeq;
-          const oldMonsters = this.nonTurnPlayer.getMonstersOnField();
 
-          const procChainResult = await this.procChain(undefined, undefined);
-          if (!this.attackingMonster) {
-            throw new SystemError("想定されない状態");
-          }
+        if (!this.canContinueBattle()) {
+          break;
+        }
+        const attackTargets = this.attackingMonster.getAttackTargets();
 
-          if (!this.canContinueBattle()) {
+        if (
+          oldMonsters.some((monster) => !monster.isOnFieldAsMonsterStrictly) ||
+          this.nonTurnPlayer
+            .getMonstersOnField()
+            .flatMap((monster) => monster.moveLog.records)
+            .filter((record) => record.movedAt.totalProcSeq > oldTotalProcSeq)
+            .some((record) => !record.cell.isMonsterZoneLikeCell)
+        ) {
+          this.duel.log.info(`モンスターの数が増減したためバトルステップの巻き戻しが発生。`);
+          this._targetForAttack = undefined;
+        } else if (
+          this.targetForAttack.entityType === "Duelist" &&
+          attackTargets.every((monster) => monster !== this.targetForAttack) &&
+          !this.attackingMonster.status.canDirectAttack
+        ) {
+          this.duel.log.info(`${this.attackingMonster.toString()}が直接攻撃能力を喪失したため、バトルステップの巻き戻しが発生。`);
+          this._targetForAttack = undefined;
+        }
+        if (!this.targetForAttack) {
+          if (!attackTargets.length) {
+            this.duel.log.info("攻撃可能な対象が存在しないため、攻撃対象選択を選択肢しなおせない。");
             break;
           }
-          const attackTargets = this.attackingMonster.getAttackTargets();
-
-          if (
-            oldMonsters.some((monster) => !monster.isOnFieldAsMonsterStrictly) ||
-            this.nonTurnPlayer
-              .getMonstersOnField()
-              .flatMap((monster) => monster.moveLog.records)
-              .filter((record) => record.movedAt.totalProcSeq > oldTotalProcSeq)
-              .some((record) => !record.cell.isMonsterZoneLikeCell)
-          ) {
-            this.duel.log.info(`モンスターの数が増減したためバトルステップの巻き戻しが発生。`);
-            this._targetForAttack = undefined;
-          } else if (
-            this.targetForAttack.entityType === "Duelist" &&
-            attackTargets.every((monster) => monster !== this.targetForAttack) &&
-            !this.attackingMonster.status.canDirectAttack
-          ) {
-            this.duel.log.info(`${this.attackingMonster.toString()}が直接攻撃能力を喪失したため、バトルステップの巻き戻しが発生。`);
-            this._targetForAttack = undefined;
-          }
-          if (!this.targetForAttack) {
-            if (!attackTargets.length) {
-              this.duel.log.info("攻撃可能な対象が存在しないため、攻撃対象選択を選択肢しなおせない。");
-              break;
-            }
-            if (this.turnPlayer.duelistType === "Player") {
-              if (!(await this.duel.view.waitYesOrNo(this.turnPlayer, "攻撃対象選択を選択し直す？"))) {
-                this.turnPlayer.writeInfoLog(`${this.attackingMonster.toString()}の攻撃宣言をキャンセル。`);
-                break;
-              }
-            }
-            const _targetForAttack = await this.turnPlayer.waitSelectEntity(attackTargets, "攻撃対象を選択。", true);
-            if (!_targetForAttack) {
+          if (this.turnPlayer.duelistType === "Player") {
+            if (!(await this.duel.view.waitYesOrNo(this.turnPlayer, "攻撃対象選択を選択し直す？"))) {
               this.turnPlayer.writeInfoLog(`${this.attackingMonster.toString()}の攻撃宣言をキャンセル。`);
               break;
             }
-
-            this.declareAttack(this.attackingMonster, _targetForAttack, true);
-
-            continue;
           }
-          if (procChainResult === "pass") {
+          const _targetForAttack = await this.turnPlayer.waitSelectEntity(attackTargets, "攻撃対象を選択。", true);
+          if (!_targetForAttack) {
+            this.turnPlayer.writeInfoLog(`${this.attackingMonster.toString()}の攻撃宣言をキャンセル。`);
             break;
           }
-        }
 
-        if (this.attackingMonster && this.targetForAttack) {
-          //ダメージステップ処理へ
-          await this.procBattlePhaseDamageStep();
+          this.declareAttack(this.attackingMonster, _targetForAttack, true);
+
+          continue;
         }
+        if (procChainResult === "pass") {
+          break;
+        }
+      }
+
+      if (this.attackingMonster && this.targetForAttack) {
+        //ダメージステップ処理へ
+        await this.procBattlePhaseDamageStep();
       }
     }
   };

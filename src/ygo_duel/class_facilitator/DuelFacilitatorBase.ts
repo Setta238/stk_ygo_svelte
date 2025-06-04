@@ -158,6 +158,12 @@ export abstract class DuelFacilitatorBase {
     return true;
   };
 
+  protected readonly procTriggerEffects = async () => {
+    while ((await this.procChain(undefined, undefined, true)) === "done") {
+      //
+    }
+  };
+
   /**
    * チェーンが発生しうる場合の処理
    * @param firstBlock
@@ -167,7 +173,8 @@ export abstract class DuelFacilitatorBase {
    */
   protected readonly procChain = async (
     firstBlock: { activator: Duelist; actionInfo: ResponseActionInfo } | undefined,
-    triggerEffects: { activator: Duelist; actionInfo: ValidatedActionInfo; targetChainBlock: ChainBlockInfo<unknown> | undefined }[] | undefined
+    triggerEffects: { activator: Duelist; actionInfo: ValidatedActionInfo; targetChainBlock: ChainBlockInfo<unknown> | undefined }[] | undefined,
+    isOnlyTriggerEffects?: boolean
   ): Promise<"done" | "pass" | "cancel"> => {
     // チェーン開始判定
     const isStartPoint = this.chainBlockInfos.length === 0;
@@ -213,6 +220,9 @@ export abstract class DuelFacilitatorBase {
 
     // ここまででチェーンブロックが積まれていない場合、任意効果のクイックエフェクト
     if (!chainBlock) {
+      if (isOnlyTriggerEffects) {
+        return "pass";
+      }
       // 任意効果のクイックエフェクト
       let skipCount = 0;
       while (skipCount < 2) {

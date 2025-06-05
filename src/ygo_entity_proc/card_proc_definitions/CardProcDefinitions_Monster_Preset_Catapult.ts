@@ -27,6 +27,7 @@ const createCatapultAction = (args: {
     executableCells: monsterZoneCellTypes,
     executablePeriods: ["main1", "main2"],
     executableDuelistTypes: ["Controller"],
+    executableFaces: ["FaceUp"],
     needsToPayRegularCost: true,
     fixedTags: ["DamageToOpponent"],
     canPayCosts: (myInfo) =>

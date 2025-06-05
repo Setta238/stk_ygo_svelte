@@ -62,6 +62,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Graveyard"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
+        executableFaces: ["FaceUp"],
         isOnlyNTimesPerTurn: 1,
         canPayCosts: (myInfo) =>
           [...myInfo.activator.getMonstersOnField(), ...myInfo.activator.getHandCell().cardEntities.filter((card) => card.kind === "Monster")].some((monster) =>
@@ -211,6 +212,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Graveyard"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
+        executableFaces: ["FaceUp"],
         canPayCosts: defaultCanPaySelfBanishCosts,
         meetsConditions: (myInfo) => !myInfo.action.entity.wasMovedAtCurrentTurn,
         canExecute: (myInfo) =>

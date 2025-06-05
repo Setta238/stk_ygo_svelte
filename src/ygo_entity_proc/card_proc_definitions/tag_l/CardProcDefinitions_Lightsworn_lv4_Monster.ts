@@ -105,6 +105,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: monsterZoneCellTypes,
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
+        executableFaces: ["FaceUp"],
         fixedTags: ["Destroy", "DestroyMonsterOnField", "DestroyOnOpponentField", "DestroyOnField"],
         canPayCosts: defaultSelfReleaseCanPayCosts,
         canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.length > 2,
@@ -298,13 +299,14 @@ export default function* generate(): Generator<EntityProcDefinition> {
     name: "ライトロード・マジシャン ライラ",
     actions: [
       {
-        title: "③マナブレイク",
+        title: "③魔法罠破壊",
         isMandatory: false,
         playType: "IgnitionEffect",
         spellSpeed: "Normal",
         executableCells: ["MonsterZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
+        executableFaces: ["FaceUp"],
         fixedTags: ["Destroy", "DestroyOnField", "DestroySpellTrapOnField"],
         ...getSingleTargetActionPartical(
           (myInfo) =>

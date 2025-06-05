@@ -41,6 +41,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["SpellAndTrapZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
+        executableFaces: ["FaceUp"],
         priorityForNPC: 20,
         isOnlyNTimesPerTurn: 1,
         fixedTags: ["DestroySpellTrapOnField", "Draw"],

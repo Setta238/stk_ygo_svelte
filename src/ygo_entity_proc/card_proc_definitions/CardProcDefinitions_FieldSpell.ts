@@ -22,6 +22,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["FieldSpellZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes,
+        executableFaces: ["FaceUp"],
         isOnlyNTimesPerTurnIfFaceup: 1,
         canPayCosts: (myInfo) => myInfo.activator.lp >= 1000,
         canExecute: (myInfo) => myInfo.action.entity.face === "FaceUp",

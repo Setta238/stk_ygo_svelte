@@ -56,7 +56,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         ) {
           return;
         }
-      } else if (patterns.map((pattern) => pattern.length === 1)) {
+      } else if (patterns.some((pattern) => pattern.length === 1)) {
         // どちらかのプレイヤーに出すパターンが一種類しかない場合、そのモンスターは出す先が固定される。
 
         // 上記条件を満たすモンスターを取得（配列として取得しているが、ここまでの条件のためにここは必ず要素数１になる）
@@ -94,6 +94,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           executableCells: playFieldCellTypes,
           executablePeriods: freeChainDuelPeriodKeys,
           executableDuelistTypes: ["Controller"],
+          executableFaces: ["FaceUp"],
           fixedTags: ["SpecialSummonFromGraveyard"],
           isOnlyNTimesPerTurn: 1,
           canExecute: (myInfo) => !myInfo.activator.isTurnPlayer && Boolean(getAlbionRevivePatterns(myInfo)),
@@ -149,6 +150,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           executableCells: ["Graveyard"],
           executablePeriods: ["main1", "main2"],
           executableDuelistTypes: ["Controller"],
+          executableFaces: ["FaceUp"],
           fixedTags: ["SpecialSummonFromGraveyard"],
           isOnlyNTimesPerTurn: 1,
           canPayCosts: (myInfo) => getAlbionReleaseCosts(myInfo).length === 4,

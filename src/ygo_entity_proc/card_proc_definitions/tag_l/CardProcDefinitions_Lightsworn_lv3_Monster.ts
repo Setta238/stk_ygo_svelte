@@ -22,6 +22,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: monsterZoneCellTypes,
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
+        executableFaces: ["FaceUp"],
         isOnlyNTimesPerTurnIfFaceup: 1,
         fixedTags: ["SpecialSummonFromGraveyard", "DiscordAsCost"],
         canPayCosts: defaultCanPayDiscardCosts,
@@ -49,6 +50,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: monsterZoneCellTypes,
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
+        executableFaces: ["FaceUp"],
         isOnlyNTimesPerTurnIfFaceup: 1,
         fixedTags: ["SpecialSummonFromGraveyard", "DiscordAsCost"],
         ...getPayBanishCostsActionPartical((myInfo) =>
@@ -80,6 +82,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: monsterZoneCellTypes,
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
+        executableFaces: ["FaceUp"],
         isOnlyNTimesPerTurnIfFaceup: 1,
         triggerPattern: { triggerType: "Arrival", arrivalReasons: ["NormalSummon"] },
         fixedTags: ["SearchFromDeck"],

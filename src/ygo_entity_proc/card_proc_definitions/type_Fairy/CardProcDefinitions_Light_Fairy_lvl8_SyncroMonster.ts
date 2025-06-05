@@ -20,6 +20,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Banished"],
         executablePeriods: ["stanby"],
         executableDuelistTypes: ["Controller"],
+        executableFaces: ["FaceUp"],
         fixedTags: ["SpecialSummonFromBanished"],
         meetsConditions: (myInfo) => myInfo.action.entity.wasMovedAtPreviousTurn,
         canExecute: (myInfo) => canSelfSepcialSummon(myInfo, faceupBattlePositions, [], ["Effect"]),

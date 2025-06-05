@@ -88,6 +88,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: duelPeriodKeys.filter(
           (key) => key !== "b1DBeforeDmgCalc" && key !== "b2DBeforeDmgCalc" && key !== "b1DDmgCalc" && key !== "b2DDmgCalc"
         ),
+        executableFaces: ["FaceUp"],
         execute: async (action) => {
           if (action.entity.field.getCardsOnFieldStrictly().some((card) => card.nm === "コザッキー")) {
             return;

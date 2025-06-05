@@ -36,6 +36,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["MonsterZone", "ExtraMonsterZone"],
         executablePeriods: duelPeriodKeys,
         executableDuelistTypes: ["Controller"],
+        executableFaces: ["FaceUp"],
         canPayCosts: defaultSelfReleaseCanPayCosts,
         canExecute: (myInfo) =>
           Boolean(
@@ -69,6 +70,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Graveyard"],
         executablePeriods: ["end"],
         executableDuelistTypes: ["Controller"],
+        executableFaces: ["FaceUp"],
         fixedTags: ["SpecialSummonFromGraveyard"],
         canExecute: (myInfo) => {
           const moveLogRecord = myInfo.action.entity.moveLog.latestRecord;
@@ -115,6 +117,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: monsterZoneCellTypes,
         executablePeriods: freeChainDuelPeriodKeys,
         executableDuelistTypes: ["Controller"],
+        executableFaces: ["FaceUp"],
         isOnlyNTimesPerTurnIfFaceup: 1,
         ...getSingleTargetActionPartical((myInfo) =>
           myInfo.activator
@@ -177,6 +180,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: monsterZoneCellTypes,
         executablePeriods: freeChainDuelPeriodKeys,
         executableDuelistTypes: ["Controller"],
+        executableFaces: ["FaceUp"],
         isOnlyNTimesPerTurnIfFaceup: 1,
         canPayCosts: (myInfo) =>
           defaultCanPayBanishCosts(
@@ -251,6 +255,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Hand"],
         executablePeriods: freeChainDuelPeriodKeys,
         executableDuelistTypes: ["Controller"],
+        executableFaces: ["FaceUp"],
         isOnlyNTimesPerTurnIfFaceup: 1,
         negatePreviousBlock: true,
         fixedTags: ["NegateCardEffect", "DestroyOnField"],
@@ -285,6 +290,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Graveyard"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
+        executableFaces: ["FaceUp"],
         priorityForNPC: 10,
         fixedTags: ["SpecialSummonFromGraveyard"],
         canPayCosts: defaultCanPaySelfBanishCosts,

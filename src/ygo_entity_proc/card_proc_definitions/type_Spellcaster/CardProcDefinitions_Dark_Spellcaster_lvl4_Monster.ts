@@ -43,6 +43,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["MonsterZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
+        executableFaces: ["FaceUp"],
         isOnlyNTimesPerTurnIfFaceup: 1,
         fixedTags: ["SpecialSummonFromDeck"],
         canPayCosts: (myInfo) => {

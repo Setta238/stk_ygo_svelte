@@ -29,6 +29,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["MonsterZone", "ExtraMonsterZone"],
         executablePeriods: ["end"],
         executableDuelistTypes: ["Controller"],
+        executableFaces: ["FaceUp"],
         isOnlyNTimesPerTurnIfFaceup: 1,
         meetsConditions: (myInfo) => myInfo.activator.isTurnPlayer && myInfo.action.entity.face === "FaceUp",
         prepare: defaultPrepare,

@@ -18,6 +18,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           executableCells: ["SpellAndTrapZone"],
           executablePeriods: ["main1", "main2"],
           executableDuelistTypes: ["Controller"],
+          executableFaces: ["FaceUp"],
           isOnlyNTimesPerTurnIfFaceup: 1,
           fixedTags: ["Destroy"],
           ...getSingleTargetActionPartical(

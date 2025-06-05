@@ -12,7 +12,7 @@ import {
 } from "../../ygo_duel/class/DuelEntityAction";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import { DuelFieldCell, duelFieldCellTypes, type DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
+import { DuelFieldCell, duelFieldCellTypes, playFieldCellTypes, type DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
 import type { TDuelPeriodKey } from "@ygo_duel/class/DuelPeriod";
 import type { WithRequired } from "@stk_utils/funcs/StkTypeUtils";
 export const defaultPrepare = async () => {
@@ -114,21 +114,28 @@ export const getDestsForSingleTargetAction = <T>(myInfo: ChainBlockInfoBase<T>, 
     .filter((entity) => entity.isOnField)
     .map((card) => card.cell);
 
+export const defaultCanPayReleaseCosts = <T>(
+  myInfo: ChainBlockInfoBase<T>,
+  chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
+  ...args: Parameters<typeof getPayReleaseCostActionPartical<T>>
+) => {
+  const [filter, cellTypes, qty] = args;
+  const cards = myInfo.activator
+    .getCells(...(cellTypes ?? playFieldCellTypes))
+    .flatMap((cell) => cell.cardEntities)
+    .filter((card) => card.kind === "Monster")
+    .filter((card) => card.canBeReleased(myInfo.activator, myInfo.action.entity, ["ReleaseAsCost"], myInfo.action))
+    .filter((card) => !filter || filter(myInfo, chainBlockInfos, card));
+  return cards.length >= (qty ?? 1);
+};
+
 export const getPayReleaseCostActionPartical = <T>(
   filter: (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, entity: DuelEntity) => boolean = () => true,
-  cellTypes: Readonly<DuelFieldCellType[]> = ["MonsterZone", "ExtraMonsterZone"],
+  cellTypes: Readonly<DuelFieldCellType[]> = playFieldCellTypes,
   qty: number = 1
-) => {
+): Required<Pick<CardActionDefinitionFunctions<T>, "canPayCosts" | "payCosts">> => {
   return {
-    canPayCosts: (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => {
-      const cards = myInfo.activator
-        .getCells(...cellTypes)
-        .flatMap((cell) => cell.cardEntities)
-        .filter((card) => card.kind === "Monster")
-        .filter((card) => card.canBeReleased(myInfo.activator, myInfo.action.entity, ["ReleaseAsCost"], myInfo.action))
-        .filter((card) => filter(myInfo, chainBlockInfos, card));
-      return cards.length >= qty;
-    },
+    canPayCosts: (...args) => defaultCanPayReleaseCosts(...args, filter, cellTypes, qty),
     payCosts: async (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, cancelable: boolean) => {
       const cards = myInfo.activator
         .getCells(...cellTypes)
@@ -145,7 +152,6 @@ export const getPayReleaseCostActionPartical = <T>(
     },
   };
 };
-
 export const getTargetRebornEnableList = <T>(
   myInfo: ChainBlockInfoBase<T>,
   chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,

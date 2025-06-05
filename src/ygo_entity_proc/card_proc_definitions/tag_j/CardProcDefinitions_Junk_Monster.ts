@@ -33,6 +33,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           executableCells: monsterZoneCellTypes,
           executablePeriods: freeChainDuelPeriodKeys,
           executableDuelistTypes: ["Controller"],
+          executableFaces: ["FaceUp"],
           needsToPayRegularCost: true,
           canPayCosts: (myInfo) => defaultCanPaySelfBanishCosts(myInfo) && getCopyTargets(myInfo).length > 0,
           payCosts: async (myInfo, chainBlockInfos, cancelable) => {

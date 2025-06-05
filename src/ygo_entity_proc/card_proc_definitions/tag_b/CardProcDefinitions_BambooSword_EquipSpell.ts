@@ -29,6 +29,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["SpellAndTrapZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
+        executableFaces: ["FaceUp"],
         isOnlyNTimesPerTurn: 1,
         ...getSingleTargetActionPartical(
           (myInfo) =>
@@ -166,6 +167,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["SpellAndTrapZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
+        executableFaces: ["FaceUp"],
         canPayCosts: (myInfo) => {
           const equipOwner = myInfo.action.entity.info.equipedBy;
           if (!equipOwner) {

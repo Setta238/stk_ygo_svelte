@@ -1765,4 +1765,29 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 違った場合、そのモンスターを特殊召喚し、残りのめくったカードは全て墓地へ送る。`,kind:"Spell",spellCategory:"Normal",wikiEncodedName:"%A1%D4%CC%BE%BF%E4%CD%FD%A1%D5"},"Ｇ・コザッキー":{name:"Ｇ・コザッキー",nameKana:"",description:`フィールド上に「コザッキー」が表側表示で存在していない場合、このカードを破壊する。
 フィールド上に表側表示で存在するこのカードが破壊された場合、その時のコントローラーにこのカードの元々の攻撃力分のダメージを与える。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:4,attack:2500,defense:2400,attributes:["Dark"],types:["Fiend"],wikiEncodedName:"%A1%D4%A3%C7%A1%A6%A5%B3%A5%B6%A5%C3%A5%AD%A1%BC%A1%D5"},コザッキーの研究成果:{name:"コザッキーの研究成果",nameKana:"",description:"自分のデッキのカードを上から３枚確認し、そのカードを好きな順番に入れ替えてデッキの上に戻す。",kind:"Trap",trapCategory:"Normal",wikiEncodedName:"%A1%D4%A5%B3%A5%B6%A5%C3%A5%AD%A1%BC%A4%CE%B8%A6%B5%E6%C0%AE%B2%CC%A1%D5"},コザッキーの自爆装置:{name:"コザッキーの自爆装置",nameKana:"",description:"セットされたこのカードを破壊したプレイヤーに１０００ポイントダメージを与える。",kind:"Trap",trapCategory:"Normal",wikiEncodedName:"%A1%D4%A5%B3%A5%B6%A5%C3%A5%AD%A1%BC%A4%CE%BC%AB%C7%FA%C1%F5%C3%D6%A1%D5"},"ギブ＆テイク":{name:"ギブ＆テイク",nameKana:"",description:`(1)：自分の墓地のモンスター１体と、自分フィールドの表側表示モンスター１体を対象として発動できる。
 対象の墓地のモンスターを相手フィールドに守備表示で特殊召喚し、対象のフィールドのモンスターのレベルはターン終了時まで、
-その特殊召喚したモンスターのレベル分だけ上がる。`,kind:"Trap",trapCategory:"Normal",wikiEncodedName:"%A1%D4%A5%AE%A5%D6%A1%F5%A5%C6%A5%A4%A5%AF%A1%D5"}};export{e as j};
+その特殊召喚したモンスターのレベル分だけ上がる。`,kind:"Trap",trapCategory:"Normal",wikiEncodedName:"%A1%D4%A5%AE%A5%D6%A1%F5%A5%C6%A5%A4%A5%AF%A1%D5"},アルバスの落胤:{name:"アルバスの落胤",nameKana:"",description:`このカード名の効果は１ターンに１度しか使用できない。
+(1)：このカードが召喚・特殊召喚した場合、手札を１枚捨てて発動できる。
+このカードを含む自分・相手フィールドのモンスターを融合素材とし、融合モンスター１体を融合召喚する。
+その際、自分フィールドの他のモンスターを融合素材にできない。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:4,attack:1800,defense:0,attributes:["Dark"],types:["Dragon"],wikiEncodedName:"%A1%D4%A5%A2%A5%EB%A5%D0%A5%B9%A4%CE%CD%EE%B0%FD%A1%D5"},真炎竜アルビオン:{name:"真炎竜アルビオン",nameKana:"",description:`「アルバスの落胤」＋魔法使い族・光属性モンスター
+このカードは融合素材にできない。
+このカード名の(2)(3)の効果はそれぞれ１ターンに１度しか使用できない。
+(1)：相手はフィールドのこのカードを効果の対象にできない。
+(2)：相手ターンに、自分・相手の墓地のモンスターを合計２体対象として発動できる。
+その２体をお互いのフィールドに１体ずつ特殊召喚する。
+(3)：このカードが墓地に存在する場合に発動できる。
+ＥＸモンスターゾーン及びお互いの中央のメインモンスターゾーンのモンスター４体をリリースし、このカードを特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Fusion","Effect","SpecialSummon"],level:8,attack:3e3,defense:2500,attributes:["Light"],types:["Dragon"],wikiEncodedName:"%A1%D4%BF%BF%B1%EA%CE%B5%A5%A2%A5%EB%A5%D3%A5%AA%A5%F3%A1%D5",textTags:["アルバスの落胤"]},烙印竜アルビオン:{name:"烙印竜アルビオン",nameKana:"",description:`「アルバスの落胤」＋光属性モンスター
+このカード名の(1)(2)の効果はそれぞれ１ターンに１度しか使用できない。
+(1)：このカードが融合召喚した場合に発動できる。
+自分の手札・フィールド・墓地のモンスターを融合素材として除外し、「烙印竜アルビオン」を除くレベル８以下の融合モンスター１体を融合召喚する。
+(2)：このカードが墓地へ送られたターンのエンドフェイズに発動できる。
+デッキから「烙印」魔法・罠カード１枚を選び、手札に加えるか自分フィールドにセットする。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Fusion","Effect","SpecialSummon"],nameTags:["烙印"],level:8,attack:2500,defense:2e3,attributes:["Dark"],types:["Dragon"],wikiEncodedName:"%A1%D4%DF%E0%B0%F5%CE%B5%A5%A2%A5%EB%A5%D3%A5%AA%A5%F3%A1%D5",textTags:["アルバスの落胤"]},黒衣竜アルビオン:{name:"黒衣竜アルビオン",nameKana:"",description:`このカード名の(2)の効果は１ターンに１度しか使用できない。
+(1)：このカードのカード名は、フィールド・墓地に存在する限り「アルバスの落胤」として扱う。
+(2)：このカードが手札・墓地に存在する場合、「アルバスの落胤」１体か「烙印」魔法・罠カード１枚を手札・デッキから墓地へ送って発動できる。
+そのカードをどこから墓地へ送ったかによって以下の効果を適用する。
+●手札：このカードを特殊召喚する。
+●デッキ：このカードをデッキの一番下に戻す。
+手札から戻した場合、さらに自分は１枚ドローする。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:8,attack:2500,defense:2e3,attributes:["Dark"],types:["Dragon"],wikiEncodedName:"%A1%D4%B9%F5%B0%E1%CE%B5%A5%A2%A5%EB%A5%D3%A5%AA%A5%F3%A1%D5",textTags:["アルバスの落胤"]},分かつ烙印:{name:"分かつ烙印",nameKana:"",description:`このカード名のカードは１ターンに１枚しか発動できない。
+(1)：自分フィールドの融合モンスター１体をリリースし、融合モンスターを除く、自分か相手の墓地・除外状態のモンスターを合計２体対象として発動できる。
+そのモンスターをお互いのフィールドに１体ずつ特殊召喚する。
+「アルバスの落胤」を融合素材とする融合モンスターをリリースしてこのカードを発動した場合、
+代わりに対象のモンスター２体を自分フィールドに守備表示で特殊召喚できる。`,kind:"Trap",trapCategory:"Normal",nameTags:["烙印"],textTags:["アルバスの落胤"],wikiEncodedName:"%A1%D4%CA%AC%A4%AB%A4%C4%DF%E0%B0%F5%A1%D5"}};export{e as j};

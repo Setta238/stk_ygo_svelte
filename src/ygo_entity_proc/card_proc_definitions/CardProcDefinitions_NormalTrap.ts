@@ -136,15 +136,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
             .getGraveyard()
             .cardEntities.filter((monster) => monster.lvl)
             .filter((card) => card.canBeTargetOfEffect(myInfo))
-            .filter((card) => {
-              if (!irregularCosts) {
-                return true;
-              }
-              // コストに含まれているカード及び、それに装備されているカードは対象になりえない
-              const costs = entityCostTypes.flatMap((type) => irregularCosts[type] ?? []);
-              costs.push(...costs.flatMap((cost) => cost.info.equipEntities));
-              return !costs.includes(card);
-            })
             .map((monster) => {
               return { monster, posList: ["Defense"], cells };
             }),
@@ -158,6 +149,15 @@ export default function* generate(): Generator<EntityProcDefinition> {
         return myInfo.activator
           .getMonstersOnField()
           .filter((monster) => monster.lvl)
+          .filter((card) => {
+            if (!irregularCosts) {
+              return true;
+            }
+            // コストに含まれているカード及び、それに装備されているカードは対象になりえない
+            const costs = entityCostTypes.flatMap((type) => irregularCosts[type] ?? []);
+            costs.push(...costs.flatMap((cost) => cost.info.equipEntities));
+            return !costs.includes(card);
+          })
           .some((monster) => monster.canBeTargetOfEffect(myInfo));
       },
       prepare: async (myInfo, chainBlockInfos, cancelable) => {

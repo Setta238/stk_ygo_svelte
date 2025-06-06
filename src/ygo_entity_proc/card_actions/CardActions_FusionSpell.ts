@@ -1,11 +1,22 @@
 import { faceupBattlePositions, type TBattlePosition } from "@ygo/class/YgoTypes";
 import type { ChainBlockInfoBase, SummonMaterialInfo, ChainBlockInfo, CardActionDefinitionFunctions, TActionTag } from "@ygo_duel/class/DuelEntityAction";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
-import type { DuelFieldCell, DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
+import {
+  duelFieldCellTypes,
+  cellTypeToDefaultPosition,
+  type DuelFieldCell,
+  type DuelFieldCellType,
+  type TDuelEntityMovePos,
+  cellTypeToDefaultFace,
+  type TBundleCellType,
+} from "@ygo_duel/class/DuelFieldCell";
 import { SystemError } from "@ygo_duel/class/Duel";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { isFilterTypeFusionMaterialInfo, isNameTypeFusionMaterialInfo, isOvermuchTypeFusionMaterialInfo } from "@ygo_duel/class/DuelEntityDefinition";
 import { defaultPrepare } from "./CardActions";
+import { getKeys } from "@stk_utils/funcs/StkObjectUtils";
+
+type MaterialDestMapper = { [from in DuelFieldCellType]: { to: TBundleCellType; position?: TDuelEntityMovePos } };
 
 /**
  * 追加素材分を含まないパターンとして合致する場合、値を返す
@@ -118,7 +129,7 @@ function* getEnableFusionSummonPatterns(
   myInfo: ChainBlockInfoBase<unknown>,
   ...args: Parameters<typeof getDefaultFusionSummonAction>
 ): Generator<{ monster: DuelEntity; materialInfos: SummonMaterialInfo[] }> {
-  const [summonFrom, monsterValidator, materialsFrom, materialValidator] = args;
+  const [summonFrom, monsterValidator, materialsFrom, materialValidator, options] = args;
 
   const monsters = myInfo.activator
     .getCells(...summonFrom)
@@ -136,6 +147,17 @@ function* getEnableFusionSummonPatterns(
     .flatMap((cell) => cell.cardEntities)
     .filter((card) => card.isMonster)
     .filter((monster) => monster.canBeEffected(myInfo.activator, myInfo.action.entity, myInfo.action));
+
+  if (options?.requisitionFrom) {
+    materials.push(
+      ...myInfo.activator
+        .getOpponentPlayer()
+        .getCells(...options.requisitionFrom)
+        .flatMap((cell) => cell.cardEntities)
+        .filter((card) => card.isMonster)
+        .filter((monster) => monster.canBeEffected(myInfo.activator, myInfo.action.entity, myInfo.action))
+    );
+  }
 
   if (!materials.length) {
     return;
@@ -180,7 +202,10 @@ function* getEnableFusionSummonPatterns(
   }
 }
 
-const defaultFusionSummonExecute = async (myInfo: ChainBlockInfo<unknown>, ...args: Parameters<typeof getDefaultFusionSummonAction>): Promise<boolean> => {
+const defaultFusionSummonExecute = async (
+  myInfo: ChainBlockInfo<unknown>,
+  ...args: Required<Parameters<typeof getDefaultFusionSummonAction>>
+): Promise<boolean> => {
   // パターンを先に列挙しておく
   const patternInfos = getEnableFusionSummonPatterns(myInfo, ...args).toArray();
 
@@ -246,30 +271,36 @@ const defaultFusionSummonExecute = async (myInfo: ChainBlockInfo<unknown>, ...ar
       })
   );
   const [, , , , options] = args;
-  const materialsTo = options?.materialsTo ?? "Graveyard";
-  if (materialsTo === "Banished") {
-    await DuelEntityShortHands.banishManyForTheSameReason(
-      materials,
-      ["FusionMaterial", "Effect", "SpecialSummonMaterial"],
-      myInfo.action.entity,
-      myInfo.activator
-    );
-  } else if (materialsTo === "Deck") {
-    await DuelEntityShortHands.returnManyToDeckForTheSameReason(
-      "Random",
-      materials,
-      ["FusionMaterial", "Effect", "SpecialSummonMaterial"],
-      myInfo.action.entity,
-      myInfo.activator
-    );
-  } else {
-    await DuelEntityShortHands.sendManyToGraveyardForTheSameReason(
-      materials,
+  const materialDestMapper = {
+    ...duelFieldCellTypes.reduce((wip, current) => {
+      const tmp = { ...wip };
+      tmp[current] = current === "Graveyard" ? { to: "Banished" } : { to: "Graveyard" };
+      return tmp;
+    }, {} as MaterialDestMapper),
+    ...options.materialDestMapper,
+  };
+  const mapped = Object.groupBy(materials, (m) => m.cell.cellType);
+
+  for (const cellType of getKeys(mapped)) {
+    const dest = materialDestMapper[cellType].to;
+    const position = materialDestMapper[cellType].position ?? cellTypeToDefaultPosition[dest];
+    const face = cellTypeToDefaultFace[dest];
+    if (!mapped[cellType]) {
+      continue;
+    }
+
+    await DuelEntityShortHands.bringManyToSameCellForTheSameReason(
+      dest,
+      position,
+      mapped[cellType],
+      face,
+      "Vertical",
       ["FusionMaterial", "Effect", "SpecialSummonMaterial"],
       myInfo.action.entity,
       myInfo.activator
     );
   }
+
   //融合召喚
   await myInfo.activator.summon(
     "FusionSummon",
@@ -294,7 +325,10 @@ export const getDefaultFusionSummonAction = (
   monsterValidator: (myInfo: ChainBlockInfoBase<unknown>, monster: DuelEntity) => boolean,
   materialsFrom: Readonly<DuelFieldCellType[]>,
   materialsValidator: (myInfo: ChainBlockInfoBase<unknown>, monster: DuelEntity, materials: DuelEntity[]) => boolean,
-  options: { materialsTo?: DuelFieldCellType; requisitionFrom?: Readonly<DuelFieldCellType[]> } = {}
+  options: {
+    materialDestMapper?: Partial<MaterialDestMapper>;
+    requisitionFrom?: Readonly<DuelFieldCellType[]>;
+  } = {}
 ): CardActionDefinitionFunctions<unknown> & { fixedTags: TActionTag[] } => {
   return {
     fixedTags: ["SpecialSummonFromExtraDeck"],

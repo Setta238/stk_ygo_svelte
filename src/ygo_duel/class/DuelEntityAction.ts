@@ -490,8 +490,9 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
     return this.definition.isLikeContinuousSpell || (this.entity.isLikeContinuousSpell && this.playType === "CardActivation");
   }
 
-  public get isNoticedForcibly() {
+  public get isNoticedForcibly(): boolean {
     return (
+      this.definition.isNoticedForcibly ||
       this.isMandatory ||
       this.definition.playType === "TriggerEffect" ||
       this.definition.playType === "LingeringEffect" ||
@@ -554,10 +555,7 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
     activator: Duelist,
     chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
     options: ("IgnoreRegularCosts" | "IgnoreConditions" | "CopyEffectOnly" | "")[] = [],
-    irregularExecuteInfo?: {
-      executeBy: DuelEntity;
-      costInfo: ActionCostInfo;
-    }
+    irregularExecuteInfo?: IrregularExecuteInfo
   ): ValidatedActionInfo | undefined => {
     const ignoreRegularCosts = options.includes("IgnoreRegularCosts");
     const ignoreConditions = options.includes("IgnoreConditions");

@@ -1,7 +1,7 @@
 import { StkEvent } from "../../stk_utils/class/StkEvent";
 import { SystemError } from "./Duel";
 import { duelEntityCardTypes, duelEntityDammyTypes } from "./DuelEntity";
-import type { DuelEntity } from "./DuelEntity";
+import type { DuelEntity, TDuelEntityFace } from "./DuelEntity";
 import type { DuelField } from "./DuelField";
 import { type Duelist } from "./Duelist";
 export const deckCellTypes = ["Deck", "ExtraDeck"] as const;
@@ -32,6 +32,34 @@ export const cellTypeShortNameDic: { [type in DuelFieldCellType]: string } = {
   FieldSpellZone: "場",
   XyzMaterialZone: "XYZ素材",
   WaitingRoom: "虚無",
+};
+
+export const cellTypeToDefaultPosition: { [type in DuelFieldCellType]: TDuelEntityMovePos } = {
+  Deck: "Random",
+  ExtraDeck: "Bottom",
+  Graveyard: "Top",
+  Banished: "Top",
+  Hand: "Bottom",
+  MonsterZone: "Top",
+  ExtraMonsterZone: "Top",
+  SpellAndTrapZone: "Top",
+  FieldSpellZone: "Top",
+  XyzMaterialZone: "Bottom",
+  WaitingRoom: "Bottom",
+};
+
+export const cellTypeToDefaultFace: { [type in DuelFieldCellType]: TDuelEntityFace } = {
+  Deck: "FaceDown",
+  ExtraDeck: "FaceDown",
+  Graveyard: "FaceUp",
+  Banished: "FaceUp",
+  Hand: "FaceDown",
+  MonsterZone: "FaceUp",
+  ExtraMonsterZone: "FaceUp",
+  SpellAndTrapZone: "FaceUp",
+  FieldSpellZone: "FaceUp",
+  XyzMaterialZone: "FaceUp",
+  WaitingRoom: "FaceUp",
 };
 
 export const cellTypeMaster = {

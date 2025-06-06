@@ -367,7 +367,7 @@ export class Duelist {
     return this.duel.firstPlayer === this ? this.duel.secondPlayer : this.duel.firstPlayer;
   };
   public readonly getCells = (...cellTypeList: Readonly<DuelFieldCellType[]>): DuelFieldCell[] => {
-    return this.duel.field.getCells(...cellTypeList).filter((cell) => cell.owner === this || cell.cardEntities[0]?.owner === this);
+    return this.duel.field.getCells(...cellTypeList).filter((cell) => cell.owner === this || cell.cardEntities[0]?.controller === this);
   };
   public readonly getHandCell = (): DuelFieldCell => {
     return this.getCells("Hand")[0];

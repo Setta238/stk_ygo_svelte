@@ -201,6 +201,11 @@ export const isArrivalTriggerPattern = (triggerPattern: TriggerPattern): trigger
 export const isDepartureTriggerPattern = (triggerPattern: TriggerPattern): triggerPattern is DepartureTriggerPattern =>
   triggerPattern.triggerType === "Departure";
 
+export type IrregularExecuteInfo = {
+  executeBy: DuelEntity;
+  costInfo: ActionCostInfo;
+};
+
 export type CardActionDefinitionAttrs = EntityActionDefinitionBase & {
   spellSpeed: TSpellSpeed;
   triggerPattern?: TriggerPattern;
@@ -237,6 +242,7 @@ export type CardActionDefinitionAttrs = EntityActionDefinitionBase & {
   // 夢幻泡影など
   canActivateCardDirectly?: boolean;
 };
+
 export type CardActionDefinitionFunctions<T> = {
   getEnableMaterialPatterns?: (myInfo: ChainBlockInfoBase<T>) => Generator<SummonMaterialInfo[]>;
   /**
@@ -260,7 +266,11 @@ export type CardActionDefinitionFunctions<T> = {
    * @param chainBlockInfos
    * @returns
    */
-  canExecute?: (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, irregularCosts?: ActionCostInfo) => boolean | "RemoveMe";
+  canExecute?: (
+    myInfo: ChainBlockInfoBase<T>,
+    chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
+    irregularExecuteInfo?: IrregularExecuteInfo
+  ) => boolean | "RemoveMe";
 
   getTargetableEntities?: (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => DuelEntity[];
 
@@ -544,7 +554,10 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
     activator: Duelist,
     chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
     options: ("IgnoreRegularCosts" | "IgnoreConditions" | "CopyEffectOnly" | "")[] = [],
-    irregularCostInfo?: ActionCostInfo
+    irregularExecuteInfo?: {
+      executeBy: DuelEntity;
+      costInfo: ActionCostInfo;
+    }
   ): ValidatedActionInfo | undefined => {
     const ignoreRegularCosts = options.includes("IgnoreRegularCosts");
     const ignoreConditions = options.includes("IgnoreConditions");
@@ -558,7 +571,7 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
       return;
     }
 
-    if (!this.validateCount(activator, chainBlockInfos)) {
+    if (!this.validateCount(activator, chainBlockInfos, irregularExecuteInfo)) {
       return;
     }
 
@@ -597,7 +610,7 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
       }
     }
     if (this.definition.canExecute) {
-      const canExecute = this.definition.canExecute(myInfo, this.playType === "AfterChainBlock" ? [] : chainBlockInfos, irregularCostInfo);
+      const canExecute = this.definition.canExecute(myInfo, this.playType === "AfterChainBlock" ? [] : chainBlockInfos, irregularExecuteInfo);
       if (canExecute === "RemoveMe") {
         this.entity.actions.reset(...this.entity.actions.filter((action) => action.seq !== this.seq));
         return;
@@ -628,7 +641,16 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
     return { action: this as EntityAction<unknown>, dests, originSeq: this.seq };
   };
 
-  public readonly validateCount = (activator: Duelist, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>): boolean => {
+  public readonly validateCount = (
+    activator: Duelist,
+    chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
+    irregularExecuteInfo?: IrregularExecuteInfo
+  ): boolean => {
+    // TODO https://yugioh-wiki.net/index.php?%A5%AB%A1%BC%A5%C9%CC%BE%A4%F2%BB%D8%C4%EA%A4%B7%A4%BF%A3%B1%A5%BF%A1%BC%A5%F3%A4%CB%A3%B1%C5%D9
+    if (irregularExecuteInfo) {
+      return true;
+    }
+
     // このチェーン上で、同一の効果が発動している回数をカウント。
     const currentChainCount = chainBlockInfos.filter((info) => this.isSameGroup(info.action)).length;
     if (this.isOnlyNTimesPerDuel > 0) {

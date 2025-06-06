@@ -20,7 +20,12 @@ export default function* generate(): Generator<EntityProcDefinition> {
         .flatMap((card) => card.actions)
         .filter((action) => action.playType === "CardActivation")
         .filter((action) => !action.needsToPayRegularCosts)
-        .filter((action) => action.validate(myInfo.activator, [], ["IgnoreRegularCosts", "CopyEffectOnly"], { banish: [myInfo.action.entity] }));
+        .filter((action) =>
+          action.validate(myInfo.activator, [], ["IgnoreRegularCosts", "CopyEffectOnly"], {
+            executeBy: myInfo.action.entity,
+            costInfo: { banish: [myInfo.action.entity] },
+          })
+        );
 
     yield {
       name: "ジャンク・コレクター",

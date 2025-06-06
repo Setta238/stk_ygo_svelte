@@ -81,17 +81,17 @@ export default function* generate(): Generator<EntityProcDefinition> {
         canPayCosts: defaultCanPayDiscardCosts,
         payCosts: defaultPayDiscardCosts,
         ...getSingleTargetActionPartical(
-          (myInfo, chainBlockInfos, irregularCosts) =>
+          (myInfo, chainBlockInfos, irregularExecuteInfo) =>
             myInfo.action.entity.field
               .getCardsOnFieldStrictly()
               .filter((card) => card !== myInfo.action.entity)
               .filter((card) => card.canBeTargetOfEffect(myInfo))
               .filter((card) => {
-                if (!irregularCosts) {
+                if (!irregularExecuteInfo) {
                   return true;
                 }
                 // コストに含まれているカード及び、それに装備されているカードは対象になりえない
-                const costs = entityCostTypes.flatMap((type) => irregularCosts[type] ?? []);
+                const costs = entityCostTypes.flatMap((type) => irregularExecuteInfo.costInfo[type] ?? []);
                 costs.push(...costs.flatMap((cost) => cost.info.equipEntities));
                 return !costs.includes(card);
               }),
@@ -124,7 +124,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
       executableDuelistTypes: ["Controller"],
       hasToTargetCards: true,
       fixedTags: ["SpecialSummonFromGraveyard"],
-      canExecute: (myInfo, chainBlockInfos, irregularCosts) => {
+      canExecute: (myInfo, chainBlockInfos, irregularExecuteInfo) => {
         // 墓地に蘇生可能モンスター、場に空きが必要。
         const cells = myInfo.activator.getOpponentPlayer().getMonsterZones();
         const list = myInfo.activator.getEnableSummonList(
@@ -150,11 +150,11 @@ export default function* generate(): Generator<EntityProcDefinition> {
           .getMonstersOnField()
           .filter((monster) => monster.lvl)
           .filter((card) => {
-            if (!irregularCosts) {
+            if (!irregularExecuteInfo) {
               return true;
             }
             // コストに含まれているカード及び、それに装備されているカードは対象になりえない
-            const costs = entityCostTypes.flatMap((type) => irregularCosts[type] ?? []);
+            const costs = entityCostTypes.flatMap((type) => irregularExecuteInfo.costInfo[type] ?? []);
             costs.push(...costs.flatMap((cost) => cost.info.equipEntities));
             return !costs.includes(card);
           })

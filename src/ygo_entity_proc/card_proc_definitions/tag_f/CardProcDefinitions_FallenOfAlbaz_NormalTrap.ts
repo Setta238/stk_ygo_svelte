@@ -125,10 +125,10 @@ export default function* generate(): Generator<EntityProcDefinition> {
           isOnlyNTimesPerTurn: 1,
           canPayCosts: (...args) =>
             defaultCanPayReleaseCosts(...args, (myInfo, chainBlockInfos, entity) => Boolean(entity.status.monsterCategories?.includes("Fusion"))),
-          canExecute: (myInfo, chainBlockInfos, irregularCosts) => {
-            if (irregularCosts) {
+          canExecute: (myInfo, chainBlockInfos, irregularExecuteInfo) => {
+            if (irregularExecuteInfo) {
               // 非正規コストで発動する場合、検証するのは１パターンで良い
-              return Boolean(getBrandedExpulsionRevivePatterns(myInfo, irregularCosts));
+              return Boolean(getBrandedExpulsionRevivePatterns(myInfo, irregularExecuteInfo.costInfo));
             }
 
             // 正規コストで発動する場合、融合モンスターを１体ずつ検証する

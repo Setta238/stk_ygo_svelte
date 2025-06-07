@@ -11,10 +11,9 @@ import {
   defaultPrepare,
   defaultCanPaySelfBanishCosts,
   defaultPaySelfBanishCosts,
-  defaultPayBanishCosts,
-  defaultCanPayBanishCosts,
   getSingleTargetActionPartical,
   getMultiTargetsRebornActionPartical,
+  getPayBanishCostsActionPartical,
 } from "@ygo_entity_proc/card_actions/CardActions";
 import { duelFieldCellTypes, monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import { getDefaultSynchroSummonAction } from "../../card_actions/CardActions_SynchroMonster";
@@ -182,18 +181,9 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableDuelistTypes: ["Controller"],
         executableFaces: ["FaceUp"],
         isOnlyNTimesPerTurnIfFaceup: 1,
-        canPayCosts: (myInfo) =>
-          defaultCanPayBanishCosts(
-            myInfo,
-            myInfo.activator.getGraveyard().cardEntities.filter((card) => card.status.monsterCategories?.includes("Synchro"))
-          ),
-        payCosts: (myInfo) =>
-          defaultPayBanishCosts(
-            myInfo,
-            myInfo.activator.getGraveyard().cardEntities.filter((card) => card.status.monsterCategories?.includes("Synchro")),
-            (selected) => selected.length === 1,
-            1
-          ),
+        ...getPayBanishCostsActionPartical((myInfo) =>
+          myInfo.activator.getGraveyard().cardEntities.filter((card) => card.status.monsterCategories?.includes("Synchro"))
+        ),
         prepare: defaultPrepare,
         execute: async (myInfo) => {
           myInfo.action.entity.procFilterBundle.push(

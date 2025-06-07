@@ -2,7 +2,7 @@ import { defaultContinuousSpellCardActivateAction, defaultSpellTrapSetAction } f
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
-import { createBroadRegularNumericStateOperatorHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
+import { createBroadRegularNumericStateOperatorHandler } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
@@ -35,7 +35,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             }
           ),
         ];
-      }) as ContinuousEffectBase<unknown>,
+      }),
     ],
   };
 }

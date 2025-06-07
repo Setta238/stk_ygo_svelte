@@ -56,14 +56,15 @@ export default function* generate(): Generator<EntityProcDefinition> {
 
           await DuelEntityShortHands.sendManyToGraveyardForTheSameReason(cards, ["Effect"], myInfo.action.entity, myInfo.activator);
 
-          const qty = cards.filter((card) => card.kind === "Monster").filter((monster) => monster.status.nameTags?.includes("ライトロード")).length;
+          const qtyUpperBound = cards.filter((card) => card.kind === "Monster").filter((monster) => monster.status.nameTags?.includes("ライトロード")).length;
 
-          if (qty) {
+          if (qtyUpperBound) {
+            const qty = qtyUpperBound === 1 ? 1 : undefined;
             const targets =
               (await myInfo.activator.waitSelectEntities(
                 myInfo.action.entity.field.getCardsOnFieldStrictly(),
-                undefined,
-                (selected) => selected.length <= qty,
+                qty,
+                (selected) => selected.length <= qtyUpperBound,
                 "カードを破壊する場合、破壊するカードを選択。",
                 true
               )) ?? [];

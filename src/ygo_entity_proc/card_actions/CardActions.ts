@@ -54,27 +54,31 @@ export const defaultCanPayBanishCosts = <T>(myInfo: ChainBlockInfoBase<T>, cards
 export const defaultPayBanishCosts = async <T>(
   myInfo: ChainBlockInfoBase<T>,
   cards: DuelEntity[],
-  validator: (selected: DuelEntity[]) => boolean,
-  qty?: number
+  validator: (selected: DuelEntity[], myInfo: ChainBlockInfoBase<T>) => boolean,
+  minQty: number = 1,
+  maxQty: number = 1
 ) => {
   const choises = cards
     .filter((card) => myInfo.activator.canTryBanish(card, "BanishAsCost", myInfo.action))
     .filter((card) => card.canBeBanished("BanishAsCost", myInfo.activator, myInfo.action.entity, myInfo.action));
 
-  const cost = (await myInfo.activator.waitSelectEntities(choises, qty, validator, "コストとして除外するカードを選択", false)) ?? [];
+  const qty = minQty === maxQty ? minQty : undefined;
+
+  const cost =
+    (await myInfo.activator.waitSelectEntities(choises, qty, (selected) => validator(selected, myInfo), "コストとして除外するカードを選択", false)) ?? [];
   await DuelEntityShortHands.banishManyForTheSameReason(cost, ["Cost"], myInfo.action.entity, myInfo.activator);
   return { banish: cost };
 };
 
 export const getPayBanishCostsActionPartical = <T>(
   getCostableEntities: (...args: Parameters<NonNullable<CardActionDefinitionFunctions<T>["canPayCosts"]>>) => DuelEntity[],
-  validator: (selected: DuelEntity[]) => boolean = () => true,
+  validator: (selected: DuelEntity[], myInfo: ChainBlockInfoBase<T>) => boolean = () => true,
   minQty: number = 1,
   maxQty: number = 1
-): Pick<CardActionDefinitionFunctions<T>, "canPayCosts" | "payCosts"> => {
+): Required<Pick<CardActionDefinitionFunctions<T>, "canPayCosts" | "payCosts">> => {
   return {
     canPayCosts: (...args) => defaultCanPayBanishCosts(args[0], getCostableEntities(...args), minQty),
-    payCosts: (...args) => defaultPayBanishCosts(args[0], getCostableEntities(args[0], args[1]), validator, minQty === maxQty ? minQty : undefined),
+    payCosts: (...args) => defaultPayBanishCosts(args[0], getCostableEntities(args[0], args[1]), validator, minQty, maxQty),
   };
 };
 export const defaultCanPayDiscardCosts = <T>(

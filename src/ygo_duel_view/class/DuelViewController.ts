@@ -252,7 +252,7 @@ export class DuelViewController {
         validator: (selected) => selected.length === 1,
       };
     }
-
+    console.log(entitiesChoices);
     const response = await this._waitDuelistAction(chooser, [], "Modal", message, entitiesChoices, cellsChoices, entitiesChoices.cancelable);
 
     return (
@@ -534,6 +534,7 @@ export class DuelViewController {
     // Promise一式作成
     const promiseSweet = createPromiseSweet<DuelistResponseBase>();
 
+    console.log(entitiesChoices);
     // 待機のための引数作成。解決のためのresolveを渡す
     const args: WaitStartEventArg = {
       resolve: promiseSweet.resolve,

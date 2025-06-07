@@ -1424,6 +1424,10 @@ DuelEntity.prototype.getIndexInCell = function (): number {
     return -1;
   }
 
+  if (entity.kind === "XyzMaterial") {
+    return -1;
+  }
+
   const index = entity.cell.cardEntities.indexOf(entity);
 
   if (index < 0) {

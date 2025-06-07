@@ -1,7 +1,14 @@
 import { faceupBattlePositions, type TBattlePosition } from "@ygo/class/YgoTypes";
-import type { ChainBlockInfoBase, ChainBlockInfo, CardActionDefinition, SummonMaterialInfo, ActionCostInfo } from "@ygo_duel/class/DuelEntityAction";
+import type {
+  ChainBlockInfoBase,
+  ChainBlockInfo,
+  CardActionDefinition,
+  SummonMaterialInfo,
+  ActionCostInfo,
+  CardActionDefinitionFunctions,
+} from "@ygo_duel/class/DuelEntityAction";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
-import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
+import { type DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 import { SystemError } from "@ygo_duel/class/Duel";
 import { defaultRuleSummonExecute, defaultRuleSummonPrepare } from "./CardActions_Monster";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
@@ -163,5 +170,41 @@ export const getDefaultXyzSummonAction = (
     prepare: (myInfo) => defaultRuleSummonPrepare(myInfo, "XyzSummon", ["Rule", "SpecialSummon", "XyzSummon"], ["Attack", "Defense"]),
     execute: defaultRuleSummonExecute,
     settle: async () => true,
+  };
+};
+
+export const getPayXyzCostActionPartical = <T>(
+  qtyLowerBound: number = 1,
+  qtyUpperBound: number = 1,
+  filter: (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, entity: DuelEntity) => boolean = () => true
+): Required<Pick<CardActionDefinitionFunctions<T>, "canPayCosts" | "payCosts">> => {
+  return {
+    canPayCosts: (...args) => {
+      const [myInfo] = args;
+      return myInfo.action.entity.getXyzMaterials().filter((entity) => filter(...args, entity)).length >= qtyLowerBound;
+    },
+    payCosts: async (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, cancelable: boolean) => {
+      const cards = myInfo.action.entity.getXyzMaterials().filter((entity) => filter(myInfo, chainBlockInfos, entity));
+
+      let costs = cards.slice(0, qtyLowerBound);
+
+      if (cards.length > qtyLowerBound) {
+        const qty = qtyLowerBound === qtyUpperBound ? qtyLowerBound : undefined;
+        const _costs = await myInfo.activator.waitSelectEntities(
+          cards,
+          qty,
+          (selected) => selected.length >= qtyLowerBound && selected.length <= qtyUpperBound,
+          "コストとするXYZ素材を選択",
+          cancelable
+        );
+        if (!_costs) {
+          return;
+        }
+        costs = _costs;
+      }
+
+      await DuelEntityShortHands.releaseManyForTheSameReason(costs, ["Cost"], myInfo.action.entity, myInfo.activator);
+      return { xyzMaterial: costs };
+    },
   };
 };

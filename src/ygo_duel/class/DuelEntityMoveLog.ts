@@ -6,6 +6,23 @@ import { getIndex } from "@stk_utils/funcs/StkMathUtils";
 import { DuelField } from "./DuelField";
 import type { TCardKind } from "@ygo/class/YgoTypes";
 import { SystemError } from "./Duel";
+import type { Mutable } from "@stk_utils/funcs/StkTypeUtils";
+
+const duelEntityShallowCopyKeys = ["seq", "entityType", "origin", "cell", "kind", "nm", "lvl", "rank", "attr", "types", "atk", "def"] as const;
+type TDuelEntityShallowCopyKey = (typeof duelEntityShallowCopyKeys)[number];
+export type DuelEntityShallowCopy = Pick<DuelEntity, TDuelEntityShallowCopyKey>;
+
+const getEntityShallowCopy = (entity?: DuelEntity): DuelEntityShallowCopy | undefined => {
+  if (!entity) {
+    return;
+  }
+  const copy: Mutable<Partial<DuelEntityShallowCopy>> = {};
+  for (const key of duelEntityShallowCopyKeys) {
+    // @ts-expect-error 同じキーでアクセスしているため、型チェック不要
+    copy[key] = entity[key] as DuelEntity[typeof key];
+  }
+  return copy as DuelEntityShallowCopy;
+};
 
 export type EntityMoveLogRecord = {
   entity: DuelEntity;
@@ -16,7 +33,7 @@ export type EntityMoveLogRecord = {
   isPending: boolean;
   movedAt: IDuelClock;
   movedAs: TDuelCauseReason[];
-  movedBy?: DuelEntity;
+  movedBy?: DuelEntityShallowCopy;
   actionOwner?: Duelist;
   chooser?: Duelist;
 };
@@ -68,7 +85,7 @@ export class EntityMoveLog {
       return undefined;
     }
 
-    return this.records.findLast((rec) => rec.movedAs.union(["NormalSummon", "SpecialSummon", "FlipSummon", "Flip", "ComeBackAlive"]));
+    return this.records.findLast((rec) => rec.movedAs.union(["NormalSummon", "SpecialSummon", "FlipSummon", "Flip", "ComeBackAlive"]).length);
   }
 
   public constructor(entity: DuelEntity) {
@@ -111,7 +128,7 @@ export class EntityMoveLog {
       isPending: this.entity.info.isPending,
       movedAt: this.entity.duel.clock.getClone(),
       movedAs: movedAs.getDistinct(),
-      movedBy: movedBy,
+      movedBy: getEntityShallowCopy(movedBy),
       actionOwner: actionOwner,
       chooser: chooser ?? actionOwner,
     });
@@ -130,7 +147,7 @@ export class EntityMoveLog {
   public readonly negateSummon = (movedBy: DuelEntity, activator: Duelist) => {
     const latestRecord = this.records.slice(-1)[0];
     latestRecord.cell = this.entity.field.getWaitingRoomCell();
-    latestRecord.movedBy = movedBy;
+    latestRecord.movedBy = getEntityShallowCopy(movedBy);
     latestRecord.movedAs = ["SummonNegated"];
     latestRecord.actionOwner = activator;
   };

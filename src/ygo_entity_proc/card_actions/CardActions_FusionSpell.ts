@@ -146,6 +146,7 @@ function* getEnableFusionSummonPatterns(
     .getCells(...materialsFrom)
     .flatMap((cell) => cell.cardEntities)
     .filter((card) => card.isMonster)
+    .filter((card) => card.face === "FaceUp" || card.cell.cellType !== "Banished")
     .filter((monster) => monster.canBeEffected(myInfo.activator, myInfo.action.entity, myInfo.action));
 
   if (options?.requisitionFrom) {
@@ -155,6 +156,7 @@ function* getEnableFusionSummonPatterns(
         .getCells(...options.requisitionFrom)
         .flatMap((cell) => cell.cardEntities)
         .filter((card) => card.isMonster)
+        .filter((card) => card.face === "FaceUp")
         .filter((monster) => monster.canBeEffected(myInfo.activator, myInfo.action.entity, myInfo.action))
     );
   }

@@ -13,6 +13,7 @@ import type { IDuelClock } from "./DuelClock";
 import { SystemError, type ResponseActionInfo } from "./Duel";
 import { max } from "@stk_utils/funcs/StkMathUtils";
 import { Statable, type IStatable } from "./DuelUtilTypes";
+import type { DuelEntityShallowCopy } from "./DuelEntityMoveLog";
 
 export const executableDuelistTypes = ["Controller", "Opponent"] as const;
 export type TExecutableDuelistType = (typeof executableDuelistTypes)[number];
@@ -177,7 +178,7 @@ export type ChainBlockInfo<T> = ChainBlockInfoPreparing<T> & ChainBlockInfoPrepa
 
 export type TriggerPatternBase = {
   triggerType: "Arrival" | "Departure";
-  causerFilter?: (me: DuelEntity, causer: DuelEntity) => boolean;
+  causerFilter?: (me: DuelEntity, causer: DuelEntityShallowCopy) => boolean;
   from?: Readonly<DuelFieldCellType[]>;
   needsJustNow?: boolean;
   needsByOpponent?: boolean;

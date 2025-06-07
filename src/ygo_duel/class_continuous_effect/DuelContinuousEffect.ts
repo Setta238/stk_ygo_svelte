@@ -13,7 +13,7 @@ export type ContinuousEffectBase<T> = {
   title: string;
   appliableCellTypes: DuelFieldCellType[];
   appliableDuelPeriodKeys: Readonly<TDuelPeriodKey[]>;
-  faceList: TDuelEntityFace[];
+  faceList: Readonly<TDuelEntityFace[]>;
   canStart: (source: DuelEntity) => boolean;
   start: (source: DuelEntity) => Promise<T>;
   finish: (source: DuelEntity, info: T) => Promise<void>;

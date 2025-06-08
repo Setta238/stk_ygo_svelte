@@ -1795,4 +1795,25 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 自分の「アルバスの落胤」を融合素材とする場合、
 自分の墓地のモンスターを除外して融合素材とする事もできる。
 (2)：このカードが「アルバスの落胤」の効果を発動するために墓地へ送られたターンのエンドフェイズに発動できる。
-このカードを自分フィールドにセットする。`,kind:"Spell",spellCategory:"Normal",nameTags:["烙印"],textTags:["アルバスの落胤"],wikiEncodedName:"%A1%D4%C7%F2%A4%CE%DF%E0%B0%F5%A1%D5"}};export{e as j};
+このカードを自分フィールドにセットする。`,kind:"Spell",spellCategory:"Normal",nameTags:["烙印"],textTags:["アルバスの落胤"],wikiEncodedName:"%A1%D4%C7%F2%A4%CE%DF%E0%B0%F5%A1%D5"},"ライトロード・ドミニオン キュリオス":{name:"ライトロード・ドミニオン キュリオス",nameKana:"",description:`【リンクマーカー：上/左下/右下】
+同じ属性で種族が異なるモンスター３体
+このカード名の(1)(2)の効果はそれぞれ１ターンに１度しか使用できない。
+(1)：このカードがＬ召喚した場合に発動できる。デッキからカード１枚を選んで墓地へ送る。
+(2)：自分のデッキのカードが効果で墓地へ送られた場合に発動する。自分のデッキの上からカードを３枚墓地へ送る。
+(3)：表側表示のこのカードが相手の効果でフィールドから離れた場合、または戦闘で破壊された場合、自分の墓地のカード１枚を対象として発動できる。そのカードを手札に加える。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Link","Effect","SpecialSummon"],nameTags:["ライトロード"],link:3,attack:2400,attributes:["Light"],types:["Warrior"],wikiEncodedName:"%A1%D4%A5%E9%A5%A4%A5%C8%A5%ED%A1%BC%A5%C9%A1%A6%A5%C9%A5%DF%A5%CB%A5%AA%A5%F3+%A5%AD%A5%E5%A5%EA%A5%AA%A5%B9%A1%D5",linkArrowKeys:["TopCenter","BottomLeft","BottomRight"]},神聖魔皇后セレーネ:{name:"神聖魔皇后セレーネ",nameKana:"",description:`【リンクマーカー：左下/下/右下】
+魔法使い族モンスターを含むモンスター２体以上
+(1)：このカードがリンク召喚に成功した場合に発動する。
+お互いのフィールド・墓地の魔法カードの数だけこのカードに魔力カウンターを置く。
+(2)：フィールドに「エンディミオン」カードが存在する限り、相手はこのカードを攻撃対象に選択できない。
+(3)：１ターンに１度、自分・相手のメインフェイズに、
+自分フィールドの魔力カウンターを３つ取り除いて発動できる。
+自分の手札・墓地から魔法使い族モンスター１体を選び、
+このカードのリンク先となる自分フィールドに守備表示で特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Link","Effect","SpecialSummon"],link:3,attack:1850,attributes:["Light"],types:["Spellcaster"],wikiEncodedName:"%A1%D4%BF%C0%C0%BB%CB%E2%B9%C4%B9%A1%A5%BB%A5%EC%A1%BC%A5%CD%A1%D5",linkArrowKeys:["BottomLeft","BottomCenter","BottomRight"]},魔サイの戦士:{name:"魔サイの戦士",nameKana:"",description:`このカード名の(2)の効果は１ターンに１度しか使用できない。
+(1)：このカードがモンスターゾーンに存在する限り、「魔サイの戦士」以外の自分フィールドの悪魔族モンスターは戦闘・効果では破壊されない。
+(2)：このカードが墓地へ送られた場合に発動できる。
+デッキから「魔サイの戦士」以外の悪魔族モンスター１体を墓地へ送る。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:3,attack:1400,defense:900,attributes:["Earth"],types:["Fiend"],wikiEncodedName:"%A1%D4%CB%E2%A5%B5%A5%A4%A4%CE%C0%EF%BB%CE%A1%D5"},"トランザクション・ロールバック":{name:"トランザクション・ロールバック",nameKana:"",description:`このカード名の(1)(2)の効果は１ターンに１度、いずれか１つしか使用できない。
+(1)：ＬＰを半分払い、「トランザクション・ロールバック」以外の相手の墓地の通常罠カード１枚を対象として発動できる。
+この効果は、その通常罠カード発動時の効果と同じになる。
+(2)：墓地のこのカードを除外し、ＬＰを半分払い、
+「トランザクション・ロールバック」以外の自分の墓地の通常罠カード１枚を対象として発動できる。
+この効果は、その通常罠カード発動時の効果と同じになる。`,kind:"Trap",trapCategory:"Normal",wikiEncodedName:"%A1%D4%A5%C8%A5%E9%A5%F3%A5%B6%A5%AF%A5%B7%A5%E7%A5%F3%A1%A6%A5%ED%A1%BC%A5%EB%A5%D0%A5%C3%A5%AF%A1%D5"}};export{e as j};

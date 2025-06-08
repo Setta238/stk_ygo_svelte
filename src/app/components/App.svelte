@@ -6,7 +6,7 @@
 
 <script lang="ts">
   import { DeckInfo, sampleDecks, type IDeckInfo } from "@ygo/class/DeckInfo";
-  import { DuelistProfile, nonPlayerCharacters, type TGameMode } from "@ygo/class/DuelistProfile";
+  import { difficulties, DuelistProfile, gameModes, nonPlayerCharacters, type IDuelistProfile, type TGameMode } from "@ygo/class/DuelistProfile";
   import { Duel, duelStartModeDic, type TDuelStartMode } from "@ygo_duel/class/Duel";
   import DuelDesk from "@ygo_duel_view/components/DuelDesk.svelte";
   import DeckEditor from "@ygo_deck_editor/components/DeckEditor.svelte";
@@ -22,13 +22,14 @@
   let innerWidth = 0;
   let innerHeight = 0;
   let duel: Duel | undefined;
-  let gameMode: TGameMode = "Preset";
+  let gameMode: TGameMode = "FtkChallenge";
   let dspMode: "Duel" | "DeckEdit" | "None" = "None";
   let selectedDeckId = 0;
   let npcDescription = "";
+  let selectedNpc: IDuelistProfile | undefined = undefined;
   const userProfilePromise = DuelistProfile.getOrCreateNew(idb).then((userProfile) => {
-    gameMode = userProfile.previousGameMode ?? "Preset";
-    npcDescription = nonPlayerCharacters.find((npc) => npc.id === userProfile.previousNpcId)?.description ?? "";
+    gameMode = gameModes.includes(userProfile.previousGameMode) ? userProfile.previousGameMode : "FtkChallenge";
+    setNpc(userProfile.previousNpcId);
     return userProfile;
   });
 
@@ -36,7 +37,7 @@
     const selectedDeck =
       deckInfos.find((deckInfo) => deckInfo.lastUsedAt.getTime() === Math.max(...deckInfos.map((deckInfo) => deckInfo.lastUsedAt.getTime()))) ?? deckInfos[0];
     selectedDeckId = selectedDeck.id;
-    if (gameMode === "Preset" && selectedDeck.deckType !== "Preset") {
+    if (gameMode === "FtkChallenge" && selectedDeck.deckType !== "Preset") {
       selectedDeckId = sampleDecks.find((deck) => deck.deckType === "Preset")?.id ?? selectedDeckId;
     }
   };
@@ -53,15 +54,16 @@
   });
 
   const getSelectedDeckInfo = async () => {
-    let deckInfo = (await userDecksPromise).find((info) => info.id === selectedDeckId) ?? (await reloadDeckInfos()).find((info) => info.id === selectedDeckId);
+    const _selectedDeckId = selectedDeckId;
+    let deckInfo =
+      (await userDecksPromise).find((info) => info.id === _selectedDeckId) ?? (await reloadDeckInfos()).find((info) => info.id === _selectedDeckId);
     if (deckInfo) {
       await deckInfo.updateTimestamp();
     }
 
     let iDeckInfo: IDeckInfo | undefined = deckInfo;
-
     if (!iDeckInfo) {
-      iDeckInfo = sampleDecks.find((info) => info.id === selectedDeckId);
+      iDeckInfo = sampleDecks.find((info) => info.id === _selectedDeckId);
     }
     if (!iDeckInfo) {
       throw new Error("illegal state");
@@ -98,15 +100,18 @@
     let npcDeck = sampleDecks.find((deck) => deck.id === Number.MIN_SAFE_INTEGER) ?? sampleDecks[0];
     let startMode: TDuelStartMode = "PlayFirst";
 
-    if (gameMode === "Free") {
+    if (gameMode === "FtkChallenge") {
+      npc = nonPlayerCharacters.filter((npc) => npc.npcType === "FtkChallenge").find((npc) => npc.difficulty === userProfile.previousDifficulty) ?? npc;
+    } else if (gameMode === "Free") {
       npc = nonPlayerCharacters.find((npc) => npc.id === userProfile.previousNpcId) ?? npc;
       npcDeck = sampleDecks.slice(-1)[0];
       startMode = userProfile.previousStartMode;
-      if (userProfile.previousNpcDeckId > -1) {
-        npcDeck = (await userDecksPromise).find((info) => info.id === userProfile.previousNpcDeckId) ?? npcDeck;
-      } else {
-        npcDeck = sampleDecks.find((info) => info.id === npc.id) ?? npcDeck;
-      }
+    }
+
+    if (npc.npcType !== "FtkChallenge" && userProfile.previousNpcDeckId > -1) {
+      npcDeck = (await userDecksPromise).find((info) => info.id === userProfile.previousNpcDeckId) ?? npcDeck;
+    } else {
+      npcDeck = sampleDecks.find((info) => info.id === npc.id) ?? npcDeck;
     }
 
     duel = new Duel(userProfile, "Player", selectedDeck, [], npc, "NPC", npcDeck, [], startMode);
@@ -148,7 +153,11 @@
       currentTarget: EventTarget & HTMLSelectElement;
     }
   ) => {
-    npcDescription = nonPlayerCharacters.find((npc) => npc.id === Number(ev.currentTarget.value))?.description ?? "";
+    setNpc(Number(ev.currentTarget.value));
+  };
+  const setNpc = (npcId: number) => {
+    selectedNpc = nonPlayerCharacters.find((npc) => npc.id === npcId);
+    npcDescription = selectedNpc?.description ?? "";
   };
   prepareSampleDeck();
 </script>
@@ -202,7 +211,7 @@
                 </td>
                 <td transition:slide={{ duration: 200 }}>
                   <div transition:slide={{ duration: 200 }}>
-                    {#each ["Preset", "Free"] as TGameMode[] as mode}
+                    {#each gameModes as mode}
                       <input
                         id="game_mode_radio_{mode.toLowerCase()}"
                         class="game_mode_radio"
@@ -226,7 +235,7 @@
                 <td transition:slide={{ duration: 200 }}>
                   <div transition:slide={{ duration: 200 }}>
                     <select id="deck_selector" class="deck_selector" bind:value={selectedDeckId}>
-                      {#each gameMode === "Preset" ? sampleDecks.filter((info) => info.deckType === "Preset") : userDecks as userDeck}
+                      {#each gameMode === "FtkChallenge" ? sampleDecks.filter((info) => info.deckType === "Preset") : userDecks as userDeck}
                         <option value={userDeck.id}>{userDeck.name}</option>
                       {/each}
                     </select>
@@ -251,23 +260,25 @@
                     </div>
                   </td>
                 </tr>
-                <tr class="config_row" transition:slide={{ duration: 200 }}>
-                  <td transition:slide={{ duration: 200 }}>
-                    <div transition:slide={{ duration: 200 }}>
-                      <label for="npc_deck_selector" class="config_row_label deck_selector">デッキ：</label>
-                    </div>
-                  </td>
-                  <td transition:slide={{ duration: 200 }}>
-                    <div transition:slide={{ duration: 200 }}>
-                      <select id="npc_deck_selector" class="deck_selector" bind:value={userProfile.previousNpcDeckId}>
-                        <option value={Number.MIN_SAFE_INTEGER}>デフォルト</option>
-                        {#each userDecks as userDeck}
-                          <option value={userDeck.id}>{userDeck.name}</option>
-                        {/each}
-                      </select>
-                    </div>
-                  </td>
-                </tr>
+                {#if selectedNpc?.npcType !== "FtkChallenge"}
+                  <tr class="config_row" transition:slide={{ duration: 200 }}>
+                    <td transition:slide={{ duration: 200 }}>
+                      <div transition:slide={{ duration: 200 }}>
+                        <label for="npc_deck_selector" class="config_row_label deck_selector">デッキ：</label>
+                      </div>
+                    </td>
+                    <td transition:slide={{ duration: 200 }}>
+                      <div transition:slide={{ duration: 200 }}>
+                        <select id="npc_deck_selector" class="deck_selector" bind:value={userProfile.previousNpcDeckId}>
+                          <option value={Number.MIN_SAFE_INTEGER}>デフォルト</option>
+                          {#each userDecks as userDeck}
+                            <option value={userDeck.id}>{userDeck.name}</option>
+                          {/each}
+                        </select>
+                      </div>
+                    </td>
+                  </tr>
+                {/if}
                 <tr class="config_row" transition:slide={{ duration: 200 }}>
                   <td transition:slide={{ duration: 200 }}>
                     <div transition:slide={{ duration: 200 }}>
@@ -281,8 +292,25 @@
                           <option value={key}>{duelStartModeDic[key]}</option>
                         {/each}
                       </select>
-                    </div></td
-                  >
+                    </div>
+                  </td>
+                </tr>
+              {:else if gameMode === "FtkChallenge"}
+                <tr class="config_row" transition:slide={{ duration: 200 }}>
+                  <td transition:slide={{ duration: 200 }}>
+                    <div transition:slide={{ duration: 200 }}>
+                      <label for="difficulty_selector" class="config_row_label difficulty_selector">難易度：</label>
+                    </div>
+                  </td>
+                  <td transition:slide={{ duration: 200 }}>
+                    <div transition:slide={{ duration: 200 }}>
+                      <select id="difficulty_selector" class="difficulty_selector" bind:value={userProfile.previousDifficulty}>
+                        {#each difficulties as difficulty}
+                          <option value={difficulty}>{difficulty}</option>
+                        {/each}
+                      </select>
+                    </div>
+                  </td>
                 </tr>
               {/if}
               <tr>

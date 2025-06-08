@@ -240,6 +240,9 @@ export class Duelist {
       if (this.profile.npcLvl < 101) {
         tmp.push("DeclareAttack");
       }
+      if (this.profile.npcLvl === Number.MAX_SAFE_INTEGER) {
+        tmp.push("NormalSummon", "SpecialSummon", "SpellTrapSet", "DeclareAttack");
+      }
     }
     this.actionBlackListForNPC = tmp;
   }

@@ -3,13 +3,17 @@ import type { StkIndexedDB } from "@stk_utils/class/StkIndexedDB";
 import type { TTblNames } from "@app/components/App.svelte";
 import { duelStartModes, type TDuelStartMode } from "@ygo_duel/class/Duel";
 import type { ChainConfig } from "@ygo_duel/class/Duelist";
-export type TGameMode = "Preset" | "Free";
+export const gameModes = ["FtkChallenge", "Free"] as const;
+export type TGameMode = (typeof gameModes)[number];
+export const difficulties = ["Normal", "Hard"] as const;
+export type TDdifficulty = (typeof difficulties)[number];
 export type DuelistHeaderRecord = IStkDataRecord & {
   chainConfig: ChainConfig;
   previousGameMode: TGameMode;
   previousNpcId: number;
   previousNpcDeckId: number;
   previousStartMode: TDuelStartMode;
+  previousDifficulty: TDdifficulty;
 };
 export interface IDuelistHeaderRecord {
   id: number;
@@ -20,6 +24,7 @@ export interface IDuelistHeaderRecord {
   previousNpcId: number;
   previousNpcDeckId: number;
   previousStartMode: TDuelStartMode;
+  previousDifficulty: TDdifficulty;
 }
 export interface IDuelistProfile {
   id: number;
@@ -28,6 +33,7 @@ export interface IDuelistProfile {
   npcLvl: number;
   npcType: "None" | "Normal" | "FtkChallenge";
   chainConfig?: ChainConfig;
+  difficulty?: TDdifficulty;
 }
 
 export class DuelistProfile implements IDuelistProfile {
@@ -60,7 +66,8 @@ export class DuelistProfile implements IDuelistProfile {
         noticeSelfChain: false,
         noticeFreeChain: false,
       },
-      previousGameMode: "Preset",
+      previousGameMode: "FtkChallenge",
+      previousDifficulty: "Normal",
       previousNpcId: 0,
       previousNpcDeckId: Number.MIN_SAFE_INTEGER,
       previousStartMode: "Random",
@@ -78,6 +85,7 @@ export class DuelistProfile implements IDuelistProfile {
   public readonly previousNpcId: number;
   public readonly previousNpcDeckId: number;
   public readonly previousStartMode: TDuelStartMode;
+  public readonly previousDifficulty: TDdifficulty;
   public readonly npcLvl = Number.MAX_VALUE;
   public readonly npcType = "None";
 
@@ -90,6 +98,7 @@ export class DuelistProfile implements IDuelistProfile {
     this.previousNpcId = nonPlayerCharacters.find((npc) => npc.id === header.previousNpcId)?.id ?? nonPlayerCharacters.map((npc) => npc.id).min() ?? 0;
     this.previousStartMode = duelStartModes.includes(header.previousStartMode) ? header.previousStartMode : "Random";
     this.previousNpcDeckId = header.previousNpcDeckId;
+    this.previousDifficulty = header.previousDifficulty;
   }
 
   public save = async (newInfo?: Partial<IDuelistHeaderRecord>): Promise<DuelistProfile> => {
@@ -161,5 +170,14 @@ export const nonPlayerCharacters: IDuelistProfile[] = [
     description: "FTKに失敗すると敗北。",
     npcLvl: Number.MIN_SAFE_INTEGER,
     npcType: "FtkChallenge",
+    difficulty: "Normal",
+  },
+  {
+    id: Number.MIN_SAFE_INTEGER + 1,
+    name: "FTK or Die[HARD]",
+    description: "FTKに失敗すると敗北。手札誘発あり。",
+    npcLvl: Number.MAX_SAFE_INTEGER,
+    npcType: "FtkChallenge",
+    difficulty: "Hard",
   },
 ];

@@ -27,6 +27,13 @@ export const defaultPayLifePoint = async <T>(
   return { lifePoint: point };
 };
 
+export const defaultPayHarfLifePoint = async <T>(myInfo: ChainBlockInfoBase<T>): Promise<ActionCostInfo> => {
+  const point = Math.floor(myInfo.activator.lp / 2);
+
+  myInfo.activator.payLp(point, myInfo.action.entity);
+  return { lifePoint: point };
+};
+
 export const defaultCanPaySelfSendToGraveyardCost = <T>(myInfo: ChainBlockInfoBase<T>) =>
   myInfo.activator.canSendToGraveyard([myInfo.action.entity]) &&
   myInfo.action.entity.canBeSentToGraveyard(myInfo.activator, myInfo.action.entity, "SendToGraveyardAsCost", myInfo.action);

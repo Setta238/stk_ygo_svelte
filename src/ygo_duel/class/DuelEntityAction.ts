@@ -103,6 +103,7 @@ export const actionTags = [
   "NegateCardActivation",
   "NegateNormalSummon",
   "NegateSpecialSummon",
+  "DelegateAnotherEffect",
   ...actionTriggerTags,
 ] as const;
 export type TActionTag = (typeof actionTags)[number];
@@ -469,6 +470,9 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
 
   public get hasToTargetCards() {
     return this.definition.hasToTargetCards ?? false;
+  }
+  public get fixedTags() {
+    return this.definition.fixedTags ?? [];
   }
 
   public get isWithChainBlock() {
@@ -923,7 +927,6 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
 
   public readonly execute = async (myInfo: ChainBlockInfo<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, options?: { indirectly?: boolean }) => {
     const indirectly = options?.indirectly ?? false;
-
     if (myInfo.action.isLikeContinuousSpell && (myInfo.action.entity.face === "FaceDown" || !myInfo.action.entity.isOnField)) {
       // 永続魔法類は、フィールドに表側表示で存在しないと処理できない。
       this.entity.info.isPending = false;
@@ -989,16 +992,19 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
       // 一旦、早すぎた埋葬に便利なので、効果処理を先に行う。
       await this.entity.determine();
 
-      // 誓約効果などの適用
-      if (this.isOnlyNTimesPerTurnIfFaceup > 0) {
-        this.entity.counterHolder.incrementActionCountPerTurn(this);
-      } else if (this.isOnlyNTimesIfFaceup > 0) {
-        this.entity.counterHolder.incrementActionCount(this);
+      if (!indirectly) {
+        // 誓約効果などの適用
+        if (this.isOnlyNTimesPerTurnIfFaceup > 0) {
+          this.entity.counterHolder.incrementActionCountPerTurn(this);
+        } else if (this.isOnlyNTimesIfFaceup > 0) {
+          this.entity.counterHolder.incrementActionCount(this);
+        }
+        this.definition.settle(myInfo, chainBlockInfos);
       }
-      this.definition.settle(myInfo, chainBlockInfos);
     }
     return result;
   };
+  public readonly directSettle = (...args: Parameters<typeof this.definition.settle>) => this.definition.settle(...args);
   /**
    * 緊急同調など
    * @param activator

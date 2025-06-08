@@ -8,7 +8,12 @@ import {
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
-import { defaultPrepare, getMultiTargetsRebornActionPartical, getSingleTargetActionPartical } from "@ygo_entity_proc/card_actions/CardActions";
+import {
+  defaultDeckDestructionExecute,
+  defaultPrepare,
+  getMultiTargetsRebornActionPartical,
+  getSingleTargetActionPartical,
+} from "@ygo_entity_proc/card_actions/CardActions";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import { getCommonLightswormEndPhaseAction } from "@ygo_entity_proc/card_actions/tag_l/CardActions_Lightsworn_Monster";
@@ -30,6 +35,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableDuelistTypes: ["Controller"],
         executableFaces: ["FaceUp"],
         isOnlyNTimesPerTurn: 1,
+        fixedTags: ["SendToGraveyardFromDeck"],
         canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.length > 1,
         prepare: defaultPrepare,
         execute: async (myInfo) => {
@@ -106,7 +112,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         executableFaces: ["FaceUp"],
-        fixedTags: ["Destroy", "DestroyMonsterOnField", "DestroyOnOpponentField", "DestroyOnField"],
+        fixedTags: ["Destroy", "DestroyMonsterOnField", "DestroyOnOpponentField", "DestroyOnField", "SendToGraveyardFromDeck"],
         canPayCosts: defaultSelfReleaseCanPayCosts,
         canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.length > 2,
         payCosts: defaultSelfReleasePayCosts,
@@ -118,7 +124,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               .filter((card) => card.canBeTargetOfEffect(myInfo)),
           { do: "Destroy" }
         ),
-        execute: async (myInfo) => {
+        execute: async (myInfo, chainBlockInfos) => {
           // フィールドにいなければ効果なし
           if (myInfo.selectedEntities.every((target) => !target.isOnField)) {
             return false;
@@ -133,12 +139,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           // この後の墓地送りはタイミングを逃させる要因になる。
           myInfo.activator.duel.clock.incrementProcSeq();
 
-          // 発動には三枚以上必要だが、処理時に三枚未満なら全て墓地に送る。
-          const cards = myInfo.activator.getDeckCell().cardEntities.slice(0, 3);
-
-          await DuelEntityShortHands.sendManyToGraveyardForTheSameReason(cards, ["Effect"], myInfo.action.entity, myInfo.activator);
-
-          return true;
+          return defaultDeckDestructionExecute(myInfo, chainBlockInfos, { qty: 3, targets: ["Self"] });
         },
         settle: async () => true,
       },
@@ -176,7 +177,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerTurn: 1,
         triggerPattern: { triggerType: "Arrival", arrivalReasons: ["SpecialSummon"] },
-        fixedTags: ["SendToGraveyardFromDeck", "IfSpecialSummonSucceed"],
+        fixedTags: ["SendToGraveyardFromDeck", "IfSpecialSummonSucceed", "SendToGraveyardFromDeck"],
         canExecute: (myInfo) =>
           myInfo.activator
             .getDeckCell()
@@ -242,10 +243,10 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Hand"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
-        fixedTags: ["SpecialSummonFromHand"],
+        fixedTags: ["SpecialSummonFromHand", "SendToGraveyardFromDeck"],
         isOnlyNTimesPerTurn: 1,
         canPayCosts: (myInfo) => myInfo.activator.getHandCell().cardEntities.length > 1,
-        canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.length > 1,
+        canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.length > 1 && canSelfSepcialSummon(myInfo, faceupBattlePositions, [], ["Effect"]),
         payCosts: async (myInfo, chainBlockInfos, cancelable) => {
           const hands = myInfo.activator.getHandCell().cardEntities.filter((card) => card !== myInfo.action.entity);
           const cost = await myInfo.activator.waitSelectEntity(hands, "デッキトップに戻すカードを一枚選択。", cancelable);
@@ -256,7 +257,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           return { returnToDeck: [cost] };
         },
         prepare: defaultPrepare,
-        execute: async (myInfo) => {
+        execute: async (myInfo, chainBlockInfos) => {
           if (!(await defaultSelfSpecialSummonExecute(myInfo))) {
             return false;
           }
@@ -264,12 +265,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           // この後の墓地送りはタイミングを逃させる要因になる。
           myInfo.activator.duel.clock.incrementProcSeq();
 
-          const cards = myInfo.activator.getDeckCell().cardEntities.slice(0, 2);
-
-          // 処理時に枚数未満なら全て墓地に送る。
-          await DuelEntityShortHands.sendManyToGraveyardForTheSameReason(cards, ["Effect"], myInfo.action.entity, myInfo.activator);
-
-          return true;
+          return defaultDeckDestructionExecute(myInfo, chainBlockInfos, { qty: 2, targets: ["Self"] });
         },
         settle: async () => true,
       },

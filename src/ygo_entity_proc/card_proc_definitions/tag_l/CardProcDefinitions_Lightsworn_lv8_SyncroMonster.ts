@@ -23,6 +23,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableDuelistTypes: ["Controller"],
         executableFaces: ["FaceUp"],
         isOnlyNTimesPerTurn: 1,
+        fixedTags: ["SendToGraveyardFromDeck"],
         triggerPattern: { triggerType: "Arrival", arrivalReasons: ["SynchroSummon"] },
         canExecute: (myInfo) =>
           myInfo.activator
@@ -80,6 +81,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableFaces: ["FaceUp"],
         isOnlyNTimesPerTurn: 1,
         needsToPayRegularCost: true,
+        fixedTags: ["SendToGraveyardFromDeck"],
         ...getPayBanishCostsActionPartical(
           (myInfo) =>
             myInfo.activator

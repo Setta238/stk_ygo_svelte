@@ -52,7 +52,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Hand", "SpellAndTrapZone"],
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
-        fixedTags: ["SearchFromDeck"],
+        fixedTags: ["SearchFromDeck", "SendToGraveyardFromDeck"],
         priorityForNPC: 40,
         canPayCosts: (myInfo) => myInfo.activator.getDeckCell().cardEntities.length > 3,
         canExecute: (myInfo) =>

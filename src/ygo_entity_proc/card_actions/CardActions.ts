@@ -364,6 +364,36 @@ export const getSingleTargetActionPartical = <T>(
     },
   };
 };
+
+export const defaultDeckDestructionExecute = async <T>(
+  myInfo: ChainBlockInfo<T>,
+  chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
+  options?: { qty?: number; targets?: ("Opponent" | "Self")[] }
+) => {
+  const qty = options?.qty ?? 1;
+  const targets = options?.targets ?? ["Opponent"];
+
+  const cards: DuelEntity[] = [];
+  if (targets.includes("Self")) {
+    cards.push(...myInfo.activator.getDeckCell().cardEntities.slice(0, qty));
+  }
+  if (targets.includes("Opponent")) {
+    cards.push(...myInfo.activator.getOpponentPlayer().getDeckCell().cardEntities.slice(0, qty));
+  }
+  // 処理時に枚数未満なら全て墓地に送る。
+  await DuelEntityShortHands.sendManyToGraveyardForTheSameReason(cards, ["Effect"], myInfo.action.entity, myInfo.activator);
+
+  return true;
+};
+export const getDeckDestructionActionPartical = <T>(options?: {
+  qty?: number;
+  targets?: ("Opponent" | "Self")[];
+}): Pick<CardActionDefinitionFunctions<T>, "execute" | "prepare"> => {
+  return {
+    prepare: defaultPrepare,
+    execute: (...args) => defaultDeckDestructionExecute(...args, options),
+  };
+};
 export const getSystemPeriodAction = (
   title: string,
   executablePeriods: Readonly<TDuelPeriodKey[]>,

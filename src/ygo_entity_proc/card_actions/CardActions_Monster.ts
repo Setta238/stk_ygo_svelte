@@ -400,9 +400,9 @@ export const defaultSelfSpecialSummonExecute = async <T>(
   if (myInfo.action.entity.wasMovedAfter(myInfo.isActivatedAt)) {
     return false;
   }
-  await myInfo.activator.summon("SpecialSummon", ["Effect"], myInfo.action, myInfo.action.entity, posList, cells, [], false);
+  const monster = await myInfo.activator.summon("SpecialSummon", ["Effect"], myInfo.action, myInfo.action.entity, posList, cells, [], false);
 
-  return true;
+  return Boolean(monster);
 };
 
 export const defaultLinkMonsterActions = [defaultDeclareAttackAction, defaultBattleAction] as const;

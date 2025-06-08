@@ -24709,5 +24709,34 @@
       "アルバスの落胤"
     ],
     "wikiEncodedName": "%A1%D4%C7%F2%A4%CE%DF%E0%B0%F5%A1%D5"
+  },
+  "ライトロード・ドミニオン キュリオス": {
+    "name": "ライトロード・ドミニオン キュリオス",
+    "nameKana": "",
+    "description": "【リンクマーカー：上/左下/右下】\n同じ属性で種族が異なるモンスター３体\nこのカード名の(1)(2)の効果はそれぞれ１ターンに１度しか使用できない。\n(1)：このカードがＬ召喚した場合に発動できる。デッキからカード１枚を選んで墓地へ送る。\n(2)：自分のデッキのカードが効果で墓地へ送られた場合に発動する。自分のデッキの上からカードを３枚墓地へ送る。\n(3)：表側表示のこのカードが相手の効果でフィールドから離れた場合、または戦闘で破壊された場合、自分の墓地のカード１枚を対象として発動できる。そのカードを手札に加える。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Link",
+      "Effect",
+      "SpecialSummon"
+    ],
+    "nameTags": [
+      "ライトロード"
+    ],
+    "link": 3,
+    "attack": 2400,
+    "attributes": [
+      "Light"
+    ],
+    "types": [
+      "Warrior"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%E9%A5%A4%A5%C8%A5%ED%A1%BC%A5%C9%A1%A6%A5%C9%A5%DF%A5%CB%A5%AA%A5%F3+%A5%AD%A5%E5%A5%EA%A5%AA%A5%B9%A1%D5",
+    "linkArrowKeys": [
+      "TopCenter",
+      "BottomLeft",
+      "BottomRight"
+    ]
   }
 }

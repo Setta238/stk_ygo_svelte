@@ -360,7 +360,7 @@
             {#each getKeys(cell.visibleEntities[0].status.maxCounterQty) as counter}
               【
               {getCounterEmoji(counter)}{cell.visibleEntities[0].counterHolder.getQty(counter)}
-              {#if cell.visibleEntities[0].status.maxCounterQty[counter] ?? 9999 < 100}
+              {#if (cell.visibleEntities[0].status.maxCounterQty[counter] ?? 9999) < 100}
                 /{cell.visibleEntities[0].status.maxCounterQty[counter]}
               {/if}
               】

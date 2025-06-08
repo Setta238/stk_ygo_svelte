@@ -11,11 +11,11 @@ declare global {
     getAllOnOffPattern(): Generator<T[]>;
     getDistinct(): T[];
     distinct(): void;
+    max(comparer?: (left: T, right: T) => number): T | undefined;
+    min(comparer?: (left: T, right: T) => number): T | undefined;
   }
 }
-
 export const getSequenceNumbers = (min: number, max: number) => Array.from({ length: max - min }, (_, i) => min + i);
-
 // 拡張メソッドの実装側
 Array.prototype.shuffle = function <T>(): T[] {
   const items = this as T[];
@@ -76,4 +76,32 @@ Array.prototype.getDistinct = function <T>(): T[] {
 
 Array.prototype.distinct = function (): void {
   this.reset(...this.getDistinct());
+};
+
+Array.prototype.max = function <T>(comparer?: (left: T, right: T) => number): T | undefined {
+  if (!this.length) {
+    return;
+  }
+
+  return this.reduce((wip, current) => {
+    if (comparer) {
+      return comparer(current, wip) > 0 ? current : wip;
+    } else {
+      return current > wip ? current : wip;
+    }
+  });
+};
+
+Array.prototype.min = function <T>(comparer?: (left: T, right: T) => number): T | undefined {
+  if (!this.length) {
+    return;
+  }
+
+  return this.reduce((wip, current) => {
+    if (comparer) {
+      return comparer(current, wip) < 0 ? current : wip;
+    } else {
+      return current < wip ? current : wip;
+    }
+  });
 };

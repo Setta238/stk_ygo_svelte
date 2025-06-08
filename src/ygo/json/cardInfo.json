@@ -24738,5 +24738,30 @@
       "BottomLeft",
       "BottomRight"
     ]
+  },
+  "神聖魔皇后セレーネ": {
+    "name": "神聖魔皇后セレーネ",
+    "nameKana": "",
+    "description": "【リンクマーカー：左下/下/右下】\n魔法使い族モンスターを含むモンスター２体以上\n(1)：このカードがリンク召喚に成功した場合に発動する。\nお互いのフィールド・墓地の魔法カードの数だけこのカードに魔力カウンターを置く。\n(2)：フィールドに「エンディミオン」カードが存在する限り、相手はこのカードを攻撃対象に選択できない。\n(3)：１ターンに１度、自分・相手のメインフェイズに、\n自分フィールドの魔力カウンターを３つ取り除いて発動できる。\n自分の手札・墓地から魔法使い族モンスター１体を選び、\nこのカードのリンク先となる自分フィールドに守備表示で特殊召喚する。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Link",
+      "Effect"
+    ],
+    "link": 3,
+    "attack": 1850,
+    "attributes": [
+      "Light"
+    ],
+    "types": [
+      "Spellcaster"
+    ],
+    "wikiEncodedName": "%A1%D4%BF%C0%C0%BB%CB%E2%B9%C4%B9%A1%A5%BB%A5%EC%A1%BC%A5%CD%A1%D5",
+    "linkArrowKeys": [
+      "BottomLeft",
+      "BottomCenter",
+      "BottomRight"
+    ]
   }
 }

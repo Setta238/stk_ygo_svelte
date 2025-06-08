@@ -2,7 +2,6 @@ import { StkDataStore, type IStkDataRecord } from "@stk_utils/class/StkDataStore
 import type { StkIndexedDB } from "@stk_utils/class/StkIndexedDB";
 import type { TTblNames } from "@app/components/App.svelte";
 import { duelStartModes, type TDuelStartMode } from "@ygo_duel/class/Duel";
-import { min } from "@stk_utils/funcs/StkMathUtils";
 import type { ChainConfig } from "@ygo_duel/class/Duelist";
 export type TGameMode = "Preset" | "Free";
 export type DuelistHeaderRecord = IStkDataRecord & {
@@ -88,7 +87,7 @@ export class DuelistProfile implements IDuelistProfile {
     this.description = header.description;
     this.chainConfig = header.chainConfig;
     this.previousGameMode = header.previousGameMode;
-    this.previousNpcId = nonPlayerCharacters.find((npc) => npc.id === header.previousNpcId)?.id ?? min(...nonPlayerCharacters.map((npc) => npc.id));
+    this.previousNpcId = nonPlayerCharacters.find((npc) => npc.id === header.previousNpcId)?.id ?? nonPlayerCharacters.map((npc) => npc.id).min() ?? 0;
     this.previousStartMode = duelStartModes.includes(header.previousStartMode) ? header.previousStartMode : "Random";
     this.previousNpcDeckId = header.previousNpcDeckId;
   }

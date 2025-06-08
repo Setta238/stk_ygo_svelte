@@ -11,7 +11,6 @@ import {
 } from "./DuelEntityActionBase";
 import type { IDuelClock } from "./DuelClock";
 import { SystemError, type ResponseActionInfo } from "./Duel";
-import { max } from "@stk_utils/funcs/StkMathUtils";
 import { Statable, type IStatable } from "./DuelUtilTypes";
 import type { DuelEntityShallowCopy } from "./DuelEntityMoveLog";
 
@@ -574,7 +573,7 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
       return;
     }
 
-    const maxChainNumber = max(0, ...chainBlockInfos.map((info) => info.chainNumber ?? -1));
+    const maxChainNumber = chainBlockInfos.map((info) => info.chainNumber ?? -1).max() ?? 0;
 
     const myInfo: ChainBlockInfoBase<T> = {
       index: chainBlockInfos.length,
@@ -754,7 +753,7 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
     let _cancelable = cancelable;
 
     // チェーン番号を設定
-    const chainNumber = this.isWithChainBlock ? max(0, ...chainBlockInfos.map((info) => info.chainNumber ?? -1)) + 1 : undefined;
+    const chainNumber = this.isWithChainBlock ? (chainBlockInfos.map((info) => info.chainNumber ?? -1).max() ?? 0) + 1 : undefined;
 
     // 発動ログの書き出し用変数
     let logText = "";

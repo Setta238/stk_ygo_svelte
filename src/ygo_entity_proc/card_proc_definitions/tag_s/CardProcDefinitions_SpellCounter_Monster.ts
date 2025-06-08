@@ -1,100 +1,13 @@
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
-import type { CardActionDefinition, ChainBlockInfo, ChainBlockInfoBase } from "@ygo_duel/class/DuelEntityAction";
-import {
-  createRegularNumericStateOperatorHandler,
-  createRegularStatusOperatorHandler,
-  type ContinuousEffectBase,
-} from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
+import { createRegularNumericStateOperatorHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
-import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
-import type { TCardKind } from "@ygo/class/YgoTypes";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import { duelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { defaultPrepare, getSingleTargetActionPartical } from "../../card_actions/CardActions";
-
-const createSpellCounterCommonEffect = (kind: TCardKind, maxQty?: number) => {
-  const title = maxQty ? `魔力充填可能(${maxQty})` : "魔力充填可能";
-
-  return createRegularStatusOperatorHandler(
-    title,
-    kind,
-    (source) => [source],
-    (source) => {
-      return [
-        new StatusOperator({
-          title,
-          validateAlive: () => true,
-          isContinuous: true,
-          isSpawnedBy: source,
-          actionAttr: {},
-          isApplicableTo: (operator, target) => operator.isSpawnedBy === target,
-          statusCalculator: (bundleOwner, ope, wip) => {
-            wip.maxCounterQty.SpellCounter = maxQty ?? Number.MAX_VALUE;
-            return { maxCounterQty: wip.maxCounterQty };
-          },
-        }),
-      ];
-    }
-  ) as ContinuousEffectBase<unknown>;
-};
-
-const _spellCounterChargeEffectDic: { [qty: number]: CardActionDefinition<unknown> } = {};
-
-const createSpellCounterChargeEffect = (titlePrefix: string, qty: number = 1): CardActionDefinition<unknown> => {
-  if (!_spellCounterChargeEffectDic[qty]) {
-    _spellCounterChargeEffectDic[qty] = {
-      title: `魔力回収(${qty})`,
-      isMandatory: true,
-      playType: "AfterChainBlock",
-      spellSpeed: "Normal",
-      executableCells: ["MonsterZone"],
-      executablePeriods: duelPeriodKeys,
-      executableDuelistTypes: ["Controller"],
-      canExecute: (myInfo) =>
-        Boolean(
-          myInfo.targetChainBlock &&
-            myInfo.targetChainBlock.action.playType === "CardActivation" &&
-            myInfo.targetChainBlock.action.entity.kind === "Spell" &&
-            myInfo.action.entity.isEffective &&
-            myInfo.action.entity.face === "FaceUp" &&
-            myInfo.action.entity.counterHolder.getQty("SpellCounter") < (myInfo.action.entity.status.maxCounterQty.SpellCounter ?? 0) &&
-            myInfo.action.entity.hadArrivedToFieldAt().totalProcSeq <= myInfo.targetChainBlock.isActivatedAt.totalProcSeq
-        ),
-      prepare: defaultPrepare,
-      execute: async (myInfo) => {
-        if (myInfo.action.entity.face === "FaceDown") {
-          return false;
-        }
-        if (!myInfo.action.entity.isOnFieldAsMonsterStrictly) {
-          return false;
-        }
-        if (!myInfo.action.entity.isEffective) {
-          return false;
-        }
-        myInfo.action.entity.counterHolder.add("SpellCounter", qty, myInfo.action.entity);
-        return true;
-      },
-      settle: async () => true,
-    };
-  }
-
-  return { ..._spellCounterChargeEffectDic[qty], title: `${titlePrefix}魔力回収(${qty})` };
-};
-
-export const canPaySpellCounters = <T>(myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, minQty: number) =>
-  myInfo.action.entity.counterHolder.getQty("SpellCounter") >= minQty;
-
-export const paySpellCounters = <T>(
-  myInfo: ChainBlockInfoBase<T>,
-  chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
-  cancelable: boolean,
-  qtyList: number[]
-) => {
-  // TODO 取り除く個数が選べる場合
-  const qty = qtyList[0];
-  myInfo.action.entity.counterHolder.remove("SpellCounter", qty);
-  return { counter: qty };
-};
+import {
+  createSpellCounterChargeEffect,
+  createSpellCounterCommonEffect,
+  getPaySpellCountersCostActionPartical,
+} from "@ygo_entity_proc/card_actions/tag_s/CardActions_SpellCounter";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
@@ -132,8 +45,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableDuelistTypes: ["Controller"],
         executableFaces: ["FaceUp"],
         fixedTags: ["Destroy", "DestroyOnField", "DestroySpellTrapOnField"],
-        canPayCosts: (myInfo, chainBlockInfos) => canPaySpellCounters(myInfo, chainBlockInfos, 1),
-        payCosts: async (myInfo, chainBlockInfos, cancelable) => paySpellCounters(myInfo, chainBlockInfos, cancelable, [1]),
+        ...getPaySpellCountersCostActionPartical([1]),
         ...getSingleTargetActionPartical(
           (myInfo) => myInfo.activator.duel.field.getSpellTrapsOnFieldStrictly().filter((card) => card.canBeTargetOfEffect(myInfo)),
           { message: "破壊する対象を選択。", do: "Destroy" }
@@ -192,9 +104,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         executableFaces: ["FaceUp"],
-        canPayCosts: (myInfo, chainBlockInfos) => canPaySpellCounters(myInfo, chainBlockInfos, 3),
+        ...getPaySpellCountersCostActionPartical([3]),
         canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.length > 0,
-        payCosts: async (myInfo, chainBlockInfos, cancelable) => paySpellCounters(myInfo, chainBlockInfos, cancelable, [3]),
         prepare: defaultPrepare,
         execute: async (myInfo) => {
           await myInfo.activator.draw(1, myInfo.action.entity, myInfo.activator);

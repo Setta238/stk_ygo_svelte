@@ -4,7 +4,6 @@ import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCell, DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
 import { SystemError } from "@ygo_duel/class/Duel";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import { min } from "@stk_utils/funcs/StkMathUtils";
 
 type TRitualLevelValitationType = "Equal" | "OrMore";
 
@@ -26,7 +25,7 @@ const defaultRitualMaterialsValidator = (
   }
 
   const totalLevel = materials.map((material) => material.lvl ?? 0).reduce((sum, lvl) => sum + lvl, 0);
-  const minLevel = min(...materials.map((material) => material.lvl ?? 0));
+  const minLevel = materials.map((material) => material.lvl ?? 0).min() ?? 0;
 
   //レベルが不足する場合、不可
   if (totalLevel < monster.lvl) {

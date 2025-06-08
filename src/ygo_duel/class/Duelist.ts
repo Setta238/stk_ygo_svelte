@@ -14,7 +14,7 @@ import {
   type TSpellSpeed,
   type ValidatedActionInfo,
 } from "./DuelEntityAction";
-import { max, min } from "@stk_utils/funcs/StkMathUtils";
+import { min } from "@stk_utils/funcs/StkMathUtils";
 import type { TBanishProcType } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
 import { DuelEntityShortHands } from "./DuelEntityShortHands";
 import type { EntityDefinition } from "./DuelEntityDefinition";
@@ -957,22 +957,24 @@ export class Duelist {
     }
 
     // 相手フィールドの状態取得
-    const maxEnemyAtk = max(
-      ...this.getOpponentPlayer()
+    const maxEnemyAtk =
+      this.getOpponentPlayer()
         .getMonstersOnField()
         .filter((enemy) => enemy.battlePosition === "Attack")
-        .map((enemy) => enemy.atk ?? 0),
-      1600
-    );
-    const minEnemyAtkDef = min(
-      ...this.getOpponentPlayer()
+        .map((enemy) => enemy.atk ?? 0)
+        .max() ?? 1600;
+    const minEnemyAtkDef =
+      this.getOpponentPlayer()
         .getMonstersOnField()
-        .map((enemy) => (enemy.battlePosition === "Set" ? 1500 : ((enemy.battlePosition === "Attack" ? enemy.atk : enemy.def) ?? 0))),
-      1500
-    );
+        .map((enemy) => (enemy.battlePosition === "Set" ? 1500 : ((enemy.battlePosition === "Attack" ? enemy.atk : enemy.def) ?? 0)))
+        .min() ?? 1500;
 
     const allies = this.getMonstersOnField();
-    const maxAllyAtk = max(...allies.filter((enemy) => enemy.battlePosition === "Attack").map((enemy) => enemy.atk ?? 0), 0);
+    const maxAllyAtk =
+      allies
+        .filter((enemy) => enemy.battlePosition === "Attack")
+        .map((enemy) => enemy.atk ?? 0)
+        .max() ?? 0;
 
     // 攻撃表示への変更判断はメイン１、メイン２両方行う
     let posActions = _actionInfos

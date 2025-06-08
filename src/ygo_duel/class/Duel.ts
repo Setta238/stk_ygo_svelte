@@ -113,6 +113,7 @@ export class Duel {
   public isEnded: boolean;
   public winner: Duelist | undefined;
   public reasonOfEnd: string = "";
+  public twitterShareText: string = "";
   private coin = false;
   private readonly startMode: TDuelStartMode;
   public constructor(
@@ -214,6 +215,20 @@ export class Duel {
         this.isEnded = true;
         this.winner = error.winner;
         this.reasonOfEnd = error.message;
+        if (this.winner) {
+          const winner = this.winner;
+          if (this.winner.duelistType === "Player" && this.winner.getOpponentPlayer().profile.npcType === "FtkChallenge") {
+            this.twitterShareText = `ワンターンキル成功！ 使用デッキ：${this.winner.deckInfo.name}`;
+            // FtkChallengeでは相手のチェーンブロックに乗る効果はすべて妨害のはず。
+            const qty = this.chainBlockLog.records
+              .filter((rec) => rec.chainBlockInfo.activator === winner.getOpponentPlayer())
+              .filter((rec) => rec.chainBlockInfo.action.entity.owner === winner.getOpponentPlayer())
+              .filter((rec) => rec.chainBlockInfo.action.isWithChainBlock).length;
+            if (qty) {
+              this.twitterShareText += ` 妨害貫通：${qty}枚 我こそそりてあを極めし者なり！`;
+            }
+          }
+        }
         this.log.info(error.winner ? `デュエル終了。勝者${error.winner.profile.name}。${error.message}` : `デュエル終了。引き分け。${error.message}`);
         this.view.requireUpdate();
         this.onDuelEndEvent.trigger();

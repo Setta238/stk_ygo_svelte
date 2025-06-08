@@ -27,6 +27,8 @@
   let selectedDeckId = 0;
   let npcDescription = "";
   let selectedNpc: IDuelistProfile | undefined = undefined;
+  const shareUrl = "https://setta238.github.io/stk_ygo_svelte/";
+  const shareHashTags = "遊戯王deそりてあ";
   const userProfilePromise = DuelistProfile.getOrCreateNew(idb).then((userProfile) => {
     gameMode = gameModes.includes(userProfile.previousGameMode) ? userProfile.previousGameMode : "FtkChallenge";
     setNpc(userProfile.previousNpcId);
@@ -352,7 +354,23 @@
         <div class="result_title result_draw">DRAW</div>
       {/if}
       <div class="reason_of_end">{duel.reasonOfEnd}</div>
-      <button class="white_button" on:click={onReturnToTopClick}>TOPへ戻る</button>
+      {#if selectedNpc?.npcType === "FtkChallenge"}
+        {#if duel.winner?.seat === "Below"}
+          <div class="twitter_share_button_wrapper">
+            <a
+              href="https://x.com/share?url={shareUrl}&amp;text={duel.twitterShareText}&amp;hashtags={shareHashTags}"
+              rel="nofollow"
+              target="_blank"
+              class="twitter_share_button"
+            >
+              X(twitter)でシェアする
+            </a>
+          </div>
+        {/if}
+      {/if}
+      <div>
+        <button class="white_button" on:click={onReturnToTopClick}>TOPへ戻る</button>
+      </div>
     </div>
   {/if}
 </main>
@@ -526,5 +544,18 @@
   .white_button:hover {
     background: #67c5ff;
     color: white;
+  }
+  .twitter_share_button_wrapper {
+    pointer-events: initial;
+  }
+  .twitter_share_button {
+    display: inline-block;
+    color: #ffffff;
+    font-size: 2rem;
+    font-weight: 500;
+    padding: 1rem 5rem;
+    line-height: 1em;
+    border-radius: 2px;
+    background: #000000;
   }
 </style>

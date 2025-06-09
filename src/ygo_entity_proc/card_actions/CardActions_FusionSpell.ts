@@ -1,8 +1,7 @@
 import { faceupBattlePositions, type TBattlePosition } from "@ygo/class/YgoTypes";
 import type { ChainBlockInfoBase, SummonMaterialInfo, ChainBlockInfo, CardActionDefinitionFunctions, TActionTag } from "@ygo_duel/class/DuelEntityAction";
-import { DuelEntity } from "@ygo_duel/class/DuelEntity";
+import { DuelEntity, type TDuelEntityFace } from "@ygo_duel/class/DuelEntity";
 import {
-  duelFieldCellTypes,
   cellTypeToDefaultPosition,
   type DuelFieldCell,
   type DuelFieldCellType,
@@ -11,11 +10,9 @@ import {
   type TBundleCellType,
 } from "@ygo_duel/class/DuelFieldCell";
 import { IllegalCancelError, SystemError } from "@ygo_duel/class/Duel";
-import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { isFilterTypeFusionMaterialInfo, isNameTypeFusionMaterialInfo, isOvermuchTypeFusionMaterialInfo } from "@ygo_duel/class/DuelEntityDefinition";
 import { defaultPrepare } from "./CardActions";
-import { getKeys } from "@stk_utils/funcs/StkObjectUtils";
-export type MaterialDestMapper = { [from in DuelFieldCellType]: { to: TBundleCellType; position?: TDuelEntityMovePos } };
+export type MaterialDestMapper = { [from in DuelFieldCellType]: { to: TBundleCellType; position?: TDuelEntityMovePos; face?: TDuelEntityFace } };
 
 /**
  * 追加素材分を含まないパターンとして合致する場合、値を返す
@@ -121,7 +118,10 @@ const validateFusionMaterials = (
 const collectAllMaterials = (
   myInfo: ChainBlockInfoBase<unknown>,
   materialsFrom: Readonly<DuelFieldCellType[]>,
-  requisitionFrom?: Readonly<DuelFieldCellType[]>
+  options: {
+    materialDestMapper?: Partial<MaterialDestMapper>;
+    requisitionFrom?: Readonly<DuelFieldCellType[]>;
+  } = {}
 ): DuelEntity[] => {
   // 指定されたセルから全ての素材にできるモンスターを収集する。
   const allMaterials = myInfo.activator
@@ -131,19 +131,28 @@ const collectAllMaterials = (
     .filter((card) => card.face === "FaceUp" || card.cell.cellType !== "Banished")
     .filter((monster) => monster.canBeEffected(myInfo.activator, myInfo.action.entity, myInfo.action));
 
-  if (requisitionFrom) {
+  if (options.requisitionFrom) {
     allMaterials.push(
       ...myInfo.activator
         .getOpponentPlayer()
-        .getCells(...requisitionFrom)
+        .getCells(...options.requisitionFrom)
         .flatMap((cell) => cell.cardEntities)
         .filter((card) => card.isMonster)
         .filter((card) => card.face === "FaceUp")
         .filter((monster) => monster.canBeEffected(myInfo.activator, myInfo.action.entity, myInfo.action))
     );
   }
+  return allMaterials.filter((material) => {
+    let cellType: TBundleCellType = material.cell.cellType === "Graveyard" ? "Banished" : "Graveyard";
+    if (options.materialDestMapper) {
+      const item = options.materialDestMapper[material.cell.cellType];
+      if (item) {
+        cellType = item.to ?? cellType;
+      }
+    }
 
-  return allMaterials;
+    return cellType !== "Banished" || material.canBeBanished("BanishAsEffect", myInfo.activator, myInfo.action.entity, myInfo.action);
+  });
 };
 
 /**
@@ -169,7 +178,7 @@ function* getEnableFusionSummonPatterns(
   }
 
   // 指定されたセルから全ての素材にできるモンスターを収集する。
-  const allMaterials = collectAllMaterials(myInfo, materialsFrom, options?.requisitionFrom);
+  const allMaterials = collectAllMaterials(myInfo, materialsFrom, options);
 
   if (!allMaterials.length) {
     return;
@@ -245,8 +254,7 @@ const defaultFusionSummonExecute = async (
 
   // 任意で追加可能な融合素材がある場合、融合素材モンスターの選択肢に含める。
   if (overmuchMaterialInfos.length) {
-    choices.push(...collectAllMaterials(myInfo, materialsFrom, options.requisitionFrom));
-    choices = [...choices, ...collectAllMaterials(myInfo, materialsFrom, options.requisitionFrom)].getDistinct();
+    choices = [...choices, ...collectAllMaterials(myInfo, materialsFrom, options)].getDistinct();
   }
 
   // 逆引きできるように準備
@@ -262,16 +270,14 @@ const defaultFusionSummonExecute = async (
       (await myInfo.activator.waitSelectEntities(
         choices,
         undefined,
-        (selected) => {
-          console.log(selected, entiteisPatterns);
-          return entiteisPatterns.some(
+        (selected) =>
+          entiteisPatterns.some(
             (item) =>
               item.requiredSeqList.every((seq) => selected.map((selected) => selected.seq).includes(seq)) &&
               selected
                 .filter((selected) => !item.requiredSeqList.includes(selected.seq))
                 .every((selected) => overmuchMaterialInfos.some((info) => info.filter(selected)))
-          );
-        },
+          ),
         "融合素材とするモンスターを選択",
         false
       )) ?? materials;
@@ -302,35 +308,35 @@ const defaultFusionSummonExecute = async (
         };
       })
   );
-  const materialDestMapper = {
-    ...duelFieldCellTypes.reduce((wip, current) => {
-      const tmp = { ...wip };
-      tmp[current] = current === "Graveyard" ? { to: "Banished" } : { to: "Graveyard" };
-      return tmp;
-    }, {} as MaterialDestMapper),
-    ...options.materialDestMapper,
-  };
-  const mapped = Object.groupBy(materials, (m) => m.cell.cellType);
-
-  for (const cellType of getKeys(mapped)) {
-    const dest = materialDestMapper[cellType].to;
-    const position = materialDestMapper[cellType].position ?? cellTypeToDefaultPosition[dest];
-    const face = cellTypeToDefaultFace[dest];
-    if (!mapped[cellType]) {
-      continue;
-    }
-
-    await DuelEntityShortHands.bringManyToSameCellForTheSameReason(
-      dest,
-      position,
-      mapped[cellType],
-      face,
-      "Vertical",
-      ["FusionMaterial", "Effect", "SpecialSummonMaterial"],
-      myInfo.action.entity,
-      myInfo.activator
-    );
-  }
+  await DuelEntity.moveMany(
+    materials.map((material) => {
+      let _to: TBundleCellType = material.cell.cellType === "Graveyard" ? "Banished" : "Graveyard";
+      let position: TDuelEntityMovePos = cellTypeToDefaultPosition[_to];
+      let face: TDuelEntityFace = cellTypeToDefaultFace[_to];
+      if (options.materialDestMapper) {
+        const item = options.materialDestMapper[material.cell.cellType];
+        if (item) {
+          _to = item.to ?? _to;
+          position = item?.position ?? cellTypeToDefaultPosition[_to];
+          face = item?.face ?? cellTypeToDefaultFace[_to];
+        }
+      }
+      const to = monster.field.getCells(_to).filter((cell) => cell.owner === myInfo.activator)[0];
+      return {
+        entity: material,
+        to,
+        position,
+        kind: material.origin.kind,
+        face,
+        orientation: "Vertical",
+        pos: position,
+        movedAs: ["Effect", "FusionMaterial"],
+        movedBy: myInfo.action.entity,
+        actionOwner: myInfo.activator,
+        chooser: undefined,
+      };
+    })
+  );
 
   //融合召喚
   await myInfo.activator.summon(

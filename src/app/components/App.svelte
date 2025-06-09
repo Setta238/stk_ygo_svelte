@@ -29,6 +29,7 @@
   let selectedNpc: IDuelistProfile | undefined = undefined;
   const shareUrl = "https://setta238.github.io/stk_ygo_svelte/";
   const shareHashTags = "遊戯王deそりてあ";
+  const shareAcountName = "ninja_no";
   const userProfilePromise = DuelistProfile.getOrCreateNew(idb).then((userProfile) => {
     gameMode = gameModes.includes(userProfile.previousGameMode) ? userProfile.previousGameMode : "FtkChallenge";
     setNpc(userProfile.previousNpcId);
@@ -354,19 +355,17 @@
         <div class="result_title result_draw">DRAW</div>
       {/if}
       <div class="reason_of_end">{duel.reasonOfEnd}</div>
-      {#if selectedNpc?.npcType === "FtkChallenge"}
-        {#if duel.winner?.seat === "Below"}
-          <div class="twitter_share_button_wrapper">
-            <a
-              href="https://x.com/share?url={shareUrl}&amp;text={duel.twitterShareText}&amp;hashtags={shareHashTags}"
-              rel="nofollow"
-              target="_blank"
-              class="twitter_share_button"
-            >
-              X(twitter)でシェアする
-            </a>
-          </div>
-        {/if}
+      {#if duel.twitterShareText}
+        <div class="twitter_share_button_wrapper">
+          <a
+            href="https://x.com/share?url={shareUrl}&amp;text={duel.twitterShareText}&amp;hashtags={shareHashTags}&amp;via={shareAcountName}"
+            rel="nofollow"
+            target="_blank"
+            class="twitter_share_button"
+          >
+            X(twitter)でシェアする
+          </a>
+        </div>
       {/if}
       <div>
         <button class="white_button" on:click={onReturnToTopClick}>TOPへ戻る</button>

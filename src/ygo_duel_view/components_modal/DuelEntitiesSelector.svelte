@@ -48,7 +48,7 @@
 
     <div slot="footer" class="modal_window_footer">
       {#if (args.entitiesChoices.qty ?? 1000) > 1}
-        <button disabled={!args.entitiesChoices.validator(selectedList)} onclick={_resolve}>OK</button>
+        <button disabled={!args.entitiesChoices.validator([...selectedList])} onclick={_resolve}>OK</button>
       {/if}
       {#if args.cancelable}
         <button class="cancel_button" onclick={() => resolve(undefined)}>Cancel</button>

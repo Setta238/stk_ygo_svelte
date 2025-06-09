@@ -10,13 +10,12 @@ import {
   cellTypeToDefaultFace,
   type TBundleCellType,
 } from "@ygo_duel/class/DuelFieldCell";
-import { SystemError } from "@ygo_duel/class/Duel";
+import { IllegalCancelError, SystemError } from "@ygo_duel/class/Duel";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { isFilterTypeFusionMaterialInfo, isNameTypeFusionMaterialInfo, isOvermuchTypeFusionMaterialInfo } from "@ygo_duel/class/DuelEntityDefinition";
 import { defaultPrepare } from "./CardActions";
 import { getKeys } from "@stk_utils/funcs/StkObjectUtils";
-
-type MaterialDestMapper = { [from in DuelFieldCellType]: { to: TBundleCellType; position?: TDuelEntityMovePos } };
+export type MaterialDestMapper = { [from in DuelFieldCellType]: { to: TBundleCellType; position?: TDuelEntityMovePos } };
 
 /**
  * 追加素材分を含まないパターンとして合致する場合、値を返す
@@ -119,6 +118,34 @@ const validateFusionMaterials = (
   );
 };
 
+const collectAllMaterials = (
+  myInfo: ChainBlockInfoBase<unknown>,
+  materialsFrom: Readonly<DuelFieldCellType[]>,
+  requisitionFrom?: Readonly<DuelFieldCellType[]>
+): DuelEntity[] => {
+  // 指定されたセルから全ての素材にできるモンスターを収集する。
+  const allMaterials = myInfo.activator
+    .getCells(...materialsFrom)
+    .flatMap((cell) => cell.cardEntities)
+    .filter((card) => card.isMonster)
+    .filter((card) => card.face === "FaceUp" || card.cell.cellType !== "Banished")
+    .filter((monster) => monster.canBeEffected(myInfo.activator, myInfo.action.entity, myInfo.action));
+
+  if (requisitionFrom) {
+    allMaterials.push(
+      ...myInfo.activator
+        .getOpponentPlayer()
+        .getCells(...requisitionFrom)
+        .flatMap((cell) => cell.cardEntities)
+        .filter((card) => card.isMonster)
+        .filter((card) => card.face === "FaceUp")
+        .filter((monster) => monster.canBeEffected(myInfo.activator, myInfo.action.entity, myInfo.action))
+    );
+  }
+
+  return allMaterials;
+};
+
 /**
  * 追加素材分を含まないパターンを列挙する
  * @param myInfo
@@ -142,30 +169,14 @@ function* getEnableFusionSummonPatterns(
   }
 
   // 指定されたセルから全ての素材にできるモンスターを収集する。
-  const materials = myInfo.activator
-    .getCells(...materialsFrom)
-    .flatMap((cell) => cell.cardEntities)
-    .filter((card) => card.isMonster)
-    .filter((card) => card.face === "FaceUp" || card.cell.cellType !== "Banished")
-    .filter((monster) => monster.canBeEffected(myInfo.activator, myInfo.action.entity, myInfo.action));
+  const allMaterials = collectAllMaterials(myInfo, materialsFrom, options?.requisitionFrom);
 
-  if (options?.requisitionFrom) {
-    materials.push(
-      ...myInfo.activator
-        .getOpponentPlayer()
-        .getCells(...options.requisitionFrom)
-        .flatMap((cell) => cell.cardEntities)
-        .filter((card) => card.isMonster)
-        .filter((card) => card.face === "FaceUp")
-        .filter((monster) => monster.canBeEffected(myInfo.activator, myInfo.action.entity, myInfo.action))
-    );
-  }
-
-  if (!materials.length) {
+  if (!allMaterials.length) {
     return;
   }
+
   const cells = [...myInfo.activator.getMonsterZones(), ...myInfo.activator.duel.field.getCells("ExtraMonsterZone")];
-  const posList: TBattlePosition[] = ["Attack", "Defense"];
+  const posList = faceupBattlePositions;
 
   //全パターンを試し、融合召喚可能なパターンを全て列挙する。
   for (const monster of monsters) {
@@ -177,28 +188,29 @@ function* getEnableFusionSummonPatterns(
       continue;
     }
 
-    // ★処理負荷軽減のため、単純な事前チェックを行う。
+    // 必須素材を分離、整理
+    const requiredNameMaterials = requiredMaterials.filter(isNameTypeFusionMaterialInfo);
+    const requiredFilterMaterials = requiredMaterials.filter(isFilterTypeFusionMaterialInfo);
+    const hasNameTypeFusionMaterialInfo = requiredNameMaterials.length > 0;
 
-    if (
-      materials.every((material) => !material.status.fusionSubstitute) &&
-      requiredMaterials.filter(isNameTypeFusionMaterialInfo).some((info) => materials.every((material) => material.nm !== info.cardName))
-    ) {
-      // 融合素材代用モンスターが存在せず、名称指定の素材に合致するモンスターがいない場合、不可
-      continue;
-    }
-    if (requiredMaterials.filter(isFilterTypeFusionMaterialInfo).some((info) => materials.every((material) => !info.filter(material)))) {
-      // 条件指定素材に合致するモンスターがいない場合、不可
-      continue;
-    }
-
-    for (const pattern of materials
+    // ★処理負荷軽減のため、素材を絞り込む
+    //    ※絞り込まないと、call stackがオーバーしてエラーになる
+    const materials = allMaterials
       .filter((material) => material !== monster)
-      .getAllOnOffPattern()
-      .filter((pattern) => pattern.length === requiredMaterials.length)) {
+      .filter(
+        (material) =>
+          (material.status.fusionSubstitute && hasNameTypeFusionMaterialInfo) ||
+          requiredNameMaterials.some((info) => info.cardName === material.nm) ||
+          requiredFilterMaterials.some((info) => info.filter(material))
+      );
+    if (materials.length < requiredMaterials.length) {
+      continue;
+    }
+
+    for (const pattern of materials.getAllOnOffPattern(requiredMaterials.length, requiredMaterials.length)) {
       const materialInfos = validateFusionMaterials(monster, myInfo, posList, cells, pattern, materialValidator);
       if (materialInfos) {
         yield { monster, materialInfos };
-        console.log(monster, materialInfos);
       }
     }
   }
@@ -208,21 +220,34 @@ const defaultFusionSummonExecute = async (
   myInfo: ChainBlockInfo<unknown>,
   ...args: Required<Parameters<typeof getDefaultFusionSummonAction>>
 ): Promise<boolean> => {
+  const [, , materialsFrom, , options] = args;
   // パターンを先に列挙しておく
   const patternInfos = getEnableFusionSummonPatterns(myInfo, ...args).toArray();
 
+  // 融合召喚可能なモンスターを抽出
   const monsters = patternInfos.map((info) => info.monster).getDistinct();
 
+  // 融合召喚するモンスターを決定
   const monster = await myInfo.activator.waitSelectEntity(monsters, "融合召喚するモンスターを選択。");
 
   if (!monster) {
-    return false;
+    throw new IllegalCancelError(myInfo, ...args);
   }
 
-  const overmuchs = monster.fusionMaterialInfos.filter(isOvermuchTypeFusionMaterialInfo);
-
-  // 選択されなかったモンスターを除去
+  // 選択されなかったモンスターのパターンを除去
   const patterns = patternInfos.filter((info) => info.monster === monster).map((info) => info.materialInfos);
+
+  // 融合素材として選択される可能性のあるモンスター
+  let choices = patterns.flatMap((p) => p.map((info) => info.material)).getDistinct();
+
+  // 任意で追加可能な融合素材情報を取得
+  const overmuchMaterialInfos = monster.fusionMaterialInfos.filter(isOvermuchTypeFusionMaterialInfo);
+
+  // 任意で追加可能な融合素材がある場合、融合素材モンスターの選択肢に含める。
+  if (overmuchMaterialInfos.length) {
+    choices.push(...collectAllMaterials(myInfo, materialsFrom, options.requisitionFrom));
+    choices = [...choices, ...collectAllMaterials(myInfo, materialsFrom, options.requisitionFrom)].getDistinct();
+  }
 
   // 逆引きできるように準備
   const entiteisPatterns = patterns.map((infos) => {
@@ -232,18 +257,21 @@ const defaultFusionSummonExecute = async (
   // 初期候補をセット
   let materials = patterns[0].map((info) => info.material);
 
-  if (patterns.length > 1 || overmuchs.length) {
-    const choices = patterns.flatMap((p) => p.map((info) => info.material)).getDistinct();
+  if (patterns.length > 1 || overmuchMaterialInfos.length) {
     materials =
       (await myInfo.activator.waitSelectEntities(
         choices,
         undefined,
-        (selected) =>
-          entiteisPatterns.some(
+        (selected) => {
+          console.log(selected, entiteisPatterns);
+          return entiteisPatterns.some(
             (item) =>
               item.requiredSeqList.every((seq) => selected.map((selected) => selected.seq).includes(seq)) &&
-              selected.filter((selected) => !item.requiredSeqList.includes(selected.seq)).every((selected) => overmuchs.some((info) => info.filter(selected)))
-          ),
+              selected
+                .filter((selected) => !item.requiredSeqList.includes(selected.seq))
+                .every((selected) => overmuchMaterialInfos.some((info) => info.filter(selected)))
+          );
+        },
         "融合素材とするモンスターを選択",
         false
       )) ?? materials;
@@ -253,7 +281,9 @@ const defaultFusionSummonExecute = async (
   const entiteisPattern = entiteisPatterns.find(
     (item) =>
       item.requiredSeqList.every((seq) => materials.map((selected) => selected.seq).includes(seq)) &&
-      materials.filter((selected) => !item.requiredSeqList.includes(selected.seq)).every((selected) => overmuchs.some((info) => info.filter(selected)))
+      materials
+        .filter((selected) => !item.requiredSeqList.includes(selected.seq))
+        .every((selected) => overmuchMaterialInfos.some((info) => info.filter(selected)))
   );
   if (!entiteisPattern) {
     throw new SystemError("想定されない状態", myInfo, materials);
@@ -272,7 +302,6 @@ const defaultFusionSummonExecute = async (
         };
       })
   );
-  const [, , , , options] = args;
   const materialDestMapper = {
     ...duelFieldCellTypes.reduce((wip, current) => {
       const tmp = { ...wip };

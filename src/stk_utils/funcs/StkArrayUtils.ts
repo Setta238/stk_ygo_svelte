@@ -8,7 +8,7 @@ declare global {
     shuffle(): T[];
     reset(...newArray: T[]): void;
     union<A extends T>(another: Readonly<A[]>): A[];
-    getAllOnOffPattern(): Generator<T[]>;
+    getAllOnOffPattern(lengthLowerBound?: number, lengthUpperBound?: number): Generator<T[]>;
     getDistinct(): T[];
     distinct(): void;
     max(comparer?: (left: T, right: T) => number): T | undefined;
@@ -41,14 +41,16 @@ Array.prototype.union = function <T>(another: T[]): T[] {
   return (this as T[]).filter((t) => another.find((a) => t === a));
 };
 
-Array.prototype.getAllOnOffPattern = function* <T>(): Generator<T[]> {
+Array.prototype.getAllOnOffPattern = function* <T>(lengthLowerBound: number = 0, lengthUpperBound: number = Number.MAX_SAFE_INTEGER): Generator<T[]> {
   const buffer: T[][] = [[]];
-  yield [];
+  if (lengthLowerBound <= 0) {
+    yield [];
+  }
 
   for (const item of this) {
     const tmp = buffer.map((pattern) => [...pattern, item]);
-    yield* tmp;
-    buffer.push(...tmp);
+    yield* tmp.filter((t) => t.length >= lengthLowerBound && t.length <= lengthUpperBound);
+    buffer.push(...tmp.filter((t) => t.length < lengthUpperBound));
   }
 };
 // Array.prototype.getAllOnOffPattern = function* <T>(qty?: number, shuffle?: boolean): Generator<T[]> {

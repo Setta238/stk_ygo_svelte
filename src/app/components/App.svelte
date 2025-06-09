@@ -407,12 +407,12 @@
     padding-left: 0.3rem;
   }
   .link.link_left {
-    position: absolute;
+    position: fixed;
     top: 0.3rem;
     left: 1rem;
   }
   .link.link_right {
-    position: absolute;
+    position: fixed;
     top: 0.3rem;
     right: 1rem;
   }

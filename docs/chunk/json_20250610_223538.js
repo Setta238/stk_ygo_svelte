@@ -1816,4 +1816,13 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 この効果は、その通常罠カード発動時の効果と同じになる。
 (2)：墓地のこのカードを除外し、ＬＰを半分払い、
 「トランザクション・ロールバック」以外の自分の墓地の通常罠カード１枚を対象として発動できる。
-この効果は、その通常罠カード発動時の効果と同じになる。`,kind:"Trap",trapCategory:"Normal",wikiEncodedName:"%A1%D4%A5%C8%A5%E9%A5%F3%A5%B6%A5%AF%A5%B7%A5%E7%A5%F3%A1%A6%A5%ED%A1%BC%A5%EB%A5%D0%A5%C3%A5%AF%A1%D5"}};export{e as j};
+この効果は、その通常罠カード発動時の効果と同じになる。`,kind:"Trap",trapCategory:"Normal",wikiEncodedName:"%A1%D4%A5%C8%A5%E9%A5%F3%A5%B6%A5%AF%A5%B7%A5%E7%A5%F3%A1%A6%A5%ED%A1%BC%A5%EB%A5%D0%A5%C3%A5%AF%A1%D5"},"鎖龍蛇－スカルデット":{name:"鎖龍蛇－スカルデット",nameKana:"",description:`【リンクマーカー：上/左下/下/右下】
+カード名が異なるモンスター２体以上
+(1)：このカードは、このカードのＬ素材としたモンスターの数によって以下の効果を得る。
+●２体以上：このカードのリンク先にモンスターが召喚・特殊召喚された場合に発動する。
+そのモンスターの攻撃力・守備力は３００アップする。
+●３体以上：１ターンに１度、自分メインフェイズに発動できる。
+手札からモンスター１体を特殊召喚する。
+●４体：このカードがＬ召喚した時に発動できる。
+自分は４枚ドローする。
+その後、自分の手札を３枚選んで好きな順番でデッキの下に戻す。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Link","Effect"],link:4,attack:2800,attributes:["Earth"],types:["Dragon"],wikiEncodedName:"%A1%D4%BA%BF%CE%B6%BC%D8%A1%DD%A5%B9%A5%AB%A5%EB%A5%C7%A5%C3%A5%C8%A1%D5",linkArrowKeys:["TopCenter","BottomLeft","BottomCenter","BottomRight"]}};export{e as j};

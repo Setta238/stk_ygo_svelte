@@ -316,13 +316,13 @@ export abstract class DuelFacilitatorBase {
       if (chainBlockInfo.state === "done" || chainBlockInfo.state === "failed") {
         for (const duelist of [this.turnPlayer, this.nonTurnPlayer]) {
           // エクゾディア判定
-          for (const afterChainBlockEffect of duelist.getEnableActions(["Exodia"], ["Normal"], [chainBlockInfo])) {
+          for (const afterChainBlockEffect of duelist.getEnableActions(["Exodia"], ["Normal"], [])) {
             await afterChainBlockEffect.action.directExecute(duelist, chainBlockInfo, false);
           }
           for (const afterChainBlockEffect of duelist.getEnableActions(["AfterChainBlock"], ["Normal"], [chainBlockInfo])) {
             await afterChainBlockEffect.action.directExecute(duelist, chainBlockInfo, false);
             // エクゾディア判定
-            for (const afterChainBlockEffect of duelist.getEnableActions(["Exodia"], ["Normal"], [chainBlockInfo])) {
+            for (const afterChainBlockEffect of duelist.getEnableActions(["Exodia"], ["Normal"], [])) {
               await afterChainBlockEffect.action.directExecute(duelist, chainBlockInfo, false);
             }
           }

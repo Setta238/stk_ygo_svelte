@@ -554,7 +554,7 @@ export class Duelist {
       .filter((action) => action.canExecute(this))
       .filter((action) => enableSpellSpeeds.includes(action.spellSpeed))
       .filter((action) => enableCardPlayTypes.includes(action.playType))
-      .filter((action) => nextChainBlockFilter(this, action))
+      .filter((action) => !action.isWithChainBlock || nextChainBlockFilter(this, action))
       .map((action) => action.validate(this, chainBlockInfos))
       .filter((info): info is ValidatedActionInfo => info !== undefined);
   };

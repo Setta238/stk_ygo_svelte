@@ -50,7 +50,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
 
           myInfo.data = selected.seq;
 
-          return { selectedEntities: [], chainBlockTags: selected.tags, nextChainBlockFilter: () => false };
+          return { selectedEntities: [], chainBlockTags: selected.tags, nextChainBlockFilter: (activator, action) => !action.isWithChainBlock };
         },
         execute: async (myInfo) => {
           if (myInfo.data === 0) {

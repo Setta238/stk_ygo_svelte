@@ -36,6 +36,15 @@ export const getEffectActiovationType = (actionType: TEntityActionType): TEffect
   return "NonActivate";
 };
 
+export const effectCountUpperBoundKeys = [
+  "isOnlyNTimesPerTurn",
+  "isOnlyNTimesPerDuel",
+  "isOnlyNTimesPerTurnIfFaceup",
+  "isOnlyNTimesPerChain",
+  "isOnlyNTimesIfFaceup",
+] as const;
+export type TEffectCountUpperBoundKey = (typeof effectCountUpperBoundKeys)[number];
+
 export type EntityActionDefinitionBase = {
   title: string;
   playType: TEntityActionType;
@@ -44,13 +53,8 @@ export type EntityActionDefinitionBase = {
   executableCells: Readonly<DuelFieldCellType[]>;
   executablePeriods: Readonly<TDuelPeriodKey[]>;
   executableDuelistTypes?: Readonly<TExecutableDuelistType[]>;
-  isOnlyNTimesPerTurn?: number;
-  isOnlyNTimesPerDuel?: number;
-  isOnlyNTimesPerTurnIfFaceup?: number;
-  isOnlyNTimesPerChain?: number;
-  isOnlyNTimesIfFaceup?: number;
   actionGroupName?: string;
-};
+} & { [key in TEffectCountUpperBoundKey]?: number };
 
 export type EntityActionExecuteInfo = {
   action: EntityActionBase;
@@ -103,6 +107,61 @@ export class EntityActionBase {
   public get isOnlyNTimesPerChain() {
     return this.definition.isOnlyNTimesPerChain ?? 0;
   }
+
+  /**
+   * 表示用。複合条件を考慮していないので、処理の判定に使用するのは不可
+   */
+  public get actionCountUpperBoundKey() {
+    return effectCountUpperBoundKeys.find((key) => this[key]);
+  }
+
+  /**
+   * 表示用。複合条件を考慮していないので、処理の判定に使用するのは不可
+   */
+  public get actionCountUpperBound() {
+    const key = this.actionCountUpperBoundKey;
+
+    if (!key) {
+      return undefined;
+    }
+
+    return this[key];
+  }
+
+  /**
+   * 表示用。複合条件を考慮していないので、処理の判定に使用するのは不可
+   */
+  public get actionCount(): number | undefined {
+    const key = this.actionCountUpperBoundKey;
+
+    if (!key) {
+      return undefined;
+    }
+
+    if (key === "isOnlyNTimesIfFaceup" || key === "isOnlyNTimesPerTurnIfFaceup") {
+      return this.entity.counterHolder.getActionCount(this);
+    }
+
+    // このチェーン上で、同一の効果が発動している回数をカウント。
+    const currentChainCount = this.duel.chainBlockInfos.filter((info) => this.isSameGroup(info.action)).length;
+
+    if (key === "isOnlyNTimesPerChain") {
+      return currentChainCount;
+    }
+
+    let records = this.duel.chainBlockLog.records;
+
+    if (key === "isOnlyNTimesPerTurn") {
+      records = records.filter((rec) => rec.clock.turn === this.duel.clock.turn);
+    }
+
+    const count = records
+      .filter((rec) => !rec.chainBlockInfo.isNegatedActivationBy)
+      .filter((rec) => this.isSameGroup(rec.chainBlockInfo.action))
+      .filter((rec) => rec.chainBlockInfo.activator === this.entity.controller).length;
+    return count + currentChainCount;
+  }
+
   public get actionGroupName() {
     return this.definition.actionGroupName;
   }
@@ -118,6 +177,10 @@ export class EntityActionBase {
     this.entity = entity;
     this._definition = definition;
   }
+
+  public readonly isSame = (other: EntityActionBase) => this.entity.origin.name === other.entity.origin.name && this.title === other.title;
+  public readonly isSameGroup = (other: EntityActionBase) =>
+    this.actionGroupName ? this.entity.origin.name === other.entity.origin.name && this.actionGroupName === other.actionGroupName : this.isSame(other);
 
   public readonly canExecute = (duelist?: Duelist): boolean =>
     this.executableCells.includes(this.entity.cell.cellType) &&

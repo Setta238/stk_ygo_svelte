@@ -7,7 +7,7 @@ import { DuelModalControllerFactory, type DuelModalController } from "@ygo_duel_
 import { EntityAction, type ChainBlockInfo, type DummyActionInfo, type ICardAction, type ValidatedActionInfo } from "../../ygo_duel/class/DuelEntityAction";
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
 import { createPromiseSweet, delay } from "@stk_utils/funcs/StkPromiseUtil";
-import type { TCardDetailMode } from "@ygo_duel_view/components/DuelCardDetail.svelte";
+import type { ShowCardEntityEventArgs } from "@ygo_duel_view/components/DuelCardDetail.svelte";
 import type { TDuelPhase } from "@ygo_duel/class/DuelPeriod";
 import type { EntityActionBase } from "@ygo_duel/class/DuelEntityActionBase";
 import { randomChoice, type ChoicesSweet } from "@ygo_duel/class/DuelUtilTypes";
@@ -77,7 +77,7 @@ export class DuelViewController {
   public get onAnimation() {
     return this.onAnimationStartEvent.expose();
   }
-  private onShowCardEntityEvent = new StkEvent<{ card: DuelEntity; mode: TCardDetailMode }>();
+  private onShowCardEntityEvent = new StkEvent<ShowCardEntityEventArgs>();
   public get onShowCardEntity() {
     return this.onShowCardEntityEvent.expose();
   }
@@ -103,8 +103,8 @@ export class DuelViewController {
     return this.duel.field.cells[row][column];
   };
 
-  public readonly showCardInfo = (card: DuelEntity, mode: TCardDetailMode) => {
-    this.onShowCardEntityEvent.trigger({ card, mode });
+  public readonly showCardInfo = (args: ShowCardEntityEventArgs) => {
+    this.onShowCardEntityEvent.trigger(args);
   };
 
   public readonly dispose = () => {

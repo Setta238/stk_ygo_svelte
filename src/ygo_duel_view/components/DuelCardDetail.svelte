@@ -1,5 +1,6 @@
 <script lang="ts" module>
-  export type TCardDetailMode = "Normal" | "Debug";
+  export type TCardDetailMode = "Normal" | "Detail" | "Debug";
+  export type ShowCardEntityEventArgs = { card: DuelEntity; mode?: TCardDetailMode };
 </script>
 
 <script lang="ts">
@@ -15,6 +16,7 @@
   } from "@ygo/class/YgoTypes";
   import { DuelEntity } from "@ygo_duel/class/DuelEntity";
   export let entity: DuelEntity | undefined = undefined;
+  export let mode: TCardDetailMode = "Normal";
 
   const getInfo = () => (entity ? cardInfoDic[entity.origin.name] : undefined);
 
@@ -23,16 +25,27 @@
       ? `https://www.db.yugioh-card.com/yugiohdb/card_search.action?ope=2&cid=${entity.origin.cardId}`
       : `https://www.db.yugioh-card.com/yugiohdb/card_search.action?ope=1&sess=1&rp=10&mode=&sort=1&keyword=${getInfo()?.name}&stype=1&ctype=&othercon=2&starfr=&starto=&pscalefr=&pscaleto=&linkmarkerfr=&linkmarkerto=&link_m=2&atkfr=&atkto=&deffr=&defto=&releaseDStart=1&releaseMStart=1&releaseYStart=1999&releaseDEnd=&releaseMEnd=&releaseYEnd=`;
   };
-  export let mode: TCardDetailMode = "Normal";
+  const onLeftClick = () => {
+    mode = mode !== "Detail" ? "Detail" : "Normal";
+    console.info(entity);
+    return true;
+  };
   const onRightClick = () => {
-    mode = mode === "Normal" ? "Debug" : "Normal";
+    mode = mode !== "Debug" ? "Debug" : "Normal";
     console.info(entity);
     return true;
   };
 </script>
 
 {#if entity}
-  <div role="contentinfo" class="duel_card duel_card_info {entity.origin.kind} {entity.origin.monsterCategories?.join(' ')}" oncontextmenu={onRightClick}>
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
+  <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+  <div
+    role="contentinfo"
+    class="duel_card duel_card_info {entity.origin.kind} {entity.origin.monsterCategories?.join(' ')}"
+    onclick={onLeftClick}
+    oncontextmenu={onRightClick}
+  >
     <div class="duel_card_info_header">
       <div class="duel_card_info_row">
         <div>{entity.nm}</div>
@@ -41,8 +54,8 @@
         <div>{"★".repeat(entity.lvl || 0)}</div>
         <div>{"☆".repeat(entity.rank || 0)}</div>
       </div>
-      {#if mode === "Normal"}
-        {#if entity.status.monsterCategories?.includes("Pendulum")}
+      {#if mode !== "Debug"}
+        {#if entity.origin.monsterCategories?.includes("Pendulum")}
           <div class="duel_card_info_row" style=" justify-content: space-between;">
             <div>◀ {entity.psL}</div>
             <div>{entity.psR} ▶</div>
@@ -87,6 +100,26 @@
         <div class="duel_card_info_row">
           <pre class="description">{getInfo()?.description}</pre>
         </div>
+      {:else if mode === "Detail"}
+        {#if entity.actions.some((action) => action.actionCountUpperBoundKey)}
+          <div class="duel_card_info_row effect_counter_area">
+            <div class="effect_counter_area_title">効果使用状況</div>
+            <div class="effect_counter_area_body">
+              {#each entity.actions as action}
+                {@const upperBound = action.actionCountUpperBound}
+                {@const count = action.actionCount}
+                {#if upperBound !== undefined && count !== undefined}
+                  <div class="effect_counter_area_item">
+                    <span>{action.title}</span>
+                    <span>{count}</span>
+                    <span>/</span>
+                    <span>{upperBound} </span>
+                  </div>
+                {/if}
+              {/each}
+            </div>
+          </div>
+        {/if}
       {:else}
         <div class="duel_card_info_row">
           <div>
@@ -240,5 +273,22 @@
   }
   .duel_card_info_row > div {
     margin: 0 0.3rem;
+  }
+  .effect_counter_area {
+    display: flex;
+    flex-direction: column;
+    margin: 0.5rem;
+    padding: 0.5rem;
+    border-style: dashed;
+    border-width: 0.1px;
+  }
+  .effect_counter_area_body {
+    padding: 0.2rem 0.8rem;
+  }
+  .effect_counter_area_item {
+    padding: 0.2rem 0.4rem;
+    margin: 0.1rem 0rem;
+    border-style: dotted;
+    border-radius: 0.4rem;
   }
 </style>

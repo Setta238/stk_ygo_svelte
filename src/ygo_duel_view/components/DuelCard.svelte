@@ -33,7 +33,7 @@
   let isDragging = false;
   const showCardInfo = (mode?: TCardDetailMode) => {
     if (entity.face === "FaceUp" || (entity.owner === entity.field.duel.duelists.Below && (entity.isUnderControl || isVisibleForcibly))) {
-      entity.field.duel.view.showCardInfo(entity, mode ?? "Normal");
+      entity.field.duel.view.showCardInfo({ card: entity, mode });
     }
   };
 

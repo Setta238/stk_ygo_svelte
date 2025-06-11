@@ -16,7 +16,7 @@
   import type { DuelistResponseBase, WaitStartEventArg } from "@ygo_duel_view/class/DuelViewController";
 
   import ModalContainer from "@ygo_duel_view/components_modal/DuelModalContainer.svelte";
-  import DuelCardDetail, { type TCardDetailMode } from "./DuelCardDetail.svelte";
+  import DuelCardDetail, { type ShowCardEntityEventArgs, type TCardDetailMode } from "./DuelCardDetail.svelte";
   import DuelFieldCellInfo from "./DuelFieldCellInfo.svelte";
   import type { DummyActionInfo } from "@ygo_duel/class/DuelEntityAction";
   import type { ChoicesSweet } from "@ygo_duel/class/DuelUtilTypes";
@@ -98,9 +98,9 @@
 
   let focusedCard: DuelEntity | undefined = undefined;
   let focusedCardMode: TCardDetailMode = "Normal";
-  const onShowCardEntity = ({ card, mode }: { card: DuelEntity; mode: TCardDetailMode }) => {
+  const onShowCardEntity = ({ card, mode }: ShowCardEntityEventArgs) => {
     focusedCard = card;
-    focusedCardMode = mode;
+    focusedCardMode = mode ?? (focusedCard === card || focusedCardMode === "Normal" ? "Detail" : "Normal");
   };
   duel.view.onShowCardEntity.append(onShowCardEntity);
 

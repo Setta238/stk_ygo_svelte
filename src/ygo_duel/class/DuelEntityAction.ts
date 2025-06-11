@@ -657,7 +657,7 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
     const currentChainCount = chainBlockInfos.filter((info) => this.isSameGroup(info.action)).length;
     if (this.isOnlyNTimesPerDuel > 0) {
       if (
-        this.entity.field.duel.chainBlockLog.records
+        this.duel.chainBlockLog.records
           .filter((rec) => !rec.chainBlockInfo.isNegatedActivationBy)
           .filter((rec) => this.isSameGroup(rec.chainBlockInfo.action))
           .filter((rec) => rec.chainBlockInfo.activator === activator).length +
@@ -669,10 +669,10 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
     }
     if (this.isOnlyNTimesPerTurn > 0) {
       if (
-        this.entity.field.duel.chainBlockLog.records
+        this.duel.chainBlockLog.records
+          .filter((rec) => rec.clock.turn === this.duel.clock.turn)
           .filter((rec) => !rec.chainBlockInfo.isNegatedActivationBy)
           .filter((rec) => this.isSameGroup(rec.chainBlockInfo.action))
-          .filter((rec) => rec.clock.turn === this.entity.field.duel.clock.turn)
           .filter((rec) => rec.chainBlockInfo.activator === activator).length +
           currentChainCount >=
         this.isOnlyNTimesPerTurn
@@ -1020,10 +1020,6 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
     activator.duel.chainBlockLog.push(myInfo);
     return await this.execute(myInfo, []);
   };
-
-  public readonly isSame = (other: EntityAction<unknown>) => this.entity.origin.name === other.entity.origin.name && this.title === other.title;
-  public readonly isSameGroup = (other: EntityAction<unknown>) =>
-    this.actionGroupName ? this.entity.origin.name === other.entity.origin.name && this.actionGroupName === other.actionGroupName : this.isSame(other);
 
   public readonly calcChainBlockTagsForDestroy = (activator: Duelist, entities: DuelEntity[]): TActionTag[] => {
     if (!actionTags.length) {

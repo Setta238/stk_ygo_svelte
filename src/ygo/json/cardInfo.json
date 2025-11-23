@@ -18369,14 +18369,6 @@
       "Fiend"
     ]
   },
-  "にせ融合": {
-    "name": "にせ融合",
-    "nameKana": "",
-    "description": "融合モンスターカードによって決められた融合素材モンスターを自分の手札・デッキ・EXデッキ・フィールド上・墓地から選んでゲームから除外し、融合モンスター１体を融合召喚する",
-    "kind": "Spell",
-    "spellCategory": "Normal",
-    "isForTest": true
-  },
   "ブラック・ホール・ドラゴン": {
     "name": "ブラック・ホール・ドラゴン",
     "nameKana": "",
@@ -24809,7 +24801,8 @@
     "kind": "Monster",
     "monsterCategories": [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     "link": 4,
     "attack": 2800,
@@ -24826,5 +24819,66 @@
       "BottomCenter",
       "BottomRight"
     ]
+  },
+  "にせ融合": {
+    "name": "にせ融合",
+    "nameKana": "",
+    "description": "融合モンスターカードによって決められた融合素材モンスターを自分の手札・デッキ・EXデッキ・フィールド上・墓地から選んでゲームから除外し、融合モンスター１体を融合召喚する",
+    "kind": "Spell",
+    "spellCategory": "Normal",
+    "isForTest": true,
+    "nameTags": [
+      "融合"
+    ]
+  },
+  "アロマセラフィ－ジャスミン": {
+    "name": "アロマセラフィ－ジャスミン",
+    "nameKana": "",
+    "description": "【リンクマーカー：左下/右下】\n植物族モンスター２体\nこのカード名の(2)の効果は１ターンに１度しか使用できない。\n(1)：自分のＬＰが相手より多い場合、このカード及びこのカードのリンク先の植物族モンスターは戦闘では破壊されない。\n(2)：このカードのリンク先の自分のモンスター１体をリリースして発動できる。\nデッキから植物族モンスター１体を守備表示で特殊召喚する。\n(3)：１ターンに１度、自分のＬＰが回復した場合に発動する。\nデッキから植物族モンスター１体を手札に加える。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Link",
+      "Effect"
+    ],
+    "nameTags": [
+      "アロマ"
+    ],
+    "link": 2,
+    "attack": 1800,
+    "attributes": [
+      "Light"
+    ],
+    "types": [
+      "Plant"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%A2%A5%ED%A5%DE%A5%BB%A5%E9%A5%D5%A5%A3%A1%DD%A5%B8%A5%E3%A5%B9%A5%DF%A5%F3%A1%D5",
+    "linkArrowKeys": [
+      "BottomLeft",
+      "BottomRight"
+    ]
+  },
+  "アロマージ－ジャスミン": {
+    "name": "アロマージ－ジャスミン",
+    "nameKana": "",
+    "description": "(1)：自分のＬＰが相手より多く、このカードがモンスターゾーンに存在する限り、自分は通常召喚に加えて１度だけ、\n自分メインフェイズに「アロマージ－ジャスミン」以外の植物族モンスター１体を召喚できる。\n(2)：１ターンに１度、自分のＬＰが回復した場合に発動する。\n自分はデッキから１枚ドローする。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "nameTags": [
+      "アロマ"
+    ],
+    "level": 2,
+    "attack": 100,
+    "defense": 1900,
+    "attributes": [
+      "Light"
+    ],
+    "types": [
+      "Plant"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%A2%A5%ED%A5%DE%A1%BC%A5%B8%A1%DD%A5%B8%A5%E3%A5%B9%A5%DF%A5%F3%A1%D5"
   }
 }

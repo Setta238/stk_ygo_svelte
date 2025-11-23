@@ -243,7 +243,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             const monsters = myInfo.activator.getDeckCell().cardEntities.filter(item.filter);
 
             const cells = myInfo.activator.getMonsterZones();
-            const monster = myInfo.activator.summonMany(
+            const monster = await myInfo.activator.summonMany(
               myInfo.activator,
               "SpecialSummon",
               ["Effect"],

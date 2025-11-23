@@ -39,9 +39,11 @@ export const defaultCanPaySelfSendToGraveyardCost = <T>(myInfo: ChainBlockInfoBa
   myInfo.action.entity.canBeSentToGraveyard(myInfo.activator, myInfo.action.entity, "SendToGraveyardAsCost", myInfo.action);
 
 export const defaultPaySelfSendToGraveyardCost = async <T>(myInfo: ChainBlockInfoBase<T>) => {
+  const costInfo = { cost: myInfo.action.entity, cell: myInfo.action.entity.cell };
+
   await myInfo.action.entity.sendToGraveyard(["Cost"], myInfo.action.entity, myInfo.activator);
 
-  return { sendToGraveyard: [myInfo.action.entity] };
+  return { sendToGraveyard: [costInfo] };
 };
 
 export const defaultCanPaySelfBanishCosts = <T>(myInfo: ChainBlockInfoBase<T>) =>
@@ -50,7 +52,7 @@ export const defaultCanPaySelfBanishCosts = <T>(myInfo: ChainBlockInfoBase<T>) =
 
 export const defaultPaySelfBanishCosts = async <T>(myInfo: ChainBlockInfoBase<T>) => {
   await myInfo.action.entity.banish(["Cost"], myInfo.action.entity, myInfo.activator);
-  return { banish: [myInfo.action.entity] };
+  return { banish: [{ cost: myInfo.action.entity, cell: myInfo.action.entity.cell }] };
 };
 
 export const defaultCanPayBanishCosts = <T>(myInfo: ChainBlockInfoBase<T>, cards: DuelEntity[], minQty: number = 1) =>
@@ -71,10 +73,13 @@ export const defaultPayBanishCosts = async <T>(
 
   const qty = minQty === maxQty ? minQty : undefined;
 
-  const cost =
+  const costs =
     (await myInfo.activator.waitSelectEntities(choises, qty, (selected) => validator(selected, myInfo), "コストとして除外するカードを選択", false)) ?? [];
-  await DuelEntityShortHands.banishManyForTheSameReason(cost, ["Cost"], myInfo.action.entity, myInfo.activator);
-  return { banish: cost };
+
+  const costInfos = costs.map((cost) => ({ cost, cell: cost.cell }));
+
+  await DuelEntityShortHands.banishManyForTheSameReason(costs, ["Cost"], myInfo.action.entity, myInfo.activator);
+  return { banish: costInfos };
 };
 
 export const getPayBanishCostsActionPartical = <T>(
@@ -106,8 +111,8 @@ export const defaultPayDiscardCosts = async <T>(
   filter: (entity: DuelEntity) => boolean = () => true,
   qty: number = 1
 ) => {
-  const cost = await myInfo.activator.discard(qty, "Cost", filter, myInfo.action.entity, myInfo.activator, myInfo.activator, cancelable);
-  return { discard: cost };
+  const costs = await myInfo.activator.discard(qty, "Cost", filter, myInfo.action.entity, myInfo.activator, myInfo.activator, cancelable);
+  return { discard: costs?.map((cost) => ({ cost, cell: myInfo.activator.getHandCell() })) };
 };
 
 export const defaultCanPaySelfDiscardCosts = <T>(myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) =>
@@ -158,8 +163,11 @@ export const getPayReleaseCostActionPartical = <T>(
       if (!costs) {
         return;
       }
+
+      const costInfos = costs.map((cost) => ({ cost, cell: cost.cell }));
+
       await DuelEntityShortHands.releaseManyForTheSameReason(costs, ["Cost"], myInfo.action.entity, myInfo.activator);
-      return { release: costs };
+      return { release: costInfos };
     },
   };
 };

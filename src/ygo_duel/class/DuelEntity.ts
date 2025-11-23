@@ -619,12 +619,19 @@ export class DuelEntity {
       .filter((cell) => cell.isMonsterZoneLikeCell);
   }
 
+  public get pointedToEntities(): DuelEntity[] {
+    if (!this.isOnFieldAsMonsterStrictly) {
+      return [];
+    }
+
+    return [...this.linkArrowDests.map((cell) => cell.cardEntities[0]).filter((monster) => monster)];
+  }
   public get linkedEntities(): DuelEntity[] {
     if (!this.isOnFieldAsMonsterStrictly) {
       return [];
     }
 
-    return [...this.linkArrowDests.map((cell) => cell.cardEntities[0]).map((monster) => monster), ...this.cell.linkArrowSources].getDistinct();
+    return [...this.linkArrowDests.map((cell) => cell.cardEntities[0]).filter((monster) => monster), ...this.cell.linkArrowSources].getDistinct();
   }
   public get coLinkedEntities(): DuelEntity[] {
     if (!this.isOnFieldAsMonsterStrictly) {
@@ -1196,7 +1203,10 @@ export class DuelEntity {
     for (const immdAct of [this, ...this.field.getCardsOnFieldStrictly()]
       .getDistinct()
       .filter((card) => card.immediatelyActions.length)
-      .toSorted((left, right) => left.hadArrivedToFieldAt().totalProcSeq - right.hadArrivedToFieldAt().totalProcSeq)
+      .toSorted(
+        (left, right) =>
+          (left.hadArrivedToFieldAt()?.totalProcSeq ?? Number.MAX_SAFE_INTEGER) - (right.hadArrivedToFieldAt()?.totalProcSeq ?? Number.MAX_SAFE_INTEGER)
+      )
       .flatMap((card) => card.immediatelyActions)) {
       await immdAct.execute(this, oldProps);
     }
@@ -1319,7 +1329,7 @@ declare module "./DuelEntity" {
     getIndexInCell(): number;
     getXyzMaterials(): DuelEntity[];
     wasMovedAfter(clock: IDuelClock): boolean;
-    hadArrivedToFieldAt(): IDuelClock;
+    hadArrivedToFieldAt(): IDuelClock | undefined;
     release(movedAs: TDuelCauseReason[], movedBy: DuelEntity | undefined, movedByWhom: Duelist | undefined): Promise<DuelFieldCell | undefined>;
     ruleDestroy(): Promise<DuelFieldCell | undefined>;
     sendToGraveyard(movedAs: TDuelCauseReason[], movedBy: DuelEntity | undefined, activator: Duelist | undefined): Promise<void>;

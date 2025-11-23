@@ -91,7 +91,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
                   return true;
                 }
                 // コストに含まれているカード及び、それに装備されているカードは対象になりえない
-                const costs = entityCostTypes.flatMap((type) => irregularExecuteInfo.costInfo[type] ?? []);
+                const costs = entityCostTypes.flatMap((type) => irregularExecuteInfo.costInfo[type] ?? []).map((info) => info.cost);
                 costs.push(...costs.flatMap((cost) => cost.info.equipEntities));
                 return !costs.includes(card);
               }),
@@ -154,7 +154,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               return true;
             }
             // コストに含まれているカード及び、それに装備されているカードは対象になりえない
-            const costs = entityCostTypes.flatMap((type) => irregularExecuteInfo.costInfo[type] ?? []);
+            const costs = entityCostTypes.flatMap((type) => irregularExecuteInfo.costInfo[type] ?? []).map((info) => info.cost);
             costs.push(...costs.flatMap((cost) => cost.info.equipEntities));
             return !costs.includes(card);
           })

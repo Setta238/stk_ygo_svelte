@@ -87,7 +87,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
 
           await cost.discard(["Cost"], myInfo.action.entity, myInfo.activator);
 
-          return { discard: [cost] };
+          return { discard: [{ cost, cell: myInfo.activator.getHandCell() }] };
         },
         prepare: defaultPrepare,
         execute: async (myInfo) => {

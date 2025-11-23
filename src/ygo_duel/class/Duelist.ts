@@ -18,7 +18,7 @@ import { min } from "@stk_utils/funcs/StkMathUtils";
 import type { TBanishProcType } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
 import { DuelEntityShortHands } from "./DuelEntityShortHands";
 import type { EntityDefinition } from "./DuelEntityDefinition";
-import { calcBattleDamage, calcEffectDamage } from "@ygo_duel/class_continuous_effect/DuelDamageFilter";
+import { calcBattleDamage, calcEffectDamage, type CalculatedDamageInfo } from "@ygo_duel/class_continuous_effect/DuelDamageFilter";
 import type { TEntityActionType } from "./DuelEntityActionBase";
 
 export type TDuelistType = "NPC" | "Player";
@@ -171,6 +171,17 @@ export class Duelist {
     return result;
   };
 
+  public static readonly calcBattleDamage = (
+    damageTo: Duelist,
+    point: number,
+    damageSource: DuelEntity,
+    suppressor: DuelEntity,
+    chainBlockInfo: ChainBlockInfo<unknown>
+  ) => {
+    //MEMO 戦闘ダメージの場合、攻撃宣言したモンスターがダメージ元とは限らない
+
+    return { damageTo, ...calcBattleDamage(point, chainBlockInfo.activator, damageTo, damageSource, suppressor, chainBlockInfo.action) };
+  };
   public readonly duel: Duel;
   public readonly seat: TSeat;
   public get entity() {
@@ -249,6 +260,11 @@ export class Duelist {
   public get lp() {
     return this._lp;
   }
+
+  public get previousHealedRecord() {
+    return this.lifeLog.findLast((rec) => rec.afterLp > rec.beforeLp);
+  }
+
   public get isTurnPlayer() {
     return this.duel.getTurnPlayer() === this;
   }
@@ -303,34 +319,25 @@ export class Duelist {
     return this.entity.procFilterBundle.filter([procType], this, this.entity, action, [target]);
   };
 
-  public readonly battleDamage = (
-    point: number,
-    damageSource: DuelEntity,
-    suppressor: DuelEntity,
-    chainBlockInfo: ChainBlockInfo<unknown>
-  ): LifeLogRecord[] => {
-    //MEMO 戦闘ダメージの場合、攻撃宣言したモンスターがダメージ元とは限らない
-    const damageInfo = calcBattleDamage(point, chainBlockInfo.activator, this, damageSource, suppressor, chainBlockInfo.action);
-
-    return this.damage(damageSource, damageInfo);
+  public readonly battleDamage = (damageInfo: CalculatedDamageInfo): LifeLogRecord[] => {
+    return this.damage(damageInfo);
   };
   public readonly effectDamage = (point: number, chainBlockInfo: ChainBlockInfo<unknown>) => Duelist.effectDamage([{ to: this, point }], chainBlockInfo);
 
-  private readonly _effectDamage = (point: number, chainBlockInfo: ChainBlockInfo<unknown>) =>
-    this.damage(chainBlockInfo.action.entity, calcEffectDamage(point, chainBlockInfo, this));
+  private readonly _effectDamage = (point: number, chainBlockInfo: ChainBlockInfo<unknown>) => this.damage(calcEffectDamage(point, chainBlockInfo, this));
 
-  private readonly damage = (damageSource: DuelEntity, damageInfo: ReturnType<typeof calcBattleDamage>): LifeLogRecord[] => {
+  private readonly damage = (damageInfo: CalculatedDamageInfo): LifeLogRecord[] => {
     const result: LifeLogRecord[] = [];
 
     if (damageInfo.point) {
       const diff = damageInfo.damageType === "Heal" ? damageInfo.point : damageInfo.point * -1;
-      result.push(this.setLp(this._lp + diff, damageSource, damageInfo.damageType));
+      result.push(this.setLp(this._lp + diff, damageInfo.damageSource, damageInfo.damageType));
     }
     if (damageInfo.damageToOpponent1) {
-      result.push(this.getOpponentPlayer().setLp(this._lp - damageInfo.damageToOpponent1, damageSource, damageInfo.damageType));
+      result.push(this.getOpponentPlayer().setLp(this._lp - damageInfo.damageToOpponent1, damageInfo.damageSource, damageInfo.damageType));
     }
     if (damageInfo.damageToOpponent2) {
-      result.push(this.getOpponentPlayer().setLp(this._lp - damageInfo.damageToOpponent2, damageSource, damageInfo.damageType));
+      result.push(this.getOpponentPlayer().setLp(this._lp - damageInfo.damageToOpponent2, damageInfo.damageSource, damageInfo.damageType));
     }
 
     return result;

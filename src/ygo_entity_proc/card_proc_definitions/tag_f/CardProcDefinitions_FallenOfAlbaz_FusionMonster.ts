@@ -168,7 +168,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           payCosts: async (myInfo) => {
             const costs = getAlbionReleaseCosts(myInfo);
             await DuelEntityShortHands.releaseManyForTheSameReason(costs, ["Release", "Cost"], myInfo.action.entity, myInfo.activator);
-            return { release: costs };
+            return { release: costs.map((cost) => ({ cost, cell: cost.cell })) };
           },
           prepare: defaultPrepare,
           execute: defaultSelfSpecialSummonExecute,

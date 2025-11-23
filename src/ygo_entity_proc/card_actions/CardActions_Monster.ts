@@ -537,8 +537,10 @@ export const defaultSelfReleaseCanPayCosts = <T>(myInfo: ChainBlockInfoBase<T>) 
   myInfo.action.entity.canBeReleased(myInfo.activator, myInfo.action.entity, ["ReleaseAsCost"], myInfo.action);
 
 export const defaultSelfReleasePayCosts = async <T>(myInfo: ChainBlockInfoBase<T>) => {
+  const costInfos = { cost: myInfo.action.entity, cell: myInfo.action.entity.cell };
+
   await myInfo.action.entity.release(["Cost"], myInfo.action.entity, myInfo.activator);
-  return { release: [myInfo.action.entity] };
+  return { release: [costInfos] };
 };
 
 export const getDefaultAccelSynchroAction = <T>(options: Partial<CardActionDefinition<T>>): CardActionDefinition<T> => {

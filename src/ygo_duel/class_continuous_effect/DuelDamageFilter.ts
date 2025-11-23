@@ -32,6 +32,14 @@ type DamageCalcTypeFlags = {
   zero_typeB: boolean;
 };
 
+export type CalculatedDamageInfo = {
+  damageSource: DuelEntity;
+  point: number;
+  damageToOpponent1: number;
+  damageToOpponent2: number;
+  damageType: TLifeLogReason;
+};
+
 export class DamageFilterPool extends StickyEffectOperatorPool<DamageFilter, DamageFilterBundle> {
   protected afterDistributeAll = () => true;
 }
@@ -78,9 +86,7 @@ const calcFlags = (
       };
     }, {});
 
-const calcDamage = (
-  ...args: Parameters<typeof DamageFilter.prototype.filter>
-): { point: number; damageToOpponent1: number; damageToOpponent2: number; damageType: TLifeLogReason } => {
+const calcDamage = (...args: Parameters<typeof DamageFilter.prototype.filter>): CalculatedDamageInfo => {
   const [point, activator, damageTo, damageSource, suppressor, damageType, actionAttr] = args;
 
   const damageFilters = [damageTo.entity, damageSource, suppressor]
@@ -89,7 +95,7 @@ const calcDamage = (
 
   let flags: Partial<DamageCalcTypeFlags> = calcFlags(damageFilters, ["double_typeA", "eachOther_typeA", "eachOther_typeB", "asEffectDamage"], ...args);
 
-  const result = { point, damageToOpponent1: 0, damageToOpponent2: 0, damageType };
+  const result = { damageSource, point, damageToOpponent1: 0, damageToOpponent2: 0, damageType };
   if (flags.double_typeA) {
     result.point *= 2;
   }

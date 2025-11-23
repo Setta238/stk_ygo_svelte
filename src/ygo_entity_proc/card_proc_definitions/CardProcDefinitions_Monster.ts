@@ -11,7 +11,7 @@ import {
 } from "@ygo_entity_proc/card_actions/CardActions_Monster";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
-import { createRegularProcFilterHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
+import { createRegularProcFilterHandler } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { ProcFilter } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
 import { damageStepPeriodKeys, duelPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
@@ -90,7 +90,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             throw new IllegalCancelError(myInfo);
           }
           await cost.returnToDeck("Top", ["Cost"], myInfo.action.entity, myInfo.activator);
-          return { returnToDeck: [cost] };
+          return { returnToDeck: [{ cost, cell: myInfo.activator.getHandCell() }] };
         },
         prepare: async () => {
           return { selectedEntities: [] };
@@ -139,8 +139,9 @@ export default function* generate(): Generator<EntityProcDefinition> {
         canExecute: (myInfo) => canSelfSepcialSummon(myInfo, faceupBattlePositions, [], ["Effect"]),
         payCosts: async (myInfo) => {
           const cost = myInfo.activator.getDeckCell().cardEntities[0];
-          await myInfo.activator.getDeckCell().cardEntities[0].sendToGraveyard(["Cost"], myInfo.action.entity, myInfo.activator);
-          return { sendToGraveyard: [cost] };
+          const costInfo = { cost, cell: cost.cell };
+          await cost.sendToGraveyard(["Cost"], myInfo.action.entity, myInfo.activator);
+          return { sendToGraveyard: [costInfo] };
         },
         prepare: async () => {
           return { selectedEntities: [] };
@@ -309,7 +310,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           canExecute: (myInfo) => (myInfo.targetChainBlock && myInfo.targetChainBlock.chainBlockTags.union(item.chainBlockTags).length > 0) ?? false,
           payCosts: async (myInfo) => {
             await myInfo.action.entity.discard(["Cost"], myInfo.action.entity, myInfo.activator);
-            return { sendToGraveyard: [myInfo.action.entity] };
+            return { sendToGraveyard: [{ cost: myInfo.action.entity, cell: myInfo.activator.getHandCell() }] };
           },
           prepare: defaultPrepare,
           execute: async (myInfo, chainBlockInfos) => {
@@ -348,13 +349,13 @@ export default function* generate(): Generator<EntityProcDefinition> {
                     return true;
                   }
 
-                  source.duel.log.info(`${source.toString()}は攻撃力1900以上のモンスターとの先頭では破壊されない。`, source.controller);
+                  source.duel.log.info(`${source.toString()}は攻撃力1900以上のモンスターとの戦闘では破壊されない。`, source.controller);
                   return false;
                 }
               ),
             ];
           }
-        ) as ContinuousEffectBase<unknown>,
+        ),
       ],
     };
   }

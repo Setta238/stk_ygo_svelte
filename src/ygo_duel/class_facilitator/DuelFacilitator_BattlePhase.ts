@@ -4,6 +4,7 @@ import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import type { TDuelPhase, TDuelPhaseStep, TDuelPhaseStepStage } from "@ygo_duel/class/DuelPeriod";
 import { DuelFacilitatorBase } from "@ygo_duel/class_facilitator/DuelFacilitatorBase";
 import { DuelFacilitator_MainPhase } from "./DuelFacilitator_MainPhase";
+import { Duelist } from "@ygo_duel/class/Duelist";
 
 export class DuelFacilitator_BattlePhase extends DuelFacilitatorBase {
   public get nextPhaseList(): TDuelPhase[] {
@@ -231,11 +232,12 @@ export class DuelFacilitator_BattlePhase extends DuelFacilitatorBase {
       return false;
     }
 
-    //ダメージ計算時③ダメージ計算 ～ ④ダメージ数値確定 ～ ⑤戦闘ダメージの発生
+    //ダメージ計算時 ③ダメージ計算
+
+    // ダメージ計算のための数値を取得
     const atkPoint = attacker.atk;
     const defPoint = (defender.battlePosition === "Attack" ? defender.atk : defender.def) ?? 0;
     const activator = this.turnPlayer;
-
     const battleAction = attacker.actions.find((action) => action.playType === "Battle");
 
     if (!battleAction) {
@@ -247,46 +249,68 @@ export class DuelFacilitator_BattlePhase extends DuelFacilitatorBase {
     if (!battleChainBlockInfo) {
       throw new IllegalCancelError(`戦闘アクションがキャンセルされた。`);
     }
+
     this.duel.chainBlockLog.push(battleChainBlockInfo);
 
     if (defender.entityType === "Duelist") {
       activator.writeInfoLog(`ダメージ計算：${attacker.toString()} (${atkPoint}) ⇒ ${defender.toString()}`);
-      attacker.controller.getOpponentPlayer().battleDamage(atkPoint - defPoint, attacker, defender, battleChainBlockInfo);
     } else {
       activator.writeInfoLog(`ダメージ計算：${attacker.toString()} (${atkPoint}) ⇒ ${defender.toString()} (${defPoint})`);
-      // 戦闘ダメージ計算
-      if (atkPoint > 0 && atkPoint > defPoint) {
-        if (defender.battlePosition === "Attack") {
-          attacker.controller.getOpponentPlayer().battleDamage(atkPoint - defPoint, attacker, defender, battleChainBlockInfo);
-        } else {
-          attacker.status.piercingTo.getDistinct().forEach((duelist) => duelist.battleDamage(atkPoint - defPoint, attacker, defender, battleChainBlockInfo));
-        }
-      } else if (atkPoint < defPoint) {
-        // 絶対防御将軍が守備表示で攻撃しても反射ダメージが発生するとのこと。
-        attacker.controller.battleDamage(defPoint - atkPoint, defender, attacker, battleChainBlockInfo);
-      }
-
-      const destroyed: DuelEntity[] = [];
-
-      //ダメージ計算時 ⑥戦闘破壊確定
-      // ※被破壊側の永続効果の終了、破壊側（混沌の黒魔術師、ハデスなど）の永続効果の適用
-      // ※墓地送りはprocBattlePhaseDamageStep5で行う。
-      if (atkPoint > 0 && (atkPoint > defPoint || (atkPoint === defPoint && defender.battlePosition === "Attack"))) {
-        destroyed.push(defender);
-      }
-
-      if (defender.battlePosition === "Attack" && atkPoint <= defPoint) {
-        destroyed.push(attacker);
-      }
-
-      await DuelEntityShortHands.tryMarkForDestroy(destroyed, battleChainBlockInfo);
     }
 
+    // ダメージ計算時 ④ダメージ数値確定
+    // 貫通効果や戦闘で破壊されない効果（戦闘ダメージ０）の効果の適用。
+
+    // ダメージ計算時 ④ダメージ数値確定 その１：数値計算
+    const damageInfos: ReturnType<typeof Duelist.calcBattleDamage>[] = [];
+
+    if (defender.entityType === "Duelist") {
+      // ダイレクトアタックの場合
+      damageInfos.push(Duelist.calcBattleDamage(attacker.controller.getOpponentPlayer(), atkPoint - defPoint, attacker, defender, battleChainBlockInfo));
+    } else if (atkPoint > 0 && atkPoint > defPoint) {
+      if (defender.battlePosition === "Attack") {
+        // 攻撃対象が攻撃表示の場合
+        damageInfos.push(Duelist.calcBattleDamage(attacker.controller.getOpponentPlayer(), atkPoint - defPoint, attacker, defender, battleChainBlockInfo));
+      } else {
+        // 貫通効果がある場合
+        attacker.status.piercingTo
+          .getDistinct()
+          .forEach((duelist) => damageInfos.push(Duelist.calcBattleDamage(duelist, atkPoint - defPoint, attacker, defender, battleChainBlockInfo)));
+      }
+    } else if (atkPoint < defPoint) {
+      // 反射ダメージが発生する場合
+      // 絶対防御将軍が守備表示で攻撃しても反射ダメージが発生するとのこと。
+      damageInfos.push(Duelist.calcBattleDamage(attacker.controller, defPoint - atkPoint, defender, attacker, battleChainBlockInfo));
+    }
+
+    // ダメージ計算時 ④ダメージ数値確定 その２：戦闘破壊判定
+    const destroyed: DuelEntity[] = [];
+    if (atkPoint > 0 && (atkPoint > defPoint || (atkPoint === defPoint && defender.battlePosition === "Attack"))) {
+      destroyed.push(defender);
+    }
+
+    if (defender.battlePosition === "Attack" && atkPoint <= defPoint) {
+      destroyed.push(attacker);
+    }
+
+    //ダメージ計算時 ⑥戦闘破壊確定
+    // ※被破壊側の永続効果の終了、破壊側（ハデスなど）の永続効果の適用が確定する。
+    //     ※混沌の黒魔術師はエラッタで誘発効果になった
+    // ※墓地送りはprocBattlePhaseDamageStep5で行う。
+    await DuelEntityShortHands.tryMarkForDestroy(destroyed, battleChainBlockInfo);
+
+    // FIXME 本来ここに置くのは適切ではないが、ジャスミンの戦闘破壊耐性の判定はライフポイント増減前に行う必要があるためここに配置する。修正する場合、戦闘破壊のロジックを書き換える必要がある。
+    //ダメージ計算時 ⑤戦闘ダメージの発生
+    damageInfos.forEach((damageInfo) => damageInfo.damageTo.battleDamage(damageInfo));
+
+    // ここはどうでもいい。適当に値を設定しているだけ
     battleChainBlockInfo.state = atkPoint > defPoint ? "done" : "failed";
 
+    // ログを追加
     attacker.info.battleLog.push({ enemy: defender, timestamp: this.duel.clock.getClone() });
     defender.info.battleLog.push({ enemy: attacker, timestamp: this.duel.clock.getClone() });
 
+    // 勝敗判定
     const losers = Object.values(this.duel.duelists).filter((duelist) => duelist.lp <= 0);
 
     if (losers.length) {
@@ -295,6 +319,7 @@ export class DuelFacilitator_BattlePhase extends DuelFacilitatorBase {
       }
       throw new DuelEnd(undefined, "戦闘ダメージによって、お互いのライフポイントがゼロになった。");
     }
+
     return true;
   };
   private readonly procBattlePhaseDamageStep4 = async (): Promise<boolean> => {

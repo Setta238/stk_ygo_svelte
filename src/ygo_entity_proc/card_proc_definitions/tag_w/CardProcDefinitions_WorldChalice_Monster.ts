@@ -77,8 +77,10 @@ export default function* generate(): Generator<EntityProcDefinition> {
           if (!cost) {
             return;
           }
+
+          const costInfo = { cost, cell: cost.cell };
           await cost.sendToGraveyard(["Cost"], myInfo.action.entity, myInfo.activator);
-          return { sendToGraveyard: [cost] };
+          return { sendToGraveyard: [costInfo] };
         },
         fixedTags: ["SearchFromDeck"],
         prepare: defaultPrepare,

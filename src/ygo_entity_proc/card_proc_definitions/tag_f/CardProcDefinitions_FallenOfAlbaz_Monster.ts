@@ -78,9 +78,11 @@ export default function* generate(): Generator<EntityProcDefinition> {
               }
               myInfo.data = cost.cell.cellType;
 
+              const costInfo = { cost, cell: cost.cell };
+
               await cost.sendToGraveyard(["Cost"], myInfo.action.entity, myInfo.activator);
 
-              return { sendToGraveyard: [cost] };
+              return { sendToGraveyard: [costInfo] };
             },
             prepare: async (myInfo) => {
               const chainBlockTags: TActionTag[] = [];

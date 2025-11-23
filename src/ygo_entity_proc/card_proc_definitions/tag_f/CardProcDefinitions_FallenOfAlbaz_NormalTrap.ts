@@ -37,14 +37,16 @@ export default function* generate(): Generator<EntityProcDefinition> {
       // アルバスの落胤指定の融合モンスターをコストにする場合、総取りも可能
       const canTakeAll = Boolean(
         costInfo.release
-          ?.flatMap((monster) => monster.fusionMaterialInfos)
+          ?.flatMap((info) => info.cost.fusionMaterialInfos)
           .filter(isNameTypeFusionMaterialInfo)
           .map((info) => info.cardName)
           .includes("アルバスの落胤")
       );
 
       // 召喚チェックに使う素材情報
-      const materialInfos = entityCostTypes.flatMap((type) => costInfo[type] ?? []).map((cost) => ({ material: cost, isAsEffectCost: true, cell: cost.cell }));
+      const materialInfos = entityCostTypes
+        .flatMap((type) => costInfo[type] ?? [])
+        .map((info) => ({ material: info.cost, isAsEffectCost: true, cell: info.cell }));
 
       // 結果格納用変数
       const result: Partial<ReturnType<typeof getBrandedExpulsionRevivePatterns>> = {};
@@ -136,7 +138,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               .getMonstersOnField()
               .filter((card) => card.status.monsterCategories?.includes("Fusion"))
               .filter((fusionMonster) => fusionMonster.canBeReleased(myInfo.activator, myInfo.action.entity, ["ReleaseAsCost"], myInfo.action))
-              .some((fusionMonster) => getBrandedExpulsionRevivePatterns(myInfo, { release: [fusionMonster] }));
+              .some((fusionMonster) => getBrandedExpulsionRevivePatterns(myInfo, { release: [{ cost: fusionMonster, cell: fusionMonster.cell }] }));
           },
           payCosts: async (myInfo, chainBlockInfos, cancelable) => {
             // コスト支払いの際は、全融合モンスターを検証する
@@ -145,7 +147,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
                 .getMonstersOnField()
                 .filter((card) => card.status.monsterCategories?.includes("Fusion"))
                 .filter((fusionMonster) => fusionMonster.canBeReleased(myInfo.activator, myInfo.action.entity, ["ReleaseAsCost"], myInfo.action))
-                .filter((fusionMonster) => getBrandedExpulsionRevivePatterns(myInfo, { release: [fusionMonster] })),
+                .filter((fusionMonster) => getBrandedExpulsionRevivePatterns(myInfo, { release: [{ cost: fusionMonster, cell: fusionMonster.cell }] })),
               "リリースするモンスターを選択。",
               cancelable
             );
@@ -155,9 +157,11 @@ export default function* generate(): Generator<EntityProcDefinition> {
               return;
             }
 
+            const costInfo = { cost, cell: cost.cell };
+
             await cost.release(["Cost"], myInfo.action.entity, myInfo.activator);
 
-            return { release: [cost] };
+            return { release: [costInfo] };
           },
           prepare: async (myInfo, chainBlockInfos, cancelable) => {
             // 蘇生可能パターンを抽出
@@ -244,7 +248,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               ["Effect"],
               myInfo.action,
               patterns.share.flat(),
-              entityCostTypes.flatMap((type) => myInfo.costInfo[type] ?? []).map((cost) => ({ material: cost, isAsEffectCost: true, cell: cost.cell })),
+              entityCostTypes.flatMap((type) => myInfo.costInfo[type] ?? []).map((info) => ({ material: info.cost, isAsEffectCost: true, cell: info.cell })),
               false,
               1,
               (summoned) => summoned.length === 1,

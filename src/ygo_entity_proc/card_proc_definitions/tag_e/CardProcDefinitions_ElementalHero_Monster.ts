@@ -65,17 +65,18 @@ export default function* generate(): Generator<EntityProcDefinition> {
           }
 
           myInfo.activator.writeInfoLog(`公開：${fusionMonster.toString()}`);
+          const costInfo = { cost, cell: cost.cell };
           await cost.sendToGraveyard(["Effect"], myInfo.action.entity, myInfo.activator);
           myInfo.activator.getDeckCell().shuffle();
-          return { sendToGraveyard: [cost] };
+          return { sendToGraveyard: [costInfo] };
         },
         prepare: defaultPrepare,
         execute: async (myInfo) => {
-          const costs = myInfo.costInfo.sendToGraveyard;
-          if (!costs || !costs.length) {
+          const costInfos = myInfo.costInfo.sendToGraveyard;
+          if (!costInfos || !costInfos.length) {
             throw new SystemError("コスト情報が取得できない", myInfo);
           }
-          const cost = costs[0];
+          const cost = costInfos[0].cost;
           myInfo.action.entity.statusOperatorBundle.push(
             new StatusOperator({
               title: myInfo.action.title,

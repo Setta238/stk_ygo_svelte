@@ -279,9 +279,11 @@ export default function* generate(): Generator<EntityProcDefinition> {
             throw new IllegalCancelError(myInfo);
           }
 
+          const costInfo = { cost, cell: cost.cell };
+
           await cost.sendToGraveyard(["Cost"], myInfo.action.entity, myInfo.activator);
 
-          return { sendToGraveyard: [cost] };
+          return { sendToGraveyard: [costInfo] };
         },
         prepare: async () => {
           return { selectedEntities: [] };

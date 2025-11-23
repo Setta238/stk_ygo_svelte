@@ -32,13 +32,15 @@ export default function* generate(): Generator<EntityProcDefinition> {
               return;
             }
 
+            const costInfo = costs.map((cost) => ({ cost, cell: cost.cell }));
+
             if (item.discard) {
               await DuelEntityShortHands.discardManyForTheSameReason(costs, ["Cost"], myInfo.action.entity, myInfo.activator);
-              return { discard: costs };
+              return { discard: costInfo };
             }
 
             await DuelEntityShortHands.sendManyToGraveyardForTheSameReason(costs, ["Cost"], myInfo.action.entity, myInfo.activator);
-            return { sendToGraveyard: costs };
+            return { sendToGraveyard: costInfo };
           },
           ...getSingleTargetActionPartical((myInfo) => myInfo.activator.getGraveyard().cardEntities.filter((card) => card.kind === "Spell"), {
             message: "手札に加える魔法カードを選択",

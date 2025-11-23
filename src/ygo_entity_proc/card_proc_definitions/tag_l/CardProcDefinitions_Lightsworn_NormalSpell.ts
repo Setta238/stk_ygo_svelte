@@ -62,11 +62,13 @@ export default function* generate(): Generator<EntityProcDefinition> {
             .filter((entity) => (entity.lvl ?? 13) < 5)
             .some((entity) => entity.status.nameTags && entity.status.nameTags.includes("ライトロード")),
         payCosts: async (myInfo) => {
-          const cost = myInfo.activator.getDeckCell().cardEntities.slice(0, 3);
+          const costs = myInfo.activator.getDeckCell().cardEntities.slice(0, 3);
 
-          await DuelEntityShortHands.sendManyToGraveyardForTheSameReason(cost, ["Cost"], myInfo.action.entity, myInfo.activator);
+          const costInfos = costs.map((cost) => ({ cost, cell: cost.cell }));
 
-          return { sendToGraveyard: cost };
+          await DuelEntityShortHands.sendManyToGraveyardForTheSameReason(costs, ["Cost"], myInfo.action.entity, myInfo.activator);
+
+          return { sendToGraveyard: costInfos };
         },
         prepare: async () => {
           return { selectedEntities: [] };

@@ -53,9 +53,11 @@ const createCatapultAction = (args: {
       // フィールド上での値を参照するため、リリース前にダメージ計算をする。
       myInfo.data = args.calcDamage(myInfo, costs);
 
+      const costInfos = costs.map((cost) => ({ cost, cell: cost.cell }));
+
       await DuelEntityShortHands.releaseManyForTheSameReason(costs, ["Cost", "Release"], myInfo.action.entity, myInfo.activator);
 
-      return { release: costs };
+      return { release: costInfos };
     },
     prepare: defaultPrepare,
     execute: async (myInfo) => {

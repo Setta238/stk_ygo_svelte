@@ -23,7 +23,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         .getGraveyard()
         .cardEntities.filter((card) => card.kind === "Trap")
         .filter((card) => card.status.trapCategory === "Normal")
-        .filter((card) => !(options.costInfo.banish ?? []).includes(card))
+        .filter((card) => !(options.costInfo.banish?.map((info) => info.cost) ?? []).includes(card))
         .filter((card) => card !== myInfo.action.entity);
 
       if (banish) {
@@ -42,7 +42,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         .filter((action) => {
           const costInfo = options.costInfo ?? {};
           if (banish) {
-            costInfo.banish = [action.entity, ...(costInfo.banish ?? [])];
+            costInfo.banish = [{ cost: action.entity, cell: action.entity.cell }, ...(costInfo.banish ?? [])];
           }
           return action.validate(myInfo.activator, [], ["IgnoreRegularCosts", "CopyEffectOnly"], {
             executeBy: myInfo.action.entity,
@@ -66,9 +66,13 @@ export default function* generate(): Generator<EntityProcDefinition> {
           needsToPayRegularCost: true,
           fixedTags: ["DelegateAnotherEffect"],
           canPayCosts: (myInfo) =>
-            defaultCanPaySelfBanishCosts(myInfo) && getCopyTargets(myInfo, { banish: true, costInfo: { banish: [myInfo.action.entity] } }).length > 0,
+            defaultCanPaySelfBanishCosts(myInfo) &&
+            getCopyTargets(myInfo, { banish: true, costInfo: { banish: [{ cost: myInfo.action.entity, cell: myInfo.action.entity.cell }] } }).length > 0,
           payCosts: async (myInfo, chainBlockInfos, cancelable) => {
-            const choices = getCopyTargets(myInfo, { banish: true, costInfo: { banish: [myInfo.action.entity] } }).map((action) => action.entity);
+            const choices = getCopyTargets(myInfo, {
+              banish: true,
+              costInfo: { banish: [{ cost: myInfo.action.entity, cell: myInfo.action.entity.cell }] },
+            }).map((action) => action.entity);
 
             const target = await myInfo.activator.waitSelectEntity(choices, "コピーする罠を選択。", cancelable);
             if (!target) {
@@ -77,10 +81,10 @@ export default function* generate(): Generator<EntityProcDefinition> {
             const costs = [myInfo.action.entity, target];
             await DuelEntityShortHands.banishManyForTheSameReason(costs, ["Cost"], myInfo.action.entity, myInfo.activator);
 
-            return { banish: costs };
+            return { banish: costs.map((cost) => ({ cost, cell: cost.cell })) };
           },
           prepare: async (myInfo, chainBlockInfos) => {
-            const cost = myInfo.costInfo.banish?.find((card) => card !== myInfo.action.entity);
+            const cost = myInfo.costInfo.banish?.find((info) => info.cost !== myInfo.action.entity)?.cost;
             if (!cost) {
               throw new SystemError("正規のコストを支払わずにジャンク・コレクターの効果処理を行おうとした。", myInfo, myInfo.costInfo);
             }
@@ -98,7 +102,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             return prepared;
           },
           execute: async (myInfo, chainBlockInfos) => {
-            const cost = myInfo.costInfo.banish?.find((card) => card !== myInfo.action.entity);
+            const cost = myInfo.costInfo.banish?.find((info) => info.cost !== myInfo.action.entity)?.cost;
             if (!cost) {
               throw new SystemError("想定されない状況", myInfo, myInfo.costInfo);
             }
@@ -199,7 +203,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
           actionGroupName: "トランザクション・ロールバック",
           fixedTags: ["DelegateAnotherEffect"],
           canExecute: (myInfo) =>
-            defaultCanPaySelfBanishCosts(myInfo) && getCopyTargets(myInfo, { target: true, costInfo: { banish: [myInfo.action.entity] } }).length > 0,
+            defaultCanPaySelfBanishCosts(myInfo) &&
+            getCopyTargets(myInfo, { target: true, costInfo: { banish: [{ cost: myInfo.action.entity, cell: myInfo.action.entity.cell }] } }).length > 0,
           payCosts: async (myInfo) => {
             const lifeCost = await defaultPayHarfLifePoint(myInfo);
             const selfBanishCost = await defaultPaySelfBanishCosts(myInfo);

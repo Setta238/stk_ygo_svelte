@@ -254,7 +254,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             throw new IllegalCancelError(myInfo);
           }
           await cost.returnToDeck("Top", ["Cost"], myInfo.action.entity, myInfo.activator);
-          return { returnToDeck: [cost] };
+          return { returnToDeck: [{ cost, cell: myInfo.activator.getHandCell() }] };
         },
         prepare: defaultPrepare,
         execute: async (myInfo, chainBlockInfos) => {

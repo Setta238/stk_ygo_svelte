@@ -127,7 +127,11 @@ export const CostTypes = [...NumericCostTypes, ...entityCostTypes, ...summonMate
 export type TCostType = (typeof CostTypes)[number];
 
 export type ActionCostInfo = {
-  [key in TCostType]?: key extends TNumericCostType ? number : key extends TSummonMaterialCostType ? SummonMaterialInfo[] : DuelEntity[];
+  [key in TCostType]?: key extends TNumericCostType
+    ? number
+    : key extends TSummonMaterialCostType
+      ? SummonMaterialInfo[]
+      : { cost: DuelEntity; cell: DuelFieldCell }[];
 };
 
 export type DummyActionInfo = {

@@ -203,8 +203,10 @@ export const getPayXyzCostActionPartical = <T>(
         costs = _costs;
       }
 
-      await DuelEntityShortHands.releaseManyForTheSameReason(costs, ["Cost"], myInfo.action.entity, myInfo.activator);
-      return { xyzMaterial: costs };
+      const costInfo = costs.map((cost) => ({ cost, cell: cost.cell }));
+
+      await DuelEntityShortHands.sendManyToGraveyardForTheSameReason(costs, ["Cost"], myInfo.action.entity, myInfo.activator);
+      return { xyzMaterial: costInfo };
     },
   };
 };

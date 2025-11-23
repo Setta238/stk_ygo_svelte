@@ -1023,7 +1023,7 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 セットされたそのカードと、このカードを持ち主の手札に戻す。
 その後、自分はこの効果で手札に戻ったカードの数だけ、手札から魔法・罠カードをセットできる。`,kind:"Trap",trapCategory:"Normal",wikiEncodedName:"%A1%D4%BA%BD%BF%D0%A4%CE%C2%E7%A5%CF%A5%EA%A5%B1%A1%BC%A5%F3%A1%D5"},にせアバター:{name:"にせアバター",nameKana:"",description:`このカードは特殊召喚できない。
 (1)：このカードの攻撃力・守備力は、「邪神アバター」以外のフィールドの攻撃力が一番高いモンスターの攻撃力＋１００の数値になる。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:1,attack:null,defense:null,isForTest:!0,wikiEncodedName:"",attributes:["Dark"],types:["Fiend"]},"にせドレッド・ルート":{name:"にせドレッド・ルート",nameKana:"",description:`このカードは特殊召喚できない。
-(1)：このカードがモンスターゾーンに存在する限り、このカード以外のフィールドのモンスターの攻撃力・守備力は半分になる。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:1,attack:4e3,defense:4e3,isForTest:!0,wikiEncodedName:"",attributes:["Dark"],types:["Fiend"]},にせ融合:{name:"にせ融合",nameKana:"",description:"融合モンスターカードによって決められた融合素材モンスターを自分の手札・デッキ・EXデッキ・フィールド上・墓地から選んでゲームから除外し、融合モンスター１体を融合召喚する",kind:"Spell",spellCategory:"Normal",isForTest:!0},"ブラック・ホール・ドラゴン":{name:"ブラック・ホール・ドラゴン",nameKana:"",description:`このカード名の(1)(2)の効果はそれぞれ１ターンに１度しか使用できない。
+(1)：このカードがモンスターゾーンに存在する限り、このカード以外のフィールドのモンスターの攻撃力・守備力は半分になる。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:1,attack:4e3,defense:4e3,isForTest:!0,wikiEncodedName:"",attributes:["Dark"],types:["Fiend"]},"ブラック・ホール・ドラゴン":{name:"ブラック・ホール・ドラゴン",nameKana:"",description:`このカード名の(1)(2)の効果はそれぞれ１ターンに１度しか使用できない。
 (1)：このカードが手札・墓地に存在し、フィールドのモンスターが自身を対象としないカードの効果で破壊された場合に発動できる。
 このカードを特殊召喚する。
 (2)：このカードが特殊召喚した場合に発動できる。
@@ -1825,4 +1825,14 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 手札からモンスター１体を特殊召喚する。
 ●４体：このカードがＬ召喚した時に発動できる。
 自分は４枚ドローする。
-その後、自分の手札を３枚選んで好きな順番でデッキの下に戻す。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Link","Effect"],link:4,attack:2800,attributes:["Earth"],types:["Dragon"],wikiEncodedName:"%A1%D4%BA%BF%CE%B6%BC%D8%A1%DD%A5%B9%A5%AB%A5%EB%A5%C7%A5%C3%A5%C8%A1%D5",linkArrowKeys:["TopCenter","BottomLeft","BottomCenter","BottomRight"]}};export{e as j};
+その後、自分の手札を３枚選んで好きな順番でデッキの下に戻す。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Link","Effect","SpecialSummon"],link:4,attack:2800,attributes:["Earth"],types:["Dragon"],wikiEncodedName:"%A1%D4%BA%BF%CE%B6%BC%D8%A1%DD%A5%B9%A5%AB%A5%EB%A5%C7%A5%C3%A5%C8%A1%D5",linkArrowKeys:["TopCenter","BottomLeft","BottomCenter","BottomRight"]},にせ融合:{name:"にせ融合",nameKana:"",description:"融合モンスターカードによって決められた融合素材モンスターを自分の手札・デッキ・EXデッキ・フィールド上・墓地から選んでゲームから除外し、融合モンスター１体を融合召喚する",kind:"Spell",spellCategory:"Normal",isForTest:!0,nameTags:["融合"]},"アロマセラフィ－ジャスミン":{name:"アロマセラフィ－ジャスミン",nameKana:"",description:`【リンクマーカー：左下/右下】
+植物族モンスター２体
+このカード名の(2)の効果は１ターンに１度しか使用できない。
+(1)：自分のＬＰが相手より多い場合、このカード及びこのカードのリンク先の植物族モンスターは戦闘では破壊されない。
+(2)：このカードのリンク先の自分のモンスター１体をリリースして発動できる。
+デッキから植物族モンスター１体を守備表示で特殊召喚する。
+(3)：１ターンに１度、自分のＬＰが回復した場合に発動する。
+デッキから植物族モンスター１体を手札に加える。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Link","Effect"],nameTags:["アロマ"],link:2,attack:1800,attributes:["Light"],types:["Plant"],wikiEncodedName:"%A1%D4%A5%A2%A5%ED%A5%DE%A5%BB%A5%E9%A5%D5%A5%A3%A1%DD%A5%B8%A5%E3%A5%B9%A5%DF%A5%F3%A1%D5",linkArrowKeys:["BottomLeft","BottomRight"]},"アロマージ－ジャスミン":{name:"アロマージ－ジャスミン",nameKana:"",description:`(1)：自分のＬＰが相手より多く、このカードがモンスターゾーンに存在する限り、自分は通常召喚に加えて１度だけ、
+自分メインフェイズに「アロマージ－ジャスミン」以外の植物族モンスター１体を召喚できる。
+(2)：１ターンに１度、自分のＬＰが回復した場合に発動する。
+自分はデッキから１枚ドローする。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],nameTags:["アロマ"],level:2,attack:100,defense:1900,attributes:["Light"],types:["Plant"],wikiEncodedName:"%A1%D4%A5%A2%A5%ED%A5%DE%A1%BC%A5%B8%A1%DD%A5%B8%A5%E3%A5%B9%A5%DF%A5%F3%A1%D5"}};export{e as j};

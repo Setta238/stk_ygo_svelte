@@ -1,4 +1,4 @@
-import { IllegalCancelError } from "@ygo_duel/class/Duel";
+import { IllegalCancelError, SystemError } from "@ygo_duel/class/Duel";
 import type { EntityAction, TActionTag } from "@ygo_duel/class/DuelEntityAction";
 import {} from "@ygo_duel/class/DuelEntityShortHands";
 
@@ -17,6 +17,7 @@ import { damageStepPeriodKeys, duelPeriodKeys, freeChainDuelPeriodKeys } from "@
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
+import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield* ["サイバー・ドラゴン", "六武衆のご隠居", "アンノウン・シンクロン"].map((name): EntityProcDefinition => {
@@ -147,6 +148,79 @@ export default function* generate(): Generator<EntityProcDefinition> {
           return { selectedEntities: [] };
         },
         execute: (myInfo) => defaultSelfSpecialSummonExecute(myInfo),
+        settle: async () => true,
+      },
+    ],
+  };
+  yield {
+    name: "スポーア",
+    actions: [
+      {
+        title: "①自己再生",
+        isMandatory: false,
+        playType: "IgnitionEffect",
+        spellSpeed: "Normal",
+        executableCells: ["Graveyard"],
+        executablePeriods: ["main1", "main2"],
+        executableDuelistTypes: ["Controller"],
+        executableFaces: ["FaceUp"],
+        isOnlyNTimesPerDuel: 1,
+        fixedTags: ["SpecialSummonFromGraveyard"],
+        canPayCosts: (myInfo) =>
+          myInfo.activator
+            .getGraveyard()
+            .cardEntities.filter((monster) => monster.types.includes("Plant"))
+            .filter((monster) => monster.kind === "Monster")
+            .filter((monster) => (monster.lvl ?? 0) > 0)
+            .filter((monster) => monster !== myInfo.action.entity)
+            .some((plant) => plant.canBeBanished("BanishAsCost", myInfo.activator, myInfo.action.entity, myInfo.action)),
+        getDests: (myInfo) => getDestsForSelfSpecialSummon(myInfo, faceupBattlePositions, [], ["Effect"]),
+        canExecute: (myInfo) => canSelfSepcialSummon(myInfo, faceupBattlePositions, [], ["Effect"]),
+        payCosts: async (myInfo, chainBlockInfos, cancelable) => {
+          const costs = myInfo.activator
+            .getGraveyard()
+            .cardEntities.filter((monster) => monster.types.includes("Plant"))
+            .filter((monster) => monster.kind === "Monster")
+            .filter((monster) => (monster.lvl ?? 0) > 0)
+            .filter((monster) => monster !== myInfo.action.entity)
+            .filter((plant) => plant.canBeBanished("BanishAsCost", myInfo.activator, myInfo.action.entity, myInfo.action));
+          const cost = await myInfo.activator.waitSelectEntity(costs, "コストとして除外するモンスターを選択。", cancelable);
+          if (!cost) {
+            return;
+          }
+          const costInfo = { cost, cell: cost.cell };
+          await cost.banish(["Cost"], myInfo.action.entity, myInfo.activator);
+          return { banish: [costInfo] };
+        },
+        prepare: defaultPrepare,
+        execute: async (myInfo) => {
+          const costInfo = myInfo.costInfo.banish?.[0];
+
+          if (!costInfo) {
+            throw new SystemError(`正規のコストを支払わずに${myInfo.action.entity.nm}の効果を使用しようとした。`, myInfo, myInfo.action.entity);
+          }
+
+          const lvl = costInfo.cost.lvl ?? 0;
+
+          const result = await defaultSelfSpecialSummonExecute(myInfo);
+
+          if (!result) {
+            return false;
+          }
+
+          myInfo.action.entity.numericOprsBundle.push(
+            NumericStateOperator.createLingeringAddition(
+              "レベル上昇",
+              (ope) => ope.isSpawnedBy.isEffective,
+              myInfo.action.entity,
+              myInfo.action,
+              "level",
+              (spawner, target, current) => current + lvl
+            )
+          );
+
+          return result;
+        },
         settle: async () => true,
       },
     ],

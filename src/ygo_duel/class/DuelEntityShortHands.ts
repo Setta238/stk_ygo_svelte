@@ -304,19 +304,24 @@ export class DuelEntityShortHands {
   public static readonly waitCorpseDisposal = (duel: Duel, options: { excludedList?: DuelEntity[] } = {}) => {
     const excludedList = options.excludedList ?? [];
 
+    let targets = duel.field
+      .getDyingCardsOnField()
+      .filter((entity) => entity.info.isDying)
+      .filter((entity) => !excludedList.includes(entity));
+
+    if (duel.clock.period.stage !== "end") {
+      targets = targets.filter((target) => !target.info.causeOfDeath.includes("Battle"));
+    }
+
     return DuelEntity.sendManyToGraveyard(
-      duel.field
-        .getDyingCardsOnField()
-        .filter((entity) => entity.info.isDying)
-        .filter((entity) => !excludedList.includes(entity))
-        .map((entity) => {
-          return {
-            entity: entity,
-            movedAs: entity.info.causeOfDeath ?? [],
-            movedBy: entity.info.isKilledBy,
-            activator: entity.info.isKilledByWhom,
-          };
-        })
+      targets.map((entity) => {
+        return {
+          entity: entity,
+          movedAs: entity.info.causeOfDeath ?? [],
+          movedBy: entity.info.isKilledBy,
+          activator: entity.info.isKilledByWhom,
+        };
+      })
     );
   };
   /**

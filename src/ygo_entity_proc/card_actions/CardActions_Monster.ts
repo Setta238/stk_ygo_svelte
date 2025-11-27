@@ -2,6 +2,7 @@ import { type TBattlePosition } from "@ygo/class/YgoTypes";
 import { SystemError } from "@ygo_duel/class/Duel";
 import {
   EntityAction,
+  entityCostTypes,
   type ActionCostInfo,
   type CardActionDefinition,
   type CardActionDefinitionAttrs,
@@ -400,7 +401,10 @@ export const defaultSelfSpecialSummonExecute = async <T>(
   if (myInfo.action.entity.wasMovedAfter(myInfo.isActivatedAt)) {
     return false;
   }
-  const monster = await myInfo.activator.summon("SpecialSummon", ["Effect"], myInfo.action, myInfo.action.entity, posList, cells, [], false);
+
+  const costInfos = entityCostTypes.flatMap((type) => myInfo.costInfo[type] ?? []).map((info) => ({ material: info.cost, cell: info.cell }));
+
+  const monster = await myInfo.activator.summon("SpecialSummon", ["Effect"], myInfo.action, myInfo.action.entity, posList, cells, costInfos, false);
 
   return Boolean(monster);
 };

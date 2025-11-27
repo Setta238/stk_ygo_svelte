@@ -1832,7 +1832,22 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 (2)：このカードのリンク先の自分のモンスター１体をリリースして発動できる。
 デッキから植物族モンスター１体を守備表示で特殊召喚する。
 (3)：１ターンに１度、自分のＬＰが回復した場合に発動する。
-デッキから植物族モンスター１体を手札に加える。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Link","Effect"],nameTags:["アロマ"],link:2,attack:1800,attributes:["Light"],types:["Plant"],wikiEncodedName:"%A1%D4%A5%A2%A5%ED%A5%DE%A5%BB%A5%E9%A5%D5%A5%A3%A1%DD%A5%B8%A5%E3%A5%B9%A5%DF%A5%F3%A1%D5",linkArrowKeys:["BottomLeft","BottomRight"]},"アロマージ－ジャスミン":{name:"アロマージ－ジャスミン",nameKana:"",description:`(1)：自分のＬＰが相手より多く、このカードがモンスターゾーンに存在する限り、自分は通常召喚に加えて１度だけ、
+デッキから植物族モンスター１体を手札に加える。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Link","Effect","SpecialSummon"],nameTags:["アロマ"],link:2,attack:1800,attributes:["Light"],types:["Plant"],wikiEncodedName:"%A1%D4%A5%A2%A5%ED%A5%DE%A5%BB%A5%E9%A5%D5%A5%A3%A1%DD%A5%B8%A5%E3%A5%B9%A5%DF%A5%F3%A1%D5",linkArrowKeys:["BottomLeft","BottomRight"]},"アロマージ－ジャスミン":{name:"アロマージ－ジャスミン",nameKana:"",description:`(1)：自分のＬＰが相手より多く、このカードがモンスターゾーンに存在する限り、自分は通常召喚に加えて１度だけ、
 自分メインフェイズに「アロマージ－ジャスミン」以外の植物族モンスター１体を召喚できる。
 (2)：１ターンに１度、自分のＬＰが回復した場合に発動する。
-自分はデッキから１枚ドローする。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],nameTags:["アロマ"],level:2,attack:100,defense:1900,attributes:["Light"],types:["Plant"],wikiEncodedName:"%A1%D4%A5%A2%A5%ED%A5%DE%A1%BC%A5%B8%A1%DD%A5%B8%A5%E3%A5%B9%A5%DF%A5%F3%A1%D5"}};export{e as j};
+自分はデッキから１枚ドローする。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],nameTags:["アロマ"],level:2,attack:100,defense:1900,attributes:["Light"],types:["Plant"],wikiEncodedName:"%A1%D4%A5%A2%A5%ED%A5%DE%A1%BC%A5%B8%A1%DD%A5%B8%A5%E3%A5%B9%A5%DF%A5%F3%A1%D5"},スポーア:{name:"スポーア",nameKana:"",description:`このカード名の効果はデュエル中に１度しか使用できない。
+(1)：このカードが墓地に存在する場合、自分の墓地からこのカード以外の植物族モンスター１体を除外して発動できる。
+このカードを特殊召喚する。
+この効果で特殊召喚したこのカードのレベルは除外したモンスターのレベル分だけ上がる。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Tuner","Effect"],level:1,attack:400,defense:800,attributes:["Wind"],types:["Plant"],wikiEncodedName:"%A1%D4%A5%B9%A5%DD%A1%BC%A5%A2%A1%D5"},妖精胞スポーア:{name:"妖精胞スポーア",nameKana:"",description:`このカード名の(2)の効果は１ターンに１度しか使用できない。
+(1)：このカードが特殊召喚した場合に発動できる。
+このカードのレベルを自分フィールドのモンスターの数まで上げる。
+(2)：このカードが墓地に存在し、自分フィールドに「エンシェント・フェアリー・ドラゴン」または
+獣族・植物族・天使族の光属性モンスターのいずれかが存在する場合に発動できる。
+このカードを特殊召喚する。
+この効果の発動後、ターン終了時まで自分はＳモンスターしかＥＸデッキから特殊召喚できない。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Tuner","Effect"],level:1,attack:400,defense:800,attributes:["Light"],types:["Plant"],wikiEncodedName:"%A1%D4%CD%C5%C0%BA%CB%A6%A5%B9%A5%DD%A1%BC%A5%A2%A1%D5"},"フェニキシアン・クラスター・アマリリス":{name:"フェニキシアン・クラスター・アマリリス",nameKana:"",description:`このカードは「フェニキシアン・シード」またはこのカードの効果でしか特殊召喚できない。
+このカードは攻撃した場合、そのダメージ計算後に破壊される。
+自分フィールド上のこのカードが破壊され墓地へ送られた時、相手ライフに８００ポイントダメージを与える。
+また、自分のエンドフェイズ時、
+このカード以外の自分の墓地の植物族モンスター１体をゲームから除外する事で、
+このカードを墓地から表側守備表示で特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect","RegularSpecialSummonOnly"],level:8,attack:2200,defense:0,attributes:["Fire"],types:["Plant"],wikiEncodedName:"%A1%D4%A5%D5%A5%A7%A5%CB%A5%AD%A5%B7%A5%A2%A5%F3%A1%A6%A5%AF%A5%E9%A5%B9%A5%BF%A1%BC%A1%A6%A5%A2%A5%DE%A5%EA%A5%EA%A5%B9%A1%D5"},"フェニキシアン・シード":{name:"フェニキシアン・シード",nameKana:"",description:`自分フィールド上に表側表示で存在するこのカードを墓地へ送って発動できる。
+手札から「フェニキシアン・クラスター・アマリリス」１体を特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:2,attack:800,defense:0,attributes:["Fire"],types:["Plant"],wikiEncodedName:"%A1%D4%A5%D5%A5%A7%A5%CB%A5%AD%A5%B7%A5%A2%A5%F3%A1%A6%A5%B7%A1%BC%A5%C9%A1%D5"}};export{e as j};

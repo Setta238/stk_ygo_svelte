@@ -626,6 +626,9 @@ export class DuelEntity {
 
     return [...this.linkArrowDests.map((cell) => cell.cardEntities[0]).filter((monster) => monster)];
   }
+  public get linkArrowSources(): DuelEntity[] {
+    return this.isOnFieldAsMonsterStrictly ? [...this.cell.linkArrowSources] : [];
+  }
   public get linkedEntities(): DuelEntity[] {
     if (!this.isOnFieldAsMonsterStrictly) {
       return [];
@@ -1329,6 +1332,7 @@ declare module "./DuelEntity" {
     getIndexInCell(): number;
     getXyzMaterials(): DuelEntity[];
     wasMovedAfter(clock: IDuelClock): boolean;
+    wasMovedBefore(clock: IDuelClock): boolean;
     hadArrivedToFieldAt(): IDuelClock | undefined;
     release(movedAs: TDuelCauseReason[], movedBy: DuelEntity | undefined, movedByWhom: Duelist | undefined): Promise<DuelFieldCell | undefined>;
     ruleDestroy(): Promise<DuelFieldCell | undefined>;
@@ -1454,6 +1458,9 @@ DuelEntity.prototype.getXyzMaterials = function (): DuelEntity[] {
 };
 DuelEntity.prototype.wasMovedAfter = function (clock: IDuelClock): boolean {
   return this.moveLog.latestRecord.movedAt.totalProcSeq > clock.totalProcSeq;
+};
+DuelEntity.prototype.wasMovedBefore = function (clock: IDuelClock): boolean {
+  return this.moveLog.latestRecord.movedAt.totalProcSeq < clock.totalProcSeq;
 };
 
 DuelEntity.prototype.hadArrivedToFieldAt = function (): IDuelClock {

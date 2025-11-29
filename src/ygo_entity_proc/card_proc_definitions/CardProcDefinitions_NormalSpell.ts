@@ -24,9 +24,10 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableDuelistTypes: ["Controller"],
         fixedTags: ["SpecialSummonFromGraveyard"],
         ...getMultiTargetsRebornActionPartical((myInfo) =>
-          myInfo.activator
-            .getGraveyard()
-            .cardEntities.filter((card) => card.kind === "Monster")
+          myInfo.activator.duel.field
+            .getCells("Graveyard")
+            .flatMap((cell) => cell.cardEntities)
+            .filter((card) => card.kind === "Monster")
             .filter((card) => card.canBeTargetOfEffect(myInfo))
         ),
         settle: async () => true,

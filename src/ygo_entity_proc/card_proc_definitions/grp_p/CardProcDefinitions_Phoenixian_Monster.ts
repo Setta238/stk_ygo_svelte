@@ -18,7 +18,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
       {
         title: "自爆",
         isMandatory: true,
-        playType: "TriggerEffect",
+        playType: "ContinuousPeriodAction",
         spellSpeed: "Normal",
         executableCells: ["MonsterZone"],
         executablePeriods: ["b1DAfterDmgCalc", "b2DAfterDmgCalc"],
@@ -60,6 +60,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: ["end"],
         executableDuelistTypes: ["Controller"],
         fixedTags: ["SpecialSummonFromGraveyard"],
+        isNoticedForcibly: true,
         canPayCosts: (myInfo) =>
           myInfo.activator
             .getGraveyard()
@@ -68,7 +69,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             .filter((monster) => monster !== myInfo.action.entity)
             .some((plant) => plant.canBeBanished("BanishAsCost", myInfo.activator, myInfo.action.entity, myInfo.action)),
         getDests: (myInfo) => getDestsForSelfSpecialSummon(myInfo, ["Defense"], [], ["Effect"]),
-        canExecute: (myInfo) => canSelfSepcialSummon(myInfo, ["Defense"], [], ["Effect"]),
+        canExecute: (myInfo) => myInfo.activator.isTurnPlayer && canSelfSepcialSummon(myInfo, ["Defense"], [], ["Effect"]),
         payCosts: async (myInfo, chainBlockInfos, cancelable) => {
           const costs = myInfo.activator
             .getGraveyard()

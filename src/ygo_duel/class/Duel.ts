@@ -241,10 +241,23 @@ export class Duel {
   };
 
   private readonly executeAutomaticPeriodActions = async () => {
+    let needsIncrementChainSeq = false;
     for (const info of Object.values(this.duelists).flatMap((duelist) =>
       duelist.getEnableActions(["SystemPeriodAction"], ["Normal"], []).map((info) => ({ duelist, ...info }))
     )) {
+      needsIncrementChainSeq = true;
       await info.action.directExecute(info.duelist, undefined, false);
+    }
+
+    for (const info of [this.getTurnPlayer(), this.getNonTurnPlayer()].flatMap((duelist) =>
+      duelist.getEnableActions(["ContinuousPeriodAction"], ["Normal"], []).map((info) => ({ duelist, ...info }))
+    )) {
+      needsIncrementChainSeq = true;
+      await info.action.directExecute(info.duelist, undefined, false);
+    }
+
+    if (needsIncrementChainSeq) {
+      await this.clock.incrementChainSeq();
     }
   };
 }

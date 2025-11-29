@@ -11,7 +11,7 @@ export const cardActionChainBlockTypes = ["IgnitionEffect", "TriggerEffect", "Qu
 export type TCardActionChainBlockType = (typeof cardActionChainBlockTypes)[number];
 export const cardActionChainableTypes = [...cardActionRuleSummonTypes, ...cardActionChainBlockTypes, "DeclareAttack"] as const;
 export type TCardActionChainableTypes = (typeof cardActionChainableTypes)[number];
-export const cardActionNonChainBlockTypes = ["ChangeBattlePosition", "SpellTrapSet", "LingeringEffect", "Battle"] as const;
+export const cardActionNonChainBlockTypes = ["ChangeBattlePosition", "SpellTrapSet", "LingeringEffect", "Battle", "ContinuousPeriodAction"] as const;
 export type TCardActionNonChainBlockType = (typeof cardActionNonChainBlockTypes)[number];
 export type TCardActionType =
   | TCardActionChainableTypes

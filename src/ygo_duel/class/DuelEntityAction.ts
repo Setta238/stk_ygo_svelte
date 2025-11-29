@@ -959,12 +959,13 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
       // 効果無効時は後処理のみ行う
 
       // カードの効果が有効かどうか
-      let isEffective = myInfo.action.entity.isEffective;
+      const isAlwaysEffective = this.playType === "SystemPeriodAction" || this.playType === "Exodia";
+      let isEffective = myInfo.action.entity.isEffective || isAlwaysEffective;
 
       // ログ出力するテキストを用意
       let nagationText = "";
 
-      if (isEffective) {
+      if (isEffective && !isAlwaysEffective) {
         if (myInfo.isNegatedEffectBy) {
           // うららなどの効果処理のみ無効にするタイプ
           nagationText = `チェーン${myInfo.chainNumber}: ${myInfo.action.toFullString()}を${myInfo.isNegatedEffectBy.toFullString()}によって効果を無効にした。`;

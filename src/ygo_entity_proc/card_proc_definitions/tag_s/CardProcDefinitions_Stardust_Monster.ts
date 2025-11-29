@@ -73,8 +73,10 @@ export default function* generate(): Generator<EntityProcDefinition> {
         fixedTags: ["SpecialSummonFromGraveyard"],
         canExecute: (myInfo) => {
           const moveLogRecord = myInfo.action.entity.moveLog.latestRecord;
-
-          if (moveLogRecord.movedBy !== myInfo.action.entity) {
+          if (!moveLogRecord.movedBy) {
+            return false;
+          }
+          if (!myInfo.action.entity.isSame(moveLogRecord.movedBy)) {
             return false;
           }
           if (!myInfo.activator.duel.clock.isSameTurn(moveLogRecord.movedAt)) {

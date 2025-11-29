@@ -32,7 +32,7 @@ import { ProcFilterBundle, type TBanishProcType, type TProcType } from "../class
 import { ContinuousEffect, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { NumericStateOperatorBundle } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import type { DuelField } from "./DuelField";
-import { EntityMoveLog } from "./DuelEntityMoveLog";
+import { EntityMoveLog, type DuelEntityShallowCopy } from "./DuelEntityMoveLog";
 import { CounterHolder, type TCounterName } from "./DuelCounter";
 import { StatusOperator, StatusOperatorBundle } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 
@@ -190,6 +190,7 @@ export type MoveParameters = {
 export class DuelEntity {
   private static nextEntitySeq = 0;
 
+  public readonly isSame = (other: DuelEntityShallowCopy) => this.seq === other.seq;
   public static readonly splitBattlePos = (pos: TBattlePosition): { face: TDuelEntityFace; orientation: TDuelEntityOrientation } => {
     return { face: pos === "Set" ? "FaceDown" : "FaceUp", orientation: pos === "Attack" ? "Vertical" : "Horizontal" };
   };

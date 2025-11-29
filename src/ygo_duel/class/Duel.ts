@@ -135,7 +135,7 @@ export class Duel {
       Above: new Duelist(this, "Above", duelist2, duelist2Type, deck2, hand2),
     };
     this.field = new DuelField(this);
-    this.clock.onStageChange.append(this.executeSystemPeriodActions);
+    this.clock.onStageChange.append(this.executeAutomaticPeriodActions);
 
     this.view = new DuelViewController(this);
     this.log = new DuelLog(this);
@@ -240,7 +240,11 @@ export class Duel {
     }
   };
 
-  private readonly executeSystemPeriodActions = async () => {
-    Object.values(this.duelists).forEach((duelist) => duelist.getEnableActions(["SystemPeriodAction"], ["Normal"], []));
+  private readonly executeAutomaticPeriodActions = async () => {
+    for (const info of Object.values(this.duelists).flatMap((duelist) =>
+      duelist.getEnableActions(["SystemPeriodAction"], ["Normal"], []).map((info) => ({ duelist, ...info }))
+    )) {
+      await info.action.directExecute(info.duelist, undefined, false);
+    }
   };
 }

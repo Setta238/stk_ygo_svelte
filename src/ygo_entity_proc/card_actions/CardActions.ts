@@ -409,26 +409,3 @@ export const getDeckDestructionActionPartical = <T>(options?: {
     execute: (...args) => defaultDeckDestructionExecute(...args, options),
   };
 };
-export const getSystemPeriodAction = (
-  title: string,
-  executablePeriods: Readonly<TDuelPeriodKey[]>,
-  callback: (myInfo: ChainBlockInfoBase<unknown>) => undefined
-) => {
-  // FIXME 非同期が使えない都合上、canExecuteにcallbackを渡し、そちらで実行する。
-  return {
-    title: title,
-    playType: "SystemPeriodAction",
-    spellSpeed: "Normal",
-    executableCells: duelFieldCellTypes,
-    executablePeriods: executablePeriods,
-    executableDuelistTypes,
-    isMandatory: true,
-    canExecute: (myInfo) => {
-      callback(myInfo);
-      return false;
-    },
-    prepare: defaultPrepare,
-    execute: async () => true,
-    settle: async () => true,
-  } as CardActionDefinition<unknown>;
-};

@@ -5,7 +5,7 @@ import { IllegalCancelError, SystemError } from "@ygo_duel/class/Duel";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import { defaultPayLifePoint, defaultPrepare, getMultiTargetsRebornActionPartical, getSystemPeriodAction } from "@ygo_entity_proc/card_actions/CardActions";
+import { defaultPayLifePoint, defaultPrepare, getMultiTargetsRebornActionPartical } from "@ygo_entity_proc/card_actions/CardActions";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 import { executableDuelistTypes, type ChainBlockInfoBase } from "@ygo_duel/class/DuelEntityAction";
 import { defaultActions } from "@ygo_entity_proc/card_actions/CardActions_Monster";
@@ -354,25 +354,41 @@ export default function* generate(): Generator<EntityProcDefinition> {
         },
         settle: async () => true,
       },
-      getSystemPeriodAction("回収カウント進行", ["stanby"], (myInfo) => {
-        if (!myInfo.activator.isTurnPlayer) {
-          return;
-        }
-
-        // 封印の黄金櫃カウンターを置く
-        myInfo.action.entity.field
-          .getCells("Banished")
-          .flatMap((cell) => cell.cardEntities)
-          .filter((card) => card.moveLog.latestRecord.movedBy === myInfo.action.entity)
-          .filter((card) => card.moveLog.latestRecord.actionOwner === myInfo.activator)
-          .forEach((card) => {
-            card.counterHolder.add("GoldSarcophagus", 1, myInfo.action.entity);
-            const qty = card.counterHolder.getQty("GoldSarcophagus", myInfo.action.entity);
-            if (qty < 3) {
-              myInfo.activator.duel.log.info(`${card.toString()}のターンカウント：${qty - 1}⇒${qty}`);
-            }
-          });
-      }),
+      {
+        title: "回収カウント進行",
+        playType: "SystemPeriodAction",
+        spellSpeed: "Normal",
+        executableCells: duelFieldCellTypes,
+        executablePeriods: ["stanby"],
+        executableDuelistTypes,
+        isMandatory: true,
+        canExecute: (myInfo) =>
+          myInfo.activator.isTurnPlayer &&
+          myInfo.action.entity.field
+            .getCells("Banished")
+            .flatMap((cell) => cell.cardEntities)
+            .filter((card) => card.moveLog.latestRecord.movedBy && myInfo.action.entity.isSame(card.moveLog.latestRecord.movedBy))
+            .some((card) => card.moveLog.latestRecord.actionOwner === myInfo.activator),
+        prepare: defaultPrepare,
+        execute: async (myInfo) => {
+          // 封印の黄金櫃カウンターを置く
+          console.log(myInfo.action.entity.toString());
+          myInfo.action.entity.field
+            .getCells("Banished")
+            .flatMap((cell) => cell.cardEntities)
+            .filter((card) => card.moveLog.latestRecord.movedBy && myInfo.action.entity.isSame(card.moveLog.latestRecord.movedBy))
+            .filter((card) => card.moveLog.latestRecord.actionOwner === myInfo.activator)
+            .forEach((card) => {
+              card.counterHolder.add("GoldSarcophagus", 1, myInfo.action.entity);
+              const qty = card.counterHolder.getQty("GoldSarcophagus", myInfo.action.entity);
+              if (qty < 3) {
+                myInfo.activator.duel.log.info(`${card.toString()}のターンカウント：${qty - 1}⇒${qty}`);
+              }
+            });
+          return true;
+        },
+        settle: async () => true,
+      },
       {
         title: "回収",
         isMandatory: true,
@@ -386,7 +402,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           myInfo.action.entity.field
             .getCells("Banished")
             .flatMap((cell) => cell.cardEntities)
-            .filter((card) => card.moveLog.latestRecord.movedBy === myInfo.action.entity)
+            .filter((card) => card.moveLog.latestRecord.movedBy && myInfo.action.entity.isSame(card.moveLog.latestRecord.movedBy))
             .filter((card) => card.moveLog.latestRecord.actionOwner === myInfo.activator)
             .some((card) => card.counterHolder.getQty("GoldSarcophagus") === 2),
         prepare: defaultPrepare,
@@ -394,7 +410,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           const cards = myInfo.action.entity.field
             .getCells("Banished")
             .flatMap((cell) => cell.cardEntities)
-            .filter((card) => card.moveLog.latestRecord.movedBy === myInfo.action.entity)
+            .filter((card) => card.moveLog.latestRecord.movedBy && myInfo.action.entity.isSame(card.moveLog.latestRecord.movedBy))
             .filter((card) => card.moveLog.latestRecord.actionOwner === myInfo.activator)
             .filter((card) => card.counterHolder.getQty("GoldSarcophagus") === 2);
           if (!cards.length) {

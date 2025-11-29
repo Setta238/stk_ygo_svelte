@@ -42,6 +42,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["Graveyard"],
         executablePeriods: duelPeriodKeys,
         executableDuelistTypes: ["Controller"],
+        fixedTags: ["DamageToOpponent"],
         triggerPattern: { triggerType: "Departure", needsByDestory: true },
         prepare: defaultPrepare,
         execute: async (myInfo) => {

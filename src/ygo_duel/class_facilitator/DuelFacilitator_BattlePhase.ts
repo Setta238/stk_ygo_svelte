@@ -326,9 +326,9 @@ export class DuelFacilitator_BattlePhase extends DuelFacilitatorBase {
     this.setStage("afterDmgCalc");
     //ダメージ計算後
     // ダメージ発生、戦闘発生をトリガーとする効果、またはダメージ計算後を直接指定する効果
-    if (!(await this.procFreeChain())) {
-      return false;
-    }
+    // チェーンは一度だけ
+    await this.procChain(undefined, undefined);
+
     return true;
   };
   private readonly procBattlePhaseDamageStep5 = async () => {

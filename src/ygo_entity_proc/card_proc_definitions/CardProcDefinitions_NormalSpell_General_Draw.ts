@@ -141,7 +141,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         execute: async (myInfo) => {
           await myInfo.activator.draw(1, myInfo.action.entity, myInfo.activator);
           // このドローは時の任意効果のトリガーにならない。
-          myInfo.action.entity.field.duel.clock.incrementProcSeq();
+          await myInfo.action.entity.field.duel.clock.incrementProcSeq();
           myInfo.activator.getOpponentPlayer().heal(1000, myInfo.action.entity);
           return true;
         },
@@ -188,7 +188,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             myInfo.activator
           );
 
-          myInfo.activator.duel.clock.incrementProcSeq();
+          await myInfo.activator.duel.clock.incrementProcSeq();
           await DuelEntityShortHands.drawAtSameTime(myInfo.activator, myInfo.action.entity, qty1, qty2);
 
           return true;
@@ -280,7 +280,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           await DuelEntityShortHands.returnManyToDeckForTheSameReason("Random", cards, ["Effect"], myInfo.action.entity, myInfo.activator);
 
           // タイミングを逃させる要因になる。
-          myInfo.activator.duel.clock.incrementProcSeq();
+          await myInfo.activator.duel.clock.incrementProcSeq();
 
           await myInfo.activator.draw(cards.length, myInfo.action.entity, myInfo.activator);
 

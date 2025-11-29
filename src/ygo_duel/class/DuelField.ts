@@ -48,7 +48,7 @@ export class DuelField {
     this.duel.clock.onStageChange.append(this.distributeOperators);
   }
 
-  public readonly distributeOperators = (clock: IDuelClock) => {
+  public readonly distributeOperators = async (clock: IDuelClock) => {
     console.info(`[totalProcSeq]:${clock.totalProcSeq}`);
     let loopCount = 0;
 

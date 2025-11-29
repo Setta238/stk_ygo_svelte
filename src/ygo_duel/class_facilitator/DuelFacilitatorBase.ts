@@ -35,8 +35,10 @@ export abstract class DuelFacilitatorBase {
   protected constructor(duel: Duel, phase: TDuelPhase) {
     this.duel = duel;
     this.phase = phase;
-    this.duel.clock.setPhase(this.duel, this.phase);
-    this.turnPlayer = this.duel.getTurnPlayer();
+    // FIXME
+    // この時点でthis.duel.clock.setPhase()ができていないための苦肉の策
+    // そもそも、ターンプレイヤーをここで取るのが正しくないか？
+    this.turnPlayer = this.phase === "draw" ? this.duel.getNonTurnPlayer() : this.duel.getTurnPlayer();
     this._priorityHolder = this.turnPlayer;
   }
 
@@ -44,6 +46,8 @@ export abstract class DuelFacilitatorBase {
 
   //一応、何かしらの処理を挟めるようにしておく。
   public readonly proceed = async () => {
+    await this.duel.clock.setPhase(this.duel, this.phase);
+    this._priorityHolder = this.turnPlayer;
     return await this._proceed();
   };
 
@@ -297,8 +301,8 @@ export abstract class DuelFacilitatorBase {
       this.duel.chainBlockLog.push(chainBlockInfo);
       this._chainBlockInfos.push(chainBlockInfo);
 
-      this.duel.clock.incrementProcSeq();
-      this.duel.clock.incrementChainBlockSeq();
+      await this.duel.clock.incrementProcSeq();
+      await this.duel.clock.incrementChainBlockSeq();
 
       // 誘発効果のプールから、今回選んだものと、それによって回数超過するものを除外
       //   ※星杯の妖精リースを同時に特殊召喚した場合など
@@ -352,7 +356,7 @@ export abstract class DuelFacilitatorBase {
           await this.procChain({ activator: chainBlockInfo.activator, actionInfo: chainBlockInfo.nextActionInfo }, undefined);
         }
         // チェーン番号を加算。
-        this.duel.clock.incrementChainSeq();
+        await this.duel.clock.incrementChainSeq();
       } else {
         if (chainBlockInfo.nextActionInfo) {
           // ※ 緊急同調など、直後にチェーンに乗らない特殊召喚を行う場合

@@ -141,7 +141,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           await myInfo.activator.draw(4, myInfo.action.entity, myInfo.activator);
 
           // この後のデッキへ戻す処理はタイミングを逃す要因になる
-          myInfo.action.duel.clock.incrementProcSeq();
+          await myInfo.action.duel.clock.incrementProcSeq();
 
           for (const num of [1, 2, 3]) {
             const card = await myInfo.activator.waitSelectEntity(

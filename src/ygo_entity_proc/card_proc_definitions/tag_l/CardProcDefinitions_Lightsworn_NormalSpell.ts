@@ -29,7 +29,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         execute: async (myInfo) => {
           await myInfo.activator.draw(2, myInfo.action.entity, myInfo.activator);
 
-          myInfo.activator.duel.clock.incrementProcSeq();
+          await myInfo.activator.duel.clock.incrementProcSeq();
 
           const cards = myInfo.activator.getDeckCell().cardEntities.slice(0, 2);
 

@@ -1,4 +1,4 @@
-import { StkEvent } from "@stk_utils/class/StkEvent";
+import { StkAsyncEvent, StkEvent } from "@stk_utils/class/StkEvent";
 import {
   duelPeriodDic,
   type DuelPeriod,
@@ -34,14 +34,14 @@ export class DuelClock implements IDuelClock {
     );
   };
 
-  private onClockChangeEvents: { [key in TDuelClockSubKey]: StkEvent<IDuelClock> } = {
-    turn: new StkEvent<IDuelClock>(),
-    phaseSeq: new StkEvent<IDuelClock>(),
-    stepSeq: new StkEvent<IDuelClock>(),
-    stageSeq: new StkEvent<IDuelClock>(),
-    chainSeq: new StkEvent<IDuelClock>(),
-    chainBlockSeq: new StkEvent<IDuelClock>(),
-    procSeq: new StkEvent<IDuelClock>(),
+  private onClockChangeEvents: { [key in TDuelClockSubKey]: StkAsyncEvent<IDuelClock> } = {
+    turn: new StkAsyncEvent<IDuelClock>(),
+    phaseSeq: new StkAsyncEvent<IDuelClock>(),
+    stepSeq: new StkAsyncEvent<IDuelClock>(),
+    stageSeq: new StkAsyncEvent<IDuelClock>(),
+    chainSeq: new StkAsyncEvent<IDuelClock>(),
+    chainBlockSeq: new StkAsyncEvent<IDuelClock>(),
+    procSeq: new StkAsyncEvent<IDuelClock>(),
   };
 
   public get onTurnChange() {
@@ -86,16 +86,6 @@ export class DuelClock implements IDuelClock {
   public get currentStartPoints(): Readonly<{ [key in TDuelClockSubKey]: number }> {
     return this._currentStartPoints;
   }
-  private set periodKey(periodKey: TDuelPeriodKey) {
-    if (this._periodKey === periodKey) {
-      return;
-    }
-    this._periodKey = periodKey;
-    this._chainSeq = 0;
-    this._chainBlockSeq = 0;
-    this._procSeq = 0;
-    this.incrementTotalProcSeq();
-  }
   private get periodKey() {
     return this._periodKey;
   }
@@ -134,7 +124,7 @@ export class DuelClock implements IDuelClock {
   public constructor() {
     this._periodKey = "end";
   }
-  public readonly setPhase = (duel: Duel, phase: TDuelPhase) => {
+  public readonly setPhase = async (duel: Duel, phase: TDuelPhase) => {
     const period = Object.values(duelPeriodDic)
       .filter((period) => period.phase === phase)
       .find((period) => (period.step ?? "start") === "start");
@@ -156,9 +146,9 @@ export class DuelClock implements IDuelClock {
 
     this._stepSeq = 0;
     this._stageSeq = 0;
-    this.periodKey = period.key;
+    await this.setPeriodKey(period.key);
   };
-  public readonly setStep = (duel: Duel, step: TDuelPhaseStep) => {
+  public readonly setStep = async (duel: Duel, step: TDuelPhaseStep) => {
     const currentPhase = this.period.phase;
 
     const period = Object.values(duelPeriodDic)
@@ -178,9 +168,9 @@ export class DuelClock implements IDuelClock {
     this._stepSeq++;
     this._stageSeq = 0;
 
-    this.periodKey = period.key;
+    await this.setPeriodKey(period.key);
   };
-  public readonly setStage = (duel: Duel, stage: TDuelPhaseStepStage) => {
+  public readonly setStage = async (duel: Duel, stage: TDuelPhaseStepStage) => {
     const currentPeriod = this.period;
 
     const period = Object.values(duelPeriodDic)
@@ -196,24 +186,34 @@ export class DuelClock implements IDuelClock {
 
     this._stageSeq++;
 
-    this.periodKey = period.key;
+    await this.setPeriodKey(period.key);
   };
-  public readonly incrementChainSeq = () => {
+  private readonly setPeriodKey = async (periodKey: TDuelPeriodKey) => {
+    if (this._periodKey === periodKey) {
+      return;
+    }
+    this._periodKey = periodKey;
+    this._chainSeq = 0;
+    this._chainBlockSeq = 0;
+    this._procSeq = 0;
+    await this.incrementTotalProcSeq();
+  };
+  public readonly incrementChainSeq = async () => {
     this._chainSeq++;
     this._chainBlockSeq = 0;
     this._procSeq = 0;
-    this.incrementTotalProcSeq();
+    await this.incrementTotalProcSeq();
   };
-  public readonly incrementChainBlockSeq = () => {
+  public readonly incrementChainBlockSeq = async () => {
     this._chainBlockSeq++;
     this._procSeq = 0;
-    this.incrementTotalProcSeq();
+    await this.incrementTotalProcSeq();
   };
-  public readonly incrementProcSeq = () => {
+  public readonly incrementProcSeq = async () => {
     this._procSeq++;
-    this.incrementTotalProcSeq();
+    await this.incrementTotalProcSeq();
   };
-  private readonly incrementTotalProcSeq = () => {
+  private readonly incrementTotalProcSeq = async () => {
     this._totalProcSeq++;
 
     // 開始点のセット
@@ -228,13 +228,15 @@ export class DuelClock implements IDuelClock {
       needsToSetStartPoint = needsToSetStartPoint && this[key] === 0;
     });
 
-    duelClockSubKeys
+    for (const key of duelClockSubKeys
       .toReversed()
       .filter((key) => this._currentStartPoints[key] === this.totalProcSeq)
-      .filter((key) => key !== "procSeq")
-      .forEach((key) => this.onClockChangeEvents[key].trigger(this));
+      .filter((key) => key !== "procSeq")) {
+      await this.onClockChangeEvents[key].trigger(this);
+    }
+
     // procSeqのイベントは毎回トリガする。
-    this.onClockChangeEvents["procSeq"].trigger(this);
+    await this.onClockChangeEvents["procSeq"].trigger(this);
   };
   public readonly toFullString = () => {
     return `${this.totalProcSeq}(t${this.turn}-phs${this.phaseSeq}-stp${this.stepSeq}-stg${this.stepSeq}-c${this.chainSeq}-cb${this.chainBlockSeq}-prc${this.procSeq})`;

@@ -210,7 +210,7 @@ export class Duel {
             record.chainBlockInfo.state = "done";
           }
         });
-        this.clock.incrementChainSeq();
+        await this.clock.incrementChainSeq();
         console.info(error);
         this.isEnded = true;
         this.winner = error.winner;
@@ -240,7 +240,7 @@ export class Duel {
     }
   };
 
-  private readonly executeSystemPeriodActions = (): void => {
+  private readonly executeSystemPeriodActions = async () => {
     Object.values(this.duelists).forEach((duelist) => duelist.getEnableActions(["SystemPeriodAction"], ["Normal"], []));
   };
 }

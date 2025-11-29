@@ -45,7 +45,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           myInfo.activator.getDeckCell().shuffle();
 
           // この墓地送りはタイミングのがさせる要因になる。
-          myInfo.activator.duel.clock.incrementProcSeq();
+          await myInfo.activator.duel.clock.incrementProcSeq();
 
           await myInfo.activator.getDeckCell().cardEntities[0].sendToGraveyard(["Effect"], myInfo.action.entity, myInfo.activator);
 

@@ -215,7 +215,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           }
 
           // タイミングを逃させる要因になる。
-          myInfo.activator.duel.clock.incrementProcSeq();
+          await myInfo.activator.duel.clock.incrementProcSeq();
 
           await DuelEntityShortHands.drawAtSameTime(myInfo.activator, myInfo.action.entity, 2, 2);
 
@@ -252,7 +252,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           await DuelEntityShortHands.returnManyToDeckForTheSameReason("Random", hands, ["Effect"], myInfo.action.entity, myInfo.activator);
 
           // タイミングを逃させる要因になる。
-          myInfo.activator.duel.clock.incrementProcSeq();
+          await myInfo.activator.duel.clock.incrementProcSeq();
 
           await myInfo.activator.draw(hands.length, myInfo.action.entity, myInfo.activator);
 

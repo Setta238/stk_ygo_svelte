@@ -137,7 +137,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           }
 
           // この後の墓地送りはタイミングを逃させる要因になる。
-          myInfo.activator.duel.clock.incrementProcSeq();
+          await myInfo.activator.duel.clock.incrementProcSeq();
 
           return defaultDeckDestructionExecute(myInfo, chainBlockInfos, { qty: 3, targets: ["Self"] });
         },
@@ -263,7 +263,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           }
 
           // この後の墓地送りはタイミングを逃させる要因になる。
-          myInfo.activator.duel.clock.incrementProcSeq();
+          await myInfo.activator.duel.clock.incrementProcSeq();
 
           return defaultDeckDestructionExecute(myInfo, chainBlockInfos, { qty: 2, targets: ["Self"] });
         },

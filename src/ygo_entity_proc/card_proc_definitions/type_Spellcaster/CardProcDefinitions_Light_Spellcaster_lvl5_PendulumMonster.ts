@@ -58,7 +58,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           }
 
           // この破壊は時の任意効果のトリガーにならない。
-          myInfo.action.entity.field.duel.clock.incrementProcSeq();
+          await myInfo.action.entity.field.duel.clock.incrementProcSeq();
           await myInfo.activator.draw(1, myInfo.action.entity, myInfo.activator);
           return true;
         },

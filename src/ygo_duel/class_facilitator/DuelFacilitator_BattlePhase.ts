@@ -52,7 +52,7 @@ export class DuelFacilitator_BattlePhase extends DuelFacilitatorBase {
     return new DuelFacilitator_MainPhase(this.duel, "main2");
   };
   private readonly procBattlePhaseStartStep = async () => {
-    this.setStep("start");
+    await this.setStep("start");
     this.priorityHolder = this.turnPlayer;
 
     this._attackingMonster = undefined;
@@ -63,7 +63,7 @@ export class DuelFacilitator_BattlePhase extends DuelFacilitatorBase {
   };
   private readonly procBattlePhaseBattleStep = async () => {
     while (true) {
-      this.setStep("battle");
+      await this.setStep("battle");
 
       // 初期化
       this.priorityHolder = this.turnPlayer;
@@ -185,7 +185,7 @@ export class DuelFacilitator_BattlePhase extends DuelFacilitatorBase {
     }
   };
   private readonly procBattlePhaseDamageStep1 = async (): Promise<boolean> => {
-    this.setStage("start");
+    await this.setStage("start");
     //ダメージステップ開始時
     // https://yugioh-wiki.net/index.php?%A5%C0%A5%E1%A1%BC%A5%B8%A5%B9%A5%C6%A5%C3%A5%D7%B3%AB%BB%CF%BB%FE
     // 「ダメージ計算を行わずに」などと記載された効果は、原則としてここで発動する。
@@ -201,7 +201,7 @@ export class DuelFacilitator_BattlePhase extends DuelFacilitatorBase {
     }
     const attacker = this.attackingMonster;
     const defender = this.targetForAttack;
-    this.setStage("beforeDmgCalc");
+    await this.setStage("beforeDmgCalc");
     //ダメージ計算前 ※裏側守備表示モンスターを表にする
     if (defender.battlePosition === "Set") {
       defender.setBattlePosition("Defense", ["Flip", "Battle"], attacker, attacker.controller);
@@ -223,7 +223,7 @@ export class DuelFacilitator_BattlePhase extends DuelFacilitatorBase {
     }
 
     //ダメージ計算時①永続効果（チェーンを組まない効果）の適用『開始』。 ※《メタル化・魔法反射装甲》など
-    this.setStage("dmgCalc");
+    await this.setStage("dmgCalc");
     //ダメージ計算時
 
     //ダメージ計算時②各種効果の発動 ※《プライドの咆哮》など
@@ -323,7 +323,7 @@ export class DuelFacilitator_BattlePhase extends DuelFacilitatorBase {
     return true;
   };
   private readonly procBattlePhaseDamageStep4 = async (): Promise<boolean> => {
-    this.setStage("afterDmgCalc");
+    await this.setStage("afterDmgCalc");
     //ダメージ計算後
     // ダメージ発生、戦闘発生をトリガーとする効果、またはダメージ計算後を直接指定する効果
     // チェーンは一度だけ
@@ -332,13 +332,13 @@ export class DuelFacilitator_BattlePhase extends DuelFacilitatorBase {
     return true;
   };
   private readonly procBattlePhaseDamageStep5 = async () => {
-    this.setStage("end");
+    await this.setStage("end");
 
     // 戦闘破壊・墓地送り実施
     await DuelEntityShortHands.waitCorpseDisposal(this.duel);
 
     // チェーン番号を加算
-    this.duel.clock.incrementChainSeq();
+    await this.duel.clock.incrementChainSeq();
 
     //ダメージステップ終了時
     // 戦闘破壊されて墓地に送られた場合の効果
@@ -349,7 +349,7 @@ export class DuelFacilitator_BattlePhase extends DuelFacilitatorBase {
   };
 
   private readonly procBattlePhaseEndStep = async () => {
-    this.setStep("end");
+    await this.setStep("end");
     this.priorityHolder = this.turnPlayer;
 
     // フェイズ強制処理
@@ -373,10 +373,6 @@ export class DuelFacilitator_BattlePhase extends DuelFacilitatorBase {
     }
     return Boolean(this.attackingMonster);
   };
-  private readonly setStep = (step: TDuelPhaseStep) => {
-    this.duel.clock.setStep(this.duel, step);
-  };
-  private readonly setStage = (stage: TDuelPhaseStepStage) => {
-    this.duel.clock.setStage(this.duel, stage);
-  };
+  private readonly setStep = (step: TDuelPhaseStep) => this.duel.clock.setStep(this.duel, step);
+  private readonly setStage = (stage: TDuelPhaseStepStage) => this.duel.clock.setStage(this.duel, stage);
 }

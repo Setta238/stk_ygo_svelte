@@ -60,7 +60,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             return true;
           }
           // この儀式魔法の手札サルベージはタイミングを逃す要因になる
-          myInfo.activator.duel.clock.incrementProcSeq();
+          await myInfo.activator.duel.clock.incrementProcSeq();
           await spell.addToHand(["Effect"], myInfo.action.entity, myInfo.activator);
 
           return true;

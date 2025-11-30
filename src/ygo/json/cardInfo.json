@@ -24973,7 +24973,8 @@
     "kind": "Monster",
     "monsterCategories": [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     "nameTags": [
       "トポロジック"
@@ -24993,5 +24994,25 @@
       "BottomCenter",
       "BottomRight"
     ]
+  },
+  "ダンディライオン": {
+    "name": "ダンディライオン",
+    "nameKana": "",
+    "description": "(1)：このカードが墓地へ送られた場合に発動する。\n自分フィールドに「綿毛トークン」（植物族・風・星１・攻／守０）２体を守備表示で特殊召喚する。\nこのトークンは特殊召喚されたターン、アドバンス召喚のためにはリリースできない。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "level": 3,
+    "attack": 300,
+    "defense": 300,
+    "attributes": [
+      "Earth"
+    ],
+    "types": [
+      "Plant"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%C0%A5%F3%A5%C7%A5%A3%A5%E9%A5%A4%A5%AA%A5%F3%A1%D5"
   }
 }

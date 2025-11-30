@@ -3,7 +3,7 @@ import { duelFieldCellTypes, monsterZoneCellTypes, spellTrapZoneCellTypes, type 
 import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CardActions_Spell";
 import { IllegalCancelError, SystemError } from "@ygo_duel/class/Duel";
 
-import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
+import type { EntityDefinition, EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { defaultPayLifePoint, defaultPrepare, getMultiTargetsRebornActionPartical } from "@ygo_entity_proc/card_actions/CardActions";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
@@ -137,23 +137,21 @@ export default function* generate(): Generator<EntityProcDefinition> {
     ],
   };
 
-  const getOrCreateSecurityToken = (myInfo: ChainBlockInfoBase<unknown>) =>
-    myInfo.activator.duel.field.getWaitingRoomCell().cardEntities.find((entity) => entity.parent === myInfo.action.entity) ??
-    DuelEntity.createTokenEntity(myInfo.activator, myInfo.action.entity, {
+  const securityTokenDefinition: EntityDefinition = {
+    name: "セキュリティトークン",
+    actions: defaultActions,
+    staticInfo: {
       name: "セキュリティトークン",
-      actions: defaultActions,
-      staticInfo: {
-        name: "セキュリティトークン",
-        kind: "Monster",
-        monsterCategories: ["Normal", "Token"],
-        level: 4,
-        attack: 2000,
-        defense: 2000,
-        attributes: ["Light"],
-        types: ["Cyberse"],
-        wikiEncodedName: "%A5%BB%A5%AD%A5%E5%A5%EA%A5%C6%A5%A3%A5%C8%A1%BC%A5%AF%A5%F3",
-      },
-    });
+      kind: "Monster",
+      monsterCategories: ["Normal", "Token"],
+      level: 4,
+      attack: 2000,
+      defense: 2000,
+      attributes: ["Light"],
+      types: ["Cyberse"],
+      wikiEncodedName: "%A5%BB%A5%AD%A5%E5%A5%EA%A5%C6%A5%A3%A5%C8%A1%BC%A5%AF%A5%F3",
+    },
+  };
 
   yield {
     name: "ワンタイム・パスコード",
@@ -169,7 +167,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
         isOnlyNTimesPerTurn: 1,
         fixedTags: ["SpecialSummon", "SpecialSummonToken"],
         canExecute: (myInfo) => {
-          const token = getOrCreateSecurityToken(myInfo);
+          // 特殊召喚可能かどうかの判定のため、この時点でトークンを作成しておく必要がある。
+          const token = DuelEntity.prepareTokenEntity(myInfo.activator, myInfo.action.entity, securityTokenDefinition);
           const cells = myInfo.activator.getMonsterZones();
           const list = myInfo.activator.getEnableSummonList(
             myInfo.activator,
@@ -186,7 +185,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           return { selectedEntities: [] };
         },
         execute: async (myInfo) => {
-          const token = getOrCreateSecurityToken(myInfo);
+          const token = DuelEntity.prepareTokenEntity(myInfo.activator, myInfo.action.entity, securityTokenDefinition);
           const cells = myInfo.activator.getMonsterZones();
 
           const summoned = await myInfo.activator.summon("SpecialSummon", ["Effect"], myInfo.action, token, ["Defense"], cells, [], false);

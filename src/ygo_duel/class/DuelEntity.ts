@@ -225,9 +225,43 @@ export class DuelEntity {
 
     return new DuelEntity(owner, fieldCell, "Card", definition, "FaceDown", "Vertical");
   };
-  public static readonly createTokenEntity = (owner: Duelist, createdBy: DuelEntity, definition: EntityDefinition): DuelEntity => {
-    return new DuelEntity(owner, owner.duel.field.getWaitingRoomCell(), "Token", definition, "FaceUp", "Vertical", createdBy);
+
+  /**
+   * 特殊召喚可能かチェックする必要があるため、特殊召喚の前からトークンは作成しておく必要がある。
+   * チェック、特殊召喚のたびに新規作成するのは無駄なので、チェックのために作成したトークンは実際に特殊召喚されるまで使い回せるようにする。
+   * 使用済トークンの再利用はバグを起こしそうなのでしない。
+   * @param owner
+   * @param createdBy
+   * @param definition
+   * @param qty
+   * @returns
+   */
+  public static readonly prepareTokenEntities = (owner: Duelist, createdBy: DuelEntity, definition: EntityDefinition, qty: number): DuelEntity[] => {
+    const tokens = owner.duel.field
+      .getWaitingRoomCell()
+      .cardEntities.filter((entity) => entity.owner === owner)
+      .filter((entity) => entity.exist)
+      .filter((entity) => entity.definition === definition);
+
+    while (tokens.length < qty) {
+      tokens.push(new DuelEntity(owner, owner.duel.field.getWaitingRoomCell(), "Token", definition, "FaceUp", "Vertical", createdBy));
+    }
+
+    // 親エンティティごとに作成するのも無駄なので（同一カード、あるいは幻獣機トークンなど）親名称は都度書き換える。
+    tokens.forEach((token) => (token._parent = createdBy));
+
+    return tokens.slice(0, qty);
   };
+
+  /**
+   * DuelEntity.prepareTokenEntitiesのショートハンド
+   * @param owner
+   * @param createdBy
+   * @param definition
+   * @returns
+   */
+  public static readonly prepareTokenEntity = (owner: Duelist, createdBy: DuelEntity, definition: EntityDefinition) =>
+    DuelEntity.prepareTokenEntities(owner, createdBy, definition, 1)[0];
 
   /**
    *
@@ -506,7 +540,10 @@ export class DuelEntity {
   public readonly damageFilterBundle: DamageFilterBundle;
   public readonly moveLog: EntityMoveLog;
   public readonly counterHolder: CounterHolder;
-  public readonly parent: DuelEntity | undefined;
+  private _parent: DuelEntity | undefined;
+  public get parent() {
+    return this._parent;
+  }
   public face: TDuelEntityFace;
   public get isUnderControl() {
     return this.face === "FaceUp" || deckCellTypes.every((t) => t !== this.cell.cellType);
@@ -781,7 +818,7 @@ export class DuelEntity {
     return this.definition.validateFusionMaterials(entities);
   };
 
-  private readonly definition: EntityDefinition;
+  private readonly definition: Readonly<EntityDefinition>;
   /**
    *
    * @param owner
@@ -807,7 +844,7 @@ export class DuelEntity {
     this.owner = owner;
     this.cell = fieldCell;
     this.entityType = entityType;
-    this.parent = parent;
+    this._parent = parent;
     this.origin = definition.staticInfo;
     this._status = JSON.parse(JSON.stringify(definition.staticInfo));
     this._numericStatus = JSON.parse(JSON.stringify(definition.staticInfo));

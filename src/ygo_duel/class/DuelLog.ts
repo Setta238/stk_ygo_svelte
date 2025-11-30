@@ -1,11 +1,12 @@
 import { StkEvent } from "@stk_utils/class/StkEvent";
 import { SystemError } from "./Duel";
 import { Duel } from "./Duel";
-import { type Duelist } from "./Duelist";
+import { Duelist } from "./Duelist";
 import type { IDuelClock } from "./DuelClock";
 import type { DuelEntity } from "./DuelEntity";
 import { type DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 import { EzTransactionController } from "./DuelUtilTypes";
+import { ezJsonStringify } from "@stk_utils/funcs/StkJsonUtils";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const logLevels = ["info", "warn", "error"] as const;
@@ -19,6 +20,7 @@ type DuelLogRecordOptions = {
   subEntities?: DuelEntity[];
   from?: DuelFieldCell | undefined;
   to?: DuelFieldCell | undefined;
+  error?: unknown;
 };
 export type DuelLogRecord = {
   seq: number;
@@ -77,25 +79,21 @@ export default class DuelLog {
   };
   public readonly error = (error: unknown) => {
     const lines = ["エラー発生"];
-
+    const _error = { stack: [] as string[], duelists: { ...this.duel.duelists }, error };
     if (error instanceof Error) {
       lines.push("-- エラーメッセージ --");
       lines.push(error.message);
-      if (error instanceof SystemError) {
-        lines.push("-- 関連オブジェクト --");
-        error.items.forEach((item) => lines.push(JSON.stringify(item)));
-      }
       lines.push("-- エラー名称 --");
       lines.push(error.name || "エラー名称取得失敗");
-      lines.push("-- スタックトレース --");
-      lines.push(error.stack || "スタックトレース取得失敗");
+      if (error.stack) {
+        _error.stack = error.stack.split("\n");
+      }
     } else {
       lines.push("-- エラー型特定失敗 --");
-      lines.push(JSON.stringify(error));
     }
     console.error(error);
     console.error(lines);
-    this.write("error", "System", lines, undefined);
+    this.write("error", "System", lines, undefined, { error: _error });
   };
 
   public readonly warn = (text: string) => {

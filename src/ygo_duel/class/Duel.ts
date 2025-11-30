@@ -54,17 +54,20 @@ export class DuelEnd extends Error {
 export class SystemError extends Error {
   public readonly message: string;
   public readonly items: unknown[];
+  public readonly viteBuildTimestamp = import.meta.env.VITE_BUILD_TIMESTAMP;
   public constructor(message: string, ...items: unknown[]) {
     super(message);
     this.message = message;
     this.items = items;
   }
 }
+
 export class IllegalCancelError extends SystemError {
   public constructor(...items: unknown[]) {
     super("キャンセル不可のアクションがキャンセルされた。", ...items);
   }
 }
+
 export class Duel {
   private readonly onDuelEndEvent = new StkEvent<void>();
   public get onDuelEnd() {
@@ -75,6 +78,7 @@ export class Duel {
   public readonly chainBlockLog: DuelChainBlockLog;
   public field: DuelField;
   public clock: DuelClock;
+
   public get phase() {
     return this.clock.period.phase;
   }
@@ -233,7 +237,9 @@ export class Duel {
         this.view.requireUpdate();
         this.onDuelEndEvent.trigger();
       } else if (error instanceof Error) {
+        console.info(error);
         this.log.error(error);
+        console.info(error);
       }
     } finally {
       this.log.dispose();

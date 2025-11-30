@@ -2,6 +2,7 @@
   import { tick } from "svelte";
   import type DuelLog from "@ygo_duel/class/DuelLog";
   import type { DuelLogRecord } from "@ygo_duel/class/DuelLog";
+  import { ezJsonStringify } from "@stk_utils/funcs/StkJsonUtils";
   let duelLogBodyRef: HTMLDivElement | undefined = undefined;
   export let log: DuelLog;
   let lastRecord: DuelLogRecord | undefined;
@@ -85,6 +86,30 @@
                         消滅：{record.mainEntity?.toString()} {record.from?.toString()} ⇒ void
                       {:else}
                         {record.text}
+                      {/if}
+                      {#if record.error}
+                        <div>
+                          <a
+                            class="white_button"
+                            href={window.URL.createObjectURL(
+                              new Blob(
+                                [
+                                  ezJsonStringify(
+                                    record.error,
+                                    (key, value) => (["pool", "bundles", "duel"].includes(key) || typeof value === "function" ? undefined : value),
+                                    4
+                                  ),
+                                ],
+                                {
+                                  type: "text/plain",
+                                }
+                              )
+                            )}
+                            download="error_info.json"
+                          >
+                            エラー情報ダウンロード
+                          </a>
+                        </div>
                       {/if}
                     </div>
                   {/each}

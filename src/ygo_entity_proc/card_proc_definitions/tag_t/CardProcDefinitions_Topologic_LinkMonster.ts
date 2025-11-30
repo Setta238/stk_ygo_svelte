@@ -62,7 +62,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
             return true;
           }
 
-          // FIXME フリーズする
           myInfo.activator.duel.field.statusOperatorPool.push(
             new StatusOperator({
               title: "攻撃抑止",

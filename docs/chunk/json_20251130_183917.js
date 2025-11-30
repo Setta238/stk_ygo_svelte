@@ -1850,4 +1850,12 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 また、自分のエンドフェイズ時、
 このカード以外の自分の墓地の植物族モンスター１体をゲームから除外する事で、
 このカードを墓地から表側守備表示で特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect","RegularSpecialSummonOnly"],level:8,attack:2200,defense:0,attributes:["Fire"],types:["Plant"],wikiEncodedName:"%A1%D4%A5%D5%A5%A7%A5%CB%A5%AD%A5%B7%A5%A2%A5%F3%A1%A6%A5%AF%A5%E9%A5%B9%A5%BF%A1%BC%A1%A6%A5%A2%A5%DE%A5%EA%A5%EA%A5%B9%A1%D5"},"フェニキシアン・シード":{name:"フェニキシアン・シード",nameKana:"",description:`自分フィールド上に表側表示で存在するこのカードを墓地へ送って発動できる。
-手札から「フェニキシアン・クラスター・アマリリス」１体を特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:2,attack:800,defense:0,attributes:["Fire"],types:["Plant"],wikiEncodedName:"%A1%D4%A5%D5%A5%A7%A5%CB%A5%AD%A5%B7%A5%A2%A5%F3%A1%A6%A5%B7%A1%BC%A5%C9%A1%D5"}};export{e as j};
+手札から「フェニキシアン・クラスター・アマリリス」１体を特殊召喚する。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:2,attack:800,defense:0,attributes:["Fire"],types:["Plant"],wikiEncodedName:"%A1%D4%A5%D5%A5%A7%A5%CB%A5%AD%A5%B7%A5%A2%A5%F3%A1%A6%A5%B7%A1%BC%A5%C9%A1%D5"},"トポロジック・ボマー・ドラゴン":{name:"トポロジック・ボマー・ドラゴン",nameKana:"",description:`【リンクマーカー：上/左下/下/右下】
+効果モンスター２体以上
+(1)：このカードが既にモンスターゾーンに存在する状態で、このカード以外のモンスターがリンクモンスターのリンク先に特殊召喚された場合に発動する。
+お互いのメインモンスターゾーンのモンスターを全て破壊する。
+このターン、このカード以外の自分のモンスターは攻撃できない。
+(2)：このカードが相手モンスターを攻撃したダメージ計算後に発動する。
+その相手モンスターの元々の攻撃力分のダメージを相手に与える。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Link","Effect","SpecialSummon"],nameTags:["トポロジック"],link:4,attack:3e3,attributes:["Dark"],types:["Cyberse"],wikiEncodedName:"%A1%D4%A5%C8%A5%DD%A5%ED%A5%B8%A5%C3%A5%AF%A1%A6%A5%DC%A5%DE%A1%BC%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5",linkArrowKeys:["TopCenter","BottomLeft","BottomCenter","BottomRight"]},ダンディライオン:{name:"ダンディライオン",nameKana:"",description:`(1)：このカードが墓地へ送られた場合に発動する。
+自分フィールドに「綿毛トークン」（植物族・風・星１・攻／守０）２体を守備表示で特殊召喚する。
+このトークンは特殊召喚されたターン、アドバンス召喚のためにはリリースできない。`,pendulumDescription:"",kind:"Monster",monsterCategories:["Effect"],level:3,attack:300,defense:300,attributes:["Earth"],types:["Plant"],wikiEncodedName:"%A1%D4%A5%C0%A5%F3%A5%C7%A5%A3%A5%E9%A5%A4%A5%AA%A5%F3%A1%D5"}};export{e as j};

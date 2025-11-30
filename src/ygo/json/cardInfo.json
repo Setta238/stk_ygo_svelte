@@ -25014,5 +25014,71 @@
       "Plant"
     ],
     "wikiEncodedName": "%A1%D4%A5%C0%A5%F3%A5%C7%A5%A3%A5%E9%A5%A4%A5%AA%A5%F3%A1%D5"
+  },
+  "捕食植物ダーリング・コブラ": {
+    "name": "捕食植物ダーリング・コブラ",
+    "nameKana": "",
+    "description": "「捕食植物ダーリング・コブラ」の効果はデュエル中に１度しか使用できない。\n(1)：このカードが「捕食植物」モンスターの効果で特殊召喚に成功した場合に発動できる。\nデッキから「融合」魔法カードまたは「フュージョン」魔法カード１枚を手札に加える。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "nameTags": [
+      "捕食植物"
+    ],
+    "level": 3,
+    "attack": 1000,
+    "defense": 1500,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Plant"
+    ],
+    "wikiEncodedName": "%A1%D4%CA%E1%BF%A9%BF%A2%CA%AA%A5%C0%A1%BC%A5%EA%A5%F3%A5%B0%A1%A6%A5%B3%A5%D6%A5%E9%A1%D5"
+  },
+  "捕食植物オフリス・スコーピオ": {
+    "name": "捕食植物オフリス・スコーピオ",
+    "nameKana": "",
+    "description": "このカード名の効果は１ターンに１度しか使用できない。\n(1)：このカードが召喚・特殊召喚に成功した場合、手札からモンスター１体を墓地へ送って発動できる。\nデッキから「捕食植物オフリス・スコーピオ」以外の「捕食植物」モンスター１体を特殊召喚する。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "nameTags": [
+      "捕食植物"
+    ],
+    "level": 3,
+    "attack": 1200,
+    "defense": 800,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Plant"
+    ],
+    "wikiEncodedName": "%A1%D4%CA%E1%BF%A9%BF%A2%CA%AA%A5%AA%A5%D5%A5%EA%A5%B9%A1%A6%A5%B9%A5%B3%A1%BC%A5%D4%A5%AA%A1%D5"
+  },
+  "イービル・ソーン": {
+    "name": "イービル・ソーン",
+    "nameKana": "",
+    "description": "(1)：このカードをリリースして発動できる。\n相手に３００ダメージを与え、デッキから「イービル・ソーン」を２体まで攻撃表示で特殊召喚できる。\nこの効果で特殊召喚したモンスターは効果を発動できない。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "level": 1,
+    "attack": 100,
+    "defense": 300,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Plant"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%A4%A1%BC%A5%D3%A5%EB%A1%A6%A5%BD%A1%BC%A5%F3%A1%D5"
   }
 }

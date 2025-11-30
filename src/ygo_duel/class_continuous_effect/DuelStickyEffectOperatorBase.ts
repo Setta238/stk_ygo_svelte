@@ -32,10 +32,6 @@ export abstract class StickyEffectOperatorPool<OPE extends StickyEffectOperatorB
    * @param ope
    */
   public readonly push = (ope: OPE) => {
-    if (!ope.isContinuous) {
-      throw new SystemError("staticへの追加は永続以外不可", ope);
-    }
-
     // 追加の前に、期限切れを削除
     this.excludesExpired();
 

@@ -363,7 +363,7 @@ export abstract class DuelFacilitatorBase {
           await chainBlockInfo.nextActionInfo.action.directExecute(chainBlockInfo.activator, undefined, false);
         }
         // チェーンブロック番号を加算。
-        this.duel.clock.incrementChainBlockSeq();
+        await this.duel.clock.incrementChainBlockSeq();
       }
     }
 

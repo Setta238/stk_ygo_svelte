@@ -849,9 +849,7 @@ export class DuelEntity {
     this.moveLog = new EntityMoveLog(this);
     this.moveLog.pushForRuleAction(["Spawn"]);
 
-    let continuousEffectBases: ContinuousEffectBase<unknown>[] = [];
-
-    continuousEffectBases = definition.continuousEffects ?? [];
+    let continuousEffectBases: ContinuousEffectBase<unknown>[] = definition.continuousEffects ?? [];
     this.substituteEffects.push(...(definition.substituteEffects ?? []).map((base) => SubstituteEffect.createNew(this, base)));
 
     if (this.origin.kind === "Monster" && this.entityType === "Card" && definition.summonFilter) {

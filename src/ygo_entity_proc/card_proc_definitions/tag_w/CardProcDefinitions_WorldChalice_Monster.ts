@@ -158,13 +158,11 @@ export default function* generate(): Generator<EntityProcDefinition> {
             "SpecialSummon",
             ["Effect"],
             myInfo.action,
-            monsters.map((monster) => {
-              return {
-                monster,
-                cells,
-                posList: faceupBattlePositions,
-              };
-            }),
+            monsters.map((monster) => ({
+              monster,
+              cells,
+              posList: faceupBattlePositions,
+            })),
             [],
             false
           );

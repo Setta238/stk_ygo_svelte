@@ -35,7 +35,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         prepare: defaultPrepare,
         execute: async (myInfo) => {
           // 300ポイントダメージ
-          const damageInfos = myInfo.activator.getOpponentPlayer().effectDamage(800, myInfo);
+          const damageInfos = myInfo.activator.getOpponentPlayer().effectDamage(300, myInfo);
 
           // ダメージが与えられなかった場合、特殊召喚効果を使用できない
           if (!damageInfos.some((info) => info.duelist === myInfo.activator.getOpponentPlayer())) {

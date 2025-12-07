@@ -397,16 +397,24 @@ export const defaultSelfSpecialSummonExecute = async <T>(
   chainBlockInfos?: Readonly<ChainBlockInfo<unknown>[]>,
   posList: Readonly<TBattlePosition[]> = ["Attack", "Defense"]
 ) => {
-  const cells = myInfo.activator.getMonsterZones();
   if (myInfo.action.entity.wasMovedAfter(myInfo.isActivatedAt)) {
     return false;
   }
-
   const costInfos = entityCostTypes.flatMap((type) => myInfo.costInfo[type] ?? []).map((info) => ({ material: info.cost, cell: info.cell }));
 
-  const monster = await myInfo.activator.summon("SpecialSummon", ["Effect"], myInfo.action, myInfo.action.entity, posList, cells, costInfos, false);
+  const cell = chainBlockInfos && chainBlockInfos.slice(-1)[0] === myInfo ? myInfo.dest : undefined;
 
-  return Boolean(monster);
+  if (cell) {
+    const monster = await myInfo.activator.summon("SpecialSummon", ["Effect"], myInfo.action, myInfo.action.entity, posList, [cell], costInfos, false);
+
+    if (monster) {
+      return true;
+    }
+  }
+
+  const cells = myInfo.activator.getMonsterZones();
+
+  return Boolean(await myInfo.activator.summon("SpecialSummon", ["Effect"], myInfo.action, myInfo.action.entity, posList, cells, costInfos, false));
 };
 
 export const defaultLinkMonsterActions = [defaultDeclareAttackAction, defaultBattleAction] as const;

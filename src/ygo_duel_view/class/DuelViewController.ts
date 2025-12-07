@@ -381,12 +381,17 @@ export class DuelViewController {
     while (true) {
       const result = { dest: availableCells.randomPick(), battlePosition: _posList[0] };
 
-      if (_posList.length === 1 && !userAgentInfo.canDragElement) {
-        const dest = await this.waitSelectCell(summoner, availableCells, cancelable, "召喚先を選択。");
-        if (!dest) {
-          return;
+      if (_posList.length === 1) {
+        if (availableCells.length === 1 && !cancelable) {
+          return result;
         }
-        return { ...result, dest };
+        if (!userAgentInfo.canDragElement) {
+          const dest = await this.waitSelectCell(summoner, availableCells, cancelable, "召喚先を選択。");
+          if (!dest) {
+            return;
+          }
+          return { ...result, dest };
+        }
       }
 
       const dummyActionInfos = _posList.map((pos) => EntityAction.createDummyAction(entity, pos, availableCells, pos));

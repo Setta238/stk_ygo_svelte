@@ -3,13 +3,12 @@ import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition"
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import { duelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
+import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
+import { canSelfSepcialSummon, defaultSelfSpecialSummonExecute, getDestsForSelfSpecialSummon } from "@ygo_entity_proc/card_actions/CardActions_Monster";
 import {
   defaultCanPaySelfSendToGraveyardCost,
-  defaultEffectSpecialSummonExecute,
   defaultPaySelfSendToGraveyardCost,
-  defaultPrepare,
-} from "@ygo_entity_proc/card_actions/CardActions";
-import { canSelfSepcialSummon, defaultSelfSpecialSummonExecute, getDestsForSelfSpecialSummon } from "@ygo_entity_proc/card_actions/CardActions_Monster";
+} from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_SendToGraveyard";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {

@@ -4,12 +4,12 @@ import { defaultSpellTrapSetAction, getDefaultEquipSpellTrapAction } from "../..
 import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { IllegalCancelError } from "@ygo_duel/class/Duel";
+import { defaultPrepare, getSingleTargetActionPartical } from "@ygo_entity_proc/card_actions/CardActions";
 import {
   defaultCanPaySelfSendToGraveyardCost,
   defaultPaySelfSendToGraveyardCost,
-  defaultPrepare,
-  getSingleTargetActionPartical,
-} from "../../card_actions/CardActions";
+} from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_SendToGraveyard";
+
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "折れ竹光",

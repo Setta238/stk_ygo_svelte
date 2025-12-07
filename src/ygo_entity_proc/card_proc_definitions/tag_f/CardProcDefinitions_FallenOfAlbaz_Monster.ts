@@ -6,7 +6,8 @@ import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition"
 import { monsterZoneCellTypes, type DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
 import { duelPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
-import { defaultCanPayDiscardCosts, defaultPayDiscardCosts } from "@ygo_entity_proc/card_actions/CardActions";
+import { defaultCanPayDiscardCosts, defaultPayDiscardCosts } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_Discard";
+
 import { getDefaultFusionSummonAction } from "@ygo_entity_proc/card_actions/CardActions_FusionSpell";
 import { canSelfSepcialSummon } from "@ygo_entity_proc/card_actions/CardActions_Monster";
 

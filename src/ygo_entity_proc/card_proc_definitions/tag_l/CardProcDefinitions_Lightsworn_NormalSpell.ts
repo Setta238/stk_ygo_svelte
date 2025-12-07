@@ -3,7 +3,7 @@ import { IllegalCancelError } from "@ygo_duel/class/Duel";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import { defaultCanPayDiscardCosts, defaultPayDiscardCosts } from "@ygo_entity_proc/card_actions/CardActions";
+import { defaultCanPayDiscardCosts, defaultPayDiscardCosts } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_Discard";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {

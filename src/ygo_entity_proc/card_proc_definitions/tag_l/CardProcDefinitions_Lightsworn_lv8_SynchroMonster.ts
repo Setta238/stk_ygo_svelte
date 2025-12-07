@@ -1,6 +1,8 @@
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
-import { defaultPrepare, getPayBanishCostsActionPartical } from "@ygo_entity_proc/card_actions/CardActions";
+import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
+import { getPayBanishCostsActionPartical } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_Banish";
+
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import { IllegalCancelError, SystemError } from "@ygo_duel/class/Duel";

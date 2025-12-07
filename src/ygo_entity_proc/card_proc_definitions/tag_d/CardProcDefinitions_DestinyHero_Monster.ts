@@ -1,14 +1,10 @@
 import { type EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
-import {
-  defaultCanPaySelfBanishCosts,
-  defaultEffectSpecialSummonExecute,
-  defaultPaySelfBanishCosts,
-  defaultPrepare,
-} from "@ygo_entity_proc/card_actions/CardActions";
+import { defaultEffectSpecialSummonExecute, defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { EntityAction } from "@ygo_duel/class/DuelEntityAction";
 import { delay } from "@stk_utils/funcs/StkPromiseUtil";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
+import { getPaySelfBanishCostsActionPartical } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_Banish";
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "Ｄ－ＨＥＲＯ ディアボリックガイ",
@@ -24,7 +20,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableFaces: ["FaceUp"],
         fixedTags: ["SpecialSummonFromDeck"],
         priorityForNPC: 10,
-        canPayCosts: defaultCanPaySelfBanishCosts,
+        ...getPaySelfBanishCostsActionPartical(),
         canExecute: (myInfo) => {
           const nextOne = myInfo.activator.getDeckCell().cardEntities.find((card) => card.nm === "Ｄ－ＨＥＲＯ ディアボリックガイ");
           if (!nextOne) {
@@ -42,7 +38,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
           );
           return list.length > 0;
         },
-        payCosts: defaultPaySelfBanishCosts,
         prepare: defaultPrepare,
         execute: async (myInfo) => {
           const newOne = myInfo.activator.getDeckCell().cardEntities.find((card) => card.nm === "Ｄ－ＨＥＲＯ ディアボリックガイ");

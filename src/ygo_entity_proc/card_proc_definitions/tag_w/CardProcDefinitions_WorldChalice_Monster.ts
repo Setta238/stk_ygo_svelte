@@ -3,10 +3,11 @@ import { defaultSelfReleaseCanPayCosts, defaultSelfReleasePayCosts } from "@ygo_
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { SystemError } from "@ygo_duel/class/Duel";
-import { defaultCanPaySelfBanishCosts, defaultPaySelfBanishCosts, defaultPrepare } from "../../card_actions/CardActions";
+import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import type { TActionTag } from "@ygo_duel/class/DuelEntityAction";
+import { getPaySelfBanishCostsActionPartical } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_Banish";
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "星杯の妖精リース",
@@ -213,12 +214,11 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         executableFaces: ["FaceUp"],
-        canPayCosts: defaultCanPaySelfBanishCosts,
+        ...getPaySelfBanishCostsActionPartical(),
         meetsConditions: (myInfo) => !myInfo.action.entity.wasMovedAtCurrentTurn,
         canExecute: (myInfo) =>
           myInfo.activator.canAddToHandFromDeck &&
           myInfo.activator.getDeckCell().cardEntities.filter((card) => card.status.nameTags?.includes("星遺物")).length > 0,
-        payCosts: defaultPaySelfBanishCosts,
         fixedTags: ["SearchFromDeck"],
         prepare: defaultPrepare,
         execute: async (myInfo) => {

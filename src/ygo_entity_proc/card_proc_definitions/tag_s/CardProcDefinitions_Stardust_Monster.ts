@@ -7,20 +7,18 @@ import {
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { damageStepPeriodKeys, duelPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
-import {
-  defaultPrepare,
-  defaultCanPaySelfBanishCosts,
-  defaultPaySelfBanishCosts,
-  getSingleTargetActionPartical,
-  getMultiTargetsRebornActionPartical,
-  getPayBanishCostsActionPartical,
-} from "@ygo_entity_proc/card_actions/CardActions";
+import { defaultPrepare, getSingleTargetActionPartical, getMultiTargetsRebornActionPartical } from "@ygo_entity_proc/card_actions/CardActions";
+
 import { duelFieldCellTypes, monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import { getDefaultSynchroSummonAction } from "../../card_actions/CardActions_SynchroMonster";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 import { ProcFilter } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { SystemError } from "@ygo_duel/class/Duel";
+import {
+  getPaySelfBanishCostsActionPartical,
+  getPayBanishCostsActionPartical,
+} from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_Banish";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
@@ -285,8 +283,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableFaces: ["FaceUp"],
         priorityForNPC: 10,
         fixedTags: ["SpecialSummonFromGraveyard"],
-        canPayCosts: defaultCanPaySelfBanishCosts,
-        payCosts: defaultPaySelfBanishCosts,
+        ...getPaySelfBanishCostsActionPartical(),
         ...getMultiTargetsRebornActionPartical((myInfo) =>
           myInfo.activator
             .getGraveyard()

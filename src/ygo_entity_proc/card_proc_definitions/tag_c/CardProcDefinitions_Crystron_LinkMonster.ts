@@ -1,11 +1,12 @@
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
-import { defaultPrepare, defaultCanPaySelfBanishCosts, defaultPaySelfBanishCosts } from "@ygo_entity_proc/card_actions/CardActions";
+import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
 import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 import { getDefaultLinkSummonAction } from "../../card_actions/CardActions_LinkMonster";
 import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 import { IllegalCancelError } from "@ygo_duel/class/Duel";
+import { getPaySelfBanishCostsActionPartical } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_Banish";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
@@ -100,7 +101,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         isOnlyNTimesPerChain: 1,
-        canPayCosts: defaultCanPaySelfBanishCosts,
+        ...getPaySelfBanishCostsActionPartical(),
         meetsConditions: (myInfo) => !myInfo.activator.isTurnPlayer,
         canExecute: (myInfo) => {
           const cells = [...myInfo.activator.getMonsterZones(), ...myInfo.activator.duel.field.getCells("ExtraMonsterZone")];
@@ -121,7 +122,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
           );
           return list.length > 0;
         },
-        payCosts: defaultPaySelfBanishCosts,
         prepare: defaultPrepare,
         execute: async (myInfo): Promise<boolean> => {
           const cells = [...myInfo.activator.getMonsterZones(), ...myInfo.activator.duel.field.getCells("ExtraMonsterZone")];

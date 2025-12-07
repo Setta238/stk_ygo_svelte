@@ -1,12 +1,12 @@
 import { defaultContinuousSpellCardActivateAction, defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CardActions_Spell";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
-import { defaultPayLifePoint } from "@ygo_entity_proc/card_actions/CardActions";
 import { executableDuelistTypes, type TActionTag } from "@ygo_duel/class/DuelEntityAction";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { createRegularDamageFilterHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { DamageFilter } from "@ygo_duel/class_continuous_effect/DuelDamageFilter";
 import { SystemError } from "@ygo_duel/class/Duel";
+import { defaultPayLifePoint } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_LifePoint";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {

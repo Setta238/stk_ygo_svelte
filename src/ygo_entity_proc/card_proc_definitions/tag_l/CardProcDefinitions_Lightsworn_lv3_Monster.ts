@@ -1,13 +1,9 @@
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
-import {
-  defaultCanPayDiscardCosts,
-  defaultPayDiscardCosts,
-  defaultPrepare,
-  getMultiTargetsRebornActionPartical,
-  getPayBanishCostsActionPartical,
-} from "@ygo_entity_proc/card_actions/CardActions";
+import { defaultPrepare, getMultiTargetsRebornActionPartical } from "@ygo_entity_proc/card_actions/CardActions";
+import { defaultCanPayDiscardCosts, defaultPayDiscardCosts } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_Discard";
+import { getPayBanishCostsActionPartical } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_Banish";
 import { getCommonLightswormEndPhaseAction, getCommonTwillightswormEndPhaseAction } from "@ygo_entity_proc/card_actions/tag_l/CardActions_Lightsworn_Monster";
 
 export default function* generate(): Generator<EntityProcDefinition> {

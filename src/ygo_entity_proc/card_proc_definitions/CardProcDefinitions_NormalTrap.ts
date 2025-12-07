@@ -3,14 +3,14 @@ import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CardAct
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import {
-  defaultCanPayDiscardCosts,
   defaultEffectSpecialSummonExecute,
-  defaultPayDiscardCosts,
   defaultPrepare,
   defaultTargetMonstersRebornPrepare,
   getMultiTargetsRebornActionPartical,
   getSingleTargetActionPartical,
-} from "../card_actions/CardActions";
+} from "@ygo_entity_proc/card_actions/CardActions";
+import { defaultCanPayDiscardCosts, defaultPayDiscardCosts } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_Discard";
+
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { entityCostTypes, type CardActionDefinition } from "@ygo_duel/class/DuelEntityAction";
 import type { DuelEntity } from "@ygo_duel/class/DuelEntity";

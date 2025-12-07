@@ -1,7 +1,8 @@
 import { defaultFusionSubstituteEffect } from "@ygo_entity_proc/card_actions/CardActions_Monster";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
-import { defaultCanPaySelfDiscardCosts, defaultPaySelfDiscardCosts, defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
+import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
+import { defaultCanPaySelfDiscardCosts, defaultPaySelfDiscardCosts } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_Discard";
 import { freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { getDefaultFusionSummonAction } from "@ygo_entity_proc/card_actions/CardActions_FusionSpell";
 

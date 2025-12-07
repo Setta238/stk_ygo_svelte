@@ -1,11 +1,12 @@
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
-import { defaultCanPaySelfBanishCosts, defaultPayHarfLifePoint, defaultPaySelfBanishCosts } from "@ygo_entity_proc/card_actions/CardActions";
+import { defaultCanPaySelfBanishCosts, defaultPaySelfBanishCosts } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_Banish";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { SystemError } from "@ygo_duel/class/Duel";
 import type { ActionCostInfo, ChainBlockInfoBase } from "@ygo_duel/class/DuelEntityAction";
 import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CardActions_Spell";
+import { defaultPayHarfLifePoint } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_LifePoint";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   {
@@ -116,6 +117,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         },
       ],
     };
+
     yield {
       name: "トランザクション・ロールバック",
       actions: [

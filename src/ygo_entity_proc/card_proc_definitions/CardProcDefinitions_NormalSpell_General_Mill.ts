@@ -2,7 +2,8 @@ import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CardAct
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import { defaultPrepare, getPayReleaseCostActionPartical } from "@ygo_entity_proc/card_actions/CardActions";
+import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
+import { getPayReleaseCostActionPartical } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_Release";
 import { IllegalCancelError } from "@ygo_duel/class/Duel";
 import type { CardActionDefinition } from "@ygo_duel/class/DuelEntityAction";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";

@@ -10,10 +10,11 @@ import {
 } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import { defaultPayLifePoint, getMultiTargetsRebornActionPartical } from "../card_actions/CardActions";
+import { getMultiTargetsRebornActionPartical } from "../card_actions/CardActions";
 import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { duelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { trashCellTypes } from "@ygo_duel/class/DuelFieldCell";
+import { defaultPayLifePoint } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_LifePoint";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield* (

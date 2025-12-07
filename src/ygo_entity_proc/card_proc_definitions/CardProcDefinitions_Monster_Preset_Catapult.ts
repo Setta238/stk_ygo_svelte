@@ -12,6 +12,7 @@ import { createRegularStatusOperatorHandler, type ContinuousEffectBase } from "@
 import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
 import { duelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
+import { defaultCanPayReleaseCosts } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_Release";
 
 const createCatapultAction = (args: {
   qty: number;
@@ -30,11 +31,17 @@ const createCatapultAction = (args: {
     executableFaces: ["FaceUp"],
     needsToPayRegularCost: true,
     fixedTags: ["DamageToOpponent"],
-    canPayCosts: (myInfo) =>
-      myInfo.activator
-        .getMonstersOnField()
-        .filter(args.filter)
-        .some((monster) => monster.canBeReleased(myInfo.activator, myInfo.action.entity, ["ReleaseAsCost"], myInfo.action)),
+    canPayCosts: (..._args) =>
+      defaultCanPayReleaseCosts(
+        ..._args,
+        (myInfo) =>
+          myInfo.activator
+            .getMonstersOnField()
+            .filter(args.filter)
+            .some((monster) => monster.canBeReleased(myInfo.activator, myInfo.action.entity, ["ReleaseAsCost"], myInfo.action)),
+        undefined,
+        args.qty
+      ),
     payCosts: async (myInfo, chainBlockInfos, cancelable) => {
       const costs = await myInfo.activator.waitSelectEntities(
         myInfo.activator
@@ -144,7 +151,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
     {
       name: "カタパルト・ウォリアー",
       qty: 1,
-      filter: (monster) => Boolean(monster.status.nameTags?.includes("ジャンク")),
+      filter: (monster) => Boolean(monster.status.nameTags?.includes("ジャンク") && (monster.origin.attack ?? 0) > 0),
       calcDamage: (myInfo, costs) => costs.map((monster) => monster.origin.attack ?? 0).reduce((wip, current) => wip + current, 0),
       otherActionProps: {
         isOnlyNTimesPerTurnIfFaceup: 1,

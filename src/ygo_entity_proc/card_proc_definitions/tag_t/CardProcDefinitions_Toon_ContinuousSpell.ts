@@ -1,7 +1,7 @@
 import { defaultContinuousSpellCardActivateAction, defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CardActions_Spell";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
-import { defaultPayLifePoint } from "@ygo_entity_proc/card_actions/CardActions";
+import { defaultPayLifePoint } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_LifePoint";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {

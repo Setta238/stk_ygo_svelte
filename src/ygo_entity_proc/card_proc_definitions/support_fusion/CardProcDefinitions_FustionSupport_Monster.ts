@@ -1,10 +1,11 @@
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
-import { defaultPayLifePoint, defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
+import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 import { duelFieldCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import { executableDuelistTypes } from "@ygo_duel/class/DuelEntityAction";
 import { IllegalCancelError, SystemError } from "@ygo_duel/class/Duel";
 import { ProcFilter } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
+import { defaultPayLifePoint } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_LifePoint";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {

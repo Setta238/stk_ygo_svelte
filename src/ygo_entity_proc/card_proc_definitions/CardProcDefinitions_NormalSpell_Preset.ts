@@ -4,7 +4,8 @@ import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CardAct
 import type { CardActionDefinition, TActionTag } from "@ygo_duel/class/DuelEntityAction";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
-import { defaultCanPayDiscardCosts, defaultPayDiscardCosts, defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
+import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
+import { defaultCanPayDiscardCosts, defaultPayDiscardCosts } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_Discard";
 import type { TMonsterType } from "@ygo/class/YgoTypes";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 

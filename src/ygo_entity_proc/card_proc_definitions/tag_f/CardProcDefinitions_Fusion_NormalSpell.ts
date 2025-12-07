@@ -5,7 +5,8 @@ import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition"
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 import { duelFieldCellTypes } from "@ygo_duel/class/DuelFieldCell";
-import { defaultPayLifePoint, defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
+import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
+import { defaultPayLifePoint } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_LifePoint";
 import { IllegalCancelError, SystemError } from "@ygo_duel/class/Duel";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { executableDuelistTypes } from "@ygo_duel/class/DuelEntityAction";

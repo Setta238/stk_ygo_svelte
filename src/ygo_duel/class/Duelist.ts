@@ -13,9 +13,9 @@ import {
   type SummonMaterialInfo,
   type TSpellSpeed,
   type ValidatedActionInfo,
-} from "./DuelEntityAction";
+} from "@ygo_duel/class/DuelEntityAction";
 import { min } from "@stk_utils/funcs/StkMathUtils";
-import type { TBanishProcType } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
+import { type TBanishProcType } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
 import { DuelEntityShortHands } from "./DuelEntityShortHands";
 import type { EntityDefinition } from "./DuelEntityDefinition";
 import { calcBattleDamage, calcEffectDamage, type CalculatedDamageInfo } from "@ygo_duel/class_continuous_effect/DuelDamageFilter";

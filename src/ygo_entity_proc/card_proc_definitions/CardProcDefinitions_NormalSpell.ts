@@ -5,10 +5,11 @@ import { IllegalCancelError, SystemError } from "@ygo_duel/class/Duel";
 
 import type { EntityDefinition, EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import { defaultPayLifePoint, defaultPrepare, getMultiTargetsRebornActionPartical } from "@ygo_entity_proc/card_actions/CardActions";
+import { defaultPrepare, getMultiTargetsRebornActionPartical } from "@ygo_entity_proc/card_actions/CardActions";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 import { executableDuelistTypes, type ChainBlockInfoBase } from "@ygo_duel/class/DuelEntityAction";
 import { defaultActions } from "@ygo_entity_proc/card_actions/CardActions_Monster";
+import { defaultPayLifePoint } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_LifePoint";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {

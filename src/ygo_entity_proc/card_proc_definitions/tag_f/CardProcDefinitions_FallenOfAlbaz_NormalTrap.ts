@@ -5,7 +5,8 @@ import { entityCostTypes, type ActionCostInfo, type ChainBlockInfoBase } from "@
 import { isNameTypeFusionMaterialInfo, type EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import type { SummonChoice } from "@ygo_duel/class/Duelist";
 import { freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
-import { defaultCanPayReleaseCosts, defaultTargetMonstersRebornExecute } from "@ygo_entity_proc/card_actions/CardActions";
+import { defaultTargetMonstersRebornExecute } from "@ygo_entity_proc/card_actions/CardActions";
+import { defaultCanPayReleaseCosts } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_Release";
 import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CardActions_Spell";
 
 export default function* generate(): Generator<EntityProcDefinition> {

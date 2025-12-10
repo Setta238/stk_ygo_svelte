@@ -999,10 +999,12 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
 
       if (!indirectly) {
         // 誓約効果などの適用
-        if (this.isOnlyNTimesPerTurnIfFaceup > 0) {
-          this.entity.counterHolder.incrementActionCountPerTurn(this);
-        } else if (this.isOnlyNTimesIfFaceup > 0) {
-          this.entity.counterHolder.incrementActionCount(this);
+        if (this.entity.cell.isPlayFieldCell) {
+          if (this.isOnlyNTimesPerTurnIfFaceup > 0) {
+            this.entity.counterHolder.incrementActionCountPerTurn(this);
+          } else if (this.isOnlyNTimesIfFaceup > 0) {
+            this.entity.counterHolder.incrementActionCount(this);
+          }
         }
         this.definition.settle(myInfo, chainBlockInfos);
       }

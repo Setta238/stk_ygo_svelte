@@ -61,7 +61,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               return {
                 monster,
                 cells,
-                posList: faceupBattlePositions,
+                posList: ["Attack"],
               };
             }),
             [],

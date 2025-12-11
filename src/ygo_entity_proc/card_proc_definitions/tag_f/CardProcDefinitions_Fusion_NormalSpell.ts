@@ -56,7 +56,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             const cells = myInfo.activator.getMonsterZones();
             const list = myInfo.activator.getEnableSummonList(
               myInfo.activator,
-              "SpecialSummon",
+              "FusionSummon",
               ["Effect"],
               myInfo.action,
               myInfo.activator

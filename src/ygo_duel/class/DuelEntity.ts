@@ -373,7 +373,7 @@ export class DuelEntity {
     if (!items.length) {
       return;
     }
-
+    const _movedAs = [...movedAs];
     const duel = actionOwner.duel;
 
     const movedAsDic: { [pos in TBattlePosition]: TDuelCauseReason } = {
@@ -393,7 +393,7 @@ export class DuelEntity {
           } else {
             entity.duel.log.info(`${entity.toString()}を${advance}セット`, chooser);
           }
-          if (movedAs.includes("Rule")) {
+          if (_movedAs.includes("Rule")) {
             chooser.info.ruleNormalSummonCountQty++;
           } else {
             chooser.info.effectNormalSummonCountQty++;
@@ -402,6 +402,9 @@ export class DuelEntity {
           if (summonKind === "SpecialSummon") {
             entity.duel.log.info(`${entity.toString()}を${battlePositionDic[pos]}で特殊召喚`, chooser);
           } else {
+            if (!_movedAs.includes("SpecialSummon")) {
+              _movedAs.push("SpecialSummon");
+            }
             entity.info.summonKinds.push("SpecialSummon");
             entity.duel.log.info(`${entity.toString()}を${battlePositionDic[pos]}で${summonNameDic[summonKind]}！`, chooser);
           }
@@ -416,7 +419,7 @@ export class DuelEntity {
         const { face, orientation } = DuelEntity.splitBattlePos(pos);
 
         // チェーンに乗らない召喚、特殊召喚は無効にされる可能性がある。
-        if (movedAs.includes("Rule")) {
+        if (_movedAs.includes("Rule")) {
           entity.info.isPending = true;
         }
         return {
@@ -427,7 +430,7 @@ export class DuelEntity {
             face,
             orientation,
             pos: "Top",
-            movedAs: [summonKind, movedAsDic[pos], ...movedAs],
+            movedAs: [summonKind, movedAsDic[pos], ..._movedAs],
             movedBy,
             actionOwner,
             chooser,
@@ -443,7 +446,7 @@ export class DuelEntity {
       .map((item) => item.summoner)
       .forEach((duelist) => {
         if (summonKind === "NormalSummon" || summonKind === "AdvanceSummon") {
-          if (movedAs.includes("Rule")) {
+          if (_movedAs.includes("Rule")) {
             duelist.info.ruleNormalSummonCount++;
           } else {
             duelist.info.effectNormalSummonCount++;

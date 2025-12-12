@@ -7,31 +7,34 @@ import { playFieldCellTypes, type DuelFieldCellType } from "@ygo_duel/class/Duel
 export const defaultCanPaySendToGraveyardCost = <T>(
   myInfo: ChainBlockInfoBase<T>,
   cellTypes: DuelFieldCellType[],
-  filter: (entity: DuelEntity) => boolean,
+  filter: (entity: DuelEntity, myInfo: ChainBlockInfoBase<T>) => boolean,
   picker: StkPicker<DuelEntity>
-) =>
-  picker
+) => {
+  const _filter = (entity: DuelEntity) => filter(entity, myInfo);
+  return picker
     .getAllPatterns(
       myInfo.activator
         .getCells(...cellTypes)
         .flatMap((cell) => cell.cardEntities)
-        .filter(filter)
+        .filter(_filter)
         .filter((entity) => myInfo.activator.canSendToGraveyard([entity]))
     )
     .some(() => true);
+};
 
 export const defaultPaySendToGraveyardCost = async <T>(
   myInfo: ChainBlockInfoBase<T>,
   chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
   cancelable: boolean,
   cellTypes: DuelFieldCellType[],
-  filter: (entity: DuelEntity) => boolean,
+  filter: (entity: DuelEntity, myInfo: ChainBlockInfoBase<T>) => boolean,
   picker: StkPicker<DuelEntity>
 ) => {
+  const _filter = (entity: DuelEntity) => filter(entity, myInfo);
   const _selectables = myInfo.activator
     .getCells(...cellTypes)
     .flatMap((cell) => cell.cardEntities)
-    .filter(filter)
+    .filter(_filter)
     .filter((entity) => myInfo.activator.canSendToGraveyard([entity]));
 
   const selectables: DuelEntity[] = [];
@@ -83,7 +86,7 @@ export const defaultPaySelfSendToGraveyardCost = async <T>(myInfo: ChainBlockInf
 
 export const getPaySendToGraveyardCostsActionPartical = <T>(
   cellTypes: DuelFieldCellType[],
-  filter: (entity: DuelEntity) => boolean,
+  filter: (entity: DuelEntity, myInfo: ChainBlockInfoBase<T>) => boolean,
   pickerDefinition: StkPickerDefinition<DuelEntity>
 ): Required<Pick<CardActionDefinitionFunctions<T>, "canPayCosts" | "payCosts">> => {
   const picker = new StkPicker(pickerDefinition);

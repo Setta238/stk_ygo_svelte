@@ -25080,5 +25080,449 @@
       "Plant"
     ],
     "wikiEncodedName": "%A1%D4%A5%A4%A1%BC%A5%D3%A5%EB%A1%A6%A5%BD%A1%BC%A5%F3%A1%D5"
+  },
+  "にん人": {
+    "name": "にん人",
+    "nameKana": "",
+    "description": "「にん人」の効果は１ターンに１度しか使用できない。\n(1)：このカードが墓地に存在する場合、手札及び自分フィールドの表側表示モンスターの中から、「にん人」以外の植物族モンスター１体を墓地へ送って発動できる。\nこのカードを墓地から特殊召喚する。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "level": 4,
+    "attack": 1900,
+    "defense": 0,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Plant"
+    ],
+    "wikiEncodedName": "%A1%D4%A4%CB%A4%F3%BF%CD%A1%D5"
+  },
+  "Ｅ・ＨＥＲＯ スチーム・ヒーラー": {
+    "name": "Ｅ・ＨＥＲＯ スチーム・ヒーラー",
+    "nameKana": "",
+    "description": "「Ｅ・ＨＥＲＯ バーストレディ」＋「Ｅ・ＨＥＲＯ バブルマン」\nこのカードは融合召喚でしか特殊召喚できない。\nこのカードが戦闘によってモンスターを破壊し墓地へ送った時、破壊したモンスターの元々の攻撃力分だけ自分のライフポイントを回復する。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "Effect",
+      "RegularSpecialSummonOnly",
+      "SpecialSummon"
+    ],
+    "nameTags": [
+      "Ｅ・ＨＥＲＯ",
+      "ＨＥＲＯ"
+    ],
+    "level": 5,
+    "attack": 1800,
+    "defense": 1000,
+    "attributes": [
+      "Water"
+    ],
+    "types": [
+      "Warrior"
+    ],
+    "wikiEncodedName": "%A1%D4%A3%C5%A1%A6%A3%C8%A3%C5%A3%D2%A3%CF+%A5%B9%A5%C1%A1%BC%A5%E0%A1%A6%A5%D2%A1%BC%A5%E9%A1%BC%A1%D5"
+  },
+  "ミレニアム・アイズ・サクリファイス": {
+    "name": "ミレニアム・アイズ・サクリファイス",
+    "nameKana": "",
+    "description": "「サクリファイス」＋効果モンスター\n(1)：１ターンに１度、相手モンスターの効果が発動した時、相手のフィールド・墓地の効果モンスター１体を対象として発動できる。\nその相手の効果モンスターを装備カード扱いとしてこのカードに装備する。\n(2)：このカードの攻撃力・守備力は、このカードの効果で装備したモンスターのそれぞれの数値分アップする。\n(3)：このカードの効果で装備したモンスターと元々のカード名が同じモンスターは攻撃できず、その効果は無効化される。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Fusion",
+      "Effect",
+      "SpecialSummon"
+    ],
+    "nameTags": [
+      "アイズ・サクリファイス",
+      "サクリファイス",
+      "ミレニアム"
+    ],
+    "level": 1,
+    "attack": 0,
+    "defense": 0,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Spellcaster"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%DF%A5%EC%A5%CB%A5%A2%A5%E0%A1%A6%A5%A2%A5%A4%A5%BA%A1%A6%A5%B5%A5%AF%A5%EA%A5%D5%A5%A1%A5%A4%A5%B9%A1%D5"
+  },
+  "ＢＦ－朧影のゴウフウ": {
+    "name": "ＢＦ－朧影のゴウフウ",
+    "nameKana": "",
+    "description": "このカードは通常召喚できない。\n自分フィールドにモンスターが存在しない場合に特殊召喚できる。\n(1)：このカードが手札からの特殊召喚に成功した時に発動できる。\n自分フィールドに「朧影トークン」（鳥獣族・闇・星１・攻／守０）２体を特殊召喚する。\nこのトークンはリリースできず、Ｓ素材にできない。\n(2)：このカードとチューナー以外のモンスター１体以上を自分フィールドから除外し、そのレベルの合計と同じレベルを持つ\n自分の墓地の「ＢＦ」Ｓモンスター１体を対象として発動できる。\nそのモンスターをチューナー扱いとして特殊召喚する。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "SpecialSummon",
+      "Tuner",
+      "Effect"
+    ],
+    "nameTags": [
+      "ＢＦ"
+    ],
+    "level": 5,
+    "attack": 0,
+    "defense": 0,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "WingedBeast"
+    ],
+    "wikiEncodedName": "%A1%D4%A3%C2%A3%C6%A1%DD%DB%B0%B1%C6%A4%CE%A5%B4%A5%A6%A5%D5%A5%A6%A1%D5"
+  },
+  "ＢＦ－隠れ蓑のスチーム": {
+    "name": "ＢＦ－隠れ蓑のスチーム",
+    "nameKana": "",
+    "description": "「ＢＦ－隠れ蓑のスチーム」の(2)の効果はデュエル中に１度しか使用できない。\n(1)：表側表示のこのカードがフィールドから離れた場合に発動する。\n自分フィールドに「スチーム・トークン」（水族・風・星１・攻／守１００）１体を特殊召喚する。\n(2)：このカードが墓地に存在する場合、自分フィールドのモンスター１体をリリースして発動できる。\nこのカードを墓地から特殊召喚する。\nこの効果で特殊召喚したこのカードをＳ素材とする場合、他のＳ素材モンスターは全て「ＢＦ」モンスターでなければならない。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Tuner",
+      "Effect"
+    ],
+    "nameTags": [
+      "ＢＦ"
+    ],
+    "level": 3,
+    "attack": 800,
+    "defense": 1200,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "WingedBeast"
+    ],
+    "wikiEncodedName": "%A1%D4%A3%C2%A3%C6%A1%DD%B1%A3%A4%EC%CC%AC%A4%CE%A5%B9%A5%C1%A1%BC%A5%E0%A1%D5"
+  },
+  "スチーム・シンクロン": {
+    "name": "スチーム・シンクロン",
+    "nameKana": "",
+    "description": "(1)：相手メインフェイズに発動できる。\nこのカードを含む自分フィールドのモンスターをＳ素材としてＳ召喚する。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Tuner",
+      "Effect"
+    ],
+    "nameTags": [
+      "シンクロ",
+      "シンクロン"
+    ],
+    "level": 3,
+    "attack": 600,
+    "defense": 800,
+    "attributes": [
+      "Water"
+    ],
+    "types": [
+      "Machine"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%B9%A5%C1%A1%BC%A5%E0%A1%A6%A5%B7%A5%F3%A5%AF%A5%ED%A5%F3%A1%D5"
+  },
+  "スチームロイド": {
+    "name": "スチームロイド",
+    "nameKana": "",
+    "description": "(1)：このカードは相手モンスターに攻撃するダメージステップの間、攻撃力が５００アップする。\nこのカードは相手モンスターに攻撃されるダメージステップの間、攻撃力が５００ダウンする。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "nameTags": [
+      "ロイド"
+    ],
+    "level": 4,
+    "attack": 1800,
+    "defense": 1800,
+    "attributes": [
+      "Earth"
+    ],
+    "types": [
+      "Machine"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%B9%A5%C1%A1%BC%A5%E0%A5%ED%A5%A4%A5%C9%A1%D5"
+  },
+  "アビスチーム": {
+    "name": "アビスチーム",
+    "nameKana": "",
+    "description": "このカード名の(1)(2)の効果はそれぞれ１ターンに１度しか使用できない。\n(1)：自分フィールドの魚族・海竜族・水族モンスターの種族の種類の数だけ自分はドローする。\nこのカードの発動後、次の自分ターン終了時まで自分は水属性モンスターしかＥＸデッキから特殊召喚できない。\n(2)：このカードが墓地に存在する状態で、自分フィールドの表側表示の水属性モンスターが戦闘・効果で破壊された場合、\nこのカードを除外して発動できる。\n自分の墓地・除外状態の「水精鱗」モンスター１体を手札に加える。",
+    "kind": "Trap",
+    "trapCategory": "Normal",
+    "nameTags": [
+      "アビス"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%A2%A5%D3%A5%B9%A5%C1%A1%BC%A5%E0%A1%D5"
+  },
+  "フォトン・スラッシャー": {
+    "name": "フォトン・スラッシャー",
+    "nameKana": "",
+    "description": "このカードは通常召喚できない。\n自分フィールドにモンスターが存在しない場合に特殊召喚できる。\n(1)：自分フィールドにこのカード以外のモンスターが存在する場合、このカードは攻撃できない。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "SpecialSummon",
+      "Effect"
+    ],
+    "nameTags": [
+      "フォトン"
+    ],
+    "level": 4,
+    "attack": 2100,
+    "defense": 0,
+    "attributes": [
+      "Light"
+    ],
+    "types": [
+      "Warrior"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%D5%A5%A9%A5%C8%A5%F3%A1%A6%A5%B9%A5%E9%A5%C3%A5%B7%A5%E3%A1%BC%A1%D5"
+  },
+  "亡龍の戦慄－デストルドー": {
+    "name": "亡龍の戦慄－デストルドー",
+    "nameKana": "",
+    "description": "このカード名の効果は１ターンに１度しか使用できない。\n(1)：このカードが手札・墓地に存在する場合、ＬＰを半分払い、自分フィールドのレベル６以下のモンスター１体を対象として発動できる。\nこのカードを特殊召喚する。\nこの効果で特殊召喚したこのカードは、レベルが対象のモンスターのレベル分だけ下がり、\nフィールドから離れた場合にデッキの一番下に戻る。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Tuner",
+      "Effect"
+    ],
+    "level": 7,
+    "attack": 1000,
+    "defense": 3000,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Dragon"
+    ],
+    "wikiEncodedName": "%A1%D4%CB%B4%CE%B6%A4%CE%C0%EF%D8%CB%A1%DD%A5%C7%A5%B9%A5%C8%A5%EB%A5%C9%A1%BC%A1%D5"
+  },
+  "彼岸の黒天使 ケルビーニ": {
+    "name": "彼岸の黒天使 ケルビーニ",
+    "nameKana": "",
+    "description": "【リンクマーカー：左下/右下】\nレベル３モンスター２体\nこのカード名の(3)の効果は１ターンに１度しか使用できない。\n(1)：このカードのリンク先のモンスターは効果では破壊されない。\n(2)：フィールドのこのカードが戦闘または相手の効果で破壊される場合、代わりに自分フィールドのカード１枚を墓地へ送る事ができる。\n(3)：デッキからレベル３モンスター１体を墓地へ送り、\nフィールドの「彼岸」モンスター１体を対象として発動できる。\nそのモンスターの攻撃力・守備力をターン終了時まで、\n墓地へ送ったモンスターのそれぞれの数値分アップする。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Link",
+      "Effect",
+      "SpecialSummon"
+    ],
+    "nameTags": [
+      "彼岸"
+    ],
+    "link": 2,
+    "attack": 500,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Fairy"
+    ],
+    "wikiEncodedName": "%A1%D4%C8%E0%B4%DF%A4%CE%B9%F5%C5%B7%BB%C8+%A5%B1%A5%EB%A5%D3%A1%BC%A5%CB%A1%D5",
+    "linkArrowKeys": [
+      "BottomLeft",
+      "BottomRight"
+    ]
+  },
+  "トロイメア・グリフォン": {
+    "name": "トロイメア・グリフォン",
+    "nameKana": "",
+    "description": "【リンクマーカー：上/左/右/下】\nカード名が異なるモンスター２体以上\nこのカード名の(1)の効果は１ターンに１度しか使用できない。\n(1)：このカードがＬ召喚した場合、手札を１枚捨て、自分の墓地の魔法・罠カード１枚を対象として発動できる。\nそのカードを自分フィールドにセットする。\nこの効果でセットしたカードはこのターン発動できない。\nこの効果の発動時にこのカードが相互リンク状態だった場合、\nさらに自分は１枚ドローできる。\n(2)：このカードがモンスターゾーンに存在する限り、\nお互いはリンク状態ではない特殊召喚されたフィールドのモンスターの効果を発動できない。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Link",
+      "Effect"
+    ],
+    "nameTags": [
+      "トロイメア"
+    ],
+    "link": 4,
+    "attack": 2500,
+    "attributes": [
+      "Light"
+    ],
+    "types": [
+      "Fiend"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%C8%A5%ED%A5%A4%A5%E1%A5%A2%A1%A6%A5%B0%A5%EA%A5%D5%A5%A9%A5%F3%A1%D5",
+    "linkArrowKeys": [
+      "TopCenter",
+      "MiddleLeft",
+      "MiddleRight",
+      "BottomCenter"
+    ]
+  },
+  "トロイメア・ケルベロス": {
+    "name": "トロイメア・ケルベロス",
+    "nameKana": "",
+    "description": "【リンクマーカー：上/左】\nカード名が異なるモンスター２体\nこのカード名の(1)の効果は１ターンに１度しか使用できない。\n(1)：このカードがＬ召喚した場合、手札を１枚捨て、相手のメインモンスターゾーンの特殊召喚されたモンスター１体を対象として発動できる。\nそのモンスターを破壊する。\nこの効果の発動時にこのカードが相互リンク状態だった場合、さらに自分は１枚ドローできる。\n(2)：このカードがモンスターゾーンに存在する限り、\n自分フィールドの相互リンク状態のモンスターは効果では破壊されない。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Link",
+      "Effect"
+    ],
+    "nameTags": [
+      "トロイメア"
+    ],
+    "link": 2,
+    "attack": 1600,
+    "attributes": [
+      "Earth"
+    ],
+    "types": [
+      "Fiend"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%C8%A5%ED%A5%A4%A5%E1%A5%A2%A1%A6%A5%B1%A5%EB%A5%D9%A5%ED%A5%B9%A1%D5",
+    "linkArrowKeys": [
+      "TopCenter",
+      "MiddleLeft"
+    ]
+  },
+  "トロイメア・ゴブリン": {
+    "name": "トロイメア・ゴブリン",
+    "nameKana": "",
+    "description": "【リンクマーカー：左/右】\nカード名が異なるモンスター２体\n(1)：このカードが自分ターンにＬ召喚した場合、手札を１枚捨てて発動できる。\nこの効果の発動時にこのカードが相互リンク状態だった場合、自分は１枚ドローできる。\nこのターン、自分は通常召喚に加えて１度だけ、\n自分メインフェイズに手札からモンスター１体をこのカードのリンク先となる自分フィールドに召喚できる。\n(2)：このカードがモンスターゾーンに存在する限り、\n自分フィールドの相互リンク状態のモンスターをお互いは効果の対象にできない。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Link",
+      "Effect"
+    ],
+    "nameTags": [
+      "ゴブリン",
+      "トロイメア"
+    ],
+    "link": 2,
+    "attack": 1300,
+    "attributes": [
+      "Wind"
+    ],
+    "types": [
+      "Fiend"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%C8%A5%ED%A5%A4%A5%E1%A5%A2%A1%A6%A5%B4%A5%D6%A5%EA%A5%F3%A1%D5",
+    "linkArrowKeys": [
+      "MiddleLeft",
+      "MiddleRight"
+    ]
+  },
+  "トロイメア・フェニックス": {
+    "name": "トロイメア・フェニックス",
+    "nameKana": "",
+    "description": "【リンクマーカー：上/右】\nカード名が異なるモンスター２体\nこのカード名の(1)の効果は１ターンに１度しか使用できない。\n(1)：このカードがＬ召喚した場合、手札を１枚捨て、相手フィールドの魔法・罠カード１枚を対象として発動できる。\nそのカードを破壊する。\nこの効果の発動時にこのカードが相互リンク状態だった場合、\nさらに自分は１枚ドローできる。\n(2)：このカードがモンスターゾーンに存在する限り、\n相互リンク状態の自分のモンスターは戦闘では破壊されない。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Link",
+      "Effect"
+    ],
+    "nameTags": [
+      "トロイメア"
+    ],
+    "link": 2,
+    "attack": 1900,
+    "attributes": [
+      "Fire"
+    ],
+    "types": [
+      "Fiend"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%C8%A5%ED%A5%A4%A5%E1%A5%A2%A1%A6%A5%D5%A5%A7%A5%CB%A5%C3%A5%AF%A5%B9%A1%D5",
+    "linkArrowKeys": [
+      "TopCenter",
+      "MiddleRight"
+    ]
+  },
+  "トロイメア・マーメイド": {
+    "name": "トロイメア・マーメイド",
+    "nameKana": "",
+    "description": "【リンクマーカー：下】\n「トロイメア・マーメイド」以外の「トロイメア」モンスター１体\nこのカード名の(1)の効果は１ターンに１度しか使用できない。\n(1)：このカードがリンク召喚に成功した場合、手札を１枚捨てて発動できる。\nデッキから「トロイメア」モンスター１体を特殊召喚する。\nこの効果の発動時にこのカードが相互リンク状態だった場合、さらに自分はデッキから１枚ドローできる。\n(2)：このカードがモンスターゾーンに存在する限り、フィールドの相互リンク状態ではないモンスターの攻撃力・守備力は１０００ダウンする。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Link",
+      "Effect"
+    ],
+    "nameTags": [
+      "トロイメア"
+    ],
+    "link": 1,
+    "attack": 1000,
+    "attributes": [
+      "Water"
+    ],
+    "types": [
+      "Fiend"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%C8%A5%ED%A5%A4%A5%E1%A5%A2%A1%A6%A5%DE%A1%BC%A5%E1%A5%A4%A5%C9%A1%D5",
+    "linkArrowKeys": [
+      "BottomCenter"
+    ]
+  },
+  "トロイメア・ユニコーン": {
+    "name": "トロイメア・ユニコーン",
+    "nameKana": "",
+    "description": "【リンクマーカー：左/右/下】\nカード名が異なるモンスター２体以上\nこのカード名の(1)の効果は１ターンに１度しか使用できない。\n(1)：このカードがＬ召喚した場合、手札を１枚捨て、フィールドのカード１枚を対象として発動できる。\nそのカードをデッキに戻す。\nこの効果の発動時にこのカードが相互リンク状態だった場合、\nさらに自分は１枚ドローできる。\n(2)：相互リンク状態の「トロイメア」モンスターが存在する限り、\n自分ドローフェイズの通常のドローの枚数は、その「トロイメア」モンスターの種類の数になる。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Link",
+      "Effect"
+    ],
+    "nameTags": [
+      "トロイメア"
+    ],
+    "link": 3,
+    "attack": 2200,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Fiend"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%C8%A5%ED%A5%A4%A5%E1%A5%A2%A1%A6%A5%E6%A5%CB%A5%B3%A1%BC%A5%F3%A1%D5",
+    "linkArrowKeys": [
+      "MiddleLeft",
+      "MiddleRight",
+      "BottomCenter"
+    ]
+  },
+  "オルフェゴール・トロイメア": {
+    "name": "オルフェゴール・トロイメア",
+    "nameKana": "",
+    "description": "このカード名の(2)の効果は１ターンに１度しか使用できない。\n(1)：このカードはＬモンスターとの戦闘では破壊されない。\n(2)：墓地のこのカードを除外し、フィールドの表側表示モンスター１体を対象として発動できる。\nデッキから「オルフェゴール・トロイメア」以外の機械族・闇属性モンスター１体を墓地へ送り、対象のモンスターの攻撃力をターン終了時まで、墓地へ送ったモンスターのレベル×１００アップする。\nこの効果の発動後、ターン終了時まで自分は闇属性モンスターしか特殊召喚できない。",
+    "pendulumDescription": "",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "nameTags": [
+      "オルフェゴール",
+      "トロイメア"
+    ],
+    "level": 7,
+    "attack": 100,
+    "defense": 2000,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Machine"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%AA%A5%EB%A5%D5%A5%A7%A5%B4%A1%BC%A5%EB%A1%A6%A5%C8%A5%ED%A5%A4%A5%E1%A5%A2%A1%D5"
   }
 }

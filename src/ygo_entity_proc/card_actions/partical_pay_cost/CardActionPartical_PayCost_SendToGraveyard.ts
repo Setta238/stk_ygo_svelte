@@ -17,6 +17,7 @@ export const defaultCanPaySendToGraveyardCost = <T>(
         .getCells(...cellTypes)
         .flatMap((cell) => cell.cardEntities)
         .filter(_filter)
+        .filter((entity) => entity.entityType !== "Token")
         .filter((entity) => myInfo.activator.canSendToGraveyard([entity]))
     )
     .some(() => true);
@@ -35,6 +36,7 @@ export const defaultPaySendToGraveyardCost = async <T>(
     .getCells(...cellTypes)
     .flatMap((cell) => cell.cardEntities)
     .filter(_filter)
+    .filter((entity) => entity.entityType !== "Token")
     .filter((entity) => myInfo.activator.canSendToGraveyard([entity]));
 
   const selectables: DuelEntity[] = [];

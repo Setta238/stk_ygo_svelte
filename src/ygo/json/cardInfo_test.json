@@ -1,0 +1,40 @@
+{
+  "にせアバター": {
+    "name": "にせアバター",
+    "description": "このカードは特殊召喚できない。\n(1)：このカードの攻撃力・守備力は、「邪神アバター」以外のフィールドの攻撃力が一番高いモンスターの攻撃力＋１００の数値になる。",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "level": 1,
+    "attack": null,
+    "defense": null,
+    "isForTest": true,
+    "wikiEncodedName": "",
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Fiend"
+    ]
+  },
+  "にせドレッド・ルート": {
+    "name": "にせドレッド・ルート",
+    "description": "このカードは特殊召喚できない。\n(1)：このカードがモンスターゾーンに存在する限り、このカード以外のフィールドのモンスターの攻撃力・守備力は半分になる。",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Effect"
+    ],
+    "level": 1,
+    "attack": 4000,
+    "defense": 4000,
+    "isForTest": true,
+    "wikiEncodedName": "",
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Fiend"
+    ]
+  }
+}

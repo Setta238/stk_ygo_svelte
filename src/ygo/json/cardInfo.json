@@ -17274,44 +17274,6 @@
     "trapCategory": "Normal",
     "wikiEncodedName": "%A1%D4%BA%BD%BF%D0%A4%CE%C2%E7%A5%CF%A5%EA%A5%B1%A1%BC%A5%F3%A1%D5"
   },
-  "にせアバター": {
-    "name": "にせアバター",
-    "description": "このカードは特殊召喚できない。\n(1)：このカードの攻撃力・守備力は、「邪神アバター」以外のフィールドの攻撃力が一番高いモンスターの攻撃力＋１００の数値になる。",
-    "kind": "Monster",
-    "monsterCategories": [
-      "Effect"
-    ],
-    "level": 1,
-    "attack": null,
-    "defense": null,
-    "isForTest": true,
-    "wikiEncodedName": "",
-    "attributes": [
-      "Dark"
-    ],
-    "types": [
-      "Fiend"
-    ]
-  },
-  "にせドレッド・ルート": {
-    "name": "にせドレッド・ルート",
-    "description": "このカードは特殊召喚できない。\n(1)：このカードがモンスターゾーンに存在する限り、このカード以外のフィールドのモンスターの攻撃力・守備力は半分になる。",
-    "kind": "Monster",
-    "monsterCategories": [
-      "Effect"
-    ],
-    "level": 1,
-    "attack": 4000,
-    "defense": 4000,
-    "isForTest": true,
-    "wikiEncodedName": "",
-    "attributes": [
-      "Dark"
-    ],
-    "types": [
-      "Fiend"
-    ]
-  },
   "ブラック・ホール・ドラゴン": {
     "name": "ブラック・ホール・ドラゴン",
     "description": "このカード名の(1)(2)の効果はそれぞれ１ターンに１度しか使用できない。\n(1)：このカードが手札・墓地に存在し、フィールドのモンスターが自身を対象としないカードの効果で破壊された場合に発動できる。\nこのカードを特殊召喚する。\n(2)：このカードが特殊召喚した場合に発動できる。\nこのターンのエンドフェイズに、デッキから「ブラック・ホール」１枚を手札に加える。\n(3)：フィールドのこのカードは効果では破壊されない。",

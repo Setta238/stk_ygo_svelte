@@ -143,6 +143,10 @@
       return false;
     }
 
+    if (cardInfo.isOldVersion && !searchCondition.others.includes("oldVersion")) {
+      return false;
+    }
+
     if (cardInfo.kind === "Monster") {
       if (cardInfo.attributes && !searchCondition.monsterAttributes.union(cardInfo.attributes).length) {
         return false;

@@ -186,6 +186,10 @@ export type EntityStaticStatus = {
    */
   isForTest?: boolean;
   /**
+   * エラッタ前カードのフラグ
+   */
+  isOldVersion?: boolean;
+  /**
    * リンク数
    */
   link?: number;

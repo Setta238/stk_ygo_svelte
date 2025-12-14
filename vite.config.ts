@@ -47,7 +47,7 @@ export default defineConfig({
       },
       output: {
         manualChunks(id) {
-          if (id.endsWith("cardInfo.json")) {
+          if (id.includes("cardInfo") && id.endsWith("json")) {
             return "json";
           }
           if (id.includes("src/ygo_entity_proc")) {

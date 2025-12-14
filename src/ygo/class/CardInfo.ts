@@ -1,9 +1,11 @@
 import json from "@ygo/json/cardInfo.json";
+import json_test from "@ygo/json/cardInfo_test.json";
+import json_old_version from "@ygo/json/cardInfo_old_version.json";
 import type { CardInfoJson } from "@ygo/class/YgoTypes";
 import { generateAllProcCardDefinitions } from "@ygo_duel/class/DuelEntityDefinition";
 
 const hoge = new Set<string>();
-const fuga = json as unknown as { [name: string]: CardInfoJson };
+const fuga = { ...json, ...json_test, ...json_old_version } as unknown as { [name: string]: CardInfoJson };
 let _definitionCount = 0;
 let _nonDefinitionCount = 0;
 let _testCardCount = 0;

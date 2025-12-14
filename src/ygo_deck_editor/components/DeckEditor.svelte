@@ -7,7 +7,7 @@
     monsterTypes: TMonsterType[];
     spellCategories: TSpellCategory[];
     trapCategories: TTrapCategory[];
-    others: "test"[];
+    others: ("test" | "oldVersion")[];
   };
 </script>
 
@@ -55,11 +55,11 @@
     monsterTypes: [...monsterTypes],
     spellCategories: [...spellCategories],
     trapCategories: [...trapCategories],
-    others: ["test"],
+    others: ["test", "oldVersion"],
   };
 
   const searchCondition = structuredClone(seachConditionDefaultValues);
-  searchCondition.others = [];
+  searchCondition.others = ["oldVersion"];
 
   let mode: "SearchCondition" | "CardDetail" = "SearchCondition";
 
@@ -295,7 +295,7 @@
         <div class="deck_editor_search_box_row" transition:slide={{ delay: 0, duration: 100 }}>
           <div><button class="search_condition_title black_button" on:click={() => onResetSeachCondition("others")}>その他</button></div>
           <div>
-            {#each [{ key: "test", text: "テスト用カードを表示する" }] as item}
+            {#each [{ key: "test", text: "テスト用カードを表示する" }, { key: "oldVersion", text: "エラッタ前カードを表示する" }] as item}
               <label>
                 <input type="checkbox" value={item.key} bind:group={searchCondition.others} />
                 {item.text}

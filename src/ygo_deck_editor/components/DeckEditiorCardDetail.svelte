@@ -68,6 +68,11 @@
       <div class="duel_card_info_row description">
         <div><pre class="description">{getInfo()?.description}</pre></div>
       </div>
+      {#if cardInfo.isOldVersion}
+        <div class="duel_card_info_row">
+          <div>※エラッタ前カードです</div>
+        </div>
+      {/if}
       {#if cardInfo.isForTest}
         <div class="duel_card_info_row">
           <div>※テスト用カードです</div>

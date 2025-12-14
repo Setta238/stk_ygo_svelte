@@ -143,7 +143,7 @@ export const createRegularOperatorHandler = <OPE extends StickyEffectOperatorBas
       const list = opeListCreater(source);
       const targets = getTargets(source);
       console.info(`start : ${source.toString()} ⇒ ${targets.map((e) => e.toString()).join(" ")} (${list.map((item) => item.title).join(" ")})`);
-      targets.map(getBundle).forEach((bundle) => list.forEach(bundle.push));
+      targets.map(getBundle).forEach((bundle) => bundle.push(...list));
       return { targets, seqList: list.map((item) => item.seq) };
     },
     finish: async (source: DuelEntity, info: { targets: DuelEntity[]; seqList: number[] }): Promise<void> => {

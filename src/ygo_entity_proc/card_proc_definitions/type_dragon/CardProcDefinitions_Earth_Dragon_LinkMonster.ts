@@ -63,7 +63,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
                     (spawner: DuelEntity, monster: DuelEntity, current: number) => current + 300
                   )
                 )
-                .forEach(target.numericOprsBundle.push);
+                .forEach((ope) => target.numericOprsBundle.push(ope));
             });
 
           return true;

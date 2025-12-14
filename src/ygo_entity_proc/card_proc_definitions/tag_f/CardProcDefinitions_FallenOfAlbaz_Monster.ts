@@ -151,7 +151,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               ];
               const targets = [source];
               console.info(`start : ${source.toString()} ⇒ ${targets.map((e) => e.toString()).join(" ")} (${list.map((item) => item.title).join(" ")})`);
-              targets.forEach((target) => list.forEach(target.statusOperatorBundle.push));
+              targets.forEach((target) => target.statusOperatorBundle.push(...list));
               return { targets, seqList: list.map((item) => item.seq) };
             },
             finish: async (source: DuelEntity, info: { targets: DuelEntity[]; seqList: number[] }): Promise<void> => {

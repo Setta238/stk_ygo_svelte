@@ -181,19 +181,24 @@
       {/if}
     </div>
     <div class="duel_card_info_footer">
-      {#if entity?.origin.isForTest}
-        <div>※テスト用カードです</div>
-      {:else}
-        <div class="duel_card_info_links">
-          <a href={`https://yugioh-wiki.net/index.php?${entity.origin.wikiEncodedName}`} target="_blank" rel="noopener noreferrer" title="遊戯王カードWiki">
-            ⇒遊戯王カードWiki
-          </a>
-          {#if entity && entity.entityType === "Card"}
-            <a href={getKonamiUrl()} target="_blank" rel="noopener noreferrer" title="コナミカードデータベース">
-              ⇒{entity?.origin.cardId ? "公式カードページ" : "公式で検索"}
+      {#if entity}
+        {#if entity.origin.isOldVersion}
+          <div>※エラッタ前のカードです</div>
+        {/if}
+        {#if entity.origin.isForTest}
+          <div>※テスト用カードです</div>
+        {:else}
+          <div class="duel_card_info_links">
+            <a href={`https://yugioh-wiki.net/index.php?${entity.origin.wikiEncodedName}`} target="_blank" rel="noopener noreferrer" title="遊戯王カードWiki">
+              ⇒遊戯王カードWiki
             </a>
-          {/if}
-        </div>
+            {#if entity && entity.entityType === "Card"}
+              <a href={getKonamiUrl()} target="_blank" rel="noopener noreferrer" title="コナミカードデータベース">
+                ⇒{entity?.origin.cardId ? "公式カードページ" : "公式で検索"}
+              </a>
+            {/if}
+          </div>
+        {/if}
       {/if}
     </div>
   </div>

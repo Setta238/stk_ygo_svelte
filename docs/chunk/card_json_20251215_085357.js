@@ -1959,7 +1959,7 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 手札からモンスター１体を効果を無効にして、このカードのリンク先となる相手フィールドに守備表示で特殊召喚する。
 その後、この効果で特殊召喚したモンスターと同じ種族のモンスター１体を
 デッキから効果を無効にして守備表示で特殊召喚できる。
-この効果でデッキから特殊召喚したターン、自分はデッキから特殊召喚したそのモンスターと元々の種族が同じモンスターしか特殊召喚できない。`,kind:"Monster",monsterCategories:["Link","Effect","SpecialSummon"],link:3,attack:2400,attributes:["Dark"],types:["Spellcaster"],wikiEncodedName:"%A1%D4%A5%B5%A5%E2%A5%F3%A1%A6%A5%BD%A1%BC%A5%B5%A5%EC%A5%B9%A1%D5",linkArrowKeys:["TopCenter","BottomLeft","BottomRight"]},"ファイアウォール・Ｓ・ドラゴン":{name:"ファイアウォール・Ｓ・ドラゴン",description:`チューナー＋チューナー以外のモンスター１体以上
+この効果でデッキから特殊召喚したターン、自分はデッキから特殊召喚したそのモンスターと元々の種族が同じモンスターしか特殊召喚できない。`,kind:"Monster",monsterCategories:["Link","Effect","SpecialSummon"],link:3,attack:2400,attributes:["Dark"],types:["Spellcaster"],wikiEncodedName:"%A1%D4%A5%B5%A5%E2%A5%F3%A1%A6%A5%BD%A1%BC%A5%B5%A5%EC%A5%B9%A1%D5",linkArrowKeys:["TopCenter","BottomLeft","BottomRight"],cardId:"13554"},"ファイアウォール・Ｓ・ドラゴン":{name:"ファイアウォール・Ｓ・ドラゴン",description:`チューナー＋チューナー以外のモンスター１体以上
 このカード名の(1)(2)(3)の効果はそれぞれ１ターンに１度しか使用できない。
 (1)：このカードがＳ召喚した場合、自分の墓地・除外状態のサイバース族モンスター１体を対象として発動できる。
 そのモンスターを手札に加える。
@@ -1993,7 +1993,7 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 そのモンスターを手札に戻す。
 (2)：このカードのリンク先のモンスターが、
 戦闘で破壊された場合または墓地へ送られた場合に発動できる。
-手札からサイバース族モンスター１体を特殊召喚する。`,kind:"Monster",monsterCategories:["Link","Effect","SpecialSummon"],nameTags:["ファイアウォール"],link:4,attack:2500,attributes:["Light"],types:["Cyberse"],wikiEncodedName:"%A1%D4%A5%D5%A5%A1%A5%A4%A5%A2%A5%A6%A5%A9%A1%BC%A5%EB%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5",linkArrowKeys:["TopCenter","MiddleLeft","MiddleRight","BottomCenter"]},"ファイアウォール・ガーディアン":{name:"ファイアウォール・ガーディアン",description:`このカード名の(1)(2)の効果はそれぞれ１ターンに１度しか使用できない。
+手札からサイバース族モンスター１体を特殊召喚する。`,kind:"Monster",monsterCategories:["Link","Effect","SpecialSummon"],nameTags:["ファイアウォール"],link:4,attack:2500,attributes:["Light"],types:["Cyberse"],wikiEncodedName:"%A1%D4%A5%D5%A5%A1%A5%A4%A5%A2%A5%A6%A5%A9%A1%BC%A5%EB%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5",linkArrowKeys:["TopCenter","MiddleLeft","MiddleRight","BottomCenter"],cardId:"13082"},"ファイアウォール・ガーディアン":{name:"ファイアウォール・ガーディアン",description:`このカード名の(1)(2)の効果はそれぞれ１ターンに１度しか使用できない。
 (1)：このカードがサイバース族リンクモンスターのリンク素材として墓地へ送られた場合に発動できる。
 このカードを特殊召喚する。
 この効果で特殊召喚したこのカードは、フィールドから離れた場合に除外される。
@@ -2021,12 +2021,13 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 (1)：このカードの攻撃力・守備力は、「邪神アバター」以外のフィールドの攻撃力が一番高いモンスターの攻撃力＋１００の数値になる。`,kind:"Monster",monsterCategories:["Effect"],level:1,attack:null,defense:null,isForTest:!0,wikiEncodedName:"",attributes:["Dark"],types:["Fiend"]},"にせドレッド・ルート":{name:"にせドレッド・ルート",description:`このカードは特殊召喚できない。
 (1)：このカードがモンスターゾーンに存在する限り、このカード以外のフィールドのモンスターの攻撃力・守備力は半分になる。`,kind:"Monster",monsterCategories:["Effect"],level:1,attack:4e3,defense:4e3,isForTest:!0,wikiEncodedName:"",attributes:["Dark"],types:["Fiend"]}},t={"サモン・ソーサレス[エラッタ前]":{name:"サモン・ソーサレス[エラッタ前]",description:`【リンクマーカー：上/左下/右下】
 トークン以外の同じ種族のモンスター２体以上
-このカード名の効果は１ターンに１度しか使用できない。
-(1)：このカードがＬ召喚した場合に発動できる。
-手札からモンスター１体を効果を無効にして、このカードのリンク先となる相手フィールドに守備表示で特殊召喚する。
-その後、この効果で特殊召喚したモンスターと同じ種族のモンスター１体を
-デッキから効果を無効にして守備表示で特殊召喚できる。
-この効果でデッキから特殊召喚したターン、自分はデッキから特殊召喚したそのモンスターと元々の種族が同じモンスターしか特殊召喚できない。`,kind:"Monster",monsterCategories:["Link","Effect","SpecialSummon"],link:3,attack:2400,attributes:["Dark"],types:["Spellcaster"],wikiEncodedName:"%A1%D4%A5%B5%A5%E2%A5%F3%A1%A6%A5%BD%A1%BC%A5%B5%A5%EC%A5%B9%A1%D5",linkArrowKeys:["TopCenter","BottomLeft","BottomRight"],isOldVersion:!0},"ファイアウォール・ドラゴン[エラッタ前]":{name:"ファイアウォール・ドラゴン[エラッタ前]",description:`【リンクマーカー：上/左/右/下】
+このカード名の(2)の効果は１ターンに１度しか使用できない。
+(1)：このカードがリンク召喚に成功した場合に発動できる。
+手札からモンスター１体を、このカードのリンク先となる相手フィールドに守備表示で特殊召喚する。
+(2)：このカードのリンク先の表側表示モンスター１体を対象として発動できる。
+そのモンスターと同じ種族のモンスター１体をデッキから選び、
+このカードのリンク先となる自分・相手フィールドに守備表示で特殊召喚する。
+この効果で特殊召喚したモンスターの効果は無効化される。`,kind:"Monster",monsterCategories:["Link","Effect","SpecialSummon"],link:3,attack:2400,attributes:["Dark"],types:["Spellcaster"],wikiEncodedName:"%A1%D4%A5%B5%A5%E2%A5%F3%A1%A6%A5%BD%A1%BC%A5%B5%A5%EC%A5%B9%A1%D5",linkArrowKeys:["TopCenter","BottomLeft","BottomRight"],isOldVersion:!0,cardId:"13554"},"ファイアウォール・ドラゴン[エラッタ前]":{name:"ファイアウォール・ドラゴン[エラッタ前]",description:`【リンクマーカー：上/左/右/下】
 モンスター２体以上
 このカード名の(1)(2)の効果はそれぞれ１ターンに１度しか使用できない。
 (1)：このカードがフィールドに表側表示で存在する限り１度だけ、自分・相手ターンに、このカードの相互リンク先のモンスターの数まで、
@@ -2034,4 +2035,4 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 そのモンスターを手札に戻す。
 (2)：このカードのリンク先のモンスターが、
 戦闘で破壊された場合または墓地へ送られた場合に発動できる。
-手札からサイバース族モンスター１体を特殊召喚する。`,kind:"Monster",monsterCategories:["Link","Effect","SpecialSummon"],nameTags:["ファイアウォール"],link:4,attack:2500,attributes:["Light"],types:["Cyberse"],wikiEncodedName:"%A1%D4%A5%D5%A5%A1%A5%A4%A5%A2%A5%A6%A5%A9%A1%BC%A5%EB%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5",linkArrowKeys:["TopCenter","MiddleLeft","MiddleRight","BottomCenter"],isOldVersion:!0}};export{A as a,e as b,t as j};
+手札からサイバース族モンスター１体を特殊召喚する。`,kind:"Monster",monsterCategories:["Link","Effect","SpecialSummon"],nameTags:["ファイアウォール"],link:4,attack:2500,attributes:["Light"],types:["Cyberse"],wikiEncodedName:"%A1%D4%A5%D5%A5%A1%A5%A4%A5%A2%A5%A6%A5%A9%A1%BC%A5%EB%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5",linkArrowKeys:["TopCenter","MiddleLeft","MiddleRight","BottomCenter"],isOldVersion:!0,cardId:"13082"}};export{A as a,e as b,t as j};

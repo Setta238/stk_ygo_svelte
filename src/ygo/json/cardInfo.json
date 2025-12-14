@@ -23825,7 +23825,8 @@
       "TopCenter",
       "BottomLeft",
       "BottomRight"
-    ]
+    ],
+    "cardId":"13554"
   },
   "ファイアウォール・Ｓ・ドラゴン": {
     "name": "ファイアウォール・Ｓ・ドラゴン",
@@ -23957,7 +23958,8 @@
       "MiddleLeft",
       "MiddleRight",
       "BottomCenter"
-    ]
+    ],
+    "cardId":"13082"
   },
   "ファイアウォール・ガーディアン": {
     "name": "ファイアウォール・ガーディアン",

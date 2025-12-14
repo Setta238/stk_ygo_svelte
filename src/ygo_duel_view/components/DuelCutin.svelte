@@ -23,7 +23,7 @@
     const _newRecord: Record = { ...newRecord };
     _newRecord.isKnown = newRecord.chainBlockInfo.action.entity.controller.duelistType === "Player" || newRecord.chainBlockInfo.action.entity.face === "FaceUp";
     _newRecord.chainBlockInfo.onStateChange.append((newState) => {
-      if (newState === "done" || newState === "failed" || newState === "nagated") {
+      if (newState === "done" || newState === "failed" || newState === "negated") {
         removeTimerPromise = removeTimerPromise
           .then(async () => {
             const ms = new Date().getTime() - _newRecord.chainBlockInfo.wasSpawnedAt.getTime();
@@ -133,7 +133,7 @@
     width: 25rem;
     transition: 500ms;
   }
-  .cut_in_item_nagated {
+  .cut_in_item_negated {
     filter: grayscale();
   }
   .cut_in_item > * {

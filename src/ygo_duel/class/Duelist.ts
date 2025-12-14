@@ -147,7 +147,7 @@ export class Duelist {
       effectOwner
     );
 
-    await DuelEntity.summonMany(summonArgs, summonType, movedAs, actDefAttr.entity, effectOwner);
+    await DuelEntity.summonMany(summonArgs, summonType, movedAs, actDefAttr, effectOwner);
 
     return summonArgs.map((arg) => arg.monster);
   };

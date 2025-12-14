@@ -154,6 +154,7 @@ export type TDuelCauseReason =
   | "LostEquipOwner"
   | "LostDestinyBond"
   | "SummonNegated"
+  | "NonEffectiveSummon"
   | "PutDirectly"
   | "Excavate"
   | "Destroy";
@@ -367,13 +368,14 @@ export class DuelEntity {
     items: SummonArg[],
     summonKind: TSummonKindCauseReason,
     movedAs: TDuelCauseReason[],
-    movedBy: DuelEntity,
+    actDefAttr: CardActionDefinitionAttrs & { entity: DuelEntity },
     actionOwner: Duelist
   ): Promise<void> => {
     if (!items.length) {
       return;
     }
     const _movedAs = [...movedAs];
+    const movedBy = actDefAttr.entity;
     const duel = actionOwner.duel;
 
     const movedAsDic: { [pos in TBattlePosition]: TDuelCauseReason } = {
@@ -1032,11 +1034,11 @@ export class DuelEntity {
     pos: TBattlePosition,
     summonKind: TSummonKindCauseReason,
     movedAs: TDuelCauseReason[],
-    movedBy: DuelEntity,
+    actDefAttr: CardActionDefinitionAttrs & { entity: DuelEntity },
     actionOwner: Duelist,
     chooser?: Duelist
   ): Promise<void> => {
-    return DuelEntity.summonMany([{ monster: this, dest: to, summoner: chooser ?? actionOwner, pos }], summonKind, movedAs, movedBy, actionOwner);
+    return DuelEntity.summonMany([{ monster: this, dest: to, summoner: chooser ?? actionOwner, pos }], summonKind, movedAs, actDefAttr, actionOwner);
   };
   public readonly moveForcibly = async (
     to: DuelFieldCell,
@@ -1229,8 +1231,10 @@ export class DuelEntity {
     // 移動ログ追加
     this.moveLog.push(args.kind, args.movedAs, args.movedBy, args.actionOwner, args.chooser);
 
-    // 永続の即時実行処理
-    await this.fireImmediatelyActions(oldProps);
+    if (!args.movedAs.includes("NonEffectiveSummon")) {
+      // 永続の即時実行処理
+      await this.fireImmediatelyActions(oldProps);
+    }
 
     return args.to;
   };
@@ -1327,6 +1331,12 @@ export class DuelEntity {
     };
   };
 
+  public readonly negate = () => {
+    this.status = {
+      ...this.status,
+      isEffective: false,
+    };
+  };
   public readonly resetStatus = () => {
     this.status = {
       ...this.origin,

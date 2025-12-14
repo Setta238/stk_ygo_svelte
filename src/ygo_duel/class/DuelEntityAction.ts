@@ -141,7 +141,7 @@ export type DummyActionInfo = {
   battlePosition?: TBattlePosition;
   originSeq: number;
 };
-type TChainBlockInfoState = "unloaded" | "ready" | "processing" | "done" | "failed" | "nagated";
+type TChainBlockInfoState = "unloaded" | "ready" | "processing" | "done" | "failed" | "negated";
 export type ChainBlockInfoBase<T> = {
   /**
    * 配列上のindex
@@ -948,7 +948,7 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
 
     // 有効無効判定
     if (myInfo.isNegatedActivationBy) {
-      myInfo.state = "nagated";
+      myInfo.state = "negated";
       // 発動無効時は全ての処理を行わない
       if (myInfo.chainNumber) {
         myInfo.activator.writeInfoLog(
@@ -985,7 +985,7 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
         result = await this.definition.execute(myInfo, chainBlockInfos);
         myInfo.state = result ? "done" : "failed";
       } else {
-        myInfo.state = "nagated";
+        myInfo.state = "negated";
         if (myInfo.chainNumber) {
           nagationText =
             nagationText || `チェーン${myInfo.chainNumber}: カードの効果が無効となっているため${myInfo.action.toFullString()}の効果処理を行えない。`;

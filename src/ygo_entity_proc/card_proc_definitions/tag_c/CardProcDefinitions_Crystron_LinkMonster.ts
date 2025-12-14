@@ -48,7 +48,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           return list.length > 0;
         },
         prepare: defaultPrepare,
-        execute: async (myInfo): Promise<boolean> => {
+        execute: async (myInfo) => {
           const tuners = [myInfo.activator.getHandCell(), myInfo.activator.getDeckCell()]
             .flatMap((cell) => cell.cardEntities)
             .filter((card) => (card.lvl ?? 12) < 4)
@@ -72,7 +72,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             false
           );
           if (!tuner) {
-            throw new IllegalCancelError(myInfo);
+            return false;
           }
           tuner.statusOperatorBundle.push(
             new StatusOperator({

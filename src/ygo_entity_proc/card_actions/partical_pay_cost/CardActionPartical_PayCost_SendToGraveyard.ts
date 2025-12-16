@@ -1,6 +1,6 @@
 import { type CardActionDefinitionFunctions, type ChainBlockInfo, type ChainBlockInfoBase } from "@ygo_duel/class/DuelEntityAction";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
-import { StkPicker, type StkPickerDefinition } from "@stk_utils/class/StkPicker";
+import { StkPicker } from "@stk_utils/class/StkPicker";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { playFieldCellTypes, type DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
 
@@ -89,9 +89,9 @@ export const defaultPaySelfSendToGraveyardCost = async <T>(myInfo: ChainBlockInf
 export const getPaySendToGraveyardCostsActionPartical = <T>(
   cellTypes: DuelFieldCellType[],
   filter: (entity: DuelEntity, myInfo: ChainBlockInfoBase<T>) => boolean,
-  pickerDefinition: StkPickerDefinition<DuelEntity>
+  ...pickerDefinitions: Parameters<typeof StkPicker.create<DuelEntity>>
 ): Required<Pick<CardActionDefinitionFunctions<T>, "canPayCosts" | "payCosts">> => {
-  const picker = new StkPicker(pickerDefinition);
+  const picker = StkPicker.create(...pickerDefinitions);
   return {
     canPayCosts: (...args) => defaultCanPaySendToGraveyardCost(args[0], cellTypes, filter, picker),
     payCosts: (...args) => defaultPaySendToGraveyardCost(...args, cellTypes, filter, picker),
@@ -99,7 +99,7 @@ export const getPaySendToGraveyardCostsActionPartical = <T>(
 };
 
 export const getPaySelfSendToGraveyardCostsActionPartical = <T>(): Required<Pick<CardActionDefinitionFunctions<T>, "canPayCosts" | "payCosts">> => {
-  const picker = new StkPicker<DuelEntity>({ qty: 1 });
+  const picker = StkPicker.create<DuelEntity>(1);
   const cellTypes: DuelFieldCellType[] = ["Hand", ...playFieldCellTypes];
 
   return {

@@ -2,45 +2,108 @@ import { type CardActionDefinitionFunctions, type ChainBlockInfo, type ChainBloc
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { playFieldCellTypes, type DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
+import { StkPicker, type StkPickerDefinition } from "@stk_utils/class/StkPicker";
 
-export const defaultCanPayReleaseCosts = <T>(
+export const defaultCanPayReleaseCost = <T>(
   myInfo: ChainBlockInfoBase<T>,
-  chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
-  ...args: Parameters<typeof getPayReleaseCostActionPartical<T>>
+  cellTypes: Readonly<DuelFieldCellType[]>,
+  filter: (entity: DuelEntity, myInfo: ChainBlockInfoBase<T>) => boolean,
+  picker: StkPicker<DuelEntity>
 ) => {
-  const [filter, cellTypes, qty] = args;
-  const cards = myInfo.activator
-    .getCells(...(cellTypes ?? playFieldCellTypes))
-    .flatMap((cell) => cell.cardEntities)
-    .filter((card) => card.kind === "Monster")
-    .filter((card) => card.canBeReleased(myInfo.activator, myInfo.action.entity, ["ReleaseAsCost"], myInfo.action))
-    .filter((card) => !filter || filter(myInfo, chainBlockInfos, card));
-  return cards.length >= (qty ?? 1);
-};
-
-export const getPayReleaseCostActionPartical = <T>(
-  filter: (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, entity: DuelEntity) => boolean = () => true,
-  cellTypes: Readonly<DuelFieldCellType[]> = playFieldCellTypes,
-  qty: number = 1
-): Required<Pick<CardActionDefinitionFunctions<T>, "canPayCosts" | "payCosts">> => {
-  return {
-    canPayCosts: (...args) => defaultCanPayReleaseCosts(...args, filter, cellTypes, qty),
-    payCosts: async (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, cancelable: boolean) => {
-      const cards = myInfo.activator
+  const _filter = (entity: DuelEntity) => filter(entity, myInfo);
+  return picker
+    .getAllPatterns(
+      myInfo.activator
         .getCells(...cellTypes)
         .flatMap((cell) => cell.cardEntities)
-        .filter((card) => card.kind === "Monster")
-        .filter((card) => card.canBeReleased(myInfo.activator, myInfo.action.entity, ["ReleaseAsCost"], myInfo.action))
-        .filter((card) => filter(myInfo, chainBlockInfos, card));
-      const costs = await myInfo.activator.waitSelectEntities(cards, qty, (selected) => selected.length === qty, "コストとするモンスターを選択", cancelable);
-      if (!costs) {
-        return;
-      }
+        .filter(_filter)
+        .filter((entity) => entity.canBeReleased(myInfo.activator, myInfo.action.entity, ["ReleaseAsCost"], myInfo.action))
+        .filter((entity) => myInfo.activator.canRelease([entity]))
+    )
+    .some(() => true);
+};
 
-      const costInfos = costs.map((cost) => ({ cost, cell: cost.cell }));
+export const defaultPayReleaseCost = async <T>(
+  myInfo: ChainBlockInfoBase<T>,
+  chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
+  cancelable: boolean,
+  cellTypes: Readonly<DuelFieldCellType[]>,
+  filter: (entity: DuelEntity, myInfo: ChainBlockInfoBase<T>) => boolean,
+  picker: StkPicker<DuelEntity>
+) => {
+  const _filter = (entity: DuelEntity) => filter(entity, myInfo);
+  const _selectables = myInfo.activator
+    .getCells(...cellTypes)
+    .flatMap((cell) => cell.cardEntities)
+    .filter(_filter)
+    .filter((entity) => entity.canBeReleased(myInfo.activator, myInfo.action.entity, ["ReleaseAsCost"], myInfo.action))
+    .filter((entity) => myInfo.activator.canRelease([entity]));
 
-      await DuelEntityShortHands.releaseManyForTheSameReason(costs, ["Cost"], myInfo.action.entity, myInfo.activator);
-      return { release: costInfos };
-    },
+  const selectables: DuelEntity[] = [];
+  for (const pattern of picker.getAllPatterns(_selectables)) {
+    selectables.push(...pattern.filter((newOne) => !selectables.includes(newOne)));
+    if (selectables.length === _selectables.length) {
+      break;
+    }
+  }
+
+  const qty = picker.qty;
+
+  let costs: DuelEntity[] | undefined = undefined;
+
+  if (selectables.length === qty) {
+    costs = selectables;
+  } else {
+    costs = await myInfo.activator.waitSelectEntities(
+      selectables,
+      qty,
+      (selected) => picker.validatePattern(selected),
+      `コストとしてリリースするカードを選択。`,
+      cancelable
+    );
+  }
+
+  if (!costs) {
+    return;
+  }
+
+  const costInfos = costs.map((cost) => ({ cost, cell: cost.cell }));
+
+  await DuelEntityShortHands.releaseManyForTheSameReason(costs, ["Cost"], myInfo.action.entity, myInfo.activator);
+
+  return { release: costInfos };
+};
+
+export const defaultCanPaySelfReleaseCost = <T>(myInfo: ChainBlockInfoBase<T>) =>
+  myInfo.activator.canRelease([myInfo.action.entity]) &&
+  myInfo.action.entity.canBeReleased(myInfo.activator, myInfo.action.entity, ["ReleaseAsCost"], myInfo.action);
+
+export const defaultPaySelfReleaseCost = async <T>(myInfo: ChainBlockInfoBase<T>) => {
+  const costInfo = { cost: myInfo.action.entity, cell: myInfo.action.entity.cell };
+
+  await myInfo.action.entity.release(["Cost"], myInfo.action.entity, myInfo.activator);
+
+  return { release: [costInfo] };
+};
+
+export const getPayReleaseCostsActionPartical = <T>(
+  cellTypes: Readonly<DuelFieldCellType[]>,
+  filter: (entity: DuelEntity, myInfo: ChainBlockInfoBase<T>) => boolean,
+  ...pickerDefinitions: Parameters<typeof StkPicker.create<DuelEntity>>
+): Required<Pick<CardActionDefinitionFunctions<T>, "canPayCosts" | "payCosts">> => {
+  const picker = StkPicker.create(...pickerDefinitions);
+  return {
+    canPayCosts: (...args) => defaultCanPayReleaseCost(args[0], cellTypes, filter, picker),
+    payCosts: (...args) => defaultPayReleaseCost(...args, cellTypes, filter, picker),
+  };
+};
+
+export const getPaySelfReleaseCostsActionPartical = <T>(): Required<Pick<CardActionDefinitionFunctions<T>, "canPayCosts" | "payCosts">> => {
+  const picker = StkPicker.create<DuelEntity>(1);
+  const cellTypes: DuelFieldCellType[] = ["Hand", ...playFieldCellTypes];
+
+  return {
+    canPayCosts: (...args) => defaultCanPayReleaseCost(args[0], cellTypes, (entity) => args[0].action.entity === entity, picker),
+    payCosts: (...args) => defaultPayReleaseCost(...args, cellTypes, (entity) => args[0].action.entity === entity, picker),
   };
 };

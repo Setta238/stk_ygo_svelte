@@ -1,4 +1,4 @@
-import { max, min } from "@stk_utils/funcs/StkMathUtils";
+import { isNumber, max, min } from "@stk_utils/funcs/StkMathUtils";
 import {} from "@stk_utils/funcs/StkArrayUtils";
 
 export type StkPickerDefinitionBase<T> = {
@@ -25,12 +25,53 @@ export class StkPicker<T> {
   private readonly validator: (selected: Readonly<T[]>) => boolean;
   private readonly minQty: number;
   private readonly maxQty: number;
+
+  private static readonly cash: { [key in number]: StkPicker<any> } = {};
+
+  public static readonly create = <T>(definition: StkPickerDefinition<T> | number) => {
+    let qty: number | undefined = undefined;
+    let _definition: StkPickerDefinition<T> | undefined = undefined;
+
+    if (isNumber(definition)) {
+      qty = definition;
+      _definition = { qty };
+    } else {
+      _definition = definition;
+      if (_definition.validator) {
+        return new StkPicker(_definition);
+      }
+
+      if (_definition.qtyList && _definition.qtyList.length > 1) {
+        return new StkPicker(_definition);
+      }
+
+      if (_definition.minQty !== undefined && _definition.minQty !== _definition.maxQty) {
+        return new StkPicker(_definition);
+      }
+
+      qty = _definition.qty ?? _definition.minQty;
+
+      if (_definition.qtyList && !qty) {
+        qty = _definition.qtyList[0];
+      }
+      if (!qty) {
+        throw Error(`Illegal Definition. PickerDefinition:${_definition}`);
+      }
+    }
+
+    if (!StkPicker.cash[qty]) {
+      StkPicker.cash[qty] = new StkPicker(_definition);
+    }
+
+    return StkPicker.cash[qty] as StkPicker<T>;
+  };
+
   public get qty() {
     return this.minQty === this.maxQty && this.minQty > -1 ? this.minQty : undefined;
   }
 
   // todo : エラーをハンドリングするメソッドを引数に追加。
-  public constructor(definition: StkPickerDefinition<T>) {
+  private constructor(definition: StkPickerDefinition<T>) {
     if (definition.qty && definition.qty > 0) {
       this.minQty = definition.qty;
       this.maxQty = definition.qty;

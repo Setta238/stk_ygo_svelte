@@ -6,8 +6,10 @@ import { isNameTypeFusionMaterialInfo, type EntityProcDefinition } from "@ygo_du
 import type { SummonChoice } from "@ygo_duel/class/Duelist";
 import { freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { defaultTargetMonstersRebornExecute } from "@ygo_entity_proc/card_actions/CardActions";
-import { defaultCanPayReleaseCosts } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_Release";
+import { defaultCanPayReleaseCost } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_Release";
 import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CardActions_Spell";
+import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
+import { StkPicker } from "@stk_utils/class/StkPicker";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   {
@@ -126,8 +128,13 @@ export default function* generate(): Generator<EntityProcDefinition> {
           executableDuelistTypes: ["Controller"],
           fixedTags: ["SpecialSummonFromGraveyard"],
           isOnlyNTimesPerTurn: 1,
-          canPayCosts: (...args) =>
-            defaultCanPayReleaseCosts(...args, (myInfo, chainBlockInfos, entity) => Boolean(entity.status.monsterCategories?.includes("Fusion"))),
+          canPayCosts: (myInfo) =>
+            defaultCanPayReleaseCost(
+              myInfo,
+              monsterZoneCellTypes,
+              (entity) => Boolean(entity.status.monsterCategories?.includes("Fusion")),
+              StkPicker.create(1)
+            ),
           canExecute: (myInfo, chainBlockInfos, irregularExecuteInfo) => {
             if (irregularExecuteInfo) {
               // 非正規コストで発動する場合、検証するのは１パターンで良い

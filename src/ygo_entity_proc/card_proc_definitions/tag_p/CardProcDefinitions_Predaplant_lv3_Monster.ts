@@ -2,11 +2,7 @@ import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
-import {
-  defaultCanPaySendToGraveyardCost,
-  defaultPaySendToGraveyardCost,
-  getPaySendToGraveyardCostsActionPartical,
-} from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_SendToGraveyard";
+import { getPaySendToGraveyardCostsActionPartical } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_SendToGraveyard";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
@@ -24,7 +20,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableFaces: ["FaceUp"],
         isOnlyNTimesPerTurn: 1,
         fixedTags: ["SpecialSummonFromDeck"],
-        ...getPaySendToGraveyardCostsActionPartical(["Hand"], (entity) => entity.kind === "Monster", { qty: 1 }),
+        ...getPaySendToGraveyardCostsActionPartical(["Hand"], (entity) => entity.kind === "Monster", 1),
         canExecute: (myInfo) => {
           const plants = myInfo.activator
             .getDeckCell()

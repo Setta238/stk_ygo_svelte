@@ -5,10 +5,7 @@ import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOper
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { IllegalCancelError } from "@ygo_duel/class/Duel";
 import { defaultPrepare, getSingleTargetActionPartical } from "@ygo_entity_proc/card_actions/CardActions";
-import {
-  defaultCanPaySelfSendToGraveyardCost,
-  defaultPaySelfSendToGraveyardCost,
-} from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_SendToGraveyard";
+import { getPaySelfSendToGraveyardCostsActionPartical } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_SendToGraveyard";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
@@ -168,13 +165,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executablePeriods: ["main1", "main2"],
         executableDuelistTypes: ["Controller"],
         executableFaces: ["FaceUp"],
-        canPayCosts: (myInfo) => {
-          const equipOwner = myInfo.action.entity.info.equipedBy;
-          if (!equipOwner) {
-            return false;
-          }
-          return defaultCanPaySelfSendToGraveyardCost(myInfo);
-        },
+        ...getPaySelfSendToGraveyardCostsActionPartical(),
         canExecute: (myInfo) =>
           Boolean(
             myInfo.action.entity.info.equipedBy &&
@@ -184,7 +175,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
                 .filter((takemitsu) => takemitsu.status.name !== "真刀竹光")
                 .some((spelltrap) => spelltrap.status.spellCategory === "Equip")
           ) && myInfo.activator.duel.field.getMonstersOnFieldStrictly().some((monster) => monster.canBeTargetOfEffect(myInfo)),
-        payCosts: defaultPaySelfSendToGraveyardCost,
         prepare: defaultPrepare,
         execute: async (myInfo) => {
           const takemitsus = myInfo.activator

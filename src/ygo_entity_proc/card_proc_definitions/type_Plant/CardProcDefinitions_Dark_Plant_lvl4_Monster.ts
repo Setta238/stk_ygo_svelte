@@ -34,7 +34,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             entity.nm !== "にん人" &&
             canSelfSepcialSummon(myInfo, faceupBattlePositions, [{ cell: entity.cell, material: entity }], ["Effect"]) &&
             (entity.cell.cellType === "Hand" || entity.face === "FaceUp"),
-          { qty: 1 }
+          1
         ),
         canExecute: (myInfo) =>
           myInfo.activator

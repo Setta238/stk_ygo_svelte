@@ -12,7 +12,8 @@ import { createRegularStatusOperatorHandler, type ContinuousEffectBase } from "@
 import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
 import { duelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
-import { defaultCanPayReleaseCosts } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_Release";
+import { defaultCanPayReleaseCost } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_Release";
+import { StkPicker } from "@stk_utils/class/StkPicker";
 
 const createCatapultAction = (args: {
   qty: number;
@@ -31,17 +32,7 @@ const createCatapultAction = (args: {
     executableFaces: ["FaceUp"],
     needsToPayRegularCost: true,
     fixedTags: ["DamageToOpponent"],
-    canPayCosts: (..._args) =>
-      defaultCanPayReleaseCosts(
-        ..._args,
-        (myInfo) =>
-          myInfo.activator
-            .getMonstersOnField()
-            .filter(args.filter)
-            .some((monster) => monster.canBeReleased(myInfo.activator, myInfo.action.entity, ["ReleaseAsCost"], myInfo.action)),
-        undefined,
-        args.qty
-      ),
+    canPayCosts: (myInfo) => defaultCanPayReleaseCost(myInfo, monsterZoneCellTypes, args.filter, StkPicker.create(1)),
     payCosts: async (myInfo, chainBlockInfos, cancelable) => {
       const costs = await myInfo.activator.waitSelectEntities(
         myInfo.activator

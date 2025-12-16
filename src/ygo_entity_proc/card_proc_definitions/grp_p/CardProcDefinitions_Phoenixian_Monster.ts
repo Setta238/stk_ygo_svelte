@@ -5,10 +5,7 @@ import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import { duelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
 import { canSelfSepcialSummon, defaultSelfSpecialSummonExecute, getDestsForSelfSpecialSummon } from "@ygo_entity_proc/card_actions/CardActions_Monster";
-import {
-  defaultCanPaySelfSendToGraveyardCost,
-  defaultPaySelfSendToGraveyardCost,
-} from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_SendToGraveyard";
+import { getPaySelfSendToGraveyardCostsActionPartical } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_SendToGraveyard";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
@@ -121,7 +118,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableDuelistTypes: ["Controller"],
         executableFaces: ["FaceUp"],
         fixedTags: ["SpecialSummonFromHand"],
-        canPayCosts: defaultCanPaySelfSendToGraveyardCost,
+        ...getPaySelfSendToGraveyardCostsActionPartical(),
         canExecute: (myInfo) => {
           // 手札のアマリリス
           const plants = myInfo.activator.getHandCell().cardEntities.filter((card) => card.nm === "フェニキシアン・クラスター・アマリリス");
@@ -148,7 +145,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
             ).length > 0
           );
         },
-        payCosts: defaultPaySelfSendToGraveyardCost,
         prepare: defaultPrepare,
         execute: async (myInfo) => {
           // 手札のアマリリス

@@ -23825,8 +23825,7 @@
       "TopCenter",
       "BottomLeft",
       "BottomRight"
-    ],
-    "cardId":"13554"
+    ]
   },
   "ファイアウォール・Ｓ・ドラゴン": {
     "name": "ファイアウォール・Ｓ・ドラゴン",
@@ -23958,8 +23957,7 @@
       "MiddleLeft",
       "MiddleRight",
       "BottomCenter"
-    ],
-    "cardId":"13082"
+    ]
   },
   "ファイアウォール・ガーディアン": {
     "name": "ファイアウォール・ガーディアン",
@@ -24039,7 +24037,8 @@
     "kind": "Monster",
     "monsterCategories": [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     "link": 2,
     "attack": 1700,
@@ -24054,5 +24053,28 @@
       "TopCenter",
       "BottomCenter"
     ]
+  },
+  "幻獣機オライオン": {
+    "name": "幻獣機オライオン",
+    "description": "このカード名の(2)の効果は１ターンに１度しか使用できない。\n(1)：自分フィールドにトークンが存在する限り、このカードは戦闘・効果では破壊されない。\n(2)：このカードが墓地へ送られた場合に発動できる。\n自分フィールドに「幻獣機トークン」（機械族・風・星３・攻／守０）１体を特殊召喚する。\n(3)：墓地のこのカードを除外して発動できる。\n手札の「幻獣機」モンスター１体の召喚を行う。",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Tuner",
+      "Effect"
+    ],
+    "nameTags": [
+      "幻獣",
+      "幻獣機"
+    ],
+    "level": 2,
+    "attack": 600,
+    "defense": 1000,
+    "attributes": [
+      "Wind"
+    ],
+    "types": [
+      "Machine"
+    ],
+    "wikiEncodedName": "%A1%D4%B8%B8%BD%C3%B5%A1%A5%AA%A5%E9%A5%A4%A5%AA%A5%F3%A1%D5"
   }
 }

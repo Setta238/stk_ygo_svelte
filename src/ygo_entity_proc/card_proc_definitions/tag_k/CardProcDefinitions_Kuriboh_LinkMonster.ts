@@ -5,7 +5,10 @@ import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNume
 import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import { defaultPrepare, getSingleTargetActionPartical } from "../../card_actions/CardActions";
 import { canSelfSepcialSummon, defaultSelfSpecialSummonExecute } from "@ygo_entity_proc/card_actions/CardActions_Monster";
-import { getPayReleaseCostsActionPartical } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_Release";
+import {
+  getPayReleaseCostsActionPartical,
+  getPaySelfReleaseCostsActionPartical,
+} from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_Release";
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "リンクリボー",
@@ -14,17 +17,17 @@ export default function* generate(): Generator<EntityProcDefinition> {
       {
         title: "①弱体化",
         isMandatory: false,
-        playType: "IgnitionEffect",
-        spellSpeed: "Normal",
+        playType: "QuickEffect",
+        spellSpeed: "Quick",
         executableCells: monsterZoneCellTypes,
         executablePeriods: ["b1Battle", "b2Battle"],
         executableDuelistTypes: ["Controller"],
-        fixedTags: ["DestroyMonsterOnField"],
         meetsConditions: (myInfo, chainBlockInfos) =>
           chainBlockInfos.some((info) => info.action.playType === "DeclareAttack" && info.activator !== myInfo.activator),
         ...getSingleTargetActionPartical((myInfo, chainBlockInfos) =>
           chainBlockInfos.filter((info) => info.action.playType === "DeclareAttack" && info.activator !== myInfo.activator).map((info) => info.action.entity)
         ),
+        ...getPaySelfReleaseCostsActionPartical(),
         execute: async (myInfo) => {
           if (!myInfo.selectedEntities.length) {
             return false;

@@ -83,34 +83,27 @@ export class DuelFacilitator_BattlePhase extends DuelFacilitatorBase {
         continue;
       }
 
+      // 巻き戻し計算のために値を控える。
+      let oldTotalProcSeq = this.duel.clock.totalProcSeq;
+      let oldMonsters = this.nonTurnPlayer.getMonstersOnField();
+
       // ユーザー入力がカードアクションだった場合、チェーン処理へ
       const result = await this.procChain({ activator: this.priorityHolder, actionInfo: response.actionInfo }, undefined);
       if (result === "cancel") {
         continue;
       }
 
-      if (!this.attackingMonster || !this.targetForAttack) {
-        await this.procTriggerEffects();
+      // 誘発効果の処理
+      await this.procTriggerEffects();
 
+      // 攻撃宣言でない場合、最初に戻る
+      if (!this.attackingMonster || !this.targetForAttack) {
         continue;
       }
+
       //フリーチェーン処理のループ。
       //一回のチェーンごとに、戦闘可否判定を行い、否であればループを抜ける。
       while (this.attackingMonster && this.targetForAttack) {
-        // 巻き戻し計算のために値を控える。
-        const oldTotalProcSeq = this.duel.clock.totalProcSeq;
-        const oldMonsters = this.nonTurnPlayer.getMonstersOnField();
-
-        const procChainResult = await this.procChain(undefined, undefined);
-        await this.procTriggerEffects();
-
-        if (!this.attackingMonster) {
-          throw new SystemError("想定されない状態");
-        }
-
-        if (!this.canContinueBattle()) {
-          break;
-        }
         const attackTargets = this.attackingMonster.getAttackTargets();
 
         if (
@@ -148,16 +141,32 @@ export class DuelFacilitator_BattlePhase extends DuelFacilitatorBase {
             break;
           }
 
+          // 攻撃宣言
           this.declareAttack(this.attackingMonster, _targetForAttack, true);
+
+          // 巻き戻し判定用の控えを更新
+          oldTotalProcSeq = this.duel.clock.totalProcSeq;
+          oldMonsters = this.nonTurnPlayer.getMonstersOnField();
 
           continue;
         }
-        if (procChainResult === "pass") {
+        let procChainResult = "cancel";
+        while ((procChainResult = await this.procChain(undefined, undefined)) === "cancel") {}
+        if (procChainResult === "done") {
+          await this.procTriggerEffects();
+        } else if (procChainResult === "pass") {
+          break;
+        }
+
+        if (!this.attackingMonster) {
+          throw new SystemError("想定されない状態");
+        }
+        if (!this.canContinueBattle()) {
           break;
         }
       }
 
-      if (this.attackingMonster && this.targetForAttack) {
+      if (this.canContinueBattle()) {
         //ダメージステップ処理へ
         await this.procBattlePhaseDamageStep();
       }

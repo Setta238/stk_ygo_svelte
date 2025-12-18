@@ -14074,7 +14074,8 @@
     "cardType": "Monster",
     "monsterCategories": [
       "Tuner",
-      "Effect"
+      "Effect",
+      "Normal"
     ],
     "level": 2,
     "attack": 1000,
@@ -14796,8 +14797,7 @@
     "monsterCategories": [
       "SpecialSummon",
       "Effect",
-      "FreeReborn",
-      "RegularSpecialSummonOnly"
+      "FreeReborn"
     ],
     "level": 4,
     "attack": 2100,
@@ -17954,9 +17954,7 @@
     "description": "チューナー＋チューナー以外のモンスター１体以上\n１ターンに１度、自分フィールド上に表側表示で存在するカード１枚を選択して発動できる。\n選択したカードは、このターンに１度だけ戦闘及びカードの効果では破壊されない。\nこの効果は相手ターンでも発動できる。",
     "kind": "Monster",
     "monsterCategories": [
-      "Synchro",
-      "Effect",
-      "SpecialSummon"
+      "Effect"
     ],
     "level": 8,
     "attack": 2500,
@@ -24076,5 +24074,98 @@
       "Machine"
     ],
     "wikiEncodedName": "%A1%D4%B8%B8%BD%C3%B5%A1%A5%AA%A5%E9%A5%A4%A5%AA%A5%F3%A1%D5"
+  },
+  "アナザー・バース・ストラディオス": {
+    "name": "アナザー・バース・ストラディオス",
+    "description": "幾億の戦火を踏み越えし異界の軍神。\n汝、この威光が欲しくば、来たりて取るがいい。",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Normal"
+    ],
+    "level": 8,
+    "attack": 2500,
+    "defense": 2000,
+    "attributes": [
+      "Earth"
+    ],
+    "types": [
+      "Warrior"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%A2%A5%CA%A5%B6%A1%BC%A1%A6%A5%D0%A1%BC%A5%B9%A1%A6%A5%B9%A5%C8%A5%E9%A5%C7%A5%A3%A5%AA%A5%B9%A1%D5"
+  },
+  "ガルガルドの屍煉魔": {
+    "name": "ガルガルドの屍煉魔",
+    "description": "揺蕩う炎を身にまとい、あらゆる者に姿を変える鳥魔人。\n鳥から人へ、人から鳥へと変化するうちに、本来の自分を忘れてしまった。",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Normal",
+      "Pendulum"
+    ],
+    "level": 6,
+    "attack": 2000,
+    "defense": 2000,
+    "attributes": [
+      "Fire"
+    ],
+    "types": [
+      "Fiend"
+    ],
+    "pendulumScaleR": 9,
+    "pendulumScaleL": 9,
+    "wikiEncodedName": "%A1%D4%A5%AC%A5%EB%A5%AC%A5%EB%A5%C9%A4%CE%BB%D3%CE%FB%CB%E2%A1%D5"
+  },
+  "退電のスティンガー": {
+    "name": "退電のスティンガー",
+    "description": "勇ましい奮闘によって、迫りくる外敵を退け続けた砂丘防衛隊の隊士。\nその剣は守るべき者の為だけに振るわれるはずだった。",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Normal"
+    ],
+    "level": 3,
+    "attack": 800,
+    "defense": 1000,
+    "attributes": [
+      "Wind"
+    ],
+    "types": [
+      "Psychic"
+    ],
+    "wikiEncodedName": "%A1%D4%C2%E0%C5%C5%A4%CE%A5%B9%A5%C6%A5%A3%A5%F3%A5%AC%A1%BC%A1%D5"
+  },
+  "魔竜閣－ドラルヴァイス": {
+    "name": "魔竜閣－ドラルヴァイス",
+    "description": "絶え間なくドラゴンの呪いを吐き続ける女戦士の末路。\n疫病の元凶となった今、その姿は邪念が渦巻く楼閣と化し、人々の復讐の対象となっていた。\n目の前に立ち塞がる討伐隊が、かつてドラゴンに滅ぼされた村の生き残りであることなど、今の彼女には知る由もない・・・。",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Normal"
+    ],
+    "level": 7,
+    "attack": 2300,
+    "defense": 2500,
+    "attributes": [
+      "Dark"
+    ],
+    "types": [
+      "Dragon"
+    ],
+    "wikiEncodedName": "%A1%D4%CB%E2%CE%B5%B3%D5%A1%DD%A5%C9%A5%E9%A5%EB%A5%F4%A5%A1%A5%A4%A5%B9%A1%D5"
+  },
+  "デコピン": {
+    "name": "デコピン",
+    "description": "神聖なるマウンドに降臨した幸せの天使。\nシキュウシキと呼ばれる特別な儀式を執り行うため、相棒と共に舞い降りたという。\n優雅な毛並み、キュートな姿に人々は魅了され、儀式はハイタッチで締めくくられた。\n\n相棒と歩むショウタイムはこれからも続く――。",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Normal"
+    ],
+    "level": 1,
+    "attack": 50,
+    "defense": 50,
+    "attributes": [
+      "Light"
+    ],
+    "types": [
+      "Beast"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%C7%A5%B3%A5%D4%A5%F3%A1%D5"
   }
 }

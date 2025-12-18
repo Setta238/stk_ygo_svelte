@@ -562,7 +562,7 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 そのモンスターを破壊する。`,wikiEncodedName:"%A1%D4%CE%B5%CC%AE%A4%CE%CB%E2%BD%D1%BB%D5%A1%D5",attributes:["Earth"],types:["Spellcaster"],nameTags:["魔術師"]},緑樹の霊王:{name:"緑樹の霊王",description:"青々と生い茂る木に囲まれて暮らす、森を治める若き王。",cardType:"Monster",monsterCategories:["Normal"],level:3,attack:500,defense:1600,kind:"Monster",wikiEncodedName:"%A1%D4%CE%D0%BC%F9%A4%CE%CE%EE%B2%A6%A1%D5",attributes:["Earth"],types:["Plant"]},"麗の魔妖－妲姫":{name:"麗の魔妖－妲姫",description:`(1)：「麗の魔妖－妲姫」は自分フィールドに１体しか表側表示で存在できない。
 (2)：このカードが墓地に存在し、「魔妖」モンスターがＥＸデッキから自分フィールドに特殊召喚された時に発動できる。
 このカードを特殊召喚する。
-この効果を発動するターン、自分は「魔妖」モンスターしかＥＸデッキから特殊召喚できない。`,cardType:"Monster",monsterCategories:["Tuner","Effect"],level:2,attack:1e3,defense:0,kind:"Monster",wikiEncodedName:"%A1%D4%CE%EF%A4%CE%CB%E2%CD%C5%A1%DD%D5%A7%C9%B1%A1%D5",attributes:["Fire"],types:["Zombie"],nameTags:["魔妖"]},六武衆の侍従:{name:"六武衆の侍従",description:`六武衆を陰で支える謎多き人物。
+この効果を発動するターン、自分は「魔妖」モンスターしかＥＸデッキから特殊召喚できない。`,cardType:"Monster",monsterCategories:["Tuner","Effect","Normal"],level:2,attack:1e3,defense:0,kind:"Monster",wikiEncodedName:"%A1%D4%CE%EF%A4%CE%CB%E2%CD%C5%A1%DD%D5%A7%C9%B1%A1%D5",attributes:["Fire"],types:["Zombie"],nameTags:["魔妖"]},六武衆の侍従:{name:"六武衆の侍従",description:`六武衆を陰で支える謎多き人物。
 今はもう闘う事はないが、体に刻まれた無数の傷跡が何かを語る。
 その過去を知る者はいない。`,cardType:"Monster",monsterCategories:["Normal"],level:3,attack:200,defense:2e3,kind:"Monster",nameTags:["六武衆"],wikiEncodedName:"%A1%D4%CF%BB%C9%F0%BD%B0%A4%CE%BB%F8%BD%BE%A1%D5",attributes:["Earth"],types:["Warrior"]},恍惚の人魚:{name:"恍惚の人魚",description:"海を航海する者を誘惑しておぼれさせる、美しい人魚。",cardType:"Monster",monsterCategories:["Normal"],level:3,attack:1200,defense:900,kind:"Monster",wikiEncodedName:"%A1%D4%D7%F2%B9%FB%A4%CE%BF%CD%B5%FB%A1%D5",attributes:["Water"],types:["Fish"]},髑髏の寺院:{name:"髑髏の寺院",description:`ドクロと骨ばかりの、気味の悪いお寺。
 近づく者を吸い込む。`,cardType:"Monster",monsterCategories:["Normal"],level:4,attack:900,defense:1300,kind:"Monster",wikiEncodedName:"%A1%D4%F1%F1%F1%F0%A4%CE%BB%FB%B1%A1%A1%D5",attributes:["Dark"],types:["Zombie"]},"サイバー・ドラゴン・インフィニティ":{name:"サイバー・ドラゴン・インフィニティ",description:`機械族・光属性レベル６モンスター×３
@@ -676,7 +676,7 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 その相手モンスターを破壊する。
 その後、自分のデッキの上からカードを３枚墓地へ送る。`,kind:"Monster",monsterCategories:["SpecialSummon","Tuner","Effect","FreeReborn"],level:4,attack:1100,defense:2e3,nameTags:["ライトロード"],canReborn:!0,wikiEncodedName:"%A1%D4%A5%E9%A5%A4%A5%C8%A5%ED%A1%BC%A5%C9%A1%A6%A5%A2%A1%BC%A5%C1%A5%E3%A1%BC%20%A5%D5%A5%A7%A5%EA%A5%B9%A1%D5",attributes:["Light"],types:["BeastWarrior"]},"ライトロード・ビースト ウォルフ":{name:"ライトロード・ビースト ウォルフ",description:`このカードは通常召喚できず、カードの効果でのみ特殊召喚できる。
 (1)：このカードがデッキから墓地へ送られた場合に発動する。
-このカードを特殊召喚する。`,kind:"Monster",monsterCategories:["SpecialSummon","Effect","FreeReborn","RegularSpecialSummonOnly"],level:4,attack:2100,defense:300,nameTags:["ライトロード"],canReborn:!0,wikiEncodedName:"%A1%D4%A5%E9%A5%A4%A5%C8%A5%ED%A1%BC%A5%C9%A1%A6%A5%D3%A1%BC%A5%B9%A5%C8%20%A5%A6%A5%A9%A5%EB%A5%D5%A1%D5",attributes:["Light"],types:["BeastWarrior"]},"ライトロード・シーフ ライニャン":{name:"ライトロード・シーフ ライニャン",description:`リバース：自分の墓地に存在する「ライトロード」と名のついた
+このカードを特殊召喚する。`,kind:"Monster",monsterCategories:["SpecialSummon","Effect","FreeReborn"],level:4,attack:2100,defense:300,nameTags:["ライトロード"],canReborn:!0,wikiEncodedName:"%A1%D4%A5%E9%A5%A4%A5%C8%A5%ED%A1%BC%A5%C9%A1%A6%A5%D3%A1%BC%A5%B9%A5%C8%20%A5%A6%A5%A9%A5%EB%A5%D5%A1%D5",attributes:["Light"],types:["BeastWarrior"]},"ライトロード・シーフ ライニャン":{name:"ライトロード・シーフ ライニャン",description:`リバース：自分の墓地に存在する「ライトロード」と名のついた
 モンスター１体を選択してデッキに戻し、自分のデッキからカードを１枚ドローする。`,kind:"Monster",monsterCategories:["FlipEffect","Effect"],level:2,attack:100,defense:100,nameTags:["ライトロード"],wikiEncodedName:"%A1%D4%A5%E9%A5%A4%A5%C8%A5%ED%A1%BC%A5%C9%A1%A6%A5%B7%A1%BC%A5%D5%20%A5%E9%A5%A4%A5%CB%A5%E3%A5%F3%A1%D5",attributes:["Light"],types:["Beast"]},"ライトロード・ハンター ライコウ":{name:"ライトロード・ハンター ライコウ",description:`(1)：このカードがリバースした場合に発動する。
 フィールドのカード１枚を選んで破壊できる。
 自分のデッキの上からカードを３枚墓地へ送る。`,kind:"Monster",monsterCategories:["FlipEffect","Effect"],level:2,attack:200,defense:100,nameTags:["ライトロード"],wikiEncodedName:"%A1%D4%A5%E9%A5%A4%A5%C8%A5%ED%A1%BC%A5%C9%A1%A6%A5%CF%A5%F3%A5%BF%A1%BC%20%A5%E9%A5%A4%A5%B3%A5%A6%A1%D5",attributes:["Light"],types:["Beast"]},"ライトロード・アサシン ライデン":{name:"ライトロード・アサシン ライデン",description:`このカード名の(1)の効果は１ターンに１度しか使用できない。
@@ -1121,7 +1121,7 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 そのモンスターを特殊召喚する。`,kind:"Monster",monsterCategories:["Synchro","Effect","RegularSpecialSummonOnly","SpecialSummon"],level:10,attack:3e3,defense:2500,attributes:["Light"],types:["Dragon"],wikiEncodedName:"%A1%D4%BF%BF%C1%AE%A4%B3%A4%A6%CE%B5+%A5%B9%A5%BF%A1%BC%A5%C0%A5%B9%A5%C8%A1%A6%A5%AF%A5%ED%A5%CB%A5%AF%A5%EB%A1%D5",nameTags:["スターダスト"]},"閃珖竜 スターダスト":{name:"閃珖竜 スターダスト",description:`チューナー＋チューナー以外のモンスター１体以上
 １ターンに１度、自分フィールド上に表側表示で存在するカード１枚を選択して発動できる。
 選択したカードは、このターンに１度だけ戦闘及びカードの効果では破壊されない。
-この効果は相手ターンでも発動できる。`,kind:"Monster",monsterCategories:["Synchro","Effect","SpecialSummon"],level:8,attack:2500,defense:2e3,attributes:["Light"],types:["Dragon"],wikiEncodedName:"%A1%D4%C1%AE%A4%B3%A4%A6%CE%B5+%A5%B9%A5%BF%A1%BC%A5%C0%A5%B9%A5%C8%A1%D5",nameTags:["スターダスト"]},"琰魔竜 レッド・デーモン・アビス":{name:"琰魔竜 レッド・デーモン・アビス",description:`チューナー＋チューナー以外のドラゴン族・闇属性Ｓモンスター１体
+この効果は相手ターンでも発動できる。`,kind:"Monster",monsterCategories:["Effect"],level:8,attack:2500,defense:2e3,attributes:["Light"],types:["Dragon"],wikiEncodedName:"%A1%D4%C1%AE%A4%B3%A4%A6%CE%B5+%A5%B9%A5%BF%A1%BC%A5%C0%A5%B9%A5%C8%A1%D5",nameTags:["スターダスト"]},"琰魔竜 レッド・デーモン・アビス":{name:"琰魔竜 レッド・デーモン・アビス",description:`チューナー＋チューナー以外のドラゴン族・闇属性Ｓモンスター１体
 このカード名の(1)(2)の効果はそれぞれ１ターンに１度しか使用できない。
 (1)：自分・相手ターンに、相手フィールドの表側表示カード１枚を対象として発動できる。
 そのカードの効果をターン終了時まで無効にする。
@@ -1959,7 +1959,7 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 手札からモンスター１体を効果を無効にして、このカードのリンク先となる相手フィールドに守備表示で特殊召喚する。
 その後、この効果で特殊召喚したモンスターと同じ種族のモンスター１体を
 デッキから効果を無効にして守備表示で特殊召喚できる。
-この効果でデッキから特殊召喚したターン、自分はデッキから特殊召喚したそのモンスターと元々の種族が同じモンスターしか特殊召喚できない。`,kind:"Monster",monsterCategories:["Link","Effect","SpecialSummon"],link:3,attack:2400,attributes:["Dark"],types:["Spellcaster"],wikiEncodedName:"%A1%D4%A5%B5%A5%E2%A5%F3%A1%A6%A5%BD%A1%BC%A5%B5%A5%EC%A5%B9%A1%D5",linkArrowKeys:["TopCenter","BottomLeft","BottomRight"],cardId:"13554"},"ファイアウォール・Ｓ・ドラゴン":{name:"ファイアウォール・Ｓ・ドラゴン",description:`チューナー＋チューナー以外のモンスター１体以上
+この効果でデッキから特殊召喚したターン、自分はデッキから特殊召喚したそのモンスターと元々の種族が同じモンスターしか特殊召喚できない。`,kind:"Monster",monsterCategories:["Link","Effect","SpecialSummon"],link:3,attack:2400,attributes:["Dark"],types:["Spellcaster"],wikiEncodedName:"%A1%D4%A5%B5%A5%E2%A5%F3%A1%A6%A5%BD%A1%BC%A5%B5%A5%EC%A5%B9%A1%D5",linkArrowKeys:["TopCenter","BottomLeft","BottomRight"]},"ファイアウォール・Ｓ・ドラゴン":{name:"ファイアウォール・Ｓ・ドラゴン",description:`チューナー＋チューナー以外のモンスター１体以上
 このカード名の(1)(2)(3)の効果はそれぞれ１ターンに１度しか使用できない。
 (1)：このカードがＳ召喚した場合、自分の墓地・除外状態のサイバース族モンスター１体を対象として発動できる。
 そのモンスターを手札に加える。
@@ -1993,7 +1993,7 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 そのモンスターを手札に戻す。
 (2)：このカードのリンク先のモンスターが、
 戦闘で破壊された場合または墓地へ送られた場合に発動できる。
-手札からサイバース族モンスター１体を特殊召喚する。`,kind:"Monster",monsterCategories:["Link","Effect","SpecialSummon"],nameTags:["ファイアウォール"],link:4,attack:2500,attributes:["Light"],types:["Cyberse"],wikiEncodedName:"%A1%D4%A5%D5%A5%A1%A5%A4%A5%A2%A5%A6%A5%A9%A1%BC%A5%EB%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5",linkArrowKeys:["TopCenter","MiddleLeft","MiddleRight","BottomCenter"],cardId:"13082"},"ファイアウォール・ガーディアン":{name:"ファイアウォール・ガーディアン",description:`このカード名の(1)(2)の効果はそれぞれ１ターンに１度しか使用できない。
+手札からサイバース族モンスター１体を特殊召喚する。`,kind:"Monster",monsterCategories:["Link","Effect","SpecialSummon"],nameTags:["ファイアウォール"],link:4,attack:2500,attributes:["Light"],types:["Cyberse"],wikiEncodedName:"%A1%D4%A5%D5%A5%A1%A5%A4%A5%A2%A5%A6%A5%A9%A1%BC%A5%EB%A1%A6%A5%C9%A5%E9%A5%B4%A5%F3%A1%D5",linkArrowKeys:["TopCenter","MiddleLeft","MiddleRight","BottomCenter"]},"ファイアウォール・ガーディアン":{name:"ファイアウォール・ガーディアン",description:`このカード名の(1)(2)の効果はそれぞれ１ターンに１度しか使用できない。
 (1)：このカードがサイバース族リンクモンスターのリンク素材として墓地へ送られた場合に発動できる。
 このカードを特殊召喚する。
 この効果で特殊召喚したこのカードは、フィールドから離れた場合に除外される。
@@ -2017,7 +2017,21 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 このカードのリンク先のモンスターを全て持ち主の手札に戻す。
 (2)：１ターンに１度、カード名を１つ宣言して発動できる。
 このカードの相互リンク先のモンスターのリンクマーカーの合計分だけ自分のデッキの上からカードをめくり、その中に宣言したカードがあった場合、そのカードを手札に加える。
-それ以外のめくったカードは全て墓地へ送る。`,kind:"Monster",monsterCategories:["Link","Effect"],link:2,attack:1700,attributes:["Dark"],types:["Spellcaster"],wikiEncodedName:"%A1%D4%A5%A2%A5%AB%A5%B7%A5%C3%A5%AF%A1%A6%A5%DE%A5%B8%A5%B7%A5%E3%A5%F3%A1%D5",linkArrowKeys:["TopCenter","BottomCenter"]}},A={にせアバター:{name:"にせアバター",description:`このカードは特殊召喚できない。
+それ以外のめくったカードは全て墓地へ送る。`,kind:"Monster",monsterCategories:["Link","Effect","SpecialSummon"],link:2,attack:1700,attributes:["Dark"],types:["Spellcaster"],wikiEncodedName:"%A1%D4%A5%A2%A5%AB%A5%B7%A5%C3%A5%AF%A1%A6%A5%DE%A5%B8%A5%B7%A5%E3%A5%F3%A1%D5",linkArrowKeys:["TopCenter","BottomCenter"]},幻獣機オライオン:{name:"幻獣機オライオン",description:`このカード名の(2)の効果は１ターンに１度しか使用できない。
+(1)：自分フィールドにトークンが存在する限り、このカードは戦闘・効果では破壊されない。
+(2)：このカードが墓地へ送られた場合に発動できる。
+自分フィールドに「幻獣機トークン」（機械族・風・星３・攻／守０）１体を特殊召喚する。
+(3)：墓地のこのカードを除外して発動できる。
+手札の「幻獣機」モンスター１体の召喚を行う。`,kind:"Monster",monsterCategories:["Tuner","Effect"],nameTags:["幻獣","幻獣機"],level:2,attack:600,defense:1e3,attributes:["Wind"],types:["Machine"],wikiEncodedName:"%A1%D4%B8%B8%BD%C3%B5%A1%A5%AA%A5%E9%A5%A4%A5%AA%A5%F3%A1%D5"},"アナザー・バース・ストラディオス":{name:"アナザー・バース・ストラディオス",description:`幾億の戦火を踏み越えし異界の軍神。
+汝、この威光が欲しくば、来たりて取るがいい。`,kind:"Monster",monsterCategories:["Normal"],level:8,attack:2500,defense:2e3,attributes:["Earth"],types:["Warrior"],wikiEncodedName:"%A1%D4%A5%A2%A5%CA%A5%B6%A1%BC%A1%A6%A5%D0%A1%BC%A5%B9%A1%A6%A5%B9%A5%C8%A5%E9%A5%C7%A5%A3%A5%AA%A5%B9%A1%D5"},ガルガルドの屍煉魔:{name:"ガルガルドの屍煉魔",description:`揺蕩う炎を身にまとい、あらゆる者に姿を変える鳥魔人。
+鳥から人へ、人から鳥へと変化するうちに、本来の自分を忘れてしまった。`,kind:"Monster",monsterCategories:["Normal","Pendulum"],level:6,attack:2e3,defense:2e3,attributes:["Fire"],types:["Fiend"],pendulumScaleR:9,pendulumScaleL:9,wikiEncodedName:"%A1%D4%A5%AC%A5%EB%A5%AC%A5%EB%A5%C9%A4%CE%BB%D3%CE%FB%CB%E2%A1%D5"},退電のスティンガー:{name:"退電のスティンガー",description:`勇ましい奮闘によって、迫りくる外敵を退け続けた砂丘防衛隊の隊士。
+その剣は守るべき者の為だけに振るわれるはずだった。`,kind:"Monster",monsterCategories:["Normal"],level:3,attack:800,defense:1e3,attributes:["Wind"],types:["Psychic"],wikiEncodedName:"%A1%D4%C2%E0%C5%C5%A4%CE%A5%B9%A5%C6%A5%A3%A5%F3%A5%AC%A1%BC%A1%D5"},"魔竜閣－ドラルヴァイス":{name:"魔竜閣－ドラルヴァイス",description:`絶え間なくドラゴンの呪いを吐き続ける女戦士の末路。
+疫病の元凶となった今、その姿は邪念が渦巻く楼閣と化し、人々の復讐の対象となっていた。
+目の前に立ち塞がる討伐隊が、かつてドラゴンに滅ぼされた村の生き残りであることなど、今の彼女には知る由もない・・・。`,kind:"Monster",monsterCategories:["Normal"],level:7,attack:2300,defense:2500,attributes:["Dark"],types:["Dragon"],wikiEncodedName:"%A1%D4%CB%E2%CE%B5%B3%D5%A1%DD%A5%C9%A5%E9%A5%EB%A5%F4%A5%A1%A5%A4%A5%B9%A1%D5"},デコピン:{name:"デコピン",description:`神聖なるマウンドに降臨した幸せの天使。
+シキュウシキと呼ばれる特別な儀式を執り行うため、相棒と共に舞い降りたという。
+優雅な毛並み、キュートな姿に人々は魅了され、儀式はハイタッチで締めくくられた。
+
+相棒と歩むショウタイムはこれからも続く――。`,kind:"Monster",monsterCategories:["Normal"],level:1,attack:50,defense:50,attributes:["Light"],types:["Beast"],wikiEncodedName:"%A1%D4%A5%C7%A5%B3%A5%D4%A5%F3%A1%D5"}},A={にせアバター:{name:"にせアバター",description:`このカードは特殊召喚できない。
 (1)：このカードの攻撃力・守備力は、「邪神アバター」以外のフィールドの攻撃力が一番高いモンスターの攻撃力＋１００の数値になる。`,kind:"Monster",monsterCategories:["Effect"],level:1,attack:null,defense:null,isForTest:!0,wikiEncodedName:"",attributes:["Dark"],types:["Fiend"]},"にせドレッド・ルート":{name:"にせドレッド・ルート",description:`このカードは特殊召喚できない。
 (1)：このカードがモンスターゾーンに存在する限り、このカード以外のフィールドのモンスターの攻撃力・守備力は半分になる。`,kind:"Monster",monsterCategories:["Effect"],level:1,attack:4e3,defense:4e3,isForTest:!0,wikiEncodedName:"",attributes:["Dark"],types:["Fiend"]}},t={"サモン・ソーサレス[エラッタ前]":{name:"サモン・ソーサレス[エラッタ前]",description:`【リンクマーカー：上/左下/右下】
 トークン以外の同じ種族のモンスター２体以上

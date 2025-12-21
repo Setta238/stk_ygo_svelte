@@ -3,7 +3,8 @@ import { IllegalCancelError } from "@ygo_duel/class/Duel";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import { defaultCanPayDiscardCosts, defaultPayDiscardCosts } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_Discard";
+import { getPayDiscardCostsActionPartical } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_Discard";
+import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
@@ -19,13 +20,9 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableDuelistTypes: ["Controller"],
         fixedTags: ["Draw", "SendToGraveyardFromDeck", "DiscordAsCost"],
         priorityForNPC: 40,
-        canPayCosts: (...args) =>
-          defaultCanPayDiscardCosts(...args, (card) => card.kind === "Monster" && Boolean(card.status.nameTags?.includes("ライトロード"))),
+        ...getPayDiscardCostsActionPartical((card) => card.kind === "Monster" && Boolean(card.status.nameTags?.includes("ライトロード")), 1),
         canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.length > 3,
-        payCosts: (...args) => defaultPayDiscardCosts(...args, (card) => card.kind === "Monster" && Boolean(card.status.nameTags?.includes("ライトロード"))),
-        prepare: async () => {
-          return { selectedEntities: [] };
-        },
+        prepare: defaultPrepare,
         execute: async (myInfo) => {
           await myInfo.activator.draw(2, myInfo.action.entity, myInfo.activator);
 

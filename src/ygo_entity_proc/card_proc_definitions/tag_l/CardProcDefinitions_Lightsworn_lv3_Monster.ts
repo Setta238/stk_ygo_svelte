@@ -2,7 +2,7 @@ import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition"
 import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { defaultPrepare, getMultiTargetsRebornActionPartical } from "@ygo_entity_proc/card_actions/CardActions";
-import { defaultCanPayDiscardCosts, defaultPayDiscardCosts } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_Discard";
+import { getPayDiscardCostsActionPartical } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_Discard";
 import { getPayBanishCostsActionPartical } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_Banish";
 import { getCommonLightswormEndPhaseAction, getCommonTwillightswormEndPhaseAction } from "@ygo_entity_proc/card_actions/tag_l/CardActions_Lightsworn_Monster";
 
@@ -21,8 +21,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableFaces: ["FaceUp"],
         isOnlyNTimesPerTurnIfFaceup: 1,
         fixedTags: ["SpecialSummonFromGraveyard", "DiscordAsCost"],
-        canPayCosts: defaultCanPayDiscardCosts,
-        payCosts: defaultPayDiscardCosts,
+        ...getPayDiscardCostsActionPartical(() => true, 1),
         ...getMultiTargetsRebornActionPartical((myInfo) =>
           myInfo.activator
             .getGraveyard()

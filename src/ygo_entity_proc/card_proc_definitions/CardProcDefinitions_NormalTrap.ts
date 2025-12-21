@@ -9,7 +9,7 @@ import {
   getMultiTargetsRebornActionPartical,
   getSingleTargetActionPartical,
 } from "@ygo_entity_proc/card_actions/CardActions";
-import { defaultCanPayDiscardCosts, defaultPayDiscardCosts } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_Discard";
+import { getPayDiscardCostsActionPartical } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_Discard";
 
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { entityCostTypes, type CardActionDefinition } from "@ygo_duel/class/DuelEntityAction";
@@ -78,8 +78,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableCells: ["SpellAndTrapZone"],
         executablePeriods: freeChainDuelPeriodKeys,
         executableDuelistTypes: ["Controller"],
-        canPayCosts: defaultCanPayDiscardCosts,
-        payCosts: defaultPayDiscardCosts,
+        ...getPayDiscardCostsActionPartical(() => true, 1),
         ...getSingleTargetActionPartical(
           (myInfo, chainBlockInfos, irregularExecuteInfo) =>
             myInfo.action.entity.field

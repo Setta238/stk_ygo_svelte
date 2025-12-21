@@ -5,7 +5,7 @@ import type { CardActionDefinition, TActionTag } from "@ygo_duel/class/DuelEntit
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
-import { defaultCanPayDiscardCosts, defaultPayDiscardCosts } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_Discard";
+import { getPayDiscardCostsActionPartical } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_Discard";
 import type { TMonsterType } from "@ygo/class/YgoTypes";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 
@@ -221,9 +221,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
           executableDuelistTypes: ["Controller"],
           fixedTags: ["Draw"],
           priorityForNPC: 40,
-          canPayCosts: (...args) => defaultCanPayDiscardCosts(...args, item.filter),
+          ...getPayDiscardCostsActionPartical(item.filter, 1),
           canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.length > 1,
-          payCosts: async (...args) => defaultPayDiscardCosts(...args, item.filter),
           prepare: async () => {
             return { selectedEntities: [] };
           },

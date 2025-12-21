@@ -122,6 +122,7 @@ export type TArrivalCauseReason = (typeof arrivalCauseReasons)[number];
 
 export const DestroyCauseReasons = ["Battle", "Effect", "Rule"] as const;
 export type TDestroyCauseReason = (typeof DestroyCauseReasons)[number];
+export const destroyNameDic: { [key in TDestroyCauseReason]: string } = { Battle: "戦闘", Effect: "効果", Rule: "ルール" };
 export const summonPosCauseReasons = ["AttackSummon", "SetSummon", "DefenseSummon"] as const;
 export const posToSummonPos = (pos: TBattlePosition) => (pos + "Summon") as TSummonPosCauseReason;
 export type TSummonPosCauseReason = (typeof summonPosCauseReasons)[number];
@@ -1466,7 +1467,7 @@ DuelEntity.prototype.canBeTargetOfBattle = function (activator: Duelist, causedB
 };
 
 DuelEntity.prototype.validateDestroy = function (
-  destroyType: "Battle" | "Effect",
+  destroyType: TDestroyCauseReason,
   activator: Duelist,
   causedBy: DuelEntity,
   action: Partial<CardActionDefinitionAttrs>

@@ -11,6 +11,7 @@ declare global {
     getAllOnOffPattern(lengthLowerBound?: number, lengthUpperBound?: number): Generator<T[]>;
     getDistinct(): T[];
     distinct(): void;
+    isAllUnique(): boolean;
     max(comparer?: (left: T, right: T) => number): T | undefined;
     min(comparer?: (left: T, right: T) => number): T | undefined;
   }
@@ -78,6 +79,9 @@ Array.prototype.getDistinct = function <T>(): T[] {
 
 Array.prototype.distinct = function (): void {
   this.reset(...this.getDistinct());
+};
+Array.prototype.isAllUnique = function (): boolean {
+  return this.length === this.getDistinct().length;
 };
 
 Array.prototype.max = function <T>(comparer?: (left: T, right: T) => number): T | undefined {

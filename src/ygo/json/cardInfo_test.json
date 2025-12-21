@@ -36,5 +36,22 @@
     "types": [
       "Fiend"
     ]
+  },
+  "にせ融合": {
+    "name": "にせ融合",
+    "description": "融合モンスターカードによって決められた融合素材モンスターを自分の手札・デッキ・EXデッキ・フィールド上・墓地から選んでゲームから除外し、融合モンスター１体を融合召喚する",
+    "kind": "Spell",
+    "spellCategory": "Normal",
+    "isForTest": true,
+    "nameTags": [
+      "融合"
+    ]
+  },
+  "にせストームアクセス": {
+    "name": "にせストームアクセス",
+    "description": "①EXデッキのリンクモンスターを召喚条件を無視してリンク召喚する。\n②墓地のこのカードを手札に加える。",
+    "kind": "Spell",
+    "spellCategory": "Normal",
+    "isForTest": true
   }
 }

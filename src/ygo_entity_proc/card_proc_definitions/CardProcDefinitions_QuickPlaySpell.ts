@@ -37,12 +37,10 @@ export default function* generate(): Generator<EntityProcDefinition> {
           return { selectedEntities: [], chainBlockTags: selected.tags };
         },
         execute: async (myInfo) => {
-          if (myInfo.data === 0) {
+          if (myInfo.chainBlockTags.includes("DamageToOpponent")) {
             myInfo.activator.heal(1200, myInfo.action.entity);
-          } else if (myInfo.data === 1) {
-            myInfo.activator.getOpponentPlayer().effectDamage(800, myInfo);
           } else {
-            throw new SystemError("値が正しくない。", myInfo, myInfo.data);
+            myInfo.activator.getOpponentPlayer().effectDamage(800, myInfo);
           }
           return true;
         },

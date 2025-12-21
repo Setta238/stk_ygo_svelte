@@ -231,7 +231,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
 
   yield {
     name: "聖珖神竜 スターダスト・シフル",
-
     actions: [
       getDefaultSynchroSummonAction(
         (tuners) => tuners.length === 1 && tuners.every((tuner) => tuner.status.monsterCategories?.includes("Synchro")),
@@ -298,7 +297,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         title: `波動聖句`,
         playType: "ContinuousEffect",
         isMandatory: true,
-        executableCells: ["MonsterZone"],
+        executableCells: monsterZoneCellTypes,
         executablePeriods: duelPeriodKeys,
         executableDuelistTypes: ["Controller"],
         isApplicableTo: (effect, destroyType, targets) => {

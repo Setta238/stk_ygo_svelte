@@ -654,7 +654,7 @@ export class DuelEntity {
     if (!this.origin.monsterCategories?.includes("Link")) {
       return [];
     }
-    if (!this.isOnFieldAsMonsterStrictly) {
+    if (!this.cell.isMonsterZoneLikeCell) {
       return [];
     }
     return this.linkArrows
@@ -681,7 +681,7 @@ export class DuelEntity {
     return [...this.linkArrowDests.map((cell) => cell.cardEntities[0]).filter((monster) => monster), ...this.cell.linkArrowSources].getDistinct();
   }
   public get coLinkedEntities(): DuelEntity[] {
-    if (!this.isOnFieldAsMonsterStrictly) {
+    if (!this.cell.isMonsterZoneLikeCell) {
       return [];
     }
     if (!this.origin.monsterCategories?.includes("Link")) {

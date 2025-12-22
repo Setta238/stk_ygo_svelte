@@ -1823,7 +1823,7 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 手札からモンスター１体を特殊召喚する。
 ●４体：このカードがＬ召喚した時に発動できる。
 自分は４枚ドローする。
-その後、自分の手札を３枚選んで好きな順番でデッキの下に戻す。`,kind:"Monster",monsterCategories:["Link","Effect","SpecialSummon"],link:4,attack:2800,attributes:["Earth"],types:["Dragon"],wikiEncodedName:"%A1%D4%BA%BF%CE%B6%BC%D8%A1%DD%A5%B9%A5%AB%A5%EB%A5%C7%A5%C3%A5%C8%A1%D5",linkArrowKeys:["TopCenter","BottomLeft","BottomCenter","BottomRight"]},にせ融合:{name:"にせ融合",description:"融合モンスターカードによって決められた融合素材モンスターを自分の手札・デッキ・EXデッキ・フィールド上・墓地から選んでゲームから除外し、融合モンスター１体を融合召喚する",kind:"Spell",spellCategory:"Normal",isForTest:!0,nameTags:["融合"]},"アロマセラフィ－ジャスミン":{name:"アロマセラフィ－ジャスミン",description:`【リンクマーカー：左下/右下】
+その後、自分の手札を３枚選んで好きな順番でデッキの下に戻す。`,kind:"Monster",monsterCategories:["Link","Effect","SpecialSummon"],link:4,attack:2800,attributes:["Earth"],types:["Dragon"],wikiEncodedName:"%A1%D4%BA%BF%CE%B6%BC%D8%A1%DD%A5%B9%A5%AB%A5%EB%A5%C7%A5%C3%A5%C8%A1%D5",linkArrowKeys:["TopCenter","BottomLeft","BottomCenter","BottomRight"]},"アロマセラフィ－ジャスミン":{name:"アロマセラフィ－ジャスミン",description:`【リンクマーカー：左下/右下】
 植物族モンスター２体
 このカード名の(2)の効果は１ターンに１度しか使用できない。
 (1)：自分のＬＰが相手より多い場合、このカード及びこのカードのリンク先の植物族モンスターは戦闘では破壊されない。
@@ -2033,7 +2033,8 @@ C:¥tierra¥qliphoth.exe の実行を許可しますか？ ...[Y]
 
 相棒と歩むショウタイムはこれからも続く――。`,kind:"Monster",monsterCategories:["Normal"],level:1,attack:50,defense:50,attributes:["Light"],types:["Beast"],wikiEncodedName:"%A1%D4%A5%C7%A5%B3%A5%D4%A5%F3%A1%D5"}},A={にせアバター:{name:"にせアバター",description:`このカードは特殊召喚できない。
 (1)：このカードの攻撃力・守備力は、「邪神アバター」以外のフィールドの攻撃力が一番高いモンスターの攻撃力＋１００の数値になる。`,kind:"Monster",monsterCategories:["Effect"],level:1,attack:null,defense:null,isForTest:!0,wikiEncodedName:"",attributes:["Dark"],types:["Fiend"]},"にせドレッド・ルート":{name:"にせドレッド・ルート",description:`このカードは特殊召喚できない。
-(1)：このカードがモンスターゾーンに存在する限り、このカード以外のフィールドのモンスターの攻撃力・守備力は半分になる。`,kind:"Monster",monsterCategories:["Effect"],level:1,attack:4e3,defense:4e3,isForTest:!0,wikiEncodedName:"",attributes:["Dark"],types:["Fiend"]}},t={"サモン・ソーサレス[エラッタ前]":{name:"サモン・ソーサレス[エラッタ前]",description:`【リンクマーカー：上/左下/右下】
+(1)：このカードがモンスターゾーンに存在する限り、このカード以外のフィールドのモンスターの攻撃力・守備力は半分になる。`,kind:"Monster",monsterCategories:["Effect"],level:1,attack:4e3,defense:4e3,isForTest:!0,wikiEncodedName:"",attributes:["Dark"],types:["Fiend"]},にせ融合:{name:"にせ融合",description:"融合モンスターカードによって決められた融合素材モンスターを自分の手札・デッキ・EXデッキ・フィールド上・墓地から選んでゲームから除外し、融合モンスター１体を融合召喚する",kind:"Spell",spellCategory:"Normal",isForTest:!0,nameTags:["融合"]},にせストームアクセス:{name:"にせストームアクセス",description:`①EXデッキのリンクモンスターを召喚条件を無視してリンク召喚する。
+②墓地のこのカードを手札に加える。`,kind:"Spell",spellCategory:"Normal",isForTest:!0}},t={"サモン・ソーサレス[エラッタ前]":{name:"サモン・ソーサレス[エラッタ前]",description:`【リンクマーカー：上/左下/右下】
 トークン以外の同じ種族のモンスター２体以上
 このカード名の(2)の効果は１ターンに１度しか使用できない。
 (1)：このカードがリンク召喚に成功した場合に発動できる。

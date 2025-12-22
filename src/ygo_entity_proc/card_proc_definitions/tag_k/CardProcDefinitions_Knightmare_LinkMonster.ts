@@ -3,10 +3,7 @@ import { getDefaultLinkSummonAction } from "@ygo_entity_proc/card_actions/CardAc
 import { duelPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { monsterZoneCellTypes, spellTrapZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import { getSingleTargetActionPartical } from "@ygo_entity_proc/card_actions/CardActions";
-import {
-  getPayDiscardCostsActionPartical,
-  getPaySelfDiscardCostsActionPartical,
-} from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_Discard";
+import { getPayDiscardCostsActionPartical } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_Discard";
 import type { ChainBlockInfoBase } from "@ygo_duel/class/DuelEntityAction";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { destroyNameDic, type TDestroyCauseReason } from "@ygo_duel/class/DuelEntity";
@@ -91,7 +88,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
           executablePeriods: duelPeriodKeys,
           executableDuelistTypes: ["Controller"],
           isApplicableTo: (effect, destroyType, targets) => {
-            console.log(effect, destroyType, targets);
             if (!effect.entity.isEffective) {
               return [];
             }
@@ -99,18 +95,9 @@ export default function* generate(): Generator<EntityProcDefinition> {
               return [];
             }
 
-            console.log(
-              effect,
-              destroyType,
-              targets,
-              targets.filter((target) => target.controller === effect.entity.controller),
-              targets.filter((target) => target.coLinkedEntities.length),
-              targets.filter((target) => target.controller === effect.entity.controller).filter((target) => target.coLinkedEntities.length)
-            );
             return targets.filter((target) => target.controller === effect.entity.controller).filter((target) => target.coLinkedEntities.length);
           },
           substitute: async (effect, destroyType, targets) => {
-            console.log(effect, destroyType, targets);
             if (!effect.entity.isEffective) {
               return [];
             }

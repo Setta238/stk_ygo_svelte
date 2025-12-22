@@ -1,14 +1,11 @@
-import { canSelfSepcialSummon, defaultActions, defaultSelfSpecialSummonExecute } from "@ygo_entity_proc/card_actions/CardActions_Monster";
+import { defaultActions } from "@ygo_entity_proc/card_actions/CardActions_Monster";
 
 import type { EntityDefinition, EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import {} from "@ygo_duel/class/DuelEntityShortHands";
-import { faceupBattlePositions } from "@ygo/class/YgoTypes";
-import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
-import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
-import { SummonFilter } from "@ygo_duel/class_continuous_effect/DuelSummonFilter";
 import { ProcFilter } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
+import type { SummonChoice } from "@ygo_duel/class/Duelist";
 
 const fluffTokenDefinition: EntityDefinition = {
   name: "綿毛トークン",
@@ -67,20 +64,29 @@ export default function* generate(): Generator<EntityProcDefinition> {
         },
         execute: async (myInfo) => {
           const tokens = DuelEntity.prepareTokenEntities(myInfo.activator, myInfo.action.entity, fluffTokenDefinition, 2);
-          const cells = myInfo.activator.getMonsterZones();
+          const cells = myInfo.activator.getAvailableMonsterZones();
+          if (cells.length < 1) {
+            return false;
+          }
+          const summonChoices: Omit<SummonChoice, "summoner">[] = tokens.map((monster) => {
+            return {
+              monster,
+              cells,
+              posList: ["Defense"],
+            };
+          });
+
+          if (cells.length === 2) {
+            summonChoices[0].cells = [cells[0]];
+            summonChoices[1].cells = [cells[1]];
+          }
           const summoned =
             (await myInfo.activator.summonMany(
               myInfo.activator,
               "SpecialSummon",
               ["Effect"],
               myInfo.action,
-              tokens.map((monster) => {
-                return {
-                  monster,
-                  cells,
-                  posList: ["Defense"],
-                };
-              }),
+              summonChoices,
               [],
               false,
               2,

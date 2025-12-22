@@ -27,13 +27,20 @@ export default function* generate(): Generator<EntityProcDefinition> {
             .getMonstersOnFieldStrictly()
             .filter((monster) => monster.wasMovedAtPreviousChain)
             .filter((monster) => monster.linkedEntities.length);
-
           if (!monsters.length) {
             return false;
           }
+
+          const hadArrivedAt = myInfo.action.entity.hadArrivedToFieldAt();
+
+          if (!hadArrivedAt) {
+            return false;
+          }
+
           return myInfo.activator.duel.field
             .getMonstersOnFieldStrictly()
             .filter((monster) => monster.hasBeenArrivalNow(["SpecialSummon"]))
+            .filter((monster) => (monster.hadArrivedToFieldAt()?.totalProcSeq ?? 0) > hadArrivedAt?.totalProcSeq)
             .some((monster) => {
               const hadArrivedAt = monster.hadArrivedToFieldAt();
               if (!hadArrivedAt) {

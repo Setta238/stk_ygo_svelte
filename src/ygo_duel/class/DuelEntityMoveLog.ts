@@ -5,7 +5,7 @@ import { DuelFieldCell } from "./DuelFieldCell";
 import { getIndex } from "@stk_utils/funcs/StkMathUtils";
 import { DuelField } from "./DuelField";
 import type { TCardKind } from "@ygo/class/YgoTypes";
-import { SystemError } from "./Duel";
+import { DuelError } from "@ygo_duel/class_error/DuelError";
 import type { Mutable } from "@stk_utils/funcs/StkTypeUtils";
 
 const duelEntityShallowCopyKeys = ["seq", "entityType", "origin", "cell", "kind", "nm", "lvl", "rank", "attr", "types", "atk", "def"] as const;
@@ -136,10 +136,10 @@ export class EntityMoveLog {
 
   public readonly finalize = () => {
     if (!this.latestRecord.isPending) {
-      throw new SystemError("想定されない状況");
+      throw new DuelError("想定されない状況");
     }
     if (this.entity.info.isPending) {
-      throw new SystemError("想定されない状況");
+      throw new DuelError("想定されない状況");
     }
     this._push({ ...this.latestRecord, isPending: false, movedAt: this.entity.duel.clock.getClone() });
   };

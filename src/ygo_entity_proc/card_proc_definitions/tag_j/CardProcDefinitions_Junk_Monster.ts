@@ -3,7 +3,7 @@ import { freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import { defaultCanPaySelfBanishCosts, defaultPaySelfBanishCosts } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_Banish";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import { SystemError } from "@ygo_duel/class/Duel";
+import { DuelError } from "@ygo_duel/class_error/DuelError";
 import type { ActionCostInfo, ChainBlockInfoBase } from "@ygo_duel/class/DuelEntityAction";
 import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CardActions_Spell";
 import { defaultPayHarfLifePoint } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_LifePoint";
@@ -87,11 +87,11 @@ export default function* generate(): Generator<EntityProcDefinition> {
           prepare: async (myInfo, chainBlockInfos) => {
             const cost = myInfo.costInfo.banish?.find((info) => info.cost !== myInfo.action.entity)?.cost;
             if (!cost) {
-              throw new SystemError("正規のコストを支払わずにジャンク・コレクターの効果処理を行おうとした。", myInfo, myInfo.costInfo);
+              throw new DuelError("正規のコストを支払わずにジャンク・コレクターの効果処理を行おうとした。", myInfo, myInfo.costInfo);
             }
             const action = cost.actions.find((action) => action.playType === "CardActivation");
             if (!action) {
-              throw new SystemError("カードの効果の発動を持たないカードをジャンク・コレクターでコピーしようとした。", myInfo, myInfo.costInfo, cost);
+              throw new DuelError("カードの効果の発動を持たないカードをジャンク・コレクターでコピーしようとした。", myInfo, myInfo.costInfo, cost);
             }
 
             const prepared = { ...(await action.prepare(myInfo.activator, undefined, undefined, chainBlockInfos, false, true)) };
@@ -105,11 +105,11 @@ export default function* generate(): Generator<EntityProcDefinition> {
           execute: async (myInfo, chainBlockInfos) => {
             const cost = myInfo.costInfo.banish?.find((info) => info.cost !== myInfo.action.entity)?.cost;
             if (!cost) {
-              throw new SystemError("想定されない状況", myInfo, myInfo.costInfo);
+              throw new DuelError("想定されない状況", myInfo, myInfo.costInfo);
             }
             const action = cost.actions.find((action) => action.playType === "CardActivation");
             if (!action) {
-              throw new SystemError("想定されない状況", myInfo, myInfo.costInfo, cost);
+              throw new DuelError("想定されない状況", myInfo, myInfo.costInfo, cost);
             }
             return await action.execute(myInfo, chainBlockInfos, { indirectly: true });
           },
@@ -146,7 +146,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
 
             const action = target.actions.find((action) => action.playType === "CardActivation");
             if (!action) {
-              throw new SystemError(`カードの効果の発動を持たないカードを${myInfo.action.entity.toString()}でコピーしようとした。`, myInfo, target);
+              throw new DuelError(`カードの効果の発動を持たないカードを${myInfo.action.entity.toString()}でコピーしようとした。`, myInfo, target);
             }
 
             const prepared = { ...(await action.prepare(myInfo.activator, undefined, undefined, chainBlockInfos, false, true)) };
@@ -161,7 +161,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             // トランザクションロールバック自身の対象を末尾から取得
             const target = myInfo.selectedEntities.pop();
             if (!target) {
-              throw new SystemError("想定されない状況", myInfo, myInfo.data);
+              throw new DuelError("想定されない状況", myInfo, myInfo.data);
             }
 
             if (target.wasMovedAfter(myInfo.isActivatedAt)) {
@@ -169,7 +169,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             }
             const action = target.actions.find((action) => action.playType === "CardActivation");
             if (!action) {
-              throw new SystemError("想定されない状況", myInfo, myInfo.data);
+              throw new DuelError("想定されない状況", myInfo, myInfo.data);
             }
 
             return await action.execute(myInfo, chainBlockInfos, { indirectly: true });
@@ -178,7 +178,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             // トランザクションロールバック自身の対象を末尾から取得
             const target = myInfo.selectedEntities.pop();
             if (!target) {
-              throw new SystemError("想定されない状況", myInfo, myInfo.data);
+              throw new DuelError("想定されない状況", myInfo, myInfo.data);
             }
 
             if (target.wasMovedAfter(myInfo.isActivatedAt)) {
@@ -186,7 +186,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             }
             const action = target.actions.find((action) => action.playType === "CardActivation");
             if (!action) {
-              throw new SystemError("想定されない状況", myInfo, myInfo.data);
+              throw new DuelError("想定されない状況", myInfo, myInfo.data);
             }
 
             // ①はカードの発動を伴うので発動後の縛りは適用される。②は適用されない。
@@ -224,7 +224,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
 
             const action = target.actions.find((action) => action.playType === "CardActivation");
             if (!action) {
-              throw new SystemError(`カードの効果の発動を持たないカードを${myInfo.action.entity.toString()}でコピーしようとした。`, myInfo, target);
+              throw new DuelError(`カードの効果の発動を持たないカードを${myInfo.action.entity.toString()}でコピーしようとした。`, myInfo, target);
             }
 
             const prepared = { ...(await action.prepare(myInfo.activator, undefined, undefined, chainBlockInfos, false, true)) };
@@ -239,7 +239,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             // トランザクションロールバック自身の対象を末尾から取得
             const target = myInfo.selectedEntities.pop();
             if (!target) {
-              throw new SystemError("想定されない状況", myInfo, myInfo.data);
+              throw new DuelError("想定されない状況", myInfo, myInfo.data);
             }
 
             if (target.wasMovedAfter(myInfo.isActivatedAt)) {
@@ -247,7 +247,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             }
             const action = target.actions.find((action) => action.playType === "CardActivation");
             if (!action) {
-              throw new SystemError("想定されない状況", myInfo, myInfo.data);
+              throw new DuelError("想定されない状況", myInfo, myInfo.data);
             }
 
             return await action.execute(myInfo, chainBlockInfos, { indirectly: true });

@@ -4,7 +4,7 @@ import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition"
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
 import { getPayReleaseCostsActionPartical } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_Release";
-import { IllegalCancelError } from "@ygo_duel/class/Duel";
+import { IllegalCancelError } from "@ygo_duel/class_error/DuelError";
 import type { CardActionDefinition } from "@ygo_duel/class/DuelEntityAction";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";

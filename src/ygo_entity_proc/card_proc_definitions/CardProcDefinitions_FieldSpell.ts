@@ -5,7 +5,7 @@ import { executableDuelistTypes, type TActionTag } from "@ygo_duel/class/DuelEnt
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { createRegularDamageFilterHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { DamageFilter } from "@ygo_duel/class_continuous_effect/DuelDamageFilter";
-import { SystemError } from "@ygo_duel/class/Duel";
+import { DuelError } from "@ygo_duel/class_error/DuelError";
 import { defaultPayLifePoint } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_LifePoint";
 
 export default function* generate(): Generator<EntityProcDefinition> {
@@ -60,7 +60,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           } else if (myInfo.data === 2) {
             myInfo.activator.getOpponentPlayer().heal(1000, myInfo.action.entity);
           } else {
-            throw new SystemError("値が正しくない。", myInfo, myInfo.data);
+            throw new DuelError("値が正しくない。", myInfo, myInfo.data);
           }
           return true;
         },

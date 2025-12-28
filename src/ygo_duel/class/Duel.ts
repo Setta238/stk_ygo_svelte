@@ -16,6 +16,7 @@ import { type DuelFieldCell } from "./DuelFieldCell";
 import type { EntityDefinition } from "./DuelEntityDefinition";
 import { DuelFacilitatorBase } from "@ygo_duel/class_facilitator/DuelFacilitatorBase";
 import { DuelFacilitator_EndPhase } from "@ygo_duel/class_facilitator/DuelFacilitator_EndPhase";
+import { DuelEnd } from "@ygo_duel/class_error/DuelError";
 export const duelStartModes = ["PlayFirst", "DrawFirst", "Random"] as const;
 export type TDuelStartMode = (typeof duelStartModes)[number];
 export const duelStartModeDic: { [key in TDuelStartMode]: string } = {
@@ -41,32 +42,6 @@ export type DuelistResponse = {
   cancel?: boolean;
   surrender?: boolean;
 };
-
-export class DuelEnd extends Error {
-  public readonly winner: Duelist | undefined;
-  public readonly message: string;
-  public constructor(winner: Duelist | undefined, message: string) {
-    super(winner ? `デュエルが終了した。勝者：${winner.profile.name}` : "デュエルが終了した。ドロー。");
-    this.winner = winner;
-    this.message = message;
-  }
-}
-export class SystemError extends Error {
-  public readonly message: string;
-  public readonly items: unknown[];
-  public readonly viteBuildTimestamp = import.meta.env.VITE_BUILD_TIMESTAMP;
-  public constructor(message: string, ...items: unknown[]) {
-    super(message);
-    this.message = message;
-    this.items = items;
-  }
-}
-
-export class IllegalCancelError extends SystemError {
-  public constructor(...items: unknown[]) {
-    super("キャンセル不可のアクションがキャンセルされた。", ...items);
-  }
-}
 
 export class Duel {
   private readonly onDuelEndEvent = new StkEvent<void>();

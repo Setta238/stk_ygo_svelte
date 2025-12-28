@@ -1,7 +1,8 @@
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CardActions_Spell";
 import type { DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
-import { IllegalCancelError, SystemError } from "@ygo_duel/class/Duel";
+import { IllegalCancelError, DuelError } from "@ygo_duel/class_error/DuelError";
+
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
 
@@ -147,7 +148,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
 
           if (!monsters.length) {
             console.error(spell.status.textTags);
-            throw new SystemError("想定されない状態", myInfo, spell, spell.status.textTags);
+            throw new DuelError("想定されない状態", myInfo, spell, spell.status.textTags);
           }
 
           const monster = await myInfo.activator.waitSelectEntity(monsters, "手札に加えるカードを選択", false);

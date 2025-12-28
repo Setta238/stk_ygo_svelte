@@ -1,6 +1,7 @@
 import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CardActions_Spell";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
-import { IllegalCancelError } from "@ygo_duel/class/Duel";
+import { IllegalCancelError } from "@ygo_duel/class_error/DuelError";
+
 import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {

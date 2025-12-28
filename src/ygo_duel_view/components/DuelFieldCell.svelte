@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { SystemError } from "@ygo_duel/class/Duel";
+  import { DuelError } from "@ygo_duel/class_error/DuelError";
 
   import DuelCard, { type TCardState } from "@ygo_duel_view/components/DuelCard.svelte";
   import { DuelFieldCell as FieldCell } from "@ygo_duel/class/DuelFieldCell";
@@ -195,7 +195,7 @@
           responseResolve({ actionInfo: { ...info, dest: cell } });
         } else if (draggingDummyActionInfos.length > 1) {
           if (!activator) {
-            throw new SystemError("想定されない状態");
+            throw new DuelError("想定されない状態");
           }
           cell.field.duel.view.modalController.terminateAll();
           cell.field.duel.view.modalController.actionSelector

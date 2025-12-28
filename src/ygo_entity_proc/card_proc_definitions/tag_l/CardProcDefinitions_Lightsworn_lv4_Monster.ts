@@ -18,7 +18,8 @@ import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import { getCommonLightswormEndPhaseAction } from "@ygo_entity_proc/card_actions/tag_l/CardActions_Lightsworn_Monster";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
-import { IllegalCancelError } from "@ygo_duel/class/Duel";
+import { IllegalCancelError } from "@ygo_duel/class_error/DuelError";
+
 import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 
 export default function* generate(): Generator<EntityProcDefinition> {

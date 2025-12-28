@@ -1,10 +1,11 @@
-import { Duel, DuelEnd, SystemError } from "./Duel";
-import { type ChainBlockInfo } from "./DuelEntityAction";
-import { DuelEntity, type TDuelCauseReason, type TDuelEntityFace, type TDuelEntityOrientation } from "./DuelEntity";
-import type { Duelist } from "./Duelist";
+import { type Duel } from "@ygo_duel/class/Duel";
+import { DuelError, DuelEnd } from "@ygo_duel/class_error/DuelError";
+import { type ChainBlockInfo } from "@ygo_duel/class/DuelEntityAction";
+import { DuelEntity, type TDuelCauseReason, type TDuelEntityFace, type TDuelEntityOrientation } from "@ygo_duel/class/DuelEntity";
+import type { Duelist } from "@ygo_duel/class/Duelist";
 import type { TBanishProcType } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
-import type { DuelFieldCell, TBundleCellType, TDuelEntityMovePos } from "./DuelFieldCell";
-import type { EntityActionExecuteInfo } from "./DuelEntityActionBase";
+import type { DuelFieldCell, TBundleCellType, TDuelEntityMovePos } from "@ygo_duel/class/DuelFieldCell";
+import type { EntityActionExecuteInfo } from "@ygo_duel/class/DuelEntityActionBase";
 
 export class DuelEntityShortHands {
   private static readonly _tryMarkForDestroy = (entity: DuelEntity, chainBlockInfo: EntityActionExecuteInfo): boolean => {
@@ -466,7 +467,7 @@ export class DuelEntityShortHands {
     await Promise.all(promises);
 
     if (errors.length) {
-      throw new SystemError("ドロー処理で想定されない例外が発生した。", activator, qty1, qty2, causedBy, ...errors);
+      throw new DuelError("ドロー処理で想定されない例外が発生した。", activator, qty1, qty2, causedBy, ...errors);
     }
 
     if (winners.length === 0) {

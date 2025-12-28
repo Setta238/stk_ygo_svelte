@@ -1,13 +1,13 @@
 import type { TCardKind } from "@ygo/class/YgoTypes";
-import type { DuelEntity, TDuelEntityFace } from "../class/DuelEntity";
-import { playFieldCellTypes, type DuelFieldCellType } from "../class/DuelFieldCell";
-import { SystemError } from "../class/Duel";
+import type { DuelEntity, TDuelEntityFace } from "@ygo_duel/class/DuelEntity";
+import { playFieldCellTypes, type DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
+import { DuelError } from "@ygo_duel/class_error/DuelError";
 import { type NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
-import type { IOperatorPool, StickyEffectOperatorBase, StickyEffectOperatorBundle } from "./DuelStickyEffectOperatorBase";
-import type { ProcFilter } from "./DuelProcFilter";
-import type { StatusOperator } from "./DuelStatusOperator";
+import type { IOperatorPool, StickyEffectOperatorBase, StickyEffectOperatorBundle } from "@ygo_duel/class_continuous_effect/DuelStickyEffectOperatorBase";
+import type { ProcFilter } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
+import type { StatusOperator } from "@ygo_duel/class_continuous_effect//DuelStatusOperator";
 import { duelPeriodKeys, type TDuelPeriodKey } from "@ygo_duel/class/DuelPeriod";
-import type { DamageFilter } from "./DuelDamageFilter";
+import type { DamageFilter } from "@ygo_duel/class_continuous_effect/DuelDamageFilter";
 
 export type ContinuousEffectBase<T> = {
   title: string;
@@ -56,7 +56,7 @@ export class ContinuousEffect<T> {
     if (this.hasToStart !== this.isStarted) {
       if (this.isStarted) {
         if (!this.info) {
-          throw new SystemError("illegal state");
+          throw new DuelError("illegal state");
         }
         this._isStarted = false;
         await this.continuousEffectBase.finish(this.entity, this.info);

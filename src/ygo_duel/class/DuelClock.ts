@@ -7,7 +7,8 @@ import {
   type TDuelPhaseStep,
   type TDuelPhaseStepStage,
 } from "@ygo_duel/class/DuelPeriod";
-import { Duel, SystemError } from "./Duel";
+import { type Duel } from "@ygo_duel/class/Duel";
+import { DuelError } from "@ygo_duel/class_error/DuelError";
 const duelClockSubKeys = ["turn", "phaseSeq", "stepSeq", "stageSeq", "chainSeq", "chainBlockSeq", "procSeq"] as const;
 export type TDuelClockSubKey = (typeof duelClockSubKeys)[number];
 
@@ -130,7 +131,7 @@ export class DuelClock implements IDuelClock {
       .find((period) => (period.step ?? "start") === "start");
 
     if (!period) {
-      throw new SystemError("想定されない状態", this.period, phase, duelPeriodDic);
+      throw new DuelError("想定されない状態", this.period, phase, duelPeriodDic);
     }
 
     if (phase === "draw") {
@@ -156,7 +157,7 @@ export class DuelClock implements IDuelClock {
       .find((period) => (period.step ?? "") === step);
 
     if (!period) {
-      throw new SystemError("想定されない状態", this.period, step, duelPeriodDic);
+      throw new DuelError("想定されない状態", this.period, step, duelPeriodDic);
     }
 
     if (this.period.name === period.name) {
@@ -179,7 +180,7 @@ export class DuelClock implements IDuelClock {
       .find((period) => (period.stage ?? "") === stage);
 
     if (!period) {
-      throw new SystemError("想定されない状態", this.period, stage, duelPeriodDic);
+      throw new DuelError("想定されない状態", this.period, stage, duelPeriodDic);
     }
 
     duel.log.info(`タイミング移行（${this.period.name}→${period.name}）`, duel.getTurnPlayer());

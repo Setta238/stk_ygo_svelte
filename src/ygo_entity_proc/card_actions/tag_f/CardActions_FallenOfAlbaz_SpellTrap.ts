@@ -1,4 +1,4 @@
-import { IllegalCancelError } from "@ygo_duel/class/Duel";
+import { IllegalCancelError } from "@ygo_duel/class_error/DuelError";
 import { type CardActionDefinition } from "@ygo_duel/class/DuelEntityAction";
 import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
 

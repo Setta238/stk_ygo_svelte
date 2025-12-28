@@ -3,7 +3,8 @@ import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition"
 import { defaultSpellTrapSetAction, getDefaultEquipSpellTrapAction } from "../../card_actions/CardActions_Spell";
 import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
-import { IllegalCancelError } from "@ygo_duel/class/Duel";
+import { IllegalCancelError } from "@ygo_duel/class_error/DuelError";
+
 import { defaultPrepare, getSingleTargetActionPartical } from "@ygo_entity_proc/card_actions/CardActions";
 import { getPaySelfSendToGraveyardCostsActionPartical } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_SendToGraveyard";
 

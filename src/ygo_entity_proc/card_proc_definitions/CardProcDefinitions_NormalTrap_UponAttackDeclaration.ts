@@ -1,7 +1,7 @@
 import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CardActions_Spell";
 
 import type { TActionTag } from "@ygo_duel/class/DuelEntityAction";
-import { SystemError } from "@ygo_duel/class/Duel";
+import { DuelError } from "@ygo_duel/class_error/DuelError";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
@@ -49,7 +49,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           prepare: async (myInfo) => {
             const attacker = myInfo.activator.duel.attackingMonster;
             if (!attacker) {
-              throw new SystemError("想定されない状態", myInfo, attacker);
+              throw new DuelError("想定されない状態", myInfo, attacker);
             }
 
             const tags: TActionTag[] = name === "炸裂装甲" ? myInfo.action.calcChainBlockTagsForDestroy(myInfo.activator, [attacker]) : ["BanishFromField"];

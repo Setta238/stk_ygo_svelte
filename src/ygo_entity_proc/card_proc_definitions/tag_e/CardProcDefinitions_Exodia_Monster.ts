@@ -1,7 +1,7 @@
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { duelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import { DuelEnd, SystemError } from "@ygo_duel/class/Duel";
+import { DuelEnd, DuelError } from "@ygo_duel/class_error/DuelError";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
@@ -58,7 +58,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             ].filter((part): part is DuelEntity => part !== undefined);
 
             if (!exodiaParts.length) {
-              throw new SystemError("想定されない状態", myInfo.activator.getHandCell().cardEntities, item.name);
+              throw new DuelError("想定されない状態", myInfo.activator.getHandCell().cardEntities, item.name);
             }
             await DuelEntity.moveMany(
               exodiaParts.map((part) => {

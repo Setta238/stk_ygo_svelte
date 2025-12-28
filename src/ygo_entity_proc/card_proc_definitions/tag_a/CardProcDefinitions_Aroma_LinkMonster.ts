@@ -1,7 +1,8 @@
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { getDefaultLinkSummonAction } from "@ygo_entity_proc/card_actions/CardActions_LinkMonster";
 import { defaultPrepare } from "../../card_actions/CardActions";
-import { IllegalCancelError, SystemError } from "@ygo_duel/class/Duel";
+import { IllegalCancelError, DuelError } from "@ygo_duel/class_error/DuelError";
+
 import { duelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import { createBroadRegularProcFilterHandler } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
@@ -75,7 +76,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
 
           // リリースコストを払えない場合、不可
           if (!costs.length) {
-            throw new SystemError("想定されない状況", [myInfo.action.entity]);
+            throw new DuelError("想定されない状況", [myInfo.action.entity]);
           }
 
           // デッキ内の植物族モンスター
@@ -86,7 +87,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
 
           // デッキ内に植物族モンスターがいない場合、不可
           if (!plants.length) {
-            throw new SystemError("想定されない状況", [myInfo.action.entity]);
+            throw new DuelError("想定されない状況", [myInfo.action.entity]);
           }
 
           // 特殊召喚先

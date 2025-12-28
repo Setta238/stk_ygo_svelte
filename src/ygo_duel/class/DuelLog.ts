@@ -1,12 +1,11 @@
 import { StkEvent } from "@stk_utils/class/StkEvent";
-import { SystemError } from "./Duel";
-import { Duel } from "./Duel";
+import { type Duel } from "@ygo_duel/class/Duel";
+import { DuelError } from "@ygo_duel/class_error/DuelError";
 import { Duelist } from "./Duelist";
 import type { IDuelClock } from "./DuelClock";
 import type { DuelEntity } from "./DuelEntity";
 import { type DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 import { EzTransactionController } from "./DuelUtilTypes";
-import { ezJsonStringify } from "@stk_utils/funcs/StkJsonUtils";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const logLevels = ["info", "warn", "error"] as const;
@@ -63,7 +62,7 @@ export default class DuelLog {
 
   private readonly commit = () => {
     if (this._state !== "Pending") {
-      throw new SystemError("DuelLog is not in Pending state.");
+      throw new DuelError("DuelLog is not in Pending state.");
     }
     this.records.push(...this.pooledRecords);
     this.pooledRecords = [];
@@ -112,7 +111,7 @@ export default class DuelLog {
     const _from = from.cellType === "WaitingRoom" ? undefined : from;
     const _to = to.cellType === "WaitingRoom" ? undefined : to;
     if (!_from && !_to) {
-      throw new SystemError("移動元、移動先ともにWaitingRoomが指定されている。", duelist, entity, from, to);
+      throw new DuelError("移動元、移動先ともにWaitingRoomが指定されている。", duelist, entity, from, to);
     }
 
     const type = _from && _to ? "EntityMove" : _to ? "EntityAppear" : "EntityDisappear";

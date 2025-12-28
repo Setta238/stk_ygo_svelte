@@ -1,4 +1,4 @@
-import { IllegalCancelError, SystemError } from "@ygo_duel/class/Duel";
+import { IllegalCancelError, DuelError } from "@ygo_duel/class_error/DuelError";
 import type { EntityAction, TActionTag } from "@ygo_duel/class/DuelEntityAction";
 import {} from "@ygo_duel/class/DuelEntityShortHands";
 
@@ -197,7 +197,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           const costInfo = myInfo.costInfo.banish?.[0];
 
           if (!costInfo) {
-            throw new SystemError(`正規のコストを支払わずに${myInfo.action.entity.nm}の効果を使用しようとした。`, myInfo, myInfo.action.entity);
+            throw new DuelError(`正規のコストを支払わずに${myInfo.action.entity.nm}の効果を使用しようとした。`, myInfo, myInfo.action.entity);
           }
 
           const lvl = costInfo.cost.lvl ?? 0;

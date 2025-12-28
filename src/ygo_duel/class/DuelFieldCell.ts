@@ -1,9 +1,9 @@
-import { StkEvent } from "../../stk_utils/class/StkEvent";
-import { SystemError } from "./Duel";
-import { duelEntityCardTypes, duelEntityDammyTypes } from "./DuelEntity";
-import type { DuelEntity, TDuelEntityFace } from "./DuelEntity";
-import type { DuelField } from "./DuelField";
-import { type Duelist } from "./Duelist";
+import { StkEvent } from "@stk_utils/class/StkEvent";
+
+import { DuelError } from "@ygo_duel/class_error/DuelError";
+import { duelEntityCardTypes, duelEntityDammyTypes, type DuelEntity, type TDuelEntityFace } from "@ygo_duel/class/DuelEntity";
+import type { DuelField } from "@ygo_duel/class/DuelField";
+import { type Duelist } from "@ygo_duel/class/Duelist";
 export const deckCellTypes = ["Deck", "ExtraDeck"] as const;
 export const trashCellTypes = ["Graveyard", "Banished"] as const;
 export const stackCellTypes = [...deckCellTypes, ...trashCellTypes] as const;
@@ -229,7 +229,7 @@ export class DuelFieldCell {
   public readonly acceptEntities = (entity: DuelEntity, pos: TDuelEntityMovePos) => {
     if (pos === "Fix") {
       if (!this._entities.includes(entity)) {
-        throw new SystemError("引数とセルの状態が矛盾している。", this, entity, pos);
+        throw new DuelError("引数とセルの状態が矛盾している。", this, entity, pos);
       }
     } else {
       if (pos === "Top") {

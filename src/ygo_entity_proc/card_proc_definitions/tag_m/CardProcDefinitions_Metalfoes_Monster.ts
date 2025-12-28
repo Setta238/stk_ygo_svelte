@@ -2,7 +2,7 @@ import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition"
 import { defaultContinuousSpellCardActivateAction } from "../../card_actions/CardActions_Spell";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { getSingleTargetActionPartical } from "@ygo_entity_proc/card_actions/CardActions";
-import { IllegalCancelError } from "@ygo_duel/class/Duel";
+import { IllegalCancelError } from "@ygo_duel/class_error/DuelError";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   for (const name of ["メタルフォーゼ・ゴルドライバー", "メタルフォーゼ・シルバード", "メタルフォーゼ・スティエレン", "メタルフォーゼ・ヴォルフレイム"]) {

@@ -3,7 +3,7 @@ import { getDefaultAccelSynchroAction } from "@ygo_entity_proc/card_actions/Card
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { getDefaultSynchroSummonAction } from "../../card_actions/CardActions_SynchroMonster";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
-import { SystemError } from "@ygo_duel/class/Duel";
+import { DuelError } from "@ygo_duel/class_error/DuelError";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
@@ -34,7 +34,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           const monster = await myInfo.activator.waitSelectEntity(choices, "墓地に送るモンスターを選択", false);
 
           if (!monster) {
-            throw new SystemError("想定されない状況", myInfo);
+            throw new DuelError("想定されない状況", myInfo);
           }
 
           await monster.sendToGraveyard(["Effect"], myInfo.action.entity, myInfo.activator);

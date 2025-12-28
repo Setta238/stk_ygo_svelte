@@ -1,8 +1,8 @@
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
-import type { CardActionDefinition, ChainBlockInfo } from "../../ygo_duel/class/DuelEntityAction";
-import { defaultPrepare } from "../card_actions/CardActions";
+import type { CardActionDefinition, ChainBlockInfo } from "@ygo_duel/class/DuelEntityAction";
+import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
-import { DuelEnd, SystemError } from "@ygo_duel/class/Duel";
+import { DuelEnd, DuelError } from "@ygo_duel/class_error/DuelError";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 export const pendulumSummonAction: CardActionDefinition<unknown> = {
   title: "ペンデュラム召喚",
@@ -141,7 +141,7 @@ export const ftkChallengeFailedAction: CardActionDefinition<unknown> = {
       ].filter((part): part is DuelEntity => part !== undefined);
 
       if (!exodiaParts.length) {
-        throw new SystemError("想定されない状態", myInfo.activator.getHandCell().cardEntities, item.name);
+        throw new DuelError("想定されない状態", myInfo.activator.getHandCell().cardEntities, item.name);
       }
 
       await DuelEntity.moveMany(

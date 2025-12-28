@@ -3,7 +3,8 @@ import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/D
 import { defaultPrepare, getDeckDestructionActionPartical, getSingleTargetActionPartical } from "@ygo_entity_proc/card_actions/CardActions";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
-import { IllegalCancelError } from "@ygo_duel/class/Duel";
+import { IllegalCancelError } from "@ygo_duel/class_error/DuelError";
+
 import { getDefaultLinkSummonAction } from "@ygo_entity_proc/card_actions/CardActions_LinkMonster";
 import { monsterAttributes } from "@ygo/class/YgoTypes";
 

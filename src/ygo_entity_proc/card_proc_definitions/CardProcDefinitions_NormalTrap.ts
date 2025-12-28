@@ -14,7 +14,7 @@ import { getPayDiscardCostsActionPartical } from "@ygo_entity_proc/card_actions/
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { entityCostTypes, type CardActionDefinition } from "@ygo_duel/class/DuelEntityAction";
 import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
-import { SystemError } from "@ygo_duel/class/Duel";
+import { DuelError } from "@ygo_duel/class_error/DuelError";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 
 export default function* generate(): Generator<EntityProcDefinition> {
@@ -186,7 +186,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
       },
       execute: async (myInfo) => {
         if (!myInfo.data) {
-          throw new SystemError("正しくない形でギブ＆テイクの効果処理を実行しようとした。");
+          throw new DuelError("正しくない形でギブ＆テイクの効果処理を実行しようとした。");
         }
         const { give, take } = myInfo.data;
         if (!take.isOnFieldAsMonsterStrictly) {

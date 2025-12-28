@@ -6,7 +6,8 @@ import {
   type IOperatorBundle,
   type StickyEffectOperatorArgs,
 } from "@ygo_duel/class_continuous_effect/DuelStickyEffectOperatorBase";
-import { Duel, SystemError } from "@ygo_duel/class/Duel";
+import { type Duel } from "@ygo_duel/class/Duel";
+import { DuelError } from "@ygo_duel/class_error/DuelError";
 import { entityFlexibleNumericStatusKeys, type TEntityFlexibleNumericStatusGen, type TEntityFlexibleNumericStatusKey } from "@ygo/class/YgoTypes";
 import type { CardActionDefinitionAttrs } from "../class/DuelEntityAction";
 
@@ -346,7 +347,7 @@ export class NumericStateOperator extends StickyEffectOperatorBase {
       if (this.stateOperationType === "Fixation") {
         return this.isContinuous ? "O-C-F" : "O-L-F";
       }
-      throw new SystemError("矛盾したプロパティ", this);
+      throw new DuelError("矛盾したプロパティ", this);
     }
     if (this.targetStateGen === "wip") {
       if (this.stateOperationType === "Addition") {
@@ -355,7 +356,7 @@ export class NumericStateOperator extends StickyEffectOperatorBase {
       if (this.stateOperationType === "Fixation") {
         return this.isContinuous ? "C-F" : "L-F";
       }
-      throw new SystemError("矛盾したプロパティ", this);
+      throw new DuelError("矛盾したプロパティ", this);
     }
     if (this.stateOperationType === "THE_DEVILS_DREAD-ROOT") {
       return "X-C-F";
@@ -363,7 +364,7 @@ export class NumericStateOperator extends StickyEffectOperatorBase {
     if (this.stateOperationType === "THE_DEVILS_AVATAR" || this.stateOperationType === "Gradius'_Option") {
       return "X-C-X";
     }
-    throw new SystemError("矛盾したプロパティ", this);
+    throw new DuelError("矛盾したプロパティ", this);
   }
 
   public constructor(args: NumericStateOperatorArgs) {

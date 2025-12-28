@@ -1,5 +1,6 @@
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
-import { IllegalCancelError } from "@ygo_duel/class/Duel";
+import { IllegalCancelError } from "@ygo_duel/class_error/DuelError";
+
 import type { TCardKind } from "@ygo/class/YgoTypes";
 import { freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";

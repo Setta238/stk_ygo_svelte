@@ -1,4 +1,5 @@
-import { Duel, DuelEnd, SystemError } from "./Duel";
+import { type Duel } from "@ygo_duel/class/Duel";
+import { DuelEnd, DuelError } from "@ygo_duel/class_error/DuelError";
 import { type TDuelCauseReason, DuelEntity } from "@ygo_duel/class/DuelEntity";
 
 import { type Duelist } from "./Duelist";
@@ -56,7 +57,7 @@ export class DuelField {
       loopCount++;
 
       if (loopCount > 10) {
-        throw new SystemError("無限ループ発生");
+        throw new DuelError("無限ループ発生");
       }
 
       let isOk = true;
@@ -235,7 +236,7 @@ export class DuelField {
     await Promise.all(promises);
 
     if (errors.length) {
-      throw new SystemError("ドロー処理で想定されない例外が発生した。", duelist1, times1, duelist2, times2, causedBy, ...errors);
+      throw new DuelError("ドロー処理で想定されない例外が発生した。", duelist1, times1, duelist2, times2, causedBy, ...errors);
     }
 
     if (winners.length === 0) {

@@ -1,7 +1,8 @@
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
-import { IllegalCancelError } from "@ygo_duel/class/Duel";
+import { IllegalCancelError } from "@ygo_duel/class_error/DuelError";
+
 import { createBroadRegularProcFilterHandler } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { ProcFilter } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
 

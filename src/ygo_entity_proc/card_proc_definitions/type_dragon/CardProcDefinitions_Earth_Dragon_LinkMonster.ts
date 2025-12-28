@@ -7,7 +7,8 @@ import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
 import type { CardActionDefinition } from "@ygo_duel/class/DuelEntityAction";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
-import { IllegalCancelError } from "@ygo_duel/class/Duel";
+import { IllegalCancelError } from "@ygo_duel/class_error/DuelError";
+
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
     name: "鎖龍蛇－スカルデット",

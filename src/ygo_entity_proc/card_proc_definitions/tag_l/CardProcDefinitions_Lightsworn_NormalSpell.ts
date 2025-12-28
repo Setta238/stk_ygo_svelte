@@ -1,5 +1,5 @@
 import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CardActions_Spell";
-import { IllegalCancelError } from "@ygo_duel/class/Duel";
+import { IllegalCancelError } from "@ygo_duel/class_error/DuelError";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";

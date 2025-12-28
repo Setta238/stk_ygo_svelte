@@ -9,7 +9,7 @@ import type {
 } from "@ygo_duel/class/DuelEntityAction";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { type DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
-import { SystemError } from "@ygo_duel/class/Duel";
+import { DuelError } from "@ygo_duel/class_error/DuelError";
 import { defaultRuleSummonExecute, defaultRuleSummonPrepare } from "./CardActions_Monster";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 
@@ -137,7 +137,7 @@ const defaultXyzSummonPayCost = async (
   )?.infos;
 
   if (!materialInfos) {
-    throw new SystemError("想定されない状態", myInfo, materials);
+    throw new DuelError("想定されない状態", myInfo, materials);
   }
 
   await DuelEntityShortHands.convertManyToXyzMaterials(

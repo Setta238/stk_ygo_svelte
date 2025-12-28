@@ -4,7 +4,7 @@ import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import { SystemError } from "@ygo_duel/class/Duel";
+import { DuelError } from "@ygo_duel/class_error/DuelError";
 import { isNumber } from "@stk_utils/funcs/StkMathUtils";
 import type { CardActionDefinition, ChainBlockInfoBase } from "@ygo_duel/class/DuelEntityAction";
 import { getDefaultSynchroSummonAction } from "@ygo_entity_proc/card_actions/CardActions_SynchroMonster";
@@ -60,7 +60,7 @@ const createCatapultAction = (args: {
     prepare: defaultPrepare,
     execute: async (myInfo) => {
       if (!isNumber(myInfo.data)) {
-        throw new SystemError("値が正しくない。", myInfo, myInfo.data);
+        throw new DuelError("値が正しくない。", myInfo, myInfo.data);
       }
       myInfo.activator.getOpponentPlayer().effectDamage(myInfo.data, myInfo);
 

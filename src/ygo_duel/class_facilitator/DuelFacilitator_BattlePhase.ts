@@ -1,4 +1,5 @@
-import { DuelEnd, IllegalCancelError, SystemError, type Duel } from "@ygo_duel/class/Duel";
+import { type Duel } from "@ygo_duel/class/Duel";
+import { DuelEnd, IllegalCancelError, DuelError } from "@ygo_duel/class_error/DuelError";
 import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import type { TDuelPhase, TDuelPhaseStep, TDuelPhaseStepStage } from "@ygo_duel/class/DuelPeriod";
@@ -159,7 +160,7 @@ export class DuelFacilitator_BattlePhase extends DuelFacilitatorBase {
         }
 
         if (!this.attackingMonster) {
-          throw new SystemError("想定されない状態");
+          throw new DuelError("想定されない状態");
         }
         if (!this.canContinueBattle()) {
           break;
@@ -174,11 +175,11 @@ export class DuelFacilitator_BattlePhase extends DuelFacilitatorBase {
   };
   private readonly procBattlePhaseDamageStep = async () => {
     if (!this.attackingMonster || !this.targetForAttack) {
-      throw new SystemError("想定されない状態", this.attackingMonster, this.targetForAttack);
+      throw new DuelError("想定されない状態", this.attackingMonster, this.targetForAttack);
     }
 
     if (this.targetForAttack.entityType !== "Duelist" && !this.targetForAttack.isOnFieldAsMonsterStrictly) {
-      throw new SystemError("想定されない状態", this.attackingMonster, this.targetForAttack);
+      throw new DuelError("想定されない状態", this.attackingMonster, this.targetForAttack);
     }
 
     for (const procBattlePhaseDamageStep of [
@@ -203,10 +204,10 @@ export class DuelFacilitator_BattlePhase extends DuelFacilitatorBase {
   };
   private readonly procBattlePhaseDamageStep2 = async (): Promise<boolean> => {
     if (!this.attackingMonster) {
-      throw new SystemError("想定されない状態", this.attackingMonster);
+      throw new DuelError("想定されない状態", this.attackingMonster);
     }
     if (!this.targetForAttack) {
-      throw new SystemError("想定されない状態", this.targetForAttack);
+      throw new DuelError("想定されない状態", this.targetForAttack);
     }
     const attacker = this.attackingMonster;
     const defender = this.targetForAttack;
@@ -220,15 +221,15 @@ export class DuelFacilitator_BattlePhase extends DuelFacilitatorBase {
   };
   private readonly procBattlePhaseDamageStep3 = async (): Promise<boolean> => {
     if (!this.attackingMonster) {
-      throw new SystemError("想定されない状態", this.attackingMonster);
+      throw new DuelError("想定されない状態", this.attackingMonster);
     }
     if (!this.targetForAttack) {
-      throw new SystemError("想定されない状態", this.targetForAttack);
+      throw new DuelError("想定されない状態", this.targetForAttack);
     }
     const attacker = this.attackingMonster;
     const defender = this.targetForAttack;
     if (attacker.atk === undefined) {
-      throw new SystemError("想定されない状態", this.attackingMonster, this.targetForAttack);
+      throw new DuelError("想定されない状態", this.attackingMonster, this.targetForAttack);
     }
 
     //ダメージ計算時①永続効果（チェーンを組まない効果）の適用『開始』。 ※《メタル化・魔法反射装甲》など
@@ -250,7 +251,7 @@ export class DuelFacilitator_BattlePhase extends DuelFacilitatorBase {
     const battleAction = attacker.actions.find((action) => action.playType === "Battle");
 
     if (!battleAction) {
-      throw new SystemError(`${attacker.toString()}に戦闘アクションが定義されていない。`);
+      throw new DuelError(`${attacker.toString()}に戦闘アクションが定義されていない。`);
     }
 
     const battleChainBlockInfo = await battleAction.prepare(activator, defender.cell, undefined, [], false, false);

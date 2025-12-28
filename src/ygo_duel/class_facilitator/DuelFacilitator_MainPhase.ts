@@ -1,4 +1,5 @@
-import { SystemError, type Duel } from "@ygo_duel/class/Duel";
+import { type Duel } from "@ygo_duel/class/Duel";
+import { DuelError } from "@ygo_duel/class_error/DuelError";
 import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import type { TDuelPhase } from "@ygo_duel/class/DuelPeriod";
 import { DuelFacilitatorBase } from "@ygo_duel/class_facilitator/DuelFacilitatorBase";
@@ -20,7 +21,7 @@ export class DuelFacilitator_MainPhase extends DuelFacilitatorBase {
   }
 
   public override readonly declareAttack = () => {
-    throw new SystemError(`バトルフェイズ以外で攻撃宣言を実行した。${this.duel.clock.period.key}`);
+    throw new DuelError(`バトルフェイズ以外で攻撃宣言を実行した。${this.duel.clock.period.key}`);
   };
   protected override readonly _proceed = async (): Promise<DuelFacilitatorBase> => {
     while (true) {

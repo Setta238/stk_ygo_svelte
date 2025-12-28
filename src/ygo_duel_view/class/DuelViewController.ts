@@ -1,5 +1,6 @@
 import { StkEvent } from "@stk_utils/class/StkEvent";
-import { Duel, DuelEnd, IllegalCancelError, SystemError, type DuelistResponse, type ResponseActionInfo } from "@ygo_duel/class/Duel";
+import { Duel, type DuelistResponse, type ResponseActionInfo } from "@ygo_duel/class/Duel";
+import { DuelEnd, IllegalCancelError, DuelError } from "@ygo_duel/class_error/DuelError";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { DuelFieldCell, type TDuelEntityMovePos } from "@ygo_duel/class/DuelFieldCell";
 import { type Duelist } from "@ygo_duel/class/Duelist";
@@ -138,7 +139,7 @@ export class DuelViewController {
     const actionInfo = { ...res.actionInfo };
     const selected = validatedActionInfos.find((info) => res.actionInfo?.originSeq === info.originSeq);
     if (!selected) {
-      throw new SystemError("想定されない状態", validatedActionInfos, res);
+      throw new DuelError("想定されない状態", validatedActionInfos, res);
     }
 
     return { ...res, actionInfo: { dest: actionInfo.dest, battlePosition: actionInfo.battlePosition, action: selected.action, originSeq: selected.originSeq } };
@@ -185,7 +186,7 @@ export class DuelViewController {
 
     const origin = validatedActionInfos.find((info) => actionInfo.originSeq === info.originSeq);
     if (!origin) {
-      throw new SystemError("想定されない状態", actionInfo);
+      throw new DuelError("想定されない状態", actionInfo);
     }
     return { ...origin, dest: actionInfo.dest };
   };
@@ -355,7 +356,7 @@ export class DuelViewController {
     }
     const result = items.find((item) => item.origin.seq === actionInfo.originSeq)?.origin;
     if (!result) {
-      throw new SystemError("想定されない状態", items, actionInfo);
+      throw new DuelError("想定されない状態", items, actionInfo);
     }
     return result;
   };
@@ -373,7 +374,7 @@ export class DuelViewController {
       if (cancelable) {
         return;
       }
-      throw new SystemError("想定されない状態", summoner, entity, availableCells, posList, cancelable);
+      throw new DuelError("想定されない状態", summoner, entity, availableCells, posList, cancelable);
     }
 
     let _posList = [...posList];
@@ -569,7 +570,7 @@ export class DuelViewController {
       throw new DuelEnd(activator.getOpponentPlayer(), `${activator.profile.name}がサレンダーした。`);
     }
     if (!cancelable && userAction.cancel) {
-      throw new SystemError("キャンセル不可のアクションがキャンセルされた。", userAction, dummyActionInfos, waitMode, entitiesChoices, cellsChoices);
+      throw new DuelError("キャンセル不可のアクションがキャンセルされた。", userAction, dummyActionInfos, waitMode, entitiesChoices, cellsChoices);
     }
     this.infoBoardState = "Default";
 

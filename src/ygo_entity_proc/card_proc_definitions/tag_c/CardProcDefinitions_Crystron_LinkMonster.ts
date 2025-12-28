@@ -5,7 +5,8 @@ import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 import { getDefaultLinkSummonAction } from "../../card_actions/CardActions_LinkMonster";
 import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
-import { IllegalCancelError } from "@ygo_duel/class/Duel";
+import { IllegalCancelError } from "@ygo_duel/class_error/DuelError";
+
 import { getPaySelfBanishCostsActionPartical } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_Banish";
 
 export default function* generate(): Generator<EntityProcDefinition> {

@@ -4,7 +4,7 @@ import { type CardActionDefinition } from "@ygo_duel/class/DuelEntityAction";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import { IllegalCancelError } from "@ygo_duel/class/Duel";
+import { IllegalCancelError } from "@ygo_duel/class_error/DuelError";
 import { DamageFilter } from "@ygo_duel/class_continuous_effect/DuelDamageFilter";
 import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
 

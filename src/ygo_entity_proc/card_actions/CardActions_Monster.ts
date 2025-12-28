@@ -1,5 +1,5 @@
 import { type TBattlePosition } from "@ygo/class/YgoTypes";
-import { SystemError } from "@ygo_duel/class/Duel";
+import { DuelError } from "@ygo_duel/class_error/DuelError";
 import {
   EntityAction,
   entityCostTypes,
@@ -266,7 +266,7 @@ const defaultDeclareAttackAction: CardActionDefinition<unknown> = {
     const choices = myInfo.action.getTargetableEntities(myInfo, chainBlockInfos);
 
     if (choices.length === 0) {
-      throw new SystemError("攻撃対象の選択肢がない状態で実行された。", myInfo);
+      throw new DuelError("攻撃対象の選択肢がない状態で実行された。", myInfo);
     }
     let target = choices[0];
 
@@ -320,11 +320,11 @@ const defaultBattleAction: CardActionDefinition<unknown> = {
     Boolean(myInfo.activator.duel.targetForAttack) && myInfo.activator.duel.attackingMonster === myInfo.action.entity && myInfo.action.entity.isMonster,
   prepare: async (myInfo) => {
     if (myInfo.activator.duel.attackingMonster !== myInfo.action.entity) {
-      throw new SystemError("canExecuteの判定が正しく行われなかった", myInfo, myInfo.activator.duel.attackingMonster, myInfo.activator.duel.targetForAttack);
+      throw new DuelError("canExecuteの判定が正しく行われなかった", myInfo, myInfo.activator.duel.attackingMonster, myInfo.activator.duel.targetForAttack);
     }
 
     if (!myInfo.activator.duel.targetForAttack) {
-      throw new SystemError("canExecuteの判定が正しく行われなかった", myInfo, myInfo.activator.duel.attackingMonster, myInfo.activator.duel.targetForAttack);
+      throw new DuelError("canExecuteの判定が正しく行われなかった", myInfo, myInfo.activator.duel.attackingMonster, myInfo.activator.duel.targetForAttack);
     }
 
     return { selectedEntities: [myInfo.activator.duel.targetForAttack] };
@@ -653,13 +653,13 @@ export const getDefaultAccelSynchroAction = <T>(options: Partial<CardActionDefin
         (await myInfo.activator.waitSelectEntities(synchroMonsters, 1, (selected) => selected.length === 1, "シンクロ召喚するモンスターを選択。", false)) ?? [];
 
       if (!selected.length) {
-        throw new SystemError("想定されない状態", myInfo);
+        throw new DuelError("想定されない状態", myInfo);
       }
 
       const synchroSummonAction = selected[0].actions.find((action) => action.playType === "SpecialSummon");
 
       if (!synchroSummonAction) {
-        throw new SystemError("想定されない状態", myInfo);
+        throw new DuelError("想定されない状態", myInfo);
       }
 
       // 「このカードを含む自分フィールド上のモンスター」という制約を付加したダミーアクションを作成する。

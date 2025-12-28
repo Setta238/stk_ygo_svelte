@@ -8,7 +8,7 @@ import {
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { type DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
-import { SystemError } from "@ygo_duel/class/Duel";
+import { DuelError } from "@ygo_duel/class_error/DuelError";
 export const defaultSpellTrapSetValidate = (myInfo: ChainBlockInfoBase<unknown>): DuelFieldCell[] | undefined => {
   if (myInfo.action.entity.status.spellCategory === "Field") {
     const fieldZone = myInfo.activator.getFieldZone();
@@ -53,7 +53,7 @@ export const defaultEquipSpellTrapPrepare = async <T>(
 ) => {
   const entities = myInfo.action.getTargetableEntities(myInfo, chainBlockInfos);
   if (!entities) {
-    throw new SystemError("CardAction定義が正しくない", myInfo);
+    throw new DuelError("CardAction定義が正しくない", myInfo);
   }
   const target = await myInfo.activator.waitSelectEntity(entities, "装備対象モンスターを選択", cancelable);
   if (!target) {

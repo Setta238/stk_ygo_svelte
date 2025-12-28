@@ -3,7 +3,8 @@ import { createRegularProcFilterHandler, type ContinuousEffectBase } from "@ygo_
 import { ProcFilter } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
-import { IllegalCancelError } from "@ygo_duel/class/Duel";
+import { IllegalCancelError } from "@ygo_duel/class_error/DuelError";
+
 import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
 

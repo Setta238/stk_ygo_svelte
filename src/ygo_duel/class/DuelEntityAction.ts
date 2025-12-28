@@ -1,18 +1,19 @@
 import { faceupBattlePositions, type TBattlePosition } from "@ygo/class/YgoTypes";
-import type { DuelFieldCell, DuelFieldCellType } from "./DuelFieldCell";
-import { type Duelist } from "./Duelist";
-import { DuelEntity, type TArrivalCauseReason } from "./DuelEntity";
+import type { DuelFieldCell, DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
+import { type Duelist } from "@ygo_duel/class/Duelist";
+import { DuelEntity, type TArrivalCauseReason } from "@ygo_duel/class/DuelEntity";
 import {
   cardActionChainableTypes,
   cardActionChainBlockTypes,
   cardActionRuleSummonTypes,
   EntityActionBase,
   type EntityActionDefinitionBase,
-} from "./DuelEntityActionBase";
-import type { IDuelClock } from "./DuelClock";
-import { SystemError, type ResponseActionInfo } from "./Duel";
-import { Statable, type IStatable } from "./DuelUtilTypes";
-import type { DuelEntityShallowCopy } from "./DuelEntityMoveLog";
+} from "@ygo_duel/class/DuelEntityActionBase";
+import type { IDuelClock } from "@ygo_duel/class/DuelClock";
+import { type ResponseActionInfo } from "@ygo_duel/class/Duel";
+import { DuelError } from "@ygo_duel/class_error/DuelError";
+import { Statable, type IStatable } from "@ygo_duel/class/DuelUtilTypes";
+import type { DuelEntityShallowCopy } from "@ygo_duel/class/DuelEntityMoveLog";
 
 export const executableDuelistTypes = ["Controller", "Opponent"] as const;
 export type TExecutableDuelistType = (typeof executableDuelistTypes)[number];
@@ -338,7 +339,7 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
     }
     const record = entity.moveLog.latestArrivalRecord;
     if (!record) {
-      throw new SystemError("想定されない状態");
+      throw new DuelError("想定されない状態");
     }
     if (arrivalTriggerPattern.needsByOpponent) {
       if (record.chooser === entity.controller) {
@@ -487,7 +488,7 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
   }
   public readonly getTargetableEntities = (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>) => {
     if (this.definition.hasToTargetCards && !this.definition.getTargetableEntities) {
-      throw new SystemError(`処理定義が矛盾している。${this.toFullString()}`, this);
+      throw new DuelError(`処理定義が矛盾している。${this.toFullString()}`, this);
     }
     if (!this.definition.getTargetableEntities) {
       return [];
@@ -1022,7 +1023,7 @@ export class EntityAction<T> extends EntityActionBase implements ICardAction {
     // チェーンブロック情報の準備
     const myInfo = await this.prepare(activator, undefined, targetChainBlock, [], false, ignoreCost);
     if (!myInfo) {
-      throw new SystemError("想定されない状態", this, activator, ignoreCost);
+      throw new DuelError("想定されない状態", this, activator, ignoreCost);
     }
     activator.duel.chainBlockLog.push(myInfo);
     return await this.execute(myInfo, []);

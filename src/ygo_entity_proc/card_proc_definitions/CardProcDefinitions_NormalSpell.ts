@@ -1,13 +1,13 @@
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { duelFieldCellTypes, monsterZoneCellTypes, spellTrapZoneCellTypes, type DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
 import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CardActions_Spell";
-import { IllegalCancelError, SystemError } from "@ygo_duel/class/Duel";
+import { IllegalCancelError, DuelError } from "@ygo_duel/class_error/DuelError";
 
 import type { EntityDefinition, EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { defaultPrepare, getMultiTargetsRebornActionPartical } from "@ygo_entity_proc/card_actions/CardActions";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
-import { executableDuelistTypes, type ChainBlockInfoBase } from "@ygo_duel/class/DuelEntityAction";
+import { executableDuelistTypes } from "@ygo_duel/class/DuelEntityAction";
 import { defaultActions } from "@ygo_entity_proc/card_actions/CardActions_Monster";
 import { defaultPayLifePoint } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_LifePoint";
 
@@ -415,7 +415,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             .filter((card) => card.moveLog.latestRecord.actionOwner === myInfo.activator)
             .filter((card) => card.counterHolder.getQty("GoldSarcophagus") === 2);
           if (!cards.length) {
-            throw new SystemError("想定されない状態", myInfo);
+            throw new DuelError("想定されない状態", myInfo);
           }
 
           let card = cards[0];

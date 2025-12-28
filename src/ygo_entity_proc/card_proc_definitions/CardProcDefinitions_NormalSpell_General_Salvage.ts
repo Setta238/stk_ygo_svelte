@@ -4,7 +4,7 @@ import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition"
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { getSingleTargetActionPartical } from "@ygo_entity_proc/card_actions/CardActions";
-import { SystemError } from "@ygo_duel/class/Duel";
+import { DuelError } from "@ygo_duel/class_error/DuelError";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   const props: { name: string; filter: (card: DuelEntity) => boolean; discard: boolean }[] = [
@@ -47,7 +47,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           }),
           execute: async (myInfo) => {
             if (!myInfo.selectedEntities.length) {
-              throw new SystemError("想定されない状態", myInfo);
+              throw new DuelError("想定されない状態", myInfo);
             }
 
             const target = myInfo.selectedEntities[0];

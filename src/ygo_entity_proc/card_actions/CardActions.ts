@@ -1,7 +1,6 @@
 import { faceupBattlePositions, type TBattlePosition } from "@ygo/class/YgoTypes";
-import { IllegalCancelError } from "@ygo_duel/class/Duel";
+import { IllegalCancelError } from "@ygo_duel/class_error/DuelError";
 import {
-  type ActionCostInfo,
   type CardActionDefinitionFunctions,
   type ChainBlockInfo,
   type ChainBlockInfoBase,
@@ -10,7 +9,7 @@ import {
 } from "@ygo_duel/class/DuelEntityAction";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import { DuelFieldCell, duelFieldCellTypes, playFieldCellTypes, type DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
+import { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 import type { WithRequired } from "@stk_utils/funcs/StkTypeUtils";
 export const defaultPrepare = async () => {
   return { selectedEntities: [] as DuelEntity[] };

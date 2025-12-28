@@ -15,6 +15,7 @@ import {
   type LinkArrow,
   faceupBattlePositions,
 } from "@ygo/class/YgoTypes";
+
 import { Duel } from "@ygo_duel/class/Duel";
 import { DuelError } from "@ygo_duel/class_error/DuelError";
 import {

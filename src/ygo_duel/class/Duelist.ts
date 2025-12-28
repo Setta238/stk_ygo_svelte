@@ -1,6 +1,7 @@
 import { type IDuelistProfile } from "@ygo/class/DuelistProfile";
 import { type IDeckInfo } from "@ygo/class/DeckInfo";
-import { Duel, DuelEnd, SystemError, type ResponseActionInfo, type TSeat } from "./Duel";
+import { DuelError, DuelEnd } from "@ygo_duel/class_error/DuelError";
+import { type ResponseActionInfo, type TSeat, type Duel } from "@ygo_duel/class/Duel";
 import { DuelEntity, type SummonArg, type TDuelCauseReason, type TSummonKindCauseReason } from "./DuelEntity";
 import type { IDuelClock } from "./DuelClock";
 import type { DuelFieldCell, DuelFieldCellType } from "./DuelFieldCell";
@@ -447,14 +448,14 @@ export class Duelist {
     const right = monsters.find((monster) => monster.cell.column === (this.seat === "Below" ? 5 : 1));
 
     if (!left || !right) {
-      throw new SystemError("想定されない状態", monsters);
+      throw new DuelError("想定されない状態", monsters);
     }
 
     const psL = left.psR;
     const psR = right.psL;
 
     if (psL === undefined || psR === undefined) {
-      throw new SystemError("想定されない状態", monsters);
+      throw new DuelError("想定されない状態", monsters);
     }
 
     return psL > psR ? { upperBound: psL, lowerBound: psR } : { upperBound: psR, lowerBound: psL };

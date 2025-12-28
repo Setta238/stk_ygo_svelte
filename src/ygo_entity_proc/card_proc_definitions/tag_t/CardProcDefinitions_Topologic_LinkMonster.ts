@@ -6,7 +6,7 @@ import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNume
 import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import { defaultPrepare, getMultiTargetsRebornActionPartical } from "../../card_actions/CardActions";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import { SystemError } from "@ygo_duel/class/Duel";
+import { DuelError } from "@ygo_duel/class_error/DuelError";
 import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
@@ -104,7 +104,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         prepare: defaultPrepare,
         execute: async (myInfo) => {
           if (!myInfo.activator.duel.targetForAttack) {
-            throw new SystemError(`${myInfo.action.entity.toString()}の効果を不正に処理しようとした。`, myInfo.action, myInfo.action.entity);
+            throw new DuelError(`${myInfo.action.entity.toString()}の効果を不正に処理しようとした。`, myInfo.action, myInfo.action.entity);
           }
 
           myInfo.activator.getOpponentPlayer().effectDamage(myInfo.activator.duel.targetForAttack.atk ?? 0, myInfo);

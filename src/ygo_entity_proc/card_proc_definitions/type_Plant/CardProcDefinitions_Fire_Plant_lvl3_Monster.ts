@@ -1,36 +1,8 @@
-import {
-  canSelfSepcialSummon,
-  defaultActions,
-  defaultSelfReleaseCanPayCosts,
-  defaultSelfSpecialSummonExecute,
-} from "@ygo_entity_proc/card_actions/CardActions_Monster";
-
-import type { EntityDefinition, EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
-import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
+import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import {} from "@ygo_duel/class/DuelEntityShortHands";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
-import { DuelEntity } from "@ygo_duel/class/DuelEntity";
-import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
-import { SummonFilter } from "@ygo_duel/class_continuous_effect/DuelSummonFilter";
-import { ProcFilter } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
 import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
-
-const fluffTokenDefinition: EntityDefinition = {
-  name: "綿毛トークン",
-  actions: defaultActions,
-  staticInfo: {
-    name: "綿毛トークン",
-    kind: "Monster",
-    monsterCategories: ["Normal", "Token"],
-    level: 1,
-    attack: 0,
-    defense: 0,
-    attributes: ["Wind"],
-    types: ["Plant"],
-    wikiEncodedName: "%CC%CA%CC%D3%A5%C8%A1%BC%A5%AF%A5%F3",
-  },
-};
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {

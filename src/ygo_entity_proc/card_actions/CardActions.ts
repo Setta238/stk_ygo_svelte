@@ -5,6 +5,7 @@ import {
   type ChainBlockInfo,
   type ChainBlockInfoBase,
   type ChainBlockInfoPreparing,
+  type SummonMaterialInfo,
   type TActionTag,
 } from "@ygo_duel/class/DuelEntityAction";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
@@ -97,9 +98,15 @@ export const defaultTargetMonstersRebornPrepare = async <T>(
 export const defaultTargetMonstersRebornExecute = async <T>(
   myInfo: ChainBlockInfo<T>,
   chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
-  options?: { posList?: Readonly<TBattlePosition[]>; cells?: DuelFieldCell[]; allOrNothing?: boolean }
+  options?: { posList?: Readonly<TBattlePosition[]>; cells?: DuelFieldCell[]; allOrNothing?: boolean; materialInfos?: SummonMaterialInfo[] }
 ) => {
-  const { posList, allOrNothing, cells } = { posList: faceupBattlePositions, allOrNothing: true, cells: myInfo.activator.getMonsterZones(), ...options };
+  const { posList, allOrNothing, cells, materialInfos } = {
+    posList: faceupBattlePositions,
+    allOrNothing: true,
+    cells: myInfo.activator.getMonsterZones(),
+    materialInfos: [],
+    ...options,
+  };
   const list = myInfo.selectedEntities
     .filter((monster) => !monster.wasMovedAfter(myInfo.isActivatedAt))
     .map((monster) => {
@@ -110,7 +117,7 @@ export const defaultTargetMonstersRebornExecute = async <T>(
       return false;
     }
   }
-  await myInfo.activator.summonAll(myInfo.activator, "SpecialSummon", ["Effect"], myInfo.action, list, [], false, false);
+  await myInfo.activator.summonAll(myInfo.activator, "SpecialSummon", ["Effect"], myInfo.action, list, materialInfos, false, false);
 
   return true;
 };

@@ -9,7 +9,7 @@ import {
   cellTypeToDefaultFace,
   type TBundleCellType,
 } from "@ygo_duel/class/DuelFieldCell";
-import { DuelEnd, IllegalCancelError, DuelError } from "@ygo_duel/class_error/DuelError";
+import { IllegalCancelError, IllegalActionError } from "@ygo_duel/class_error/DuelError";
 import { isFilterTypeFusionMaterialInfo, isNameTypeFusionMaterialInfo, isOvermuchTypeFusionMaterialInfo } from "@ygo_duel/class/DuelEntityDefinition";
 import { defaultPrepare } from "./CardActions";
 export type MaterialDestMapper = { [from in DuelFieldCellType]: { to: TBundleCellType; position?: TDuelEntityMovePos; face?: TDuelEntityFace } };
@@ -292,7 +292,7 @@ const defaultFusionSummonExecute = async (
         .every((selected) => overmuchMaterialInfos.some((info) => info.filter(selected)))
   );
   if (!entiteisPattern) {
-    throw new DuelError("想定されない状態", myInfo, materials);
+    throw new IllegalActionError("UnexpectedSituation", myInfo);
   }
 
   const materialInfos = entiteisPattern.infos;

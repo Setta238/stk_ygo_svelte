@@ -1,5 +1,5 @@
 import { type TBattlePosition } from "@ygo/class/YgoTypes";
-import { DuelError } from "@ygo_duel/class_error/DuelError";
+import { DuelError, IllegalActionError } from "@ygo_duel/class_error/DuelError";
 import {
   EntityAction,
   entityCostTypes,
@@ -653,13 +653,13 @@ export const getDefaultAccelSynchroAction = <T>(options: Partial<CardActionDefin
         (await myInfo.activator.waitSelectEntities(synchroMonsters, 1, (selected) => selected.length === 1, "シンクロ召喚するモンスターを選択。", false)) ?? [];
 
       if (!selected.length) {
-        throw new DuelError("想定されない状態", myInfo);
+        throw new IllegalActionError("UnexpectedSituation", myInfo);
       }
 
       const synchroSummonAction = selected[0].actions.find((action) => action.playType === "SpecialSummon");
 
       if (!synchroSummonAction) {
-        throw new DuelError("想定されない状態", myInfo);
+        throw new IllegalActionError("UnexpectedSituation", myInfo);
       }
 
       // 「このカードを含む自分フィールド上のモンスター」という制約を付加したダミーアクションを作成する。

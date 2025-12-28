@@ -1,5 +1,5 @@
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
-import { DuelError } from "@ygo_duel/class_error/DuelError";
+import { DuelError, IllegalActionError } from "@ygo_duel/class_error/DuelError";
 import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { entityCostTypes, type ActionCostInfo, type ChainBlockInfoBase } from "@ygo_duel/class/DuelEntityAction";
 import { isNameTypeFusionMaterialInfo, type EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
@@ -175,7 +175,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             // 蘇生可能パターンを抽出
             const patterns = getBrandedExpulsionRevivePatterns(myInfo, myInfo.costInfo);
             if (!patterns) {
-              throw new DuelError("想定されない状態");
+              throw new IllegalActionError("UnexpectedSituation", myInfo);
             }
 
             // 一旦モンスターを全て混ぜる
@@ -247,7 +247,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             }
 
             if (!patterns.share) {
-              throw new DuelError("想定されない状態");
+              throw new IllegalActionError("UnexpectedSituation", myInfo);
             }
 
             await myInfo.activator.summonEachFields(

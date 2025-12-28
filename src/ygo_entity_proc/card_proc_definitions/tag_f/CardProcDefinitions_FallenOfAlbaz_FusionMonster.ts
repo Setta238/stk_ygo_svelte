@@ -7,7 +7,7 @@ import { monsterZoneCellTypes, playFieldCellTypes } from "@ygo_duel/class/DuelFi
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import type { ChainBlockInfo, ChainBlockInfoBase } from "@ygo_duel/class/DuelEntityAction";
 import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
-import { DuelError } from "@ygo_duel/class_error/DuelError";
+import { IllegalActionError } from "@ygo_duel/class_error/DuelError";
 import { freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 
 export default function* generate(): Generator<EntityProcDefinition> {
@@ -101,7 +101,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           prepare: async (myInfo, chainBlockInfos, cancelable) => {
             const patterns = getAlbionRevivePatterns(myInfo);
             if (!patterns) {
-              throw new DuelError("想定されない状態");
+              throw new IllegalActionError("UnexpectedSituation", myInfo);
             }
             const selectedEntities = await myInfo.activator.waitSelectEntities(
               patterns

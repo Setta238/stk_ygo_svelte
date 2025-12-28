@@ -181,6 +181,9 @@ export type ChainBlockInfoPrepared = {
 };
 export type ChainBlockInfo<T> = ChainBlockInfoPreparing<T> & ChainBlockInfoPrepared & IStatable<TChainBlockInfoState>;
 
+export const IsChainBlockInfo = <T>(chainBlockInfo: ChainBlockInfoBase<T>): chainBlockInfo is ChainBlockInfo<T> =>
+  Object.hasOwn(chainBlockInfo, "selectedEntities") && Object.hasOwn(chainBlockInfo, "chainBlockTags");
+
 export type TriggerPatternBase = {
   triggerType: "Arrival" | "Departure";
   causerFilter?: (me: DuelEntity, causer: DuelEntityShallowCopy) => boolean;

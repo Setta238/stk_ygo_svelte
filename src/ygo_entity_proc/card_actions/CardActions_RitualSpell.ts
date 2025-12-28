@@ -2,7 +2,7 @@ import { faceupBattlePositions, type TBattlePosition } from "@ygo/class/YgoTypes
 import type { ChainBlockInfoBase, SummonMaterialInfo, TActionTag, ChainBlockInfo, CardActionDefinitionFunctions } from "@ygo_duel/class/DuelEntityAction";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCell, DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
-import { DuelError } from "@ygo_duel/class_error/DuelError";
+import { IllegalActionError } from "@ygo_duel/class_error/DuelError";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 
 type TRitualLevelValitationType = "Equal" | "OrMore";
@@ -157,7 +157,7 @@ const defaultRitualSummonExecute = async (
   )?.infos;
 
   if (!materialInfos) {
-    throw new DuelError("想定されない状態", myInfo, materials);
+    throw new IllegalActionError("UnexpectedSituation", myInfo, materials);
   }
   await DuelEntityShortHands.releaseManyForTheSameReason(
     materials,

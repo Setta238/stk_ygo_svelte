@@ -7,7 +7,7 @@ import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOper
 import { duelFieldCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
 import { defaultPayLifePoint } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_LifePoint";
-import { IllegalCancelError, DuelError } from "@ygo_duel/class_error/DuelError";
+import { IllegalCancelError, IllegalActionError } from "@ygo_duel/class_error/DuelError";
 
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { executableDuelistTypes } from "@ygo_duel/class/DuelEntityAction";
@@ -135,7 +135,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               .getMonstersOnFieldStrictly()
               .filter((card) => card.counterHolder.getSelfDestructionFlg(myInfo.action.entity));
             if (!cards.length) {
-              throw new DuelError("想定されない状態", myInfo);
+              throw new IllegalActionError("UnexpectedSituation", myInfo);
             }
 
             let card = cards[0];

@@ -2,7 +2,7 @@ import { defaultSelfReleaseCanPayCosts, defaultSelfReleasePayCosts } from "@ygo_
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
-import { DuelError } from "@ygo_duel/class_error/DuelError";
+import { IllegalActionError } from "@ygo_duel/class_error/DuelError";
 import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
@@ -45,7 +45,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           }
           const monster = await myInfo.activator.waitSelectEntity(choices, "手札に加えるモンスターを選択", false);
           if (!monster) {
-            throw new DuelError("想定されない状態", myInfo);
+            throw new IllegalActionError("UnexpectedSituation", myInfo);
           }
 
           await monster.addToHand(["Effect"], myInfo.action.entity, myInfo.activator);

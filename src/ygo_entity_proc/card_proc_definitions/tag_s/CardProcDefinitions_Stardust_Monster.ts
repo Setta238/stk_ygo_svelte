@@ -14,7 +14,7 @@ import { getDefaultSynchroSummonAction } from "../../card_actions/CardActions_Sy
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 import { ProcFilter } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import { DuelError } from "@ygo_duel/class_error/DuelError";
+import { IllegalActionError } from "@ygo_duel/class_error/DuelError";
 import {
   getPaySelfBanishCostsActionPartical,
   getPayBanishCostsActionPartical,
@@ -42,7 +42,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         payCosts: defaultSelfReleasePayCosts,
         prepare: async (myInfo) => {
           if (!myInfo.targetChainBlock) {
-            throw new DuelError("想定されない状態", myInfo);
+            throw new IllegalActionError("UnexpectedSituation", myInfo);
           }
 
           return {

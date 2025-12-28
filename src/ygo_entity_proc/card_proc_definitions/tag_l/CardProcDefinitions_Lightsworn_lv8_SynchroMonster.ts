@@ -5,7 +5,7 @@ import { getPayBanishCostsActionPartical } from "@ygo_entity_proc/card_actions/p
 
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
-import { IllegalCancelError, DuelError } from "@ygo_duel/class_error/DuelError";
+import { IllegalCancelError, DuelError, IllegalActionError } from "@ygo_duel/class_error/DuelError";
 
 import { getDefaultSynchroSummonAction } from "@ygo_entity_proc/card_actions/CardActions_SynchroMonster";
 import { createBroadRegularProcFilterHandler } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
@@ -100,7 +100,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         execute: async (myInfo) => {
           const qty = myInfo.costInfo.banish?.length ?? 0;
           if (!qty) {
-            throw new DuelError(`${myInfo.action.entity}の効果を不正な方法で実行しようとした。${myInfo.costInfo}`);
+            throw new IllegalActionError("IllegalActionCost", myInfo);
           }
 
           const cards = myInfo.activator.getDeckCell().cardEntities.slice(0, qty);

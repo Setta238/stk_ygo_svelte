@@ -1,5 +1,5 @@
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
-import { DuelError } from "@ygo_duel/class_error/DuelError";
+import { DuelError, IllegalActionError } from "@ygo_duel/class_error/DuelError";
 import { DuelEntity, duelEntityFaces } from "@ygo_duel/class/DuelEntity";
 import type { CardActionDefinition, ChainBlockInfoBase, TActionTag } from "@ygo_duel/class/DuelEntityAction";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
@@ -122,7 +122,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
                 }
                 return true;
               }
-              throw new DuelError(`${myInfo.action.entity}の効果を不正な方法で実行しようとした。${myInfo.data}`);
+              throw new IllegalActionError("IlligalActionData", myInfo);
             },
             settle: async () => true,
           } as CardActionDefinition<DuelFieldCellType>,

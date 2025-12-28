@@ -1,5 +1,5 @@
 import { isNameTypeFusionMaterialInfo, type EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
-import { IllegalCancelError, DuelError } from "@ygo_duel/class_error/DuelError";
+import { IllegalCancelError, DuelError, IllegalActionError } from "@ygo_duel/class_error/DuelError";
 
 import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
 import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
@@ -44,7 +44,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             .cardEntities.filter((card) => names.includes(card.nm))
             .filter((card) => card.canBeSentToGraveyard(myInfo.activator, myInfo.action.entity, "SendToGraveyardAsCost", myInfo.action));
           if (choices.length === 0) {
-            throw new DuelError("想定されない状態", myInfo);
+            throw new IllegalActionError("UnexpectedSituation", myInfo);
           }
 
           const cost = await myInfo.activator.waitSelectEntity(choices, "墓地に送るモンスターを選択", cancelable);
@@ -62,7 +62,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           const fusionMonster = await myInfo.activator.waitSelectEntity(fusionMonsters, "公開するモンスターを選択", cancelable);
 
           if (!fusionMonster) {
-            throw new DuelError("想定されない状態", myInfo);
+            throw new IllegalActionError("UnexpectedSituation", myInfo);
           }
 
           myInfo.activator.writeInfoLog(`公開：${fusionMonster.toString()}`);
@@ -75,7 +75,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         execute: async (myInfo) => {
           const costInfos = myInfo.costInfo.sendToGraveyard;
           if (!costInfos || !costInfos.length) {
-            throw new DuelError("コスト情報が取得できない", myInfo);
+            throw new IllegalActionError("IllegalActionCost", myInfo);
           }
           const cost = costInfos[0].cost;
           myInfo.action.entity.statusOperatorBundle.push(

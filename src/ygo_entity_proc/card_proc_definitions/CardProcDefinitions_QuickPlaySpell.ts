@@ -1,7 +1,7 @@
 import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CardActions_Spell";
 
 import type { TActionTag } from "@ygo_duel/class/DuelEntityAction";
-import { IllegalCancelError, DuelError } from "@ygo_duel/class_error/DuelError";
+import { IllegalCancelError } from "@ygo_duel/class_error/DuelError";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";

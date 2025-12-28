@@ -1,7 +1,7 @@
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { duelFieldCellTypes, monsterZoneCellTypes, spellTrapZoneCellTypes, type DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
 import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CardActions_Spell";
-import { IllegalCancelError, DuelError } from "@ygo_duel/class_error/DuelError";
+import { IllegalCancelError, IllegalActionError } from "@ygo_duel/class_error/DuelError";
 
 import type { EntityDefinition, EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
@@ -415,7 +415,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             .filter((card) => card.moveLog.latestRecord.actionOwner === myInfo.activator)
             .filter((card) => card.counterHolder.getQty("GoldSarcophagus") === 2);
           if (!cards.length) {
-            throw new DuelError("想定されない状態", myInfo);
+            throw new IllegalActionError("UnexpectedSituation", myInfo);
           }
 
           let card = cards[0];

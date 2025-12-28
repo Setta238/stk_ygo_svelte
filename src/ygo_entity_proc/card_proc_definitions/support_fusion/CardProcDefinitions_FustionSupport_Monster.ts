@@ -3,7 +3,7 @@ import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 import { duelFieldCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import { executableDuelistTypes } from "@ygo_duel/class/DuelEntityAction";
-import { IllegalCancelError, DuelError } from "@ygo_duel/class_error/DuelError";
+import { IllegalCancelError, IllegalActionError } from "@ygo_duel/class_error/DuelError";
 
 import { ProcFilter } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
 import { defaultPayLifePoint } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_LifePoint";
@@ -103,7 +103,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         execute: async (myInfo) => {
           const cards = myInfo.action.entity.field.getMonstersOnFieldStrictly().filter((card) => card.counterHolder.getCurfewFlg(myInfo.action.entity));
           if (!cards.length) {
-            throw new DuelError("想定されない状態", myInfo);
+            throw new IllegalActionError("UnexpectedSituation", myInfo);
           }
 
           let card = cards[0];

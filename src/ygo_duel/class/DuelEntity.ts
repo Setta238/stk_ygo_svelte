@@ -15,7 +15,8 @@ import {
   type LinkArrow,
   faceupBattlePositions,
 } from "@ygo/class/YgoTypes";
-import { Duel, SystemError } from "./Duel";
+import { Duel } from "@ygo_duel/class/Duel";
+import { DuelError } from "@ygo_duel/class_error/DuelError";
 import {
   deckCellTypes,
   duelFieldCellTypes,
@@ -895,7 +896,7 @@ export class DuelEntity {
     let continuousEffectBases: ContinuousEffectBase<unknown>[] = definition.continuousEffects ?? [];
     this.substituteEffects.push(...(definition.substituteEffects ?? []).map((base) => SubstituteEffect.createNew(this, base)));
 
-    if (this.origin.kind === "Monster" && this.entityType === "Card" && definition.summonFilter) {
+    if (this.origin.kind === "Monster" && (this.entityType === "Card" || this.entityType === "Token") && definition.summonFilter) {
       this.summonFilterBundle.push(
         new SummonFilter({
           title: "default",
@@ -1495,7 +1496,7 @@ DuelEntity.prototype.getIndexInCell = function (): number {
   const index = entity.cell.cardEntities.indexOf(entity);
 
   if (index < 0) {
-    throw new SystemError("エンティティとセルの状態が矛盾している。", [entity, entity.cell]);
+    throw new DuelError("エンティティとセルの状態が矛盾している。", [entity, entity.cell]);
   }
 
   return index;

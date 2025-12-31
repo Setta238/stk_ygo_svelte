@@ -15,7 +15,7 @@ const h = ("0" + tmpDate.getHours()).slice(-2);
 const n = ("0" + tmpDate.getMinutes()).slice(-2);
 const s = ("0" + tmpDate.getSeconds()).slice(-2);
 const timestamp = `${y}${m}${d}_${h}${n}${s}`;
-console.log(timestamp);
+console.log(process.env.DEV, timestamp);
 export default defineConfig({
   plugins: [
     svelte(),
@@ -26,7 +26,9 @@ export default defineConfig({
       typescript: true,
     }),
   ],
-  base: process.env.DEV ? "/" : "/stk_ygo_svelte",
+  root: "./",
+  base: "/stk_ygo_svelte",
+  publicDir: "src/public",
   resolve: {
     alias: {
       "@stk_utils": path.join(__dirname, "src/stk_utils"),
@@ -61,6 +63,7 @@ export default defineConfig({
         assetFileNames: `assets/[name].[ext]`,
       },
     },
+    copyPublicDir: true,
   },
   define: {
     "import.meta.env.VITE_BUILD_TIMESTAMP": JSON.stringify(timestamp),

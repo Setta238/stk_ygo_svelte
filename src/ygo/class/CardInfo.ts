@@ -37,3 +37,26 @@ export const cardInfoDic = Object.values(fuga).reduce(
 export const definitionCount = _definitionCount;
 export const nonDefinitionCount = _nonDefinitionCount;
 export const testCardCount = _testCardCount;
+
+export const loadDescriptionData = async (cids: number[]) => {
+  const list = await Promise.all(
+    (
+      await Promise.all(
+        cids
+          .map((cid) => Math.floor(cid / 100))
+          .getDistinct()
+          .map((key) => `./stk_ygo_svelte/json/cardInfoText_${key.toString().padStart(3, "0")}.json`)
+          .map((url) => fetch(url))
+      )
+    ).map((res) => res.json())
+  );
+  console.log(list);
+  const data = list.flatMap((item) => item);
+  for (const info of Object.values(cardInfoDic)) {
+    for (const record of data) {
+      if (info.cardId === record[0]) {
+        console.log(record);
+      }
+    }
+  }
+};

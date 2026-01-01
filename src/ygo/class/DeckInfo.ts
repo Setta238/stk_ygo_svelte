@@ -1,8 +1,7 @@
 import { StkIndexedDB } from "@stk_utils/class/StkIndexedDB";
 import { StkDataStore, type IStkDataRecord } from "@stk_utils/class/StkDataStore";
-import { cardInfoDic } from "@ygo/class/CardInfo";
+import {} from "@ygo/class/CardInfo";
 import type { TTblNames } from "@app/components/App.svelte";
-import { cardSorter } from "./YgoTypes";
 import sampleDeckInfos from "@ygo/json/SampleDeckInfos.json";
 import { isObject } from "@stk_utils/funcs/StkObjectUtils";
 import { isNumber } from "@stk_utils/funcs/StkMathUtils";
@@ -56,13 +55,6 @@ export class DeckInfo implements IDeckInfo {
     const _deckInfos = deckInfos.map((info) => {
       const { id, name, description, lastUsedAt, cardNames } = info;
       return { id, name, description, lastUsedAt, cardNames };
-    });
-
-    _deckInfos.forEach((info) => {
-      info.cardNames = info.cardNames
-        .map((name) => cardInfoDic[name])
-        .sort(cardSorter)
-        .map((info) => info.name);
     });
 
     return JSON.stringify(_deckInfos, null, 2);
@@ -179,22 +171,6 @@ export class DeckInfo implements IDeckInfo {
     this.cardNames = details.filter((detail) => detail.deckId === this.id).map((detail) => detail.name);
   }
 
-  public readonly getIllegalCardNames = () => {
-    return Array.from(new Set(this.cardNames.filter((name) => !Object.keys(cardInfoDic).includes(name))));
-  };
-  public readonly getDisableCardNames = () => {
-    return Array.from(new Set(this.cardNames.filter((name) => !Object.keys(cardInfoDic).includes(name))));
-  };
-  public readonly createCardInfos = () => {
-    const disableCardNames = this.getIllegalCardNames();
-    if (disableCardNames.length > 0) {
-      throw new Error(`存在しないカード名からデッキを生成しようとした。${disableCardNames}`);
-    }
-    return this.cardNames.map((name) => cardInfoDic?.[name]).filter((info) => info);
-  };
-  public copy = async (): Promise<DeckInfo> => {
-    return DeckInfo.createNewDeck(this.name, this.description, this.cardNames);
-  };
   public updateTimestamp = async (): Promise<void> => {
     //ヘッダ情報更新
     await DeckInfo.tblHeader.update(this.id, (info) => {

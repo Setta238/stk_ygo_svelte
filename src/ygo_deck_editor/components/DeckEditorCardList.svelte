@@ -46,7 +46,6 @@
   const createCardTree = (cardInfos: CardInfoJson[]) => {
     Object.values(cardTree).forEach((branch) => Object.values(branch).forEach((array) => array.reset()));
     cardInfos
-      .filter((cardInfo) => cardInfo.isImplemented)
       .filter((cardInfo) => cardInfo.kind !== "XyzMaterial")
       .forEach((cardInfo) => {
         if (cardInfo.kind === "XyzMaterial") {
@@ -137,6 +136,10 @@
       if (tags.every((tag) => !tag.includes(searchCondition.name))) {
         return false;
       }
+    }
+
+    if (!cardInfo.isImplemented && !searchCondition.others.includes("implemented")) {
+      return false;
     }
 
     if (cardInfo.isForTest && !searchCondition.others.includes("test")) {
@@ -232,10 +235,10 @@
                                 {monsterCategoryEmojiDic[cat]}
                               {/each}
                             {/if}
-                            {#if cardInfo.spellCategory !== undefined}
+                            {#if cardInfo.spellCategory}
                               {spellCategoryDic[cardInfo.spellCategory]}魔法
                             {/if}
-                            {#if cardInfo.trapCategory !== undefined}
+                            {#if cardInfo.trapCategory}
                               {trapCategoryDic[cardInfo.trapCategory]}罠
                             {/if}
                           </div>
@@ -249,8 +252,10 @@
                         </div>
                       </div>
                     </div>
-                    <button class="button_style_reset" title="※shiftキー同時押しで一括投入" on:click={(ev) => onPlusButtonClick(ev, cardInfo)}>+</button>
-                    <button class="button_style_reset" title="※shiftキー同時押しで一括外し" on:click={(ev) => onMinusButtonClick(ev, cardInfo)}>-</button>
+                    {#if cardInfo.isImplemented}
+                      <button class="button_style_reset" title="※shiftキー同時押しで一括投入" on:click={(ev) => onPlusButtonClick(ev, cardInfo)}>+</button>
+                      <button class="button_style_reset" title="※shiftキー同時押しで一括外し" on:click={(ev) => onMinusButtonClick(ev, cardInfo)}>-</button>
+                    {/if}
                   </li>
                 {/if}
               {/each}

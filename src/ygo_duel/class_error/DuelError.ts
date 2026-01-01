@@ -39,6 +39,6 @@ export class IllegalActionError extends DuelError {
     if (illegalActionType === "IlligalActionData") {
       msg += ` data:${chainBlockInfo.data}`;
     }
-    super(msg, [chainBlockInfo, ...items]);
+    super(msg, chainBlockInfo, ...items);
   }
 }

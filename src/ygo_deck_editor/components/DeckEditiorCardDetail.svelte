@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { cardInfoDic } from "@ygo/class/CardInfo";
   import {
     getKonamiUrl,
     monsterAttributeDic,
@@ -12,7 +11,6 @@
     type CardInfoJson,
   } from "@ygo/class/YgoTypes";
   export let cardInfo: CardInfoJson | undefined = undefined;
-  const getInfo = () => (cardInfo ? cardInfoDic[cardInfo.name] : undefined);
 </script>
 
 {#if cardInfo}
@@ -31,7 +29,7 @@
     <div class="duel_card_info_body">
       {#if cardInfo.monsterCategories?.includes("Pendulum")}
         <div class="duel_card_info_row">
-          <div><pre class="description">{cardInfoDic[cardInfo.name].pendulumDescription}</pre></div>
+          <div><pre class="description">{cardInfo.pendulumDescription}</pre></div>
         </div>
         <div class="duel_card_info_row" style=" justify-content: space-between;">
           <div>◀ {cardInfo.pendulumScaleL}</div>
@@ -66,7 +64,7 @@
       {/if}
 
       <div class="duel_card_info_row description">
-        <div><pre class="description">{getInfo()?.description}</pre></div>
+        <div><pre class="description">{cardInfo.description}</pre></div>
       </div>
       {#if cardInfo.isOldVersion}
         <div class="duel_card_info_row">

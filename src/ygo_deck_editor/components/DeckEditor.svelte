@@ -7,12 +7,12 @@
     monsterTypes: TMonsterType[];
     spellCategories: TSpellCategory[];
     trapCategories: TTrapCategory[];
-    others: ("test" | "oldVersion")[];
+    others: ("test" | "oldVersion" | "implemented")[];
   };
 </script>
 
 <script lang="ts">
-  import { cardInfoDic, definitionCount, nonDefinitionCount } from "@ygo/class/CardInfo";
+  import { cardDefinitionsPrms, loadTextData } from "@ygo/class/CardInfo";
   import { DeckInfo } from "@ygo/class/DeckInfo";
   import DeckEditorCardList from "./DeckEditorCardList.svelte";
   import DeckEditiorCardDetail from "./DeckEditiorCardDetail.svelte";
@@ -55,7 +55,7 @@
     monsterTypes: [...monsterTypes],
     spellCategories: [...spellCategories],
     trapCategories: [...trapCategories],
-    others: ["test", "oldVersion"],
+    others: ["test", "oldVersion", "implemented"],
   };
 
   const searchCondition = structuredClone(seachConditionDefaultValues);
@@ -91,7 +91,19 @@
     if (!deckInfo) {
       return;
     }
-    tmpDeck = { ...deckInfo, cardInfos: deckInfo.cardNames.map((name) => cardInfoDic[name]) };
+    const cardDefinitions = await cardDefinitionsPrms;
+    tmpDeck = {
+      ...deckInfo,
+      cardInfos: deckInfo.cardNames
+        .map((name) => {
+          const cardInfo = cardDefinitions.getCardInfo(name);
+          if (cardInfo === undefined) {
+            console.error(name);
+          }
+          return cardInfo;
+        })
+        .filter((i) => i !== undefined),
+    };
   };
 
   const initDeck = () =>
@@ -121,10 +133,13 @@
     cardInfos: [] as CardInfoJson[],
   };
 
-  let cardInfo: CardInfoJson = cardInfoDic["ゾンビーノ"];
+  let cardInfo: CardInfoJson | undefined = undefined;
 
   const onAttention = (_cardInfo: CardInfoJson) => {
     mode = "CardDetail";
+    if (_cardInfo.cardId !== undefined && !_cardInfo.description && !_cardInfo.pendulumDescription) {
+      loadTextData([_cardInfo.cardId]).then(() => (cardInfo = _cardInfo));
+    }
     cardInfo = _cardInfo;
   };
 
@@ -171,12 +186,6 @@
       title: "デッキ情報アップロード",
       position: "Middle",
       cancelable: true,
-      mainCardNames: Object.values(cardInfoDic)
-        .filter((info) => !info.monsterCategories?.union(exMonsterCategories).length)
-        .map((info) => info.name),
-      exCardNames: Object.values(cardInfoDic)
-        .filter((info) => info.monsterCategories?.union(exMonsterCategories).length)
-        .map((info) => info.name),
     });
     if (!result) {
       return;
@@ -295,7 +304,7 @@
         <div class="deck_editor_search_box_row" transition:slide={{ delay: 0, duration: 100 }}>
           <div><button class="search_condition_title black_button" on:click={() => onResetSeachCondition("others")}>その他</button></div>
           <div>
-            {#each [{ key: "test", text: "テスト用カードを表示する" }, { key: "oldVersion", text: "エラッタ前カードを表示する" }] as item}
+            {#each [{ key: "test", text: "テスト用カード" }, { key: "oldVersion", text: "エラッタ前カード" }, { key: "implemented", text: "未実装カード" }] as item}
               <label>
                 <input type="checkbox" value={item.key} bind:group={searchCondition.others} />
                 {item.text}
@@ -307,7 +316,11 @@
       <DeckEditiorCardDetail {cardInfo} />
     </div>
     <div class="deck_editor_body_center">
-      <DeckEditorCardList mode="List" allCardInfos={Object.values(cardInfoDic)} {onAttention} {searchCondition} bind:deckCardInfos={tmpDeck.cardInfos} />
+      {#await cardDefinitionsPrms}
+        <div>カード情報読込中</div>
+      {:then cardInfo}
+        <DeckEditorCardList mode="List" allCardInfos={Object.values(cardInfo.dic)} {onAttention} {searchCondition} bind:deckCardInfos={tmpDeck.cardInfos} />
+      {/await}
     </div>
     <div class="deck_editor_body_right">
       {#await deckInfosPromise}
@@ -368,7 +381,13 @@
             
         -->
   </div>
-  <div class="footer">実装済カード{definitionCount + nonDefinitionCount}枚（内、効果のないモンスター{nonDefinitionCount}枚）</div>
+  <div class="footer">
+    {#await cardDefinitionsPrms}
+      読み込み中
+    {:then status}
+      実装済カード{status.definitionCount + status.nonDefinitionCount}枚（内、効果のないモンスター{status.nonDefinitionCount}枚）
+    {/await}
+  </div>
 </div>
 <DeckEditorModalContainer {modalController} />
 
@@ -396,6 +415,9 @@
     flex-direction: column;
     text-align: left;
     margin: 0.8rem;
+  }
+  .deck_editor_body_left {
+    min-width: 40%;
   }
   .deck_editor_body_left > div {
     flex-grow: 1;

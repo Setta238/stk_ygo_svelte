@@ -1,0 +1,34 @@
+{
+  "statusJsons": [
+    "cardInfoStatus_Monster_atk00000.json",
+    "cardInfoStatus_Monster_atk00500.json",
+    "cardInfoStatus_Monster_atk01000.json",
+    "cardInfoStatus_Monster_atk01500.json",
+    "cardInfoStatus_Monster_atk02000.json",
+    "cardInfoStatus_Monster_atk02500.json",
+    "cardInfoStatus_Monster_atk03000.json",
+    "cardInfoStatus_Spell.json",
+    "cardInfoStatus_Trap.json"
+  ],
+  "textJsons": [
+    "cardInfoText_cid004000.json",
+    "cardInfoText_cid005000.json",
+    "cardInfoText_cid006000.json",
+    "cardInfoText_cid007000.json",
+    "cardInfoText_cid008000.json",
+    "cardInfoText_cid009000.json",
+    "cardInfoText_cid010000.json",
+    "cardInfoText_cid011000.json",
+    "cardInfoText_cid012000.json",
+    "cardInfoText_cid013000.json",
+    "cardInfoText_cid014000.json",
+    "cardInfoText_cid015000.json",
+    "cardInfoText_cid016000.json",
+    "cardInfoText_cid017000.json",
+    "cardInfoText_cid018000.json",
+    "cardInfoText_cid019000.json",
+    "cardInfoText_cid020000.json",
+    "cardInfoText_cid021000.json",
+    "cardInfoText_cid022000.json"
+  ]
+}

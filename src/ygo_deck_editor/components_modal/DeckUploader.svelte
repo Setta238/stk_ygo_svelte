@@ -1,5 +1,5 @@
 <script lang="ts" module>
-  export type DeckUploaderArgs = ModalArgsBase & { mainCardNames: string[]; exCardNames: string[] };
+  export type DeckUploaderArgs = ModalArgsBase;
   export type DeckUploaderResult = { deckInfos: IDeckInfo[]; replaceAll: boolean };
 </script>
 
@@ -7,7 +7,9 @@
   import StkModalWindow from "@stk_utils/components/modal_container/StkModalWindow.svelte";
   import type { EventHolder } from "@stk_utils/components/modal_container/StkModalController";
   import type { ModalArgsBase } from "@stk_utils/components/modal_container/StkModalDefinitionBase";
+  import { cardDefinitionsPrms } from "@ygo/class/CardInfo";
   import { DeckInfo, type IDeckInfo } from "@ygo/class/DeckInfo";
+  import { exMonsterCategories } from "@ygo/class/YgoTypes";
   export let eventHolder: EventHolder;
   export let args: DeckUploaderArgs;
   export let resolve: (result?: DeckUploaderResult) => void;
@@ -66,40 +68,49 @@
 
 <StkModalWindow {eventHolder} {args}>
   <div slot="body" class="modal_body">
-    {#await deckInfosPromise then deckInfos}
-      {#if deckInfos.length}
-        <ul class="deck_info_list">
-          {#each deckInfos as deckInfo}
-            <li class="deck_info_list_item">
-              <div>{deckInfo.name}</div>
-              <div>
-                {deckInfo.cardNames.filter((name) => args.mainCardNames.includes(name)).length}
-                /
-                {deckInfo.cardNames.filter((name) => args.exCardNames.includes(name)).length}
-              </div>
-              <div>
-                最終使用日時 ： {deckInfo.lastUsedAt.formatToYYYYMMDD_HHMM("/", " ", ":")}
-              </div>
-            </li>
-          {/each}
-        </ul>
-      {:else}
-        <label for="file_selector" class="upload_area" role="region" aria-label="ファイルアップロードエリア" on:drop={onFileDrop} on:dragover={onFileDragover}>
-          <div class="upload_area_message">ここにファイルをドロップ</div>
-          <div class="upload_area_footer">
-            <input
-              type="file"
-              id="file_selector"
-              name="file_selector"
-              accept=".json"
-              multiple
-              bind:files={jsonFiles}
-              on:change={onFileSelectorChange}
-              on:cancel={onFileSelectorCancel}
-            />
-          </div>
-        </label>
-      {/if}
+    {#await cardDefinitionsPrms then cardDefinitions}
+      {#await deckInfosPromise then deckInfos}
+        {#if deckInfos.length}
+          <ul class="deck_info_list">
+            {#each deckInfos as deckInfo}
+              <li class="deck_info_list_item">
+                <div>{deckInfo.name}</div>
+                <div>
+                  {deckInfo.cardNames.filter((name) => !cardDefinitions.getCardInfo(name)?.monsterCategories?.union(exMonsterCategories).length).length}
+                  /
+                  {deckInfo.cardNames.filter((name) => cardDefinitions.getCardInfo(name)?.monsterCategories?.union(exMonsterCategories).length).length}
+                </div>
+                <div>
+                  最終使用日時 ： {deckInfo.lastUsedAt.formatToYYYYMMDD_HHMM("/", " ", ":")}
+                </div>
+              </li>
+            {/each}
+          </ul>
+        {:else}
+          <label
+            for="file_selector"
+            class="upload_area"
+            role="region"
+            aria-label="ファイルアップロードエリア"
+            on:drop={onFileDrop}
+            on:dragover={onFileDragover}
+          >
+            <div class="upload_area_message">ここにファイルをドロップ</div>
+            <div class="upload_area_footer">
+              <input
+                type="file"
+                id="file_selector"
+                name="file_selector"
+                accept=".json"
+                multiple
+                bind:files={jsonFiles}
+                on:change={onFileSelectorChange}
+                on:cancel={onFileSelectorCancel}
+              />
+            </div>
+          </label>
+        {/if}
+      {/await}
     {/await}
   </div>
   <div slot="footer" class="modal_window_footer">

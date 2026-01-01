@@ -17,6 +17,7 @@ import type { EntityDefinition } from "./DuelEntityDefinition";
 import { DuelFacilitatorBase } from "@ygo_duel/class_facilitator/DuelFacilitatorBase";
 import { DuelFacilitator_EndPhase } from "@ygo_duel/class_facilitator/DuelFacilitator_EndPhase";
 import { DuelEnd } from "@ygo_duel/class_error/DuelError";
+import { loadTextData } from "@ygo/class/CardInfo";
 export const duelStartModes = ["PlayFirst", "DrawFirst", "Random"] as const;
 export type TDuelStartMode = (typeof duelStartModes)[number];
 export const duelStartModeDic: { [key in TDuelStartMode]: string } = {
@@ -135,10 +136,14 @@ export class Duel {
 
     this.coin = this.startMode === "PlayFirst" ? true : this.startMode === "DrawFirst" ? false : Math.random() > 0.5;
 
-    const cardDefinitionsDic = generateCardDefinitions(
-      ...Object.values(this.duelists)
-        .flatMap((duelist) => duelist.deckInfo.cardNames)
-        .getDistinct()
+    const cardDefinitionsDic = (
+      await Array.fromAsync(
+        generateCardDefinitions(
+          ...Object.values(this.duelists)
+            .flatMap((duelist) => duelist.deckInfo.cardNames)
+            .getDistinct()
+        )
+      )
     ).reduce(
       (wip, definition) => {
         wip[definition.name] = definition;

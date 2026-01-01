@@ -1,62 +1,108 @@
-import json from "@ygo/json/cardInfo.json";
 import json_test from "@ygo/json/cardInfo_test.json";
 import json_old_version from "@ygo/json/cardInfo_old_version.json";
-import type { CardInfoJson } from "@ygo/class/YgoTypes";
+import jsonFileList from "@ygo/json/cardInfoFileList.json";
+
+import { convertToEntityStatusBase, type CardInfoDescription, type EntityStatusBase } from "@ygo/class/YgoTypes";
 import { generateAllProcCardDefinitions } from "@ygo_duel/class/DuelEntityDefinition";
+import { createPromiseSweet } from "@stk_utils/funcs/StkPromiseUtil";
 
-const hoge = new Set<string>();
-const fuga = { ...json, ...json_test, ...json_old_version } as unknown as { [name: string]: CardInfoJson };
-let _definitionCount = 0;
-let _nonDefinitionCount = 0;
-let _testCardCount = 0;
+const cardNames = new Set<string>();
+const fuga = { ...json_test, ...json_old_version } as unknown as { [name: string]: EntityStatusBase & CardInfoDescription };
 
-for (const definition of generateAllProcCardDefinitions()) {
-  if (hoge.has(definition.name)) {
-    throw new Error(`カード定義重複${definition.name}`);
+const cardDefinitions = {
+  dic: {} as { [name: string]: EntityStatusBase & CardInfoDescription },
+  definitionCount: 0,
+  nonDefinitionCount: 0,
+  testCardCount: 0,
+  getCardInfo: (name: string): (EntityStatusBase & CardInfoDescription) | undefined => undefined,
+};
+const cardDefinitionsDicNarrow: typeof cardDefinitions.dic = {};
+
+cardDefinitions.getCardInfo = (name: string) => cardDefinitions.dic[name] ?? cardDefinitionsDicNarrow[name.toNarrow().replaceAll("－", "-")];
+
+const pushCardInfo = (info: EntityStatusBase & CardInfoDescription) => {
+  if (!info) {
+    throw new Error(info);
   }
-  if (fuga[definition.name]) {
-    fuga[definition.name].isImplemented = true;
-    _definitionCount++;
+  if (info.kind === "Monster" && info.monsterCategories && !info.monsterCategories?.includes("Effect") && !info.monsterCategories.includes("Pendulum")) {
+    info.isImplemented = true;
+    cardDefinitions.nonDefinitionCount++;
   }
-}
-export const cardInfoDic = Object.values(fuga).reduce(
-  (dic, info) => {
-    if (info.kind === "Monster" && info.monsterCategories && !info.monsterCategories?.includes("Effect") && !info.monsterCategories.includes("Pendulum")) {
-      info.isImplemented = true;
-      _nonDefinitionCount++;
-    }
-    if (info.isForTest && info.isImplemented) {
-      _testCardCount++;
-    }
-    dic[info.name] = info;
-    return dic;
-  },
-  {} as { [name: string]: CardInfoJson }
-);
+  if (info.isForTest && info.isImplemented) {
+    cardDefinitions.testCardCount++;
+  }
+  cardDefinitions.dic[info.name] = info;
+  cardDefinitionsDicNarrow[info.name.toNarrow().replaceAll("－", "-")] = info;
+};
 
-export const definitionCount = _definitionCount;
-export const nonDefinitionCount = _nonDefinitionCount;
-export const testCardCount = _testCardCount;
+Object.values(fuga).forEach(pushCardInfo);
 
-export const loadDescriptionData = async (cids: number[]) => {
-  const list = await Promise.all(
-    (
-      await Promise.all(
-        cids
-          .map((cid) => Math.floor(cid / 100))
-          .getDistinct()
-          .map((key) => `./stk_ygo_svelte/json/cardInfoText_${key.toString().padStart(3, "0")}.json`)
-          .map((url) => fetch(url))
-      )
-    ).map((res) => res.json())
-  );
-  console.log(list);
-  const data = list.flatMap((item) => item);
-  for (const info of Object.values(cardInfoDic)) {
-    for (const record of data) {
+const { promise, resolve, reject } = createPromiseSweet<Readonly<typeof cardDefinitions>>();
+export const cardDefinitionsPrms = promise;
+
+const loededUrls: string[] = [];
+
+export const loadTextData = async (cids: number[]) => {
+  const list = (
+    await Promise.all(
+      (
+        await Promise.all(
+          cids
+            .map((cid) => Math.floor(cid / 1000) * 1000)
+            .getDistinct()
+            .map((key) => `./stk_ygo_svelte/json/cardInfoText_cid${key.toString().padStart(6, "0")}.json`)
+            .filter((url) => !loededUrls.includes(url))
+            .map((url) => {
+              console.info(`${url} starts loading`);
+              return fetch(url);
+            })
+        )
+      ).map((res) => {
+        console.log(`${res.url} has been loaded`);
+        loededUrls.push(res.url);
+        return res.json();
+      })
+    )
+  ).flatMap((item) => item);
+  for (const info of Object.values(cardDefinitions.dic)) {
+    for (const record of list) {
       if (info.cardId === record[0]) {
-        console.log(record);
+        let i = 0;
+        info.nameKana = record[++i];
+        info.description = record[++i];
+        info.pendulumDescription = record[++i];
+        info.wikiEncodedName = record[++i];
       }
     }
   }
 };
+
+const loadStatusData = async () => {
+  await Promise.all(
+    jsonFileList.statusJsons.map(async (fileName) => {
+      const url = `./stk_ygo_svelte/json/${fileName}`;
+      console.info(`${url} starts loading `);
+      const res = await fetch(url);
+      const statusArray: (string | number | string | undefined)[][] = await res.json();
+      statusArray.map(convertToEntityStatusBase).forEach(pushCardInfo);
+      loededUrls.push(url);
+      console.info(`${url} has been loaded `);
+    })
+  );
+  console.info(`All status json files has been loaded `);
+
+  for (const definition of generateAllProcCardDefinitions()) {
+    if (cardNames.has(definition.name)) {
+      throw new Error(`カード定義重複${definition.name}`);
+    }
+    if (cardDefinitions.dic[definition.name]) {
+      cardDefinitions.dic[definition.name].isImplemented = true;
+      cardDefinitions.definitionCount++;
+    }
+  }
+  console.info(`All isImplemented Flg has been updated `);
+
+  resolve(cardDefinitions);
+};
+
+loadStatusData();

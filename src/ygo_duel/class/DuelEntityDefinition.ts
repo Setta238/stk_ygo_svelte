@@ -6,7 +6,7 @@ import type { DuelEntity, TDuelCauseReason, EntityStatus } from "@ygo_duel/class
 import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 import type { Duelist } from "@ygo_duel/class/Duelist";
 import type { SubstituteEffectDefinition } from "@ygo_duel/class/DuelSubstituteEffect";
-import { cardInfoDic } from "@ygo/class/CardInfo";
+import { cardDefinitionsPrms } from "@ygo/class/CardInfo";
 import {
   defaultNormalMonsterActions,
   defaultActions,
@@ -80,7 +80,7 @@ export function* generateAllProcCardDefinitions(): Generator<EntityProcDefinitio
     }
   }
 }
-export function* generateCardDefinitions(...names: string[]): Generator<EntityDefinition> {
+export async function* generateCardDefinitions(...names: string[]): AsyncGenerator<EntityDefinition> {
   const modules: Record<string, { default?: () => Generator<EntityProcDefinition> }> = {
     ...import.meta.glob("@ygo_entity_proc/card_proc_definitions/*.ts", { eager: true }),
     ...import.meta.glob("@ygo_entity_proc/card_proc_definitions/*/*.ts", { eager: true }),
@@ -88,40 +88,45 @@ export function* generateCardDefinitions(...names: string[]): Generator<EntityDe
 
   const _names: string[] = [];
 
+  const cardDefinitions = await cardDefinitionsPrms;
+
   // 処理定義を列挙して、必要なものを順番に返す
   for (const module of Object.values(modules)) {
     if (module.default) {
       for (const definition of module.default()) {
         if (names.includes(definition.name)) {
-          const staticInfo = { ...cardInfoDic[definition.name] };
-          let summonFilter = definition.summonFilter;
-          if (staticInfo.kind === "Monster" && staticInfo.monsterCategories && !definition.summonFilter) {
-            if (staticInfo.monsterCategories.union(summonMonsterCategories).length) {
-              summonFilter = defaultSummonFilter;
+          const cardInfo = cardDefinitions.getCardInfo(definition.name);
+          if (cardInfo) {
+            const staticInfo = { ...cardInfo };
+            let summonFilter = definition.summonFilter;
+            if (staticInfo.kind === "Monster" && staticInfo.monsterCategories && !definition.summonFilter) {
+              if (staticInfo.monsterCategories.union(summonMonsterCategories).length) {
+                summonFilter = defaultSummonFilter;
+              }
             }
-          }
-          if (definition.fusionMaterialInfos && definition.fusionMaterialInfos.some((info) => info.type === "Name")) {
-            staticInfo.textTags = [
-              ...(staticInfo.textTags ?? []),
-              ...definition.fusionMaterialInfos.filter(isNameTypeFusionMaterialInfo).map((info) => info.cardName),
-            ];
-          }
-          const _definition = { ...definition, summonFilter, staticInfo };
-          if (staticInfo.monsterCategories?.includes("Link")) {
-            _definition.actions = [...defaultLinkMonsterActions, ..._definition.actions];
-          } else if (staticInfo.monsterCategories?.includes("SpecialSummon")) {
-            _definition.actions = [...defaultActions, ..._definition.actions];
-          } else {
-            _definition.actions = [...defaultNormalMonsterActions, ...definition.actions];
-          }
+            if (definition.fusionMaterialInfos && definition.fusionMaterialInfos.some((info) => info.type === "Name")) {
+              staticInfo.textTags = [
+                ...(staticInfo.textTags ?? []),
+                ...definition.fusionMaterialInfos.filter(isNameTypeFusionMaterialInfo).map((info) => info.cardName),
+              ];
+            }
+            const _definition = { ...definition, summonFilter, staticInfo };
+            if (staticInfo.monsterCategories?.includes("Link")) {
+              _definition.actions = [...defaultLinkMonsterActions, ..._definition.actions];
+            } else if (staticInfo.monsterCategories?.includes("SpecialSummon")) {
+              _definition.actions = [...defaultActions, ..._definition.actions];
+            } else {
+              _definition.actions = [...defaultNormalMonsterActions, ...definition.actions];
+            }
 
-          _definition.actions
-            .filter(
-              (action) => action.fixedTags && action.fixedTags.some((tag) => tag.startsWith("SpecialSummon")) && !action.fixedTags.includes("SpecialSummon")
-            )
-            .forEach((action) => action.fixedTags?.push("SpecialSummon"));
-          yield _definition;
-          _names.push(definition.name);
+            _definition.actions
+              .filter(
+                (action) => action.fixedTags && action.fixedTags.some((tag) => tag.startsWith("SpecialSummon")) && !action.fixedTags.includes("SpecialSummon")
+              )
+              .forEach((action) => action.fixedTags?.push("SpecialSummon"));
+            yield _definition;
+            _names.push(definition.name);
+          }
         }
       }
     }
@@ -130,8 +135,8 @@ export function* generateCardDefinitions(...names: string[]): Generator<EntityDe
   // 残ったもののうち、ペンデュラムモンスターと効果モンスター以外のモンスターを返す
   yield* names
     .filter((name) => !_names.includes(name))
-    .map((name) => cardInfoDic[name])
-    .filter((info) => info)
+    .map((name) => cardDefinitions.getCardInfo(name))
+    .filter((info) => info !== undefined)
     .filter((info) => info.kind === "Monster")
     .filter((info) => !info.monsterCategories?.includes("Effect"))
     .filter((info) => !info.monsterCategories?.includes("Pendulum"))

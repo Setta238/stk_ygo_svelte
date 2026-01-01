@@ -1,3 +1,5 @@
+import { isString } from "@stk_utils/funcs/StkStringUtils";
+
 export const deckTypes = ["Deck", "ExtraDeck"] as const;
 export type TDeckTypes = (typeof deckTypes)[number];
 export const deckTypeDic: { [key in TDeckTypes]: string } = {
@@ -230,15 +232,17 @@ export type EntityStatusBase = {
   types?: TMonsterType[];
   linkArrowKeys?: TLinkArrowKey[];
   isImplemented?: boolean;
+  wikiEncodedName?: string;
 } & EntityStaticStatus &
-  Partial<TEntityFlexibleNumericStatus> & { wikiEncodedName: string };
+  Partial<TEntityFlexibleNumericStatus> & {};
 export type CardInfoDescription = {
   nameKana?: string;
   description?: string;
   pendulumDescription?: string;
+  wikiEncodedName?: string;
 };
 
-export type CardInfoJson = CardInfoWiki & EntityStatusBase & CardInfoDescription;
+export type CardInfoJson = Partial<CardInfoWiki> & EntityStatusBase & CardInfoDescription;
 
 const _getSubsetAsEntityStatusBase = ({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -323,7 +327,16 @@ export const monsterTypeEmojiDic = {
 export const linkArrowKeys = ["TopLeft", "TopCenter", "TopRight", "MiddleLeft", "MiddleRight", "BottomLeft", "BottomCenter", "BottomRight"] as const;
 export type TLinkArrowKey = (typeof linkArrowKeys)[number];
 export type LinkArrow = { offsetRow: 1 | 0 | -1; offsetColumn: 1 | 0 | -1 };
-
+export const linkArrowKeyDic = {
+  7: "TopLeft",
+  8: "TopCenter",
+  9: "TopRight",
+  4: "MiddleLeft",
+  6: "MiddleRight",
+  1: "BottomLeft",
+  2: "BottomCenter",
+  3: "BottomRight",
+} as const;
 export const linkArrowDic: { [key in TLinkArrowKey]: { name: string; linkArrow: LinkArrow } } = {
   TopLeft: {
     name: "左上",
@@ -446,4 +459,90 @@ export const cardSorter = (left: EntityStatusBase, right: EntityStatusBase): num
 
   // 到達しないコード
   return left.name.localeCompare(right.name, "Ja");
+};
+
+const validateCardDefinition = (definition: Object): definition is EntityStatusBase => {
+  const _definition = definition as { [key in string]: string | number | string[] | boolean | undefined };
+
+  const requiredValidations = ["kind", "name"];
+  requiredValidations.forEach((key) => {
+    if (!_definition[key]) {
+      return false;
+    }
+  });
+  const numberValidations = ["attack", "defense", "level", "rank", "link", "pendulumScaleL", "pendulumScaleR"];
+  numberValidations.forEach((key) => {
+    const v = _definition[key];
+    if (v !== undefined) {
+      return !isNaN(Number(v));
+    }
+  });
+  const strValidations: { key: string; values: Readonly<string[]> }[] = [
+    { key: "kind", values: cardKinds },
+    { key: "spellCategory", values: spellCategories },
+    { key: "trapCategory", values: trapCategories },
+    { key: "name", values: [] },
+  ];
+  strValidations.some(({ key, values }) => {
+    const v = _definition[key];
+    if (v) {
+      if (!isString(v)) {
+        return false;
+      }
+      if (values.length && !values.includes(v)) {
+        return false;
+      }
+    }
+    return true;
+  });
+  const strAryValidations: { key: string; values: Readonly<string[]> }[] = [
+    { key: "nameTags", values: [] },
+    { key: "textTags", values: [] },
+    { key: "monsterCategories", values: trapCategories },
+    { key: "attributes", values: monsterAttributes },
+    { key: "types", values: monsterTypes },
+    { key: "linkArrowKeys", values: linkArrowKeys },
+  ];
+  strAryValidations.some(({ key, values }) => {
+    const ary = _definition[key];
+    if (ary) {
+      if (!Array.isArray(ary)) {
+        return false;
+      }
+      if (values.length && ary.some((v) => !values.includes(v))) {
+        return false;
+      }
+    }
+    return true;
+  });
+
+  return true;
+};
+export const convertToEntityStatusBase = (statusArray: (string | number | string[] | boolean | undefined)[]): EntityStatusBase => {
+  statusArray.length = 18;
+  const definition: { [key in string]: string | number | string[] | boolean | undefined } = {};
+  let i = 0;
+  definition.cardId = statusArray[i++];
+  definition.name = statusArray[i++];
+  definition.kind = statusArray[i++] as TCardKind;
+  definition.nameTags = statusArray[i++];
+  definition.textTags = statusArray[i++];
+  definition.monsterCategories = statusArray[i++];
+  definition.spellCategory = statusArray[i++] as TSpellCategory;
+  definition.trapCategory = statusArray[i++] as TTrapCategory;
+  definition.attributes = statusArray[i++];
+  definition.types = statusArray[i++];
+  definition.attack = statusArray[i++];
+  definition.defense = statusArray[i++];
+  definition.level = statusArray[i++];
+  definition.rank = statusArray[i++];
+  definition.link = statusArray[i++];
+  definition.linkArrowKeys = statusArray[i++];
+  definition.pendulumScaleL = statusArray[i++];
+  definition.pendulumScaleR = statusArray[i++];
+  if (!validateCardDefinition(definition)) {
+    throw new Error(`IllegalCardDefinition:${definition}`);
+  }
+
+  return definition;
 };

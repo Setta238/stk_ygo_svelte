@@ -4,7 +4,7 @@
 </script>
 
 <script lang="ts">
-  import { cardInfoDic } from "@ygo/class/CardInfo";
+  import { cardDefinitionsPrms, loadTextData } from "@ygo/class/CardInfo";
   import {
     monsterAttributeDic,
     monsterCategoryDic,
@@ -18,12 +18,27 @@
   export let entity: DuelEntity | undefined = undefined;
   export let mode: TCardDetailMode = "Normal";
 
-  const getInfo = () => (entity ? cardInfoDic[entity.origin.name] : undefined);
+  const getInfo = async () => {
+    if (!entity) {
+      return;
+    }
+    const cardDefinitions = await cardDefinitionsPrms;
+    const _cardInfo = cardDefinitions.getCardInfo(entity.origin.name);
+    if (!_cardInfo) {
+      return;
+    }
 
+    if (_cardInfo.cardId !== undefined && !_cardInfo.description && !_cardInfo.pendulumDescription) {
+      await loadTextData([_cardInfo.cardId]);
+    }
+    return _cardInfo;
+  };
   const getKonamiUrl = () => {
     return entity && entity.entityType === "Card" && (entity.origin.cardId ?? 0 > 0)
       ? `https://www.db.yugioh-card.com/yugiohdb/card_search.action?ope=2&cid=${entity.origin.cardId}`
-      : `https://www.db.yugioh-card.com/yugiohdb/card_search.action?ope=1&sess=1&rp=10&mode=&sort=1&keyword=${getInfo()?.name}&stype=1&ctype=&othercon=2&starfr=&starto=&pscalefr=&pscaleto=&linkmarkerfr=&linkmarkerto=&link_m=2&atkfr=&atkto=&deffr=&defto=&releaseDStart=1&releaseMStart=1&releaseYStart=1999&releaseDEnd=&releaseMEnd=&releaseYEnd=`;
+      : entity
+        ? `https://www.db.yugioh-card.com/yugiohdb/card_search.action?ope=1&sess=1&rp=10&mode=&sort=1&keyword=${entity.origin.name}&stype=1&ctype=&othercon=2&starfr=&starto=&pscalefr=&pscaleto=&linkmarkerfr=&linkmarkerto=&link_m=2&atkfr=&atkto=&deffr=&defto=&releaseDStart=1&releaseMStart=1&releaseYStart=1999&releaseDEnd=&releaseMEnd=&releaseYEnd=`
+        : "";
   };
   const onLeftClick = () => {
     mode = mode !== "Detail" ? "Detail" : "Normal";
@@ -94,11 +109,19 @@
       {#if mode === "Normal"}
         {#if entity.status.monsterCategories?.includes("Pendulum")}
           <div class="duel_card_info_row" style="border-style: solid; border-width: 1px;">
-            <pre class="description">{cardInfoDic[entity.origin.name].pendulumDescription}</pre>
+            {#await getInfo()}
+              "読み込み中"
+            {:then cardInfo}
+              <pre class="description">{cardInfo?.pendulumDescription}</pre>
+            {/await}
           </div>
         {/if}
         <div class="duel_card_info_row">
-          <pre class="description">{getInfo()?.description}</pre>
+          {#await getInfo()}
+            "読み込み中"
+          {:then cardInfo}
+            <pre class="description">{cardInfo?.description}</pre>
+          {/await}
         </div>
       {:else if mode === "Detail"}
         {#if entity.actions.some((action) => action.actionCountUpperBoundKey)}

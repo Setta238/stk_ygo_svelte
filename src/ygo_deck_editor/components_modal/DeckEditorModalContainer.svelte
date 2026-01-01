@@ -12,8 +12,6 @@
           title: "デッキ情報をアップロード",
           position: "Middle",
           cancelable: false,
-          mainCardNames: [],
-          exCardNames: [],
         }),
       } as const;
       return Object.assign(new DeckEditorModalControllerFactory(eventHolder, modalMap), modalMap);

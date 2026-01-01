@@ -5,7 +5,7 @@ import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { DuelFieldCell, type TDuelEntityMovePos } from "@ygo_duel/class/DuelFieldCell";
 import { type Duelist } from "@ygo_duel/class/Duelist";
 import { DuelModalControllerFactory, type DuelModalController } from "@ygo_duel_view/components_modal/DuelModalContainer.svelte";
-import { EntityAction, type ChainBlockInfo, type DummyActionInfo, type ICardAction, type ValidatedActionInfo } from "../../ygo_duel/class/DuelEntityAction";
+import { EntityAction, type ChainBlockInfo, type DummyActionInfo, type ICardAction, type ValidatedActionInfo } from "@ygo_duel/class/DuelEntityAction";
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
 import { createPromiseSweet, delay } from "@stk_utils/funcs/StkPromiseUtil";
 import type { ShowCardEntityEventArgs } from "@ygo_duel_view/components/DuelCardDetail.svelte";
@@ -87,10 +87,11 @@ export class DuelViewController {
   //  private draggingAction: CardAction | undefined;
   private _message: string;
   public get message() {
-    return (
-      (this._message || this.duel.log.records.filter((record) => record.type === "Others" || record.type === "System").slice(-1)[0]?.text).substring(0, 100) ??
-      ""
-    );
+    if (this._message) {
+      return this._message.substring(0, 100);
+    }
+    const logRecord = this.duel.log.records.findLast((record) => record.type === "Others" || record.type === "System");
+    return (logRecord?.text ?? "").substring(0, 100);
   }
   public waitMode: TDuelWaitMode;
   public infoBoardState: TDuelDeskInfoBoardState;

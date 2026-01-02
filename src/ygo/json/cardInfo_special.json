@@ -1,0 +1,20 @@
+{
+  "デコピン": {
+    "name": "デコピン",
+    "description": "神聖なるマウンドに降臨した幸せの天使。\nシキュウシキと呼ばれる特別な儀式を執り行うため、相棒と共に舞い降りたという。\n優雅な毛並み、キュートな姿に人々は魅了され、儀式はハイタッチで締めくくられた。\n\n相棒と歩むショウタイムはこれからも続く――。",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Normal"
+    ],
+    "level": 1,
+    "attack": 50,
+    "defense": 50,
+    "attributes": [
+      "Light"
+    ],
+    "types": [
+      "Beast"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%C7%A5%B3%A5%D4%A5%F3%A1%D5"
+  }
+}

@@ -1,3 +1,4 @@
+import cardInfo_special from "@ygo/json/cardInfo_special.json";
 import json_test from "@ygo/json/cardInfo_test.json";
 import json_old_version from "@ygo/json/cardInfo_old_version.json";
 import jsonFileList from "@ygo/json/cardInfoFileList.json";
@@ -7,7 +8,7 @@ import { generateAllProcCardDefinitions } from "@ygo_duel/class/DuelEntityDefini
 import { createPromiseSweet } from "@stk_utils/funcs/StkPromiseUtil";
 
 const cardNames = new Set<string>();
-const fuga = { ...json_test, ...json_old_version } as unknown as { [name: string]: EntityStatusBase & CardInfoDescription };
+const fuga = { ...json_test, ...json_old_version, ...cardInfo_special } as unknown as { [name: string]: EntityStatusBase & CardInfoDescription };
 
 const cardDefinitions = {
   dic: {} as { [name: string]: EntityStatusBase & CardInfoDescription },

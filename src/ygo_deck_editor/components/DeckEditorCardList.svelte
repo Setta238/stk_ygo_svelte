@@ -162,6 +162,25 @@
         return false;
       }
 
+      if (searchCondition.atkLowerBound !== undefined && (cardInfo.attack ?? 0) < searchCondition.atkLowerBound) {
+        return false;
+      }
+      if (searchCondition.atkUpperBound !== undefined && (cardInfo.attack ?? 0) > searchCondition.atkUpperBound) {
+        return false;
+      }
+      if (searchCondition.defLowerBound !== undefined && (cardInfo.defense ?? 0) < searchCondition.defLowerBound) {
+        return false;
+      }
+      if (searchCondition.defUpperBound !== undefined && (cardInfo.defense ?? 0) > searchCondition.defUpperBound) {
+        return false;
+      }
+      if (searchCondition.defLowerBound !== undefined && (cardInfo.defense ?? 0) < searchCondition.defLowerBound) {
+        return false;
+      }
+      if (searchCondition.atkPlusDef !== undefined && (cardInfo.attack ?? 0) + (cardInfo.defense ?? 0) !== searchCondition.atkPlusDef) {
+        return false;
+      }
+
       if (!cardInfo.monsterCategories) {
         return false;
       }

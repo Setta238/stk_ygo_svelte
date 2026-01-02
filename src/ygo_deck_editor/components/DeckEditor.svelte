@@ -7,6 +7,11 @@
     monsterTypes: TMonsterType[];
     spellCategories: TSpellCategory[];
     trapCategories: TTrapCategory[];
+    atkLowerBound?: number;
+    atkUpperBound?: number;
+    defLowerBound?: number;
+    defUpperBound?: number;
+    atkPlusDef?: number;
     others: ("test" | "oldVersion" | "implemented")[];
   };
 </script>
@@ -47,7 +52,7 @@
     onDragStart: { append: () => {}, remove: () => {} },
     onDragEnd: { append: () => {}, remove: () => {} },
   });
-  const seachConditionDefaultValues: SearchCondition = {
+  const searchConditionDefaultValues: SearchCondition = {
     name: "",
     cardKinds: cardKinds.filter((kind) => kind !== "XyzMaterial"),
     monsterCategories: [...monsterCategories],
@@ -55,10 +60,15 @@
     monsterTypes: [...monsterTypes],
     spellCategories: [...spellCategories],
     trapCategories: [...trapCategories],
+    atkLowerBound: 0,
+    atkUpperBound: 5000,
+    defLowerBound: 0,
+    defUpperBound: 5000,
+    atkPlusDef: undefined,
     others: ["test", "oldVersion", "implemented"],
   };
 
-  const searchCondition = structuredClone(seachConditionDefaultValues);
+  const searchCondition = structuredClone(searchConditionDefaultValues);
   searchCondition.others = ["oldVersion"];
 
   let mode: "SearchCondition" | "CardDetail" = "SearchCondition";
@@ -72,15 +82,25 @@
     searchCondition.spellCategories = [];
     searchCondition.trapCategories = [];
     searchCondition.others = [];
+    searchCondition.atkLowerBound = 0;
+    searchCondition.atkUpperBound = 5000;
+    searchCondition.defLowerBound = 0;
+    searchCondition.defUpperBound = 5000;
+    searchCondition.atkPlusDef = undefined;
   };
 
-  const onResetSeachCondition = async (key: keyof typeof searchCondition) => {
-    if (Array.isArray(searchCondition[key]) && Array.isArray(seachConditionDefaultValues[key])) {
-      (searchCondition[key] as string[]) = searchCondition[key].length ? [] : ([...seachConditionDefaultValues[key]] as string[]);
-    }
+  const onResetSearchCondition = (keys: (keyof typeof searchCondition)[]) => {
+    keys.forEach((key) => {
+      if (Array.isArray(searchCondition[key]) && Array.isArray(searchConditionDefaultValues[key])) {
+        (searchCondition[key] as string[]) = searchCondition[key].length ? [] : ([...searchConditionDefaultValues[key]] as string[]);
+      } else {
+        // @ts-expect-error
+        searchCondition[key] = searchConditionDefaultValues[key];
+      }
+    });
   };
   const ondblclick = (ev: MouseEvent, key: keyof typeof searchCondition, value: string) => {
-    if (Array.isArray(searchCondition[key]) && Array.isArray(seachConditionDefaultValues[key])) {
+    if (Array.isArray(searchCondition[key]) && Array.isArray(searchConditionDefaultValues[key])) {
       (searchCondition[key] as string[]) = [value];
     }
   };
@@ -226,15 +246,14 @@
           <div><button class="white_button" on:click={onClearSearchConditionClick}>条件クリア</button></div>
         </div>
         <div class="deck_editor_search_box_row">
-          <div>名称</div>
+          <div><button class="search_condition_title black_button" on:click={() => onResetSearchCondition(["name"])}>名称</button></div>
           <div>
             <input type="text" bind:value={searchCondition.name} style="width:70%" />
-            <button class="white_button" on:click={() => (searchCondition.name = "")}>クリア</button>
             <span> ※ルビには対応していません </span>
           </div>
         </div>
         <div class="deck_editor_search_box_row">
-          <div><button class="search_condition_title black_button" on:click={() => onResetSeachCondition("cardKinds")}>種類</button></div>
+          <div><button class="search_condition_title black_button" on:click={() => onResetSearchCondition(["cardKinds"])}>種類</button></div>
           <div>
             {#each cardKinds.filter((kind) => kind !== "XyzMaterial") as key}
               <label>
@@ -246,7 +265,7 @@
         </div>
         {#if searchCondition.cardKinds.includes("Monster")}
           <div class="deck_editor_search_box_row" transition:slide={{ delay: 0, duration: 100 }}>
-            <div><button class="search_condition_title black_button" on:click={() => onResetSeachCondition("monsterCategories")}>モンスター</button></div>
+            <div><button class="search_condition_title black_button" on:click={() => onResetSearchCondition(["monsterCategories"])}>モンスター</button></div>
             <div>
               {#each monsterCategories as key}
                 <label>
@@ -257,7 +276,7 @@
             </div>
           </div>
           <div class="deck_editor_search_box_row" transition:slide={{ delay: 0, duration: 100 }}>
-            <div><button class="search_condition_title black_button" on:click={() => onResetSeachCondition("monsterAttributes")}>属性</button></div>
+            <div><button class="search_condition_title black_button" on:click={() => onResetSearchCondition(["monsterAttributes"])}>属性</button></div>
             <div>
               {#each monsterAttributes as key}
                 <label>
@@ -269,7 +288,7 @@
             </div>
           </div>
           <div class="deck_editor_search_box_row" transition:slide={{ delay: 0, duration: 100 }}>
-            <div><button class="search_condition_title black_button" on:click={() => onResetSeachCondition("monsterTypes")}>種族</button></div>
+            <div><button class="search_condition_title black_button" on:click={() => onResetSearchCondition(["monsterTypes"])}>種族</button></div>
             <div>
               {#each monsterTypes as key}
                 <label on:dblclick={(ev) => ondblclick(ev, "monsterTypes", key)}>
@@ -280,10 +299,36 @@
               {/each}
             </div>
           </div>
+          <div class="deck_editor_search_box_row" transition:slide={{ delay: 0, duration: 100 }}>
+            <div>
+              <button
+                class="search_condition_title black_button"
+                on:click={() => onResetSearchCondition(["atkLowerBound", "atkUpperBound", "defLowerBound", "defUpperBound"])}>攻守</button
+              >
+            </div>
+            <div>
+              <div>
+                <span>攻</span>
+                <input type="number" min="0" max="5000" step="100" bind:value={searchCondition.atkLowerBound} />
+                <span>～</span>
+                <input type="number" min="0" max="5000" step="100" bind:value={searchCondition.atkUpperBound} />
+              </div>
+              <div>
+                <span>守</span>
+                <input type="number" min="0" max="5000" step="100" bind:value={searchCondition.defLowerBound} />
+                <span>～</span>
+                <input type="number" min="0" max="5000" step="100" bind:value={searchCondition.defUpperBound} />
+              </div>
+              <div>
+                <span>攻+守</span>
+                <input type="number" min="0" max="5000" step="100" bind:value={searchCondition.atkPlusDef} />
+              </div>
+            </div>
+          </div>
         {/if}
         {#if searchCondition.cardKinds.includes("Spell")}
           <div class="deck_editor_search_box_row" transition:slide={{ delay: 0, duration: 100 }}>
-            <div><button class="search_condition_title black_button" on:click={() => onResetSeachCondition("spellCategories")}>魔法</button></div>
+            <div><button class="search_condition_title black_button" on:click={() => onResetSearchCondition(["spellCategories"])}>魔法</button></div>
             <div>
               {#each spellCategories as key}
                 <label>
@@ -296,7 +341,7 @@
         {/if}
         {#if searchCondition.cardKinds.includes("Trap")}
           <div class="deck_editor_search_box_row" transition:slide={{ delay: 0, duration: 100 }}>
-            <div><button class="search_condition_title black_button" on:click={() => onResetSeachCondition("trapCategories")}>罠</button></div>
+            <div><button class="search_condition_title black_button" on:click={() => onResetSearchCondition(["trapCategories"])}>罠</button></div>
             <div>
               {#each trapCategories as key}
                 <label>
@@ -308,7 +353,7 @@
           </div>
         {/if}
         <div class="deck_editor_search_box_row" transition:slide={{ delay: 0, duration: 100 }}>
-          <div><button class="search_condition_title black_button" on:click={() => onResetSeachCondition("others")}>その他</button></div>
+          <div><button class="search_condition_title black_button" on:click={() => onResetSearchCondition(["others"])}>その他</button></div>
           <div>
             {#each [{ key: "test", text: "テスト用カード" }, { key: "oldVersion", text: "エラッタ前カード" }, { key: "implemented", text: "未実装カード" }] as item}
               <label>

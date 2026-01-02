@@ -58,7 +58,7 @@
     monsterCategories: [...monsterCategories],
     monsterAttributes: [...monsterAttributes],
     monsterTypes: [...monsterTypes],
-    spellCategories: [...spellCategories],
+    spellCategories: spellCategories.filter((sc) => sc !== "PendulumScale"),
     trapCategories: [...trapCategories],
     atkLowerBound: 0,
     atkUpperBound: 5000,
@@ -330,7 +330,7 @@
           <div class="deck_editor_search_box_row" transition:slide={{ delay: 0, duration: 100 }}>
             <div><button class="search_condition_title black_button" on:click={() => onResetSearchCondition(["spellCategories"])}>魔法</button></div>
             <div>
-              {#each spellCategories as key}
+              {#each spellCategories.filter((sc) => sc !== "PendulumScale") as key}
                 <label>
                   <input type="checkbox" value={key} bind:group={searchCondition.spellCategories} />
                   {spellCategoryDic[key]}

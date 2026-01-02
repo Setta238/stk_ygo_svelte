@@ -163,6 +163,16 @@
         return false;
       }
 
+      const star = cardInfo.level ?? cardInfo.rank ?? cardInfo.link;
+
+      if (isNumber(searchCondition.starLowerBound) && (star ?? 0) < searchCondition.starLowerBound) {
+        return false;
+      }
+
+      if (isNumber(searchCondition.starUpperBound) && (star ?? 0) > searchCondition.starUpperBound) {
+        return false;
+      }
+
       if (isNumber(searchCondition.atkLowerBound) && (cardInfo.attack ?? 0) < searchCondition.atkLowerBound) {
         return false;
       }

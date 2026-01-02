@@ -7,6 +7,8 @@
     monsterTypes: TMonsterType[];
     spellCategories: TSpellCategory[];
     trapCategories: TTrapCategory[];
+    starLowerBound?: number;
+    starUpperBound?: number;
     atkLowerBound?: number;
     atkUpperBound?: number;
     defLowerBound?: number;
@@ -60,6 +62,8 @@
     monsterTypes: [...monsterTypes],
     spellCategories: spellCategories.filter((sc) => sc !== "PendulumScale"),
     trapCategories: [...trapCategories],
+    starLowerBound: 0,
+    starUpperBound: 13,
     atkLowerBound: 0,
     atkUpperBound: 5000,
     defLowerBound: 0,
@@ -303,25 +307,40 @@
             <div>
               <button
                 class="search_condition_title black_button"
-                on:click={() => onResetSearchCondition(["atkLowerBound", "atkUpperBound", "defLowerBound", "defUpperBound"])}>攻守</button
+                on:click={() =>
+                  onResetSearchCondition([
+                    "starLowerBound",
+                    "starUpperBound",
+                    "atkLowerBound",
+                    "atkUpperBound",
+                    "defLowerBound",
+                    "defUpperBound",
+                    "atkPlusDef",
+                  ])}>星攻守</button
               >
             </div>
             <div>
               <div>
-                <span>攻</span>
-                <input type="number" min="0" max="5000" step="100" bind:value={searchCondition.atkLowerBound} />
+                <span>星</span>
+                <input type="number" min="0" max="5000" step="100" style="width: 2.5rem;" bind:value={searchCondition.starLowerBound} />
                 <span>～</span>
-                <input type="number" min="0" max="5000" step="100" bind:value={searchCondition.atkUpperBound} />
+                <input type="number" min="0" max="5000" step="100" style="width: 2.5rem;" bind:value={searchCondition.starUpperBound} />
+              </div>
+              <div>
+                <span>攻</span>
+                <input type="number" min="0" max="5000" step="100" style="width: 3.5rem;" bind:value={searchCondition.atkLowerBound} />
+                <span>～</span>
+                <input type="number" min="0" max="5000" step="100" style="width: 3.5rem;" bind:value={searchCondition.atkUpperBound} />
               </div>
               <div>
                 <span>守</span>
-                <input type="number" min="0" max="5000" step="100" bind:value={searchCondition.defLowerBound} />
+                <input type="number" min="0" max="5000" step="100" style="width: 3.5rem;" bind:value={searchCondition.defLowerBound} />
                 <span>～</span>
-                <input type="number" min="0" max="5000" step="100" bind:value={searchCondition.defUpperBound} />
+                <input type="number" min="0" max="5000" step="100" style="width: 3.5rem;" bind:value={searchCondition.defUpperBound} />
               </div>
               <div>
                 <span>攻+守</span>
-                <input type="number" min="0" max="5000" step="100" bind:value={searchCondition.atkPlusDef} />
+                <input type="number" min="0" max="10000" step="100" style="width: 4rem;" bind:value={searchCondition.atkPlusDef} />
               </div>
             </div>
           </div>

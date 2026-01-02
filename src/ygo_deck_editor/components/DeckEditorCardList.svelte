@@ -112,18 +112,22 @@
     deckCardInfos.sort(cardSorter);
   };
 
-  // 重いので、描画を遅延させてみる。
+  // 描画を段階的に行うためのディレイ
   let indexUpperBound = 100;
-  const afterDelay = () => {
+  const incrementIndexUpperBound = () => {
     if (indexUpperBound > allCardInfos.length + deckCardInfos.length) {
       return;
     }
-    indexUpperBound += 10;
-    delay(100).then(afterDelay);
+    indexUpperBound += 100;
+    delay(100).then(incrementIndexUpperBound);
   };
-  delay(100).then(afterDelay);
 
-  const filter = (cardInfo: CardInfoJson, index: number) => {
+  const filter = (cardInfo: CardInfoJson, index: number, array: CardInfoJson[], kind?: TCardKind) => {
+    // 検索条件を変更したとき、段階的に描画するようにする
+    if (index === 0 && kind === "Monster") {
+      indexUpperBound = 100;
+      delay(100).then(incrementIndexUpperBound);
+    }
     if (!searchCondition) {
       return true;
     }
@@ -191,7 +195,7 @@
           {/if}
         </div>
         {#each getKeys(tree[deckType]).filter((kind) => listGroup[deckType].includes(kind)) as kind}
-          {@const branch2 = tree[deckType][kind].filter(filter)}
+          {@const branch2 = tree[deckType][kind].filter((...args) => filter(...args, kind))}
           <div class="deck_editor_card_kind">
             <div class="deck_editor_card_kind_header">
               <div>{cardKindDic[kind]}（{branch2.length} / {tree[deckType][kind].length}枚）</div>

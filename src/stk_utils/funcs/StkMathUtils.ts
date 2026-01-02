@@ -1,4 +1,10 @@
 export const isNumber = (value: unknown): value is number => {
+  if (value === undefined) {
+    return false;
+  }
+  if (value === null) {
+    return false;
+  }
   return !isNaN(Number(value));
 };
 export const max = (...array: number[]) => {

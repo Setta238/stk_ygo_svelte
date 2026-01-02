@@ -16,6 +16,7 @@
   import type { SearchCondition } from "./DeckEditor.svelte";
   import { getKeys } from "@stk_utils/funcs/StkObjectUtils";
   import { delay } from "@stk_utils/funcs/StkPromiseUtil";
+  import { isNumber } from "@stk_utils/funcs/StkMathUtils";
 
   export let allCardInfos: CardInfoJson[];
   export let deckCardInfos: CardInfoJson[];
@@ -162,23 +163,28 @@
         return false;
       }
 
-      if (searchCondition.atkLowerBound !== undefined && (cardInfo.attack ?? 0) < searchCondition.atkLowerBound) {
+      if (isNumber(searchCondition.atkLowerBound) && (cardInfo.attack ?? 0) < searchCondition.atkLowerBound) {
         return false;
       }
-      if (searchCondition.atkUpperBound !== undefined && (cardInfo.attack ?? 0) > searchCondition.atkUpperBound) {
+      if (isNumber(searchCondition.atkUpperBound) && (cardInfo.attack ?? 0) > searchCondition.atkUpperBound) {
         return false;
       }
-      if (searchCondition.defLowerBound !== undefined && (cardInfo.defense ?? 0) < searchCondition.defLowerBound) {
+      if (isNumber(searchCondition.defLowerBound) && (cardInfo.defense ?? 0) < searchCondition.defLowerBound) {
         return false;
       }
-      if (searchCondition.defUpperBound !== undefined && (cardInfo.defense ?? 0) > searchCondition.defUpperBound) {
+      if (isNumber(searchCondition.defUpperBound) && (cardInfo.defense ?? 0) > searchCondition.defUpperBound) {
         return false;
       }
-      if (searchCondition.defLowerBound !== undefined && (cardInfo.defense ?? 0) < searchCondition.defLowerBound) {
-        return false;
-      }
-      if (searchCondition.atkPlusDef !== undefined && (cardInfo.attack ?? 0) + (cardInfo.defense ?? 0) !== searchCondition.atkPlusDef) {
-        return false;
+      if (isNumber(searchCondition.atkPlusDef)) {
+        if (!isNumber(cardInfo.attack)) {
+          return false;
+        }
+        if (!isNumber(cardInfo.defense)) {
+          return false;
+        }
+        if (cardInfo.attack + cardInfo.defense !== searchCondition.atkPlusDef) {
+          return false;
+        }
       }
 
       if (!cardInfo.monsterCategories) {

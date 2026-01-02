@@ -104,8 +104,11 @@ const loadStatusData = async () => {
     if (cardNames.has(definition.name)) {
       throw new Error(`カード定義重複${definition.name}`);
     }
-    if (cardDefinitions.dic[definition.name]) {
-      cardDefinitions.dic[definition.name].isImplemented = true;
+
+    const cardDefinition = cardDefinitions.getCardInfo(definition.name);
+
+    if (cardDefinition) {
+      cardDefinition.isImplemented = true;
       cardDefinitions.definitionCount++;
     }
   }

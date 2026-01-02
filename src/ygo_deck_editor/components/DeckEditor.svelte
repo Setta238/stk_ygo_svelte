@@ -322,9 +322,9 @@
             <div>
               <div>
                 <span>星</span>
-                <input type="number" min="0" max="5000" step="100" style="width: 2.5rem;" bind:value={searchCondition.starLowerBound} />
+                <input type="number" min="0" max="13" style="width: 2.5rem;" bind:value={searchCondition.starLowerBound} />
                 <span>～</span>
-                <input type="number" min="0" max="5000" step="100" style="width: 2.5rem;" bind:value={searchCondition.starUpperBound} />
+                <input type="number" min="0" max="13" style="width: 2.5rem;" bind:value={searchCondition.starUpperBound} />
               </div>
               <div>
                 <span>攻</span>
@@ -451,13 +451,7 @@
             
         -->
   </div>
-  <div class="footer">
-    {#await cardDefinitionsPrms}
-      読み込み中
-    {:then status}
-      実装済カード{status.definitionCount + status.nonDefinitionCount}枚（内、効果のないモンスター{status.nonDefinitionCount}枚）
-    {/await}
-  </div>
+  <div class="footer"></div>
 </div>
 <DeckEditorModalContainer {modalController} />
 

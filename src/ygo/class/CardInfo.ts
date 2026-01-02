@@ -78,6 +78,8 @@ export const loadTextData = async (cids: number[]) => {
 };
 
 const loadStatusData = async () => {
+  console.info(`document.URL=${document.URL}`);
+
   await Promise.all(
     jsonFileList.statusJsons.map(async (fileName) => {
       const url = `./stk_ygo_svelte/json/${fileName}`;

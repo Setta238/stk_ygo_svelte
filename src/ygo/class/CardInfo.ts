@@ -85,6 +85,7 @@ const loadStatusData = async () => {
       const url = `./stk_ygo_svelte/json/${fileName}`;
       console.info(`${url} starts loading `);
       const res = await fetch(url);
+      console.info(`res=${res.status} ${res.statusText}`);
       const statusArray: (string | number | string | undefined)[][] = await res.json();
       statusArray.map(convertToEntityStatusBase).forEach(pushCardInfo);
       loededUrls.push(url);

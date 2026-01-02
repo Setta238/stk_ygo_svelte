@@ -256,10 +256,18 @@
                         </div>
                       </div>
                     </div>
-                    {#if cardInfo.isImplemented}
-                      <button class="button_style_reset" title="※shiftキー同時押しで一括投入" on:click={(ev) => onPlusButtonClick(ev, cardInfo)}>+</button>
-                      <button class="button_style_reset" title="※shiftキー同時押しで一括外し" on:click={(ev) => onMinusButtonClick(ev, cardInfo)}>-</button>
-                    {/if}
+                    <button
+                      class="button_style_reset"
+                      disabled={!cardInfo.isImplemented}
+                      title={cardInfo.isImplemented ? "※shiftキー同時押しで一括投入" : ""}
+                      on:click={(ev) => onPlusButtonClick(ev, cardInfo)}>+</button
+                    >
+                    <button
+                      class="button_style_reset"
+                      disabled={!cardInfo.isImplemented}
+                      title={cardInfo.isImplemented ? "※shiftキー同時押しで一括外し" : ""}
+                      on:click={(ev) => onMinusButtonClick(ev, cardInfo)}>-</button
+                    >
                   </li>
                 {/if}
               {/each}
@@ -364,5 +372,12 @@
   button:hover {
     background: #67c5ff;
     color: white;
+  }
+  button:disabled {
+    filter: grayscale(100);
+    transition: 0s;
+    color: #67c5ff;
+    background: #67c5ff;
+    cursor: not-allowed;
   }
 </style>

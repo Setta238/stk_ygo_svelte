@@ -17,6 +17,7 @@
   import {} from "@stk_utils/funcs/StkStringUtils";
   import {} from "@stk_utils/funcs/StkArrayUtils";
   import {} from "@stk_utils/funcs/StkDateUtils";
+  import { cardDefinitionsPrms } from "@ygo/class/CardInfo";
   const idb = new StkIndexedDB<TTblNames>("stk_ygo_svelte", currentVersion, tblNames);
 
   let innerWidth = 0;
@@ -338,7 +339,15 @@
       </table>
     </div>
   {/if}
-  <div class="debug_info">
+  <div class="footer card_summary">
+    {#await cardDefinitionsPrms}
+      読み込み中
+    {:then status}
+      <span>公式DB上のカード{status.knmCount.toLocaleString()}枚</span>
+      <span>実装済カード（効果あり）{status.definitionCount.toLocaleString()}枚 （効果なし）{status.nonDefinitionCount.toLocaleString()}枚</span>
+    {/await}
+  </div>
+  <div class="footer debug_info">
     <span>build at: {import.meta.env.VITE_BUILD_TIMESTAMP}</span>
     <span class="user_agent_info">{userAgentInfo.text}</span>
     <span class="screen_info">w:{innerWidth}px h:{innerHeight}px</span>
@@ -422,29 +431,39 @@
   .a_button {
     cursor: pointer;
   }
-  .debug_info {
+  .footer {
     position: fixed;
-    right: 0.5rem;
     bottom: 0.5rem;
     background: rgba(255, 255, 255, 0.7);
     pointer-events: none;
   }
-  .debug_info * {
+  .footer * {
     padding: 0.1rem 0.5rem;
     font-size: 1rem;
+  }
+  .card_summary {
+    left: 0.5rem;
+  }
+  .debug_info {
+    right: 0.5rem;
   }
 
   /* スマホ用に調整 */
   @media screen and (max-width: 600px) {
-    .debug_info {
-      right: 0.1rem;
+    .footer {
       bottom: 0.1rem;
       font-size: 0.8rem;
       padding: 0.2rem 0.2rem;
     }
-    .debug_info * {
+    .footer * {
       font-size: 0.8rem;
       padding: 0.05rem 0.2rem;
+    }
+    .card_summary {
+      left: 0.1rem;
+    }
+    .debug_info {
+      right: 0.1rem;
     }
   }
   .config_row * {

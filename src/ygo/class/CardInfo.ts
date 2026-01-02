@@ -6,12 +6,14 @@ import jsonFileList from "@ygo/json/cardInfoFileList.json";
 import { convertToEntityStatusBase, type CardInfoDescription, type EntityStatusBase } from "@ygo/class/YgoTypes";
 import { generateAllProcCardDefinitions } from "@ygo_duel/class/DuelEntityDefinition";
 import { createPromiseSweet } from "@stk_utils/funcs/StkPromiseUtil";
+import { isNumber } from "@stk_utils/funcs/StkMathUtils";
 
 const cardNames = new Set<string>();
 const fuga = { ...json_test, ...json_old_version, ...cardInfo_special } as unknown as { [name: string]: EntityStatusBase & CardInfoDescription };
 
 const cardDefinitions = {
   dic: {} as { [name: string]: EntityStatusBase & CardInfoDescription },
+  knmCount: 0,
   definitionCount: 0,
   nonDefinitionCount: 0,
   testCardCount: 0,
@@ -98,6 +100,10 @@ const loadStatusData = async () => {
       console.info(`${url} has been loaded `);
     })
   );
+  cardDefinitions.knmCount = Object.values(cardDefinitions.dic)
+    .map((info) => info.cardId)
+    .getDistinct()
+    .map(isNumber).length;
   console.info(`All status json files has been loaded `);
 
   for (const definition of generateAllProcCardDefinitions()) {

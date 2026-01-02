@@ -85,6 +85,12 @@
             {#each entity.types as type}
               <div class="monster_cat {type}">{monsterTypeEmojiDic[type]}{monsterTypeDic[type]}族</div>
             {/each}
+            <div style="flex-grow: 1;"></div>
+            <div class="monster_attack">{entity.atk ?? "?"}</div>
+            {#if !entity.status.monsterCategories?.includes("Link")}
+              <span>/</span>
+              <div class="monster_defense">{entity.def ?? "?"}</div>
+            {/if}
           </div>
           <div class="duel_card_info_row">
             {#each entity.status.monsterCategories ?? [] as cat}

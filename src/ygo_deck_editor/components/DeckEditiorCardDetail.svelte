@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { isNumber } from "@stk_utils/funcs/StkMathUtils";
   import {
     getKonamiUrl,
     monsterAttributeDic,
@@ -44,6 +45,12 @@
           {/if}
           {#if cardInfo.types}
             <div class="monster_cat {cardInfo.types[0]}">{monsterTypeEmojiDic[cardInfo.types[0]]}{monsterTypeDic[cardInfo.types[0]]}族</div>
+          {/if}
+          <div style="flex-grow: 1;"></div>
+          <div class="monster_attack">{cardInfo.attack ?? "?"}</div>
+          {#if !cardInfo.monsterCategories?.includes("Link")}
+            <span>/</span>
+            <div class="monster_defense">{cardInfo.defense ?? "?"}</div>
           {/if}
         </div>
         <div class="duel_card_info_row">

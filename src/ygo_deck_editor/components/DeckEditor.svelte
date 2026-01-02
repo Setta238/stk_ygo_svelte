@@ -134,11 +134,17 @@
   };
 
   let cardInfo: CardInfoJson | undefined = undefined;
+  let latestAttentionCardId = 0;
 
   const onAttention = (_cardInfo: CardInfoJson) => {
     mode = "CardDetail";
     if (_cardInfo.cardId !== undefined && !_cardInfo.description && !_cardInfo.pendulumDescription) {
-      loadTextData([_cardInfo.cardId]).then(() => (cardInfo = _cardInfo));
+      latestAttentionCardId = _cardInfo.cardId;
+      loadTextData([_cardInfo.cardId]).then(() => {
+        if (_cardInfo.cardId === latestAttentionCardId) {
+          cardInfo = _cardInfo;
+        }
+      });
     }
     cardInfo = _cardInfo;
   };

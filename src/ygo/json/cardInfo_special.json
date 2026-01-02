@@ -1,3 +1,4 @@
+
 {
   "デコピン": {
     "name": "デコピン",
@@ -16,5 +17,29 @@
       "Beast"
     ],
     "wikiEncodedName": "%A1%D4%A5%C7%A5%B3%A5%D4%A5%F3%A1%D5"
+  },
+  "カオス・ソルジャー": {
+    "name": "カオス・ソルジャー",
+    "nameKana": "カオス・ソルジャー",
+    "description": "B・W・Dと同等の能力を持つ最強の戦士。",
+    "kind": "Monster",
+    "monsterCategories": [
+      "Normal"
+    ],
+    "nameTags": [
+      "カオス",
+      "カオス・ソルジャー"
+    ],
+    "level": 8,
+    "attack": 3000,
+    "defense": 2500,
+    "attributes": [
+      "Earth"
+    ],
+    "types": [
+      "Warrior"
+    ],
+    "wikiEncodedName": "%A1%D4%A5%AB%A5%AA%A5%B9%A1%A6%A5%BD%A5%EB%A5%B8%A5%E3%A1%BC%A1%D5%A1%CA%C4%CC%BE%EF%A5%E2%A5%F3%A5%B9%A5%BF%A1%BC%A1%CB",
+    "cardId": 19092
   }
 }

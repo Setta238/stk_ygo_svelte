@@ -50,7 +50,7 @@ export const loadTextData = async (cids: number[]) => {
           cids
             .map((cid) => Math.floor(cid / 1000) * 1000)
             .getDistinct()
-            .map((key) => `./stk_ygo_svelte/json/cardInfoText_cid${key.toString().padStart(6, "0")}.json`)
+            .map((key) => `./json/cardInfoText_cid${key.toString().padStart(6, "0")}.json`)
             .filter((url) => !loededUrls.includes(url))
             .map((url) => {
               console.info(`${url} starts loading`);
@@ -82,7 +82,7 @@ const loadStatusData = async () => {
 
   await Promise.all(
     jsonFileList.statusJsons.map(async (fileName) => {
-      const url = `./stk_ygo_svelte/json/${fileName}`;
+      const url = `./json/${fileName}`;
       console.info(`${url} starts loading `);
       const res = await fetch(url);
       console.info(`res=${res.status} ${res.statusText} ${res.url}`);

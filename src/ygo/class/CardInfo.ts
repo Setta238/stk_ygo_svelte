@@ -41,6 +41,13 @@ const { promise, resolve, reject } = createPromiseSweet<Readonly<typeof cardDefi
 export const cardDefinitionsPrms = promise;
 
 const loededUrls: string[] = [];
+/**
+ * jsonファイルのルート相対パスを取得
+ * ※ルート相対パス……/始まりで記述すると、ルート階層を基準にパスを記述できる
+ * @param jsonFileName
+ * @returns jsonファイルのルート相対パス
+ */
+const getJsonFileUrl = (jsonFileName: string) => `/stk_ygo_svelte/json/${jsonFileName}`;
 
 export const loadTextData = async (cids: number[]) => {
   const list = (
@@ -50,16 +57,17 @@ export const loadTextData = async (cids: number[]) => {
           cids
             .map((cid) => Math.floor(cid / 1000) * 1000)
             .getDistinct()
-            .map((key) => `./json/cardInfoText_cid${key.toString().padStart(6, "0")}.json`)
+            .map((key) => `cardInfoText_cid${key.toString().padStart(6, "0")}.json`)
+            .map(getJsonFileUrl)
             .filter((url) => !loededUrls.includes(url))
             .map((url) => {
+              loededUrls.push(url);
               console.info(`${url} starts loading`);
               return fetch(url);
             })
         )
       ).map((res) => {
         console.log(`${res.url} has been loaded`);
-        loededUrls.push(res.url);
         return res.json();
       })
     )
@@ -78,17 +86,14 @@ export const loadTextData = async (cids: number[]) => {
 };
 
 const loadStatusData = async () => {
-  console.info(`document.URL=${document.URL}`);
-
   await Promise.all(
-    jsonFileList.statusJsons.map(async (fileName) => {
-      const url = `./json/${fileName}`;
+    jsonFileList.statusJsons.map(getJsonFileUrl).map(async (url) => {
+      loededUrls.push(url);
       console.info(`${url} starts loading `);
       const res = await fetch(url);
       console.info(`res=${res.status} ${res.statusText} ${res.url}`);
       const statusArray: (string | number | string | undefined)[][] = await res.json();
       statusArray.map(convertToEntityStatusBase).forEach(pushCardInfo);
-      loededUrls.push(url);
       console.info(`${url} has been loaded `);
     })
   );

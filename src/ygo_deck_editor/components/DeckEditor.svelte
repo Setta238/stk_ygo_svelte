@@ -626,10 +626,12 @@
     -webkit-appearance: none;
     -moz-appearance: none;
     cursor: pointer;
+    width: 0px;
+    height: 0px;
   }
   label:has(input[type="checkbox"].search_condition) {
     border-radius: 4rem;
-    padding-right: 1rem;
+    padding: 0rem 1rem 0rem 0rem;
     margin-bottom: 0.4rem;
     background-color: #6c757d;
     color: #f8f9fa;

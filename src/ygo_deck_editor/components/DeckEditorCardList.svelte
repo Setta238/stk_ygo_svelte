@@ -116,13 +116,13 @@
   // 描画を段階的に行うためのディレイ
   let indexUpperBound = 100;
   const incrementIndexUpperBound = () => {
-    if (indexUpperBound > 999) {
+    indexUpperBound += 10;
+    if (indexUpperBound > 499) {
       return;
     }
     if (indexUpperBound > allCardInfos.length + deckCardInfos.length) {
       return;
     }
-    indexUpperBound += 100;
     delay(100).then(incrementIndexUpperBound);
   };
 

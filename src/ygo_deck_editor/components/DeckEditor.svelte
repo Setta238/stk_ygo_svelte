@@ -26,7 +26,6 @@
   import {
     cardKindDic,
     cardKinds,
-    exMonsterCategories,
     monsterAttributeDic,
     monsterAttributes,
     monsterCategories,
@@ -252,16 +251,15 @@
         <div class="deck_editor_search_box_row">
           <div><button class="search_condition_title black_button" on:click={() => onResetSearchCondition(["name"])}>名称</button></div>
           <div>
-            <input type="text" bind:value={searchCondition.name} style="width:70%" />
-            <span> ※ルビには対応していません </span>
+            <input type="text" bind:value={searchCondition.name} style="width:100%" placeholder="※ルビには対応していません" />
           </div>
         </div>
-        <div class="deck_editor_search_box_row">
+        <div class="deck_editor_search_box_row card_kind">
           <div><button class="search_condition_title black_button" on:click={() => onResetSearchCondition(["cardKinds"])}>種類</button></div>
           <div>
             {#each cardKinds.filter((kind) => kind !== "XyzMaterial") as key}
               <label>
-                <input type="checkbox" value={key} bind:group={searchCondition.cardKinds} />
+                <input type="checkbox" class="search_condition" value={key} bind:group={searchCondition.cardKinds} />
                 {cardKindDic[key]}
               </label>
             {/each}
@@ -273,18 +271,18 @@
             <div>
               {#each monsterCategories as key}
                 <label>
-                  <input type="checkbox" value={key} bind:group={searchCondition.monsterCategories} />
+                  <input type="checkbox" class="search_condition" value={key} bind:group={searchCondition.monsterCategories} />
                   {monsterCategoryEmojiDic[key]}{monsterCategoryDic[key]}
                 </label>
               {/each}
             </div>
           </div>
-          <div class="deck_editor_search_box_row" transition:slide={{ delay: 0, duration: 100 }}>
+          <div class="deck_editor_search_box_row monster_attributes" transition:slide={{ delay: 0, duration: 100 }}>
             <div><button class="search_condition_title black_button" on:click={() => onResetSearchCondition(["monsterAttributes"])}>属性</button></div>
             <div>
               {#each monsterAttributes as key}
                 <label>
-                  <input type="checkbox" value={key} bind:group={searchCondition.monsterAttributes} />
+                  <input type="checkbox" class="search_condition" value={key} bind:group={searchCondition.monsterAttributes} />
                   <div style="display: inline-block;" class="monster_attr {key}"></div>
                   {monsterAttributeDic[key]}
                 </label>
@@ -296,7 +294,7 @@
             <div>
               {#each monsterTypes as key}
                 <label on:dblclick={(ev) => ondblclick(ev, "monsterTypes", key)}>
-                  <input type="checkbox" value={key} bind:group={searchCondition.monsterTypes} />
+                  <input type="checkbox" class="search_condition" value={key} bind:group={searchCondition.monsterTypes} />
                   {monsterTypeEmojiDic[key]}
                   {monsterTypeDic[key]}
                 </label>
@@ -351,7 +349,7 @@
             <div>
               {#each spellCategories.filter((sc) => sc !== "PendulumScale") as key}
                 <label>
-                  <input type="checkbox" value={key} bind:group={searchCondition.spellCategories} />
+                  <input type="checkbox" class="search_condition" value={key} bind:group={searchCondition.spellCategories} />
                   {spellCategoryDic[key]}
                 </label>
               {/each}
@@ -364,7 +362,7 @@
             <div>
               {#each trapCategories as key}
                 <label>
-                  <input type="checkbox" value={key} bind:group={searchCondition.trapCategories} />
+                  <input type="checkbox" class="search_condition" value={key} bind:group={searchCondition.trapCategories} />
                   {trapCategoryDic[key]}
                 </label>
               {/each}
@@ -376,7 +374,7 @@
           <div>
             {#each [{ key: "test", text: "テスト用カード" }, { key: "oldVersion", text: "エラッタ前カード" }, { key: "implemented", text: "未実装カード" }] as item}
               <label>
-                <input type="checkbox" value={item.key} bind:group={searchCondition.others} />
+                <input type="checkbox" class="search_condition" value={item.key} bind:group={searchCondition.others} />
                 {item.text}
               </label>
             {/each}
@@ -398,25 +396,25 @@
       {:then deckInfos}
         <div class="deck_editor_body_right_header">
           <div class="deck_editor_body_right_header_row">
+            <div>編集対象</div>
             <div>
-              編集対象
-              <select bind:value={selectedId} on:change={onSelectDeckChange}>
+              <select style="width:100%" bind:value={selectedId} on:change={onSelectDeckChange}>
                 {#each deckInfos as deckInfo}
                   <option value={deckInfo.id}>{deckInfo.name}</option>
                 {/each}
               </select>
             </div>
-            <div></div>
+          </div>
+          <div class="deck_editor_body_right_header_row">
+            <div>新規名称</div>
             <div>
-              新規名称
-              <input type="text" bind:value={tmpDeck.name} />
+              <input type="text" style="width:100%" bind:value={tmpDeck.name} />
             </div>
           </div>
           <div class="deck_editor_body_right_header_row"></div>
           <div class="deck_editor_body_right_header_row">
             <div>基本操作</div>
             <div><button class="white_button" on:click={onSaveDeckClick}>デッキを保存</button></div>
-            <div></div>
             <div><button class="white_button" on:click={onCopyDeckClick}>デッキを複製</button></div>
             <div><button class="white_button" on:click={onDeleteDeckClick} title="shiftキー押下で確認メッセージスキップ">デッキを削除</button></div>
           </div>
@@ -582,8 +580,8 @@
   .deck_editor_body_right_header_row {
     display: flex;
     flex-direction: row;
-    flex-wrap: wrap;
     margin: 0.2rem;
+    padding: 0rem;
   }
   .deck_editor_body_right_header_row > div {
     flex-grow: 1;
@@ -616,5 +614,95 @@
     position: absolute;
     bottom: 0.2rem;
     left: 0.8rem;
+  }
+  .deck_editor_search_box_row input[type="number"] {
+    font-size: 0.8rem;
+  }
+  .deck_editor_search_box_row input[type="text"] {
+    font-size: 0.8rem;
+  }
+  input[type="checkbox"].search_condition {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+  }
+  label:has(input[type="checkbox"].search_condition) {
+    border-radius: 4rem;
+    padding-right: 1rem;
+    margin-bottom: 0.4rem;
+    background-color: #6c757d;
+    color: #f8f9fa;
+    transition: all 0.3s ease;
+    border-color: darkgray;
+    border-width: 1px;
+    border-style: solid;
+  }
+  .card_kind label:has(input[type="checkbox"].search_condition) {
+    padding-right: 2rem;
+    padding-left: 1rem;
+  }
+  .card_kind label:has(input[type="checkbox"][value="Monster"].search_condition:checked) {
+    background-color: chocolate;
+    color: white;
+  }
+  .card_kind label:has(input[type="checkbox"][value="Spell"].search_condition:checked) {
+    background-color: forestgreen;
+    color: white;
+  }
+  .card_kind label:has(input[type="checkbox"][value="Trap"].search_condition:checked) {
+    background-color: orchid;
+    color: white;
+  }
+  .monster_attributes label:has(input[type="checkbox"][value="Light"].search_condition:checked) {
+    background-color: yellow;
+    color: black;
+  }
+  .monster_attributes label:has(input[type="checkbox"][value="Dark"].search_condition:checked) {
+    background-color: indigo;
+    color: white;
+  }
+  .monster_attributes label:has(input[type="checkbox"][value="Earth"].search_condition:checked) {
+    background-color: brown;
+    color: white;
+  }
+  .monster_attributes label:has(input[type="checkbox"][value="Water"].search_condition:checked) {
+    background-color: aqua;
+    color: black;
+  }
+  .monster_attributes label:has(input[type="checkbox"][value="Fire"].search_condition:checked) {
+    background-color: crimson;
+    color: white;
+  }
+  .monster_attributes label:has(input[type="checkbox"][value="Wind"].search_condition:checked) {
+    background-color: springgreen;
+    color: black;
+  }
+  .monster_attributes label:has(input[type="checkbox"][value="Divine"].search_condition:checked) {
+    background-color: blanchedalmond;
+    color: black;
+  }
+  label:has(input[type="checkbox"].search_condition:checked) {
+    border-color: #007bff;
+    background-color: #f8f9fa;
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+    color: black;
+    border-style: none;
+    font-weight: bolder;
+  }
+  .deck_editor_body_right_header_row input[type="text"] {
+    font-size: 0.8rem;
+  }
+  .deck_editor_body_right_header_row select {
+    font-size: 0.8rem;
+  }
+  .deck_editor_body_right_header_row > div {
+    margin: 0rem 0rem;
+    padding: 0rem 0rem;
+  }
+  .deck_editor_body_right_header_row button {
+    padding: 0rem 0.3rem;
   }
 </style>

@@ -14,6 +14,14 @@ export const cardKindDic: { [key in TCardKind]: string } = {
   Trap: "罠",
   XyzMaterial: "XYZ素材",
 };
+export const deckCardKinds = ["ExtraMonster", "Monster", "Spell", "Trap"] as const;
+export type TDeckCardKind = (typeof deckCardKinds)[number];
+export const deckCardKindDic: { [key in TDeckCardKind]: string } = {
+  ExtraMonster: "エクストラ",
+  Monster: "モンスター",
+  Spell: "魔法",
+  Trap: "罠",
+};
 export const exMonsterCategories = ["Fusion", "Synchro", "Xyz", "Link"] as const;
 export type TMonsterExSummonCategory = (typeof exMonsterCategories)[number];
 export const specialSummonMonsterCategories = [...exMonsterCategories, "SpecialSummon", "Ritual"] as const;

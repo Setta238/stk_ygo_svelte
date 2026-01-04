@@ -11,6 +11,7 @@
     trapCategoryDic,
     type CardInfoJson,
     type TCardKind,
+    type TDeckCardKind,
     type TDeckTypes,
   } from "@ygo/class/YgoTypes";
   import type { SearchCondition } from "./DeckEditor.svelte";
@@ -30,12 +31,12 @@
   };
 
   const cardTree: { [deckType in TDeckTypes]: { [kind in Exclude<TCardKind, "XyzMaterial">]: CardInfoJson[] } } = {
-    Deck: {
+    ExtraDeck: {
       Monster: [],
       Spell: [],
       Trap: [],
     },
-    ExtraDeck: {
+    Deck: {
       Monster: [],
       Spell: [],
       Trap: [],
@@ -135,7 +136,15 @@
     if (!searchCondition) {
       return true;
     }
-    if (!searchCondition.cardKinds.includes(cardInfo.kind)) {
+
+    if (cardInfo.kind === "XyzMaterial") {
+      return false;
+    }
+
+    const deckCardKind: TDeckCardKind =
+      cardInfo.kind !== "Monster" ? cardInfo.kind : cardInfo.monsterCategories?.union(exMonsterCategories).length ? "ExtraMonster" : "Monster";
+
+    if (!searchCondition.deckCardKinds.includes(deckCardKind)) {
       return false;
     }
 
@@ -203,6 +212,11 @@
       if (!cardInfo.monsterCategories) {
         return false;
       }
+
+      if (deckCardKind === "ExtraMonster" && !cardInfo.monsterCategories.union(searchCondition.exMonsterCategories).length) {
+        return false;
+      }
+
       return cardInfo.monsterCategories.union(searchCondition.monsterCategories).length;
     }
     if (cardInfo.kind === "Spell") {
@@ -219,7 +233,7 @@
     <div>読み込み中...</div>
   {:then}
     {@const tree = getCardTree()}
-    {#each deckTypes as deckType}
+    {#each deckTypes.toReversed() as deckType}
       {@const branch1all = Object.values(tree[deckType]).flatMap((cardInfos) => cardInfos)}
       <div class="deck_editor_deck_type">
         <div class="deck_editor_deck_type_header">
@@ -249,10 +263,12 @@
               {#each branch2 as cardInfo, index}
                 {#if index < indexUpperBound}
                   <li class="deck_editor_item">
+                    <!-- svelte-ignore a11y_click_events_have_key_events -->
+                    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                     <div
                       role="listitem"
                       class={`deck_editor_card duel_card ${cardInfo.kind} ${cardInfo?.monsterCategories?.join(" ")} ${cardInfo.isImplemented ? "is_implemented" : "is_not_implemented"}`}
-                      on:mouseenter={() => onAttention(cardInfo)}
+                      on:click={() => onAttention(cardInfo)}
                     >
                       <div>
                         <div>

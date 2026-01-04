@@ -5353,7 +5353,8 @@
     null,
     [
       "Spirit",
-      "Effect"
+      "Effect",
+      "NormalSummonOnly"
     ],
     null,
     null,
@@ -5375,7 +5376,8 @@
     null,
     [
       "Spirit",
-      "Effect"
+      "Effect",
+      "NormalSummonOnly"
     ],
     null,
     null,
@@ -6295,7 +6297,8 @@
     null,
     [
       "Spirit",
-      "Effect"
+      "Effect",
+      "NormalSummonOnly"
     ],
     null,
     null,
@@ -8516,7 +8519,8 @@
     null,
     [
       "Fusion",
-      "Effect"
+      "Effect",
+      "RegularSpecialSummonOnly"
     ],
     null,
     null,
@@ -8832,7 +8836,8 @@
     null,
     null,
     [
-      "Effect"
+      "Effect",
+      "NormalSummonOnly"
     ],
     null,
     null,
@@ -8980,7 +8985,8 @@
     null,
     [
       "Fusion",
-      "Effect"
+      "Effect",
+      "RegularSpecialSummonOnly"
     ],
     null,
     null,
@@ -10609,7 +10615,8 @@
     null,
     [
       "Spirit",
-      "Effect"
+      "Effect",
+      "NormalSummonOnly"
     ],
     null,
     null,
@@ -11769,7 +11776,8 @@
     null,
     [
       "Tuner",
-      "Effect"
+      "Effect",
+      "NormalSummonOnly"
     ],
     null,
     null,
@@ -12365,7 +12373,8 @@
     null,
     [
       "SpecialSummon",
-      "Effect"
+      "Effect",
+      "RegularSpecialSummonOnly"
     ],
     null,
     null,
@@ -12752,7 +12761,8 @@
     null,
     [
       "Spirit",
-      "Effect"
+      "Effect",
+      "NormalSummonOnly"
     ],
     null,
     null,
@@ -19175,7 +19185,8 @@
     null,
     [
       "Ritual",
-      "Effect"
+      "Effect",
+      "RegularSpecialSummonOnly"
     ],
     null,
     null,
@@ -19218,7 +19229,8 @@
     null,
     [
       "Fusion",
-      "Effect"
+      "Effect",
+      "RegularSpecialSummonOnly"
     ],
     null,
     null,
@@ -19586,7 +19598,8 @@
     null,
     null,
     [
-      "Effect"
+      "Effect",
+      "RegularSpecialSummonOnly"
     ],
     null,
     null,
@@ -20469,7 +20482,8 @@
     [
       "SpecialSummon",
       "Tuner",
-      "Effect"
+      "Effect",
+      "FreeReborn"
     ],
     null,
     null,
@@ -20492,7 +20506,8 @@
     [
       "SpecialSummon",
       "Tuner",
-      "Effect"
+      "Effect",
+      "FreeReborn"
     ],
     null,
     null,
@@ -21296,7 +21311,8 @@
     null,
     [
       "SpecialSummon",
-      "Effect"
+      "Effect",
+      "RegularSpecialSummonOnly"
     ],
     null,
     null,
@@ -21318,7 +21334,8 @@
     null,
     [
       "SpecialSummon",
-      "Effect"
+      "Effect",
+      "RegularSpecialSummonOnly"
     ],
     null,
     null,
@@ -21577,7 +21594,8 @@
     null,
     [
       "Spirit",
-      "Effect"
+      "Effect",
+      "NormalSummonOnly"
     ],
     null,
     null,
@@ -22698,7 +22716,8 @@
     null,
     [
       "SpecialSummon",
-      "Effect"
+      "Effect",
+      "RegularSpecialSummonOnly"
     ],
     null,
     null,
@@ -24007,7 +24026,8 @@
     null,
     [
       "Tuner",
-      "Effect"
+      "Effect",
+      "NormalSummonOnly"
     ],
     null,
     null,
@@ -28427,7 +28447,8 @@
     [
       "SpecialSummon",
       "Spirit",
-      "Effect"
+      "Effect",
+      "RegularSpecialSummonOnly"
     ],
     null,
     null,
@@ -30001,7 +30022,8 @@
     [
       "Ritual",
       "FlipEffect",
-      "Effect"
+      "Effect",
+      "RegularSpecialSummonOnly"
     ],
     null,
     null,
@@ -32070,7 +32092,8 @@
     null,
     [
       "SpecialSummon",
-      "Effect"
+      "Effect",
+      "FreeReborn"
     ],
     null,
     null,

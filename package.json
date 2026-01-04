@@ -8,7 +8,9 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "predeploy": "npm run check && vite build && robocopy dist docs /MIR /DCOPY:DAT",
+    "trim-json":"powershell.exe -NoProfile -ExecutionPolicy Unrestricted -file ./bat/TrimJson.ps1 ./docs/json",
+    "dist-to-docs":"robocopy dist docs /MIR /DCOPY:DAT | exit 0",
+    "predeploy": "npm run check && vite build && npm run dist-to-docs && npm run trim-json",
     "deploy": "gh-pages -d docs",
     "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json"
   },

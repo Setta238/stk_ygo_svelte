@@ -298,7 +298,9 @@
           </div>
           {#if searchCondition.deckCardKinds.includes("ExtraMonster")}
             <div class="deck_editor_search_box_row monster_ex_categories" transition:slide={{ delay: 0, duration: 100 }}>
-              <div><button class="search_condition_title black_button" on:click={() => onResetSearchCondition(["monsterCategories"])}>エクストラ</button></div>
+              <div>
+                <button class="search_condition_title black_button" on:click={() => onResetSearchCondition(["exMonsterCategories"])}>エクストラ</button>
+              </div>
               <div>
                 {#each exMonsterCategories as key}
                   <label>

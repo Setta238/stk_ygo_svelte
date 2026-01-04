@@ -206,7 +206,7 @@
     </div>
   {/if}
 </div>
-<div style="position:fixed;left:0;bottom:0">{duel.clock.toFullString()}</div>
+<div style="position:fixed;bottom:0">{duel.clock.toFullString()}</div>
 
 <ModalContainer modalController={duel.view.modalController} />
 
@@ -225,8 +225,11 @@
   .duel_desk {
     margin: 0px;
     justify-content: space-between;
-    max-height: 90%;
-    position: relative;
+    position: fixed;
+    top: 2rem;
+    bottom: 2rem;
+    left: 2rem;
+    right: 2rem;
   }
   .duel_desk * {
     margin: 0px;

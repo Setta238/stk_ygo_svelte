@@ -274,8 +274,8 @@
                         <div>
                           {cardInfo.name}
                         </div>
-                        <div style="display:flex">
-                          <div>
+                        <div style="display:flex; flex-wrap: wrap;">
+                          <div style="text-wrap-mode: nowrap;">
                             {#if cardInfo.kind === "Monster"}
                               {#if cardInfo.level}
                                 ★{cardInfo.level}
@@ -300,8 +300,8 @@
                               {trapCategoryDic[cardInfo.trapCategory]}罠
                             {/if}
                           </div>
-                          <div style="flex-grow: 1; width:0.1rem"></div>
-                          <div>
+                          <div style="flex-grow: 1; height:0px; width:0px"></div>
+                          <div style="text-wrap-mode: nowrap;">
                             {#if cardInfo.kind === "Monster"}
                               <span> {cardInfo.attack ?? "?"}</span> /
                               <span style="display: inline-block;width:2rem;text-align: right;">{cardInfo.defense ?? "?"}</span>

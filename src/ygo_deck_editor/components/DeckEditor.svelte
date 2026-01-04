@@ -514,13 +514,15 @@
 
 <style>
   .deck_editor {
-    position: relative;
     display: flex;
     flex-direction: column;
-    height: 95vh;
-    width: 95vw;
-    padding: 1rem;
+    position: fixed;
+    top: 2rem;
+    bottom: 2rem;
+    left: 2rem;
+    right: 2rem;
     background-color: thistle;
+    border-radius: 1.2rem;
   }
 
   .deck_editor_body {
@@ -640,7 +642,7 @@
   .deck_editor_search_box_row > div:first-child {
     margin: auto 0rem;
     text-wrap-mode: nowrap;
-    min-width: 5em;
+    min-width: 5.5em;
   }
   .deck_editor_search_box_row > div:last-child {
     flex-grow: 1;
@@ -669,7 +671,7 @@
   .deck_editor_body_right_header_row > div:first-child {
     margin: auto 0rem;
     text-wrap-mode: nowrap;
-    min-width: 5rem;
+    min-width: 5em;
     flex-grow: 0;
   }
   .white_button {

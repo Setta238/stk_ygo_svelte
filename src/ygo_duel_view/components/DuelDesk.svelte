@@ -228,8 +228,6 @@
     position: fixed;
     top: 2rem;
     bottom: 2rem;
-    left: 2rem;
-    right: 2rem;
   }
   .duel_desk * {
     margin: 0px;

@@ -419,7 +419,7 @@
     position: relative;
     width: 100%;
     height: 100%;
-    min-height: 7rem;
+    min-height: 12.2vh;
     padding: 0rem;
     pointer-events: auto;
   }

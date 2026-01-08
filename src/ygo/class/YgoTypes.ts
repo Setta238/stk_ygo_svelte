@@ -423,16 +423,16 @@ export const getKonamiUrl = (status: EntityStatusBase) => {
 };
 
 export const cardSorter = (left: EntityStatusBase, right: EntityStatusBase): number => {
-  // エクストラデッキのモンスターは、魔法罠よりも下
+  // エクストラデッキのモンスター＞メインデッキのモンスター＞魔法＞罠
   const leftCatList = left.monsterCategories ?? [];
   const rightCatList = right.monsterCategories ?? [];
 
-  for (const cat of exMonsterCategories.toReversed()) {
+  for (const cat of exMonsterCategories) {
     if (leftCatList.includes(cat) && !rightCatList.includes(cat)) {
-      return 1;
+      return -1;
     }
     if (!leftCatList.includes(cat) && rightCatList.includes(cat)) {
-      return -1;
+      return 1;
     }
   }
 

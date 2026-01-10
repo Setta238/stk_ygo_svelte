@@ -23,6 +23,16 @@ export const deckCardKindDic: { [key in TDeckCardKind]: string } = {
   Spell: "魔法",
   Trap: "罠",
 };
+
+export const getDeckCardKind = (cardInfo: CardInfoJson): TDeckCardKind =>
+  cardInfo.kind === "XyzMaterial"
+    ? "Monster"
+    : cardInfo.kind !== "Monster"
+      ? cardInfo.kind
+      : cardInfo.monsterCategories?.union(exMonsterCategories).length
+        ? "ExtraMonster"
+        : "Monster";
+
 export const exMonsterCategories = ["Fusion", "Synchro", "Xyz", "Link"] as const;
 export type TMonsterExSummonCategory = (typeof exMonsterCategories)[number];
 export const specialSummonMonsterCategories = [...exMonsterCategories, "SpecialSummon", "Ritual"] as const;

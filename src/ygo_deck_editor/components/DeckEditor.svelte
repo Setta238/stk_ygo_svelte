@@ -182,7 +182,7 @@
     cardInfos: [] as CardInfoJson[],
   };
 
-  let cardInfo: CardInfoJson | undefined = undefined;
+  let selectedCardInfo: CardInfoJson | undefined = undefined;
   let latestAttentionCardId = 0;
 
   const onAttention = (_cardInfo: CardInfoJson) => {
@@ -191,11 +191,11 @@
       latestAttentionCardId = _cardInfo.cardId;
       loadTextData([_cardInfo.cardId]).then(() => {
         if (_cardInfo.cardId === latestAttentionCardId) {
-          cardInfo = _cardInfo;
+          selectedCardInfo = _cardInfo;
         }
       });
     }
-    cardInfo = _cardInfo;
+    selectedCardInfo = _cardInfo;
   };
 
   const getSelectedDeck = async () => {
@@ -457,7 +457,7 @@
           </div>
         </div>
       </div>
-      <DeckEditiorCardDetail {cardInfo} />
+      <DeckEditiorCardDetail cardInfo={selectedCardInfo} />
     </div>
     <div class="deck_editor_body_center">
       {#await cardDefinitionsPrms}

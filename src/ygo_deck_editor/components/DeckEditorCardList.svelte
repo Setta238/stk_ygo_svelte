@@ -2,9 +2,12 @@
   import {
     cardKindDic,
     cardSorter,
+    deckCardKindDic,
+    deckCardKinds,
     deckTypeDic,
     deckTypes,
     exMonsterCategories,
+    getDeckCardKind,
     monsterCategoryEmojiDic,
     monsterTypeEmojiDic,
     spellCategoryDic,
@@ -26,24 +29,15 @@
   export let onAttention: (cardInfo: CardInfoJson) => void;
   export let searchCondition: SearchCondition | undefined = undefined;
 
+  let selectedDeckCardKind: TDeckCardKind = "ExtraMonster";
+
   const maxIndexUpperBound = 500;
 
-  const listGroup: { [key in TDeckTypes]: TCardKind[] } = {
-    Deck: ["Monster", "Spell", "Trap"],
-    ExtraDeck: ["Monster"],
-  };
-
-  const cardTree: { [deckType in TDeckTypes]: { [kind in Exclude<TCardKind, "XyzMaterial">]: CardInfoJson[] } } = {
-    ExtraDeck: {
-      Monster: [],
-      Spell: [],
-      Trap: [],
-    },
-    Deck: {
-      Monster: [],
-      Spell: [],
-      Trap: [],
-    },
+  const cardTree: { [kind in TDeckCardKind]: CardInfoJson[] } = {
+    ExtraMonster: [],
+    Monster: [],
+    Spell: [],
+    Trap: [],
   };
 
   const isBelongTo = (cardInfo: CardInfoJson) => (cardInfo.monsterCategories?.union(exMonsterCategories).length ? "ExtraDeck" : "Deck");
@@ -55,19 +49,19 @@
         right,
         searchCondition?.sort.filter((sortItem) => sortItem.priority > 0).toSorted((l, r) => l.priority - r.priority)
       );
-    Object.values(cardTree).forEach((branch) => Object.values(branch).forEach((array) => array.sort(_cardSorter)));
+    Object.values(cardTree).forEach((array) => array.sort(_cardSorter));
   };
 
   const createCardTree = (cardInfos: CardInfoJson[]) => {
-    Object.values(cardTree).forEach((branch) => Object.values(branch).forEach((array) => array.reset()));
+    Object.values(cardTree).forEach((array) => array.reset());
     cardInfos
       .filter((cardInfo) => cardInfo.kind !== "XyzMaterial")
       .forEach((cardInfo) => {
         if (cardInfo.kind === "XyzMaterial") {
           return;
         }
-        const deckType: TDeckTypes = cardInfo.monsterCategories?.union(exMonsterCategories).length ? "ExtraDeck" : "Deck";
-        cardTree[deckType][cardInfo.kind].push(cardInfo);
+        const deckCardKind = getDeckCardKind(cardInfo);
+        cardTree[deckCardKind].push(cardInfo);
       });
     sortCardTree();
   };
@@ -88,7 +82,9 @@
     return cardTree;
   };
 
-  const onClearButtonClick = (ev: MouseEvent, deckType: TDeckTypes, kind?: TCardKind) => {
+  const onClearButtonClick = (ev: MouseEvent, deckCardKind: TDeckCardKind) => {
+    const deckType = deckCardKind === "ExtraMonster" ? "ExtraDeck" : "Deck";
+    const kind = deckCardKind === "ExtraMonster" ? "Monster" : deckCardKind;
     deckCardInfos = deckCardInfos.filter((cardInfo) => isBelongTo(cardInfo) !== deckType || (cardInfo.kind !== kind && kind));
   };
 
@@ -152,8 +148,14 @@
         oldSort = newSort;
         sortCardTree();
       }
+
       // 検索条件を変更したとき、段階的に描画するようにする
       indexUpperBound = 100;
+
+      if (!cardTree[selectedDeckCardKind].find(filter)) {
+        selectedDeckCardKind = getKeys(cardTree).find((key) => cardTree[key].find(filter)) ?? "ExtraMonster";
+      }
+
       delay(100).then(incrementIndexUpperBound);
     }
   }
@@ -167,8 +169,7 @@
       return false;
     }
 
-    const deckCardKind: TDeckCardKind =
-      cardInfo.kind !== "Monster" ? cardInfo.kind : cardInfo.monsterCategories?.union(exMonsterCategories).length ? "ExtraMonster" : "Monster";
+    const deckCardKind = getDeckCardKind(cardInfo);
 
     if (!searchCondition.deckCardKinds.includes(deckCardKind)) {
       return false;
@@ -259,38 +260,44 @@
     <div>読み込み中...</div>
   {:then}
     {@const tree = getCardTree()}
-    {#each deckTypes.toReversed() as deckType}
-      {@const branch1all = Object.values(tree[deckType]).flatMap((cardInfos) => cardInfos)}
-      <div class="deck_editor_deck_type">
-        <div class="deck_editor_deck_type_header">
-          <div>{deckTypeDic[deckType]}（{branch1all.filter(filter).length.toLocaleString()} / {branch1all.length.toLocaleString()}枚）</div>
-          {#if mode === "Deck" && branch1all.some(filter)}
+    {#each deckCardKinds as deckCardKind, deckCardKindIndex}
+      {@const branch2 = tree[deckCardKind].filter(filter)}
+      {#if branch2.length}
+        <div class="deck_editor_card_kind deckCardKind {deckCardKind === selectedDeckCardKind ? 'selected' : ''}">
+          <!-- svelte-ignore a11y_click_events_have_key_events -->
+          <!-- svelte-ignore a11y_no_static_element_interactions -->
+          <div
+            class="deck_editor_card_kind_header"
+            on:click={() => {
+              if (selectedDeckCardKind !== deckCardKind) {
+                selectedDeckCardKind = deckCardKind;
+                return;
+              }
+              selectedDeckCardKind =
+                deckCardKinds
+                  .map((_, index) => index + deckCardKindIndex)
+                  .map((index) => index % deckCardKinds.length)
+                  .map((index) => deckCardKinds[index])
+                  .filter((key) => key !== deckCardKind)
+                  .find((key) => cardTree[key].find(filter)) ?? deckCardKind;
+            }}
+          >
             <div>
-              <button class="button_style_reset" title="※shiftキー同時押しで一括外し" on:click={(ev) => onClearButtonClick(ev, deckType, undefined)}>
-                クリア
-              </button>
-            </div>
-          {/if}
-        </div>
-        {#each getKeys(tree[deckType]).filter((kind) => listGroup[deckType].includes(kind)) as kind}
-          {@const branch2 = tree[deckType][kind].filter((...args) => filter(...args, kind))}
-          <div class="deck_editor_card_kind">
-            <div class="deck_editor_card_kind_header">
-              <div>
-                {cardKindDic[kind]}（{branch2.length.toLocaleString()} / {tree[deckType][kind].length.toLocaleString()}枚）
-                {#if branch2.length > maxIndexUpperBound}
-                  ※表示上限{maxIndexUpperBound.toLocaleString()}枚
-                {/if}
-              </div>
-              {#if mode === "Deck" && branch2.length}
-                <div>
-                  <button class="button_style_reset" on:click={(ev) => onClearButtonClick(ev, deckType, kind)}> クリア </button>
-                </div>
+              {deckCardKindDic[deckCardKind]}（{branch2.length.toLocaleString()} / {tree[deckCardKind].length.toLocaleString()}枚）
+              {#if branch2.length > maxIndexUpperBound}
+                ※表示上限{maxIndexUpperBound.toLocaleString()}枚
               {/if}
             </div>
-            <ul>
+            {#if mode === "Deck" && branch2.length}
+              <div>
+                <button class="button_style_reset" on:click={(ev) => onClearButtonClick(ev, deckCardKind)}> クリア </button>
+              </div>
+            {/if}
+          </div>
+          <div class="deck_editor_card_kind_body">
+            <ul class={deckCardKind}>
               {#each branch2 as cardInfo, index}
-                {#if index < indexUpperBound}
+                {#if index < indexUpperBound && (index < 20 || selectedDeckCardKind === deckCardKind)}
                   <li class="deck_editor_item">
                     <!-- svelte-ignore a11y_click_events_have_key_events -->
                     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
@@ -340,13 +347,13 @@
                       </div>
                     </div>
                     <button
-                      class="button_style_reset"
+                      class="button_style_reset plus_minus_button"
                       disabled={!cardInfo.isImplemented}
                       title={cardInfo.isImplemented ? "※shiftキー同時押しで一括投入" : ""}
                       on:click={(ev) => onPlusButtonClick(ev, cardInfo)}>+</button
                     >
                     <button
-                      class="button_style_reset"
+                      class="button_style_reset plus_minus_button"
                       disabled={!cardInfo.isImplemented}
                       title={cardInfo.isImplemented ? "※shiftキー同時押しで一括外し" : ""}
                       on:click={(ev) => onMinusButtonClick(ev, cardInfo)}>-</button
@@ -356,16 +363,94 @@
               {/each}
             </ul>
           </div>
-        {/each}
-      </div>
+        </div>
+      {/if}
     {/each}
   {/await}
 </div>
 
 <style>
   .deck_editor_card_list {
-    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    margin: 0;
+    flex-basis: auto;
+    overflow: hidden;
+    padding: 0.5rem 0;
+    background-color: antiquewhite;
+    border-radius: 0.3rem;
   }
+  .deck_editor_card_kind {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 0;
+    flex-shrink: 0.01;
+    transition: 0.1s linear; /* アニメーションの設定 */
+    padding-top: 0.5rem;
+    padding-left: 0.5rem;
+    border-style: none;
+    overflow-y: hidden;
+    height: max-content;
+  }
+  .deck_editor_card_kind_body {
+    position: relative;
+    overflow: visible;
+    height: 100%;
+  }
+  .deck_editor_card_kind_body ul {
+    position: absolute;
+    transition: 0.1s linear; /* アニメーションの設定 */
+    visibility: hidden;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    left: 0;
+  }
+  .deck_editor_card_kind .deck_editor_card_kind_header {
+    background-color: azure;
+    border-radius: 1rem;
+    padding: 0.4rem 1rem;
+    margin: 0.3rem;
+  }
+  .deck_editor_card_kind.selected {
+    flex-grow: 1;
+    flex-shrink: 1;
+  }
+  .deck_editor_card_kind.selected ul {
+    visibility: visible;
+    display: block;
+    overflow-y: scroll;
+    height: fit-content;
+  }
+  .deck_editor_card_kind > * {
+    margin-left: 1rem;
+  }
+  .deck_editor_card_kind > *:first-child {
+    margin-left: 0rem;
+  }
+  .deck_editor_card_kind_header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.3rem;
+  }
+  .deck_editor_card_kind_header button {
+    font-size: 0.7rem;
+    background-color: #ffffff;
+    display: inline-block;
+    padding: 0em 1em;
+    text-decoration: none;
+    color: #67c5ff;
+    border: solid 0.2rem #67c5ff;
+    border-radius: 3px;
+    transition: 0.4s;
+    margin: 0.1rem 0.3rem;
+  }
+  .deck_editor_card_kind_header button:hover {
+    background: #67c5ff;
+    color: white;
+  }
+
   div {
     text-align: left;
     max-height: initial;
@@ -382,47 +467,6 @@
     vertical-align: top;
   }
 
-  .deck_editor_deck_type {
-    padding: 0.4rem;
-    margin-bottom: 0.4rem;
-    background-color: antiquewhite;
-    border-radius: 0.5rem;
-  }
-  .deck_editor_deck_type > * {
-    margin-left: 0.7rem;
-    margin-bottom: 0.4rem;
-    padding: 0.2rem;
-  }
-  .deck_editor_deck_type > *:first-child {
-    margin-left: 0rem;
-  }
-  .deck_editor_deck_type_header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 0.3rem;
-  }
-  .deck_editor_deck_type_header button {
-    font-size: 0.7rem;
-  }
-  .deck_editor_card_kind {
-    margin: 0.4rem 0rem 0.4rem 0.7rem;
-    background-color: azure;
-    padding: 0.4rem;
-  }
-  .deck_editor_card_kind > * {
-    margin-left: 0.7rem;
-  }
-  .deck_editor_card_kind > *:first-child {
-    margin-left: 0rem;
-  }
-  .deck_editor_card_kind_header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 0.3rem;
-  }
-  .deck_editor_card_kind_header button {
-    font-size: 0.7rem;
-  }
   .duel_card {
     margin-bottom: 0.1rem;
     border: 0.1rem solid black;
@@ -440,7 +484,7 @@
     position: relative;
     font-size: 0.7rem;
   }
-  button {
+  .plus_minus_button {
     background-color: #ffffff;
     display: inline-block;
     padding: 0em 1em;
@@ -452,11 +496,11 @@
     margin: 0.1rem 0.3rem;
   }
 
-  button:hover {
+  .plus_minus_button:hover {
     background: #67c5ff;
     color: white;
   }
-  button:disabled {
+  .plus_minus_button:disabled {
     filter: grayscale(100);
     transition: 0s;
     color: #67c5ff;

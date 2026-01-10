@@ -463,7 +463,14 @@
       {#await cardDefinitionsPrms}
         <div>カード情報読込中</div>
       {:then cardInfo}
-        <DeckEditorCardList mode="List" allCardInfos={Object.values(cardInfo.dic)} {onAttention} {searchCondition} bind:deckCardInfos={tmpDeck.cardInfos} />
+        <DeckEditorCardList
+          mode="List"
+          allCardInfos={Object.values(cardInfo.dic)}
+          {onAttention}
+          {searchCondition}
+          bind:deckCardInfos={tmpDeck.cardInfos}
+          {selectedCardInfo}
+        />
       {/await}
     </div>
     <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -520,7 +527,7 @@
               <div><button class="white_button" on:click={onUploadClick}>アップロード</button></div>
             </div>
           </div>
-          <DeckEditorCardList mode="Deck" allCardInfos={[]} bind:deckCardInfos={tmpDeck.cardInfos} {onAttention} />
+          <DeckEditorCardList mode="Deck" allCardInfos={[]} bind:deckCardInfos={tmpDeck.cardInfos} {onAttention} {selectedCardInfo} />
         {/await}
       {:else}
         <div></div>

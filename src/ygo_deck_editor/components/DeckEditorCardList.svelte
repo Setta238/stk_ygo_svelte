@@ -1,11 +1,8 @@
 <script lang="ts">
   import {
-    cardKindDic,
     cardSorter,
     deckCardKindDic,
     deckCardKinds,
-    deckTypeDic,
-    deckTypes,
     exMonsterCategories,
     getDeckCardKind,
     monsterCategoryEmojiDic,
@@ -16,7 +13,6 @@
     type EntityStatusBase,
     type TCardKind,
     type TDeckCardKind,
-    type TDeckTypes,
   } from "@ygo/class/YgoTypes";
   import type { SearchCondition } from "./DeckEditor.svelte";
   import { getKeys } from "@stk_utils/funcs/StkObjectUtils";
@@ -28,6 +24,7 @@
   export let mode: "List" | "Deck";
   export let onAttention: (cardInfo: CardInfoJson) => void;
   export let searchCondition: SearchCondition | undefined = undefined;
+  export let selectedCardInfo: CardInfoJson | undefined = undefined;
 
   let selectedDeckCardKind: TDeckCardKind = "ExtraMonster";
 
@@ -38,7 +35,7 @@
     Monster: [],
     Spell: [],
     Trap: [],
-  };
+  } as const;
 
   const isBelongTo = (cardInfo: CardInfoJson) => (cardInfo.monsterCategories?.union(exMonsterCategories).length ? "ExtraDeck" : "Deck");
 
@@ -109,6 +106,7 @@
       deckCardInfos.sort(cardSorter);
       deckCardInfos = deckCardInfos;
     }
+    onAttention(cardInfo);
   };
   const onMinusButtonClick = (ev: MouseEvent, cardInfo: CardInfoJson) => {
     let count = 0;
@@ -121,6 +119,7 @@
       return !ev.shiftKey && count > 1;
     });
     deckCardInfos.sort(cardSorter);
+    onAttention(cardInfo);
   };
 
   // 描画を段階的に行うためのディレイ
@@ -137,7 +136,21 @@
   };
 
   let oldSort = "";
+  let oldDeckCardInfos = [...deckCardInfos];
 
+  $: {
+    if (oldDeckCardInfos.length !== deckCardInfos.length) {
+      if (selectedCardInfo && mode === "Deck") {
+        const deckCardKind = getDeckCardKind(selectedCardInfo);
+        if (cardTree[deckCardKind].filter(filter).length > 1 || deckCardInfos.length > oldDeckCardInfos.length) {
+          selectedDeckCardKind = deckCardKind;
+        } else {
+          selectedDeckCardKind = getKeys(cardTree).find((key) => cardTree[key].find(filter)) ?? "ExtraMonster";
+        }
+      }
+      oldDeckCardInfos = [...deckCardInfos];
+    }
+  }
   $: {
     if (mode === "List") {
       // ここにsearchConditionが入っているので、変更を監視してくれる

@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { isNumber } from "@stk_utils/funcs/StkMathUtils";
   import {
     getKonamiUrl,
     monsterAttributeDic,
@@ -12,10 +11,13 @@
     type CardInfoJson,
   } from "@ygo/class/YgoTypes";
   export let cardInfo: CardInfoJson | undefined = undefined;
+  export let onAttention: (cardInfo: CardInfoJson) => void;
 </script>
 
 {#if cardInfo}
-  <div class="duel_card duel_card_info {cardInfo.kind} {cardInfo.monsterCategories?.join(' ')}">
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <div class="duel_card duel_card_info {cardInfo.kind} {cardInfo.monsterCategories?.join(' ')}" on:click={() => onAttention(cardInfo)}>
     <div class="duel_card_info_header">
       <div class="duel_card_info_row">
         <div>{cardInfo.name}</div>

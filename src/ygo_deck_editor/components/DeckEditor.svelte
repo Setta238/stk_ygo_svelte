@@ -457,7 +457,7 @@
           </div>
         </div>
       </div>
-      <DeckEditiorCardDetail cardInfo={selectedCardInfo} />
+      <DeckEditiorCardDetail cardInfo={selectedCardInfo} {onAttention} />
     </div>
     <div class="deck_editor_body_center">
       {#await cardDefinitionsPrms}

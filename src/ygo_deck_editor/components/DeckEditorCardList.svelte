@@ -301,11 +301,14 @@
                 ※表示上限{maxIndexUpperBound.toLocaleString()}枚
               {/if}
             </div>
-            {#if mode === "Deck" && branch2.length}
-              <div>
-                <button class="button_style_reset" on:click={(ev) => onClearButtonClick(ev, deckCardKind)}> クリア </button>
-              </div>
-            {/if}
+            <div style="display: flex;">
+              {#if mode === "Deck" && branch2.length}
+                <div>
+                  <button class="button_style_reset" on:click={(ev) => onClearButtonClick(ev, deckCardKind)}> クリア </button>
+                </div>
+              {/if}
+              <div class="triangle">▲</div>
+            </div>
           </div>
           <div class="deck_editor_card_kind_body">
             <ul class={deckCardKind}>
@@ -399,7 +402,7 @@
     flex-direction: column;
     flex-grow: 0;
     flex-shrink: 0.01;
-    transition: 0.1s linear; /* アニメーションの設定 */
+    transition: 0.3s linear; /* アニメーションの設定 */
     padding-top: 0.5rem;
     padding-left: 0.5rem;
     border-style: none;
@@ -413,18 +416,35 @@
   }
   .deck_editor_card_kind_body ul {
     position: absolute;
-    transition: 0.1s linear; /* アニメーションの設定 */
+    transition: 0.5s linear; /* アニメーションの設定 */
     visibility: hidden;
     height: 100%;
     width: 100%;
     top: 0;
     left: 0;
+    overflow-y: scroll;
   }
   .deck_editor_card_kind .deck_editor_card_kind_header {
     background-color: azure;
     border-radius: 1rem;
     padding: 0.4rem 1rem;
     margin: 0.3rem;
+  }
+  .deck_editor_card_kind .deck_editor_card_kind_header .triangle {
+    transition: 0.3s ease;
+    display: inline-block;
+    width: 1.5rem;
+    height: 1.5rem;
+    text-align: center;
+    border-radius: 1rem;
+    border-width: 1px;
+    border-style: solid;
+    background-color: white;
+    box-shadow: steelblue 1px;
+  }
+  .deck_editor_card_kind.selected .deck_editor_card_kind_header .triangle {
+    rotate: 180deg;
+    filter: invert();
   }
   .deck_editor_card_kind.selected {
     flex-grow: 1;
@@ -433,7 +453,6 @@
   .deck_editor_card_kind.selected ul {
     visibility: visible;
     display: block;
-    overflow-y: scroll;
     height: fit-content;
   }
   .deck_editor_card_kind > * {

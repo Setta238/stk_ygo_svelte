@@ -1292,7 +1292,9 @@
     [
       "Divine"
     ],
-    null,
+    [
+      "DivineBeast"
+    ],
     null,
     null,
     10
@@ -1312,7 +1314,9 @@
     [
       "Divine"
     ],
-    null,
+    [
+      "DivineBeast"
+    ],
     null,
     null,
     10
@@ -17296,7 +17300,9 @@
     [
       "Divine"
     ],
-    null,
+    [
+      "DivineBeast"
+    ],
     null,
     null,
     10

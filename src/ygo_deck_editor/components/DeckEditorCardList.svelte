@@ -10,6 +10,7 @@
     spellCategoryDic,
     trapCategoryDic,
     type CardInfoJson,
+    type EntityStatusBase,
     type TCardKind,
     type TDeckCardKind,
     type TDeckTypes,
@@ -24,6 +25,8 @@
   export let mode: "List" | "Deck";
   export let onAttention: (cardInfo: CardInfoJson) => void;
   export let searchCondition: SearchCondition | undefined = undefined;
+
+  const maxIndexUpperBound = 500;
 
   const listGroup: { [key in TDeckTypes]: TCardKind[] } = {
     Deck: ["Monster", "Spell", "Trap"],
@@ -56,7 +59,8 @@
         const deckType: TDeckTypes = cardInfo.monsterCategories?.union(exMonsterCategories).length ? "ExtraDeck" : "Deck";
         cardTree[deckType][cardInfo.kind].push(cardInfo);
       });
-    Object.values(cardTree).forEach((branch) => Object.values(branch).forEach((array) => array.sort(cardSorter)));
+    const _cardSorter = (left: EntityStatusBase, right: EntityStatusBase) => cardSorter(left, right, searchCondition?.sort);
+    Object.values(cardTree).forEach((branch) => Object.values(branch).forEach((array) => array.sort(_cardSorter)));
   };
 
   const initPromise =
@@ -118,7 +122,7 @@
   let indexUpperBound = 100;
   const incrementIndexUpperBound = () => {
     indexUpperBound += 10;
-    if (indexUpperBound > 499) {
+    if (indexUpperBound >= maxIndexUpperBound) {
       return;
     }
     if (indexUpperBound > allCardInfos.length + deckCardInfos.length) {
@@ -127,12 +131,27 @@
     delay(100).then(incrementIndexUpperBound);
   };
 
-  const filter = (cardInfo: CardInfoJson, index: number, array: CardInfoJson[], kind?: TCardKind) => {
-    // 検索条件を変更したとき、段階的に描画するようにする
-    if (index === 0 && kind === "Monster") {
+  let oldSort = "";
+
+  $: {
+    if (mode === "List") {
+      // ここにsearchConditionが入っているので、変更を監視してくれる
+      const newSort = JSON.stringify(searchCondition?.sort);
+
+      // 子要素までは追跡してくれないらしいので、自力で変更を検知する
+      if (oldSort !== newSort) {
+        oldSort = newSort;
+        console.log("hoge");
+        // 作り直し
+        createCardTree(allCardInfos);
+      }
+      // 検索条件を変更したとき、段階的に描画するようにする
       indexUpperBound = 100;
       delay(100).then(incrementIndexUpperBound);
     }
+  }
+
+  const filter = (cardInfo: CardInfoJson, index: number, array: CardInfoJson[], kind?: TCardKind) => {
     if (!searchCondition) {
       return true;
     }
@@ -237,7 +256,7 @@
       {@const branch1all = Object.values(tree[deckType]).flatMap((cardInfos) => cardInfos)}
       <div class="deck_editor_deck_type">
         <div class="deck_editor_deck_type_header">
-          <div>{deckTypeDic[deckType]}（{branch1all.filter(filter).length} / {branch1all.length}枚）</div>
+          <div>{deckTypeDic[deckType]}（{branch1all.filter(filter).length.toLocaleString()} / {branch1all.length.toLocaleString()}枚）</div>
           {#if mode === "Deck" && branch1all.some(filter)}
             <div>
               <button class="button_style_reset" title="※shiftキー同時押しで一括外し" on:click={(ev) => onClearButtonClick(ev, deckType, undefined)}>
@@ -250,12 +269,15 @@
           {@const branch2 = tree[deckType][kind].filter((...args) => filter(...args, kind))}
           <div class="deck_editor_card_kind">
             <div class="deck_editor_card_kind_header">
-              <div>{cardKindDic[kind]}（{branch2.length} / {tree[deckType][kind].length}枚）</div>
+              <div>
+                {cardKindDic[kind]}（{branch2.length.toLocaleString()} / {tree[deckType][kind].length.toLocaleString()}枚）
+                {#if branch2.length > maxIndexUpperBound}
+                  ※表示上限{maxIndexUpperBound.toLocaleString()}枚
+                {/if}
+              </div>
               {#if mode === "Deck" && branch2.length}
                 <div>
-                  <button class="button_style_reset" title="※shiftキー同時押しで一括外し" on:click={(ev) => onClearButtonClick(ev, deckType, kind)}>
-                    クリア
-                  </button>
+                  <button class="button_style_reset" on:click={(ev) => onClearButtonClick(ev, deckType, kind)}> クリア </button>
                 </div>
               {/if}
             </div>

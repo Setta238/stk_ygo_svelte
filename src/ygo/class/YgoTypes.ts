@@ -1,3 +1,4 @@
+import { getKeys } from "@stk_utils/funcs/StkObjectUtils";
 import { isString } from "@stk_utils/funcs/StkStringUtils";
 
 export const deckTypes = ["Deck", "ExtraDeck"] as const;
@@ -422,7 +423,33 @@ export const getKonamiUrl = (status: EntityStatusBase) => {
     : `https://www.db.yugioh-card.com/yugiohdb/card_search.action?ope=1&sess=1&rp=10&mode=&sort=1&keyword=${status.name}&stype=1&ctype=&othercon=2&starfr=&starto=&pscalefr=&pscaleto=&linkmarkerfr=&linkmarkerto=&link_m=2&atkfr=&atkto=&deffr=&defto=&releaseDStart=1&releaseMStart=1&releaseYStart=1999&releaseDEnd=&releaseMEnd=&releaseYEnd=`;
 };
 
-export const cardSorter = (left: EntityStatusBase, right: EntityStatusBase): number => {
+const cardSortKeys = ["star", "attack", "defense", "cardId", "name"] as const;
+export type TCardSortKey = (typeof cardSortKeys)[number];
+export const cardSortKeyDic: Readonly<{ [key in TCardSortKey]: string }> = {
+  star: "星",
+  attack: "攻",
+  defense: "防",
+  cardId: "ID",
+  name: "名",
+} as const;
+
+export type TSortSetting = { key: TCardSortKey; order: "asc" | "desc"; priority: number }[];
+export const defaultSortSetting: Readonly<TSortSetting> = [
+  { key: "star", order: "asc", priority: 1 },
+  { key: "attack", order: "asc", priority: 2 },
+  { key: "defense", order: "asc", priority: 3 },
+  { key: "name", order: "asc", priority: 4 },
+  { key: "cardId", order: "asc", priority: 5 },
+] as const;
+
+const getMonsterSortStatus = (status: EntityStatusBase) => ({
+  star: status.link ?? status.rank ?? status.level ?? -1,
+  attack: status.attack ?? -1,
+  defense: status.defense ?? -1,
+  cardId: status.cardId ?? Number.MAX_SAFE_INTEGER,
+});
+
+export const cardSorter = (left: EntityStatusBase, right: EntityStatusBase, sortSetting: TSortSetting = [...defaultSortSetting]): number => {
   // エクストラデッキのモンスター＞メインデッキのモンスター＞魔法＞罠
   const leftCatList = left.monsterCategories ?? [];
   const rightCatList = right.monsterCategories ?? [];
@@ -436,38 +463,29 @@ export const cardSorter = (left: EntityStatusBase, right: EntityStatusBase): num
     }
   }
 
-  if (left.kind === right.kind) {
-    if (left.kind === "Monster") {
-      if ((left.link ?? 0) !== (right.link ?? 0)) {
-        return (left.link ?? 0) - (right.link ?? 0);
+  if (left.kind !== right.kind) {
+    for (const kind of cardKinds) {
+      if (left.kind === kind) {
+        return -1;
       }
-      if ((left.rank ?? 0) !== (right.rank ?? 0)) {
-        return (left.rank ?? 0) - (right.rank ?? 0);
+      if (right.kind === kind) {
+        return 1;
       }
-      if ((left.level ?? 0) !== (right.level ?? 0)) {
-        return (left.level ?? 0) - (right.level ?? 0);
-      }
-      if ((left.attack ?? 0) !== (right.attack ?? 0)) {
-        return (left.attack ?? 0) - (right.attack ?? 0);
-      }
-      if ((left.defense ?? 0) !== (right.defense ?? 0)) {
-        return (left.defense ?? 0) - (right.defense ?? 0);
-      }
-    }
-    return left.name.localeCompare(right.name, "Ja");
-  }
-
-  for (const kind of cardKinds) {
-    if (left.kind === kind) {
-      return -1;
-    }
-    if (right.kind === kind) {
-      return 1;
     }
   }
-
-  // 到達しないコード
-  return left.name.localeCompare(right.name, "Ja");
+  const _left = getMonsterSortStatus(left);
+  const _right = getMonsterSortStatus(right);
+  return (
+    sortSetting
+      .filter((sortItem) => sortItem.priority > 0)
+      .toSorted((l, r) => l.priority - r.priority)
+      .map(
+        (sortItem) =>
+          (sortItem.key === "name" ? left.name.localeCompare(right.name, "Ja") : _left[sortItem.key] - _right[sortItem.key]) *
+          (sortItem.order === "asc" ? 1 : -1)
+      )
+      .find((result) => result) ?? left.name.localeCompare(right.name, "Ja")
+  );
 };
 
 const validateCardDefinition = (definition: Object): definition is EntityStatusBase => {

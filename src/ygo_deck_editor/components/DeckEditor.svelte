@@ -16,6 +16,7 @@
     defUpperBound?: number;
     atkPlusDef?: number;
     others: ("test" | "oldVersion" | "implemented")[];
+    sort: TSortSetting;
   };
 </script>
 
@@ -25,10 +26,10 @@
   import DeckEditorCardList from "./DeckEditorCardList.svelte";
   import DeckEditiorCardDetail from "./DeckEditiorCardDetail.svelte";
   import {
-    cardKindDic,
-    cardKinds,
+    cardSortKeyDic,
     deckCardKindDic,
     deckCardKinds,
+    defaultSortSetting,
     exMonsterCategories,
     monsterAttributeDic,
     monsterAttributes,
@@ -43,18 +44,19 @@
     trapCategories,
     trapCategoryDic,
     type CardInfoJson,
-    type TCardKind,
     type TDeckCardKind,
     type TMonsterAttribute,
     type TMonsterCategory,
     type TMonsterExSummonCategory,
     type TMonsterType,
+    type TSortSetting,
     type TSpellCategory,
     type TTrapCategory,
   } from "@ygo/class/YgoTypes";
   import {} from "@stk_utils/funcs/StkDateUtils";
   import { slide } from "svelte/transition";
   import DeckEditorModalContainer, { DeckEditorModalControllerFactory } from "@ygo_deck_editor/components_modal/DeckEditorModalContainer.svelte";
+  import { getKeys } from "@stk_utils/funcs/StkObjectUtils";
   const modalController = DeckEditorModalControllerFactory.createModalController({
     onDragStart: { append: () => {}, remove: () => {} },
     onDragEnd: { append: () => {}, remove: () => {} },
@@ -79,6 +81,7 @@
     defUpperBound: 5000,
     atkPlusDef: undefined,
     others: ["test", "oldVersion", "implemented"],
+    sort: [...defaultSortSetting],
   };
 
   const searchCondition = structuredClone(searchConditionDefaultValues);
@@ -86,10 +89,21 @@
 
   let main_view_mode: "SearchCondition" | "DeckEdit" = "DeckEdit";
   let left_pain_mode: "SearchCondition" | "CardDetail" = "SearchCondition";
-
-  const onClearSearchConditionClick = async () => {
+  const allResetSearchCondition = () => {
+    if (!searchCondition.deckCardKinds.length) {
+      getKeys(searchCondition).forEach((key) => {
+        if (Array.isArray(searchCondition[key]) && Array.isArray(searchConditionDefaultValues[key])) {
+          (searchCondition[key] as string[]) = [...searchConditionDefaultValues[key]] as string[];
+        } else {
+          // @ts-expect-error
+          searchCondition[key] = searchConditionDefaultValues[key];
+        }
+      });
+      return;
+    }
     searchCondition.name = "";
     searchCondition.deckCardKinds = [];
+    searchCondition.exMonsterCategories = [];
     searchCondition.monsterCategories = [];
     searchCondition.monsterAttributes = [];
     searchCondition.monsterTypes = [];
@@ -101,6 +115,7 @@
     searchCondition.defLowerBound = 0;
     searchCondition.defUpperBound = 5000;
     searchCondition.atkPlusDef = undefined;
+    searchCondition.sort = [...defaultSortSetting];
   };
 
   const onResetSearchCondition = (keys: (keyof typeof searchCondition)[]) => {
@@ -275,8 +290,22 @@
         }}
       >
         <div class="deck_editor_search_box_header">
-          <div>検索条件</div>
-          <div><button class="white_button" on:click={onClearSearchConditionClick}>条件クリア</button></div>
+          <div><button class="deck_editor_search_box_title" on:click={allResetSearchCondition}>検索条件</button></div>
+          <div class="deck_editor_sort_setting_container">
+            {#each searchCondition.sort as sortSettingItem}
+              <button
+                class="deck_editor_sort_setting_item {sortSettingItem.order} priority_{sortSettingItem.priority}"
+                on:click={() => {
+                  searchCondition.sort.forEach((item) => item.priority++);
+                  sortSettingItem.order = sortSettingItem.order === "asc" ? "desc" : "asc";
+                  sortSettingItem.priority = 1;
+                }}
+              >
+                {cardSortKeyDic[sortSettingItem.key]}
+                {sortSettingItem.order === "asc" ? "▲" : "▼"}
+              </button>
+            {/each}
+          </div>
         </div>
         <div class="deck_editor_search_box_body">
           <div class="deck_editor_search_box_row">
@@ -561,22 +590,57 @@
     transition: all 0.3s;
   }
 
-  .deck_editor_search_box_title {
-    background-color: transparent;
-    display: block;
-    pointer-events: none;
-  }
-
   .deck_editor_search_box {
     display: flex;
     flex-direction: column;
   }
+  .deck_editor_search_box_title {
+    display: flex;
+    align-items: center;
+    margin-left: 0.1rem;
+    padding: 0.4rem 0.7rem;
+    background-color: #f2f2f2;
+    color: #333333;
+    font-size: 1.2rem;
+    font-weight: bolder;
+  }
+  .deck_editor_search_box_title:hover {
+    filter: invert();
+  }
+  .deck_editor_search_box_title::before {
+    display: inline-block;
+    width: 5px;
+    height: 1.5rem;
+    margin-right: 0.5rem;
+    background-color: slategray;
+    content: "";
+  }
+  .deck_editor_sort_setting_container {
+    display: flex;
+    height: 100%;
+    vertical-align: bottom;
+  }
+  .deck_editor_sort_setting_item {
+    display: inline-block;
+    height: 70%;
+    min-height: max-content;
+    margin: auto 0.3rem;
+    padding: 0 0.5rem;
+    border-radius: 0.8rem;
+    background-color: blue;
+    color: azure;
+  }
+  .deck_editor_sort_setting_item.desc {
+    background-color: red;
+  }
+  .deck_editor_sort_setting_item.priority_1 {
+    border-width: 2px;
+    border-color: white;
+    border-style: dotted;
+  }
 
   .deck_editor_search_box_body {
     overflow-y: auto;
-  }
-  .left_pain_mode_carddetail .deck_editor_search_box .deck_editor_search_box_title {
-    pointer-events: initial;
   }
   .left_pain_mode_carddetail .deck_editor_search_box {
     height: 10rem;
@@ -592,12 +656,12 @@
     padding: 0.2rem;
   }
   .black_button {
+    width: 100%;
     border: 2px solid #000;
     border-radius: 0;
     background: #fff;
     -webkit-transform-style: preserve-3d;
     transform-style: preserve-3d;
-    width: 90%;
     padding: 0.1rem 0rem 0.1rem 0.5rem;
   }
   .black_button:before {

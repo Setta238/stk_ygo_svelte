@@ -48,6 +48,16 @@
 
   const isBelongTo = (cardInfo: CardInfoJson) => (cardInfo.monsterCategories?.union(exMonsterCategories).length ? "ExtraDeck" : "Deck");
 
+  const sortCardTree = () => {
+    const _cardSorter = (left: EntityStatusBase, right: EntityStatusBase) =>
+      cardSorter(
+        left,
+        right,
+        searchCondition?.sort.filter((sortItem) => sortItem.priority > 0).toSorted((l, r) => l.priority - r.priority)
+      );
+    Object.values(cardTree).forEach((branch) => Object.values(branch).forEach((array) => array.sort(_cardSorter)));
+  };
+
   const createCardTree = (cardInfos: CardInfoJson[]) => {
     Object.values(cardTree).forEach((branch) => Object.values(branch).forEach((array) => array.reset()));
     cardInfos
@@ -59,8 +69,7 @@
         const deckType: TDeckTypes = cardInfo.monsterCategories?.union(exMonsterCategories).length ? "ExtraDeck" : "Deck";
         cardTree[deckType][cardInfo.kind].push(cardInfo);
       });
-    const _cardSorter = (left: EntityStatusBase, right: EntityStatusBase) => cardSorter(left, right, searchCondition?.sort);
-    Object.values(cardTree).forEach((branch) => Object.values(branch).forEach((array) => array.sort(_cardSorter)));
+    sortCardTree();
   };
 
   const initPromise =
@@ -141,9 +150,7 @@
       // 子要素までは追跡してくれないらしいので、自力で変更を検知する
       if (oldSort !== newSort) {
         oldSort = newSort;
-        console.log("hoge");
-        // 作り直し
-        createCardTree(allCardInfos);
+        sortCardTree();
       }
       // 検索条件を変更したとき、段階的に描画するようにする
       indexUpperBound = 100;

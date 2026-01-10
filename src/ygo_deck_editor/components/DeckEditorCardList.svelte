@@ -401,13 +401,11 @@
     display: flex;
     flex-direction: column;
     flex-grow: 0;
-    flex-shrink: 0.01;
     transition: 0.3s linear; /* アニメーションの設定 */
     padding-top: 0.5rem;
     padding-left: 0.5rem;
     border-style: none;
     overflow-y: hidden;
-    height: max-content;
   }
   .deck_editor_card_kind_body {
     position: relative;
@@ -417,7 +415,6 @@
   .deck_editor_card_kind_body ul {
     position: absolute;
     transition: 0.5s linear; /* アニメーションの設定 */
-    visibility: hidden;
     height: 100%;
     width: 100%;
     top: 0;
@@ -448,12 +445,9 @@
   }
   .deck_editor_card_kind.selected {
     flex-grow: 1;
-    flex-shrink: 1;
   }
   .deck_editor_card_kind.selected ul {
     visibility: visible;
-    display: block;
-    height: fit-content;
   }
   .deck_editor_card_kind > * {
     margin-left: 1rem;

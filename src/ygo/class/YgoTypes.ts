@@ -283,7 +283,7 @@ export const monsterTypeDic = {
   CreatorGod: "創造神",
   Cyberse: "サイバース",
   Dinosaur: "恐竜",
-  DivineBeast: "幻獣神",
+  DivineBeast: "幻神獣",
   Dragon: "ドラゴン",
   Fairy: "天使",
   Fiend: "悪魔",

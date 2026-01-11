@@ -3,15 +3,7 @@ import json_test from "@ygo/json/cardInfo_test.json";
 import json_old_version from "@ygo/json/cardInfo_old_version.json";
 import jsonFileList from "@ygo/json/cardInfoFileList.json";
 
-import {
-  cardSorter,
-  convertToEntityStatusBase,
-  createCardTree,
-  type CardInfoDescription,
-  type CardTree,
-  type EntityStatusBase,
-  type TDeckCardKind,
-} from "@ygo/class/YgoTypes";
+import { cardSorter, convertToEntityStatusBase, createCardTree, type CardInfoDescription, type CardTree, type EntityStatusBase } from "@ygo/class/YgoTypes";
 import { generateAllProcCardDefinitions } from "@ygo_duel/class/DuelEntityDefinition";
 import { createPromiseSweet, delay } from "@stk_utils/funcs/StkPromiseUtil";
 import { isNumber } from "@stk_utils/funcs/StkMathUtils";

@@ -461,18 +461,8 @@ const getMonsterSortStatus = (status: EntityStatusBase) => ({
 
 export const cardSorter = (left: EntityStatusBase, right: EntityStatusBase, sortSetting: TSortSetting = [...defaultSortSetting]): number => {
   // エクストラデッキのモンスター＞メインデッキのモンスター＞魔法＞罠
-  const leftCatList = left.monsterCategories ?? [];
-  const rightCatList = right.monsterCategories ?? [];
 
-  for (const cat of exMonsterCategories) {
-    if (leftCatList.includes(cat) && !rightCatList.includes(cat)) {
-      return -1;
-    }
-    if (!leftCatList.includes(cat) && rightCatList.includes(cat)) {
-      return 1;
-    }
-  }
-
+  // まず種類（モンスター魔法罠）で順番を決める
   if (left.kind !== right.kind) {
     for (const kind of cardKinds) {
       if (left.kind === kind) {
@@ -483,11 +473,39 @@ export const cardSorter = (left: EntityStatusBase, right: EntityStatusBase, sort
       }
     }
   }
+
+  // モンスターの場合、融合＞シンクロ＞エクシーズ＞リンク＞メインの順番でまず並び替えをする
+  if (left.kind === "Monster") {
+    // エクストラモンスターのカテゴリのみ取得
+    const leftCatList = (left.monsterCategories ?? []).filter((cat) => (exMonsterCategories as Readonly<string[]>).includes(cat));
+    const rightCatList = (right.monsterCategories ?? []).filter((cat) => (exMonsterCategories as Readonly<string[]>).includes(cat));
+
+    if (leftCatList.length !== rightCatList.length) {
+      // エクストラモンスターであればそちらが先
+      return rightCatList.length - leftCatList.length;
+    } else if (leftCatList.length && leftCatList[0] !== rightCatList[0]) {
+      for (const cat of exMonsterCategories) {
+        if (leftCatList.includes(cat) && !rightCatList.includes(cat)) {
+          return -1;
+        }
+        if (!leftCatList.includes(cat) && rightCatList.includes(cat)) {
+          return 1;
+        }
+      }
+    }
+  }
+
   const _left = getMonsterSortStatus(left);
   const _right = getMonsterSortStatus(right);
+  let _sortSetting = sortSetting;
+
+  if (left.kind !== "Monster") {
+    // モンスターでない場合、名前かcidの比較のみ行う
+    _sortSetting = _sortSetting.filter(({ key }) => key === "cardId" || key === "name");
+  }
+
   return (
-    sortSetting
-      .filter((sortItem) => sortItem.priority > 0)
+    _sortSetting
       .toSorted((l, r) => l.priority - r.priority)
       .map(
         (sortItem) =>

@@ -17,6 +17,7 @@
   import { getKeys } from "@stk_utils/funcs/StkObjectUtils";
   import { delay } from "@stk_utils/funcs/StkPromiseUtil";
   import { isNumber, max } from "@stk_utils/funcs/StkMathUtils";
+  import { userAgentInfo } from "@stk_utils/class/StkUserAgentInfo";
 
   export let allCardTree: CardTree;
   export let deckCardTree: CardTree;
@@ -26,7 +27,7 @@
 
   let selectedDeckCardKind: TDeckCardKind = "ExtraMonster";
 
-  const maxIndexUpperBound = 500;
+  const maxIndexUpperBound = userAgentInfo.terminalTypeName === "PC" ? 500 : userAgentInfo.terminalTypeName === "Tablet Device" ? 300 : 100;
 
   const cardTree: CardTree = mode === "List" ? allCardTree : deckCardTree;
 

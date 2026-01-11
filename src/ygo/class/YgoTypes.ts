@@ -601,3 +601,21 @@ export const convertToEntityStatusBase = (statusArray: (string | number | string
 
   return definition;
 };
+
+export type CardTree = { [kind in TDeckCardKind]: (EntityStatusBase & CardInfoDescription)[] };
+export const createCardTree = (cardInfos: CardInfoJson[]): CardTree =>
+  cardInfos
+    .filter((cardInfo) => cardInfo.kind !== "XyzMaterial")
+    .reduce(
+      (cardTree, cardInfo) => {
+        const deckCardKind = getDeckCardKind(cardInfo);
+        cardTree[deckCardKind].push(cardInfo);
+        return cardTree;
+      },
+      {
+        ExtraMonster: [],
+        Monster: [],
+        Spell: [],
+        Trap: [],
+      } as CardTree
+    );

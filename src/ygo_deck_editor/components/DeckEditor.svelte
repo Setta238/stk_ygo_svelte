@@ -23,10 +23,11 @@
 <script lang="ts">
   import { cardDefinitionsPrms, loadTextData } from "@ygo/class/CardInfo";
   import { DeckInfo } from "@ygo/class/DeckInfo";
-  import DeckEditorCardList, { createCardTree, type CardTree } from "./DeckEditorCardList.svelte";
+  import DeckEditorCardList from "./DeckEditorCardList.svelte";
   import DeckEditiorCardDetail from "./DeckEditiorCardDetail.svelte";
   import {
     cardSortKeyDic,
+    createCardTree,
     deckCardKindDic,
     deckCardKinds,
     defaultSortSetting,
@@ -44,6 +45,7 @@
     trapCategories,
     trapCategoryDic,
     type CardInfoJson,
+    type CardTree,
     type TDeckCardKind,
     type TMonsterAttribute,
     type TMonsterCategory,
@@ -476,7 +478,7 @@
       {#await cardDefinitionsPrms}
         <div>カード情報読込中</div>
       {:then cardInfo}
-        <DeckEditorCardList mode="List" allCardInfos={Object.values(cardInfo.dic)} {onAttention} {searchCondition} bind:deckCardTree={tmpDeck.cardTree} />
+        <DeckEditorCardList mode="List" allCardTree={cardInfo.tree} {onAttention} {searchCondition} bind:deckCardTree={tmpDeck.cardTree} />
       {/await}
     </div>
     <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -533,7 +535,12 @@
               <div><button class="white_button" on:click={onUploadClick}>アップロード</button></div>
             </div>
           </div>
-          <DeckEditorCardList mode="Deck" allCardInfos={[]} bind:deckCardTree={tmpDeck.cardTree} {onAttention} />
+          <DeckEditorCardList
+            mode="Deck"
+            allCardTree={{ ExtraMonster: [], Monster: [], Spell: [], Trap: [] }}
+            bind:deckCardTree={tmpDeck.cardTree}
+            {onAttention}
+          />
         {/await}
       {:else}
         <div></div>

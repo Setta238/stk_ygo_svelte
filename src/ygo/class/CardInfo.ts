@@ -3,25 +3,40 @@ import json_test from "@ygo/json/cardInfo_test.json";
 import json_old_version from "@ygo/json/cardInfo_old_version.json";
 import jsonFileList from "@ygo/json/cardInfoFileList.json";
 
-import { convertToEntityStatusBase, type CardInfoDescription, type EntityStatusBase } from "@ygo/class/YgoTypes";
+import {
+  cardSorter,
+  convertToEntityStatusBase,
+  createCardTree,
+  type CardInfoDescription,
+  type CardTree,
+  type EntityStatusBase,
+  type TDeckCardKind,
+} from "@ygo/class/YgoTypes";
 import { generateAllProcCardDefinitions } from "@ygo_duel/class/DuelEntityDefinition";
-import { createPromiseSweet } from "@stk_utils/funcs/StkPromiseUtil";
+import { createPromiseSweet, delay } from "@stk_utils/funcs/StkPromiseUtil";
 import { isNumber } from "@stk_utils/funcs/StkMathUtils";
 
 const cardNames = new Set<string>();
 const fuga = { ...json_test, ...json_old_version, ...cardInfo_special } as unknown as { [name: string]: EntityStatusBase & CardInfoDescription };
 
 const cardDefinitions = {
-  dic: {} as { [name: string]: EntityStatusBase & CardInfoDescription },
+  tree: {
+    ExtraMonster: [],
+    Monster: [],
+    Spell: [],
+    Trap: [],
+  } as CardTree,
   knmCount: 0,
   definitionCount: 0,
   nonDefinitionCount: 0,
   testCardCount: 0,
   getCardInfo: (name: string): (EntityStatusBase & CardInfoDescription) | undefined => undefined,
 };
-const cardDefinitionsDicNarrow: typeof cardDefinitions.dic = {};
 
-cardDefinitions.getCardInfo = (name: string) => cardDefinitions.dic[name] ?? cardDefinitionsDicNarrow[name.toNarrow().replaceAll("－", "-")];
+const cardDefinitionsDic: { [name: string]: EntityStatusBase & CardInfoDescription } = {};
+const cardDefinitionsDicNarrow: typeof cardDefinitionsDic = {};
+
+cardDefinitions.getCardInfo = (name: string) => cardDefinitionsDic[name] ?? cardDefinitionsDicNarrow[name.toNarrow().replaceAll("－", "-")];
 
 const pushCardInfo = (info: EntityStatusBase & CardInfoDescription) => {
   if (!info) {
@@ -34,7 +49,7 @@ const pushCardInfo = (info: EntityStatusBase & CardInfoDescription) => {
   if (info.isForTest && info.isImplemented) {
     cardDefinitions.testCardCount++;
   }
-  cardDefinitions.dic[info.name] = info;
+  cardDefinitionsDic[info.name] = info;
   cardDefinitionsDicNarrow[info.name.toNarrow().replaceAll("－", "-")] = info;
 };
 
@@ -75,7 +90,7 @@ export const loadTextData = async (cids: number[]) => {
       })
     )
   ).flatMap((item) => item);
-  for (const info of Object.values(cardDefinitions.dic)) {
+  for (const info of Object.values(cardDefinitionsDic)) {
     for (const record of list) {
       if (info.cardId === record[0]) {
         let i = 0;
@@ -100,7 +115,7 @@ const loadStatusData = async () => {
       console.info(`${url} has been loaded `);
     })
   );
-  cardDefinitions.knmCount = Object.values(cardDefinitions.dic)
+  cardDefinitions.knmCount = Object.values(cardDefinitionsDic)
     .map((info) => info.cardId)
     .getDistinct()
     .map(isNumber).length;
@@ -119,8 +134,19 @@ const loadStatusData = async () => {
     }
   }
   console.info(`All isImplemented Flg has been updated `);
-
   resolve(cardDefinitions);
+
+  // デッキ編集画面を開くまでに準備できていればよいので、適当に遅延する
+  // NOTE: ある程度のディレイをかけないと描画よりも優先してしまうので適当な時間を設定。本来は描画完了を待つのが適切と思われる。
+  delay(500).then(() => {
+    cardDefinitions.tree = createCardTree(Object.values(cardDefinitionsDic));
+
+    console.info(`Card Tree has been created `);
+
+    Object.values(cardDefinitions.tree).forEach((infos) => infos.sort(cardSorter));
+
+    console.info(`Card Tree has been sorted `);
+  });
 };
 
 loadStatusData();

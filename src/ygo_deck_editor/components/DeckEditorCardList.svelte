@@ -1,9 +1,28 @@
+<script lang="ts" module>
+  export type CardTree = { [kind in TDeckCardKind]: CardInfoJson[] };
+  export const createCardTree = (cardInfos: CardInfoJson[]): CardTree =>
+    cardInfos
+      .filter((cardInfo) => cardInfo.kind !== "XyzMaterial")
+      .reduce(
+        (cardTree, cardInfo) => {
+          const deckCardKind = getDeckCardKind(cardInfo);
+          cardTree[deckCardKind].push(cardInfo);
+          return cardTree;
+        },
+        {
+          ExtraMonster: [],
+          Monster: [],
+          Spell: [],
+          Trap: [],
+        } as CardTree
+      );
+</script>
+
 <script lang="ts">
   import {
     cardSorter,
     deckCardKindDic,
     deckCardKinds,
-    exMonsterCategories,
     getDeckCardKind,
     monsterCategoryEmojiDic,
     monsterTypeEmojiDic,
@@ -11,106 +30,87 @@
     trapCategoryDic,
     type CardInfoJson,
     type EntityStatusBase,
-    type TCardKind,
     type TDeckCardKind,
   } from "@ygo/class/YgoTypes";
   import type { SearchCondition } from "./DeckEditor.svelte";
   import { getKeys } from "@stk_utils/funcs/StkObjectUtils";
   import { delay } from "@stk_utils/funcs/StkPromiseUtil";
-  import { isNumber } from "@stk_utils/funcs/StkMathUtils";
+  import { isNumber, max } from "@stk_utils/funcs/StkMathUtils";
 
   export let allCardInfos: CardInfoJson[];
-  export let deckCardInfos: CardInfoJson[];
+  export let deckCardTree: CardTree;
   export let mode: "List" | "Deck";
   export let onAttention: (cardInfo: CardInfoJson) => void;
   export let searchCondition: SearchCondition | undefined = undefined;
-  export let selectedCardInfo: CardInfoJson | undefined = undefined;
 
   let selectedDeckCardKind: TDeckCardKind = "ExtraMonster";
 
   const maxIndexUpperBound = 500;
 
-  const cardTree: { [kind in TDeckCardKind]: CardInfoJson[] } = {
+  const cardTree: CardTree = {
     ExtraMonster: [],
     Monster: [],
     Spell: [],
     Trap: [],
-  } as const;
+  };
 
-  const isBelongTo = (cardInfo: CardInfoJson) => (cardInfo.monsterCategories?.union(exMonsterCategories).length ? "ExtraDeck" : "Deck");
-
-  const sortCardTree = () => {
+  const sortCardTree = (...kinds: TDeckCardKind[]) => {
+    const _kinds = kinds.length ? kinds : getKeys(cardTree);
     const _cardSorter = (left: EntityStatusBase, right: EntityStatusBase) =>
       cardSorter(
         left,
         right,
         searchCondition?.sort.filter((sortItem) => sortItem.priority > 0).toSorted((l, r) => l.priority - r.priority)
       );
-    Object.values(cardTree).forEach((array) => array.sort(_cardSorter));
+    _kinds.forEach((kind) => cardTree[kind].sort(_cardSorter));
   };
 
-  const createCardTree = (cardInfos: CardInfoJson[]) => {
-    Object.values(cardTree).forEach((array) => array.reset());
-    cardInfos
-      .filter((cardInfo) => cardInfo.kind !== "XyzMaterial")
-      .forEach((cardInfo) => {
-        if (cardInfo.kind === "XyzMaterial") {
-          return;
-        }
-        const deckCardKind = getDeckCardKind(cardInfo);
-        cardTree[deckCardKind].push(cardInfo);
-      });
-    sortCardTree();
-  };
-
-  const initPromise =
-    mode === "List"
-      ? new Promise<void>((resolve) => {
-          createCardTree(allCardInfos);
-          resolve();
-        })
-      : Promise.resolve();
-
-  const getCardTree = () => {
+  let initPromise = new Promise<void>((resolve) => {
     if (mode === "Deck") {
-      createCardTree(deckCardInfos);
-      indexUpperBound = deckCardInfos.length;
+      resolve();
+      return;
     }
-    return cardTree;
-  };
+    if (mode === "List") {
+      Object.values(cardTree).forEach((array) => array.reset());
+      allCardInfos
+        .filter((cardInfo) => cardInfo.kind !== "XyzMaterial")
+        .forEach((cardInfo) => {
+          if (cardInfo.kind === "XyzMaterial") {
+            return;
+          }
+          const deckCardKind = getDeckCardKind(cardInfo);
+          cardTree[deckCardKind].push(cardInfo);
+        });
+      resolve();
+    }
+  });
 
   const onClearButtonClick = (ev: MouseEvent, deckCardKind: TDeckCardKind) => {
-    const deckType = deckCardKind === "ExtraMonster" ? "ExtraDeck" : "Deck";
-    const kind = deckCardKind === "ExtraMonster" ? "Monster" : deckCardKind;
-    deckCardInfos = deckCardInfos.filter((cardInfo) => isBelongTo(cardInfo) !== deckType || (cardInfo.kind !== kind && kind));
+    deckCardTree[deckCardKind] = [];
   };
 
+  /**
+   * 追加ボタン押下時の処理
+   * @param ev
+   * @param cardInfo
+   */
   const onPlusButtonClick = (ev: MouseEvent, cardInfo: CardInfoJson) => {
-    try {
-      if (ev.ctrlKey) {
-        deckCardInfos.push(cardInfo);
-        return;
-      }
-      const currentQty = deckCardInfos.filter((_cardInfo) => _cardInfo.name === cardInfo.name).length;
-      if (currentQty > 2) {
-        return;
-      }
-
-      const qty = ev.shiftKey ? 3 - currentQty : 1;
-      if (qty < 1) {
-        return;
-      }
-
-      deckCardInfos.push(...Array(qty).fill(cardInfo));
-    } finally {
-      deckCardInfos.sort(cardSorter);
-      deckCardInfos = deckCardInfos;
+    const deckCardKind = getDeckCardKind(cardInfo);
+    const currentQty = deckCardTree[deckCardKind].filter((_cardInfo) => _cardInfo.name === cardInfo.name).length;
+    let qty = ev.shiftKey ? 3 - currentQty : 1;
+    console.debug(cardInfo, deckCardKind, currentQty, qty);
+    if (!ev.ctrlKey && currentQty > 2) {
+      qty = 0;
+    }
+    if (qty) {
+      deckCardTree[deckCardKind] = [...deckCardTree[deckCardKind], ...Array(qty).fill(cardInfo)].sort(cardSorter);
     }
     onAttention(cardInfo);
   };
   const onMinusButtonClick = (ev: MouseEvent, cardInfo: CardInfoJson) => {
+    const deckCardKind = getDeckCardKind(cardInfo);
     let count = 0;
-    deckCardInfos = deckCardInfos.filter((_cardInfo) => {
+    deckCardTree[deckCardKind] = deckCardTree[deckCardKind].filter((_cardInfo) => {
       if (_cardInfo.name !== cardInfo.name) {
         return true;
       }
@@ -118,7 +118,6 @@
       count++;
       return !ev.shiftKey && count > 1;
     });
-    deckCardInfos.sort(cardSorter);
     onAttention(cardInfo);
   };
 
@@ -129,28 +128,37 @@
     if (indexUpperBound >= maxIndexUpperBound) {
       return;
     }
-    if (indexUpperBound > allCardInfos.length + deckCardInfos.length) {
+    if (indexUpperBound > allCardInfos.length + max(...Object.values(deckCardTree).map((array) => array.length))) {
       return;
     }
     delay(100).then(incrementIndexUpperBound);
   };
 
-  let oldSort = "";
-  let oldDeckCardInfos = [...deckCardInfos];
+  // 監視する変数ごとにラベルを分ける
 
+  // デッキ内のカードの監視
+  let oldCardTree: CardTree = structuredClone(cardTree);
   $: {
-    if (oldDeckCardInfos.length !== deckCardInfos.length) {
-      if (selectedCardInfo && mode === "Deck") {
-        const deckCardKind = getDeckCardKind(selectedCardInfo);
-        if (cardTree[deckCardKind].filter(filter).length > 1 || deckCardInfos.length > oldDeckCardInfos.length) {
-          selectedDeckCardKind = deckCardKind;
-        } else {
-          selectedDeckCardKind = getKeys(cardTree).find((key) => cardTree[key].find(filter)) ?? "ExtraMonster";
+    if (mode === "Deck") {
+      getKeys(cardTree).forEach((key) => (cardTree[key] = deckCardTree[key]));
+      if (!cardTree[selectedDeckCardKind].length) {
+        selectedDeckCardKind = getKeys(cardTree).find((key) => cardTree[key].find(filter)) ?? "ExtraMonster";
+      } else {
+        const target = getKeys(cardTree)
+          .map((kind) => ({ kind, cardInfos: cardTree[kind] }))
+          .filter(({ cardInfos }) => cardInfos.length)
+          .find(({ kind, cardInfos }) => cardInfos.length !== oldCardTree[kind].length);
+        if (target && selectedDeckCardKind !== target.kind) {
+          selectedDeckCardKind = target.kind;
         }
       }
-      oldDeckCardInfos = [...deckCardInfos];
+      // 監視用の変数を置き換え
+      oldCardTree = structuredClone(cardTree);
     }
   }
+
+  // 検索条件の監視
+  let oldSort = "";
   $: {
     if (mode === "List") {
       // ここにsearchConditionが入っているので、変更を監視してくれる
@@ -165,15 +173,11 @@
       // 検索条件を変更したとき、段階的に描画するようにする
       indexUpperBound = 100;
 
-      if (!cardTree[selectedDeckCardKind].find(filter)) {
-        selectedDeckCardKind = getKeys(cardTree).find((key) => cardTree[key].find(filter)) ?? "ExtraMonster";
-      }
-
       delay(100).then(incrementIndexUpperBound);
     }
   }
 
-  const filter = (cardInfo: CardInfoJson, index: number, array: CardInfoJson[], kind?: TCardKind) => {
+  const filter = (cardInfo: CardInfoJson) => {
     if (!searchCondition) {
       return true;
     }
@@ -272,11 +276,10 @@
   {#await initPromise}
     <div>読み込み中...</div>
   {:then}
-    {@const tree = getCardTree()}
     {#each deckCardKinds as deckCardKind, deckCardKindIndex}
-      {@const branch2 = tree[deckCardKind].filter(filter)}
-      {#if branch2.length}
-        <div class="deck_editor_card_kind deckCardKind {deckCardKind === selectedDeckCardKind ? 'selected' : ''}">
+      {@const branch2 = cardTree[deckCardKind].filter(filter)}
+      <div class="deck_editor_card_kind deckCardKind {deckCardKind === selectedDeckCardKind ? 'selected' : ''} {branch2.length ? '' : 'empty'}">
+        {#if branch2.length}
           <!-- svelte-ignore a11y_click_events_have_key_events -->
           <!-- svelte-ignore a11y_no_static_element_interactions -->
           <div
@@ -296,7 +299,11 @@
             }}
           >
             <div>
-              {deckCardKindDic[deckCardKind]}（{branch2.length.toLocaleString()} / {tree[deckCardKind].length.toLocaleString()}枚）
+              {deckCardKindDic[deckCardKind]}（{branch2.length.toLocaleString()}
+              {#if mode === "List"}
+                / {cardTree[deckCardKind].length.toLocaleString()}
+              {/if}
+              枚）
               {#if branch2.length > maxIndexUpperBound}
                 ※表示上限{maxIndexUpperBound.toLocaleString()}枚
               {/if}
@@ -365,12 +372,12 @@
                     <button
                       class="button_style_reset plus_minus_button"
                       disabled={!cardInfo.isImplemented}
-                      title={cardInfo.isImplemented ? "※shiftキー同時押しで一括投入" : ""}
+                      title={cardInfo.isImplemented ? "※shiftキー同時押しで一括投入\n※ctrlキー同時押しで枚数制限無視" : ""}
                       on:click={(ev) => onPlusButtonClick(ev, cardInfo)}>+</button
                     >
                     <button
                       class="button_style_reset plus_minus_button"
-                      disabled={!cardInfo.isImplemented}
+                      disabled={mode !== "Deck" && deckCardTree[deckCardKind].every((_info) => _info.name !== cardInfo.name)}
                       title={cardInfo.isImplemented ? "※shiftキー同時押しで一括外し" : ""}
                       on:click={(ev) => onMinusButtonClick(ev, cardInfo)}>-</button
                     >
@@ -379,8 +386,8 @@
               {/each}
             </ul>
           </div>
-        </div>
-      {/if}
+        {/if}
+      </div>
     {/each}
   {/await}
 </div>
@@ -448,6 +455,12 @@
   }
   .deck_editor_card_kind.selected ul {
     visibility: visible;
+  }
+  .deck_editor_card_kind.empty {
+    flex-shrink: 1;
+    height: 0;
+    margin: 0;
+    padding: 0;
   }
   .deck_editor_card_kind > * {
     margin-left: 1rem;

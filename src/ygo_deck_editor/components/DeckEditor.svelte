@@ -3,7 +3,7 @@
     name: string;
     deckCardKinds: TDeckCardKind[];
     exMonsterCategories: TMonsterExSummonCategory[];
-    monsterCategories: Extract<TMonsterCategory, TMonsterExSummonCategory>[];
+    monsterCategories: Exclude<TMonsterCategory, TMonsterExSummonCategory>[];
     monsterAttributes: TMonsterAttribute[];
     monsterTypes: TMonsterType[];
     spellCategories: TSpellCategory[];
@@ -23,7 +23,7 @@
 <script lang="ts">
   import { cardDefinitionsPrms, loadTextData } from "@ygo/class/CardInfo";
   import { DeckInfo } from "@ygo/class/DeckInfo";
-  import DeckEditorCardList from "./DeckEditorCardList.svelte";
+  import DeckEditorCardList, { createCardTree, type CardTree } from "./DeckEditorCardList.svelte";
   import DeckEditiorCardDetail from "./DeckEditiorCardDetail.svelte";
   import {
     cardSortKeyDic,
@@ -57,6 +57,7 @@
   import { slide } from "svelte/transition";
   import DeckEditorModalContainer, { DeckEditorModalControllerFactory } from "@ygo_deck_editor/components_modal/DeckEditorModalContainer.svelte";
   import { getKeys } from "@stk_utils/funcs/StkObjectUtils";
+
   const modalController = DeckEditorModalControllerFactory.createModalController({
     onDragStart: { append: () => {}, remove: () => {} },
     onDragEnd: { append: () => {}, remove: () => {} },
@@ -65,7 +66,7 @@
     name: "",
     deckCardKinds: [...deckCardKinds],
     exMonsterCategories: [...exMonsterCategories],
-    monsterCategories: monsterCategories.filter((cat) => !(exMonsterCategories as Readonly<string[]>).includes(cat)) as Extract<
+    monsterCategories: monsterCategories.filter((cat) => !(exMonsterCategories as Readonly<string[]>).includes(cat)) as Exclude<
       TMonsterCategory,
       TMonsterExSummonCategory
     >[],
@@ -86,6 +87,7 @@
 
   const searchCondition = structuredClone(searchConditionDefaultValues);
   searchCondition.others = ["oldVersion"];
+  searchCondition.monsterCategories = searchCondition.monsterCategories.filter((cat) => cat !== "Normal");
 
   let main_view_mode: "SearchCondition" | "DeckEdit" = "DeckEdit";
   let left_pain_mode: "SearchCondition" | "CardDetail" = "SearchCondition";
@@ -143,15 +145,17 @@
     const cardDefinitions = await cardDefinitionsPrms;
     tmpDeck = {
       ...deckInfo,
-      cardInfos: deckInfo.cardNames
-        .map((name) => {
-          const cardInfo = cardDefinitions.getCardInfo(name);
-          if (cardInfo === undefined) {
-            console.error(name);
-          }
-          return cardInfo;
-        })
-        .filter((i) => i !== undefined),
+      cardTree: createCardTree(
+        deckInfo.cardNames
+          .map((name) => {
+            const cardInfo = cardDefinitions.getCardInfo(name);
+            if (cardInfo === undefined) {
+              console.error(name);
+            }
+            return cardInfo;
+          })
+          .filter((i) => i !== undefined)
+      ),
     };
   };
 
@@ -179,7 +183,12 @@
     name: "",
     description: "",
     lastUsedAt: new Date(),
-    cardInfos: [] as CardInfoJson[],
+    cardTree: {
+      ExtraMonster: [],
+      Monster: [],
+      Spell: [],
+      Trap: [],
+    } as CardTree,
   };
 
   let selectedCardInfo: CardInfoJson | undefined = undefined;
@@ -212,7 +221,9 @@
     await deckInfo.saveDeckInfo({
       ...deckInfo,
       name: tmpDeck.name,
-      cardNames: tmpDeck.cardInfos.map((info) => info.name),
+      cardNames: Object.values(tmpDeck.cardTree)
+        .flatMap((a) => a)
+        .map((info) => info.name),
       lastUsedAt: new Date(),
     });
     reloadAllDeckInfo();
@@ -221,7 +232,9 @@
     const newDeck = await DeckInfo.createNewDeck(
       `デッキ_${new Date().formatToYYYYMMDD_HHMMSS("", "", "")}`,
       `コピー日時：${new Date().formatToYYYYMMDD_HHMMSS("-", " ", ":")}`,
-      tmpDeck.cardInfos.map((info) => info.name)
+      Object.values(tmpDeck.cardTree)
+        .flatMap((a) => a)
+        .map((info) => info.name)
     );
     newDeck.saveDeckInfo();
     reloadAllDeckInfo();
@@ -463,14 +476,7 @@
       {#await cardDefinitionsPrms}
         <div>カード情報読込中</div>
       {:then cardInfo}
-        <DeckEditorCardList
-          mode="List"
-          allCardInfos={Object.values(cardInfo.dic)}
-          {onAttention}
-          {searchCondition}
-          bind:deckCardInfos={tmpDeck.cardInfos}
-          {selectedCardInfo}
-        />
+        <DeckEditorCardList mode="List" allCardInfos={Object.values(cardInfo.dic)} {onAttention} {searchCondition} bind:deckCardTree={tmpDeck.cardTree} />
       {/await}
     </div>
     <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -527,7 +533,7 @@
               <div><button class="white_button" on:click={onUploadClick}>アップロード</button></div>
             </div>
           </div>
-          <DeckEditorCardList mode="Deck" allCardInfos={[]} bind:deckCardInfos={tmpDeck.cardInfos} {onAttention} {selectedCardInfo} />
+          <DeckEditorCardList mode="Deck" allCardInfos={[]} bind:deckCardTree={tmpDeck.cardTree} {onAttention} />
         {/await}
       {:else}
         <div></div>

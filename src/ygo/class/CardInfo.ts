@@ -138,7 +138,7 @@ const loadStatusData = async () => {
 
   // デッキ編集画面を開くまでに準備できていればよいので、適当に遅延する
   // NOTE: ある程度のディレイをかけないと描画よりも優先してしまうので適当な時間を設定。本来は描画完了を待つのが適切と思われる。
-  delay(500).then(() => {
+  delay(200).then(() => {
     cardDefinitions.tree = createCardTree(Object.values(cardDefinitionsDic));
 
     console.info(`Card Tree has been created `);

@@ -101,7 +101,16 @@
   background-color: whitesmoke;
 }
 
- .monster_attr.Divine::after {
+.monster_attr.Divine::after {
   color: blanchedalmond;
   background-color: yellow;
+}
+.link_arrow_emoji {
+  font-family: "Segoe UI Emoji",
+    "Segoe UI Symbol",
+    "Apple Color Emoji",
+    "Noto Color Emoji",
+    "Noto Emoji",
+    sans-serif;
+  filter: hue-rotate(180deg);
 }

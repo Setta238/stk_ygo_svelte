@@ -357,13 +357,14 @@ export const linkArrowKeyDic = {
   2: "BottomCenter",
   3: "BottomRight",
 } as const;
-export const linkArrowDic: { [key in TLinkArrowKey]: { name: string; linkArrow: LinkArrow } } = {
+export const linkArrowDic: { [key in TLinkArrowKey]: { name: string; linkArrow: LinkArrow; emoji: string } } = {
   TopLeft: {
     name: "左上",
     linkArrow: {
       offsetRow: -1,
       offsetColumn: -1,
     },
+    emoji: "↖",
   },
   TopCenter: {
     name: "上",
@@ -371,6 +372,7 @@ export const linkArrowDic: { [key in TLinkArrowKey]: { name: string; linkArrow: 
       offsetRow: -1,
       offsetColumn: 0,
     },
+    emoji: "⬆",
   },
   TopRight: {
     name: "右上",
@@ -378,6 +380,7 @@ export const linkArrowDic: { [key in TLinkArrowKey]: { name: string; linkArrow: 
       offsetRow: -1,
       offsetColumn: 1,
     },
+    emoji: "↗",
   },
   MiddleLeft: {
     name: "左",
@@ -385,6 +388,7 @@ export const linkArrowDic: { [key in TLinkArrowKey]: { name: string; linkArrow: 
       offsetRow: 0,
       offsetColumn: -1,
     },
+    emoji: "⬅",
   },
   MiddleRight: {
     name: "右",
@@ -392,6 +396,7 @@ export const linkArrowDic: { [key in TLinkArrowKey]: { name: string; linkArrow: 
       offsetRow: 0,
       offsetColumn: 1,
     },
+    emoji: "➡",
   },
   BottomLeft: {
     name: "左下",
@@ -399,6 +404,7 @@ export const linkArrowDic: { [key in TLinkArrowKey]: { name: string; linkArrow: 
       offsetRow: 1,
       offsetColumn: -1,
     },
+    emoji: "↙",
   },
   BottomCenter: {
     name: "下",
@@ -406,6 +412,7 @@ export const linkArrowDic: { [key in TLinkArrowKey]: { name: string; linkArrow: 
       offsetRow: 1,
       offsetColumn: 0,
     },
+    emoji: "⬇",
   },
   BottomRight: {
     name: "右下",
@@ -413,6 +420,7 @@ export const linkArrowDic: { [key in TLinkArrowKey]: { name: string; linkArrow: 
       offsetRow: 1,
       offsetColumn: 1,
     },
+    emoji: "↘",
   },
 } as const;
 

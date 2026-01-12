@@ -6,6 +6,7 @@
 <script lang="ts">
   import { cardDefinitionsPrms, loadTextData } from "@ygo/class/CardInfo";
   import {
+    linkArrowDic,
     monsterAttributeDic,
     monsterCategoryDic,
     monsterCategoryEmojiDic,
@@ -66,8 +67,14 @@
         <div>{entity.nm}</div>
       </div>
       <div class="duel_card_info_row" style="position:sticky; top:0;">
+        {#if entity.lvl && entity.lvl > 0}
+          <div>{"★".repeat(entity.lvl)}</div>
+        {:else if entity.rank && entity.rank > 0}
+          <div>{"☆".repeat(entity.rank)}</div>
+        {:else if entity.origin.linkArrowKeys}
+          <div class="link_arrow_emoji">{entity.origin.linkArrowKeys.map((key) => linkArrowDic[key].emoji).join("")}</div>
+        {/if}
         <div>{"★".repeat(entity.lvl || 0)}</div>
-        <div>{"☆".repeat(entity.rank || 0)}</div>
       </div>
       {#if mode !== "Debug"}
         {#if entity.origin.monsterCategories?.includes("Pendulum")}

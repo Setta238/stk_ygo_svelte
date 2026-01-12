@@ -296,9 +296,10 @@
                           {#if cardInfo.kind === "Monster"}
                             {#if cardInfo.level}
                               ★{cardInfo.level}
-                            {/if}
-                            {#if cardInfo.rank}
+                            {:else if cardInfo.rank}
                               ☆{cardInfo.rank}
+                            {:else if cardInfo.link}
+                              Ｌ{cardInfo.link}
                             {/if}
                             {#each cardInfo.attributes ?? [] as attr}
                               <div class="monster_attr {attr}"></div>

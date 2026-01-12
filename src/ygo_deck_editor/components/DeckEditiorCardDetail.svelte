@@ -1,6 +1,7 @@
 <script lang="ts">
   import {
     getKonamiUrl,
+    linkArrowDic,
     monsterAttributeDic,
     monsterCategoryDic,
     monsterCategoryEmojiDic,
@@ -24,8 +25,13 @@
       </div>
       {#if cardInfo.kind === "Monster"}
         <div class="duel_card_info_row" style="position:sticky; top:0;">
-          <div>{"★".repeat(cardInfo.level || 0)}</div>
-          <div>{"☆".repeat(cardInfo.rank || 0)}</div>
+          {#if cardInfo.level && cardInfo.level > 0}
+            <div>{"★".repeat(cardInfo.level)}</div>
+          {:else if cardInfo.rank && cardInfo.rank > 0}
+            <div>{"★".repeat(cardInfo.rank)}</div>
+          {:else if cardInfo.linkArrowKeys}
+            <div class="link_arrow_emoji">{cardInfo.linkArrowKeys.map((key) => linkArrowDic[key].emoji).join("")}</div>
+          {/if}
         </div>
       {/if}
     </div>

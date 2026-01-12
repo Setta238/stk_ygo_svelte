@@ -3,7 +3,15 @@
 </script>
 
 <script lang="ts">
-  import { monsterCategoryDic, monsterCategoryEmojiDic, monsterTypeDic, monsterTypeEmojiDic, spellCategoryDic, trapCategoryDic } from "@ygo/class/YgoTypes";
+  import {
+    linkArrowDic,
+    monsterCategoryDic,
+    monsterCategoryEmojiDic,
+    monsterTypeDic,
+    monsterTypeEmojiDic,
+    spellCategoryDic,
+    trapCategoryDic,
+  } from "@ygo/class/YgoTypes";
 
   import { DuelEntity } from "@ygo_duel/class/DuelEntity";
   import type { DuelistResponseBase, WaitStartEventArg } from "@ygo_duel_view/class/DuelViewController";
@@ -143,6 +151,9 @@
       </div>
       {#if entity.isMonster}
         <div class="duel_card_row">
+          {#if entity.origin.linkArrowKeys}
+            <div class="link_arrow_emoji">{entity.origin.linkArrowKeys.map((key) => linkArrowDic[key].emoji).join("")}</div>
+          {/if}
           <div class={entity.lvl !== entity.origin.level ? "different_from_its_origin" : ""}>{"★".repeat(entity.lvl || 0)}</div>
           <div class={entity.rank !== entity.origin.rank ? "different_from_its_origin" : ""}>{"☆".repeat(entity.rank || 0)}</div>
         </div>

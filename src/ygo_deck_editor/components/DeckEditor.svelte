@@ -24,7 +24,7 @@
   import { cardDefinitionsPrms, loadTextData } from "@ygo/class/CardInfo";
   import { DeckInfo } from "@ygo/class/DeckInfo";
   import DeckEditorCardList from "./DeckEditorCardList.svelte";
-  import DeckEditiorCardDetail from "./DeckEditiorCardDetail.svelte";
+  import DeckEditorCardDetail from "./DeckEditorCardDetail.svelte";
   import {
     cardSortKeyDic,
     createCardTree,
@@ -473,7 +473,7 @@
         </div>
       </div>
       <div class="deck_editor_card_detail">
-        <DeckEditiorCardDetail cardInfo={selectedCardInfo} {onAttention} />
+        <DeckEditorCardDetail cardInfo={selectedCardInfo} {onAttention} />
       </div>
     </div>
     <div class="deck_editor_body_center">

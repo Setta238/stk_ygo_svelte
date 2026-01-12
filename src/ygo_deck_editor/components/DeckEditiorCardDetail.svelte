@@ -92,12 +92,13 @@
         </div>
       {:else}
         <div class="duel_card_info_links">
-          <a href={`https://yugioh-wiki.net/index.php?${cardInfo.wikiEncodedName}`} target="_blank" rel="noopener noreferrer" title="遊戯王カードWiki">
-            ⇒遊戯王カードWiki
-          </a>
           <a href={getKonamiUrl(cardInfo)} target="_blank" rel="noopener noreferrer" title="コナミカードデータベース">
             ⇒{cardInfo.cardId ? "公式カードページ" : "公式で検索"}
           </a>
+          <a href={`https://yugioh-wiki.net/index.php?${cardInfo.wikiEncodedName}`} target="_blank" rel="noopener noreferrer" title="遊戯王カードWiki">
+            ⇒遊戯王カードWiki
+          </a>
+          <a href={`https://www.google.com/search?q=遊戯王 ${cardInfo.name}`} target="_blank" rel="noopener noreferrer" title="google"> ⇒google検索 </a>
         </div>
       {/if}
     </div>

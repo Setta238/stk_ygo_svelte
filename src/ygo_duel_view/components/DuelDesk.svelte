@@ -143,7 +143,9 @@
   {#if getScreenMode() === "wide"}
     <div class="duel_desk_left v_flex">
       <DuelDuelist duelist={duel.duelists.Above}></DuelDuelist>
-      <DuelCardDetail entity={focusedCard} mode={focusedCardMode}></DuelCardDetail>
+      {#if focusedCard}
+        <DuelCardDetail entity={focusedCard} mode={focusedCardMode}></DuelCardDetail>
+      {/if}
       <DuelDuelist duelist={duel.duelists.Below}></DuelDuelist>
     </div>
   {/if}

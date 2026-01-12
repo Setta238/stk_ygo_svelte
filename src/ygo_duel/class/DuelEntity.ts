@@ -14,6 +14,7 @@ import {
   linkArrowDic,
   type LinkArrow,
   faceupBattlePositions,
+  type CardInfoJson,
 } from "@ygo/class/YgoTypes";
 
 import { Duel } from "@ygo_duel/class/Duel";
@@ -539,7 +540,7 @@ export class DuelEntity {
   };
 
   public readonly seq: number;
-  public readonly origin: EntityStatusBase;
+  public readonly origin: CardInfoJson;
   public readonly entityType: TDuelEntityType;
   public readonly summonFilterBundle: SummonFilterBundle;
   public readonly procFilterBundle: ProcFilterBundle;

@@ -63,11 +63,11 @@ export default function* generate(): Generator<EntityProcDefinition> {
           return { selectedEntities: [] };
         },
         execute: async (myInfo) => {
-          const tokens = DuelEntity.prepareTokenEntities(myInfo.activator, myInfo.action.entity, fluffTokenDefinition, 2);
           const cells = myInfo.activator.getAvailableMonsterZones();
           if (cells.length < 1) {
             return false;
           }
+          const tokens = DuelEntity.prepareTokenEntities(myInfo.activator, myInfo.action.entity, fluffTokenDefinition, 2);
           const summonChoices: Omit<SummonChoice, "summoner">[] = tokens.map((monster) => {
             return {
               monster,

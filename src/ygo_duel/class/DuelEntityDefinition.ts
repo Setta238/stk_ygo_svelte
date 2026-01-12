@@ -1,4 +1,4 @@
-import { summonMonsterCategories, type EntityStatusBase, type TBattlePosition } from "@ygo/class/YgoTypes";
+import { summonMonsterCategories, type CardInfoJson, type TBattlePosition } from "@ygo/class/YgoTypes";
 import type { ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import type { SummonFilter } from "@ygo_duel/class_continuous_effect/DuelSummonFilter";
 import type { CardActionDefinition as EntityActionDefinition, CardActionDefinitionAttrs, ChainBlockInfo, SummonMaterialInfo } from "./DuelEntityAction";
@@ -66,7 +66,7 @@ export type EntityProcDefinition = {
 };
 
 export type EntityDefinition = EntityProcDefinition & {
-  staticInfo: EntityStatusBase;
+  staticInfo: CardInfoJson;
 };
 
 export function* generateAllProcCardDefinitions(): Generator<EntityProcDefinition> {

@@ -14,29 +14,35 @@
     monsterTypeEmojiDic,
     spellCategoryDic,
     trapCategoryDic,
+    type CardInfoJson,
   } from "@ygo/class/YgoTypes";
   import { DuelEntity } from "@ygo_duel/class/DuelEntity";
-  export let entity: DuelEntity | undefined = undefined;
+  export let entity: DuelEntity;
   export let mode: TCardDetailMode = "Normal";
 
-  const getInfo = async () => {
-    if (!entity) {
-      return;
-    }
-    const cardDefinitions = await cardDefinitionsPrms;
-    const _cardInfo = cardDefinitions.getCardInfo(entity.origin.name);
-    if (!_cardInfo) {
-      return;
-    }
+  let textDataPrms = new Promise<CardInfoJson | undefined>(() => {});
+  $: {
+    textDataPrms = cardDefinitionsPrms.then(async (cardDefinitions) => {
+      if (entity.origin.description || entity.origin.pendulumDescription || entity.origin.wikiEncodedName) {
+        return entity.origin;
+      }
 
-    if (_cardInfo.cardId !== undefined && !_cardInfo.description && !_cardInfo.pendulumDescription) {
-      await loadTextData([_cardInfo.cardId]);
-    }
-    return _cardInfo;
-  };
+      const _cardInfo = cardDefinitions.getCardInfo(entity.origin.name);
+      if (!_cardInfo) {
+        return;
+      }
+
+      if (_cardInfo.cardId !== undefined && !_cardInfo.description && !_cardInfo.pendulumDescription) {
+        await loadTextData([_cardInfo.cardId]);
+      }
+      return _cardInfo;
+    });
+  }
+
   const getKonamiUrl = () => {
-    return entity && entity.entityType === "Card" && (entity.origin.cardId ?? 0 > 0)
-      ? `https://www.db.yugioh-card.com/yugiohdb/card_search.action?ope=2&cid=${entity.origin.cardId}`
+    let cardId = entity && entity.entityType === "Card" ? entity.origin.cardId : entity?.parent?.origin.cardId;
+    return (cardId ?? 0 > 0)
+      ? `https://www.db.yugioh-card.com/yugiohdb/card_search.action?ope=2&cid=${cardId}`
       : entity
         ? `https://www.db.yugioh-card.com/yugiohdb/card_search.action?ope=1&sess=1&rp=10&mode=&sort=1&keyword=${entity.origin.name}&stype=1&ctype=&othercon=2&starfr=&starto=&pscalefr=&pscaleto=&linkmarkerfr=&linkmarkerto=&link_m=2&atkfr=&atkto=&deffr=&defto=&releaseDStart=1&releaseMStart=1&releaseYStart=1999&releaseDEnd=&releaseMEnd=&releaseYEnd=`
         : "";
@@ -122,7 +128,7 @@
       {#if mode === "Normal"}
         {#if entity.status.monsterCategories?.includes("Pendulum")}
           <div class="duel_card_info_row" style="border-style: solid; border-width: 1px;">
-            {#await getInfo()}
+            {#await textDataPrms}
               "読み込み中"
             {:then cardInfo}
               <pre class="description">{cardInfo?.pendulumDescription}</pre>
@@ -130,7 +136,7 @@
           </div>
         {/if}
         <div class="duel_card_info_row">
-          {#await getInfo()}
+          {#await textDataPrms}
             "読み込み中"
           {:then cardInfo}
             <pre class="description">{cardInfo?.description}</pre>
@@ -225,14 +231,20 @@
           <div>※テスト用カードです</div>
         {:else}
           <div class="duel_card_info_links">
-            <a href={`https://yugioh-wiki.net/index.php?${entity.origin.wikiEncodedName}`} target="_blank" rel="noopener noreferrer" title="遊戯王カードWiki">
-              ⇒遊戯王カードWiki
-            </a>
-            {#if entity && entity.entityType === "Card"}
+            {#if entity && (entity.entityType === "Card" || entity.parent?.entityType === "Card")}
+              {@const _entity = entity.entityType === "Card" ? entity : entity.parent}
               <a href={getKonamiUrl()} target="_blank" rel="noopener noreferrer" title="コナミカードデータベース">
-                ⇒{entity?.origin.cardId ? "公式カードページ" : "公式で検索"}
+                ⇒{_entity?.origin.cardId ? "公式カードページ" : "公式で検索"}
               </a>
             {/if}
+            {#await textDataPrms then cardInfo}
+              {#if cardInfo && cardInfo.wikiEncodedName}
+                <a href={`https://yugioh-wiki.net/index.php?${cardInfo.wikiEncodedName}`} target="_blank" rel="noopener noreferrer" title="遊戯王カードWiki">
+                  ⇒遊戯王カードWiki
+                </a>
+              {/if}
+            {/await}
+            <a href={`https://www.google.com/search?q=遊戯王 ${entity.origin.name}`} target="_blank" rel="noopener noreferrer" title="google"> ⇒google検索 </a>
           </div>
         {/if}
       {/if}

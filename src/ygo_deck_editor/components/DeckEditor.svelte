@@ -59,6 +59,19 @@
   import { slide } from "svelte/transition";
   import DeckEditorModalContainer, { DeckEditorModalControllerFactory } from "@ygo_deck_editor/components_modal/DeckEditorModalContainer.svelte";
   import { getKeys } from "@stk_utils/funcs/StkObjectUtils";
+  import DeckEditorCard from "./DeckEditorCard.svelte";
+
+  type Position = { x: number; y: number };
+  let draggedCard: { cardInfo: CardInfoJson; pos: Position; startPos: Position } | undefined;
+  const onCardDragStart = (cardInfo: CardInfoJson, pos: Position) => {
+    draggedCard = { cardInfo, pos, startPos: pos };
+  };
+  const onCardDragging = (cardInfo: CardInfoJson, pos: Position) => {
+    draggedCard = { cardInfo, pos, startPos: draggedCard?.startPos ?? pos };
+  };
+  const onCardDragEnd = () => {
+    draggedCard = undefined;
+  };
 
   const modalController = DeckEditorModalControllerFactory.createModalController({
     onDragStart: { append: () => {}, remove: () => {} },
@@ -480,7 +493,16 @@
       {#await cardDefinitionsPrms}
         <div>カード情報読込中</div>
       {:then cardInfo}
-        <DeckEditorCardList mode="List" allCardTree={cardInfo.tree} {onAttention} {searchCondition} bind:deckCardTree={tmpDeck.cardTree} />
+        <DeckEditorCardList
+          mode="List"
+          allCardTree={cardInfo.tree}
+          {onAttention}
+          {searchCondition}
+          bind:deckCardTree={tmpDeck.cardTree}
+          {onCardDragStart}
+          {onCardDragging}
+          {onCardDragEnd}
+        />
       {/await}
     </div>
     <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -542,6 +564,9 @@
             allCardTree={{ ExtraMonster: [], Monster: [], Spell: [], Trap: [] }}
             bind:deckCardTree={tmpDeck.cardTree}
             {onAttention}
+            {onCardDragStart}
+            {onCardDragging}
+            {onCardDragEnd}
           />
         {/await}
       {:else}
@@ -563,6 +588,12 @@
   </div>
   <div class="footer"></div>
 </div>
+
+{#if draggedCard}
+  <div style="position: fixed;top:{draggedCard.pos.y}px;left:{draggedCard.pos.x}px;filter: opacity(0.5);	transform: translateX(-50%) translateY(-50%);">
+    <DeckEditorCard cardInfo={draggedCard.cardInfo} {onAttention} {onCardDragStart} {onCardDragging} {onCardDragEnd} />
+  </div>
+{/if}
 <DeckEditorModalContainer {modalController} />
 
 <style>

@@ -4,10 +4,6 @@
     deckCardKindDic,
     deckCardKinds,
     getDeckCardKind,
-    monsterCategoryEmojiDic,
-    monsterTypeEmojiDic,
-    spellCategoryDic,
-    trapCategoryDic,
     type CardInfoJson,
     type CardTree,
     type EntityStatusBase,
@@ -25,6 +21,10 @@
   export let mode: "List" | "Deck";
   export let onAttention: (cardInfo: CardInfoJson) => void;
   export let searchCondition: SearchCondition | undefined = undefined;
+  type Position = { x: number; y: number };
+  export let onCardDragStart: (cardInfo: CardInfoJson, pos: Position) => void;
+  export let onCardDragging: (cardInfo: CardInfoJson, pos: Position) => void;
+  export let onCardDragEnd: () => void;
 
   let selectedDeckCardKind: TDeckCardKind = "ExtraMonster";
 
@@ -281,7 +281,7 @@
             {#each branch2 as cardInfo, index}
               {#if index < indexUpperBound && (index < 20 || selectedDeckCardKind === deckCardKind)}
                 <li class="deck_editor_item">
-                  <DeckEditorCard {cardInfo} {onAttention} />
+                  <DeckEditorCard {cardInfo} {onAttention} {onCardDragStart} {onCardDragging} {onCardDragEnd} />
                   <button
                     class="button_style_reset plus_minus_button"
                     disabled={!cardInfo.isImplemented}

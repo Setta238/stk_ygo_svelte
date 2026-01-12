@@ -3,6 +3,10 @@
 
   export let cardInfo: CardInfoJson;
   export let onAttention: (cardInfo: CardInfoJson) => void;
+  type Position = { x: number; y: number };
+  export let onCardDragStart: (cardInfo: CardInfoJson, pos: Position) => void;
+  export let onCardDragging: (cardInfo: CardInfoJson, pos: Position) => void;
+  export let onCardDragEnd: () => void;
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -11,6 +15,9 @@
   role="listitem"
   class={`deck_editor_card duel_card ${cardInfo.kind} ${cardInfo?.monsterCategories?.join(" ")} ${cardInfo.isImplemented ? "is_implemented" : "is_not_implemented"}`}
   on:click={() => onAttention(cardInfo)}
+  on:touchstart={(ev) => onCardDragStart(cardInfo, { x: ev.changedTouches[0].clientX, y: ev.changedTouches[0].clientY })}
+  on:touchmove={(ev) => onCardDragging(cardInfo, { x: ev.changedTouches[0].clientX, y: ev.changedTouches[0].clientY })}
+  on:touchend={() => onCardDragEnd()}
 >
   <div>
     <div>

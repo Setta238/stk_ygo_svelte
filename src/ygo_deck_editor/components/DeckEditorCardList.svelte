@@ -27,7 +27,26 @@
 
   let selectedDeckCardKind: TDeckCardKind = "ExtraMonster";
 
+  // 描画を段階的に行うためのディレイ
   const maxIndexUpperBound = userAgentInfo.terminalTypeName === "PC" ? 500 : userAgentInfo.terminalTypeName === "Tablet Device" ? 300 : 100;
+  const minIndexUpperBound = 20;
+  let indexUpperBound = minIndexUpperBound;
+  const incrementIndexUpperBound = (recursion: boolean = false) => {
+    if (!recursion) {
+      indexUpperBound = minIndexUpperBound;
+    }
+    indexUpperBound += 10;
+    if (mode === "List") {
+      if (indexUpperBound >= maxIndexUpperBound) {
+        return;
+      }
+    } else {
+      if (indexUpperBound > max(...Object.values(deckCardTree).map((array) => array.length))) {
+        return;
+      }
+    }
+    delay(100).then(() => incrementIndexUpperBound(true));
+  };
 
   const cardTree: CardTree = mode === "List" ? allCardTree : deckCardTree;
 
@@ -78,19 +97,6 @@
     onAttention(cardInfo);
   };
 
-  // 描画を段階的に行うためのディレイ
-  let indexUpperBound = 100;
-  const incrementIndexUpperBound = () => {
-    indexUpperBound += 10;
-    if (indexUpperBound >= maxIndexUpperBound) {
-      return;
-    }
-    if (indexUpperBound > max(...Object.values(allCardTree).map((array) => array.length), ...Object.values(deckCardTree).map((array) => array.length))) {
-      return;
-    }
-    delay(100).then(incrementIndexUpperBound);
-  };
-
   // 監視する変数ごとにラベルを分ける
 
   // デッキ内のカードの監視
@@ -128,9 +134,7 @@
       }
 
       // 検索条件を変更したとき、段階的に描画するようにする
-      indexUpperBound = 100;
-
-      delay(100).then(incrementIndexUpperBound);
+      incrementIndexUpperBound();
     }
   }
 

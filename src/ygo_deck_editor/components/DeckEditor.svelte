@@ -472,7 +472,9 @@
           </div>
         </div>
       </div>
-      <DeckEditiorCardDetail cardInfo={selectedCardInfo} {onAttention} />
+      <div class="deck_editor_card_detail">
+        <DeckEditiorCardDetail cardInfo={selectedCardInfo} {onAttention} />
+      </div>
     </div>
     <div class="deck_editor_body_center">
       {#await cardDefinitionsPrms}
@@ -663,8 +665,8 @@
     overflow-y: auto;
   }
   .left_pain_mode_carddetail .deck_editor_search_box {
-    height: 10rem;
-    flex-grow: 0;
+    min-height: 10rem;
+    flex-grow: 1;
   }
 
   .deck_editor_search_box_header {

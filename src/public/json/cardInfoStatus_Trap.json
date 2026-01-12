@@ -868,7 +868,9 @@
     "竜巻海流壁",
     "Trap",
     null,
-    null,
+    [
+      "海"
+    ],
     null,
     null,
     "Continuous"
@@ -1872,7 +1874,9 @@
     "暗黒の魔再生",
     "Trap",
     null,
-    null,
+    [
+      "ラーの翼神竜"
+    ],
     null,
     null,
     "Normal"
@@ -2363,7 +2367,9 @@
     "裁きの光",
     "Trap",
     null,
-    null,
+    [
+      "天空の聖域"
+    ],
     null,
     null,
     "Normal"
@@ -5922,7 +5928,9 @@
     "クリムゾン・ヘルフレア",
     "Trap",
     null,
-    null,
+    [
+      "レッド・デーモンズ・ドラゴン"
+    ],
     null,
     null,
     "Counter"
@@ -6012,7 +6020,9 @@
     "レクリスパワー",
     "Trap",
     null,
-    null,
+    [
+      "コアキメイルの鋼核"
+    ],
     null,
     null,
     "Normal"
@@ -6022,7 +6032,9 @@
     "オートマチック・レーザー",
     "Trap",
     null,
-    null,
+    [
+      "コアキメイルの鋼核"
+    ],
     null,
     null,
     "Normal"
@@ -6226,7 +6238,9 @@
     "鋼核の輝き",
     "Trap",
     null,
-    null,
+    [
+      "コアキメイルの鋼核"
+    ],
     null,
     null,
     "Counter"
@@ -6458,7 +6472,9 @@
     "能力吸収コア",
     "Trap",
     null,
-    null,
+    [
+      "コアキメイルの鋼核"
+    ],
     null,
     null,
     "Counter"
@@ -6592,7 +6608,9 @@
     "スターライト・ロード",
     "Trap",
     null,
-    null,
+    [
+      "スターダスト・ドラゴン"
+    ],
     null,
     null,
     "Normal"
@@ -6739,7 +6757,9 @@
     "忘却の海底神殿",
     "Trap",
     null,
-    null,
+    [
+      "海"
+    ],
     null,
     null,
     "Continuous"
@@ -6941,7 +6961,9 @@
     [
       "コアキメイル"
     ],
-    null,
+    [
+      "コアキメイルの鋼核"
+    ],
     null,
     null,
     "Normal"
@@ -7254,7 +7276,9 @@
     "スクリーン・オブ・レッド",
     "Trap",
     null,
-    null,
+    [
+      "レッド・デーモンズ・ドラゴン"
+    ],
     null,
     null,
     "Continuous"
@@ -7578,7 +7602,9 @@
     "神罰",
     "Trap",
     null,
-    null,
+    [
+      "天空の聖域"
+    ],
     null,
     null,
     "Counter"
@@ -9246,7 +9272,9 @@
     [
       "アビス"
     ],
-    null,
+    [
+      "海"
+    ],
     null,
     null,
     "Normal"
@@ -11531,7 +11559,9 @@
     [
       "トゥーン"
     ],
-    null,
+    [
+      "トゥーン・ワールド"
+    ],
     null,
     null,
     "Normal"
@@ -11762,7 +11792,9 @@
     [
       "コクーン"
     ],
-    null,
+    [
+      "レッド・デーモンズ・ドラゴン"
+    ],
     null,
     null,
     "Normal"
@@ -13276,7 +13308,9 @@
     [
       "幻煌龍"
     ],
-    null,
+    [
+      "海"
+    ],
     null,
     null,
     "Normal"
@@ -13288,7 +13322,9 @@
     [
       "幻煌龍"
     ],
-    null,
+    [
+      "海"
+    ],
     null,
     null,
     "Normal"
@@ -13300,7 +13336,9 @@
     [
       "幻煌龍"
     ],
-    null,
+    [
+      "海"
+    ],
     null,
     null,
     "Normal"
@@ -13378,7 +13416,9 @@
     "集いし願い",
     "Trap",
     null,
-    null,
+    [
+      "スターダスト・ドラゴン"
+    ],
     null,
     null,
     "Normal"
@@ -13477,7 +13517,9 @@
     "覇王の逆鱗",
     "Trap",
     null,
-    null,
+    [
+      "覇王龍ズァーク"
+    ],
     null,
     null,
     "Normal"
@@ -13625,7 +13667,9 @@
     "潜海奇襲",
     "Trap",
     null,
-    null,
+    [
+      "海"
+    ],
     null,
     null,
     "Continuous"
@@ -14141,7 +14185,9 @@
     "競闘－クロス・ディメンション",
     "Trap",
     null,
-    null,
+    [
+      "古代の機械巨人"
+    ],
     null,
     null,
     "Normal"
@@ -14643,7 +14689,9 @@
     "強靭！無敵！最強！",
     "Trap",
     null,
-    null,
+    [
+      "青眼の白龍"
+    ],
     null,
     null,
     "Normal"
@@ -14667,7 +14715,9 @@
     [
       "ローズ"
     ],
-    null,
+    [
+      "ブラックフェザー・ドラゴン"
+    ],
     null,
     null,
     "Counter"
@@ -14983,7 +15033,9 @@
     "NEXT",
     "Trap",
     null,
-    null,
+    [
+      "E・HERO ネオス"
+    ],
     null,
     null,
     "Normal"
@@ -15091,7 +15143,9 @@
     [
       "ハーピィ"
     ],
-    null,
+    [
+      "ハーピィ・レディ三姉妹"
+    ],
     null,
     null,
     "Normal"
@@ -15101,7 +15155,9 @@
     "漆黒の薔薇の開華",
     "Trap",
     null,
-    null,
+    [
+      "ブラック・ローズ・ドラゴン"
+    ],
     null,
     null,
     "Normal"
@@ -15187,7 +15243,9 @@
     "D－タクティクス",
     "Trap",
     null,
-    null,
+    [
+      "Dragoon D-END"
+    ],
     null,
     null,
     "Continuous"
@@ -15197,7 +15255,9 @@
     "バスター・リブート",
     "Trap",
     null,
-    null,
+    [
+      "バスター・モード"
+    ],
     null,
     null,
     "Normal"
@@ -15939,7 +15999,10 @@
     [
       "夢魔鏡"
     ],
-    null,
+    [
+      "聖光の夢魔鏡",
+      "闇黒の夢魔鏡"
+    ],
     null,
     null,
     "Normal"
@@ -16219,7 +16282,10 @@
     [
       "夢魔鏡"
     ],
-    null,
+    [
+      "聖光の夢魔鏡",
+      "闇黒の夢魔鏡"
+    ],
     null,
     null,
     "Normal"
@@ -16231,7 +16297,10 @@
     [
       "夢魔鏡"
     ],
-    null,
+    [
+      "聖光の夢魔鏡",
+      "闇黒の夢魔鏡"
+    ],
     null,
     null,
     "Counter"
@@ -16242,7 +16311,8 @@
     "Trap",
     null,
     [
-      "ブラック・マジシャン"
+      "ブラック・マジシャン",
+      "ブラック・マジシャン・ガール"
     ],
     null,
     null,
@@ -16542,7 +16612,11 @@
     "ハイパーブレイズ",
     "Trap",
     null,
-    null,
+    [
+      "神炎皇ウリア",
+      "降雷皇ハモン",
+      "幻魔皇ラビエル"
+    ],
     null,
     null,
     "Continuous"
@@ -16554,7 +16628,11 @@
     [
       "幻魔"
     ],
-    null,
+    [
+      "神炎皇ウリア",
+      "降雷皇ハモン",
+      "幻魔皇ラビエル"
+    ],
     [],
     null,
     "Continuous"
@@ -16576,7 +16654,9 @@
     "螺旋砲撃",
     "Trap",
     null,
-    null,
+    [
+      "竜騎士ガイア"
+    ],
     null,
     null,
     "Continuous"
@@ -16586,7 +16666,9 @@
     "螺旋蘇生",
     "Trap",
     null,
-    null,
+    [
+      "竜騎士ガイア"
+    ],
     null,
     null,
     "Normal"
@@ -16745,7 +16827,9 @@
     "太陽神合一",
     "Trap",
     null,
-    null,
+    [
+      "ラーの翼神竜"
+    ],
     null,
     null,
     "Continuous"
@@ -16802,7 +16886,9 @@
     [
       "トゥーン"
     ],
-    null,
+    [
+      "トゥーン・ワールド"
+    ],
     null,
     null,
     "Counter"
@@ -16993,6 +17079,7 @@
     "Trap",
     null,
     [
+      "青眼の白龍",
       "ブラック・マジシャン"
     ],
     null,
@@ -17179,7 +17266,10 @@
     [
       "夢魔鏡"
     ],
-    null,
+    [
+      "聖光の夢魔鏡",
+      "闇黒の夢魔鏡"
+    ],
     null,
     null,
     "Continuous"
@@ -17547,7 +17637,9 @@
     [
       "セイヴァー"
     ],
-    null,
+    [
+      "スターダスト・ドラゴン"
+    ],
     null,
     null,
     "Continuous"
@@ -17800,7 +17892,11 @@
     "ジョーカーズ・ワイルド",
     "Trap",
     null,
-    null,
+    [
+      "クィーンズ・ナイト",
+      "ジャックス・ナイト",
+      "キングス・ナイト"
+    ],
     null,
     null,
     "Normal"
@@ -17810,7 +17906,11 @@
     "絵札の絆",
     "Trap",
     null,
-    null,
+    [
+      "クィーンズ・ナイト",
+      "ジャックス・ナイト",
+      "キングス・ナイト"
+    ],
     null,
     null,
     "Continuous"
@@ -17898,7 +17998,9 @@
     "ブレイク・ザ・デステニー",
     "Trap",
     null,
-    null,
+    [
+      "Dragoon D-END"
+    ],
     null,
     null,
     "Normal"
@@ -17970,7 +18072,9 @@
     "失われた聖域",
     "Trap",
     null,
-    null,
+    [
+      "天空の聖域"
+    ],
     null,
     null,
     "Continuous"
@@ -17980,7 +18084,9 @@
     "真の光",
     "Trap",
     null,
-    null,
+    [
+      "青眼の白龍"
+    ],
     null,
     null,
     "Continuous"
@@ -18026,7 +18132,9 @@
     "サンダー・ディスチャージ",
     "Trap",
     null,
-    null,
+    [
+      "勇者トークン"
+    ],
     null,
     null,
     "Normal"
@@ -18036,7 +18144,9 @@
     "リザレクション・ブレス",
     "Trap",
     null,
-    null,
+    [
+      "勇者トークン"
+    ],
     null,
     null,
     "Normal"
@@ -18263,7 +18373,9 @@
     "暗岩の海竜神",
     "Trap",
     null,
-    null,
+    [
+      "海"
+    ],
     null,
     null,
     "Normal"
@@ -18413,7 +18525,9 @@
     "肆世壊の牙掌突",
     "Trap",
     null,
-    null,
+    [
+      "ヴィサス＝スタフロスト"
+    ],
     null,
     null,
     "Continuous"
@@ -18529,7 +18643,9 @@
     "覇王龍の魂",
     "Trap",
     null,
-    null,
+    [
+      "覇王龍ズァーク"
+    ],
     null,
     null,
     "Normal"
@@ -18643,7 +18759,9 @@
     [
       "フェイバリット"
     ],
-    null,
+    [
+      "E・HERO ネオス"
+    ],
     null,
     null,
     "Normal"
@@ -18667,7 +18785,9 @@
     "壱世壊に軋む爪音",
     "Trap",
     null,
-    null,
+    [
+      "ヴィサス＝スタフロスト"
+    ],
     null,
     null,
     "Normal"
@@ -18677,7 +18797,9 @@
     "壱世壊に奏でる哀唱",
     "Trap",
     null,
-    null,
+    [
+      "ヴィサス＝スタフロスト"
+    ],
     null,
     null,
     "Continuous"
@@ -18687,7 +18809,9 @@
     "壱世壊に澄み渡る残響",
     "Trap",
     null,
-    null,
+    [
+      "ヴィサス＝スタフロスト"
+    ],
     null,
     null,
     "Counter"
@@ -18776,7 +18900,9 @@
       "墓守",
       "墓守の"
     ],
-    null,
+    [
+      "現世と冥界の逆転"
+    ],
     null,
     null,
     "Continuous"
@@ -18786,7 +18912,9 @@
     "絶望と希望の逆転",
     "Trap",
     null,
-    null,
+    [
+      "現世と冥界の逆転"
+    ],
     null,
     null,
     "Normal"
@@ -18796,7 +18924,9 @@
     "運命の抱く爆弾",
     "Trap",
     null,
-    null,
+    [
+      "現世と冥界の逆転"
+    ],
     null,
     null,
     "Normal"
@@ -18932,7 +19062,9 @@
     [
       "ＢＦ"
     ],
-    null,
+    [
+      "ブラックフェザー・ドラゴン"
+    ],
     null,
     null,
     "Normal"
@@ -18942,7 +19074,9 @@
     "ブラック・ノーブル",
     "Trap",
     null,
-    null,
+    [
+      "ブラックフェザー・ドラゴン"
+    ],
     null,
     null,
     "Counter"
@@ -18976,7 +19110,9 @@
     "肆世壊の双牙",
     "Trap",
     null,
-    null,
+    [
+      "ヴィサス＝スタフロスト"
+    ],
     null,
     null,
     "Normal"
@@ -19176,7 +19312,9 @@
     "トリヴィカルマ",
     "Trap",
     null,
-    null,
+    [
+      "ヴィサス＝スタフロスト"
+    ],
     null,
     null,
     "Normal"
@@ -19294,7 +19432,11 @@
     "地雷蜘蛛の餌食",
     "Trap",
     null,
-    null,
+    [
+      "雷魔神－サンガ",
+      "風魔神－ヒューガ",
+      "水魔神－スーガ"
+    ],
     null,
     null,
     "Continuous"
@@ -19376,7 +19518,9 @@
     "伍世壊砕心",
     "Trap",
     null,
-    null,
+    [
+      "ヴィサス＝スタフロスト"
+    ],
     null,
     null,
     "Normal"
@@ -19386,7 +19530,9 @@
     "伍世壊浄心",
     "Trap",
     null,
-    null,
+    [
+      "ヴィサス＝スタフロスト"
+    ],
     null,
     null,
     "Counter"
@@ -19396,7 +19542,9 @@
     "識無辺世壊",
     "Trap",
     null,
-    null,
+    [
+      "ヴィサス＝スタフロスト"
+    ],
     null,
     null,
     "Normal"
@@ -19560,7 +19708,9 @@
     "くず鉄の神像",
     "Trap",
     null,
-    null,
+    [
+      "赤き竜"
+    ],
     null,
     null,
     "Normal"
@@ -19582,7 +19732,9 @@
     "新世壊成劫",
     "Trap",
     null,
-    null,
+    [
+      "ヴィサス＝スタフロスト"
+    ],
     null,
     null,
     "Normal"
@@ -19592,7 +19744,9 @@
     "星満ちる新世壊",
     "Trap",
     null,
-    null,
+    [
+      "ヴィサス＝スタフロスト"
+    ],
     null,
     null,
     "Continuous"
@@ -19602,7 +19756,9 @@
     "シャルルの叙事詩",
     "Trap",
     null,
-    null,
+    [
+      "焔聖騎士帝－シャルル"
+    ],
     null,
     null,
     "Normal"
@@ -19749,7 +19905,9 @@
     "デモンズ・ゴーレム",
     "Trap",
     null,
-    null,
+    [
+      "レッド・デーモンズ・ドラゴン"
+    ],
     null,
     null,
     "Normal"
@@ -19759,7 +19917,9 @@
     "スカーレッド・ゾーン",
     "Trap",
     null,
-    null,
+    [
+      "レッド・デーモンズ・ドラゴン"
+    ],
     null,
     null,
     "Continuous"
@@ -19847,7 +20007,9 @@
     "覇王龍の奇跡",
     "Trap",
     null,
-    null,
+    [
+      "覇王龍ズァーク"
+    ],
     null,
     null,
     "Normal"
@@ -19857,7 +20019,9 @@
     "覇王天龍の魂",
     "Trap",
     null,
-    null,
+    [
+      "覇王龍ズァーク"
+    ],
     null,
     null,
     "Normal"
@@ -19893,7 +20057,9 @@
     "新世廻",
     "Trap",
     null,
-    null,
+    [
+      "ヴィサス＝スタフロスト"
+    ],
     null,
     null,
     "Normal"
@@ -19903,7 +20069,9 @@
     "世壊輪廻",
     "Trap",
     null,
-    null,
+    [
+      "ヴィサス＝スタフロスト"
+    ],
     null,
     null,
     "Normal"
@@ -20097,7 +20265,9 @@
     [
       "フェイバリット"
     ],
-    null,
+    [
+      "ユベル"
+    ],
     null,
     null,
     "Continuous"
@@ -20205,7 +20375,9 @@
     "炎の剣舞",
     "Trap",
     null,
-    null,
+    [
+      "炎の剣士"
+    ],
     null,
     null,
     "Normal"
@@ -20273,7 +20445,9 @@
     [
       "ホール"
     ],
-    null,
+    [
+      "光の黄金櫃"
+    ],
     null,
     null,
     "Continuous"
@@ -20283,7 +20457,9 @@
     "古代の機械競闘",
     "Trap",
     null,
-    null,
+    [
+      "古代の機械巨人"
+    ],
     null,
     null,
     "Continuous"
@@ -20438,7 +20614,8 @@
     "Trap",
     null,
     [
-      "ブラック・マジシャン"
+      "ブラック・マジシャン",
+      "光の黄金櫃"
     ],
     null,
     null,
@@ -20697,7 +20874,9 @@
     [
       "メタル化"
     ],
-    null,
+    [
+      "メタル化・強化反射装甲"
+    ],
     null,
     null,
     "Normal"
@@ -20870,7 +21049,9 @@
     "白き龍の威光",
     "Trap",
     null,
-    null,
+    [
+      "青眼の白龍"
+    ],
     null,
     null,
     "Normal"
@@ -20880,7 +21061,9 @@
     "ダーク・スプレマシー",
     "Trap",
     null,
-    null,
+    [
+      "ダーク・フュージョン"
+    ],
     null,
     null,
     "Normal"
@@ -20974,7 +21157,9 @@
     [
       "メタル化"
     ],
-    null,
+    [
+      "メタル化・強化反射装甲"
+    ],
     null,
     null,
     "Normal"
@@ -21042,7 +21227,9 @@
     "アヌビスの審判",
     "Trap",
     null,
-    null,
+    [
+      "王家の神殿"
+    ],
     null,
     null,
     "Counter"
@@ -21104,7 +21291,9 @@
     "エターナル・サンシャイン",
     "Trap",
     null,
-    null,
+    [
+      "エンシェント・フェアリー・ドラゴン"
+    ],
     null,
     null,
     "Continuous"
@@ -21489,7 +21678,9 @@
     [
       "シンクロ"
     ],
-    null,
+    [
+      "ジャンク・ウォリアー"
+    ],
     null,
     null,
     "Normal"
@@ -21649,7 +21840,9 @@
     "王者の鼓動",
     "Trap",
     null,
-    null,
+    [
+      "レッド・デーモンズ・ドラゴン"
+    ],
     null,
     null,
     "Normal"

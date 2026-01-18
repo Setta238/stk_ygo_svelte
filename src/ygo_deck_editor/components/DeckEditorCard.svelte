@@ -54,8 +54,9 @@
       </div>
       <div class="atk_def">
         {#if cardInfo.kind === "Monster"}
-          <span> {cardInfo.attack ?? "?"}</span> /
-          <span>{cardInfo.defense ?? "?"}</span>
+          <span class="atk">{cardInfo.attack ?? "?"}</span>
+          <span class="slash">/</span>
+          <span class="def">{cardInfo.defense ?? "?"}</span>
         {/if}
       </div>
     </div>
@@ -69,7 +70,7 @@
     text-wrap-mode: nowrap;
   }
   .duel_card {
-    margin-bottom: 0.1rem;
+    margin-bottom: 0.2rem;
     border: 0.1rem solid black;
     user-select: none;
     -moz-user-select: none;
@@ -98,9 +99,14 @@
     flex-grow: 1;
     text-align: right;
   }
-  .atk_def span {
+  .atk_def .atk,
+  .atk_def .def {
     display: inline-block;
     width: 2rem;
     text-align: right;
+  }
+  .atk_def .slash {
+    margin: 0rem 0.5rem;
+    text-align: center;
   }
 </style>

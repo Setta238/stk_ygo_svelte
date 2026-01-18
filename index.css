@@ -19,7 +19,7 @@
 }
 @media screen and (max-width: 900px)  {
   :root {
-    font-size: 0.4rem;
+    font-size: 0.45rem;
   }
 }
 @media screen and (min-width:901px) and (max-width: 1000px)  {

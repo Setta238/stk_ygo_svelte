@@ -9,23 +9,19 @@
     type EntityStatusBase,
     type TDeckCardKind,
   } from "@ygo/class/YgoTypes";
-  import type { SearchCondition } from "./DeckEditor.svelte";
+  import type { CardControlEventHandlers, SearchCondition } from "@ygo_deck_editor/components/DeckEditor.svelte";
   import { getKeys } from "@stk_utils/funcs/StkObjectUtils";
   import { delay } from "@stk_utils/funcs/StkPromiseUtil";
   import { isNumber, max } from "@stk_utils/funcs/StkMathUtils";
   import { userAgentInfo } from "@stk_utils/class/StkUserAgentInfo";
-  import DeckEditorCard from "./DeckEditorCard.svelte";
+  import DeckEditorCard from "@ygo_deck_editor/components/DeckEditorCard.svelte";
 
   export let allCardTree: CardTree;
   export let deckCardTree: CardTree;
   export let mode: "List" | "Deck";
   export let onAttention: (cardInfo: CardInfoJson) => void;
   export let searchCondition: SearchCondition | undefined = undefined;
-  type Position = { x: number; y: number };
-  export let onCardDragStart: (cardInfo: CardInfoJson, pos: Position) => void;
-  export let onCardDragging: (cardInfo: CardInfoJson, pos: Position) => void;
-  export let onCardDragEnd: () => void;
-
+  export let cardControlEventHandlers: CardControlEventHandlers;
   let selectedDeckCardKind: TDeckCardKind = "ExtraMonster";
 
   // 描画を段階的に行うためのディレイ
@@ -64,38 +60,6 @@
 
   const onClearButtonClick = (ev: MouseEvent, deckCardKind: TDeckCardKind) => {
     deckCardTree[deckCardKind] = [];
-  };
-
-  /**
-   * 追加ボタン押下時の処理
-   * @param ev
-   * @param cardInfo
-   */
-  const onPlusButtonClick = (ev: MouseEvent, cardInfo: CardInfoJson) => {
-    const deckCardKind = getDeckCardKind(cardInfo);
-    const currentQty = deckCardTree[deckCardKind].filter((_cardInfo) => _cardInfo.name === cardInfo.name).length;
-    let qty = ev.shiftKey ? 3 - currentQty : 1;
-    console.debug(cardInfo, deckCardKind, currentQty, qty);
-    if (!ev.ctrlKey && currentQty > 2) {
-      qty = 0;
-    }
-    if (qty) {
-      deckCardTree[deckCardKind] = [...deckCardTree[deckCardKind], ...Array(qty).fill(cardInfo)].sort(cardSorter);
-    }
-    onAttention(cardInfo);
-  };
-  const onMinusButtonClick = (ev: MouseEvent, cardInfo: CardInfoJson) => {
-    const deckCardKind = getDeckCardKind(cardInfo);
-    let count = 0;
-    deckCardTree[deckCardKind] = deckCardTree[deckCardKind].filter((_cardInfo) => {
-      if (_cardInfo.name !== cardInfo.name) {
-        return true;
-      }
-
-      count++;
-      return !ev.shiftKey && count > 1;
-    });
-    onAttention(cardInfo);
   };
 
   // 監視する変数ごとにラベルを分ける
@@ -281,19 +245,25 @@
             {#each branch2 as cardInfo, index}
               {#if index < indexUpperBound && (index < 20 || selectedDeckCardKind === deckCardKind)}
                 <li class="deck_editor_item">
-                  <DeckEditorCard {cardInfo} {onAttention} {onCardDragStart} {onCardDragging} {onCardDragEnd} />
-                  <button
-                    class="button_style_reset plus_minus_button"
-                    disabled={!cardInfo.isImplemented}
-                    title={cardInfo.isImplemented ? "※shiftキー同時押しで一括投入\n※ctrlキー同時押しで枚数制限無視" : ""}
-                    on:click={(ev) => onPlusButtonClick(ev, cardInfo)}>+</button
-                  >
-                  <button
-                    class="button_style_reset plus_minus_button"
-                    disabled={mode !== "Deck" && deckCardTree[deckCardKind].every((_info) => _info.name !== cardInfo.name)}
-                    title={cardInfo.isImplemented ? "※shiftキー同時押しで一括外し" : ""}
-                    on:click={(ev) => onMinusButtonClick(ev, cardInfo)}>-</button
-                  >
+                  <DeckEditorCard {mode} {cardInfo} {onAttention} {cardControlEventHandlers} />
+                  {#if mode === "Deck"}
+                    <button
+                      class="button_style_reset plus_minus_button"
+                      disabled={!cardInfo.isImplemented}
+                      title={cardInfo.isImplemented ? "※shiftキー同時押しで一括投入\n※ctrlキー同時押しで枚数制限無視" : ""}
+                      on:click={(ev) => cardControlEventHandlers.onCardAppend(ev, cardInfo)}
+                    >
+                      +
+                    </button>
+                    <button
+                      class="button_style_reset plus_minus_button"
+                      disabled={mode !== "Deck" && deckCardTree[deckCardKind].every((_info) => _info.name !== cardInfo.name)}
+                      title={cardInfo.isImplemented ? "※shiftキー同時押しで一括外し" : ""}
+                      on:click={(ev) => cardControlEventHandlers.onCardRemove(ev, cardInfo)}
+                    >
+                      -
+                    </button>
+                  {/if}
                 </li>
               {/if}
             {/each}
@@ -435,10 +405,10 @@
     color: white;
   }
   .plus_minus_button:disabled {
-    filter: grayscale(100);
+    filter: grayscale(90);
     transition: 0s;
     color: #67c5ff;
-    background: #67c5ff;
+    background-color: red;
     cursor: not-allowed;
   }
 </style>

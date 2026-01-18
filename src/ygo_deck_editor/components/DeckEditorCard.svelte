@@ -1,12 +1,10 @@
 <script lang="ts">
   import { monsterCategoryEmojiDic, monsterTypeEmojiDic, spellCategoryDic, trapCategoryDic, type CardInfoJson } from "@ygo/class/YgoTypes";
-
+  import type { CardControlEventHandlers } from "./DeckEditor.svelte";
+  export let mode: "Deck" | "List" | "Dragging";
   export let cardInfo: CardInfoJson;
   export let onAttention: (cardInfo: CardInfoJson) => void;
-  type Position = { x: number; y: number };
-  export let onCardDragStart: (cardInfo: CardInfoJson, pos: Position) => void;
-  export let onCardDragging: (cardInfo: CardInfoJson, pos: Position) => void;
-  export let onCardDragEnd: () => void;
+  export let cardControlEventHandlers: CardControlEventHandlers;
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -15,16 +13,20 @@
   role="listitem"
   class={`deck_editor_card duel_card ${cardInfo.kind} ${cardInfo?.monsterCategories?.join(" ")} ${cardInfo.isImplemented ? "is_implemented" : "is_not_implemented"}`}
   on:click={() => onAttention(cardInfo)}
-  on:touchstart={(ev) => onCardDragStart(cardInfo, { x: ev.changedTouches[0].clientX, y: ev.changedTouches[0].clientY })}
-  on:touchmove={(ev) => onCardDragging(cardInfo, { x: ev.changedTouches[0].clientX, y: ev.changedTouches[0].clientY })}
-  on:touchend={() => onCardDragEnd()}
+  on:touchstart={(ev) => cardControlEventHandlers.onCardDragStart(ev, mode, cardInfo)}
+  on:touchmove={(ev) => cardControlEventHandlers.onCardDragging(ev, mode)}
+  on:touchend={cardControlEventHandlers.onCardDragEnd}
+  on:touchcancel={cardControlEventHandlers.onCardDragCancel}
+  on:mousedown={(ev) => cardControlEventHandlers.onCardDragStart(ev, mode, cardInfo)}
+  on:mousemove={(ev) => cardControlEventHandlers.onCardDragging(ev, mode)}
+  on:mouseup={cardControlEventHandlers.onCardDragEnd}
 >
   <div>
-    <div>
+    <div class="duel_card_row card_name">
       {cardInfo.name}
     </div>
     <div style="display:flex; flex-wrap: wrap;">
-      <div style="text-wrap-mode: nowrap;">
+      <div style="">
         {#if cardInfo.kind === "Monster"}
           {#if cardInfo.level}
             ★{cardInfo.level}
@@ -64,6 +66,7 @@
   div {
     text-align: left;
     max-height: initial;
+    text-wrap-mode: nowrap;
   }
   .duel_card {
     margin-bottom: 0.1rem;
@@ -74,10 +77,13 @@
     -ms-user-select: none;
     -webkit-touch-callout: none;
   }
+  .duel_card_row.card_name {
+    padding: 0;
+  }
   .deck_editor_card {
     display: flex;
     flex-grow: 1;
-    padding: 0rem 0.4rem;
+    padding: 0rem 0.4rem 0rem 0.4rem;
   }
   .deck_editor_card > div {
     flex-grow: 1;

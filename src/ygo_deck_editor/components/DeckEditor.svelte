@@ -18,6 +18,19 @@
     others: ("test" | "oldVersion" | "implemented")[];
     sort: TSortSetting;
   };
+  type Position = { clientX: number; clientY: number };
+  type CardControlEvArg = { shiftKey?: boolean; ctrlKey?: boolean } & (
+    | { clientX: number; clientY: number; changedTouches?: undefined }
+    | { changedTouches: TouchList }
+  );
+  export type CardControlEventHandlers = {
+    onCardAppend: (ev: CardControlEvArg, cardInfo: CardInfoJson) => void;
+    onCardRemove: (ev: CardControlEvArg, cardInfo: CardInfoJson) => void;
+    onCardDragStart: (ev: CardControlEvArg, from: string, cardInfo: CardInfoJson) => void;
+    onCardDragging: (ev: CardControlEvArg, from: string) => void;
+    onCardDragEnd: (ev: CardControlEvArg) => void;
+    onCardDragCancel: (ev: CardControlEvArg) => void;
+  };
 </script>
 
 <script lang="ts">
@@ -26,12 +39,14 @@
   import DeckEditorCardList from "./DeckEditorCardList.svelte";
   import DeckEditorCardDetail from "./DeckEditorCardDetail.svelte";
   import {
+    cardSorter,
     cardSortKeyDic,
     createCardTree,
     deckCardKindDic,
     deckCardKinds,
     defaultSortSetting,
     exMonsterCategories,
+    getDeckCardKind,
     monsterAttributeDic,
     monsterAttributes,
     monsterCategories,
@@ -60,18 +75,7 @@
   import DeckEditorModalContainer, { DeckEditorModalControllerFactory } from "@ygo_deck_editor/components_modal/DeckEditorModalContainer.svelte";
   import { getKeys } from "@stk_utils/funcs/StkObjectUtils";
   import DeckEditorCard from "./DeckEditorCard.svelte";
-
-  type Position = { x: number; y: number };
-  let draggedCard: { cardInfo: CardInfoJson; pos: Position; startPos: Position } | undefined;
-  const onCardDragStart = (cardInfo: CardInfoJson, pos: Position) => {
-    draggedCard = { cardInfo, pos, startPos: pos };
-  };
-  const onCardDragging = (cardInfo: CardInfoJson, pos: Position) => {
-    draggedCard = { cardInfo, pos, startPos: draggedCard?.startPos ?? pos };
-  };
-  const onCardDragEnd = () => {
-    draggedCard = undefined;
-  };
+  import { delay } from "@stk_utils/funcs/StkPromiseUtil";
 
   const modalController = DeckEditorModalControllerFactory.createModalController({
     onDragStart: { append: () => {}, remove: () => {} },
@@ -102,7 +106,7 @@
 
   const searchCondition = structuredClone(searchConditionDefaultValues);
   searchCondition.others = ["oldVersion"];
-  searchCondition.monsterCategories = searchCondition.monsterCategories.filter((cat) => cat !== "Normal");
+  searchCondition.monsterCategories = ["Effect", "Tuner", "Pendulum"];
 
   let main_view_mode: "SearchCondition" | "DeckEdit" = "DeckEdit";
   let left_pain_mode: "SearchCondition" | "CardDetail" = "SearchCondition";
@@ -144,6 +148,143 @@
         searchCondition[key] = searchConditionDefaultValues[key];
       }
     });
+  };
+
+  // TODO : このあたりのCardControlEventHandlersのメソッド群を別モジュールに切り出そうとしたが、うまく動かなかった。要調査、要整理
+  let draggedCard: { from: "Deck" | "List"; cardInfo: CardInfoJson; pos: Position; startPos: Position } | undefined;
+  let _draggedCard: typeof draggedCard;
+
+  let canDropToDeck = false;
+  const dragStartDelay = 200;
+
+  const onCardDragCancel = () => {
+    canDropToDeck = false;
+    draggedCard = undefined;
+    _draggedCard = undefined;
+  };
+  const onCardAppend = (ev: CardControlEvArg, cardInfo: CardInfoJson) => {
+    const deckCardKind = getDeckCardKind(cardInfo);
+    const currentQty = tmpDeck.cardTree[deckCardKind].filter((_cardInfo) => _cardInfo.name === cardInfo.name).length;
+    let qty = ev.shiftKey ? 3 - currentQty : 1;
+    console.debug(cardInfo, deckCardKind, currentQty, qty);
+    if (!ev.ctrlKey && currentQty > 2) {
+      qty = 0;
+    }
+    if (qty) {
+      tmpDeck.cardTree[deckCardKind] = [...tmpDeck.cardTree[deckCardKind], ...Array(qty).fill(cardInfo)].sort(cardSorter);
+    }
+    onCardDragCancel();
+    onAttention(cardInfo);
+  };
+  const onCardRemove = (ev: CardControlEvArg, cardInfo: CardInfoJson) => {
+    const deckCardKind = getDeckCardKind(cardInfo);
+    let count = 0;
+    tmpDeck.cardTree[deckCardKind] = tmpDeck.cardTree[deckCardKind].filter((_cardInfo) => {
+      if (_cardInfo.name !== cardInfo.name) {
+        return true;
+      }
+
+      count++;
+      return !ev.shiftKey && count > 1;
+    });
+    onCardDragCancel();
+    onAttention(cardInfo);
+  };
+  const getPosFromEvArg = (ev: CardControlEvArg): Position | undefined => {
+    if (ev.changedTouches && ev.changedTouches.length !== 1) {
+      return;
+    }
+    const { clientX, clientY } = ev.changedTouches ? ev.changedTouches[0] : ev;
+    return { clientX, clientY };
+  };
+  const cardControlEventHandlers: CardControlEventHandlers = {
+    onCardAppend,
+    onCardRemove,
+    onCardDragCancel,
+    onCardDragStart: (ev, from, cardInfo) => {
+      onAttention(cardInfo);
+      if (from !== "List" && from !== "Deck") {
+        onCardDragCancel();
+        return;
+      }
+      if (from === "List" && !cardInfo.isImplemented) {
+        onCardDragCancel();
+        return;
+      }
+      const pos = getPosFromEvArg(ev);
+
+      if (!pos) {
+        onCardDragCancel();
+        return;
+      }
+
+      _draggedCard = { from, cardInfo, pos, startPos: pos };
+
+      delay(dragStartDelay).then(() => {
+        if (_draggedCard?.cardInfo === cardInfo) {
+          draggedCard = _draggedCard;
+        }
+      });
+
+      canDropToDeck = false;
+    },
+    onCardDragging: (ev, from) => {
+      if (!_draggedCard) {
+        onCardDragCancel();
+        return;
+      }
+      const pos = getPosFromEvArg(ev);
+
+      if (!pos) {
+        onCardDragCancel();
+        return;
+      }
+
+      const __draggedCard = draggedCard || _draggedCard;
+      canDropToDeck = Boolean(
+        __draggedCard.from === "List" &&
+          __draggedCard.cardInfo.isImplemented &&
+          document
+            .elementsFromPoint(pos.clientX, pos.clientY)
+            .some((element) => element.classList.contains("deck_editor_body_right_body") || element.classList.contains("deck_editor_body_right_dummy"))
+      );
+      if (canDropToDeck) {
+        main_view_mode = "DeckEdit";
+      }
+      if (draggedCard) {
+        draggedCard = { ...draggedCard, pos };
+      } else {
+        _draggedCard.pos = { ...pos };
+      }
+    },
+    onCardDragEnd: (ev) => {
+      if (!_draggedCard || !draggedCard) {
+        onCardDragCancel();
+        return;
+      }
+
+      const pos = getPosFromEvArg(ev);
+
+      if (!pos) {
+        onCardDragCancel();
+        return;
+      }
+
+      if (
+        draggedCard.from === "List" &&
+        draggedCard.cardInfo.isImplemented &&
+        document.elementsFromPoint(pos.clientX, pos.clientY).some((element) => element.classList.contains("deck_editor_body_right_body"))
+      ) {
+        onCardAppend(ev, draggedCard.cardInfo);
+      }
+      if (
+        draggedCard.from === "Deck" &&
+        !document.elementsFromPoint(pos.clientX, pos.clientY).some((element) => element.classList.contains("deck_editor_body_right_body"))
+      ) {
+        onCardRemove(ev, draggedCard.cardInfo);
+      }
+      onCardDragCancel();
+    },
   };
   const ondblclick = (ev: MouseEvent, key: keyof typeof searchCondition, value: string) => {
     if (Array.isArray(searchCondition[key]) && Array.isArray(searchConditionDefaultValues[key])) {
@@ -299,7 +440,17 @@
   };
 </script>
 
-<div class="deck_editor screen_size_{getScreenSize()} left_pain_mode_{left_pain_mode.toLowerCase()} main_view_mode_{main_view_mode.toLowerCase()}">
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<div
+  class="deck_editor
+         screen_size_{getScreenSize()}
+         left_pain_mode_{left_pain_mode.toLowerCase()}
+         main_view_mode_{main_view_mode.toLowerCase()}
+         {draggedCard ? 'dragging_card' : ''}
+         "
+  on:touchmove={(ev) => draggedCard && cardControlEventHandlers.onCardDragging(ev, "Overlay")}
+  on:mousemove={(ev) => draggedCard && cardControlEventHandlers.onCardDragging(ev, "Overlay")}
+>
   <div class="deck_editor_header"></div>
   <div class="deck_editor_body">
     <div class="deck_editor_body_left">
@@ -485,25 +636,27 @@
           </div>
         </div>
       </div>
-      <div class="deck_editor_card_detail">
-        <DeckEditorCardDetail cardInfo={selectedCardInfo} {onAttention} />
-      </div>
+      {#if left_pain_mode === "CardDetail" && selectedCardInfo}
+        <div class="deck_editor_card_detail">
+          <DeckEditorCardDetail cardInfo={selectedCardInfo} {onAttention} {cardControlEventHandlers} deckCardTree={tmpDeck.cardTree} />
+        </div>
+      {/if}
     </div>
     <div class="deck_editor_body_center">
-      {#await cardDefinitionsPrms}
-        <div>カード情報読込中</div>
-      {:then cardInfo}
-        <DeckEditorCardList
-          mode="List"
-          allCardTree={cardInfo.tree}
-          {onAttention}
-          {searchCondition}
-          bind:deckCardTree={tmpDeck.cardTree}
-          {onCardDragStart}
-          {onCardDragging}
-          {onCardDragEnd}
-        />
-      {/await}
+      <div class="deck_editor_body_center_body">
+        {#await cardDefinitionsPrms}
+          <div>カード情報読込中</div>
+        {:then cardInfo}
+          <DeckEditorCardList
+            mode="List"
+            allCardTree={cardInfo.tree}
+            {onAttention}
+            {searchCondition}
+            bind:deckCardTree={tmpDeck.cardTree}
+            {cardControlEventHandlers}
+          />
+        {/await}
+      </div>
     </div>
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -559,18 +712,18 @@
               <div><button class="white_button" on:click={onUploadClick}>アップロード</button></div>
             </div>
           </div>
-          <DeckEditorCardList
-            mode="Deck"
-            allCardTree={{ ExtraMonster: [], Monster: [], Spell: [], Trap: [] }}
-            bind:deckCardTree={tmpDeck.cardTree}
-            {onAttention}
-            {onCardDragStart}
-            {onCardDragging}
-            {onCardDragEnd}
-          />
+          <div class="deck_editor_body_right_body {canDropToDeck ? 'can_drop' : ''}">
+            <DeckEditorCardList
+              mode="Deck"
+              allCardTree={{ ExtraMonster: [], Monster: [], Spell: [], Trap: [] }}
+              bind:deckCardTree={tmpDeck.cardTree}
+              {onAttention}
+              {cardControlEventHandlers}
+            />
+          </div>
         {/await}
       {:else}
-        <div></div>
+        <div class="deck_editor_body_right_dummy"></div>
       {/if}
     </div>
     <!-- TODO 終了タグの位置を直すと半角スペースが入るので、治す
@@ -590,8 +743,15 @@
 </div>
 
 {#if draggedCard}
-  <div style="position: fixed;top:{draggedCard.pos.y}px;left:{draggedCard.pos.x}px;filter: opacity(0.5);	transform: translateX(-50%) translateY(-50%);">
-    <DeckEditorCard cardInfo={draggedCard.cardInfo} {onAttention} {onCardDragStart} {onCardDragging} {onCardDragEnd} />
+  <div
+    style="position: fixed;
+          top:{draggedCard.pos.clientY}px;
+          left:{draggedCard.pos.clientX}px;
+          z-index:3; 
+          filter: opacity(0.8);
+        	transform: translateX(-50%) translateY(-50%);"
+  >
+    <DeckEditorCard mode="Dragging" cardInfo={draggedCard.cardInfo} {onAttention} {cardControlEventHandlers} />
   </div>
 {/if}
 <DeckEditorModalContainer {modalController} />
@@ -607,6 +767,17 @@
     right: 2rem;
     background-color: thistle;
     border-radius: 1.2rem;
+  }
+  .deck_editor.dragging_card::before {
+    content: "";
+    position: absolute;
+    background-color: slategray;
+    height: 100%;
+    width: 100%;
+    filter: opacity(0.5);
+    z-index: 1;
+    border-radius: 1.2rem;
+    transition: 1s;
   }
 
   .deck_editor_body {
@@ -629,12 +800,42 @@
   }
 
   .deck_editor_body_center {
-    min-width: 25%;
+    min-width: 26%;
     flex-grow: 0;
+    display: flex;
   }
+  .deck_editor_body_center_body {
+    flex-grow: 1;
+  }
+
   .deck_editor_body_right {
-    min-width: 25%;
+    min-width: 26%;
     flex-grow: 0;
+    display: flex;
+  }
+  .deck_editor_body_right_body {
+    flex-grow: 1;
+    position: relative;
+    z-index: 2;
+  }
+  .deck_editor_body_right_dummy {
+    border-radius: 1rem;
+    height: 100%;
+    background: repeating-linear-gradient(-45deg, wheat, wheat 4px, blanchedalmond 3px, blanchedalmond 8px);
+    position: relative;
+    z-index: 2;
+  }
+  .deck_editor_body_right_body.can_drop::after {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    height: 100%;
+    width: 100%;
+    border-style: dashed;
+    border-color: red;
+    border-width: 2px;
   }
 
   .deck_editor_body_left > div {
@@ -943,11 +1144,5 @@
   .screen_size_compact.main_view_mode_searchcondition .deck_editor_body_right {
     min-width: 5%;
     flex-grow: 0;
-  }
-
-  .screen_size_compact.main_view_mode_searchcondition .deck_editor_body_right div {
-    border-radius: 1rem;
-    height: 100%;
-    background: repeating-linear-gradient(-45deg, wheat, wheat 4px, blanchedalmond 3px, blanchedalmond 8px);
   }
 </style>

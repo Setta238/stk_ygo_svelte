@@ -1,5 +1,6 @@
 <script lang="ts">
   import {
+    getDeckCardKind,
     getKonamiUrl,
     linkArrowDic,
     monsterAttributeDic,
@@ -10,9 +11,13 @@
     spellCategoryDic,
     trapCategoryDic,
     type CardInfoJson,
+    type CardTree,
   } from "@ygo/class/YgoTypes";
+  import type { CardControlEventHandlers } from "./DeckEditor.svelte";
   export let cardInfo: CardInfoJson | undefined = undefined;
   export let onAttention: (cardInfo: CardInfoJson) => void;
+  export let cardControlEventHandlers: CardControlEventHandlers;
+  export let deckCardTree: CardTree;
 </script>
 
 {#if cardInfo}
@@ -34,6 +39,25 @@
           {/if}
         </div>
       {/if}
+
+      <div class="plus_minus_button_area">
+        <button
+          class="button_style_reset plus_minus_button"
+          disabled={!cardInfo.isImplemented}
+          title={cardInfo.isImplemented ? "※shiftキー同時押しで一括投入\n※ctrlキー同時押しで枚数制限無視" : ""}
+          on:click={(ev) => cardControlEventHandlers.onCardAppend(ev, cardInfo)}
+        >
+          +
+        </button>
+        <button
+          class="button_style_reset plus_minus_button"
+          disabled={deckCardTree[getDeckCardKind(cardInfo)].every((_info) => _info.name !== cardInfo.name)}
+          title={cardInfo.isImplemented ? "※shiftキー同時押しで一括外し" : ""}
+          on:click={(ev) => cardControlEventHandlers.onCardRemove(ev, cardInfo)}
+        >
+          -
+        </button>
+      </div>
     </div>
     <div class="duel_card_info_body">
       {#if cardInfo.monsterCategories?.includes("Pendulum")}
@@ -81,6 +105,7 @@
       <div class="duel_card_info_row description">
         <div><pre class="description">{cardInfo.description}</pre></div>
       </div>
+
       {#if cardInfo.isOldVersion}
         <div class="duel_card_info_row">
           <div>※エラッタ前カードです</div>
@@ -130,7 +155,6 @@
   }
   .duel_card_info_header {
     position: sticky;
-
     background: inherit;
     top: 0;
   }
@@ -181,5 +205,37 @@
   }
   .duel_card_info_row > div {
     margin: 0 0.3rem;
+  }
+
+  .plus_minus_button_area {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+  }
+
+  .plus_minus_button {
+    background-color: #ffffff;
+    font-size: 1.5rem;
+    font-weight: 1000;
+    line-height: 0;
+    padding: 1em;
+    text-decoration: none;
+    color: #67c5ff;
+    border: solid 0.2rem #67c5ff;
+    border-radius: 3px;
+    transition: 0.4s;
+    margin: 0.1rem 0.3rem;
+  }
+  .plus_minus_button:hover {
+    background: #67c5ff;
+    color: white;
+  }
+  .plus_minus_button:disabled {
+    filter: grayscale(90);
+    transition: 0s;
+    color: #67c5ff;
+    background-color: red;
+    cursor: not-allowed;
   }
 </style>

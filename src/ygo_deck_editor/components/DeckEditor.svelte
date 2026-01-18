@@ -20,8 +20,8 @@
   };
   type Position = { clientX: number; clientY: number };
   type CardControlEvArg = { shiftKey?: boolean; ctrlKey?: boolean } & (
-    | { clientX: number; clientY: number; changedTouches?: undefined }
-    | { changedTouches: TouchList }
+    | { clientX: number; clientY: number; changedTouches?: undefined; preventDefault?: () => void }
+    | { changedTouches: TouchList; preventDefault?: () => void }
   );
   export type CardControlEventHandlers = {
     onCardAppend: (ev: CardControlEvArg, cardInfo: CardInfoJson) => void;
@@ -239,14 +239,16 @@
         onCardDragCancel();
         return;
       }
-
+      if (ev.preventDefault) {
+        ev.preventDefault();
+      }
       const __draggedCard = draggedCard || _draggedCard;
       canDropToDeck = Boolean(
         __draggedCard.from === "List" &&
           __draggedCard.cardInfo.isImplemented &&
           document
             .elementsFromPoint(pos.clientX, pos.clientY)
-            .some((element) => element.classList.contains("deck_editor_body_right_body") || element.classList.contains("deck_editor_body_right_dummy"))
+            .some((element) => element.classList.contains("deck_editor_body_right_body") || element.classList.contains("deck_editor_body_right_dummy")),
       );
       if (canDropToDeck) {
         main_view_mode = "DeckEdit";
@@ -310,7 +312,7 @@
             }
             return cardInfo;
           })
-          .filter((i) => i !== undefined)
+          .filter((i) => i !== undefined),
       ),
     };
   };
@@ -390,7 +392,7 @@
       `コピー日時：${new Date().formatToYYYYMMDD_HHMMSS("-", " ", ":")}`,
       Object.values(tmpDeck.cardTree)
         .flatMap((a) => a)
-        .map((info) => info.name)
+        .map((info) => info.name),
     );
     newDeck.saveDeckInfo();
     reloadAllDeckInfo();

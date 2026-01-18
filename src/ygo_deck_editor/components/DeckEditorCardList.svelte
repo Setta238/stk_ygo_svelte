@@ -53,7 +53,7 @@
       cardSorter(
         left,
         right,
-        searchCondition?.sort.filter((sortItem) => sortItem.priority > 0).toSorted((l, r) => l.priority - r.priority)
+        searchCondition?.sort.filter((sortItem) => sortItem.priority > 0).toSorted((l, r) => l.priority - r.priority),
       );
     _kinds.forEach((kind) => cardTree[kind].sort(_cardSorter));
   };
@@ -304,6 +304,7 @@
   .deck_editor_card_kind_body ul {
     position: absolute;
     transition: 0.5s linear; /* アニメーションの設定 */
+    padding-right: 0.3rem;
     height: 100%;
     width: 100%;
     top: 0;

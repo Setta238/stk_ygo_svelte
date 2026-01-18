@@ -19,9 +19,9 @@
     sort: TSortSetting;
   };
   type Position = { clientX: number; clientY: number };
-  type CardControlEvArg = { shiftKey?: boolean; ctrlKey?: boolean } & (
-    | { clientX: number; clientY: number; changedTouches?: undefined; preventDefault?: () => void }
-    | { changedTouches: TouchList; preventDefault?: () => void }
+  type CardControlEvArg = { shiftKey?: boolean; ctrlKey?: boolean; preventDefault?: () => void; stopPropagation: () => void } & (
+    | { clientX: number; clientY: number; changedTouches?: undefined }
+    | { changedTouches: TouchList }
   );
   export type CardControlEventHandlers = {
     onCardAppend: (ev: CardControlEvArg, cardInfo: CardInfoJson) => void;
@@ -231,6 +231,9 @@
     onCardDragging: (ev, from) => {
       if (draggedCard && ev.preventDefault) {
         ev.preventDefault();
+      }
+      if (draggedCard && ev.stopPropagation) {
+        ev.stopPropagation();
       }
       if (!_draggedCard) {
         onCardDragCancel();

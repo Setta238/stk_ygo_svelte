@@ -229,6 +229,9 @@
       canDropToDeck = false;
     },
     onCardDragging: (ev, from) => {
+      if (draggedCard && ev.preventDefault) {
+        ev.preventDefault();
+      }
       if (!_draggedCard) {
         onCardDragCancel();
         return;
@@ -238,9 +241,6 @@
       if (!pos) {
         onCardDragCancel();
         return;
-      }
-      if (draggedCard && ev.preventDefault) {
-        ev.preventDefault();
       }
       const __draggedCard = draggedCard || _draggedCard;
       canDropToDeck = Boolean(

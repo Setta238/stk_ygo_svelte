@@ -239,7 +239,7 @@
         onCardDragCancel();
         return;
       }
-      if (ev.preventDefault) {
+      if (draggedCard && ev.preventDefault) {
         ev.preventDefault();
       }
       const __draggedCard = draggedCard || _draggedCard;

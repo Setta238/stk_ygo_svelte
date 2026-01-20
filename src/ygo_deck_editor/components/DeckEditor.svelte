@@ -1024,7 +1024,7 @@
   }
   .deck_editor_search_box_row input[type="number"],
   .deck_editor_search_box_row input[type="text"] {
-    font-size: max(0.8rem 16px);
+    font-size: max(0.8rem, 16px);
   }
   .deck_editor_search_box_row .star_range input[type="number"] {
     width: 3em;
@@ -1130,7 +1130,7 @@
     font-weight: bolder;
   }
   .deck_editor_body_right_header_row input[type="text"] {
-    font-size: max(0.8rem 16px);
+    font-size: max(0.8rem, 16px);
   }
   .deck_editor_body_right_header_row select {
     font-size: 0.8rem;
@@ -1144,7 +1144,7 @@
   }
 
   .screen_size_compact.main_view_mode_searchcondition .deck_editor_body_left * {
-    font-size: max(1.5rem 16px) !important;
+    font-size: max(1.5rem, 16px) !important;
   }
   .screen_size_compact.main_view_mode_searchcondition .deck_editor_body_right {
     min-width: 5%;

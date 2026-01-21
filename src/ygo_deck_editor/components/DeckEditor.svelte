@@ -36,7 +36,7 @@
 <script lang="ts">
   import { cardDefinitionsPrms, loadTextData } from "@ygo/class/CardInfo";
   import { DeckInfo } from "@ygo/class/DeckInfo";
-  import DeckEditorCardList from "./DeckEditorCardList.svelte";
+  import DeckEditorCardAccordions from "./DeckEditorCardAccordions.svelte";
   import DeckEditorCardDetail from "./DeckEditorCardDetail.svelte";
   import {
     cardSorter,
@@ -652,7 +652,7 @@
         {#await cardDefinitionsPrms}
           <div>カード情報読込中</div>
         {:then cardInfo}
-          <DeckEditorCardList
+          <DeckEditorCardAccordions
             mode="List"
             allCardTree={cardInfo.tree}
             {onAttention}
@@ -718,7 +718,7 @@
             </div>
           </div>
           <div class="deck_editor_body_right_body {canDropToDeck ? 'can_drop' : ''}">
-            <DeckEditorCardList
+            <DeckEditorCardAccordions
               mode="Deck"
               allCardTree={{ ExtraMonster: [], Monster: [], Spell: [], Trap: [] }}
               bind:deckCardTree={tmpDeck.cardTree}
@@ -963,6 +963,7 @@
     padding: 0.2rem;
     margin: 0.4rem 1rem 0.4rem 0.4rem;
     transition: 0.1s;
+    max-height: unset;
   }
   .deck_editor_search_box_row > div:first-child {
     margin: auto 0rem;

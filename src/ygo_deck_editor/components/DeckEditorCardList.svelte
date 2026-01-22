@@ -24,8 +24,15 @@
           _liHeight = uList.scrollHeight / qty;
           liHeight = Math.ceil(_liHeight);
         }
-        // 最後に表示される分の高さについては、小数点以下を気にする必要がある
-        ulHeight = liHeight * (cardList.length - qtyDiff * 2) + Math.ceil(_liHeight * (qtyDiff * 2 - 1));
+        console.log(state, cardList.length);
+
+        if (cardList.length > qtyDiff) {
+          // 最後に表示される分の高さについては、小数点以下を気にする必要がある
+          // 最後のマイナス１によってほぼぴったりになるが、原因不明
+          ulHeight = liHeight * (cardList.length - qtyDiff * 2) + Math.ceil(_liHeight * (qtyDiff * 2 - 1));
+        } else {
+          ulHeight = liHeight * cardList.length;
+        }
       } else {
         indexUpperBound = cardList.length;
       }

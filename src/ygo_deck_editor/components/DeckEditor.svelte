@@ -502,7 +502,7 @@
             <div><button class="search_condition_title black_button" on:click={() => onResetSearchCondition(["deckCardKinds"])}>種類</button></div>
             <div>
               {#each deckCardKinds as key}
-                <label>
+                <label on:dblclick={(ev) => ondblclick(ev, "deckCardKinds", key)}>
                   <input type="checkbox" class="search_condition" value={key} bind:group={searchCondition.deckCardKinds} />
                   {deckCardKindDic[key]}
                 </label>
@@ -516,7 +516,7 @@
               </div>
               <div>
                 {#each exMonsterCategories as key}
-                  <label>
+                  <label on:dblclick={(ev) => ondblclick(ev, "exMonsterCategories", key)}>
                     <input type="checkbox" class="search_condition" value={key} bind:group={searchCondition.exMonsterCategories} />
                     {monsterCategoryEmojiDic[key]}{monsterCategoryDic[key]}
                   </label>
@@ -526,10 +526,12 @@
           {/if}
           {#if searchCondition.deckCardKinds.includes("Monster") || searchCondition.deckCardKinds.includes("ExtraMonster")}
             <div class="deck_editor_search_box_row monster_categories" transition:slide={{ delay: 0, duration: 100 }}>
-              <div><button class="search_condition_title black_button" on:click={() => onResetSearchCondition(["monsterCategories"])}>モンスター</button></div>
+              <div>
+                <button class="search_condition_title black_button" on:click={() => onResetSearchCondition(["monsterCategories"])}>モンスター</button>
+              </div>
               <div>
                 {#each monsterCategories.filter((cat) => !(exMonsterCategories as Readonly<string[]>).includes(cat)) as key}
-                  <label>
+                  <label on:dblclick={(ev) => ondblclick(ev, "exMonsterCategories", key)}>
                     <input type="checkbox" class="search_condition" value={key} bind:group={searchCondition.monsterCategories} />
                     {monsterCategoryEmojiDic[key]}{monsterCategoryDic[key]}
                   </label>
@@ -540,7 +542,7 @@
               <div><button class="search_condition_title black_button" on:click={() => onResetSearchCondition(["monsterAttributes"])}>属性</button></div>
               <div>
                 {#each monsterAttributes as key}
-                  <label>
+                  <label on:dblclick={(ev) => ondblclick(ev, "monsterAttributes", key)}>
                     <input type="checkbox" class="search_condition" value={key} bind:group={searchCondition.monsterAttributes} />
                     <div style="display: inline-block;" class="monster_attr {key}"></div>
                     {monsterAttributeDic[key]}
@@ -616,7 +618,7 @@
               <div><button class="search_condition_title black_button" on:click={() => onResetSearchCondition(["spellCategories"])}>魔法</button></div>
               <div>
                 {#each spellCategories.filter((sc) => sc !== "PendulumScale") as key}
-                  <label>
+                  <label on:dblclick={(ev) => ondblclick(ev, "spellCategories", key)}>
                     <input type="checkbox" class="search_condition" value={key} bind:group={searchCondition.spellCategories} />
                     {spellCategoryDic[key]}
                   </label>
@@ -629,7 +631,7 @@
               <div><button class="search_condition_title black_button" on:click={() => onResetSearchCondition(["trapCategories"])}>罠</button></div>
               <div>
                 {#each trapCategories as key}
-                  <label>
+                  <label on:dblclick={(ev) => ondblclick(ev, "trapCategories", key)}>
                     <input type="checkbox" class="search_condition" value={key} bind:group={searchCondition.trapCategories} />
                     {trapCategoryDic[key]}
                   </label>

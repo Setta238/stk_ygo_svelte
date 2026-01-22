@@ -579,9 +579,18 @@
               <div>
                 <div class="star_range">
                   <span>星</span>
-                  <input type="number" min="0" max="13" bind:value={searchCondition.starLowerBound} />
+
+                  <select bind:value={searchCondition.starLowerBound}>
+                    {#each Array(14) as _, i}
+                      <option value={i}>{i}</option>
+                    {/each}
+                  </select>
                   <span>～</span>
-                  <input type="number" min="0" max="13" bind:value={searchCondition.starUpperBound} />
+                  <select bind:value={searchCondition.starUpperBound}>
+                    {#each Array(14) as _, i}
+                      <option value={i}>{i}</option>
+                    {/each}
+                  </select>
                 </div>
                 <div class="atk_range">
                   <span>攻</span>
@@ -1027,8 +1036,11 @@
   .deck_editor_search_box_row input[type="text"] {
     font-size: max(0.8rem, 16px);
   }
-  .deck_editor_search_box_row .star_range input[type="number"] {
+  .deck_editor_search_box_row .star_range select {
     width: 3em;
+    font-size: max(0.8rem, 16px);
+    text-align: center;
+    padding: 2px;
   }
   .deck_editor_search_box_row .def_range input[type="number"],
   .deck_editor_search_box_row .atk_range input[type="number"] {

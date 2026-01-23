@@ -530,7 +530,7 @@
                 <button class="search_condition_title black_button" on:click={() => onResetSearchCondition(["monsterCategories"])}>モンスター</button>
               </div>
               <div>
-                {#each monsterCategories.filter((cat) => !(exMonsterCategories as Readonly<string[]>).includes(cat)) as key}
+                {#each monsterCategories.filter((cat) => !(exMonsterCategories as Readonly<string[]>).includes(cat)).filter((cat) => cat !== "Token") as key}
                   <label on:dblclick={(ev) => ondblclick(ev, "monsterCategories", key)}>
                     <input type="checkbox" class="search_condition" value={key} bind:group={searchCondition.monsterCategories} />
                     {monsterCategoryEmojiDic[key]}{monsterCategoryDic[key]}

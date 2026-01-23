@@ -531,7 +531,7 @@
               </div>
               <div>
                 {#each monsterCategories.filter((cat) => !(exMonsterCategories as Readonly<string[]>).includes(cat)) as key}
-                  <label on:dblclick={(ev) => ondblclick(ev, "exMonsterCategories", key)}>
+                  <label on:dblclick={(ev) => ondblclick(ev, "monsterCategories", key)}>
                     <input type="checkbox" class="search_condition" value={key} bind:group={searchCondition.monsterCategories} />
                     {monsterCategoryEmojiDic[key]}{monsterCategoryDic[key]}
                   </label>

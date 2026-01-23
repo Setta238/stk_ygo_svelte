@@ -24,7 +24,7 @@ export const deckCardKindDic: { [key in TDeckCardKind]: string } = {
   Trap: "罠",
 };
 
-export const getDeckCardKind = (cardInfo: CardInfoJson): TDeckCardKind =>
+export const getDeckCardKind = (cardInfo: EntityStatusBase): TDeckCardKind =>
   cardInfo.kind === "XyzMaterial"
     ? "Monster"
     : cardInfo.kind !== "Monster"
@@ -429,7 +429,7 @@ export const linkArrowNameDic = linkArrowKeys.reduce(
     wip[linkArrowDic[key].name] = key;
     return wip;
   },
-  {} as { [name in string]: TLinkArrowKey }
+  {} as { [name in string]: TLinkArrowKey },
 );
 
 export const getMonsterType = (text: string): TMonsterType | undefined => {
@@ -518,7 +518,7 @@ export const cardSorter = (left: EntityStatusBase, right: EntityStatusBase, sort
       .map(
         (sortItem) =>
           (sortItem.key === "name" ? left.name.localeCompare(right.name, "Ja") : _left[sortItem.key] - _right[sortItem.key]) *
-          (sortItem.order === "asc" ? 1 : -1)
+          (sortItem.order === "asc" ? 1 : -1),
       )
       .find((result) => result) ?? left.name.localeCompare(right.name, "Ja")
   );
@@ -625,5 +625,5 @@ export const createCardTree = (cardInfos: CardInfoJson[]): CardTree =>
         Monster: [],
         Spell: [],
         Trap: [],
-      } as CardTree
+      } as CardTree,
     );

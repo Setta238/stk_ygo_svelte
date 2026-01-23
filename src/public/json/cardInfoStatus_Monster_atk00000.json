@@ -1007,7 +1007,8 @@
     null,
     [
       "Ritual",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -1075,7 +1076,8 @@
     null,
     [
       "Fusion",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -2955,7 +2957,8 @@
     null,
     [
       "Fusion",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -3042,7 +3045,8 @@
     null,
     [
       "Fusion",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -3906,6 +3910,7 @@
     [
       "Fusion",
       "Effect",
+      "SpecialSummon",
       "RegularSpecialSummonOnly"
     ],
     null,
@@ -4157,7 +4162,8 @@
     null,
     [
       "Fusion",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -4581,7 +4587,8 @@
     null,
     [
       "Fusion",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -4786,6 +4793,7 @@
     [
       "Fusion",
       "Effect",
+      "SpecialSummon",
       "RegularSpecialSummonOnly"
     ],
     null,
@@ -4997,7 +5005,8 @@
     ],
     [
       "Fusion",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -5195,7 +5204,8 @@
     null,
     [
       "Fusion",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -7015,7 +7025,8 @@
     null,
     [
       "Synchro",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -7471,7 +7482,8 @@
     null,
     [
       "Synchro",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -7891,7 +7903,8 @@
     null,
     [
       "Synchro",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -7961,7 +7974,8 @@
     null,
     [
       "Fusion",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -10370,7 +10384,8 @@
     null,
     [
       "Synchro",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -11342,7 +11357,8 @@
     null,
     [
       "Synchro",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -11673,7 +11689,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -12226,7 +12243,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -13109,7 +13127,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -13134,7 +13153,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -13157,7 +13177,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -13249,7 +13270,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -13275,7 +13297,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -13745,7 +13768,8 @@
     null,
     [
       "Synchro",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -13909,7 +13933,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -13934,7 +13959,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -13959,7 +13985,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -13984,7 +14011,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -14007,7 +14035,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -14233,7 +14262,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -14369,7 +14399,8 @@
     null,
     [
       "Synchro",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -14783,7 +14814,8 @@
     null,
     [
       "Synchro",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -14805,7 +14837,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -15104,7 +15137,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -15130,7 +15164,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -15155,7 +15190,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -15182,7 +15218,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -15272,7 +15309,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -15318,7 +15356,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -15436,7 +15475,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -15657,7 +15697,8 @@
     null,
     [
       "Synchro",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -15967,7 +16008,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -16346,6 +16388,7 @@
     [
       "Fusion",
       "Effect",
+      "SpecialSummon",
       "RegularSpecialSummonOnly"
     ],
     null,
@@ -16565,7 +16608,8 @@
     null,
     [
       "Fusion",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -16589,7 +16633,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -16613,6 +16658,7 @@
     [
       "Synchro",
       "Effect",
+      "SpecialSummon",
       "RegularSpecialSummonOnly"
     ],
     null,
@@ -16637,7 +16683,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -17257,6 +17304,7 @@
     [
       "Fusion",
       "Effect",
+      "SpecialSummon",
       "RegularSpecialSummonOnly"
     ],
     null,
@@ -17353,7 +17401,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -17613,7 +17662,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -18050,7 +18100,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -18073,7 +18124,8 @@
     null,
     [
       "Synchro",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -18097,7 +18149,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -18343,6 +18396,7 @@
     [
       "Synchro",
       "Effect",
+      "SpecialSummon",
       "RegularSpecialSummonOnly"
     ],
     null,
@@ -18367,7 +18421,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -18392,7 +18447,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -19306,7 +19362,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -19332,7 +19389,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -19796,7 +19854,8 @@
     [
       "Synchro",
       "Tuner",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -20253,7 +20312,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -20278,7 +20338,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -20303,7 +20364,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -20328,7 +20390,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -20450,7 +20513,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -20525,7 +20589,8 @@
     [
       "Synchro",
       "Tuner",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -20846,7 +20911,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -20871,7 +20937,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -20896,7 +20963,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -20968,7 +21036,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -21545,7 +21614,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -21594,7 +21664,8 @@
     null,
     [
       "Fusion",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -22008,7 +22079,8 @@
     null,
     [
       "Fusion",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -22221,7 +22293,8 @@
     null,
     [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -22250,7 +22323,8 @@
     null,
     [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -22277,7 +22351,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -22383,7 +22458,8 @@
     null,
     [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -22544,7 +22620,8 @@
     null,
     [
       "Synchro",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -22568,7 +22645,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -22860,7 +22938,8 @@
     null,
     [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -22982,7 +23061,8 @@
     null,
     [
       "Synchro",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -23217,7 +23297,8 @@
     null,
     [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -23290,7 +23371,8 @@
     null,
     [
       "Ritual",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -23404,7 +23486,8 @@
     null,
     [
       "Fusion",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -23428,7 +23511,8 @@
     null,
     [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -23898,7 +23982,8 @@
     null,
     [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -24161,7 +24246,8 @@
     [
       "Synchro",
       "Tuner",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -24185,7 +24271,8 @@
     null,
     [
       "Synchro",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -24234,6 +24321,7 @@
     [
       "Fusion",
       "Effect",
+      "SpecialSummon",
       "RegularSpecialSummonOnly"
     ],
     null,
@@ -24260,7 +24348,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -24641,7 +24730,8 @@
     null,
     [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -24670,7 +24760,8 @@
     null,
     [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -24702,7 +24793,8 @@
     null,
     [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -24729,7 +24821,8 @@
     null,
     [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -25210,7 +25303,8 @@
     null,
     [
       "Synchro",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -25232,7 +25326,8 @@
     null,
     [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -25262,7 +25357,8 @@
     null,
     [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -25545,7 +25641,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -25832,7 +25929,8 @@
     null,
     [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -26002,7 +26100,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -26232,7 +26331,8 @@
     null,
     [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -26331,7 +26431,8 @@
     null,
     [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -26361,7 +26462,8 @@
     null,
     [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -26564,7 +26666,8 @@
     null,
     [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -27175,7 +27278,8 @@
     null,
     [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -27205,7 +27309,8 @@
     null,
     [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -27234,7 +27339,8 @@
     null,
     [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -27333,7 +27439,8 @@
     ],
     [
       "Fusion",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -27619,7 +27726,8 @@
     null,
     [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -27646,7 +27754,8 @@
     null,
     [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -27674,7 +27783,8 @@
     null,
     [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -27703,7 +27813,8 @@
     null,
     [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -27870,7 +27981,8 @@
     null,
     [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -27898,7 +28010,8 @@
     null,
     [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -28042,7 +28155,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -28068,7 +28182,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -28410,7 +28525,8 @@
     null,
     [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -28532,7 +28648,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -28557,7 +28674,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -28875,7 +28993,8 @@
     [
       "Synchro",
       "Tuner",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -29266,7 +29385,8 @@
     null,
     [
       "Fusion",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -29290,7 +29410,8 @@
     null,
     [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -29616,7 +29737,8 @@
     null,
     [
       "Fusion",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -29642,7 +29764,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -29709,7 +29832,8 @@
     null,
     [
       "Fusion",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -29733,7 +29857,8 @@
     null,
     [
       "Fusion",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -29757,7 +29882,8 @@
     null,
     [
       "Fusion",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -30184,7 +30310,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -30263,7 +30390,8 @@
     null,
     [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -30341,7 +30469,8 @@
     null,
     [
       "Synchro",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -30547,7 +30676,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -30639,7 +30769,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -30710,7 +30841,8 @@
     null,
     [
       "Ritual",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -31319,7 +31451,8 @@
     [
       "Ritual",
       "Tuner",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -31343,7 +31476,8 @@
     null,
     [
       "Fusion",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -31365,7 +31499,8 @@
     null,
     [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -31442,7 +31577,8 @@
     null,
     [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -31471,7 +31607,8 @@
     null,
     [
       "Ritual",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -31542,7 +31679,8 @@
     null,
     [
       "Ritual",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -31566,7 +31704,8 @@
     ],
     [
       "Synchro",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -31660,7 +31799,8 @@
     null,
     [
       "Fusion",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -32242,7 +32382,8 @@
     null,
     [
       "Fusion",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -32612,7 +32753,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -32656,7 +32798,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -32704,6 +32847,7 @@
     [
       "Fusion",
       "Effect",
+      "SpecialSummon",
       "RegularSpecialSummonOnly"
     ],
     null,
@@ -32978,7 +33122,8 @@
     null,
     [
       "Fusion",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -33067,7 +33212,8 @@
     null,
     [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -33478,7 +33624,8 @@
     null,
     [
       "Fusion",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -33500,7 +33647,8 @@
     null,
     [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -33552,7 +33700,8 @@
     null,
     [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -33644,7 +33793,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -33828,7 +33978,8 @@
     null,
     [
       "Fusion",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -33895,7 +34046,8 @@
     null,
     [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -34118,7 +34270,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -34143,7 +34296,8 @@
     null,
     [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -34259,7 +34413,8 @@
     [
       "Synchro",
       "Tuner",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -34440,7 +34595,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -34463,7 +34619,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -34486,7 +34643,8 @@
     null,
     [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -34563,7 +34721,8 @@
     null,
     [
       "Xyz",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -34630,7 +34789,8 @@
     null,
     [
       "Ritual",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -34957,7 +35117,8 @@
     [
       "Synchro",
       "Tuner",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -34980,7 +35141,8 @@
     [
       "Synchro",
       "Tuner",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -35093,7 +35255,8 @@
     null,
     [
       "Synchro",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -35115,7 +35278,8 @@
     null,
     [
       "Link",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -35165,7 +35329,8 @@
     null,
     [
       "Fusion",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -35190,7 +35355,8 @@
     null,
     [
       "Fusion",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,
@@ -35258,7 +35424,8 @@
     null,
     [
       "Synchro",
-      "Effect"
+      "Effect",
+      "SpecialSummon"
     ],
     null,
     null,

@@ -43,13 +43,11 @@
   // 監視する変数ごとにラベルを分ける
 
   // デッキ内のカードの監視
-  let oldCardTree: CardTree = structuredClone(cardTree);
+  let oldCardTree: CardTree = mode === "Deck" ? structuredClone(cardTree) : { ExtraMonster: [], Monster: [], Spell: [], Trap: [] };
   $: {
     if (mode === "Deck") {
       getKeys(cardTree).forEach((key) => (cardTree[key] = deckCardTree[key]));
-      if (!cardTree[selectedDeckCardKind].length) {
-        selectedDeckCardKind = getKeys(cardTree).find((key) => cardTree[key].find(filter)) ?? "ExtraMonster";
-      } else {
+      if (cardTree[selectedDeckCardKind].length) {
         const target = getKeys(cardTree)
           .map((kind) => ({ kind, cardInfos: cardTree[kind] }))
           .filter(({ cardInfos }) => cardInfos.length)
@@ -57,6 +55,8 @@
         if (target && selectedDeckCardKind !== target.kind) {
           selectedDeckCardKind = target.kind;
         }
+      } else {
+        selectedDeckCardKind = getKeys(cardTree).find((key) => cardTree[key].find(filter)) ?? "ExtraMonster";
       }
       // 監視用の変数を置き換え
       oldCardTree = structuredClone(cardTree);
@@ -177,51 +177,49 @@
   {#each deckCardKinds as deckCardKind, deckCardKindIndex}
     {@const branch2 = cardTree[deckCardKind].filter(filter)}
     <div class="deck_editor_card_kind deckCardKind {deckCardKind === selectedDeckCardKind ? 'selected' : ''} {branch2.length ? '' : 'empty'}">
-      {#if branch2.length}
-        <!-- svelte-ignore a11y_click_events_have_key_events -->
-        <!-- svelte-ignore a11y_no_static_element_interactions -->
-        <div
-          class="deck_editor_card_kind_header"
-          on:click={() => {
-            if (selectedDeckCardKind !== deckCardKind) {
-              selectedDeckCardKind = deckCardKind;
-              return;
-            }
-            selectedDeckCardKind =
-              deckCardKinds
-                .map((_, index) => index + deckCardKindIndex)
-                .map((index) => index % deckCardKinds.length)
-                .map((index) => deckCardKinds[index])
-                .filter((key) => key !== deckCardKind)
-                .find((key) => cardTree[key].find(filter)) ?? deckCardKind;
-          }}
-        >
-          <div>
-            {deckCardKindDic[deckCardKind]}（{branch2.length.toLocaleString()}
-            {#if mode === "List"}
-              / {cardTree[deckCardKind].length.toLocaleString()}
-            {/if}
-            枚）
-          </div>
-          <div style="display: flex;">
-            {#if mode === "Deck" && branch2.length}
-              <div>
-                <button class="button_style_reset" on:click={(ev) => onClearButtonClick(ev, deckCardKind)}> クリア </button>
-              </div>
-            {/if}
-            <div class="triangle">▲</div>
-          </div>
+      <!-- svelte-ignore a11y_click_events_have_key_events -->
+      <!-- svelte-ignore a11y_no_static_element_interactions -->
+      <div
+        class="deck_editor_card_kind_header"
+        on:click={() => {
+          if (selectedDeckCardKind !== deckCardKind) {
+            selectedDeckCardKind = deckCardKind;
+            return;
+          }
+          selectedDeckCardKind =
+            deckCardKinds
+              .map((_, index) => index + deckCardKindIndex)
+              .map((index) => index % deckCardKinds.length)
+              .map((index) => deckCardKinds[index])
+              .filter((key) => key !== deckCardKind)
+              .find((key) => cardTree[key].some(filter)) ?? deckCardKind;
+        }}
+      >
+        <div>
+          {deckCardKindDic[deckCardKind]}（{branch2.length.toLocaleString()}
+          {#if mode === "List"}
+            / {cardTree[deckCardKind].length.toLocaleString()}
+          {/if}
+          枚）
         </div>
-        <div class="deck_editor_card_kind_body">
-          <DeckEditorCardList
-            {mode}
-            cardList={branch2}
-            {onAttention}
-            {cardControlEventHandlers}
-            state={selectedDeckCardKind === deckCardKind ? "Open" : "Close"}
-          />
+        <div style="display: flex;">
+          {#if mode === "Deck" && branch2.length}
+            <div>
+              <button class="button_style_reset" on:click={(ev) => onClearButtonClick(ev, deckCardKind)}> クリア </button>
+            </div>
+          {/if}
+          <div class="triangle">▲</div>
         </div>
-      {/if}
+      </div>
+      <div class="deck_editor_card_kind_body">
+        <DeckEditorCardList
+          {mode}
+          cardList={branch2}
+          {onAttention}
+          {cardControlEventHandlers}
+          state={selectedDeckCardKind === deckCardKind ? "Open" : "Close"}
+        />
+      </div>
     </div>
   {/each}
 </div>
@@ -277,12 +275,6 @@
   }
   .deck_editor_card_kind.selected {
     flex-grow: 1;
-  }
-  .deck_editor_card_kind.empty {
-    flex-shrink: 1;
-    height: 0;
-    margin: 0;
-    padding: 0;
   }
   .deck_editor_card_kind > * {
     margin-left: 1rem;

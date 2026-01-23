@@ -100,12 +100,11 @@
     defLowerBound: 0,
     defUpperBound: 5000,
     atkPlusDef: undefined,
-    others: ["test", "oldVersion", "implemented"],
+    others: ["oldVersion"],
     sort: [...defaultSortSetting],
   };
 
   const searchCondition = structuredClone(searchConditionDefaultValues);
-  searchCondition.others = ["oldVersion"];
   searchCondition.monsterCategories = ["Effect", "Tuner", "Pendulum"];
 
   let main_view_mode: "SearchCondition" | "DeckEdit" = "DeckEdit";

@@ -3,18 +3,16 @@ import {
   exMonsterCategories,
   specialSummonMonsterCategories,
   type TBattlePosition,
-  type CardInfoDescription,
   type TNonBattlePosition,
-  type EntityStatusBase,
-  entityFlexibleNumericStatusKeys,
-  type TEntityFlexibleNumericStatusKey,
-  type EntityNumericStatus,
+  monsterFlexibleNumericStatusKeys,
+  type TMonsterFlexibleNumericStatusKey,
+  type MonsterNumericStatus,
   cardSorter,
   type TCardKind,
   linkArrowDic,
   type LinkArrow,
   faceupBattlePositions,
-  type CardInfoJson,
+  type CardInfo,
 } from "@ygo/class/YgoTypes";
 
 import { Duel } from "@ygo_duel/class/Duel";
@@ -69,7 +67,7 @@ export type EntityStatus = {
   isSelectableForAttack: boolean;
   maxCounterQty: { [key in TCounterName]?: number };
   fusionSubstitute: boolean;
-} & Omit<EntityStatusBase, "kind">;
+} & Omit<CardInfo, "kind">;
 
 export type DuelEntityInfomation = {
   kind: TCardKind;
@@ -168,13 +166,6 @@ export type TDuelEntityCardType = (typeof duelEntityCardTypes)[number];
 export const duelEntityDammyTypes = ["Duelist", "Squatter"] as const;
 export type TDuelEntityDammyType = (typeof duelEntityDammyTypes)[number];
 export type TDuelEntityType = TDuelEntityCardType | TDuelEntityDammyType;
-export type TDuelEntityInfoDetail = {
-  name: string;
-  entityType: TDuelEntityType;
-  cardPlayList: Array<EntityAction<unknown>>;
-};
-export type TDuelEntityInfo = CardInfoDescription & TDuelEntityInfoDetail;
-
 export const cardEntitySorter = (left: DuelEntity, right: DuelEntity): number => {
   return cardSorter(left.origin, right.origin);
 };
@@ -373,7 +364,7 @@ export class DuelEntity {
     summonKind: TSummonKindCauseReason,
     movedAs: TDuelCauseReason[],
     actDefAttr: CardActionDefinitionAttrs & { entity: DuelEntity },
-    actionOwner: Duelist
+    actionOwner: Duelist,
   ): Promise<void> => {
     if (!items.length) {
       return;
@@ -480,7 +471,7 @@ export class DuelEntity {
       movedBy: DuelEntity | undefined;
       activator: Duelist | undefined;
     }[],
-    excludedList?: DuelEntity[]
+    excludedList?: DuelEntity[],
   ): Promise<DuelEntity[]> => {
     return DuelEntity.bringManyToSameCell(
       "Graveyard",
@@ -488,7 +479,7 @@ export class DuelEntity {
       items.map((item) => {
         return { ...item, face: "FaceUp", orientation: "Vertical" };
       }),
-      excludedList
+      excludedList,
     );
   };
 
@@ -503,7 +494,7 @@ export class DuelEntity {
       movedBy: DuelEntity | undefined;
       activator: Duelist | undefined;
     }[],
-    excludedList?: DuelEntity[]
+    excludedList?: DuelEntity[],
   ) => {
     await DuelEntity.moveMany(
       items.map((item) => {
@@ -516,7 +507,7 @@ export class DuelEntity {
           actionOwner: item.activator,
         };
       }),
-      excludedList
+      excludedList,
     );
     return items.map((item) => item.entity).filter((entity) => entity.cell.cellType === to);
   };
@@ -540,7 +531,7 @@ export class DuelEntity {
   };
 
   public readonly seq: number;
-  public readonly origin: CardInfoJson;
+  public readonly origin: CardInfo;
   public readonly entityType: TDuelEntityType;
   public readonly summonFilterBundle: SummonFilterBundle;
   public readonly procFilterBundle: ProcFilterBundle;
@@ -583,7 +574,7 @@ export class DuelEntity {
   public set status(newStatus) {
     this._status = { ...newStatus };
   }
-  private _numericStatus: EntityNumericStatus;
+  private _numericStatus: MonsterNumericStatus;
   public get numericStatus() {
     return this._numericStatus;
   }
@@ -600,14 +591,14 @@ export class DuelEntity {
     activator: Duelist,
     causedBy: DuelEntity,
     causedAs: ("AdvanceSummonRelease" | "ReleaseAsCost" | "ReleaseAsEffect" | "RitualMaterial")[],
-    action: EntityAction<T>
+    action: EntityAction<T>,
   ): boolean => !this.isInTrashCell && this.procFilterBundle.filter(causedAs, activator, causedBy, action, [this]);
 
   public readonly canBeSentToGraveyard = <T>(
     activator: Duelist,
     causedBy: DuelEntity,
     causedAs: "SendToGraveyardAsEffect" | "SendToGraveyardAsCost",
-    action: EntityAction<T>
+    action: EntityAction<T>,
   ): boolean => !this.status.willBeBanished && !this.status.willReturnToDeck && this.procFilterBundle.filter([causedAs], activator, causedBy, action, [this]);
 
   public get kind() {
@@ -845,7 +836,7 @@ export class DuelEntity {
     definition: EntityDefinition,
     face: TDuelEntityFace,
     orientation: TDuelEntityOrientation,
-    parent?: DuelEntity
+    parent?: DuelEntity,
   ) {
     this.seq = DuelEntity.nextEntitySeq++;
     this.counterHolder = new CounterHolder(this);
@@ -909,7 +900,7 @@ export class DuelEntity {
           isApplicableTo: () => true,
           summonKinds: summonKindCauseReasons,
           filter: definition.summonFilter,
-        })
+        }),
       );
     }
     if (definition.defaultStatus) {
@@ -922,7 +913,7 @@ export class DuelEntity {
           actionAttr: {},
           isApplicableTo: () => true,
           statusCalculator: () => definition.defaultStatus ?? {},
-        })
+        }),
       );
     }
     this.actions.push(...definition.actions.map((b) => EntityAction.createNew(this, b)));
@@ -974,7 +965,7 @@ export class DuelEntity {
       _movedAs,
       movedBy,
       actionOwner,
-      actionOwner
+      actionOwner,
     );
   };
 
@@ -986,7 +977,7 @@ export class DuelEntity {
     pos: TNonBattlePosition,
     movedAs: TDuelCauseReason[],
     movedBy?: DuelEntity,
-    actionOwner?: Duelist
+    actionOwner?: Duelist,
   ): Promise<void> => {
     this.moveAlone(this.cell, kind, pos === "FaceUp" ? "FaceUp" : "FaceDown", "Vertical", "Top", movedAs, movedBy, actionOwner, actionOwner);
   };
@@ -996,7 +987,7 @@ export class DuelEntity {
     kind: TCardKind,
     movedAs: TDuelCauseReason[],
     movedBy: DuelEntity,
-    actionOwner: Duelist
+    actionOwner: Duelist,
   ): Promise<void> => {
     await this.moveAlone(to, kind, "FaceDown", "Vertical", "Top", [...movedAs, "SpellTrapSet"], movedBy, actionOwner, actionOwner);
   };
@@ -1005,7 +996,7 @@ export class DuelEntity {
     kind: TCardKind,
     movedAs: TDuelCauseReason[],
     movedBy: DuelEntity,
-    actionOwner: Duelist
+    actionOwner: Duelist,
   ): Promise<void> => {
     await this.moveAlone(to, kind, "FaceUp", "Vertical", "Top", [...movedAs, "CardActivation"], movedBy, actionOwner, actionOwner);
   };
@@ -1014,7 +1005,7 @@ export class DuelEntity {
     kind: TCardKind,
     movedAs: TDuelCauseReason[],
     movedBy: DuelEntity,
-    actionOwner: Duelist
+    actionOwner: Duelist,
   ): Promise<void> => {
     await this.moveAlone(to, kind, "FaceUp", "Vertical", "Top", [...movedAs, "PutDirectly"], movedBy, actionOwner, actionOwner);
   };
@@ -1029,7 +1020,7 @@ export class DuelEntity {
   public readonly addToHand = async (
     movedAs: TDuelCauseReason[],
     movedBy: DuelEntity | undefined,
-    actionOwner: Duelist | undefined
+    actionOwner: Duelist | undefined,
   ): Promise<DuelFieldCell> => {
     return await this.moveAlone(this.owner.getHandCell(), this.origin.kind, "FaceDown", "Vertical", "Bottom", [...movedAs], movedBy, actionOwner, actionOwner);
   };
@@ -1040,7 +1031,7 @@ export class DuelEntity {
     movedAs: TDuelCauseReason[],
     actDefAttr: CardActionDefinitionAttrs & { entity: DuelEntity },
     actionOwner: Duelist,
-    chooser?: Duelist
+    chooser?: Duelist,
   ): Promise<void> => {
     return DuelEntity.summonMany([{ monster: this, dest: to, summoner: chooser ?? actionOwner, pos }], summonKind, movedAs, actDefAttr, actionOwner);
   };
@@ -1051,7 +1042,7 @@ export class DuelEntity {
     pos: TDuelEntityMovePos,
     movedAs: TDuelCauseReason[],
     movedBy: DuelEntity,
-    actionOwner: Duelist
+    actionOwner: Duelist,
   ): Promise<void> => {
     await this.moveAlone(to, this.origin.kind, face, orientation, pos, ["Rule", ...movedAs], movedBy, actionOwner, actionOwner);
   };
@@ -1068,7 +1059,7 @@ export class DuelEntity {
     movedAs: TDuelCauseReason[],
     movedBy: DuelEntity | undefined,
     actionOwner: Duelist | undefined,
-    chooser: Duelist | undefined
+    chooser: Duelist | undefined,
   ): Promise<DuelFieldCell> => {
     await DuelEntity.moveMany([{ entity: this, to, kind, face, orientation, pos, movedAs, movedBy, actionOwner, chooser }], undefined);
     return this.cell;
@@ -1248,14 +1239,14 @@ export class DuelEntity {
       status: Readonly<EntityStatus>;
       info: Readonly<DuelEntityInfomation>;
       cell: DuelFieldCell;
-    }>
+    }>,
   ) => {
     for (const immdAct of [this, ...this.field.getCardsOnFieldStrictly()]
       .getDistinct()
       .filter((card) => card.immediatelyActions.length)
       .toSorted(
         (left, right) =>
-          (left.hadArrivedToFieldAt()?.totalProcSeq ?? Number.MAX_SAFE_INTEGER) - (right.hadArrivedToFieldAt()?.totalProcSeq ?? Number.MAX_SAFE_INTEGER)
+          (left.hadArrivedToFieldAt()?.totalProcSeq ?? Number.MAX_SAFE_INTEGER) - (right.hadArrivedToFieldAt()?.totalProcSeq ?? Number.MAX_SAFE_INTEGER),
       )
       .flatMap((card) => card.immediatelyActions)) {
       await immdAct.execute(this, oldProps);
@@ -1320,12 +1311,12 @@ export class DuelEntity {
   };
 
   private readonly resetNumericStatus = () => {
-    const master = entityFlexibleNumericStatusKeys.reduce(
+    const master = monsterFlexibleNumericStatusKeys.reduce(
       (wip, key) => {
         wip[key] = this.origin[key];
         return wip;
       },
-      {} as { [key in TEntityFlexibleNumericStatusKey]: number | undefined }
+      {} as { [key in TMonsterFlexibleNumericStatusKey]: number | undefined },
     );
 
     this._numericStatus = {
@@ -1446,7 +1437,7 @@ const _canBeDoneSomethingByEffect = (
   procType: TProcType,
   activator: Duelist,
   causedBy: DuelEntity,
-  action: Partial<CardActionDefinitionAttrs>
+  action: Partial<CardActionDefinitionAttrs>,
 ): boolean => entity.canBeEffected(activator, causedBy, action) && entity.procFilterBundle.filter([procType], activator, causedBy, action, [entity]);
 
 DuelEntity.prototype.canBeTargetOfEffect = function <T>(chainBlockInfo: ChainBlockInfoBase<T>): boolean {
@@ -1457,7 +1448,7 @@ DuelEntity.prototype.canBeBanished = function (
   procType: TBanishProcType,
   activator: Duelist,
   causedBy: DuelEntity,
-  action: Partial<CardActionDefinitionAttrs>
+  action: Partial<CardActionDefinitionAttrs>,
 ): boolean {
   if (this.cell.cellType === "Banished") {
     return false;
@@ -1473,7 +1464,7 @@ DuelEntity.prototype.validateDestroy = function (
   destroyType: TDestroyCauseReason,
   activator: Duelist,
   causedBy: DuelEntity,
-  action: Partial<CardActionDefinitionAttrs>
+  action: Partial<CardActionDefinitionAttrs>,
 ): boolean {
   let flg = this.procFilterBundle.filter([destroyType === "Battle" ? "BattleDestroy" : "EffectDestroy"], activator, causedBy, action ?? {}, [this]);
 
@@ -1541,7 +1532,7 @@ DuelEntity.prototype.hadArrivedToFieldAt = function (): IDuelClock {
 DuelEntity.prototype.release = async function (
   movedAs: TDuelCauseReason[],
   movedBy: DuelEntity | undefined,
-  movedByWhom: Duelist | undefined
+  movedByWhom: Duelist | undefined,
 ): Promise<DuelFieldCell | undefined> {
   await this.sendToGraveyard([...movedAs, "Release"], movedBy, movedByWhom);
   return this.info.isVanished ? undefined : this.cell;
@@ -1554,7 +1545,7 @@ DuelEntity.prototype.ruleDestroy = async function (): Promise<DuelFieldCell | un
 DuelEntity.prototype.sendToGraveyard = async function (
   movedAs: TDuelCauseReason[],
   movedBy: DuelEntity | undefined,
-  activator: Duelist | undefined
+  activator: Duelist | undefined,
 ): Promise<void> {
   await DuelEntityShortHands.sendManyToGraveyardForTheSameReason([this], movedAs, movedBy, activator);
 };
@@ -1565,7 +1556,7 @@ DuelEntity.prototype.returnToDeck = async function (
   pos: TDuelEntityMovePos,
   movedAs: TDuelCauseReason[],
   movedBy: DuelEntity | undefined,
-  activator: Duelist | undefined
+  activator: Duelist | undefined,
 ): Promise<void> {
   await DuelEntityShortHands.returnManyToDeckForTheSameReason(pos, [this], movedAs, movedBy, activator);
 };

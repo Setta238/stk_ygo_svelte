@@ -1,4 +1,3 @@
-import { getKeys } from "@stk_utils/funcs/StkObjectUtils";
 import { isString } from "@stk_utils/funcs/StkStringUtils";
 
 export const deckTypes = ["Deck", "ExtraDeck"] as const;
@@ -24,12 +23,12 @@ export const deckCardKindDic: { [key in TDeckCardKind]: string } = {
   Trap: "罠",
 };
 
-export const getDeckCardKind = (cardInfo: EntityStatusBase): TDeckCardKind =>
+export const getDeckCardKind = (cardInfo: CardInfo): TDeckCardKind =>
   cardInfo.kind === "XyzMaterial"
     ? "Monster"
     : cardInfo.kind !== "Monster"
       ? cardInfo.kind
-      : cardInfo.monsterCategories?.union(exMonsterCategories).length
+      : cardInfo.monsterCategories?.some((t) => exMonsterCategories.some((a) => t === a))
         ? "ExtraMonster"
         : "Monster";
 
@@ -161,48 +160,55 @@ export const battlePositionDic: { [key in TBattlePosition]: string } = {
 };
 export type TNonBattlePosition = "FaceUp" | "Set";
 
-export type CardInfoWiki = {
-  wikiName: string;
-  wikiHref: string;
-  wikiEncodedName: string;
-  wikiTextAll: string;
-};
-
 /**
  * 数値ステータスのキー
  */
-export const entityFlexibleNumericStatusKeys = ["level", "rank", "attack", "defense", "pendulumScaleR", "pendulumScaleL"] as const;
+export const monsterFlexibleNumericStatusKeys = ["level", "rank", "attack", "defense", "pendulumScaleR", "pendulumScaleL"] as const;
 /**
  * 数値ステータスのキー
  */
-export type TEntityFlexibleNumericStatusKey = (typeof entityFlexibleNumericStatusKeys)[number];
+export type TMonsterFlexibleNumericStatusKey = (typeof monsterFlexibleNumericStatusKeys)[number];
 /**
  * 数値ステータス
  */
-export type TEntityFlexibleNumericStatus = { [key in TEntityFlexibleNumericStatusKey]: number | undefined };
+export type TMonsterFlexibleNumericStatus = { [key in TMonsterFlexibleNumericStatusKey]: number | undefined };
 
 /**
  * 数値ステータスの世代（詳細はDuelNumericStateOperatorを参照）
  */
-export type TEntityFlexibleNumericStatusGen = "origin" | "wip" | "calculated";
+export type TMonsterFlexibleNumericStatusGen = "origin" | "wip" | "calculated";
 
 /**
  * 世代ごとの数値ステータス（詳細はDuelNumericStateOperatorを参照）
  */
-export type EntityNumericStatus = { [key in TEntityFlexibleNumericStatusGen]: TEntityFlexibleNumericStatus };
-/**
- * 変更されない、または変更されたとしても変更原因の状態を監視する必要がないステータス
- */
-export type EntityStaticStatus = {
-  /**
-   * モンスター・魔法・罠・エクシーズ素材
-   */
-  kind: TCardKind;
+export type MonsterNumericStatus = { [key in TMonsterFlexibleNumericStatusGen]: TMonsterFlexibleNumericStatus };
 
+export type CardInfo = {
   /**
    * コナミデータベースで振られているID
    */
   cardId?: number;
+  name: string;
+  /**
+   * モンスター・魔法・罠・エクシーズ素材
+   */
+  kind: TCardKind;
+  monsterCategories?: TMonsterCategory[];
+  spellCategory?: TSpellCategory;
+  trapCategory?: TTrapCategory;
+  nameTags?: string[];
+  /**
+   * 「テキストに～～が記された」で括られる場合
+   */
+  textTags?: string[];
+  attributes?: TMonsterAttribute[];
+  types?: TMonsterType[];
+  linkArrowKeys?: TLinkArrowKey[];
+
+  /**
+   * リンク数
+   */
+  link?: number;
   /**
    * テスト用カードのフラグ
    */
@@ -211,81 +217,14 @@ export type EntityStaticStatus = {
    * エラッタ前カードのフラグ
    */
   isOldVersion?: boolean;
-  /**
-   * リンク数
-   */
-  link?: number;
-  /**
-   * 「テキストに～～が記された」で括られる場合
-   */
-  textTags?: string[];
-};
-/**
- * 変更されたとき、変更原因の状態を監視する必要がある可能性があるステータス
- */
-export type EntityFlexibleStatus = {
-  name: string;
-  /**
-   * ※チューナー・効果モンスター・通常モンスターはスキドレによって変化する可能性がある
-   */
-  monsterCategories?: Array<TMonsterCategory>;
-  /**
-   * ※ここに置くのはちょっと微妙？
-   */
-  spellCategory?: TSpellCategory;
-  /**
-   * ※ここに置くのはちょっと微妙？
-   */
-  trapCategory?: TTrapCategory;
-  nameTags?: Array<string>;
-  attributes?: TMonsterAttribute[];
-  types?: TMonsterType[];
-};
-
-export type EntityStatusBase = {
-  name: string;
-  monsterCategories?: Array<TMonsterCategory>;
-  spellCategory?: TSpellCategory;
-  trapCategory?: TTrapCategory;
-  nameTags?: Array<string>;
-  attributes?: TMonsterAttribute[];
-  types?: TMonsterType[];
-  linkArrowKeys?: TLinkArrowKey[];
   isImplemented?: boolean;
-  wikiEncodedName?: string;
-} & EntityStaticStatus &
-  Partial<TEntityFlexibleNumericStatus> & {};
-export type CardInfoDescription = {
+
   nameKana?: string;
+  wikiEncodedName?: string;
   description?: string;
   pendulumDescription?: string;
-  wikiEncodedName?: string;
-};
+} & Partial<TMonsterFlexibleNumericStatus>;
 
-export type CardInfoJson = Partial<CardInfoWiki> & EntityStatusBase & CardInfoDescription;
-
-const _getSubsetAsEntityStatusBase = ({
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  wikiName,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  wikiHref,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  wikiTextAll,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  nameKana,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  description,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  pendulumDescription,
-  ...rest
-}: CardInfoJson): EntityStatusBase => {
-  return rest;
-};
-export const getSubsetAsEntityStatusBase = (json: CardInfoJson): EntityStatusBase => _getSubsetAsEntityStatusBase(json);
-
-export type CardInfoDeckEdit = CardInfoJson & {
-  isImplemented: true;
-};
 export const monsterTypeDic = {
   Aqua: "水",
   Beast: "獣",
@@ -435,7 +374,7 @@ export const linkArrowNameDic = linkArrowKeys.reduce(
 export const getMonsterType = (text: string): TMonsterType | undefined => {
   return (Object.entries(monsterTypeDic) as [TMonsterType, string][]).find((entry) => entry[1] === text)?.[0] || undefined;
 };
-export const getKonamiUrl = (status: EntityStatusBase) => {
+export const getKonamiUrl = (status: CardInfo) => {
   return (status.cardId ?? 0 > 0)
     ? `https://www.db.yugioh-card.com/yugiohdb/card_search.action?ope=2&cid=${status.cardId}`
     : `https://www.db.yugioh-card.com/yugiohdb/card_search.action?ope=1&sess=1&rp=10&mode=&sort=1&keyword=${status.name}&stype=1&ctype=&othercon=2&starfr=&starto=&pscalefr=&pscaleto=&linkmarkerfr=&linkmarkerto=&link_m=2&atkfr=&atkto=&deffr=&defto=&releaseDStart=1&releaseMStart=1&releaseYStart=1999&releaseDEnd=&releaseMEnd=&releaseYEnd=`;
@@ -460,14 +399,14 @@ export const defaultSortSetting: Readonly<TSortSetting> = [
   { key: "cardId", order: "asc", priority: 5 },
 ] as const;
 
-const getMonsterSortStatus = (status: EntityStatusBase) => ({
+const getMonsterSortStatus = (status: CardInfo) => ({
   star: status.link ?? status.rank ?? status.level ?? -1,
   attack: status.attack ?? -1,
   defense: status.defense ?? -1,
   cardId: status.cardId ?? Number.MAX_SAFE_INTEGER,
 });
 
-export const cardSorter = (left: EntityStatusBase, right: EntityStatusBase, sortSetting: TSortSetting = [...defaultSortSetting]): number => {
+export const cardSorter = (left: CardInfo, right: CardInfo, sortSetting: TSortSetting = [...defaultSortSetting]): number => {
   // エクストラデッキのモンスター＞メインデッキのモンスター＞魔法＞罠
 
   // まず種類（モンスター魔法罠）で順番を決める
@@ -524,7 +463,7 @@ export const cardSorter = (left: EntityStatusBase, right: EntityStatusBase, sort
   );
 };
 
-const validateCardDefinition = (definition: Object): definition is EntityStatusBase => {
+const validateCardDefinition = (definition: Object): definition is CardInfo => {
   const _definition = definition as { [key in string]: string | number | string[] | boolean | undefined };
 
   const requiredValidations = ["kind", "name"];
@@ -581,7 +520,7 @@ const validateCardDefinition = (definition: Object): definition is EntityStatusB
 
   return true;
 };
-export const convertToEntityStatusBase = (statusArray: (string | number | string[] | boolean | undefined)[]): EntityStatusBase => {
+export const convertToCardInfo = (statusArray: (string | number | string[] | boolean | undefined)[]): CardInfo => {
   statusArray.length = 18;
   const definition: { [key in string]: string | number | string[] | boolean | undefined } = {};
   let i = 0;
@@ -610,8 +549,8 @@ export const convertToEntityStatusBase = (statusArray: (string | number | string
   return definition;
 };
 
-export type CardTree = { [kind in TDeckCardKind]: (EntityStatusBase & CardInfoDescription)[] };
-export const createCardTree = (cardInfos: CardInfoJson[]): CardTree =>
+export type CardTree = { [kind in TDeckCardKind]: CardInfo[] };
+export const createCardTree = (cardInfos: CardInfo[]): CardTree =>
   cardInfos
     .filter((cardInfo) => cardInfo.kind !== "XyzMaterial")
     .reduce(

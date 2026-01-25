@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { type CardInfoJson } from "@ygo/class/YgoTypes";
+  import { type CardInfo } from "@ygo/class/YgoTypes";
   import type { CardControlEventHandlers } from "@ygo_deck_editor/components/DeckEditor.svelte";
   import DeckEditorCard from "@ygo_deck_editor/components/DeckEditorCard.svelte";
 
-  export let cardList: CardInfoJson[];
+  export let cardList: CardInfo[];
   export let mode: "List" | "Deck";
   export let state: "Open" | "Close";
-  export let onAttention: (cardInfo: CardInfoJson) => void;
+  export let onAttention: (cardInfo: CardInfo) => void;
   export let cardControlEventHandlers: CardControlEventHandlers;
 
   const qtyDiff = 20;

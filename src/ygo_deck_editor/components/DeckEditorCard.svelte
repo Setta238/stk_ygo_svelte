@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { monsterCategoryEmojiDic, monsterTypeEmojiDic, spellCategoryDic, trapCategoryDic, type CardInfoJson } from "@ygo/class/YgoTypes";
+  import { monsterCategoryEmojiDic, monsterTypeEmojiDic, spellCategoryDic, trapCategoryDic, type CardInfo } from "@ygo/class/YgoTypes";
   import type { CardControlEventHandlers } from "./DeckEditor.svelte";
   export let mode: "Deck" | "List" | "Dragging";
-  export let cardInfo: CardInfoJson;
-  export let onAttention: (cardInfo: CardInfoJson) => void;
+  export let cardInfo: CardInfo;
+  export let onAttention: (cardInfo: CardInfo) => void;
   export let cardControlEventHandlers: CardControlEventHandlers;
 </script>
 

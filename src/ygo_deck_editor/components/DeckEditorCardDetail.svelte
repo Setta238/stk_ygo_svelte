@@ -10,12 +10,12 @@
     monsterTypeEmojiDic,
     spellCategoryDic,
     trapCategoryDic,
-    type CardInfoJson,
+    type CardInfo,
     type CardTree,
   } from "@ygo/class/YgoTypes";
   import type { CardControlEventHandlers } from "./DeckEditor.svelte";
-  export let cardInfo: CardInfoJson | undefined = undefined;
-  export let onAttention: (cardInfo: CardInfoJson) => void;
+  export let cardInfo: CardInfo | undefined = undefined;
+  export let onAttention: (cardInfo: CardInfo) => void;
   export let cardControlEventHandlers: CardControlEventHandlers;
   export let deckCardTree: CardTree;
 </script>

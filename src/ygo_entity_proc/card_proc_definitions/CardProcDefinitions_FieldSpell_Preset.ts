@@ -1,7 +1,7 @@
 import { defaultContinuousSpellCardActivateAction, defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CardActions_Spell";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
-import type { TEntityFlexibleNumericStatusKey, TMonsterAttribute, TMonsterType } from "@ygo/class/YgoTypes";
+import type { TMonsterFlexibleNumericStatusKey, TMonsterAttribute, TMonsterType } from "@ygo/class/YgoTypes";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import { createBroadRegularNumericStateOperatorHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 
@@ -44,7 +44,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
       actions: [defaultContinuousSpellCardActivateAction, defaultSpellTrapSetAction],
       continuousEffects: [
         createBroadRegularNumericStateOperatorHandler("発動", "Spell", (source) => {
-          return (["attack", "defense"] as TEntityFlexibleNumericStatusKey[]).flatMap((state) => {
+          return (["attack", "defense"] as TMonsterFlexibleNumericStatusKey[]).flatMap((state) => {
             return (["up", "down"] as const).map((updown) => {
               return NumericStateOperator.createContinuous(
                 "発動",
@@ -66,7 +66,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
                     return current;
                   }
                   return current + (updown === "up" ? 200 : -200);
-                }
+                },
               );
             });
           });
@@ -107,7 +107,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
       actions: [defaultContinuousSpellCardActivateAction, defaultSpellTrapSetAction],
       continuousEffects: [
         createBroadRegularNumericStateOperatorHandler("発動", "Spell", (source) => {
-          return (["attack", "defense"] as TEntityFlexibleNumericStatusKey[]).flatMap((state) => {
+          return (["attack", "defense"] as TMonsterFlexibleNumericStatusKey[]).flatMap((state) => {
             return NumericStateOperator.createContinuous(
               "発動",
               (operator) => operator.isSpawnedBy.isOnFieldStrictly && operator.isSpawnedBy.face === "FaceUp",
@@ -124,7 +124,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
                   return current;
                 }
                 return current + (state === "attack" ? 500 : -400);
-              }
+              },
             );
           });
         }) as ContinuousEffectBase<unknown>,

@@ -24,9 +24,9 @@
     | { changedTouches: TouchList }
   );
   export type CardControlEventHandlers = {
-    onCardAppend: (ev: CardControlEvArg, cardInfo: CardInfoJson) => void;
-    onCardRemove: (ev: CardControlEvArg, cardInfo: CardInfoJson) => void;
-    onCardDragStart: (ev: CardControlEvArg, from: string, cardInfo: CardInfoJson) => void;
+    onCardAppend: (ev: CardControlEvArg, cardInfo: CardInfo) => void;
+    onCardRemove: (ev: CardControlEvArg, cardInfo: CardInfo) => void;
+    onCardDragStart: (ev: CardControlEvArg, from: string, cardInfo: CardInfo) => void;
     onCardDragging: (ev: CardControlEvArg, from: string) => void;
     onCardDragEnd: (ev: CardControlEvArg) => void;
     onCardDragCancel: (ev: CardControlEvArg) => void;
@@ -59,7 +59,7 @@
     spellCategoryDic,
     trapCategories,
     trapCategoryDic,
-    type CardInfoJson,
+    type CardInfo,
     type CardTree,
     type TDeckCardKind,
     type TMonsterAttribute,
@@ -150,7 +150,7 @@
   };
 
   // TODO : このあたりのCardControlEventHandlersのメソッド群を別モジュールに切り出そうとしたが、うまく動かなかった。要調査、要整理
-  let draggedCard: { from: "Deck" | "List"; cardInfo: CardInfoJson; pos: Position; startPos: Position } | undefined;
+  let draggedCard: { from: "Deck" | "List"; cardInfo: CardInfo; pos: Position; startPos: Position } | undefined;
   let _draggedCard: typeof draggedCard;
 
   let canDropToDeck = false;
@@ -161,7 +161,7 @@
     draggedCard = undefined;
     _draggedCard = undefined;
   };
-  const onCardAppend = (ev: CardControlEvArg, cardInfo: CardInfoJson) => {
+  const onCardAppend = (ev: CardControlEvArg, cardInfo: CardInfo) => {
     const deckCardKind = getDeckCardKind(cardInfo);
     const currentQty = tmpDeck.cardTree[deckCardKind].filter((_cardInfo) => _cardInfo.name === cardInfo.name).length;
     let qty = ev.shiftKey ? 3 - currentQty : 1;
@@ -175,7 +175,7 @@
     onCardDragCancel();
     onAttention(cardInfo);
   };
-  const onCardRemove = (ev: CardControlEvArg, cardInfo: CardInfoJson) => {
+  const onCardRemove = (ev: CardControlEvArg, cardInfo: CardInfo) => {
     const deckCardKind = getDeckCardKind(cardInfo);
     let count = 0;
     tmpDeck.cardTree[deckCardKind] = tmpDeck.cardTree[deckCardKind].filter((_cardInfo) => {
@@ -351,10 +351,10 @@
     } as CardTree,
   };
 
-  let selectedCardInfo: CardInfoJson | undefined = undefined;
+  let selectedCardInfo: CardInfo | undefined = undefined;
   let latestAttentionCardId = 0;
 
-  const onAttention = (_cardInfo: CardInfoJson) => {
+  const onAttention = (_cardInfo: CardInfo) => {
     left_pain_mode = "CardDetail";
     if (_cardInfo.cardId !== undefined && !_cardInfo.description && !_cardInfo.pendulumDescription) {
       latestAttentionCardId = _cardInfo.cardId;

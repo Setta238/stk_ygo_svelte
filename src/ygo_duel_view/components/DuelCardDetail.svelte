@@ -14,13 +14,13 @@
     monsterTypeEmojiDic,
     spellCategoryDic,
     trapCategoryDic,
-    type CardInfoJson,
+    type CardInfo,
   } from "@ygo/class/YgoTypes";
   import { DuelEntity } from "@ygo_duel/class/DuelEntity";
   export let entity: DuelEntity;
   export let mode: TCardDetailMode = "Normal";
 
-  let textDataPrms = new Promise<CardInfoJson | undefined>(() => {});
+  let textDataPrms = new Promise<CardInfo | undefined>(() => {});
   $: {
     textDataPrms = cardDefinitionsPrms.then(async (cardDefinitions) => {
       if (entity.origin.description || entity.origin.pendulumDescription || entity.origin.wikiEncodedName) {

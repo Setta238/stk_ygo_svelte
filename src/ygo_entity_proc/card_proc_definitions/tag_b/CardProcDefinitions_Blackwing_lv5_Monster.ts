@@ -7,7 +7,7 @@ import {
 } from "@ygo_entity_proc/card_actions/CardActions_Monster";
 import type { EntityDefinition, EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
-import { faceupBattlePositions, type TEntityFlexibleNumericStatusKey } from "@ygo/class/YgoTypes";
+import { faceupBattlePositions, type TMonsterFlexibleNumericStatusKey } from "@ygo/class/YgoTypes";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import {
   defaultPrepare,
@@ -48,9 +48,9 @@ const vagueShadowTokenDefinition: EntityDefinition = {
           source,
           () => true,
           ["AdvanceSummonRelease", "ReleaseAsEffect", "ReleaseAsCost"],
-          () => false
+          () => false,
         ),
-      ]
+      ],
     ),
   ],
   summonFilter: (filter, filterTarget, effectOwner, summoner, movedAs, attr, monster, materialInfos, posList, cells) => {
@@ -111,7 +111,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               };
             }),
             [],
-            false
+            false,
           );
           return list.length > 1 && list.flatMap((sc) => sc.cells).getDistinct().length > 1;
         },
@@ -137,7 +137,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               false,
               2,
               (summoned) => summoned.length == 2,
-              false
+              false,
             )) ?? [];
 
           return Boolean(summoned.length);
@@ -195,7 +195,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
                 myInfo.action,
                 monsters.filter((monster) => monster.lvl === lvl).map((monster) => ({ monster, cells, posList: faceupBattlePositions })),
                 [myInfo.action.entity, ...pattern].map((material) => ({ material, cell: material.cell })),
-                false
+                false,
               );
 
               if (list.length) {
@@ -238,11 +238,11 @@ export default function* generate(): Generator<EntityProcDefinition> {
               myInfo.action,
               monsters.filter((monster) => monster.lvl === lvl).map((monster) => ({ monster, cells, posList: faceupBattlePositions })),
               selected.map((material) => ({ material, cell: material.cell })),
-              false
+              false,
             );
             return Boolean(list.length);
           },
-          2
+          2,
         ),
         prepare: async (myInfo) => {
           const infos = myInfo.costInfo.banish;
@@ -283,7 +283,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
                 actionAttr: myInfo.action,
                 isApplicableTo: (operator, target) => target.isOnFieldAsMonsterStrictly && target.face === "FaceUp",
                 statusCalculator: (bundleOwner, operator, wipStatus) => ({ monsterCategories: ["Tuner", ...(wipStatus.monsterCategories ?? [])] }),
-              })
+              }),
             );
           });
 

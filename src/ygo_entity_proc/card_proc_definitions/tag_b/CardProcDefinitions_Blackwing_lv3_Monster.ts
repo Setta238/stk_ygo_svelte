@@ -6,7 +6,7 @@ import {
 } from "@ygo_entity_proc/card_actions/CardActions_Monster";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
-import { faceupBattlePositions, type TEntityFlexibleNumericStatusKey } from "@ygo/class/YgoTypes";
+import { faceupBattlePositions, type TMonsterFlexibleNumericStatusKey } from "@ygo/class/YgoTypes";
 import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { getSingleTargetActionPartical } from "@ygo_entity_proc/card_actions/CardActions";
 
@@ -60,7 +60,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           if (!target) {
             return false;
           }
-          (["attack", "defense"] as TEntityFlexibleNumericStatusKey[])
+          (["attack", "defense"] as TMonsterFlexibleNumericStatusKey[])
             .map((targetState) =>
               NumericStateOperator.createLingeringFixation(
                 "②攻守半減",

@@ -8,13 +8,13 @@ import {
 } from "@ygo_duel/class_continuous_effect/DuelStickyEffectOperatorBase";
 import { type Duel } from "@ygo_duel/class/Duel";
 import { DuelError } from "@ygo_duel/class_error/DuelError";
-import { entityFlexibleNumericStatusKeys, type TEntityFlexibleNumericStatusGen, type TEntityFlexibleNumericStatusKey } from "@ygo/class/YgoTypes";
+import { monsterFlexibleNumericStatusKeys, type TMonsterFlexibleNumericStatusGen, type TMonsterFlexibleNumericStatusKey } from "@ygo/class/YgoTypes";
 import type { CardActionDefinitionAttrs } from "../class/DuelEntityAction";
 
 export const stateOperationTypes = ["Addition", "Fixation", "THE_DEVILS_DREAD-ROOT", "THE_DEVILS_AVATAR", "Gradius'_Option"] as const;
 type TStateOperationType = (typeof stateOperationTypes)[number];
 
-const minValueDic: { [key in TEntityFlexibleNumericStatusKey]: number } = {
+const minValueDic: { [key in TMonsterFlexibleNumericStatusKey]: number } = {
   level: 1,
   rank: 1,
   attack: 0,
@@ -151,9 +151,9 @@ export class NumericStateOperatorBundle extends StickyEffectOperatorBundle<Numer
     this.calcStateAll();
   };
 
-  public readonly calcStateAll = (): void => entityFlexibleNumericStatusKeys.forEach(this.calcState);
+  public readonly calcStateAll = (): void => monsterFlexibleNumericStatusKeys.forEach(this.calcState);
 
-  public readonly calcState = (targetState: TEntityFlexibleNumericStatusKey): void => {
+  public readonly calcState = (targetState: TMonsterFlexibleNumericStatusKey): void => {
     if (!this.entity.isPendulumScale && !this.entity.isMonster) {
       this.entity.numericStatus.calculated[targetState] = undefined;
       return;
@@ -258,8 +258,8 @@ export class NumericStateOperatorBundle extends StickyEffectOperatorBundle<Numer
 }
 
 export type NumericStateOperatorArgs = StickyEffectOperatorArgs & {
-  targetState: TEntityFlexibleNumericStatusKey;
-  targetStateGen: TEntityFlexibleNumericStatusGen;
+  targetState: TMonsterFlexibleNumericStatusKey;
+  targetStateGen: TMonsterFlexibleNumericStatusGen;
   stateOperationType: TStateOperationType;
   calcValue: (spawner: DuelEntity, target: DuelEntity, current: number) => number;
 };
@@ -271,10 +271,10 @@ export class NumericStateOperator extends StickyEffectOperatorBase {
     validateAlive: (operator: StickyEffectOperatorBase) => boolean,
     isSpawnedBy: DuelEntity,
     isApplicableTo: (operator: StickyEffectOperatorBase, target: DuelEntity) => boolean,
-    targetState: TEntityFlexibleNumericStatusKey,
-    targetStateGen: TEntityFlexibleNumericStatusGen,
+    targetState: TMonsterFlexibleNumericStatusKey,
+    targetStateGen: TMonsterFlexibleNumericStatusGen,
     stateOperationType: TStateOperationType,
-    calcValue: (spawner: DuelEntity, target: DuelEntity, current: number) => number
+    calcValue: (spawner: DuelEntity, target: DuelEntity, current: number) => number,
   ) => {
     return new NumericStateOperator({
       title,
@@ -294,9 +294,9 @@ export class NumericStateOperator extends StickyEffectOperatorBase {
     validateAlive: (operator: StickyEffectOperatorBase) => boolean,
     isSpawnedBy: DuelEntity,
     actionAttr: Partial<CardActionDefinitionAttrs>,
-    targetState: TEntityFlexibleNumericStatusKey,
+    targetState: TMonsterFlexibleNumericStatusKey,
     stateOperationType: TStateOperationType,
-    calcValue: (spawner: DuelEntity, target: DuelEntity, current: number) => number
+    calcValue: (spawner: DuelEntity, target: DuelEntity, current: number) => number,
   ) => {
     return new NumericStateOperator({
       title,
@@ -316,8 +316,8 @@ export class NumericStateOperator extends StickyEffectOperatorBase {
     validateAlive: (operator: StickyEffectOperatorBase) => boolean,
     isSpawnedBy: DuelEntity,
     actionAttr: Partial<CardActionDefinitionAttrs>,
-    targetState: TEntityFlexibleNumericStatusKey,
-    calcValue: (spawner: DuelEntity, target: DuelEntity, current: number) => number
+    targetState: TMonsterFlexibleNumericStatusKey,
+    calcValue: (spawner: DuelEntity, target: DuelEntity, current: number) => number,
   ) => {
     return NumericStateOperator.createLingering(title, validateAlive, isSpawnedBy, actionAttr, targetState, "Fixation", calcValue);
   };
@@ -327,14 +327,14 @@ export class NumericStateOperator extends StickyEffectOperatorBase {
     validateAlive: (operator: StickyEffectOperatorBase) => boolean,
     isSpawnedBy: DuelEntity,
     actionAttr: Partial<CardActionDefinitionAttrs>,
-    targetState: TEntityFlexibleNumericStatusKey,
-    calcValue: (spawner: DuelEntity, target: DuelEntity, current: number) => number
+    targetState: TMonsterFlexibleNumericStatusKey,
+    calcValue: (spawner: DuelEntity, target: DuelEntity, current: number) => number,
   ) => {
     return NumericStateOperator.createLingering(title, validateAlive, isSpawnedBy, actionAttr, targetState, "Addition", calcValue);
   };
 
-  public readonly targetState: TEntityFlexibleNumericStatusKey;
-  public readonly targetStateGen: TEntityFlexibleNumericStatusGen;
+  public readonly targetState: TMonsterFlexibleNumericStatusKey;
+  public readonly targetStateGen: TMonsterFlexibleNumericStatusGen;
   public readonly stateOperationType: TStateOperationType;
   public readonly calcValue: (entity: DuelEntity, source: number) => number;
   private _isEffective: boolean;

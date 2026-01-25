@@ -1,4 +1,4 @@
-import { summonMonsterCategories, type CardInfoJson, type TBattlePosition } from "@ygo/class/YgoTypes";
+import { summonMonsterCategories, type CardInfo, type TBattlePosition } from "@ygo/class/YgoTypes";
 import type { ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import type { SummonFilter } from "@ygo_duel/class_continuous_effect/DuelSummonFilter";
 import type { CardActionDefinition as EntityActionDefinition, CardActionDefinitionAttrs, ChainBlockInfo, SummonMaterialInfo } from "./DuelEntityAction";
@@ -53,7 +53,7 @@ export type EntityProcDefinition = {
     materialInfos: SummonMaterialInfo[],
     posList: Readonly<TBattlePosition[]>,
     cells: DuelFieldCell[],
-    ignoreSummoningConditions: boolean
+    ignoreSummoningConditions: boolean,
   ) => {
     posList: Readonly<TBattlePosition[]>;
     cells: DuelFieldCell[];
@@ -66,7 +66,7 @@ export type EntityProcDefinition = {
 };
 
 export type EntityDefinition = EntityProcDefinition & {
-  staticInfo: CardInfoJson;
+  staticInfo: CardInfo;
 };
 
 export function* generateAllProcCardDefinitions(): Generator<EntityProcDefinition> {
@@ -121,7 +121,7 @@ export async function* generateCardDefinitions(...names: string[]): AsyncGenerat
 
             _definition.actions
               .filter(
-                (action) => action.fixedTags && action.fixedTags.some((tag) => tag.startsWith("SpecialSummon")) && !action.fixedTags.includes("SpecialSummon")
+                (action) => action.fixedTags && action.fixedTags.some((tag) => tag.startsWith("SpecialSummon")) && !action.fixedTags.includes("SpecialSummon"),
               )
               .forEach((action) => action.fixedTags?.push("SpecialSummon"));
             yield _definition;

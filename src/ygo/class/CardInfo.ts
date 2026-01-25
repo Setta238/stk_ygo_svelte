@@ -3,13 +3,13 @@ import json_test from "@ygo/json/cardInfo_test.json";
 import json_old_version from "@ygo/json/cardInfo_old_version.json";
 import jsonFileList from "@ygo/json/cardInfoFileList.json";
 
-import { cardSorter, convertToEntityStatusBase, createCardTree, type CardInfoDescription, type CardTree, type EntityStatusBase } from "@ygo/class/YgoTypes";
+import { cardSorter, convertToCardInfo, createCardTree, type CardInfo, type CardTree } from "@ygo/class/YgoTypes";
 import { generateAllProcCardDefinitions } from "@ygo_duel/class/DuelEntityDefinition";
 import { createPromiseSweet, delay } from "@stk_utils/funcs/StkPromiseUtil";
 import { isNumber } from "@stk_utils/funcs/StkMathUtils";
 
 const cardNames = new Set<string>();
-const fuga = { ...json_test, ...json_old_version, ...cardInfo_special } as unknown as { [name: string]: EntityStatusBase & CardInfoDescription };
+const fuga = { ...json_test, ...json_old_version, ...cardInfo_special } as unknown as { [name: string]: CardInfo };
 
 const cardDefinitions = {
   tree: {
@@ -22,15 +22,15 @@ const cardDefinitions = {
   definitionCount: 0,
   nonDefinitionCount: 0,
   testCardCount: 0,
-  getCardInfo: (name: string): (EntityStatusBase & CardInfoDescription) | undefined => undefined,
+  getCardInfo: (name: string): CardInfo | undefined => undefined,
 };
 
-const cardDefinitionsDic: { [name: string]: EntityStatusBase & CardInfoDescription } = {};
+const cardDefinitionsDic: { [name: string]: CardInfo } = {};
 const cardDefinitionsDicNarrow: typeof cardDefinitionsDic = {};
 
 cardDefinitions.getCardInfo = (name: string) => cardDefinitionsDic[name] ?? cardDefinitionsDicNarrow[name.toNarrow().replaceAll("－", "-")];
 
-const pushCardInfo = (info: EntityStatusBase & CardInfoDescription) => {
+const pushCardInfo = (info: CardInfo) => {
   if (!info) {
     throw new Error(info);
   }
@@ -105,7 +105,7 @@ const loadStatusData = async () => {
       const res = await fetch(url);
       console.info(`res=${res.status} ${res.statusText} ${res.url}`);
       const statusArray: (string | number | string | undefined)[][] = await res.json();
-      statusArray.map(convertToEntityStatusBase).forEach(pushCardInfo);
+      statusArray.map(convertToCardInfo).forEach(pushCardInfo);
       console.info(`${url} has been loaded.　elapsed time : ${new Date().getTime() - startAt}ms  `);
     }),
   );

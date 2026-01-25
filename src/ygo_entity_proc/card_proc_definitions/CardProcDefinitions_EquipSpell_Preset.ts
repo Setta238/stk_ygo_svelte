@@ -1,7 +1,7 @@
 import { defaultSpellTrapSetAction, getDefaultEquipSpellTrapAction } from "@ygo_entity_proc/card_actions/CardActions_Spell";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
-import type { TEntityFlexibleNumericStatusKey, TMonsterAttribute, TMonsterType } from "@ygo/class/YgoTypes";
+import type { TMonsterFlexibleNumericStatusKey, TMonsterAttribute, TMonsterType } from "@ygo/class/YgoTypes";
 import {
   createRegularNumericStateOperatorHandler as createRegularNumericStateOperatorHandler,
   type ContinuousEffectBase,
@@ -41,7 +41,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
       name: item.name,
       actions: [
         getDefaultEquipSpellTrapAction(
-          (monster) => (!item.attr || monster.attr.includes(item.attr)) && (!item.monType || monster.types.includes(item.monType))
+          (monster) => (!item.attr || monster.attr.includes(item.attr)) && (!item.monType || monster.types.includes(item.monType)),
         ),
         defaultSpellTrapSetAction,
       ],
@@ -51,7 +51,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           "Spell",
           (source) => (source.info.equipedBy ? [source.info.equipedBy] : []),
           (entity) => {
-            const targetStatus: [targetState: TEntityFlexibleNumericStatusKey, point: number][] = [];
+            const targetStatus: [targetState: TMonsterFlexibleNumericStatusKey, point: number][] = [];
             if (item.atk !== 0) {
               targetStatus.push(["attack", item.atk]);
             }
@@ -76,10 +76,10 @@ export default function* generate(): Generator<EntityProcDefinition> {
                     return current;
                   }
                   return current + point;
-                }
-              )
+                },
+              ),
             );
-          }
+          },
         ) as ContinuousEffectBase<unknown>,
       ],
     };

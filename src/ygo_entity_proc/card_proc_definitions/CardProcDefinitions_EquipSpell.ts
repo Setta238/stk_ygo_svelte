@@ -3,7 +3,7 @@ import { defaultEquipSpellTrapExecute, defaultSpellTrapSetAction, getDefaultEqui
 import type { CardActionDefinition } from "@ygo_duel/class/DuelEntityAction";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
-import { type TEntityFlexibleNumericStatusKey } from "@ygo/class/YgoTypes";
+import { type TMonsterFlexibleNumericStatusKey } from "@ygo/class/YgoTypes";
 import {
   createRegularNumericStateOperatorHandler as createRegularNumericStateOperatorHandler,
   type ContinuousEffectBase,
@@ -32,7 +32,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           "Spell",
           (source) => (source.info.equipedBy ? [source.info.equipedBy] : []),
           (entity) => {
-            return (["attack", "defense"] as TEntityFlexibleNumericStatusKey[]).map((targetState) =>
+            return (["attack", "defense"] as TMonsterFlexibleNumericStatusKey[]).map((targetState) =>
               NumericStateOperator.createContinuous(
                 "発動",
                 (operator) => operator.isSpawnedBy.isOnFieldStrictly && operator.isSpawnedBy.face === "FaceUp",
@@ -47,10 +47,10 @@ export default function* generate(): Generator<EntityProcDefinition> {
                   }
                   const qty = spawner.controller.getEntiteisOnField().filter(item.filter).length;
                   return current + qty * item.rate;
-                }
-              )
+                },
+              ),
             );
-          }
+          },
         ),
       ] as ContinuousEffectBase<unknown>[],
     };
@@ -85,10 +85,10 @@ export default function* generate(): Generator<EntityProcDefinition> {
               }
 
               return defaultEquipSpellTrapExecute(myInfo, chainBlockInfos, (equipOwner, equip) =>
-                equip.info.effectTargets[myInfo.action.seq]?.includes(equipOwner)
+                equip.info.effectTargets[myInfo.action.seq]?.includes(equipOwner),
               );
             },
-          }
+          },
         ),
         settle: async () => true,
       },

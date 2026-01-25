@@ -1,14 +1,5 @@
 <script lang="ts">
-  import {
-    cardSorter,
-    deckCardKindDic,
-    deckCardKinds,
-    getDeckCardKind,
-    type CardInfoJson,
-    type CardTree,
-    type EntityStatusBase,
-    type TDeckCardKind,
-  } from "@ygo/class/YgoTypes";
+  import { cardSorter, deckCardKindDic, deckCardKinds, getDeckCardKind, type CardInfo, type CardTree, type TDeckCardKind } from "@ygo/class/YgoTypes";
   import type { CardControlEventHandlers, SearchCondition } from "@ygo_deck_editor/components/DeckEditor.svelte";
   import { getKeys } from "@stk_utils/funcs/StkObjectUtils";
   import { isNumber } from "@stk_utils/funcs/StkMathUtils";
@@ -17,7 +8,7 @@
   export let allCardTree: CardTree;
   export let deckCardTree: CardTree;
   export let mode: "List" | "Deck";
-  export let onAttention: (cardInfo: CardInfoJson) => void;
+  export let onAttention: (cardInfo: CardInfo) => void;
   export let searchCondition: SearchCondition | undefined = undefined;
   export let cardControlEventHandlers: CardControlEventHandlers;
   let selectedDeckCardKind: TDeckCardKind = "ExtraMonster";
@@ -27,7 +18,7 @@
 
   const sortCardTree = (...kinds: TDeckCardKind[]) => {
     const _kinds = kinds.length ? kinds : getKeys(cardTree);
-    const _cardSorter = (left: EntityStatusBase, right: EntityStatusBase) =>
+    const _cardSorter = (left: CardInfo, right: CardInfo) =>
       cardSorter(
         left,
         right,
@@ -78,7 +69,7 @@
     }
   }
 
-  const filter = (cardInfo: CardInfoJson) => {
+  const filter = (cardInfo: CardInfo) => {
     if (!searchCondition) {
       return true;
     }

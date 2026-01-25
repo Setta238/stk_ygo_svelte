@@ -74,12 +74,12 @@ export const loadTextData = async (cids: number[]) => {
               loededUrls.push(url);
               console.info(`${url} starts loading`);
               return fetch(url);
-            })
+            }),
         )
       ).map((res) => {
         console.log(`${res.url} has been loaded`);
         return res.json();
-      })
+      }),
     )
   ).flatMap((item) => item);
   for (const info of Object.values(cardDefinitionsDic)) {
@@ -96,22 +96,24 @@ export const loadTextData = async (cids: number[]) => {
 };
 
 const loadStatusData = async () => {
+  const startAt = new Date().getTime();
   await Promise.all(
     jsonFileList.statusJsons.map(getJsonFileUrl).map(async (url) => {
+      const startAt = new Date().getTime();
       loededUrls.push(url);
       console.info(`${url} starts loading `);
       const res = await fetch(url);
       console.info(`res=${res.status} ${res.statusText} ${res.url}`);
       const statusArray: (string | number | string | undefined)[][] = await res.json();
       statusArray.map(convertToEntityStatusBase).forEach(pushCardInfo);
-      console.info(`${url} has been loaded `);
-    })
+      console.info(`${url} has been loaded.　elapsed time : ${new Date().getTime() - startAt}ms  `);
+    }),
   );
+  console.info(`All status json files has been loaded.　elapsed time : ${new Date().getTime() - startAt}ms `);
   cardDefinitions.knmCount = Object.values(cardDefinitionsDic)
     .map((info) => info.cardId)
     .getDistinct()
     .map(isNumber).length;
-  console.info(`All status json files has been loaded `);
 
   for (const definition of generateAllProcCardDefinitions()) {
     if (cardNames.has(definition.name)) {

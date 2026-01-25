@@ -129,7 +129,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
     },
     {
       name: "幻影の魔術士",
-      filter: (card: DuelEntity) => (card.status.nameTags ?? []).includes("ＨＥＲＯ") && (card.atk ?? 9999) <= 1000,
+      filter: (card: DuelEntity) => (card.status.nameTags ?? []).includes("HERO") && (card.atk ?? 9999) <= 1000,
       qtyList: [1],
       posList: ["Defense"] as TBattlePosition[],
       destroyTypes: ["Battle"] as TDestroyCauseReason[],
@@ -169,7 +169,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
     },
     {
       name: "ＸＸ－セイバー エマーズブレイド",
-      filter: (card: DuelEntity) => (card.status.nameTags ?? []).includes("Ｘ－セイバー") && (card.lvl ?? 12) <= 4,
+      filter: (card: DuelEntity) => (card.status.nameTags ?? []).includes("X-セイバー") && (card.lvl ?? 12) <= 4,
       qtyList: [1],
       posList: ["Attack", "Defense"] as TBattlePosition[],
       destroyTypes: ["Battle"] as TDestroyCauseReason[],
@@ -232,7 +232,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
                   return { monster, posList: item.posList, cells };
                 }),
               [],
-              false
+              false,
             );
             return list.length > 0;
           },
@@ -255,7 +255,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               false,
               item.qtyList.length > 1 ? undefined : item.qtyList[0],
               (summoned) => item.qtyList.includes(summoned.length),
-              false
+              false,
             );
             if (!monster) {
               return false;

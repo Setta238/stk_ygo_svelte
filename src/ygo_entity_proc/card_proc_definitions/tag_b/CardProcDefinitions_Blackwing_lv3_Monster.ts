@@ -25,7 +25,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         canExecute: (myInfo) =>
           myInfo.activator
             .getMonstersOnField()
-            .filter((monster) => (monster.status.nameTags ?? []).includes("ＢＦ"))
+            .filter((monster) => (monster.status.nameTags ?? []).includes("BF"))
             .some((monster) => monster.nm !== myInfo.action.entity.origin.name) && canSelfSepcialSummon(myInfo, faceupBattlePositions, [], ["Rule"]),
         getDests: (myInfo) => getDestsForSelfSpecialSummon(myInfo, faceupBattlePositions, [], ["Rule"]),
         prepare: (myInfo) => defaultRuleSummonPrepare(myInfo, "SpecialSummon", ["SpecialSummon", "Rule"], faceupBattlePositions),
@@ -49,7 +49,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               .getMonstersOnField()
               .filter((enemy) => enemy.face === "FaceUp")
               .filter((enemy) => enemy.canBeTargetOfEffect(myInfo)),
-          { message: "対象モンスターを選択。" }
+          { message: "対象モンスターを選択。" },
         ),
         execute: async (myInfo) => {
           const target = myInfo.selectedEntities
@@ -68,8 +68,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
                 myInfo.action.entity,
                 myInfo.action,
                 targetState,
-                (spawner: DuelEntity, monster: DuelEntity, current: number) => Math.round(current / 2)
-              )
+                (spawner: DuelEntity, monster: DuelEntity, current: number) => Math.round(current / 2),
+              ),
             )
             .forEach((ope) => target.numericOprsBundle.push(ope));
 

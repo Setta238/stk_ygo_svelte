@@ -58,7 +58,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
     },
     {
       name: "Ｅ－エマージェンシーコール",
-      filter: (card: DuelEntity) => card.origin.kind === "Monster" && (card.origin.nameTags ?? []).includes("Ｅ・ＨＥＲＯ"),
+      filter: (card: DuelEntity) => card.origin.kind === "Monster" && (card.origin.nameTags ?? []).includes("E・HERO"),
     },
     {
       name: "召集の聖刻印",
@@ -205,7 +205,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
     },
     {
       name: "デステニー・ドロー",
-      filter: (card: DuelEntity) => card.kind === "Monster" && (card.origin.nameTags ?? []).includes("Ｄ－ＨＥＲＯ"),
+      filter: (card: DuelEntity) => card.kind === "Monster" && (card.origin.nameTags ?? []).includes("D-HERO"),
     },
   ].map((item) => {
     return {

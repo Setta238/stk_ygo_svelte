@@ -104,6 +104,9 @@
 
       <div class="duel_card_info_row description">
         <div><pre class="description">{cardInfo.description}</pre></div>
+        {#if cardInfo.releaseDate}
+          <div>初版発売日：{cardInfo.releaseDate.formatToYYYYMMDD("-")}</div>
+        {/if}
       </div>
 
       {#if cardInfo.isOldVersion}
@@ -188,6 +191,8 @@
     background-color: white;
   }
   .duel_card_info_row.description {
+    display: flex;
+    flex-direction: column;
     flex-grow: 1;
   }
   .duel_card_info_row .description {

@@ -223,6 +223,7 @@ export type CardInfo = {
   wikiEncodedName?: string;
   description?: string;
   pendulumDescription?: string;
+  releaseDate?: Date;
 } & Partial<TMonsterFlexibleNumericStatus>;
 
 export const monsterTypeDic = {
@@ -380,7 +381,7 @@ export const getKonamiUrl = (status: CardInfo) => {
     : `https://www.db.yugioh-card.com/yugiohdb/card_search.action?ope=1&sess=1&rp=10&mode=&sort=1&keyword=${status.name}&stype=1&ctype=&othercon=2&starfr=&starto=&pscalefr=&pscaleto=&linkmarkerfr=&linkmarkerto=&link_m=2&atkfr=&atkto=&deffr=&defto=&releaseDStart=1&releaseMStart=1&releaseYStart=1999&releaseDEnd=&releaseMEnd=&releaseYEnd=`;
 };
 
-const cardSortKeys = ["star", "attack", "defense", "cardId", "name"] as const;
+const cardSortKeys = ["star", "attack", "defense", "cardId", "name", "releaseDate"] as const;
 export type TCardSortKey = (typeof cardSortKeys)[number];
 export const cardSortKeyDic: Readonly<{ [key in TCardSortKey]: string }> = {
   star: "星",
@@ -388,6 +389,7 @@ export const cardSortKeyDic: Readonly<{ [key in TCardSortKey]: string }> = {
   defense: "防",
   cardId: "ID",
   name: "名",
+  releaseDate: "日",
 } as const;
 
 export type TSortSetting = { key: TCardSortKey; order: "asc" | "desc"; priority: number }[];
@@ -397,13 +399,15 @@ export const defaultSortSetting: Readonly<TSortSetting> = [
   { key: "defense", order: "asc", priority: 3 },
   { key: "name", order: "asc", priority: 4 },
   { key: "cardId", order: "asc", priority: 5 },
+  { key: "releaseDate", order: "asc", priority: 6 },
 ] as const;
 
 const getMonsterSortStatus = (status: CardInfo) => ({
   star: status.link ?? status.rank ?? status.level ?? -1,
   attack: status.attack ?? -1,
   defense: status.defense ?? -1,
-  cardId: status.cardId ?? Number.MAX_SAFE_INTEGER,
+  cardId: status.cardId,
+  releaseDate: status.releaseDate,
 });
 
 export const cardSorter = (left: CardInfo, right: CardInfo, sortSetting: TSortSetting = [...defaultSortSetting]): number => {
@@ -441,91 +445,89 @@ export const cardSorter = (left: CardInfo, right: CardInfo, sortSetting: TSortSe
       }
     }
   }
-
+  // モンスターでない場合、名前かcidの比較のみ行う
+  const _sortSetting = sortSetting.filter(({ key }) => left.kind === "Monster" || key === "cardId" || key === "name" || key === "releaseDate");
   const _left = getMonsterSortStatus(left);
   const _right = getMonsterSortStatus(right);
-  let _sortSetting = sortSetting;
-
-  if (left.kind !== "Monster") {
-    // モンスターでない場合、名前かcidの比較のみ行う
-    _sortSetting = _sortSetting.filter(({ key }) => key === "cardId" || key === "name");
-  }
 
   return (
     _sortSetting
       .toSorted((l, r) => l.priority - r.priority)
-      .map(
-        (sortItem) =>
-          (sortItem.key === "name" ? left.name.localeCompare(right.name, "Ja") : _left[sortItem.key] - _right[sortItem.key]) *
-          (sortItem.order === "asc" ? 1 : -1),
-      )
+      .map((sortItem) => {
+        if (sortItem.key === "name") {
+          return left.name.localeCompare(right.name, "Ja") * (sortItem.order === "asc" ? 1 : -1);
+        }
+        const _l = _left[sortItem.key];
+        const _r = _right[sortItem.key];
+
+        // cardIdと発売日の未定義は強制的に一番最後
+        if (_l === undefined || _r === undefined) {
+          return _l === undefined && _r === undefined ? 0 : _r ? 1 : -1;
+        }
+
+        const l = _l instanceof Date ? _l.getTime() : _l;
+        const r = _r instanceof Date ? _r.getTime() : _r;
+
+        return (l - r) * (sortItem.order === "asc" ? 1 : -1);
+      })
       .find((result) => result) ?? left.name.localeCompare(right.name, "Ja")
   );
 };
 
-const validateCardDefinition = (definition: Object): definition is CardInfo => {
-  const _definition = definition as { [key in string]: string | number | string[] | boolean | undefined };
+const validateCardInfo = (cardInfo: Object): cardInfo is CardInfo => {
+  const _definition = cardInfo as { [key in string]: string | number | string[] | boolean | undefined };
 
   const requiredValidations = ["kind", "name"];
-  requiredValidations.forEach((key) => {
-    if (!_definition[key]) {
-      return false;
-    }
-  });
   const numberValidations = ["attack", "defense", "level", "rank", "link", "pendulumScaleL", "pendulumScaleR"];
-  numberValidations.forEach((key) => {
-    const v = _definition[key];
-    if (v !== undefined) {
-      return !isNaN(Number(v));
-    }
-  });
-  const strValidations: { key: string; values: Readonly<string[]> }[] = [
-    { key: "kind", values: cardKinds },
-    { key: "spellCategory", values: spellCategories },
-    { key: "trapCategory", values: trapCategories },
-    { key: "name", values: [] },
+  const strValidations: { key: string; list: Readonly<string[]> }[] = [
+    { key: "kind", list: cardKinds },
+    { key: "spellCategory", list: spellCategories },
+    { key: "trapCategory", list: trapCategories },
+    { key: "name", list: [] },
   ];
-  strValidations.some(({ key, values }) => {
-    const v = _definition[key];
-    if (v) {
-      if (!isString(v)) {
-        return false;
-      }
-      if (values.length && !values.includes(v)) {
-        return false;
-      }
-    }
-    return true;
-  });
-  const strAryValidations: { key: string; values: Readonly<string[]> }[] = [
-    { key: "nameTags", values: [] },
-    { key: "textTags", values: [] },
-    { key: "monsterCategories", values: trapCategories },
-    { key: "attributes", values: monsterAttributes },
-    { key: "types", values: monsterTypes },
-    { key: "linkArrowKeys", values: linkArrowKeys },
+  const strAryValidations: { key: string; list: Readonly<string[]> }[] = [
+    { key: "nameTags", list: [] },
+    { key: "textTags", list: [] },
+    { key: "monsterCategories", list: monsterCategories },
+    { key: "attributes", list: monsterAttributes },
+    { key: "types", list: monsterTypes },
+    { key: "linkArrowKeys", list: linkArrowKeys },
   ];
-  strAryValidations.some(({ key, values }) => {
-    const ary = _definition[key];
-    if (ary) {
-      if (!Array.isArray(ary)) {
-        return false;
-      }
-      if (values.length && ary.some((v) => !values.includes(v))) {
-        return false;
-      }
-    }
-    return true;
-  });
-
-  return true;
+  const dateValidations = ["releaseDate"];
+  return (
+    requiredValidations.every((key) => _definition[key]) &&
+    numberValidations
+      .map((key) => _definition[key])
+      .filter((v) => v !== undefined)
+      .every((v) => !isNaN(Number(v))) &&
+    strValidations
+      .map(({ key, list }) => ({
+        value: _definition[key],
+        list,
+      }))
+      .filter(({ value }) => value)
+      .every(({ value, list }) => isString(value) && (list.includes(value) || !list.length)) &&
+    strAryValidations
+      .map(({ key, list }) => ({
+        value: _definition[key],
+        list,
+      }))
+      .filter(({ value }) => value)
+      .every(({ value, list }) => (Array.isArray(value) && value.every((v) => list.includes(v))) || !list.length) &&
+    dateValidations
+      .map((key) => _definition[key])
+      .filter((v) => v)
+      .every((v) => v instanceof Date)
+  );
 };
 export const convertToCardInfo = (statusArray: (string | number | string[] | boolean | undefined)[]): CardInfo => {
   statusArray.length = 18;
-  const definition: { [key in string]: string | number | string[] | boolean | undefined } = {};
+  const definition: { [key in string]: string | number | string[] | boolean | Date | undefined } = {};
   let i = 0;
   definition.cardId = statusArray[i++];
   definition.name = statusArray[i++];
+  const tmp = statusArray[i++];
+  definition.releaseDate = tmp ? new Date(tmp.toString()) : undefined;
   definition.kind = statusArray[i++] as TCardKind;
   definition.nameTags = statusArray[i++];
   definition.textTags = statusArray[i++];
@@ -542,8 +544,9 @@ export const convertToCardInfo = (statusArray: (string | number | string[] | boo
   definition.linkArrowKeys = statusArray[i++];
   definition.pendulumScaleL = statusArray[i++];
   definition.pendulumScaleR = statusArray[i++];
-  if (!validateCardDefinition(definition)) {
-    throw new Error(`IllegalCardDefinition:${definition}`);
+  if (!validateCardInfo(definition)) {
+    console.error(Object.entries(definition));
+    throw new Error(`IllegalCardDefinition:${Object.values(definition)}`);
   }
 
   return definition;
@@ -566,3 +569,34 @@ export const createCardTree = (cardInfos: CardInfo[]): CardTree =>
         Trap: [],
       } as CardTree,
     );
+
+export const getDateReplacer = (...keys: string[]) => {
+  return (key: string, value: unknown) => {
+    if (keys.includes(key)) {
+      let _v: Date | undefined = undefined;
+      if (value instanceof Date) {
+        _v = value;
+      } else if (typeof value === "string" || typeof value === "number") {
+        _v = new Date(value);
+      } else if (value instanceof Array) {
+        _v = new Date(value.toString());
+      }
+      if (_v) {
+        return `${_v.getFullYear()}-${(_v.getMonth() + 1).toString().padStart(2, "0")}-${_v.getDate().toString().padStart(2, "0")}`;
+      }
+    }
+    return value;
+  };
+};
+export const getDateReviver = (...keys: string[]) => {
+  return (key: string, value: unknown) => {
+    if (keys.includes(key)) {
+      if (value instanceof Array) {
+        return new Date(value.toString());
+      } else if (typeof value === "string" || typeof value === "number") {
+        return new Date(value);
+      }
+    }
+    return value;
+  };
+};

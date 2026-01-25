@@ -11,7 +11,7 @@
 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <div
   role="listitem"
-  class={`deck_editor_card duel_card ${cardInfo.kind} ${cardInfo?.monsterCategories?.join(" ")} ${cardInfo.isImplemented ? "is_implemented" : "is_not_implemented"}`}
+  class={`deck_editor_card duel_card ${cardInfo.kind} ${cardInfo?.monsterCategories?.join(" ")} ${cardInfo.isImplemented ? "is_implemented" : "is_not_implemented"} card_id_${cardInfo.cardId}`}
   on:click={() => onAttention(cardInfo)}
   on:touchstart={(ev) => cardControlEventHandlers.onCardDragStart(ev, mode, cardInfo)}
   on:touchmove={(ev) => cardControlEventHandlers.onCardDragging(ev, mode)}

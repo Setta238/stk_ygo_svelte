@@ -2,7 +2,7 @@ import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition"
 import { createRegularNumericStateOperatorHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import { defaultPrepare, getSingleTargetActionPartical } from "../../card_actions/CardActions";
+import { defaultPrepare, getSingleTargetActionPartical } from "@ygo_entity_proc/card_actions/CardActions";
 import {
   createSpellCounterChargeEffect,
   createSpellCounterCommonEffect,
@@ -48,7 +48,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         ...getPaySpellCountersCostActionPartical([1]),
         ...getSingleTargetActionPartical(
           (myInfo) => myInfo.activator.duel.field.getSpellTrapsOnFieldStrictly().filter((card) => card.canBeTargetOfEffect(myInfo)),
-          { message: "破壊する対象を選択。", do: "Destroy" }
+          { message: "破壊する対象を選択。", do: "Destroy" },
         ),
         execute: async (myInfo) => {
           if (myInfo.selectedEntities.every((target) => !target.isOnFieldAsSpellTrapStrictly)) {
@@ -83,10 +83,10 @@ export default function* generate(): Generator<EntityProcDefinition> {
                   return source;
                 }
                 return source + spawner.counterHolder.getQty("SpellCounter") * 300;
-              }
+              },
             ),
           ];
-        }
+        },
       ) as ContinuousEffectBase<unknown>,
     ],
   };

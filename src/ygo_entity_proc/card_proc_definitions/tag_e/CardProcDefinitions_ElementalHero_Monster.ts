@@ -1,5 +1,5 @@
 import { isNameTypeFusionMaterialInfo, type EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
-import { IllegalCancelError, DuelError, IllegalActionError } from "@ygo_duel/class_error/DuelError";
+import { IllegalCancelError, IllegalActionError } from "@ygo_duel/class_error/DuelError";
 
 import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
 import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
@@ -89,7 +89,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               statusCalculator: () => {
                 return { name: cost.origin.name };
               },
-            })
+            }),
           );
           return true;
         },

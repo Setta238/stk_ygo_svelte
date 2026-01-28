@@ -1,5 +1,5 @@
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
-import { DuelError, IllegalActionError } from "@ygo_duel/class_error/DuelError";
+import { IllegalActionError } from "@ygo_duel/class_error/DuelError";
 import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { entityCostTypes, type ActionCostInfo, type ChainBlockInfoBase } from "@ygo_duel/class/DuelEntityAction";
 import { isNameTypeFusionMaterialInfo, type EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
@@ -19,7 +19,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
     const getBrandedExpulsionRevivePatterns = (
       myInfo: ChainBlockInfoBase<unknown>,
       costInfo: ActionCostInfo,
-      selectedEntities?: DuelEntity[]
+      selectedEntities?: DuelEntity[],
     ): BrandedExpulsionRevivePatterns | undefined => {
       // すでに対象に取っている場合、そのモンスターたちを使用する
       // まだ対象に取っていない場合、お互いの墓地から対象に取れるモンスターを抽出
@@ -43,7 +43,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           ?.flatMap((info) => info.cost.fusionMaterialInfos)
           .filter(isNameTypeFusionMaterialInfo)
           .map((info) => info.cardName)
-          .includes("アルバスの落胤")
+          .includes("アルバスの落胤"),
       );
 
       // 召喚チェックに使う素材情報
@@ -63,7 +63,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           myInfo.action,
           monsters.map((monster) => ({ monster, cells: myInfo.activator.getMonsterZones(), posList: ["Defense"] })),
           materialInfos,
-          false
+          false,
         );
 
         // 条件を満たすなら結果に格納
@@ -81,8 +81,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
           myInfo.action,
           monsters.map((monster) => ({ monster, cells: duelist.getMonsterZones(), posList: faceupBattlePositions })),
           materialInfos,
-          false
-        )
+          false,
+        ),
       );
 
       if (patterns.some((pattern) => !pattern.length)) {
@@ -133,7 +133,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               myInfo,
               monsterZoneCellTypes,
               (entity) => Boolean(entity.status.monsterCategories?.includes("Fusion")),
-              StkPicker.create(1)
+              StkPicker.create(1),
             ),
           canExecute: (myInfo, chainBlockInfos, irregularExecuteInfo) => {
             if (irregularExecuteInfo) {
@@ -157,7 +157,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
                 .filter((fusionMonster) => fusionMonster.canBeReleased(myInfo.activator, myInfo.action.entity, ["ReleaseAsCost"], myInfo.action))
                 .filter((fusionMonster) => getBrandedExpulsionRevivePatterns(myInfo, { release: [{ cost: fusionMonster, cell: fusionMonster.cell }] })),
               "リリースするモンスターを選択。",
-              cancelable
+              cancelable,
             );
 
             // 選択されなければキャンセル
@@ -215,7 +215,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
                 return false;
               },
               "蘇生するモンスターを選択。",
-              cancelable
+              cancelable,
             );
 
             return { selectedEntities };
@@ -260,7 +260,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               false,
               1,
               (summoned) => summoned.length === 1,
-              false
+              false,
             );
             return true;
           },

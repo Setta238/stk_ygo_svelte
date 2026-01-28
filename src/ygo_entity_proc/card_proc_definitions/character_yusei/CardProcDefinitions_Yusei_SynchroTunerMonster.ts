@@ -1,9 +1,9 @@
 import { getDefaultAccelSynchroAction } from "@ygo_entity_proc/card_actions/CardActions_Monster";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
-import { getDefaultSynchroSummonAction } from "../../card_actions/CardActions_SynchroMonster";
+import { getDefaultSynchroSummonAction } from "@ygo_entity_proc/card_actions/CardActions_SynchroMonster";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
-import { DuelError, IllegalActionError } from "@ygo_duel/class_error/DuelError";
+import { IllegalActionError } from "@ygo_duel/class_error/DuelError";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
@@ -48,8 +48,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
               myInfo.action.entity,
               myInfo.action,
               "level",
-              (spawner: DuelEntity, monster: DuelEntity, current: number) => current - deffLevel
-            )
+              (spawner: DuelEntity, monster: DuelEntity, current: number) => current - deffLevel,
+            ),
           );
           return true;
         },

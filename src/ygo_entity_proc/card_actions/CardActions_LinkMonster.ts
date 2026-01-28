@@ -2,14 +2,14 @@ import type { ChainBlockInfoBase, ChainBlockInfo, CardActionDefinition, SummonMa
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 import { IllegalActionError } from "@ygo_duel/class_error/DuelError";
-import { defaultRuleSummonExecute, defaultRuleSummonPrepare } from "./CardActions_Monster";
+import { defaultRuleSummonExecute, defaultRuleSummonPrepare } from "@ygo_entity_proc/card_actions/CardActions_Monster";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 
 export const defaultLinkMaterialsValidator = (
   myInfo: ChainBlockInfoBase<unknown>,
   cells: DuelFieldCell[],
   materials: DuelEntity[],
-  validator: (materials: DuelEntity[]) => boolean
+  validator: (materials: DuelEntity[]) => boolean,
 ): SummonMaterialInfo[] | undefined => {
   if (!myInfo.action.entity.origin.link) {
     return;
@@ -61,7 +61,7 @@ export const defaultLinkMaterialsValidator = (
       myInfo.action,
       [{ monster: myInfo.action.entity, posList: ["Attack"], cells }],
       materialInfos,
-      false
+      false,
     ).length
   ) {
     return;
@@ -110,7 +110,7 @@ export const defaultLinkMaterialsValidator = (
 
 function* getEnableLinkSummonPatterns(
   myInfo: ChainBlockInfoBase<unknown>,
-  validator: (materials: DuelEntity[]) => boolean = () => true
+  validator: (materials: DuelEntity[]) => boolean = () => true,
 ): Generator<SummonMaterialInfo[]> {
   // 手札と場から全てのリンク素材にできるモンスターを収集する。
   let materials = [
@@ -139,7 +139,7 @@ function* getEnableLinkSummonPatterns(
 const defaultLinkSummonPayCost = async (
   myInfo: ChainBlockInfoBase<unknown>,
   chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
-  cancelable: boolean
+  cancelable: boolean,
 ): Promise<ActionCostInfo | undefined> => {
   // パターンを先に列挙しておく
   const patterns = myInfo.action.getEnableMaterialPatterns(myInfo).toArray();
@@ -161,11 +161,11 @@ const defaultLinkSummonPayCost = async (
         //
         const materialSeqList = selected.map((monster) => monster.seq).sort();
         return entiteisPatterns.some(
-          (item) => materialSeqList.length === item.materialSeqList.length && materialSeqList.every((seq, index) => seq === item.materialSeqList[index])
+          (item) => materialSeqList.length === item.materialSeqList.length && materialSeqList.every((seq, index) => seq === item.materialSeqList[index]),
         );
       },
       "リンク素材とするモンスターを選択",
-      cancelable
+      cancelable,
     );
     console.log(_materials);
     //墓地へ送らなければキャンセル。
@@ -177,7 +177,7 @@ const defaultLinkSummonPayCost = async (
 
   const materialSeqList = materials.map((monster) => monster.seq).sort();
   const materialInfos = entiteisPatterns.find(
-    (item) => materialSeqList.length === item.materialSeqList.length && materialSeqList.every((seq, index) => seq === item.materialSeqList[index])
+    (item) => materialSeqList.length === item.materialSeqList.length && materialSeqList.every((seq, index) => seq === item.materialSeqList[index]),
   )?.infos;
 
   if (!materialInfos) {
@@ -187,7 +187,7 @@ const defaultLinkSummonPayCost = async (
     materials,
     ["LinkMaterial", "Cost", "Rule", "SpecialSummonMaterial"],
     myInfo.action.entity,
-    myInfo.activator
+    myInfo.activator,
   );
   return { summonMaterialInfos: materialInfos };
 };

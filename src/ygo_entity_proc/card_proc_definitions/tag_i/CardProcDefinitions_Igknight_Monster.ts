@@ -1,5 +1,5 @@
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
-import { defaultContinuousSpellCardActivateAction } from "../../card_actions/CardActions_Spell";
+import { defaultContinuousSpellCardActivateAction } from "@ygo_entity_proc/card_actions/CardActions_Spell";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 export default function* generate(): Generator<EntityProcDefinition> {
   yield* [

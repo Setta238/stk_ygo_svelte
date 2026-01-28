@@ -6,6 +6,7 @@ import {} from "@ygo_duel/class/DuelEntityShortHands";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { ProcFilter } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
 import type { SummonChoice } from "@ygo_duel/class/Duelist";
+import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
 
 const fluffTokenDefinition: EntityDefinition = {
   name: "綿毛トークン",
@@ -55,13 +56,11 @@ export default function* generate(): Generator<EntityProcDefinition> {
               };
             }),
             [],
-            false
+            false,
           );
           return list.length > 1 && list.flatMap((sc) => sc.cells).getDistinct().length > 1;
         },
-        prepare: async () => {
-          return { selectedEntities: [] };
-        },
+        prepare: defaultPrepare,
         execute: async (myInfo) => {
           const cells = myInfo.activator.getAvailableMonsterZones();
           if (cells.length < 1) {
@@ -91,7 +90,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               false,
               2,
               (summoned) => summoned.length == 2,
-              false
+              false,
             )) ?? [];
 
           if (!summoned.length) {
@@ -109,7 +108,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
                 isApplicableTo: (ope, target) => target.parent === myInfo.action.entity,
                 procTypes: ["AdvanceSummonRelease"],
                 filter: () => false,
-              })
+              }),
             );
           });
 

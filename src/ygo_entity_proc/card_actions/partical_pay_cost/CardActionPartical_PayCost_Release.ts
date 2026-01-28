@@ -2,13 +2,13 @@ import { type CardActionDefinitionFunctions, type ChainBlockInfo, type ChainBloc
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { playFieldCellTypes, type DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import { StkPicker, type StkPickerDefinition } from "@stk_utils/class/StkPicker";
+import { StkPicker } from "@stk_utils/class/StkPicker";
 
 export const defaultCanPayReleaseCost = <T>(
   myInfo: ChainBlockInfoBase<T>,
   cellTypes: Readonly<DuelFieldCellType[]>,
   filter: (entity: DuelEntity, myInfo: ChainBlockInfoBase<T>) => boolean,
-  picker: StkPicker<DuelEntity>
+  picker: StkPicker<DuelEntity>,
 ) => {
   const _filter = (entity: DuelEntity) => filter(entity, myInfo);
   return picker
@@ -18,7 +18,7 @@ export const defaultCanPayReleaseCost = <T>(
         .flatMap((cell) => cell.cardEntities)
         .filter(_filter)
         .filter((entity) => entity.canBeReleased(myInfo.activator, myInfo.action.entity, ["ReleaseAsCost"], myInfo.action))
-        .filter((entity) => myInfo.activator.canRelease([entity]))
+        .filter((entity) => myInfo.activator.canRelease([entity])),
     )
     .some(() => true);
 };
@@ -29,7 +29,7 @@ export const defaultPayReleaseCost = async <T>(
   cancelable: boolean,
   cellTypes: Readonly<DuelFieldCellType[]>,
   filter: (entity: DuelEntity, myInfo: ChainBlockInfoBase<T>) => boolean,
-  picker: StkPicker<DuelEntity>
+  picker: StkPicker<DuelEntity>,
 ) => {
   const _filter = (entity: DuelEntity) => filter(entity, myInfo);
   const _selectables = myInfo.activator
@@ -59,7 +59,7 @@ export const defaultPayReleaseCost = async <T>(
       qty,
       (selected) => picker.validatePattern(selected),
       `コストとしてリリースするカードを選択。`,
-      cancelable
+      cancelable,
     );
   }
 

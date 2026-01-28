@@ -4,7 +4,7 @@ import { StkPicker } from "@stk_utils/class/StkPicker";
 export const defaultCanPayDiscardCosts = <T>(
   myInfo: ChainBlockInfoBase<T>,
   filter: (entity: DuelEntity, myInfo: ChainBlockInfoBase<T>) => boolean,
-  picker: StkPicker<DuelEntity>
+  picker: StkPicker<DuelEntity>,
 ) => {
   const _filter = (entity: DuelEntity) => filter(entity, myInfo);
   return picker
@@ -13,7 +13,7 @@ export const defaultCanPayDiscardCosts = <T>(
         .getHandCell()
         .cardEntities.filter(_filter)
         .filter((entity) => entity.entityType !== "Token")
-        .filter((entity) => myInfo.activator.canDiscard([entity]))
+        .filter((entity) => myInfo.activator.canDiscard([entity])),
     )
     .some(() => true);
 };
@@ -23,7 +23,7 @@ export const defaultPayDiscardCosts = async <T>(
   chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
   cancelable: boolean,
   filter: (entity: DuelEntity, myInfo: ChainBlockInfoBase<T>) => boolean,
-  picker: StkPicker<DuelEntity>
+  picker: StkPicker<DuelEntity>,
 ) => {
   const _filter = (entity: DuelEntity) => filter(entity, myInfo);
   const _selectables = myInfo.activator
@@ -52,7 +52,7 @@ export const defaultPayDiscardCosts = async <T>(
       myInfo.action.entity,
       myInfo.activator,
       myInfo.activator,
-      cancelable
+      cancelable,
     );
   } else {
     costs = await myInfo.activator.waitSelectEntities(
@@ -60,7 +60,7 @@ export const defaultPayDiscardCosts = async <T>(
       qty,
       (selected) => picker.validatePattern(selected),
       `コストとして捨てるカードを選択。`,
-      cancelable
+      cancelable,
     );
   }
   if (!costs) {

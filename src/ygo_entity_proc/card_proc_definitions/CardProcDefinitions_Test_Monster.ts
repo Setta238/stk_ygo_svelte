@@ -4,7 +4,6 @@ import { type EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition"
 import {
   createBroadRegularNumericStateOperatorHandler,
   createRegularNumericStateOperatorHandler,
-  type ContinuousEffectBase,
 } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import type { TMonsterFlexibleNumericStatusKey } from "@ygo/class/YgoTypes";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
@@ -33,7 +32,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           );
         },
       ),
-    ] as ContinuousEffectBase<unknown>[],
+    ],
   };
   yield {
     name: "にせドレッド・ルート",
@@ -53,6 +52,6 @@ export default function* generate(): Generator<EntityProcDefinition> {
           ),
         );
       }),
-    ] as ContinuousEffectBase<unknown>[],
+    ],
   };
 }

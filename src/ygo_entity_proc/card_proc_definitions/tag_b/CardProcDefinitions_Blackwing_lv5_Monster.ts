@@ -6,15 +6,9 @@ import {
   getDestsForSelfSpecialSummon,
 } from "@ygo_entity_proc/card_actions/CardActions_Monster";
 import type { EntityDefinition, EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
-import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
-import { faceupBattlePositions, type TMonsterFlexibleNumericStatusKey } from "@ygo/class/YgoTypes";
+import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
-import {
-  defaultPrepare,
-  defaultTargetMonstersRebornExecute,
-  defaultTargetMonstersRebornPrepare,
-  getSingleTargetActionPartical,
-} from "@ygo_entity_proc/card_actions/CardActions";
+import { defaultPrepare, defaultTargetMonstersRebornExecute, defaultTargetMonstersRebornPrepare } from "@ygo_entity_proc/card_actions/CardActions";
 import { createRegularProcFilterHandler } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { ProcFilter } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
 import { freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";

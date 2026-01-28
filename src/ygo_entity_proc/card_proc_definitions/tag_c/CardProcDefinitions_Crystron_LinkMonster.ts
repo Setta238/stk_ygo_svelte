@@ -3,9 +3,8 @@ import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/D
 import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
 import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
-import { getDefaultLinkSummonAction } from "../../card_actions/CardActions_LinkMonster";
+import { getDefaultLinkSummonAction } from "@ygo_entity_proc/card_actions/CardActions_LinkMonster";
 import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
-import { IllegalCancelError } from "@ygo_duel/class_error/DuelError";
 
 import { getPaySelfBanishCostsActionPartical } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_Banish";
 
@@ -44,7 +43,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               };
             }),
             [],
-            false
+            false,
           );
           return list.length > 0;
         },
@@ -70,7 +69,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             }),
             [],
             false,
-            false
+            false,
           );
           if (!tuner) {
             return false;
@@ -87,7 +86,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               statusCalculator: () => {
                 return { canActivateEffect: false };
               },
-            })
+            }),
           );
           return true;
         },
@@ -119,7 +118,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               return { monster, cells, posList: faceupBattlePositions };
             }),
             [{ material: myInfo.action.entity, cell: myInfo.action.entity.cell }],
-            false
+            false,
           );
           return list.length > 0;
         },
@@ -140,7 +139,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             }),
             [],
             false,
-            false
+            false,
           );
 
           return Boolean(monster);

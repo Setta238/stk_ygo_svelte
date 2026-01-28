@@ -3,7 +3,7 @@ import { type ActionCostInfo, type ChainBlockInfo, type ChainBlockInfoBase } fro
 export const defaultPayLifePoint = async <T>(
   myInfo: ChainBlockInfoBase<T>,
   chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
-  point: number
+  point: number,
 ): Promise<ActionCostInfo> => {
   myInfo.activator.payLp(point, myInfo.action.entity);
   return { lifePoint: point };

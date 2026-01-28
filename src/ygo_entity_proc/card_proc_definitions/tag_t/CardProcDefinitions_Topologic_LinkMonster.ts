@@ -1,12 +1,10 @@
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { getDefaultLinkSummonAction } from "@ygo_entity_proc/card_actions/CardActions_LinkMonster";
-import { DuelEntity } from "@ygo_duel/class/DuelEntity";
-import { damageStepPeriodKeys, duelPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
-import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
+import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
-import { defaultPrepare, getMultiTargetsRebornActionPartical } from "../../card_actions/CardActions";
+import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import { DuelError, IllegalActionError } from "@ygo_duel/class_error/DuelError";
+import { IllegalActionError } from "@ygo_duel/class_error/DuelError";
 import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
@@ -78,7 +76,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               actionAttr: myInfo.action,
               isApplicableTo: (ope, target) => target.controller === ope.effectOwner && target !== ope.isSpawnedBy && target.isOnFieldAsMonsterStrictly,
               statusCalculator: () => ({ canAttack: false }),
-            })
+            }),
           );
 
           return true;
@@ -99,7 +97,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             myInfo.activator.duel.attackingMonster === myInfo.action.entity &&
               myInfo.activator.duel.targetForAttack &&
               myInfo.activator.duel.targetForAttack.entityType === "Card" &&
-              (myInfo.activator.duel.targetForAttack.origin.attack ?? 0) > 0
+              (myInfo.activator.duel.targetForAttack.origin.attack ?? 0) > 0,
           ),
         prepare: defaultPrepare,
         execute: async (myInfo) => {

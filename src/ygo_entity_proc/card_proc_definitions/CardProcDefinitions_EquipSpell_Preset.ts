@@ -2,10 +2,7 @@ import { defaultSpellTrapSetAction, getDefaultEquipSpellTrapAction } from "@ygo_
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import type { TMonsterFlexibleNumericStatusKey, TMonsterAttribute, TMonsterType } from "@ygo/class/YgoTypes";
-import {
-  createRegularNumericStateOperatorHandler as createRegularNumericStateOperatorHandler,
-  type ContinuousEffectBase,
-} from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
+import { createRegularNumericStateOperatorHandler } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 
 export default function* generate(): Generator<EntityProcDefinition> {
@@ -80,7 +77,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               ),
             );
           },
-        ) as ContinuousEffectBase<unknown>,
+        ),
       ],
     };
   });

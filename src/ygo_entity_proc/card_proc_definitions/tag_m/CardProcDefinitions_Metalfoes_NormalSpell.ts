@@ -1,5 +1,5 @@
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
-import { defaultSpellTrapSetAction } from "../../card_actions/CardActions_Spell";
+import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CardActions_Spell";
 import { getDefaultFusionSummonAction } from "@ygo_entity_proc/card_actions/CardActions_FusionSpell";
 
 export default function* generate(): Generator<EntityProcDefinition> {
@@ -18,7 +18,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           ["ExtraDeck"],
           (myInfo, monster) => Boolean(monster.status.nameTags?.includes("メタルフォーゼ")),
           ["Hand", "MonsterZone", "ExtraMonsterZone"],
-          () => true
+          () => true,
         ),
       },
       {

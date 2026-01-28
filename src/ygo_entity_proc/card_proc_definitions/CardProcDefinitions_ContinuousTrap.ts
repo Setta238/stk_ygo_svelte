@@ -80,7 +80,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
                 myInfo.action.entity.info.effectTargets[myInfo.action.seq] = myInfo.selectedEntities;
                 return true;
               },
-            }
+            },
           ),
           settle: async () => true,
         },

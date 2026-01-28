@@ -5,7 +5,7 @@ import { getPayBanishCostsActionPartical } from "@ygo_entity_proc/card_actions/p
 
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
-import { IllegalCancelError, DuelError, IllegalActionError } from "@ygo_duel/class_error/DuelError";
+import { IllegalCancelError, IllegalActionError } from "@ygo_duel/class_error/DuelError";
 
 import { getDefaultSynchroSummonAction } from "@ygo_entity_proc/card_actions/CardActions_SynchroMonster";
 import { createBroadRegularProcFilterHandler } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
@@ -60,7 +60,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             (selected) =>
               selected.length > 0 && selected.length <= qtyUpperBound && selected.length === selected.flatMap((card) => card.types).getDistinct().length,
             "墓地に送るカードを選択",
-            false
+            false,
           );
           if (!monsters) {
             throw new IllegalCancelError(myInfo);
@@ -93,7 +93,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               .filter((monster) => monster.status.nameTags?.includes("ライトロード")),
           (selected, myInfo) => selected.length > 0 && selected.length < 5 && selected.length <= myInfo.activator.getDeckCell().cardEntities.length,
           1,
-          4
+          4,
         ),
         canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.length > 0,
         prepare: defaultPrepare,
@@ -125,7 +125,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               target.isOnFieldAsMonsterStrictly &&
               target.face === "FaceUp",
             ["BanishAsEffect"],
-            () => false
+            () => false,
           ),
         ];
       }),

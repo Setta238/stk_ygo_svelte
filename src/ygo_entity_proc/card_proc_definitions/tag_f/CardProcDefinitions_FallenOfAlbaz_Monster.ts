@@ -1,5 +1,5 @@
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
-import { DuelError, IllegalActionError } from "@ygo_duel/class_error/DuelError";
+import { IllegalActionError } from "@ygo_duel/class_error/DuelError";
 import { DuelEntity, duelEntityFaces } from "@ygo_duel/class/DuelEntity";
 import type { CardActionDefinition, ChainBlockInfoBase, TActionTag } from "@ygo_duel/class/DuelEntityAction";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
@@ -33,7 +33,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             (myInfo, monster, materials) =>
               materials.includes(myInfo.action.entity) &&
               materials.every((material) => material === myInfo.action.entity || material.controller !== myInfo.activator),
-            { requisitionFrom: monsterZoneCellTypes }
+            { requisitionFrom: monsterZoneCellTypes },
           ),
           settle: async () => true,
         },
@@ -111,7 +111,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
                   faceupBattlePositions,
                   myInfo.activator.getMonsterZones(),
                   [],
-                  false
+                  false,
                 );
                 return Boolean(monster);
               } else if (myInfo.data === "Deck") {

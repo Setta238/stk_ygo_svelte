@@ -70,7 +70,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               );
             });
           });
-        }) as ContinuousEffectBase<unknown>,
+        }),
       ],
     };
   });
@@ -127,7 +127,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               },
             );
           });
-        }) as ContinuousEffectBase<unknown>,
+        }),
       ],
     };
   });

@@ -56,7 +56,7 @@ export const getCommonFallenOfAlbazSpellTrapSalvageAction = (titlePrefix: string
           cells,
           "セットする場所を選択。",
           "セット",
-          false
+          false,
         );
         if (!cell) {
           throw new IllegalCancelError("配置場所選択", myInfo);

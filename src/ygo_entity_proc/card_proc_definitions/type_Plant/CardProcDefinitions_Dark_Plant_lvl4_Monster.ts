@@ -1,15 +1,9 @@
-import {
-  canSelfSepcialSummon,
-  defaultSelfReleaseCanPayCosts,
-  defaultSelfReleasePayCosts,
-  defaultSelfSpecialSummonExecute,
-} from "@ygo_entity_proc/card_actions/CardActions_Monster";
+import { canSelfSepcialSummon, defaultSelfSpecialSummonExecute } from "@ygo_entity_proc/card_actions/CardActions_Monster";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import {} from "@ygo_duel/class/DuelEntityShortHands";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
 import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
-import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import { getPaySendToGraveyardCostsActionPartical } from "@ygo_entity_proc/card_actions/partical_pay_cost/CardActionPartical_PayCost_SendToGraveyard";
 
 export default function* generate(): Generator<EntityProcDefinition> {
@@ -34,7 +28,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             entity.nm !== "にん人" &&
             canSelfSepcialSummon(myInfo, faceupBattlePositions, [{ cell: entity.cell, material: entity }], ["Effect"]) &&
             (entity.cell.cellType === "Hand" || entity.face === "FaceUp"),
-          1
+          1,
         ),
         canExecute: (myInfo) =>
           myInfo.activator

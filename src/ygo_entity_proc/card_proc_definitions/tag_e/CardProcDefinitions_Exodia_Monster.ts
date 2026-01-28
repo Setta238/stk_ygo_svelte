@@ -1,7 +1,7 @@
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { duelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import { DuelEnd, DuelError, IllegalActionError } from "@ygo_duel/class_error/DuelError";
+import { DuelEnd, IllegalActionError } from "@ygo_duel/class_error/DuelError";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 export default function* generate(): Generator<EntityProcDefinition> {
   yield {
@@ -28,7 +28,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             myInfo.activator.duel.field.getCardsOnFieldStrictly(),
             ["Rule"],
             myInfo.action.entity,
-            myInfo.activator
+            myInfo.activator,
           );
           return { selectedEntities: [], chainBlockTags: [], nextChainBlockFilter: () => false };
         },
@@ -76,7 +76,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
                   actionOwner: undefined,
                   chooser: undefined,
                 };
-              })
+              }),
             );
           }
           if (isDraw) {

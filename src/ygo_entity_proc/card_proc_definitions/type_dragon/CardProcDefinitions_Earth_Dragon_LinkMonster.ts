@@ -61,8 +61,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
                     myInfo.action.entity,
                     myInfo.action,
                     state,
-                    (spawner: DuelEntity, monster: DuelEntity, current: number) => current + 300
-                  )
+                    (spawner: DuelEntity, monster: DuelEntity, current: number) => current + 300,
+                  ),
                 )
                 .forEach((ope) => target.numericOprsBundle.push(ope));
             });
@@ -96,7 +96,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
                 return { monster, posList: faceupBattlePositions, cells };
               }),
             [],
-            false
+            false,
           );
           return list.length > 0;
         },
@@ -116,7 +116,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               }),
             [],
             false,
-            false
+            false,
           );
           return Boolean(monster);
         },
@@ -147,7 +147,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           for (const num of [1, 2, 3]) {
             const card = await myInfo.activator.waitSelectEntity(
               myInfo.activator.getHandCell().cardEntities,
-              `デッキの一番下に戻すカードを選択（${num}枚目）。`
+              `デッキの一番下に戻すカードを選択（${num}枚目）。`,
             );
 
             if (!card) {

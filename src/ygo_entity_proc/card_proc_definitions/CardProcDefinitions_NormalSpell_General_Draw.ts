@@ -1,7 +1,5 @@
 import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CardActions_Spell";
 
-import { type CardActionDefinition } from "@ygo_duel/class/DuelEntityAction";
-
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { IllegalCancelError } from "@ygo_duel/class_error/DuelError";
@@ -23,9 +21,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         priorityForNPC: 20,
         fixedTags: ["Draw"],
         canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.length > 1 && myInfo.activator.canDraw && myInfo.activator.canAddToHandFromDeck,
-        prepare: async () => {
-          return { selectedEntities: [] };
-        },
+        prepare: defaultPrepare,
         execute: async (chainBlockInfo) => {
           await chainBlockInfo.activator.draw(2, chainBlockInfo.action.entity, chainBlockInfo.activator);
           return true;
@@ -64,7 +60,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             5,
             (selected) => selected.length === 5,
             "デッキに戻すモンスターを選択。",
-            false
+            false,
           );
           if (!targets) {
             return;
@@ -108,16 +104,14 @@ export default function* generate(): Generator<EntityProcDefinition> {
           myInfo.activator.canDraw &&
           myInfo.activator.canAddToHandFromDeck &&
           myInfo.activator.status.canDiscardAsEffect,
-        prepare: async () => {
-          return { selectedEntities: [] };
-        },
+        prepare: defaultPrepare,
         execute: async (myInfo) => {
           await myInfo.activator.draw(3, myInfo.action.entity, myInfo.activator);
           await myInfo.activator.discard(2, "Effect", () => true, myInfo.action.entity, myInfo.activator);
           return true;
         },
         settle: async () => true,
-      } as CardActionDefinition<unknown>,
+      },
       defaultSpellTrapSetAction,
     ],
   };
@@ -135,9 +129,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         fixedTags: ["Draw"],
         priorityForNPC: 20,
         canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.length > 0 && myInfo.activator.canDraw && myInfo.activator.canAddToHandFromDeck,
-        prepare: async () => {
-          return { selectedEntities: [] };
-        },
+        prepare: defaultPrepare,
         execute: async (myInfo) => {
           await myInfo.activator.draw(1, myInfo.action.entity, myInfo.activator);
           // このドローは時の任意効果のトリガーにならない。
@@ -174,9 +166,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             .filter((c) => c.cellType === "Hand")
             .flatMap((c) => c.cardEntities)
             .some((card) => card.seq !== myInfo.action.entity.seq),
-        prepare: async () => {
-          return { selectedEntities: [] };
-        },
+        prepare: defaultPrepare,
         execute: async (myInfo) => {
           const qty1 = myInfo.activator.getHandCell().cardEntities.length;
           const qty2 = myInfo.activator.getOpponentPlayer().getHandCell().cardEntities.length;
@@ -185,7 +175,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             myInfo.action.entity.field.getCells("Hand").flatMap((hand) => hand.cardEntities),
             ["Effect", "Discard"],
             myInfo.action.entity,
-            myInfo.activator
+            myInfo.activator,
           );
 
           await myInfo.activator.duel.clock.incrementProcSeq();
@@ -232,8 +222,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
                   activator.writeInfoLog(`${damageTo.profile.name}は${filter.isSpawnedBy}の効果でダメージを受けない。`);
                   return { zero_typeA: true };
                 },
-              })
-            )
+              }),
+            ),
           );
 
           return true;
@@ -256,9 +246,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         executableDuelistTypes: ["Controller"],
         fixedTags: ["Draw"],
         canExecute: (myInfo) => myInfo.activator.canDraw,
-        prepare: async () => {
-          return { selectedEntities: [] };
-        },
+        prepare: defaultPrepare,
         execute: async (myInfo) => {
           const hands = myInfo.activator.getHandCell().cardEntities;
 

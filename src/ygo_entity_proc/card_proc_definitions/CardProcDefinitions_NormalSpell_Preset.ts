@@ -223,9 +223,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           priorityForNPC: 40,
           ...getPayDiscardCostsActionPartical(item.filter, 1),
           canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.length > 1,
-          prepare: async () => {
-            return { selectedEntities: [] };
-          },
+          prepare: defaultPrepare,
           execute: async (myInfo) => {
             await myInfo.activator.draw(2, myInfo.action.entity, myInfo.activator);
             return true;

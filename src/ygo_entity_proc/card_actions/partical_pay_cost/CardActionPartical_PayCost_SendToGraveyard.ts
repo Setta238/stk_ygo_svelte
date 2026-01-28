@@ -8,7 +8,7 @@ export const defaultCanPaySendToGraveyardCost = <T>(
   myInfo: ChainBlockInfoBase<T>,
   cellTypes: DuelFieldCellType[],
   filter: (entity: DuelEntity, myInfo: ChainBlockInfoBase<T>) => boolean,
-  picker: StkPicker<DuelEntity>
+  picker: StkPicker<DuelEntity>,
 ) => {
   const _filter = (entity: DuelEntity) => filter(entity, myInfo);
   return picker
@@ -18,7 +18,7 @@ export const defaultCanPaySendToGraveyardCost = <T>(
         .flatMap((cell) => cell.cardEntities)
         .filter(_filter)
         .filter((entity) => entity.entityType !== "Token")
-        .filter((entity) => myInfo.activator.canSendToGraveyard([entity]))
+        .filter((entity) => myInfo.activator.canSendToGraveyard([entity])),
     )
     .some(() => true);
 };
@@ -29,7 +29,7 @@ export const defaultPaySendToGraveyardCost = async <T>(
   cancelable: boolean,
   cellTypes: DuelFieldCellType[],
   filter: (entity: DuelEntity, myInfo: ChainBlockInfoBase<T>) => boolean,
-  picker: StkPicker<DuelEntity>
+  picker: StkPicker<DuelEntity>,
 ) => {
   const _filter = (entity: DuelEntity) => filter(entity, myInfo);
   const _selectables = myInfo.activator
@@ -59,7 +59,7 @@ export const defaultPaySendToGraveyardCost = async <T>(
       qty,
       (selected) => picker.validatePattern(selected),
       `コストとして墓地に送るカードを選択。`,
-      cancelable
+      cancelable,
     );
   }
 

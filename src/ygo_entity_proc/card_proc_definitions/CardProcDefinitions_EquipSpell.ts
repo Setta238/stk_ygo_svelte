@@ -1,16 +1,11 @@
 import { defaultEquipSpellTrapExecute, defaultSpellTrapSetAction, getDefaultEquipSpellTrapAction } from "@ygo_entity_proc/card_actions/CardActions_Spell";
 
-import type { CardActionDefinition } from "@ygo_duel/class/DuelEntityAction";
-
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { type TMonsterFlexibleNumericStatusKey } from "@ygo/class/YgoTypes";
-import {
-  createRegularNumericStateOperatorHandler as createRegularNumericStateOperatorHandler,
-  type ContinuousEffectBase,
-} from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
+import { createRegularNumericStateOperatorHandler as createRegularNumericStateOperatorHandler } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import { getMultiTargetsRebornActionPartical } from "../card_actions/CardActions";
+import { getMultiTargetsRebornActionPartical } from "@ygo_entity_proc/card_actions/CardActions";
 import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { duelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { trashCellTypes } from "@ygo_duel/class/DuelFieldCell";
@@ -52,7 +47,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             );
           },
         ),
-      ] as ContinuousEffectBase<unknown>[],
+      ],
     };
   });
   yield {
@@ -132,7 +127,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
   };
   yield {
     name: "幻惑の巻物",
-    actions: [getDefaultEquipSpellTrapAction(), defaultSpellTrapSetAction] as CardActionDefinition<unknown>[],
-    continuousEffects: [] as ContinuousEffectBase<unknown>[],
+    actions: [getDefaultEquipSpellTrapAction(), defaultSpellTrapSetAction],
+    continuousEffects: [],
   };
 }

@@ -1,7 +1,7 @@
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { defaultSpellTrapSetAction } from "@ygo_entity_proc/card_actions/CardActions_Spell";
 import type { DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
-import { IllegalCancelError, DuelError, IllegalActionError } from "@ygo_duel/class_error/DuelError";
+import { IllegalCancelError, IllegalActionError } from "@ygo_duel/class_error/DuelError";
 
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";

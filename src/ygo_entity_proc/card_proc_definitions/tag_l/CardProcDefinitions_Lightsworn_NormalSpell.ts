@@ -67,9 +67,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
 
           return { sendToGraveyard: costInfos };
         },
-        prepare: async () => {
-          return { selectedEntities: [] };
-        },
+        prepare: defaultPrepare,
         execute: async (myInfo) => {
           const monsters = myInfo.activator
             .getDeckCell()

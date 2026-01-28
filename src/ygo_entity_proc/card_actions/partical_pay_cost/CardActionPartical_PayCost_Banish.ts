@@ -1,4 +1,4 @@
-import { type CardActionDefinitionFunctions, type ChainBlockInfo, type ChainBlockInfoBase } from "@ygo_duel/class/DuelEntityAction";
+import { type CardActionDefinitionFunctions, type ChainBlockInfoBase } from "@ygo_duel/class/DuelEntityAction";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 
@@ -21,7 +21,7 @@ export const defaultPayBanishCosts = async <T>(
   cards: DuelEntity[],
   validator: (selected: DuelEntity[], myInfo: ChainBlockInfoBase<T>) => boolean,
   minQty: number = 1,
-  maxQty: number = 1
+  maxQty: number = 1,
 ) => {
   const choises = cards
     .filter((card) => myInfo.activator.canTryBanish(card, "BanishAsCost", myInfo.action))
@@ -42,7 +42,7 @@ export const getPayBanishCostsActionPartical = <T>(
   getCostableEntities: (...args: Parameters<NonNullable<CardActionDefinitionFunctions<T>["canPayCosts"]>>) => DuelEntity[],
   validator: (selected: DuelEntity[], myInfo: ChainBlockInfoBase<T>) => boolean = () => true,
   minQty: number = 1,
-  maxQty: number = 1
+  maxQty: number = 1,
 ): Required<Pick<CardActionDefinitionFunctions<T>, "canPayCosts" | "payCosts">> => {
   return {
     canPayCosts: (...args) => defaultCanPayBanishCosts(args[0], getCostableEntities(...args), minQty),
@@ -53,5 +53,5 @@ export const getPayBanishCostsActionPartical = <T>(
 export const getPaySelfBanishCostsActionPartical = () =>
   getPayBanishCostsActionPartical(
     (myInfo) => [myInfo.action.entity],
-    (selected) => selected.length === 1
+    (selected) => selected.length === 1,
   );

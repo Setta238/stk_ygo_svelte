@@ -66,7 +66,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               .filter((monster) => monster.canBeTargetOfEffect(myInfo))
               .filter((monster) => monster.canBeSet)
               .filter((monster) => monster.face === "FaceUp"),
-          { message: "対象とするモンスターを選択。" }
+          { message: "対象とするモンスターを選択。" },
         ),
         execute: async (myInfo) => {
           const target = myInfo.selectedEntities[0];
@@ -113,7 +113,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               .getMonstersOnFieldStrictly()
               .filter((monster) => monster.face === "FaceUp")
               .filter((monster) => monster.canBeTargetOfEffect(myInfo)),
-          { message: "対象とするモンスターを選択。" }
+          { message: "対象とするモンスターを選択。" },
         ),
         execute: async (myInfo) => {
           const target = myInfo.selectedEntities[0];
@@ -139,8 +139,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
               myInfo.action.entity,
               myInfo.action,
               "attack",
-              (spawner: DuelEntity, monster: DuelEntity, current: number) => current + 700
-            )
+              (spawner: DuelEntity, monster: DuelEntity, current: number) => current + 700,
+            ),
           );
 
           return true;
@@ -199,7 +199,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               2,
               (selected) => selected.length === 2,
               "墓地に送るカードを２枚選択。",
-              false
+              false,
             );
             if (!cards) {
               throw new IllegalCancelError(myInfo, duelist);

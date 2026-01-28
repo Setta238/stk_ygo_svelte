@@ -93,9 +93,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           await cost.returnToDeck("Top", ["Cost"], myInfo.action.entity, myInfo.activator);
           return { returnToDeck: [{ cost, cell: myInfo.activator.getHandCell() }] };
         },
-        prepare: async () => {
-          return { selectedEntities: [] };
-        },
+        prepare: defaultPrepare,
         execute: async (myInfo) => {
           if (!(await defaultSelfSpecialSummonExecute(myInfo))) {
             return false;
@@ -112,7 +110,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               statusCalculator: () => {
                 return { willBeBanished: true };
               },
-            })
+            }),
           );
 
           return true;
@@ -144,9 +142,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           await cost.sendToGraveyard(["Cost"], myInfo.action.entity, myInfo.activator);
           return { sendToGraveyard: [costInfo] };
         },
-        prepare: async () => {
-          return { selectedEntities: [] };
-        },
+        prepare: defaultPrepare,
         execute: (myInfo) => defaultSelfSpecialSummonExecute(myInfo),
         settle: async () => true,
       },
@@ -215,8 +211,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
               myInfo.action.entity,
               myInfo.action,
               "level",
-              (spawner, target, current) => current + lvl
-            )
+              (spawner, target, current) => current + lvl,
+            ),
           );
 
           return result;
@@ -281,9 +277,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         triggerPattern: { triggerType: "Arrival", arrivalReasons: ["NormalSummon"] },
         fixedTags: ["IfNormarlSummonSucceed", "SendToGraveyardFromDeck"],
         canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.some((card) => card.lvl && card.lvl < 5),
-        prepare: async () => {
-          return { selectedEntities: [] };
-        },
+        prepare: defaultPrepare,
         execute: async (myInfo) => {
           const choices = myInfo.activator.getDeckCell().cardEntities.filter((card) => card.lvl && card.lvl < 5);
           if (choices.length === 0) {
@@ -311,9 +305,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         triggerPattern: { triggerType: "Departure", needsByBattle: true, needsByDestory: true },
         fixedTags: ["Draw"],
         canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.length > 0 && myInfo.activator.canDraw,
-        prepare: async () => {
-          return { selectedEntities: [] };
-        },
+        prepare: defaultPrepare,
         execute: async (myInfo) => {
           await myInfo.activator.draw(1, myInfo.action.entity, myInfo.activator);
 
@@ -338,9 +330,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         triggerPattern: { triggerType: "Departure" },
         fixedTags: ["SearchFromDeck"],
         canExecute: (myInfo) => myInfo.activator.getDeckCell().cardEntities.some((card) => card.nm === "青眼の白龍") && myInfo.activator.canAddToHandFromDeck,
-        prepare: async () => {
-          return { selectedEntities: [] };
-        },
+        prepare: defaultPrepare,
         execute: async (myInfo) => {
           // 青眼の白龍固定なので、一枚見つけたらそれでよい。
           const monster = myInfo.activator.getDeckCell().cardEntities.find((card) => card.nm === "青眼の白龍");
@@ -425,10 +415,10 @@ export default function* generate(): Generator<EntityProcDefinition> {
 
                   source.duel.log.info(`${source.toString()}は攻撃力1900以上のモンスターとの戦闘では破壊されない。`, source.controller);
                   return false;
-                }
+                },
               ),
             ];
-          }
+          },
         ),
       ],
     };

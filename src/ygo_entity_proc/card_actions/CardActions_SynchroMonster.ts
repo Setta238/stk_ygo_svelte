@@ -3,7 +3,7 @@ import type { ChainBlockInfoBase, ChainBlockInfo, CardActionDefinition, SummonMa
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 import { IllegalActionError } from "@ygo_duel/class_error/DuelError";
-import { defaultRuleSummonExecute, defaultRuleSummonPrepare } from "./CardActions_Monster";
+import { defaultRuleSummonExecute, defaultRuleSummonPrepare } from "@ygo_entity_proc/card_actions/CardActions_Monster";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 const defaultSynchroMaterialsValidator = (
   myInfo: ChainBlockInfoBase<unknown>,
@@ -11,7 +11,7 @@ const defaultSynchroMaterialsValidator = (
   cells: DuelFieldCell[],
   materials: DuelEntity[],
   tunersValidator: (tuners: DuelEntity[]) => boolean,
-  nonTunersValidator: (nonTuners: DuelEntity[]) => boolean
+  nonTunersValidator: (nonTuners: DuelEntity[]) => boolean,
 ): SummonMaterialInfo[] | undefined => {
   if (!myInfo.action.entity.origin.level) {
     return;
@@ -58,7 +58,7 @@ const defaultSynchroMaterialsValidator = (
       myInfo.action,
       [{ monster: myInfo.action.entity, posList, cells }],
       materialInfos,
-      false
+      false,
     ).length
   ) {
     return;
@@ -69,7 +69,7 @@ const defaultSynchroMaterialsValidator = (
 function* getEnableSynchroSummonPatterns(
   myInfo: ChainBlockInfoBase<unknown>,
   tunersValidator: (tuners: DuelEntity[]) => boolean = (tuners) => tuners.length === 1,
-  nonTunersValidator: (nonTuners: DuelEntity[]) => boolean = (nonTuners) => nonTuners.length > 0
+  nonTunersValidator: (nonTuners: DuelEntity[]) => boolean = (nonTuners) => nonTuners.length > 0,
 ): Generator<SummonMaterialInfo[]> {
   // 手札と場から全てのシンクロ素材にできるモンスターを収集する。
   let materials = [
@@ -101,7 +101,7 @@ function* getEnableSynchroSummonPatterns(
 const defaultSynchroSummonPayCost = async (
   myInfo: ChainBlockInfoBase<unknown>,
   chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
-  cancelable: boolean
+  cancelable: boolean,
 ): Promise<ActionCostInfo | undefined> => {
   // パターンを先に列挙しておく
   const patterns = myInfo.action.getEnableMaterialPatterns(myInfo).toArray();
@@ -123,11 +123,11 @@ const defaultSynchroSummonPayCost = async (
         //
         const materialSeqList = selected.map((monster) => monster.seq).sort();
         return entiteisPatterns.some(
-          (item) => materialSeqList.length === item.materialSeqList.length && materialSeqList.every((seq, index) => seq === item.materialSeqList[index])
+          (item) => materialSeqList.length === item.materialSeqList.length && materialSeqList.every((seq, index) => seq === item.materialSeqList[index]),
         );
       },
       "シンクロ素材とするモンスターを選択",
-      cancelable
+      cancelable,
     );
     //墓地へ送らなければキャンセル。
     if (!_materials) {
@@ -138,7 +138,7 @@ const defaultSynchroSummonPayCost = async (
 
   const materialSeqList = materials.map((monster) => monster.seq).sort();
   const materialInfos = entiteisPatterns.find(
-    (item) => materialSeqList.length === item.materialSeqList.length && materialSeqList.every((seq, index) => seq === item.materialSeqList[index])
+    (item) => materialSeqList.length === item.materialSeqList.length && materialSeqList.every((seq, index) => seq === item.materialSeqList[index]),
   )?.infos;
 
   if (!materialInfos) {
@@ -148,14 +148,14 @@ const defaultSynchroSummonPayCost = async (
     materials,
     ["SynchroMaterial", "Cost", "Rule", "SpecialSummonMaterial"],
     myInfo.action.entity,
-    myInfo.activator
+    myInfo.activator,
   );
   return { summonMaterialInfos: materialInfos };
 };
 
 export const getDefaultSynchroSummonAction = (
   tunersValidator: (tuners: DuelEntity[]) => boolean = (tuners) => tuners.length === 1,
-  nonTunersValidator: (nonTuners: DuelEntity[]) => boolean = (nonTuners) => nonTuners.length > 0
+  nonTunersValidator: (nonTuners: DuelEntity[]) => boolean = (nonTuners) => nonTuners.length > 0,
 ): CardActionDefinition<unknown> => {
   return {
     title: "シンクロ召喚",

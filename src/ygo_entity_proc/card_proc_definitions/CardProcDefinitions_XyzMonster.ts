@@ -1,7 +1,5 @@
-import type { CardActionDefinition } from "@ygo_duel/class/DuelEntityAction";
-
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
-import { getDefaultXyzSummonAction } from "../card_actions/CardActions_XyzMonster";
+import { getDefaultXyzSummonAction } from "@ygo_entity_proc/card_actions/CardActions_XyzMonster";
 export default function* generate(): Generator<EntityProcDefinition> {
   yield* [
     { name: "ジェムナイト・パール", qty: 2 },
@@ -9,7 +7,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
   ].map((item) => {
     return {
       name: item.name,
-      actions: [getDefaultXyzSummonAction(item.qty, item.qty)] as CardActionDefinition<unknown>[],
+      actions: [getDefaultXyzSummonAction(item.qty, item.qty)],
     };
   });
 }

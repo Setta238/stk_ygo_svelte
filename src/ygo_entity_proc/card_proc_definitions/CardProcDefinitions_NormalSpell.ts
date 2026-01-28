@@ -29,7 +29,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             .getCells("Graveyard")
             .flatMap((cell) => cell.cardEntities)
             .filter((card) => card.kind === "Monster")
-            .filter((card) => card.canBeTargetOfEffect(myInfo))
+            .filter((card) => card.canBeTargetOfEffect(myInfo)),
         ),
         settle: async () => true,
       },
@@ -112,9 +112,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             .getCells("SpellAndTrapZone", "FieldSpellZone")
             .flatMap((cell) => cell.cardEntities)
             .some((card) => card !== myInfo.action.entity),
-        prepare: async () => {
-          return { selectedEntities: [] };
-        },
+        prepare: defaultPrepare,
         execute: async (myInfo, chainBlockInfos) => {
           // 発動済の魔法罠はバウンスできない
           const activatedCards = chainBlockInfos
@@ -178,13 +176,11 @@ export default function* generate(): Generator<EntityProcDefinition> {
             myInfo.action,
             [{ monster: token, posList: ["Defense"], cells }],
             [],
-            false
+            false,
           );
           return list.length > 0;
         },
-        prepare: async () => {
-          return { selectedEntities: [] };
-        },
+        prepare: defaultPrepare,
         execute: async (myInfo) => {
           const token = DuelEntity.prepareTokenEntity(myInfo.activator, myInfo.action.entity, securityTokenDefinition);
           const cells = myInfo.activator.getMonsterZones();
@@ -245,7 +241,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               return { monster: lvl1, posList: faceupBattlePositions, cells };
             }),
             [],
-            false
+            false,
           );
           return list.length > 0;
         },
@@ -266,7 +262,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               return { monster: lvl1, posList: faceupBattlePositions, cells };
             }),
             [],
-            false
+            false,
           );
           let choices: DuelEntity[] = myInfo.activator.getHandCell().cardEntities.filter((card) => card.kind === "Monster");
 
@@ -286,9 +282,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
 
           return { sendToGraveyard: [costInfo] };
         },
-        prepare: async () => {
-          return { selectedEntities: [] };
-        },
+        prepare: defaultPrepare,
         execute: async (myInfo) => {
           const monsters = [
             ...myInfo.activator.getDeckCell().cardEntities.filter((card) => card.lvl === 1),
@@ -306,7 +300,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             }),
             [],
             false,
-            false
+            false,
           );
           if (!monster) {
             return false;
@@ -335,9 +329,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         fixedTags: ["BanishFromDeck"],
         canExecute: (myInfo) =>
           myInfo.activator.getDeckCell().cardEntities.some((card) => myInfo.activator.canTryBanish(card, "BanishAsEffect", myInfo.action)),
-        prepare: async () => {
-          return { selectedEntities: [] };
-        },
+        prepare: defaultPrepare,
         execute: async (myInfo) => {
           const cards = myInfo.activator.getDeckCell().cardEntities.filter((card) => myInfo.activator.canTryBanish(card, "BanishAsEffect", myInfo.action));
           const selected = await myInfo.activator.waitSelectEntity(cards, "除外するカードを選択。", false);
@@ -463,16 +455,12 @@ export default function* generate(): Generator<EntityProcDefinition> {
               .cardEntities.filter((card) => card.kind === "Monster")
               .filter((monster) => monster.status.monsterCategories?.includes("Normal"))
               .filter((monster) => (monster.lvl ?? 12) < 4)
-              .map((monster) => {
-                return { monster, posList: faceupBattlePositions, cells: myInfo.activator.getMonsterZones() };
-              }),
+              .map((monster) => ({ monster, posList: faceupBattlePositions, cells: myInfo.activator.getMonsterZones() })),
             [],
-            false
+            false,
           ).length > 0,
         payCosts: (myInfo, chainBlockInfos) => defaultPayLifePoint(myInfo, chainBlockInfos, 800),
-        prepare: async () => {
-          return { selectedEntities: [] };
-        },
+        prepare: defaultPrepare,
         execute: async (myInfo) => {
           if (myInfo.activator.getDeckCell().cardEntities.length < 4) {
             return false;
@@ -492,18 +480,16 @@ export default function* generate(): Generator<EntityProcDefinition> {
               "SpecialSummon",
               ["Effect", "Excavate"],
               myInfo.action,
-              monsters.map((monster) => {
-                return {
-                  monster,
-                  cells,
-                  posList: faceupBattlePositions,
-                };
-              }),
+              monsters.map((monster) => ({
+                monster,
+                cells,
+                posList: faceupBattlePositions,
+              })),
               [],
               false,
               qty,
               (summoned) => summoned.length === qty,
-              false
+              false,
             );
           }
 
@@ -511,7 +497,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             monsters.filter((monster) => !monster.isOnFieldAsMonsterStrictly),
             ["Effect", "Excavate"],
             myInfo.action.entity,
-            myInfo.activator
+            myInfo.activator,
           );
 
           await DuelEntityShortHands.returnManyToDeckForTheSameReason(
@@ -519,7 +505,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             cards.filter((card) => card.cell.cellType === "Deck"),
             ["Effect"],
             myInfo.action.entity,
-            myInfo.activator
+            myInfo.activator,
           );
 
           return true;

@@ -4,6 +4,7 @@ import type { DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
+import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   yield* [
@@ -236,9 +237,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             );
             return list.length > 0;
           },
-          prepare: async () => {
-            return { selectedEntities: [] };
-          },
+          prepare: defaultPrepare,
           execute: async (myInfo) => {
             const monsters = myInfo.activator.getDeckCell().cardEntities.filter(item.filter);
 

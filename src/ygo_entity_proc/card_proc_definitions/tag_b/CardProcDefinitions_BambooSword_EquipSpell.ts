@@ -1,6 +1,6 @@
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
-import { defaultSpellTrapSetAction, getDefaultEquipSpellTrapAction } from "../../card_actions/CardActions_Spell";
+import { defaultSpellTrapSetAction, getDefaultEquipSpellTrapAction } from "@ygo_entity_proc/card_actions/CardActions_Spell";
 import { StatusOperator } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 import { damageStepPeriodKeys, freeChainDuelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { IllegalCancelError } from "@ygo_duel/class_error/DuelError";
@@ -36,7 +36,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               .filter((spelltrap) => spelltrap.status.nameTags?.includes("竹光"))
               .filter((spelltrap) => spelltrap !== myInfo.action.entity)
               .filter((spelltrap) => spelltrap.status.spellCategory === "Equip"),
-          { message: "手札に戻すカードを選択。", tags: ["BounceToHand"] }
+          { message: "手札に戻すカードを選択。", tags: ["BounceToHand"] },
         ),
         execute: async (myInfo) => {
           const equipOwner = myInfo.action.entity.info.equipedBy;
@@ -56,7 +56,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               statusCalculator: () => {
                 return { canDirectAttack: true };
               },
-            })
+            }),
           );
 
           return true;
@@ -174,7 +174,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
                 .getDeckCell()
                 .cardEntities.filter((card) => card.status.nameTags?.includes("竹光"))
                 .filter((takemitsu) => takemitsu.status.name !== "真刀竹光")
-                .some((spelltrap) => spelltrap.status.spellCategory === "Equip")
+                .some((spelltrap) => spelltrap.status.spellCategory === "Equip"),
           ) && myInfo.activator.duel.field.getMonstersOnFieldStrictly().some((monster) => monster.canBeTargetOfEffect(myInfo)),
         prepare: defaultPrepare,
         execute: async (myInfo) => {
@@ -210,7 +210,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             cells,
             "装備カードを置く場所を選択。",
             "装備",
-            false
+            false,
           );
           if (!cell) {
             throw new IllegalCancelError("配置場所選択", myInfo);

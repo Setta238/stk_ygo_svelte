@@ -11,7 +11,7 @@ import {
 } from "@ygo_duel/class/DuelFieldCell";
 import { IllegalCancelError, IllegalActionError } from "@ygo_duel/class_error/DuelError";
 import { isFilterTypeFusionMaterialInfo, isNameTypeFusionMaterialInfo, isOvermuchTypeFusionMaterialInfo } from "@ygo_duel/class/DuelEntityDefinition";
-import { defaultPrepare } from "./CardActions";
+import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
 export type MaterialDestMapper = { [from in DuelFieldCellType]: { to: TBundleCellType; position?: TDuelEntityMovePos; face?: TDuelEntityFace } };
 
 /**
@@ -30,7 +30,7 @@ const validateFusionMaterials = (
   posList: Readonly<TBattlePosition[]>,
   cells: DuelFieldCell[],
   materials: DuelEntity[],
-  materialsValidator: (myInfo: ChainBlockInfoBase<unknown>, monster: DuelEntity, materials: DuelEntity[]) => boolean
+  materialsValidator: (myInfo: ChainBlockInfoBase<unknown>, monster: DuelEntity, materials: DuelEntity[]) => boolean,
 ): SummonMaterialInfo[] | undefined => {
   const fusionMaterialInfos = monster.fusionMaterialInfos.filter((info) => info.type !== "Overmuch");
   if (!fusionMaterialInfos.length) {
@@ -91,7 +91,7 @@ const validateFusionMaterials = (
             info.name = row.require.cardName;
           }
           return [...pattern, info];
-        })
+        }),
       ),
     ];
   }
@@ -110,8 +110,8 @@ const validateFusionMaterials = (
         myInfo.action,
         [{ monster: myInfo.action.entity, posList, cells }],
         materialInfos,
-        false
-      ).length
+        false,
+      ).length,
   );
 };
 
@@ -121,7 +121,7 @@ const collectAllMaterials = (
   options: {
     materialDestMapper?: Partial<MaterialDestMapper>;
     requisitionFrom?: Readonly<DuelFieldCellType[]>;
-  } = {}
+  } = {},
 ): DuelEntity[] => {
   // 指定されたセルから全ての素材にできるモンスターを収集する。
   const allMaterials = myInfo.activator
@@ -139,7 +139,7 @@ const collectAllMaterials = (
         .flatMap((cell) => cell.cardEntities)
         .filter((card) => card.isMonster)
         .filter((card) => card.face === "FaceUp")
-        .filter((monster) => monster.canBeEffected(myInfo.activator, myInfo.action.entity, myInfo.action))
+        .filter((monster) => monster.canBeEffected(myInfo.activator, myInfo.action.entity, myInfo.action)),
     );
   }
   return allMaterials.filter((material) => {
@@ -210,7 +210,7 @@ function* getEnableFusionSummonPatterns(
         (material) =>
           (material.status.fusionSubstitute && hasNameTypeFusionMaterialInfo) ||
           requiredNameMaterials.some((info) => info.cardName === material.nm) ||
-          requiredFilterMaterials.some((info) => info.filter(material))
+          requiredFilterMaterials.some((info) => info.filter(material)),
       );
     if (materials.length < requiredMaterials.length) {
       continue;
@@ -276,10 +276,10 @@ const defaultFusionSummonExecute = async (
               item.requiredSeqList.every((seq) => selected.map((selected) => selected.seq).includes(seq)) &&
               selected
                 .filter((selected) => !item.requiredSeqList.includes(selected.seq))
-                .every((selected) => overmuchMaterialInfos.some((info) => info.filter(selected)))
+                .every((selected) => overmuchMaterialInfos.some((info) => info.filter(selected))),
           ),
         "融合素材とするモンスターを選択",
-        false
+        false,
       )) ?? materials;
   }
 
@@ -289,7 +289,7 @@ const defaultFusionSummonExecute = async (
       item.requiredSeqList.every((seq) => materials.map((selected) => selected.seq).includes(seq)) &&
       materials
         .filter((selected) => !item.requiredSeqList.includes(selected.seq))
-        .every((selected) => overmuchMaterialInfos.some((info) => info.filter(selected)))
+        .every((selected) => overmuchMaterialInfos.some((info) => info.filter(selected))),
   );
   if (!entiteisPattern) {
     throw new IllegalActionError("UnexpectedSituation", myInfo);
@@ -306,7 +306,7 @@ const defaultFusionSummonExecute = async (
           material,
           cell: material.cell,
         };
-      })
+      }),
   );
   await DuelEntity.moveMany(
     materials.map((material) => {
@@ -335,7 +335,7 @@ const defaultFusionSummonExecute = async (
         actionOwner: myInfo.activator,
         chooser: undefined,
       };
-    })
+    }),
   );
 
   //融合召喚
@@ -347,7 +347,7 @@ const defaultFusionSummonExecute = async (
     faceupBattlePositions,
     [...myInfo.activator.getMonsterZones(), ...myInfo.activator.duel.field.getCells("ExtraMonsterZone")],
     materialInfos,
-    false
+    false,
   );
 
   monster.info.isRebornable = !monster.origin.monsterCategories?.includes("RegularSpecialSummonOnly");
@@ -365,13 +365,13 @@ export const getDefaultFusionSummonAction = (
   options: {
     materialDestMapper?: Partial<MaterialDestMapper>;
     requisitionFrom?: Readonly<DuelFieldCellType[]>;
-  } = {}
+  } = {},
 ): CardActionDefinitionFunctions<unknown> & { fixedTags: TActionTag[] } => {
   return {
     fixedTags: ["SpecialSummonFromExtraDeck"],
     canExecute: (myInfo) =>
       getEnableFusionSummonPatterns(myInfo, summonFrom, monsterValidator, materialsFrom, materialsValidator, options).some(
-        (pattern) => pattern.materialInfos.length
+        (pattern) => pattern.materialInfos.length,
       ),
     prepare: defaultPrepare,
     execute: (myInfo) => defaultFusionSummonExecute(myInfo, summonFrom, monsterValidator, materialsFrom, materialsValidator, options),

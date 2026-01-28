@@ -1,7 +1,7 @@
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { getDefaultLinkSummonAction } from "@ygo_entity_proc/card_actions/CardActions_LinkMonster";
-import { defaultPrepare } from "../../card_actions/CardActions";
-import { IllegalCancelError, DuelError, IllegalActionError } from "@ygo_duel/class_error/DuelError";
+import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
+import { IllegalCancelError, IllegalActionError } from "@ygo_duel/class_error/DuelError";
 
 import { duelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
@@ -25,12 +25,12 @@ export default function* generate(): Generator<EntityProcDefinition> {
         fixedTags: ["SpecialSummonFromDeck"],
         canPayCosts: (myInfo) =>
           myInfo.action.entity.pointedToEntities.some((monster) =>
-            monster.canBeReleased(myInfo.activator, myInfo.action.entity, ["ReleaseAsCost"], myInfo.action)
+            monster.canBeReleased(myInfo.activator, myInfo.action.entity, ["ReleaseAsCost"], myInfo.action),
           ),
         canExecute: (myInfo) => {
           // リリースコスト
           const costs = myInfo.action.entity.pointedToEntities.filter((monster) =>
-            monster.canBeReleased(myInfo.activator, myInfo.action.entity, ["ReleaseAsCost"], myInfo.action)
+            monster.canBeReleased(myInfo.activator, myInfo.action.entity, ["ReleaseAsCost"], myInfo.action),
           );
 
           // リリースコストを払えない場合、不可
@@ -63,7 +63,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
                 return { monster: plant, posList: ["Defense"], cells };
               }),
               [{ material: cost, cell: cost.cell }],
-              false
+              false,
             );
             return list.length > 0;
           });
@@ -71,7 +71,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         payCosts: async (myInfo, chainBlockInfos, cancelable) => {
           // リリースコスト
           const costs = myInfo.action.entity.pointedToEntities.filter((monster) =>
-            monster.canBeReleased(myInfo.activator, myInfo.action.entity, ["ReleaseAsCost"], myInfo.action)
+            monster.canBeReleased(myInfo.activator, myInfo.action.entity, ["ReleaseAsCost"], myInfo.action),
           );
 
           // リリースコストを払えない場合、不可
@@ -107,7 +107,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
                     return { monster: plant, posList: ["Defense"], cells };
                   }),
                   [{ material: cost, cell: cost.cell }],
-                  false
+                  false,
                 ),
               };
             })
@@ -116,7 +116,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
           const cost = await myInfo.activator.waitSelectEntity(
             patterns.map((pattern) => pattern.cost),
             "リリースするモンスターを選択。",
-            cancelable
+            cancelable,
           );
 
           if (!cost && !cancelable) {
@@ -153,7 +153,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
               cell: info.cell,
             })),
             false,
-            false
+            false,
           );
           if (!monster) {
             return false;
@@ -245,11 +245,11 @@ export default function* generate(): Generator<EntityProcDefinition> {
 
               bundleOwner.duel.log.info(
                 `自分のLPが相手より多い場合、${source.toString()}とそのリンク先のモンスターは戦闘では破壊されない。`,
-                source.controller
+                source.controller,
               );
 
               return false;
-            }
+            },
           ),
         ];
       }),

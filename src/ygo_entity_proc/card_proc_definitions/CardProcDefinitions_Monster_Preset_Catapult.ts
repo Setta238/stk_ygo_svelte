@@ -4,7 +4,7 @@ import { monsterZoneCellTypes } from "@ygo_duel/class/DuelFieldCell";
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
-import { DuelError, IllegalActionError } from "@ygo_duel/class_error/DuelError";
+import { IllegalActionError } from "@ygo_duel/class_error/DuelError";
 import { isNumber } from "@stk_utils/funcs/StkMathUtils";
 import type { CardActionDefinition, ChainBlockInfoBase } from "@ygo_duel/class/DuelEntityAction";
 import { getDefaultSynchroSummonAction } from "@ygo_entity_proc/card_actions/CardActions_SynchroMonster";
@@ -42,7 +42,7 @@ const createCatapultAction = (args: {
         args.qty,
         (selected) => selected.length === args.qty,
         "リリースするモンスターを選択。",
-        cancelable
+        cancelable,
       );
 
       if (!costs) {
@@ -176,7 +176,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
         title: "自壊",
         executableCells: ["MonsterZone"],
         executablePeriods: duelPeriodKeys.filter(
-          (key) => key !== "b1DBeforeDmgCalc" && key !== "b2DBeforeDmgCalc" && key !== "b1DDmgCalc" && key !== "b2DDmgCalc"
+          (key) => key !== "b1DBeforeDmgCalc" && key !== "b2DBeforeDmgCalc" && key !== "b1DDmgCalc" && key !== "b2DDmgCalc",
         ),
         execute: async (action, triggerEntity, oldProps) => {
           if (!triggerEntity) {
@@ -230,8 +230,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
               },
             }),
           ];
-        }
-      ) as ContinuousEffectBase<unknown>,
+        },
+      ),
       createRegularStatusOperatorHandler(
         "直接攻撃",
         "Monster",
@@ -267,8 +267,8 @@ export default function* generate(): Generator<EntityProcDefinition> {
               },
             }),
           ];
-        }
-      ) as ContinuousEffectBase<unknown>,
+        },
+      ),
     ],
   };
 }

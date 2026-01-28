@@ -10,7 +10,7 @@ import type {
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { type DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 import { IllegalActionError } from "@ygo_duel/class_error/DuelError";
-import { defaultRuleSummonExecute, defaultRuleSummonPrepare } from "./CardActions_Monster";
+import { defaultRuleSummonExecute, defaultRuleSummonPrepare } from "@ygo_entity_proc/card_actions/CardActions_Monster";
 import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 
 const defaultXyzMaterialsValidator = (
@@ -20,7 +20,7 @@ const defaultXyzMaterialsValidator = (
   materials: DuelEntity[],
   qtyLowerBound: number = 2,
   qtyUpperBound: number = 2,
-  validator: (materials: DuelEntity[]) => boolean
+  validator: (materials: DuelEntity[]) => boolean,
 ): SummonMaterialInfo[] | undefined => {
   if (!myInfo.action.entity.origin.rank) {
     return;
@@ -61,7 +61,7 @@ const defaultXyzMaterialsValidator = (
       myInfo.action,
       [{ monster: myInfo.action.entity, posList, cells }],
       materialInfos,
-      false
+      false,
     ).length
   ) {
     return;
@@ -73,7 +73,7 @@ function* getEnableXyzSummonPatterns(
   myInfo: ChainBlockInfoBase<unknown>,
   qtyLowerBound: number = 2,
   qtyUpperBound: number = 2,
-  validator: (materials: DuelEntity[]) => boolean = (materials) => materials.length > 1
+  validator: (materials: DuelEntity[]) => boolean = (materials) => materials.length > 1,
 ): Generator<SummonMaterialInfo[]> {
   // 場から全てのエクシーズ素材にできるモンスターを収集する。
   const materials = myInfo.activator.getMonstersOnField().filter((card) => card.battlePosition !== "Set");
@@ -96,7 +96,7 @@ function* getEnableXyzSummonPatterns(
 const defaultXyzSummonPayCost = async (
   myInfo: ChainBlockInfoBase<unknown>,
   chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
-  cancelable: boolean
+  cancelable: boolean,
 ): Promise<ActionCostInfo | undefined> => {
   // パターンを先に列挙しておく
   const patterns = myInfo.action.getEnableMaterialPatterns(myInfo).toArray();
@@ -118,11 +118,11 @@ const defaultXyzSummonPayCost = async (
         //
         const materialSeqList = selected.map((monster) => monster.seq).sort();
         return entiteisPatterns.some(
-          (item) => materialSeqList.length === item.materialSeqList.length && materialSeqList.every((seq, index) => seq === item.materialSeqList[index])
+          (item) => materialSeqList.length === item.materialSeqList.length && materialSeqList.every((seq, index) => seq === item.materialSeqList[index]),
         );
       },
       "エクシーズ素材とするモンスターを選択",
-      cancelable
+      cancelable,
     );
     // 素材を選択しなければキャンセル
     if (!_materials) {
@@ -133,7 +133,7 @@ const defaultXyzSummonPayCost = async (
 
   const materialSeqList = materials.map((monster) => monster.seq).sort();
   const materialInfos = entiteisPatterns.find(
-    (item) => materialSeqList.length === item.materialSeqList.length && materialSeqList.every((seq, index) => seq === item.materialSeqList[index])
+    (item) => materialSeqList.length === item.materialSeqList.length && materialSeqList.every((seq, index) => seq === item.materialSeqList[index]),
   )?.infos;
 
   if (!materialInfos) {
@@ -144,7 +144,7 @@ const defaultXyzSummonPayCost = async (
     materialInfos.map((info) => info.material),
     ["XyzMaterial", "Rule", "Cost"],
     myInfo.action.entity,
-    myInfo.activator
+    myInfo.activator,
   );
 
   return { summonMaterialInfos: materialInfos };
@@ -152,7 +152,7 @@ const defaultXyzSummonPayCost = async (
 export const getDefaultXyzSummonAction = (
   qtyLowerBound: number = 2,
   qtyUpperBound: number = 2,
-  validator: (materials: DuelEntity[]) => boolean = (materials) => materials.length > 1
+  validator: (materials: DuelEntity[]) => boolean = (materials) => materials.length > 1,
 ): CardActionDefinition<unknown> => {
   return {
     title: "エクシーズ召喚",
@@ -176,7 +176,7 @@ export const getDefaultXyzSummonAction = (
 export const getPayXyzCostActionPartical = <T>(
   qtyLowerBound: number = 1,
   qtyUpperBound: number = 1,
-  filter: (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, entity: DuelEntity) => boolean = () => true
+  filter: (myInfo: ChainBlockInfoBase<T>, chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>, entity: DuelEntity) => boolean = () => true,
 ): Required<Pick<CardActionDefinitionFunctions<T>, "canPayCosts" | "payCosts">> => {
   return {
     canPayCosts: (...args) => {
@@ -195,7 +195,7 @@ export const getPayXyzCostActionPartical = <T>(
           qty,
           (selected) => selected.length >= qtyLowerBound && selected.length <= qtyUpperBound,
           "コストとするXYZ素材を選択",
-          cancelable
+          cancelable,
         );
         if (!_costs) {
           return;

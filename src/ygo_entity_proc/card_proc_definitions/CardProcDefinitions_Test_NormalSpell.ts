@@ -4,7 +4,6 @@ import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition"
 import { getDefaultFusionSummonAction, type MaterialDestMapper } from "@ygo_entity_proc/card_actions/CardActions_FusionSpell";
 import type { DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
 import { defaultPrepare } from "@ygo_entity_proc/card_actions/CardActions";
-import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
 
 export default function* generate(): Generator<EntityProcDefinition> {
   {
@@ -29,7 +28,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             () => true,
             cellTypes,
             () => true,
-            { materialDestMapper }
+            { materialDestMapper },
           ),
         },
         defaultSpellTrapSetAction,
@@ -68,7 +67,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             return false;
           }
 
-          const monster = await myInfo.activator.summonOne(
+          await myInfo.activator.summonOne(
             myInfo.activator,
             "LinkSummon",
             ["Effect"],
@@ -76,7 +75,7 @@ export default function* generate(): Generator<EntityProcDefinition> {
             monsters.map((monster) => ({ monster, cells, posList: ["Attack"] })),
             [],
             true,
-            false
+            false,
           );
 
           return true;

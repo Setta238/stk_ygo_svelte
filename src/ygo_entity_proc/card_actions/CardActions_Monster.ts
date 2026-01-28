@@ -11,7 +11,7 @@ import {
   type ChainBlockInfoPrepared,
   type ChainBlockInfoPreparing,
   type SummonMaterialInfo,
-} from "../../ygo_duel/class/DuelEntityAction";
+} from "@ygo_duel/class/DuelEntityAction";
 import { type TDuelCauseReason, type TSummonKindCauseReason, DuelEntity, namedSummonKindCauseReasons } from "@ygo_duel/class/DuelEntity";
 import { monsterZoneCellTypes, type DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 import type { Duelist } from "@ygo_duel/class/Duelist";
@@ -26,7 +26,7 @@ import { duelPeriodKeys } from "@ygo_duel/class/DuelPeriod";
 const defaultNormalSummonPayCost = async (
   myInfo: ChainBlockInfoBase<unknown>,
   chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
-  cancelable: boolean = false
+  cancelable: boolean = false,
 ): Promise<ActionCostInfo | undefined> => {
   if (!myInfo.action.entity.lvl) {
     return;
@@ -55,7 +55,7 @@ const defaultNormalSummonPayCost = async (
         (qty < 0 || selected.length === qty) &&
         (availableCells.length > 0 || selected.some((matetial) => matetial.cell.cellType === "ExtraMonsterZone")),
       "リリースするモンスターを選択",
-      cancelable
+      cancelable,
     )) ?? [];
 
   //リリースしなければキャンセル。
@@ -89,7 +89,7 @@ export const defaultRuleSummonPrepare = async (
   summonKind: TSummonKindCauseReason,
   movedAs: TDuelCauseReason[],
   posList: Readonly<TBattlePosition[]>,
-  cells?: DuelFieldCell[]
+  cells?: DuelFieldCell[],
 ): Promise<Partial<ChainBlockInfoPrepared> | undefined> => {
   let _cells = myInfo.dest ? [myInfo.dest] : cells;
 
@@ -135,7 +135,7 @@ const defaultNormalSummonAction: CardActionDefinition<unknown> = {
         myInfo.action,
         [{ monster: myInfo.action.entity, posList: ["Attack", "Set"], cells: myInfo.activator.getMonsterZones() }],
         [],
-        false
+        false,
       );
 
       return list.length > 0;
@@ -165,8 +165,8 @@ const defaultNormalSummonAction: CardActionDefinition<unknown> = {
           pattern.map((material) => {
             return { material, cell: material.cell };
           }),
-          false
-        ).length
+          false,
+        ).length,
     );
 
     // TODO : クロス・ソウルの「しなければならない」の制限の考慮。エクストラモンスターゾーンまたは相手モンスターゾーンにしかリリース可能なモンスターがいない場合、空きが必要。
@@ -194,7 +194,7 @@ const defaultNormalSummonAction: CardActionDefinition<unknown> = {
       myInfo.action,
       [{ monster: myInfo.action.entity, posList: ["Attack", "Set"], cells: myInfo.activator.getMonsterZones() }],
       [],
-      false
+      false,
     );
 
     return list.flatMap((choice) => choice.cells).getDistinct();
@@ -208,7 +208,7 @@ export const getDestsForSelfSpecialSummon = <T>(
   myInfo: ChainBlockInfoBase<T>,
   posList: Readonly<TBattlePosition[]>,
   materials: SummonMaterialInfo[],
-  movedAs: TDuelCauseReason[]
+  movedAs: TDuelCauseReason[],
 ): DuelFieldCell[] => {
   // セルを取得
   const cells = myInfo.activator.getMonsterZones();
@@ -224,7 +224,7 @@ export const getDestsForSelfSpecialSummon = <T>(
     myInfo.action,
     [{ monster: myInfo.action.entity, posList, cells: cells }],
     materials,
-    false
+    false,
   );
 
   return summmonList.flatMap((item) => item.cells);
@@ -341,7 +341,7 @@ const defaultBattlePotisionChangePrepare = async (myInfo: ChainBlockInfoPreparin
     myInfo.action.entity.battlePosition === "Attack" ? "Defense" : "Attack",
     ["Rule"],
     myInfo.action.entity,
-    myInfo.activator
+    myInfo.activator,
   );
 
   myInfo.action.entity.info.battlePotisionChangeCount++;
@@ -395,7 +395,7 @@ const defaultBattlePotisionChangeAction: CardActionDefinition<unknown> = {
 export const defaultSelfSpecialSummonExecute = async <T>(
   myInfo: ChainBlockInfo<T>,
   chainBlockInfos?: Readonly<ChainBlockInfo<unknown>[]>,
-  posList: Readonly<TBattlePosition[]> = ["Attack", "Defense"]
+  posList: Readonly<TBattlePosition[]> = ["Attack", "Defense"],
 ) => {
   if (myInfo.action.entity.wasMovedAfter(myInfo.isActivatedAt)) {
     return false;
@@ -444,7 +444,7 @@ export const defaultSummonFilter = (
   materialInfos: SummonMaterialInfo[],
   posList: Readonly<TBattlePosition[]>,
   cells: DuelFieldCell[],
-  ignoreSummoningConditions: boolean
+  ignoreSummoningConditions: boolean,
 ): {
   posList: Readonly<TBattlePosition[]>;
   cells: DuelFieldCell[];
@@ -595,7 +595,7 @@ export const getDefaultAccelSynchroAction = <T>(options: Partial<CardActionDefin
               materials.every((material) => material.isOnFieldAsMonsterStrictly) &&
               materials.includes(myInfo.action.entity)
             );
-          })
+          }),
         );
     },
     prepare: defaultPrepare,
@@ -640,7 +640,7 @@ export const getDefaultAccelSynchroAction = <T>(options: Partial<CardActionDefin
               materials.every((material) => material.isOnFieldAsMonsterStrictly) &&
               materials.includes(myInfo.action.entity)
             );
-          })
+          }),
         )
         .map((childInfo) => childInfo.action.entity)
         .getDistinct();
@@ -701,7 +701,7 @@ export const defaultDirectAtackEffect = createRegularStatusOperatorHandler(
         },
       }),
     ];
-  }
+  },
 ) as ContinuousEffectBase<unknown>;
 
 export const defaultFusionSubstituteEffect = {

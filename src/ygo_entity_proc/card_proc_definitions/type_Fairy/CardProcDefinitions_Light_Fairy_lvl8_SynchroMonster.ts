@@ -1,7 +1,7 @@
 import { canSelfSepcialSummon, defaultSelfSpecialSummonExecute } from "@ygo_entity_proc/card_actions/CardActions_Monster";
 
 import type { EntityProcDefinition } from "@ygo_duel/class/DuelEntityDefinition";
-import { getDefaultSynchroSummonAction } from "../../card_actions/CardActions_SynchroMonster";
+import { getDefaultSynchroSummonAction } from "@ygo_entity_proc/card_actions/CardActions_SynchroMonster";
 import { createRegularNumericStateOperatorHandler, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { NumericStateOperator } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import { faceupBattlePositions } from "@ygo/class/YgoTypes";
@@ -49,11 +49,11 @@ export default function* generate(): Generator<EntityProcDefinition> {
                   return source;
                 }
                 return source + spawner.controller.getOpponentPlayer().getBanished().cardEntities.length * 100;
-              }
+              },
             ),
           ];
-        }
-      ) as ContinuousEffectBase<unknown>,
+        },
+      ),
     ],
   };
 }

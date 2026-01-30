@@ -97,7 +97,7 @@ export const createBroadRegularOperatorHandler = <OPE extends StickyEffectOperat
   title: string,
   kind: TCardKind,
   opeListCreater: (source: DuelEntity) => OPE[],
-  getPool: (source: DuelEntity) => IOperatorPool<OPE>
+  getPool: (source: DuelEntity) => IOperatorPool<OPE>,
 ): ContinuousEffectBase<number[]> => {
   return {
     title: title,
@@ -131,7 +131,7 @@ export const createRegularOperatorHandler = <OPE extends StickyEffectOperatorBas
   kind: TCardKind,
   getTargets: (source: DuelEntity) => DuelEntity[],
   opeListCreater: (source: DuelEntity) => OPE[],
-  getBundle: (source: DuelEntity) => StickyEffectOperatorBundle<OPE>
+  getBundle: (source: DuelEntity) => StickyEffectOperatorBundle<OPE>,
 ): ContinuousEffectBase<{ targets: DuelEntity[]; seqList: number[] }> => {
   return {
     title: title,
@@ -159,14 +159,14 @@ export const createRegularProcFilterHandler = (
   title: string,
   kind: TCardKind,
   getTargets: (source: DuelEntity) => DuelEntity[],
-  opeListCreater: (source: DuelEntity) => ProcFilter[]
+  opeListCreater: (source: DuelEntity) => ProcFilter[],
 ) => {
   return createRegularOperatorHandler(title, kind, getTargets, opeListCreater, (entity: DuelEntity) => entity.procFilterBundle);
 };
 export const createBroadRegularNumericStateOperatorHandler = (
   title: string,
   kind: TCardKind,
-  opeListCreater: (source: DuelEntity) => NumericStateOperator[]
+  opeListCreater: (source: DuelEntity) => NumericStateOperator[],
 ) => {
   return createBroadRegularOperatorHandler(title, kind, opeListCreater, (entity: DuelEntity) => entity.field.numericStateOperatorPool);
 };
@@ -174,7 +174,7 @@ export const createRegularNumericStateOperatorHandler = (
   title: string,
   kind: TCardKind,
   getTargets: (source: DuelEntity) => DuelEntity[],
-  opeListCreater: (source: DuelEntity) => NumericStateOperator[]
+  opeListCreater: (source: DuelEntity) => NumericStateOperator[],
 ) => {
   return createRegularOperatorHandler(title, kind, getTargets, opeListCreater, (entity: DuelEntity) => entity.numericOprsBundle);
 };
@@ -183,7 +183,7 @@ export const createRegularStatusOperatorHandler = (
   title: string,
   kind: TCardKind,
   getTargets: (source: DuelEntity) => DuelEntity[],
-  statusOperatorCreator: (source: DuelEntity) => StatusOperator[]
+  statusOperatorCreator: (source: DuelEntity) => StatusOperator[],
 ) => {
   return createRegularOperatorHandler(title, kind, getTargets, statusOperatorCreator, (entity: DuelEntity) => entity.statusOperatorBundle);
 };
@@ -196,7 +196,7 @@ export const createRegularDamageFilterHandler = (
   title: string,
   kind: TCardKind,
   getTargets: (source: DuelEntity) => DuelEntity[],
-  opeListCreater: (source: DuelEntity) => DamageFilter[]
+  opeListCreater: (source: DuelEntity) => DamageFilter[],
 ) => {
   return createRegularOperatorHandler(title, kind, getTargets, opeListCreater, (entity: DuelEntity) => entity.damageFilterBundle);
 };

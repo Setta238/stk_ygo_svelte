@@ -356,7 +356,7 @@ export class DuelEntity {
     }
 
     // 色々更新処理
-    DuelEntity.settleEntityMove(duel);
+    await DuelEntity.settleEntityMove(duel);
   };
 
   public static readonly summonMany = async (
@@ -456,7 +456,7 @@ export class DuelEntity {
     // 新しく発生したものを検知し、あれば、全て墓地送り（※間接的な再帰実行）
     await DuelEntityShortHands.waitCorpseDisposal(duel);
     // 色々更新処理
-    DuelEntity.settleEntityMove(items[0].monster.duel);
+    await DuelEntity.settleEntityMove(items[0].monster.duel);
   };
 
   /**
@@ -511,9 +511,9 @@ export class DuelEntity {
     );
     return items.map((item) => item.entity).filter((entity) => entity.cell.cellType === to);
   };
-  private static readonly settleEntityMove = (duel: Duel) => {
+  private static readonly settleEntityMove = async (duel: Duel) => {
     duel.field.recalcLinkArrows();
-    duel.field.distributeOperators(duel.clock);
+    await duel.field.distributeOperators(duel.clock);
     const entities = duel.field.getAllEntities().filter((entity) => entity.wasMovedAtCurrentProc);
     entities.filter((entity) => !entity.isOnFieldStrictly && !entity.info.isPending).forEach((entity) => entity.resetInfoIfLeavesTheField());
     entities
@@ -523,7 +523,8 @@ export class DuelEntity {
         entity.resetInfoAll();
         entity.resetStatusAll();
       });
-    entities.flatMap((entity) => entity.continuousEffects).forEach((ce) => ce.updateState());
+    await Promise.all(entities.flatMap((entity) => entity.continuousEffects).map((ce) => ce.updateState()));
+
     duel.field
       .getAllCells()
       .filter((cell) => cell.needsShuffle)
@@ -1072,6 +1073,7 @@ export class DuelEntity {
     this.info.isPending = false;
     this.moveLog.finalize();
     this.continuousEffects.forEach((ce) => ce.updateState());
+    await this.field.distributeOperators(this.duel.clock);
     await this.fireImmediatelyActions();
     await DuelEntityShortHands.waitCorpseDisposal(this.duel);
   };

@@ -1,4 +1,4 @@
-import { StkAsyncEvent, StkEvent } from "@stk_utils/class/StkEvent";
+import { StkAsyncEvent } from "@stk_utils/class/StkEvent";
 import {
   duelPeriodDic,
   type DuelPeriod,

@@ -9,7 +9,7 @@ import {
 import { type Duel } from "@ygo_duel/class/Duel";
 import { DuelError } from "@ygo_duel/class_error/DuelError";
 import { monsterFlexibleNumericStatusKeys, type TMonsterFlexibleNumericStatusGen, type TMonsterFlexibleNumericStatusKey } from "@ygo/class/YgoTypes";
-import type { CardActionDefinitionAttrs } from "../class/DuelEntityAction";
+import type { CardActionDefinitionAttrs } from "@ygo_duel/class/DuelEntityAction";
 
 export const stateOperationTypes = ["Addition", "Fixation", "THE_DEVILS_DREAD-ROOT", "THE_DEVILS_AVATAR", "Gradius'_Option"] as const;
 type TStateOperationType = (typeof stateOperationTypes)[number];

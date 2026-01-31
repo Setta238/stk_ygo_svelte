@@ -2,17 +2,17 @@ import { type Duel } from "@ygo_duel/class/Duel";
 import { DuelEnd, DuelError } from "@ygo_duel/class_error/DuelError";
 import { type TDuelCauseReason, DuelEntity } from "@ygo_duel/class/DuelEntity";
 
-import { type Duelist } from "./Duelist";
+import { type Duelist } from "@ygo_duel/class/Duelist";
 
-import { cellTypeMaster, DuelFieldCell, playFieldCellTypes, type DuelFieldCellType } from "./DuelFieldCell";
-import { ProcFilterPool } from "../class_continuous_effect/DuelProcFilter";
+import { cellTypeMaster, DuelFieldCell, playFieldCellTypes, type DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
+import { ProcFilterPool } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
 import { NumericStateOperatorPool } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
 import { StatusOperatorPool } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 import { SummonFilterPool } from "@ygo_duel/class_continuous_effect/DuelSummonFilter";
-import { BroadEntityMoveLog } from "./DuelEntityMoveLog";
-import type { SummonMaterialInfo } from "./DuelEntityAction";
+import { BroadEntityMoveLog } from "@ygo_duel/class/DuelEntityMoveLog";
+import type { SummonMaterialInfo } from "@ygo_duel/class/DuelEntityAction";
 import { DamageFilterPool } from "@ygo_duel/class_continuous_effect/DuelDamageFilter";
-import type { IDuelClock } from "./DuelClock";
+import type { IDuelClock } from "@ygo_duel/class/DuelClock";
 export class DuelField {
   public readonly cells: DuelFieldCell[][];
   public readonly duel: Duel;
@@ -36,7 +36,7 @@ export class DuelField {
           this,
           row,
           column,
-          row < 3 ? duel.duelists.Above : row > 3 ? duel.duelists.Below : column < 2 ? duel.duelists.Above : column > 4 ? duel.duelists.Below : undefined
+          row < 3 ? duel.duelists.Above : row > 3 ? duel.duelists.Below : column < 2 ? duel.duelists.Above : column > 4 ? duel.duelists.Below : undefined,
         );
       }
     }
@@ -216,7 +216,7 @@ export class DuelField {
     duelist2: Duelist,
     times2: number,
     causedBy: DuelEntity,
-    causedByWhome: Duelist
+    causedByWhome: Duelist,
   ): Promise<void> => {
     const winners: Duelist[] = [];
     const errors: unknown[] = [];
@@ -230,7 +230,7 @@ export class DuelField {
         } else {
           errors.push(reason);
         }
-      })
+      }),
     );
 
     await Promise.all(promises);
@@ -270,7 +270,7 @@ export class DuelField {
     validator: (entites: DuelEntity[]) => boolean,
     movedAs: TDuelCauseReason[],
     movedBy?: DuelEntity,
-    cancelable?: boolean
+    cancelable?: boolean,
   ) => {
     if (qty > 0 && choices.length < qty) {
       return;
@@ -278,7 +278,7 @@ export class DuelField {
     const targets: DuelEntity[] | undefined = await this.duel.view.waitSelectEntities(
       chooser,
       { selectables: choices, qty, validator, cancelable: cancelable ?? false },
-      msg
+      msg,
     );
 
     if (!targets) {
@@ -293,7 +293,7 @@ export class DuelField {
           movedBy,
           activator: chooser,
         };
-      })
+      }),
     );
 
     this.duel.log.info(`${targets.map((e) => e.status.name).join(", ")}を墓地に送った（${movedAs.getDistinct().join(", ")}）。`, chooser);

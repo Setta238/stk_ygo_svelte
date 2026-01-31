@@ -1,7 +1,12 @@
-import type { CardActionDefinitionAttrs, ChainBlockInfo } from "../class/DuelEntityAction";
-import { StickyEffectOperatorBase, StickyEffectOperatorBundle, StickyEffectOperatorPool, type StickyEffectOperatorArgs } from "./DuelStickyEffectOperatorBase";
-import { DuelEntity } from "../class/DuelEntity";
-import { type Duelist, type TLifeLogReason } from "../class/Duelist";
+import type { CardActionDefinitionAttrs, ChainBlockInfo } from "@ygo_duel/class/DuelEntityAction";
+import {
+  StickyEffectOperatorBase,
+  StickyEffectOperatorBundle,
+  StickyEffectOperatorPool,
+  type StickyEffectOperatorArgs,
+} from "@ygo_duel/class_continuous_effect/DuelStickyEffectOperatorBase";
+import { DuelEntity } from "@ygo_duel/class/DuelEntity";
+import { type Duelist, type TLifeLogReason } from "@ygo_duel/class/Duelist";
 /*
   https://yugioh-wiki.net/index.php?%C0%EF%C6%AE%A5%C0%A5%E1%A1%BC%A5%B8
   https://yugioh-wiki.net/index.php?%B8%FA%B2%CC%A5%C0%A5%E1%A1%BC%A5%B8
@@ -63,7 +68,7 @@ export class DamageFilter extends StickyEffectOperatorBase {
     damageSource: DuelEntity,
     suppressor: DuelEntity | undefined,
     damageType: TLifeLogReason,
-    actionAttr: CardActionDefinitionAttrs
+    actionAttr: CardActionDefinitionAttrs,
   ) => Partial<DamageCalcTypeFlags>;
   public constructor(args: DamageFilterArgs) {
     super(args);
@@ -113,7 +118,7 @@ const calcDamage = (...args: Parameters<typeof DamageFilter.prototype.filter>): 
       damageSource,
       suppressor,
       result.damageType,
-      actionAttr
+      actionAttr,
     ),
     ...flags,
   };
@@ -165,5 +170,5 @@ export const calcBattleDamage = (
   damageTo: Duelist,
   damageSource: DuelEntity,
   suppressor: DuelEntity,
-  actionAttr: CardActionDefinitionAttrs
+  actionAttr: CardActionDefinitionAttrs,
 ) => calcDamage(point, activator, damageTo, damageSource, suppressor.entityType === "Duelist" ? undefined : suppressor, "BattleDamage", actionAttr);

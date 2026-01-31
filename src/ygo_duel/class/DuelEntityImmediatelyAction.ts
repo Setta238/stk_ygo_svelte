@@ -1,6 +1,6 @@
 import type { DuelEntity, DuelEntityInfomation, EntityStatus } from "@ygo_duel/class/DuelEntity";
 import { EntityActionBase, type EntityActionDefinitionBase } from "@ygo_duel/class/DuelEntityActionBase";
-import type { DuelFieldCell } from "./DuelFieldCell";
+import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 export type ImmediatelyActionDefinition = Omit<EntityActionDefinitionBase, "isMandatory" | "executableDuelistTypes" | "playType"> & {
   execute: (
     action: ImmediatelyAction,
@@ -37,7 +37,7 @@ export class ImmediatelyAction extends EntityActionBase {
       status: Readonly<EntityStatus>;
       info: Readonly<DuelEntityInfomation>;
       cell: DuelFieldCell;
-    }>
+    }>,
   ): Promise<"RemoveMe" | undefined> => {
     if (!this.canExecute()) {
       return;

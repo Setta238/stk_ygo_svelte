@@ -1,11 +1,11 @@
 import { StkEvent } from "@stk_utils/class/StkEvent";
 import { type Duel } from "@ygo_duel/class/Duel";
 import { DuelError } from "@ygo_duel/class_error/DuelError";
-import { Duelist } from "./Duelist";
-import type { IDuelClock } from "./DuelClock";
-import type { DuelEntity } from "./DuelEntity";
+import { Duelist } from "@ygo_duel/class/Duelist";
+import type { IDuelClock } from "@ygo_duel/class/DuelClock";
+import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { type DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
-import { EzTransactionController } from "./DuelUtilTypes";
+import { EzTransactionController } from "@ygo_duel/class/DuelUtilTypes";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const logLevels = ["info", "warn", "error"] as const;
@@ -52,7 +52,7 @@ export default class DuelLog {
       console.info("ログの二重トランザクションを開始しようとしたため、ダミーを返す。");
       return new EzTransactionController(
         () => {},
-        () => {}
+        () => {},
       );
     }
 

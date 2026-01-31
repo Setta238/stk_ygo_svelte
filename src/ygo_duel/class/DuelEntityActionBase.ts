@@ -1,8 +1,8 @@
-import { type TExecutableDuelistType } from "./DuelEntityAction";
-import { duelEntityFaces, type DuelEntity, type TDuelEntityFace } from "./DuelEntity";
-import type { DuelFieldCellType } from "./DuelFieldCell";
-import type { Duelist } from "./Duelist";
-import type { TDuelPeriodKey } from "./DuelPeriod";
+import { type TExecutableDuelistType } from "@ygo_duel/class/DuelEntityAction";
+import { duelEntityFaces, type DuelEntity, type TDuelEntityFace } from "@ygo_duel/class/DuelEntity";
+import type { DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
+import type { Duelist } from "@ygo_duel/class/Duelist";
+import type { TDuelPeriodKey } from "@ygo_duel/class/DuelPeriod";
 
 export const cardActionRuleSummonTypes = ["NormalSummon", "SpecialSummon", "FlipSummon"] as const;
 export type TCardActionRuleSummonType = (typeof cardActionRuleSummonTypes)[number];

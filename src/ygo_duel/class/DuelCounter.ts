@@ -1,5 +1,5 @@
-import type { EntityActionBase } from "./DuelEntityActionBase";
-import type { DuelEntity } from "./DuelEntity";
+import type { EntityActionBase } from "@ygo_duel/class/DuelEntityActionBase";
+import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import _counterInfo from "@ygo_duel/json/counterInfo.json";
 export type TCounterName = keyof typeof _counterInfo;
 

@@ -1,20 +1,20 @@
 import { summonMonsterCategories, type CardInfo, type TBattlePosition } from "@ygo/class/YgoTypes";
 import type { ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import type { SummonFilter } from "@ygo_duel/class_continuous_effect/DuelSummonFilter";
-import type { CardActionDefinition as EntityActionDefinition, CardActionDefinitionAttrs, ChainBlockInfo, SummonMaterialInfo } from "./DuelEntityAction";
+import type {
+  CardActionDefinition as EntityActionDefinition,
+  CardActionDefinitionAttrs,
+  ChainBlockInfo,
+  SummonMaterialInfo,
+} from "@ygo_duel/class/DuelEntityAction";
 import type { DuelEntity, TDuelCauseReason, EntityStatus } from "@ygo_duel/class/DuelEntity";
 import type { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 import type { Duelist } from "@ygo_duel/class/Duelist";
 import type { SubstituteEffectDefinition } from "@ygo_duel/class/DuelSubstituteEffect";
 import { cardDefinitionsPrms } from "@ygo/class/CardInfo";
-import {
-  defaultNormalMonsterActions,
-  defaultActions,
-  defaultSummonFilter,
-  defaultLinkMonsterActions,
-} from "../../ygo_entity_proc/card_actions/CardActions_Monster";
+import { defaultNormalMonsterActions, defaultActions, defaultSummonFilter, defaultLinkMonsterActions } from "@ygo_entity_proc/card_actions/CardActions_Monster";
 import { createDuelistProcDefinition } from "@ygo_entity_proc/duelist_proc_definitions/DuelistProcDefinitions";
-import type { ImmediatelyActionDefinition } from "./DuelEntityImmediatelyAction";
+import type { ImmediatelyActionDefinition } from "@ygo_duel/class/DuelEntityImmediatelyAction";
 
 export type NameTypeFusionMaterialInfo = {
   type: "Name";

@@ -1,9 +1,9 @@
-import type { IDuelClock, TDuelClockSubKey } from "./DuelClock";
-import type { DuelEntity, TDuelCauseReason, TDuelEntityFace, TDuelEntityOrientation } from "./DuelEntity";
-import type { Duelist } from "./Duelist";
-import { DuelFieldCell } from "./DuelFieldCell";
+import type { IDuelClock, TDuelClockSubKey } from "@ygo_duel/class/DuelClock";
+import type { DuelEntity, TDuelCauseReason, TDuelEntityFace, TDuelEntityOrientation } from "@ygo_duel/class/DuelEntity";
+import type { Duelist } from "@ygo_duel/class/Duelist";
+import { DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
 import { getIndex } from "@stk_utils/funcs/StkMathUtils";
-import { DuelField } from "./DuelField";
+import { DuelField } from "@ygo_duel/class/DuelField";
 import type { TCardKind } from "@ygo/class/YgoTypes";
 import { DuelError } from "@ygo_duel/class_error/DuelError";
 import type { Mutable } from "@stk_utils/funcs/StkTypeUtils";
@@ -47,7 +47,7 @@ export class BroadEntityMoveLog {
   private getIndexOfStartPoint = (totalProcSeq: number): number =>
     getIndex(
       this._records.map((record) => record.movedAt.totalProcSeq),
-      totalProcSeq
+      totalProcSeq,
     );
   private *getTermLog(target: "Current" | "Previous", key: TDuelClockSubKey) {
     const startPoint = target === "Current" ? this._field.duel.clock.currentStartPoints[key] : this._field.duel.clock.previousStartPoints[key];

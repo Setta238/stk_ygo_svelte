@@ -1,7 +1,12 @@
-import type { CardActionDefinitionAttrs } from "../class/DuelEntityAction";
-import { StickyEffectOperatorBase, StickyEffectOperatorBundle, StickyEffectOperatorPool, type StickyEffectOperatorArgs } from "./DuelStickyEffectOperatorBase";
-import { type DuelEntity, type TMaterialCauseReason } from "../class/DuelEntity";
-import { type Duelist } from "../class/Duelist";
+import type { CardActionDefinitionAttrs } from "@ygo_duel/class/DuelEntityAction";
+import {
+  StickyEffectOperatorBase,
+  StickyEffectOperatorBundle,
+  StickyEffectOperatorPool,
+  type StickyEffectOperatorArgs,
+} from "@ygo_duel/class_continuous_effect/DuelStickyEffectOperatorBase";
+import { type DuelEntity, type TMaterialCauseReason } from "@ygo_duel/class/DuelEntity";
+import { type Duelist } from "@ygo_duel/class/Duelist";
 
 export const banishProcType = ["BanishAsEffect", "BanishAsCost"] as const;
 export type TBanishProcType = (typeof banishProcType)[number];
@@ -54,7 +59,7 @@ export class ProcFilterBundle extends StickyEffectOperatorBundle<ProcFilter> {
     activator: Duelist,
     entity: DuelEntity,
     actionAttr: Partial<CardActionDefinitionAttrs>,
-    effectedEntites: DuelEntity[]
+    effectedEntites: DuelEntity[],
   ) =>
     this.effectiveOperators
       .filter((pf) => pf.procTypes.union(procTypes).length)
@@ -76,7 +81,7 @@ export class ProcFilter extends StickyEffectOperatorBase {
     isSpawnedBy: DuelEntity,
     isApplicableTo: (operator: StickyEffectOperatorBase, target: DuelEntity) => boolean,
     procTypes: TProcType[],
-    filter: typeof ProcFilter.prototype.filter
+    filter: typeof ProcFilter.prototype.filter,
   ) => {
     return new ProcFilter({ title, validateAlive, isContinuous: true, isSpawnedBy, actionAttr: {}, isApplicableTo, procTypes, filter });
   };
@@ -87,7 +92,7 @@ export class ProcFilter extends StickyEffectOperatorBase {
     actionAttr: Partial<CardActionDefinitionAttrs>,
     isApplicableTo: (operator: StickyEffectOperatorBase, target: DuelEntity) => boolean,
     procTypes: TProcType[],
-    filter: typeof ProcFilter.prototype.filter
+    filter: typeof ProcFilter.prototype.filter,
   ) => {
     return new ProcFilter({ title, validateAlive, isContinuous: false, isSpawnedBy, actionAttr, isApplicableTo, procTypes, filter });
   };
@@ -98,7 +103,7 @@ export class ProcFilter extends StickyEffectOperatorBase {
     activator: Duelist,
     entity: DuelEntity,
     actionAttr: Partial<CardActionDefinitionAttrs>,
-    effectedEntites: DuelEntity[]
+    effectedEntites: DuelEntity[],
   ) => boolean;
   public constructor(args: ProcFilterArgs) {
     super(args);

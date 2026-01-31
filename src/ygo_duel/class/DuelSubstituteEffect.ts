@@ -1,5 +1,5 @@
-import { EntityActionBase, type EntityActionDefinitionBase, type EntityActionExecuteInfo } from "./DuelEntityActionBase";
-import type { DuelEntity } from "./DuelEntity";
+import { EntityActionBase, type EntityActionDefinitionBase, type EntityActionExecuteInfo } from "@ygo_duel/class/DuelEntityActionBase";
+import type { DuelEntity } from "@ygo_duel/class/DuelEntity";
 
 export type SubstituteEffectDefinition = EntityActionDefinitionBase & {
   isApplicableTo: (effect: SubstituteEffect, ...args: Parameters<typeof SubstituteEffect.prototype.isApplicableTo>) => DuelEntity[];

@@ -2,9 +2,9 @@ import { type IDuelistProfile } from "@ygo/class/DuelistProfile";
 import { type IDeckInfo } from "@ygo/class/DeckInfo";
 import { DuelError, DuelEnd } from "@ygo_duel/class_error/DuelError";
 import { type ResponseActionInfo, type TSeat, type Duel } from "@ygo_duel/class/Duel";
-import { DuelEntity, type SummonArg, type TDuelCauseReason, type TSummonKindCauseReason } from "./DuelEntity";
-import type { IDuelClock } from "./DuelClock";
-import type { DuelFieldCell, DuelFieldCellType } from "./DuelFieldCell";
+import { DuelEntity, type SummonArg, type TDuelCauseReason, type TSummonKindCauseReason } from "@ygo_duel/class/DuelEntity";
+import type { IDuelClock } from "@ygo_duel/class/DuelClock";
+import type { DuelFieldCell, DuelFieldCellType } from "@ygo_duel/class/DuelFieldCell";
 import { getSequenceNumbers } from "@stk_utils/funcs/StkArrayUtils";
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
 import {
@@ -79,7 +79,7 @@ export class Duelist {
     qty: number | undefined,
     validator: (summoned: DuelEntity[]) => boolean,
     cancelable: boolean,
-    msg: string = "特殊召喚するモンスターを選択。"
+    msg: string = "特殊召喚するモンスターを選択。",
   ) =>
     Duelist._summonMany(
       effectOwner,
@@ -95,7 +95,7 @@ export class Duelist {
       qty,
       validator,
       cancelable,
-      msg
+      msg,
     );
   private static readonly _summonMany = async (
     effectOwner: Duelist,
@@ -108,7 +108,7 @@ export class Duelist {
     qty: number | undefined,
     validator: (summoned: DuelEntity[]) => boolean,
     cancelable: boolean,
-    msg: string = "特殊召喚するモンスターを選択。"
+    msg: string = "特殊召喚するモンスターを選択。",
   ) => {
     const summonArgs: SummonArg[] = [];
 
@@ -126,7 +126,7 @@ export class Duelist {
         qty,
         validator,
         cancelable,
-        _item.msg ?? msg
+        _item.msg ?? msg,
       );
 
       summonArgs.push(...selected);
@@ -145,7 +145,7 @@ export class Duelist {
       materialInfos.map((info) => info.material).filter((monster) => monster.kind === "XyzMaterial"),
       ["XyzMaterial", "Rule"],
       summonArgs[0].monster,
-      effectOwner
+      effectOwner,
     );
 
     await DuelEntity.summonMany(summonArgs, summonType, movedAs, actDefAttr, effectOwner);
@@ -177,7 +177,7 @@ export class Duelist {
     point: number,
     damageSource: DuelEntity,
     suppressor: DuelEntity,
-    chainBlockInfo: ChainBlockInfo<unknown>
+    chainBlockInfo: ChainBlockInfo<unknown>,
   ) => {
     //MEMO 戦闘ダメージの場合、攻撃宣言したモンスターがダメージ元とは限らない
 
@@ -487,7 +487,7 @@ export class Duelist {
         this.writeInfoLog(
           cardNames.length > 0
             ? `デッキからカードを${times}枚ドローしようとしたが、${cardNames.length}枚しかドローできなかった。${cardNames}`
-            : "デッキからカードをドローできなかった。"
+            : "デッキからカードをドローできなかった。",
         );
         throw new DuelEnd(this.getOpponentPlayer(), `${this.name}がデッキからカードをドローできなかった。`);
       }
@@ -507,7 +507,7 @@ export class Duelist {
     posList: Readonly<TBattlePosition[]>,
     cells: DuelFieldCell[],
     materialInfos: SummonMaterialInfo[],
-    cancelable: boolean
+    cancelable: boolean,
   ): Promise<DuelEntity | undefined> => {
     const monsters =
       (await this.summonMany(
@@ -520,7 +520,7 @@ export class Duelist {
         false,
         1,
         (selected) => selected.length === 1,
-        cancelable
+        cancelable,
       )) ?? [];
     return monsters[0];
   };
@@ -533,7 +533,7 @@ export class Duelist {
     qty: number | undefined,
     validator: (selected: DuelEntity[]) => boolean,
     message: string,
-    cancelable: boolean = false
+    cancelable: boolean = false,
   ): Promise<DuelEntity[] | undefined> => {
     return this.duel.view.waitSelectEntities(this, { selectables: choices, qty, validator, cancelable }, message);
   };
@@ -547,13 +547,13 @@ export class Duelist {
   public readonly waitSelectText = <C extends { seq: number; text: string }>(
     choises: C[],
     title: string,
-    cancelable: boolean = false
+    cancelable: boolean = false,
   ): Promise<C | undefined> => this.duel.view.waitSelectText(this, choises, title, cancelable);
 
   public readonly getEnableActions = (
     enableCardPlayTypes: TEntityActionType[],
     enableSpellSpeeds: TSpellSpeed[],
-    chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>
+    chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
   ): ValidatedActionInfo[] => {
     const nextChainBlockFilter = chainBlockInfos.slice(-1)[0]?.nextChainBlockFilter ?? (() => true);
 
@@ -574,7 +574,7 @@ export class Duelist {
     causedBy?: DuelEntity,
     activator?: Duelist,
     chooser?: Duelist,
-    cancelable: boolean = false
+    cancelable: boolean = false,
   ): Promise<DuelEntity[] | undefined> => {
     const choices = this.getHandCell().cardEntities.filter(filter);
 
@@ -591,7 +591,7 @@ export class Duelist {
       const _selectedList = await this.duel.view.waitSelectEntities(
         chooser || this,
         { selectables: choices, qty, validator: (list) => list.length === qty, cancelable },
-        `${qty}枚カードを捨てる。`
+        `${qty}枚カードを捨てる。`,
       );
       if (!_selectedList) {
         return;
@@ -612,7 +612,7 @@ export class Duelist {
     actDefAttr: CardActionDefinitionAttrs & { entity: DuelEntity },
     summonChoices: Omit<SummonChoice, "summoner">[],
     materialInfos: SummonMaterialInfo[],
-    ignoreSummoningConditions: boolean
+    ignoreSummoningConditions: boolean,
   ): SummonChoice[] => {
     const extraMonsterZones = this.duel.field.getCells("ExtraMonsterZone");
 
@@ -660,7 +660,7 @@ export class Duelist {
               cells: item.cells.filter(
                 (cell) =>
                   cell.cellType === "ExtraMonsterZone" ||
-                  cell.linkArrowSources.filter((linkMonster) => !materialInfos.map((info) => info.material).includes(linkMonster)).length
+                  cell.linkArrowSources.filter((linkMonster) => !materialInfos.map((info) => info.material).includes(linkMonster)).length,
               ),
             };
           }
@@ -681,7 +681,7 @@ export class Duelist {
       .map((item) =>
         materialInfos
           .map((info) => info.material.summonFilterBundle)
-          .reduce((wip, bundle) => bundle.filter(effectOwner, summonType, movedAs, actDefAttr, wip, materialInfos, ignoreSummoningConditions), item)
+          .reduce((wip, bundle) => bundle.filter(effectOwner, summonType, movedAs, actDefAttr, wip, materialInfos, ignoreSummoningConditions), item),
       )
       .filter((item) => item.cells.length && item.posList.length);
   };
@@ -697,7 +697,7 @@ export class Duelist {
     qty: number | undefined,
     validator: (summoned: DuelEntity[]) => boolean,
     cancelable: boolean,
-    msg: string = "特殊召喚するモンスターを選択。"
+    msg: string = "特殊召喚するモンスターを選択。",
   ): Promise<SummonArg[]> => {
     const choices = this.getEnableSummonList(effectOwner, summonType, movedAs, actDefAttr, summonChoices, materialInfos, ignoreSummoningConditions);
 
@@ -717,7 +717,7 @@ export class Duelist {
         const monster = await this.waitSelectEntity(
           _choices.map((item) => item.monster),
           msg,
-          _cancelable
+          _cancelable,
         );
 
         if (!monster) {
@@ -765,7 +765,7 @@ export class Duelist {
     materialInfos: SummonMaterialInfo[],
     ignoreSummoningConditions: boolean,
     cancelable: boolean,
-    msg?: string
+    msg?: string,
   ) =>
     this.summonMany(
       effectOwner,
@@ -778,7 +778,7 @@ export class Duelist {
       summonChoices.length,
       (summoned) => summoned.length === summonChoices.length,
       cancelable,
-      msg
+      msg,
     );
   public readonly summonOne = async (
     effectOwner: Duelist,
@@ -789,7 +789,7 @@ export class Duelist {
     materialInfos: SummonMaterialInfo[],
     ignoreSummoningConditions: boolean,
     cancelable: boolean,
-    msg?: string
+    msg?: string,
   ) => {
     const result = await this.summonMany(
       effectOwner,
@@ -802,7 +802,7 @@ export class Duelist {
       1,
       (summoned) => summoned.length === 1,
       cancelable,
-      msg
+      msg,
     );
     if (!result) {
       return;
@@ -821,7 +821,7 @@ export class Duelist {
     qty: number | undefined,
     validator: (summoned: DuelEntity[]) => boolean,
     cancelable: boolean,
-    msg?: string
+    msg?: string,
   ) =>
     Duelist.summonMany(
       effectOwner,
@@ -836,7 +836,7 @@ export class Duelist {
       qty,
       validator,
       cancelable,
-      msg
+      msg,
     );
 
   public readonly summonEachFields = (
@@ -849,7 +849,7 @@ export class Duelist {
     ignoreSummoningConditions: boolean,
     qty: number | undefined,
     validator: (summoned: DuelEntity[]) => boolean,
-    cancelable: boolean
+    cancelable: boolean,
   ) =>
     Duelist._summonMany(
       effectOwner,
@@ -868,7 +868,7 @@ export class Duelist {
       ignoreSummoningConditions,
       qty,
       validator,
-      cancelable
+      cancelable,
     );
   public readonly selectAttackTargetForNPC = (attacker: DuelEntity, action: EntityAction<unknown>): DuelEntity | undefined => {
     // 攻撃力と攻撃対象を抽出。
@@ -902,7 +902,7 @@ export class Duelist {
 
   public readonly selectActionForNPC = (
     actionInfos: ValidatedActionInfo[],
-    chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>
+    chainBlockInfos: Readonly<ChainBlockInfo<unknown>[]>,
   ): ResponseActionInfo | undefined => {
     // 発動可能な効果がなければ何もしない
     if (!actionInfos.length) {
@@ -992,7 +992,7 @@ export class Duelist {
       .filter((info) => info.action.playType !== "ChangeBattlePosition")
       .filter((info) => info.action.entity.battlePosition !== "Attack")
       .filter(
-        (info) => (info.action.entity.atk ?? 0) >= maxEnemyAtk || ((info.action.entity.atk ?? 0) > minEnemyAtkDef && (info.action.entity.atk ?? 0) > 2300)
+        (info) => (info.action.entity.atk ?? 0) >= maxEnemyAtk || ((info.action.entity.atk ?? 0) > minEnemyAtkDef && (info.action.entity.atk ?? 0) > 2300),
       );
     if (posActions.length) {
       return posActions.randomPick();
@@ -1008,7 +1008,7 @@ export class Duelist {
             .filter((otherAction) => otherAction.playType !== "NormalSummon" && otherAction.playType !== "SpecialSummon")
             .flatMap((otherAction) => otherAction.executableCells)
             .every((ct) => ct !== "Hand") ||
-          (info.action.playType !== "NormalSummon" && info.action.playType !== "SpecialSummon")
+          (info.action.playType !== "NormalSummon" && info.action.playType !== "SpecialSummon"),
       );
 
     // 手札効果なし、リリースなしで通常召喚できるモンスターが居るなら出しとけの精神
@@ -1039,7 +1039,7 @@ export class Duelist {
         .filter((info) => info.action.playType === "ChangeBattlePosition")
         .filter((info) => info.action.entity.battlePosition === "Attack")
         .filter(
-          (info) => (info.action.entity.atk ?? 0) < maxEnemyAtk || ((info.action.entity.atk ?? 0) > minEnemyAtkDef && (info.action.entity.atk ?? 0) > 2300)
+          (info) => (info.action.entity.atk ?? 0) < maxEnemyAtk || ((info.action.entity.atk ?? 0) > minEnemyAtkDef && (info.action.entity.atk ?? 0) > 2300),
         );
       if (posActions.length) {
         return posActions.randomPick();

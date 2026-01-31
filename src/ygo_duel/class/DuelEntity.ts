@@ -25,26 +25,32 @@ import {
   type DuelFieldCellType,
   type TBundleCellType,
   type TDuelEntityMovePos,
-} from "./DuelFieldCell";
-import { type Duelist } from "./Duelist";
+} from "@ygo_duel/class/DuelFieldCell";
+import { type Duelist } from "@ygo_duel/class/Duelist";
 
-import { EntityAction, type CardActionDefinitionAttrs, type ChainBlockInfo, type ChainBlockInfoBase, type SummonMaterialInfo } from "./DuelEntityAction";
-import { ProcFilterBundle, type TBanishProcType, type TProcType } from "../class_continuous_effect/DuelProcFilter";
+import {
+  EntityAction,
+  type CardActionDefinitionAttrs,
+  type ChainBlockInfo,
+  type ChainBlockInfoBase,
+  type SummonMaterialInfo,
+} from "@ygo_duel/class/DuelEntityAction";
+import { ProcFilterBundle, type TBanishProcType, type TProcType } from "@ygo_duel/class_continuous_effect/DuelProcFilter";
 import { ContinuousEffect, type ContinuousEffectBase } from "@ygo_duel/class_continuous_effect/DuelContinuousEffect";
 import { NumericStateOperatorBundle } from "@ygo_duel/class_continuous_effect/DuelNumericStateOperator";
-import type { DuelField } from "./DuelField";
-import { EntityMoveLog, type DuelEntityShallowCopy } from "./DuelEntityMoveLog";
-import { CounterHolder, type TCounterName } from "./DuelCounter";
+import type { DuelField } from "@ygo_duel/class/DuelField";
+import { EntityMoveLog, type DuelEntityShallowCopy } from "@ygo_duel/class/DuelEntityMoveLog";
+import { CounterHolder, type TCounterName } from "@ygo_duel/class/DuelCounter";
 import { StatusOperator, StatusOperatorBundle } from "@ygo_duel/class_continuous_effect/DuelStatusOperator";
 
-import { createDuelistEntityDefinition, type EntityDefinition } from "./DuelEntityDefinition";
-import { SubstituteEffect } from "./DuelSubstituteEffect";
+import { createDuelistEntityDefinition, type EntityDefinition } from "@ygo_duel/class/DuelEntityDefinition";
+import { SubstituteEffect } from "@ygo_duel/class/DuelSubstituteEffect";
 import { SummonFilter, SummonFilterBundle } from "@ygo_duel/class_continuous_effect/DuelSummonFilter";
-import { DuelEntityShortHands } from "./DuelEntityShortHands";
-import type { IDuelClock } from "./DuelClock";
+import { DuelEntityShortHands } from "@ygo_duel/class/DuelEntityShortHands";
+import type { IDuelClock } from "@ygo_duel/class/DuelClock";
 import { DamageFilterBundle } from "@ygo_duel/class_continuous_effect/DuelDamageFilter";
 import { delay } from "@stk_utils/funcs/StkPromiseUtil";
-import { ImmediatelyAction } from "./DuelEntityImmediatelyAction";
+import { ImmediatelyAction } from "@ygo_duel/class/DuelEntityImmediatelyAction";
 export type EntityStatus = {
   canAttack: boolean;
   canDirectAttack: boolean;

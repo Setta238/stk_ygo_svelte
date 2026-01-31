@@ -1,8 +1,8 @@
 import { StkEvent } from "@stk_utils/class/StkEvent";
-import { Duel } from "./Duel";
-import { type Duelist } from "./Duelist";
-import type { DuelClock } from "./DuelClock";
-import type { TDuelPeriodKey } from "./DuelPeriod";
+import { Duel } from "@ygo_duel/class/Duel";
+import { type Duelist } from "@ygo_duel/class/Duelist";
+import type { DuelClock } from "@ygo_duel/class/DuelClock";
+import type { TDuelPeriodKey } from "@ygo_duel/class/DuelPeriod";
 
 type DuelSummonLogRecord = {
   seq: number;

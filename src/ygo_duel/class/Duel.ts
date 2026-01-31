@@ -1,23 +1,22 @@
-import { generateCardDefinitions } from "./DuelEntityDefinition";
+import { generateCardDefinitions } from "@ygo_duel/class/DuelEntityDefinition";
 import { type IDeckInfo } from "@ygo/class/DeckInfo";
 import { Duelist, type TDuelistType } from "@ygo_duel/class/Duelist";
 import { type IDuelistProfile } from "@ygo/class/DuelistProfile";
-import { DuelField } from "./DuelField";
+import { DuelField } from "@ygo_duel/class/DuelField";
 import DuelLog from "@ygo_duel/class/DuelLog";
 import { DuelEntity } from "@ygo_duel/class/DuelEntity";
 import { DuelViewController } from "@ygo_duel_view/class/DuelViewController";
-import { DuelClock } from "./DuelClock";
-import DuelChainBlockLog from "./DuelChainBlockLog";
-import { type EntityAction, type ChainBlockInfo } from "./DuelEntityAction";
-import type { TDuelPhase } from "./DuelPeriod";
+import { DuelClock } from "@ygo_duel/class/DuelClock";
+import DuelChainBlockLog from "@ygo_duel/class/DuelChainBlockLog";
+import { type EntityAction, type ChainBlockInfo } from "@ygo_duel/class/DuelEntityAction";
+import type { TDuelPhase } from "@ygo_duel/class/DuelPeriod";
 import { StkEvent } from "@stk_utils/class/StkEvent";
 import type { TBattlePosition } from "@ygo/class/YgoTypes";
-import { type DuelFieldCell } from "./DuelFieldCell";
-import type { EntityDefinition } from "./DuelEntityDefinition";
+import { type DuelFieldCell } from "@ygo_duel/class/DuelFieldCell";
+import type { EntityDefinition } from "@ygo_duel/class/DuelEntityDefinition";
 import { DuelFacilitatorBase } from "@ygo_duel/class_facilitator/DuelFacilitatorBase";
 import { DuelFacilitator_EndPhase } from "@ygo_duel/class_facilitator/DuelFacilitator_EndPhase";
 import { DuelEnd } from "@ygo_duel/class_error/DuelError";
-import { loadTextData } from "@ygo/class/CardInfo";
 export const duelStartModes = ["PlayFirst", "DrawFirst", "Random"] as const;
 export type TDuelStartMode = (typeof duelStartModes)[number];
 export const duelStartModeDic: { [key in TDuelStartMode]: string } = {
@@ -105,7 +104,7 @@ export class Duel {
     duelist2Type: TDuelistType,
     deck2: IDeckInfo,
     hand2: string[] = [],
-    startMode: TDuelStartMode = "Random"
+    startMode: TDuelStartMode = "Random",
   ) {
     this.clock = new DuelClock();
     this.isEnded = false;
@@ -141,15 +140,15 @@ export class Duel {
         generateCardDefinitions(
           ...Object.values(this.duelists)
             .flatMap((duelist) => duelist.deckInfo.cardNames)
-            .getDistinct()
-        )
+            .getDistinct(),
+        ),
       )
     ).reduce(
       (wip, definition) => {
         wip[definition.name] = definition;
-        return { ...wip };
+        return wip;
       },
-      {} as { [name: string]: EntityDefinition }
+      {} as { [name: string]: EntityDefinition },
     );
 
     for (const duelist of Object.values(this.duelists)) {
@@ -173,12 +172,13 @@ export class Duel {
     this.log.info(`先攻：${this.firstPlayer.profile.name} 後攻：${this.secondPlayer.profile.name}`);
 
     try {
-      // エクゾディア判定
+      // エクゾディアの初手成立判定
       for (const duelist of Object.values(this.duelists)) {
         for (const afterChainBlockEffect of duelist.getEnableActions(["Exodia"], ["Normal"], [])) {
           await afterChainBlockEffect.action.directExecute(duelist, undefined, false);
         }
       }
+      //phaseループ
       while (!this.isEnded) {
         this._facilitator = await this._facilitator.proceed();
         if (this.clock.turn > 1000) {
@@ -229,14 +229,14 @@ export class Duel {
   private readonly executeAutomaticPeriodActions = async () => {
     let needsIncrementChainSeq = false;
     for (const info of Object.values(this.duelists).flatMap((duelist) =>
-      duelist.getEnableActions(["SystemPeriodAction"], ["Normal"], []).map((info) => ({ duelist, ...info }))
+      duelist.getEnableActions(["SystemPeriodAction"], ["Normal"], []).map((info) => ({ duelist, ...info })),
     )) {
       needsIncrementChainSeq = true;
       await info.action.directExecute(info.duelist, undefined, false);
     }
 
     for (const info of [this.getTurnPlayer(), this.getNonTurnPlayer()].flatMap((duelist) =>
-      duelist.getEnableActions(["ContinuousPeriodAction"], ["Normal"], []).map((info) => ({ duelist, ...info }))
+      duelist.getEnableActions(["ContinuousPeriodAction"], ["Normal"], []).map((info) => ({ duelist, ...info })),
     )) {
       needsIncrementChainSeq = true;
       await info.action.directExecute(info.duelist, undefined, false);

@@ -1,6 +1,6 @@
-import { Duel } from "./Duel";
-import type { ChainBlockInfo } from "./DuelEntityAction";
-import type { IDuelClock } from "./DuelClock";
+import { Duel } from "@ygo_duel/class/Duel";
+import type { ChainBlockInfo } from "@ygo_duel/class/DuelEntityAction";
+import type { IDuelClock } from "@ygo_duel/class/DuelClock";
 import { StkEvent } from "@stk_utils/class/StkEvent";
 export type ChainBlockLogRecord = {
   seq: number;

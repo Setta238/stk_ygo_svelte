@@ -77,6 +77,8 @@
   import DeckEditorCard from "./DeckEditorCard.svelte";
   import { delay } from "@stk_utils/funcs/StkPromiseUtil";
 
+  export let refOnly: boolean;
+
   const modalController = DeckEditorModalControllerFactory.createModalController({
     onDragStart: { append: () => {}, remove: () => {} },
     onDragEnd: { append: () => {}, remove: () => {} },
@@ -100,7 +102,7 @@
     defLowerBound: 0,
     defUpperBound: 5000,
     atkPlusDef: undefined,
-    others: ["oldVersion"],
+    others: refOnly ? ["implemented"] : ["oldVersion"],
     sort: [...defaultSortSetting],
   };
 
@@ -202,6 +204,10 @@
     onCardDragCancel,
     onCardDragStart: (ev, from, cardInfo) => {
       onAttention(cardInfo);
+      if (refOnly) {
+        onCardDragCancel();
+        return;
+      }
       if (from !== "List" && from !== "Deck") {
         onCardDragCancel();
         return;
@@ -638,17 +644,19 @@
               </div>
             </div>
           {/if}
-          <div class="deck_editor_search_box_row" transition:slide={{ delay: 0, duration: 100 }}>
-            <div><button class="search_condition_title black_button" on:click={() => onResetSearchCondition(["others"])}>その他</button></div>
-            <div>
-              {#each [{ key: "test", text: "テスト用カード" }, { key: "oldVersion", text: "エラッタ前カード" }, { key: "implemented", text: "未実装カード" }] as item}
-                <label>
-                  <input type="checkbox" class="search_condition" value={item.key} bind:group={searchCondition.others} />
-                  {item.text}
-                </label>
-              {/each}
+          {#if !refOnly}
+            <div class="deck_editor_search_box_row" transition:slide={{ delay: 0, duration: 100 }}>
+              <div><button class="search_condition_title black_button" on:click={() => onResetSearchCondition(["others"])}>その他</button></div>
+              <div>
+                {#each [{ key: "test", text: "テスト用カード" }, { key: "oldVersion", text: "エラッタ前カード" }, { key: "implemented", text: "未実装カード" }] as item}
+                  <label>
+                    <input type="checkbox" class="search_condition" value={item.key} bind:group={searchCondition.others} />
+                    {item.text}
+                  </label>
+                {/each}
+              </div>
             </div>
-          </div>
+          {/if}
         </div>
       </div>
       {#if left_pain_mode === "CardDetail" && selectedCardInfo}
@@ -661,86 +669,92 @@
       <div class="deck_editor_body_center_body">
         {#await cardDefinitionsPrms}
           <div>カード情報読込中</div>
-        {:then cardInfo}
-          <DeckEditorCardAccordions
-            mode="List"
-            allCardTree={cardInfo.tree}
-            {onAttention}
-            {searchCondition}
-            bind:deckCardTree={tmpDeck.cardTree}
-            {cardControlEventHandlers}
-          />
+        {:then cardDefinitions}
+          {#await cardDefinitions.treePrms}
+            <div>カード情報整理中</div>
+          {:then allCardTree}
+            <DeckEditorCardAccordions
+              mode="List"
+              {allCardTree}
+              {onAttention}
+              {searchCondition}
+              bind:deckCardTree={tmpDeck.cardTree}
+              {cardControlEventHandlers}
+            />
+          {/await}
         {/await}
       </div>
     </div>
-    <!-- svelte-ignore a11y_click_events_have_key_events -->
-    <!-- svelte-ignore a11y_no_static_element_interactions -->
-    <div
-      class="deck_editor_body_right"
-      on:click={() => {
-        main_view_mode = "DeckEdit";
-      }}
-      on:focusin={() => {
-        main_view_mode = "DeckEdit";
-      }}
-    >
-      {#if main_view_mode === "DeckEdit" || getScreenSize() === "wide"}
-        {#await deckInfosPromise}
-          <div>デッキ情報読込中</div>
-        {:then deckInfos}
-          <div class="deck_editor_body_right_header">
-            <div class="deck_editor_body_right_header_row">
-              <div>編集対象</div>
-              <div>
-                <select style="width:100%" bind:value={selectedId} on:change={onSelectDeckChange}>
-                  {#each deckInfos as deckInfo}
-                    <option value={deckInfo.id}>{deckInfo.name}</option>
-                  {/each}
-                </select>
+    {#if !refOnly}
+      <!-- svelte-ignore a11y_click_events_have_key_events -->
+      <!-- svelte-ignore a11y_no_static_element_interactions -->
+      <div
+        class="deck_editor_body_right"
+        on:click={() => {
+          main_view_mode = "DeckEdit";
+        }}
+        on:focusin={() => {
+          main_view_mode = "DeckEdit";
+        }}
+      >
+        {#if main_view_mode === "DeckEdit" || getScreenSize() === "wide"}
+          {#await deckInfosPromise}
+            <div>デッキ情報読込中</div>
+          {:then deckInfos}
+            <div class="deck_editor_body_right_header">
+              <div class="deck_editor_body_right_header_row">
+                <div>編集対象</div>
+                <div>
+                  <select style="width:100%" bind:value={selectedId} on:change={onSelectDeckChange}>
+                    {#each deckInfos as deckInfo}
+                      <option value={deckInfo.id}>{deckInfo.name}</option>
+                    {/each}
+                  </select>
+                </div>
+              </div>
+              <div class="deck_editor_body_right_header_row">
+                <div>新規名称</div>
+                <div>
+                  <input type="text" style="width:100%" bind:value={tmpDeck.name} />
+                </div>
+              </div>
+              <div class="deck_editor_body_right_header_row"></div>
+              <div class="deck_editor_body_right_header_row">
+                <div>基本操作</div>
+                <div><button class="white_button" on:click={onSaveDeckClick}>デッキを保存</button></div>
+                <div><button class="white_button" on:click={onCopyDeckClick}>デッキを複製</button></div>
+                <div><button class="white_button" on:click={onDeleteDeckClick} title="shiftキー押下で確認メッセージスキップ">デッキを削除</button></div>
+              </div>
+              <div class="deck_editor_body_right_header_row">
+                <div>DL/UL</div>
+                {#await getSelectedDeck()}
+                  <div></div>
+                {:then deckInfo}
+                  <div><a class="white_button" href={DeckInfo.convertToObjectURL([deckInfo])} download="SVS_DeckInfos.json">ダウンロード</a></div>
+                {/await}
+                {#await deckInfosObjectURLPromise}
+                  <div></div>
+                {:then url}
+                  <div><a class="white_button" href={url} download="SVS_DeckInfos.json">ダウンロード(一括)</a></div>
+                {/await}
+                <div><button class="white_button" on:click={onUploadClick}>アップロード</button></div>
               </div>
             </div>
-            <div class="deck_editor_body_right_header_row">
-              <div>新規名称</div>
-              <div>
-                <input type="text" style="width:100%" bind:value={tmpDeck.name} />
-              </div>
+            <div class="deck_editor_body_right_body {canDropToDeck ? 'can_drop' : ''}">
+              <DeckEditorCardAccordions
+                mode="Deck"
+                allCardTree={{ ExtraMonster: [], Monster: [], Spell: [], Trap: [] }}
+                bind:deckCardTree={tmpDeck.cardTree}
+                {onAttention}
+                {cardControlEventHandlers}
+              />
             </div>
-            <div class="deck_editor_body_right_header_row"></div>
-            <div class="deck_editor_body_right_header_row">
-              <div>基本操作</div>
-              <div><button class="white_button" on:click={onSaveDeckClick}>デッキを保存</button></div>
-              <div><button class="white_button" on:click={onCopyDeckClick}>デッキを複製</button></div>
-              <div><button class="white_button" on:click={onDeleteDeckClick} title="shiftキー押下で確認メッセージスキップ">デッキを削除</button></div>
-            </div>
-            <div class="deck_editor_body_right_header_row">
-              <div>DL/UL</div>
-              {#await getSelectedDeck()}
-                <div></div>
-              {:then deckInfo}
-                <div><a class="white_button" href={DeckInfo.convertToObjectURL([deckInfo])} download="SVS_DeckInfos.json">ダウンロード</a></div>
-              {/await}
-              {#await deckInfosObjectURLPromise}
-                <div></div>
-              {:then url}
-                <div><a class="white_button" href={url} download="SVS_DeckInfos.json">ダウンロード(一括)</a></div>
-              {/await}
-              <div><button class="white_button" on:click={onUploadClick}>アップロード</button></div>
-            </div>
-          </div>
-          <div class="deck_editor_body_right_body {canDropToDeck ? 'can_drop' : ''}">
-            <DeckEditorCardAccordions
-              mode="Deck"
-              allCardTree={{ ExtraMonster: [], Monster: [], Spell: [], Trap: [] }}
-              bind:deckCardTree={tmpDeck.cardTree}
-              {onAttention}
-              {cardControlEventHandlers}
-            />
-          </div>
-        {/await}
-      {:else}
-        <div class="deck_editor_body_right_dummy"></div>
-      {/if}
-    </div>
+          {/await}
+        {:else}
+          <div class="deck_editor_body_right_dummy"></div>
+        {/if}
+      </div>
+    {/if}
     <!-- TODO 終了タグの位置を直すと半角スペースが入るので、治す
                
               <textarea class="deck_editor_card_list" rows="90" cols="50"

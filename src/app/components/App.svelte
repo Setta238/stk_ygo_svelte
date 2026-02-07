@@ -18,13 +18,15 @@
   import {} from "@stk_utils/funcs/StkArrayUtils";
   import {} from "@stk_utils/funcs/StkDateUtils";
   import { cardDefinitionsPrms } from "@ygo/class/CardInfo";
+  import { UrlParams } from "@app/class/UrlParams";
   const idb = new StkIndexedDB<TTblNames>("stk_ygo_svelte", currentVersion, tblNames);
+  const params = new UrlParams();
 
   let innerWidth = 0;
   let innerHeight = 0;
   let duel: Duel | undefined;
   let gameMode: TGameMode = "FtkChallenge";
-  let dspMode: "Duel" | "DeckEdit" | "None" = "None";
+  let dspMode: "Duel" | "DeckEdit" | "None" = params.openMode === "CardSearch" ? "DeckEdit" : "None";
   let selectedDeckId = 0;
   let npcDescription = "";
   let selectedNpc: IDuelistProfile | undefined = undefined;
@@ -51,7 +53,7 @@
         .filter((deckInfo) => !deckInfo.lastUsedAt)
         .map((deckInfo) => {
           deckInfo.saveDeckInfo();
-        })
+        }),
     );
     setDeckId(deckInfos);
     return deckInfos;
@@ -137,6 +139,10 @@
     }
   };
   const onReturnToTopClick = () => {
+    if (params.openMode === "CardSearch") {
+      window.location.replace(window.location.origin + window.location.pathname);
+      return;
+    }
     userDecksPromise = reloadDeckInfos();
     duel = undefined;
     dspMode = "None";
@@ -155,7 +161,7 @@
   const onNpcIdChange = (
     ev: Event & {
       currentTarget: EventTarget & HTMLSelectElement;
-    }
+    },
   ) => {
     setNpc(Number(ev.currentTarget.value));
   };
@@ -184,7 +190,7 @@
       <DuelDesk {duel} {userProfile} />
     {/await}
   {:else if dspMode === "DeckEdit"}
-    <DeckEditor />
+    <DeckEditor refOnly={params.openMode === "CardSearch"} />
   {:else}
     <div class="app_body">
       <table class="config_table">

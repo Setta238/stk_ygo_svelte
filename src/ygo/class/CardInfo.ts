@@ -10,14 +10,9 @@ import { isNumber } from "@stk_utils/funcs/StkMathUtils";
 
 const cardNames = new Set<string>();
 const fuga = { ...json_test, ...json_old_version, ...cardInfo_special } as unknown as { [name: string]: CardInfo };
-
+const { promise: treePrms, resolve: treeResolve } = createPromiseSweet<Readonly<CardTree>>();
 const cardDefinitions = {
-  tree: {
-    ExtraMonster: [],
-    Monster: [],
-    Spell: [],
-    Trap: [],
-  } as CardTree,
+  treePrms,
   knmCount: 0,
   definitionCount: 0,
   nonDefinitionCount: 0,
@@ -133,13 +128,15 @@ const loadStatusData = async () => {
   // デッキ編集画面を開くまでに準備できていればよいので、適当に遅延する
   // NOTE: ある程度のディレイをかけないと描画よりも優先してしまうので適当な時間を設定。本来は描画完了を待つのが適切と思われる。
   delay(200).then(() => {
-    cardDefinitions.tree = createCardTree(Object.values(cardDefinitionsDic));
+    const tree = createCardTree(Object.values(cardDefinitionsDic));
 
     console.info(`Card Tree has been created `);
 
-    Object.values(cardDefinitions.tree).forEach((infos) => infos.sort(cardSorter));
+    Object.values(tree).forEach((infos) => infos.sort(cardSorter));
 
     console.info(`Card Tree has been sorted `);
+
+    treeResolve(tree);
   });
 };
 

@@ -18,6 +18,7 @@
   export let onAttention: (cardInfo: CardInfo) => void;
   export let cardControlEventHandlers: CardControlEventHandlers;
   export let deckCardTree: CardTree;
+  export let refOnly: boolean;
 </script>
 
 {#if cardInfo}
@@ -39,25 +40,26 @@
           {/if}
         </div>
       {/if}
-
-      <div class="plus_minus_button_area">
-        <button
-          class="button_style_reset plus_minus_button"
-          disabled={!cardInfo.isImplemented}
-          title={cardInfo.isImplemented ? "※shiftキー同時押しで一括投入\n※ctrlキー同時押しで枚数制限無視" : ""}
-          on:click={(ev) => cardControlEventHandlers.onCardAppend(ev, cardInfo)}
-        >
-          +
-        </button>
-        <button
-          class="button_style_reset plus_minus_button"
-          disabled={deckCardTree[getDeckCardKind(cardInfo)].every((_info) => _info.name !== cardInfo.name)}
-          title={cardInfo.isImplemented ? "※shiftキー同時押しで一括外し" : ""}
-          on:click={(ev) => cardControlEventHandlers.onCardRemove(ev, cardInfo)}
-        >
-          -
-        </button>
-      </div>
+      {#if !refOnly}
+        <div class="plus_minus_button_area">
+          <button
+            class="button_style_reset plus_minus_button"
+            disabled={!cardInfo.isImplemented}
+            title={cardInfo.isImplemented ? "※shiftキー同時押しで一括投入\n※ctrlキー同時押しで枚数制限無視" : ""}
+            on:click={(ev) => cardControlEventHandlers.onCardAppend(ev, cardInfo)}
+          >
+            +
+          </button>
+          <button
+            class="button_style_reset plus_minus_button"
+            disabled={deckCardTree[getDeckCardKind(cardInfo)].every((_info) => _info.name !== cardInfo.name)}
+            title={cardInfo.isImplemented ? "※shiftキー同時押しで一括外し" : ""}
+            on:click={(ev) => cardControlEventHandlers.onCardRemove(ev, cardInfo)}
+          >
+            -
+          </button>
+        </div>
+      {/if}
     </div>
     <div class="duel_card_info_body">
       {#if cardInfo.monsterCategories?.includes("Pendulum")}

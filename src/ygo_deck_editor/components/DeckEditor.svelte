@@ -661,7 +661,7 @@
       </div>
       {#if left_pain_mode === "CardDetail" && selectedCardInfo}
         <div class="deck_editor_card_detail">
-          <DeckEditorCardDetail cardInfo={selectedCardInfo} {onAttention} {cardControlEventHandlers} deckCardTree={tmpDeck.cardTree} />
+          <DeckEditorCardDetail cardInfo={selectedCardInfo} {onAttention} {cardControlEventHandlers} deckCardTree={tmpDeck.cardTree} {refOnly} />
         </div>
       {/if}
     </div>

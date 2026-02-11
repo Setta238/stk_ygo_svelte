@@ -140,7 +140,7 @@
   };
   const onReturnToTopClick = () => {
     if (params.openMode === "CardSearch") {
-      window.location.replace(window.location.origin + window.location.pathname);
+      window.location.assign(window.location.origin + window.location.pathname);
       return;
     }
     userDecksPromise = reloadDeckInfos();
@@ -343,6 +343,9 @@
           {/await}
         </tbody>
       </table>
+    </div>
+    <div style="margin: 0.8rem;">
+      <a href="{window.location.origin + window.location.pathname}?mode=search">※※カード検索専用モード切り替え※※</a>
     </div>
   {/if}
   <div class="footer card_summary">

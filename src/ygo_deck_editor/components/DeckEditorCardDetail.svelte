@@ -128,7 +128,14 @@
           <a href={`https://yugioh-wiki.net/index.php?${cardInfo.wikiEncodedName}`} target="_blank" rel="noopener noreferrer" title="遊戯王カードWiki">
             ⇒遊戯王カードWiki
           </a>
-          <a href={`https://www.google.com/search?q=遊戯王 ${cardInfo.name}`} target="_blank" rel="noopener noreferrer" title="google"> ⇒google検索 </a>
+          <a
+            href={`https://www.google.com/search?q=遊戯王 ${cardInfo.name.replaceAll("[エラッタ前]", "")}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="google"
+          >
+            ⇒google検索
+          </a>
         </div>
       {/if}
     </div>

@@ -244,7 +244,14 @@
                 </a>
               {/if}
             {/await}
-            <a href={`https://www.google.com/search?q=遊戯王 ${entity.origin.name}`} target="_blank" rel="noopener noreferrer" title="google"> ⇒google検索 </a>
+            <a
+              href={`https://www.google.com/search?q=遊戯王 ${entity.origin.name.replaceAll("[エラッタ前]", "")}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="google"
+            >
+              ⇒google検索
+            </a>
           </div>
         {/if}
       {/if}

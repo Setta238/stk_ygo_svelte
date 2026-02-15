@@ -191,8 +191,10 @@
           <div></div>
           <div>
             <span class={entity.atk !== entity.origin.attack ? "different_from_its_origin" : ""}> {entity.atk ?? "?"}</span>
-            /
-            <span class={entity.def !== entity.origin.defense ? "different_from_its_origin" : ""}>{entity.def ?? "?"}</span>
+            {#if !entity.status.monsterCategories?.includes("Link")}
+              /
+              <span class={entity.def !== entity.origin.defense ? "different_from_its_origin" : ""}>{entity.def ?? "?"}</span>
+            {/if}
           </div>
         </div>
       {/if}

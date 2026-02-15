@@ -125,7 +125,25 @@
     </div>
 
     <div class="duel_card_info_body">
-      {#if mode === "Normal"}
+      {#if mode === "Detail" && entity.actions.some((action) => action.actionCountUpperBoundKey)}
+        <div class="duel_card_info_row effect_counter_area">
+          <div class="effect_counter_area_title">効果使用状況</div>
+          <div class="effect_counter_area_body">
+            {#each entity.actions as action}
+              {@const upperBound = action.actionCountUpperBound}
+              {@const count = action.actionCount}
+              {#if upperBound !== undefined && count !== undefined}
+                <div class="effect_counter_area_item">
+                  <span>{action.title}</span>
+                  <span>{count}</span>
+                  <span>/</span>
+                  <span>{upperBound} </span>
+                </div>
+              {/if}
+            {/each}
+          </div>
+        </div>
+      {:else if mode === "Normal" || mode === "Detail"}
         {#if entity.status.monsterCategories?.includes("Pendulum")}
           <div class="duel_card_info_row" style="border-style: solid; border-width: 1px;">
             {#await textDataPrms}
@@ -142,26 +160,6 @@
             <pre class="description">{cardInfo?.description}</pre>
           {/await}
         </div>
-      {:else if mode === "Detail"}
-        {#if entity.actions.some((action) => action.actionCountUpperBoundKey)}
-          <div class="duel_card_info_row effect_counter_area">
-            <div class="effect_counter_area_title">効果使用状況</div>
-            <div class="effect_counter_area_body">
-              {#each entity.actions as action}
-                {@const upperBound = action.actionCountUpperBound}
-                {@const count = action.actionCount}
-                {#if upperBound !== undefined && count !== undefined}
-                  <div class="effect_counter_area_item">
-                    <span>{action.title}</span>
-                    <span>{count}</span>
-                    <span>/</span>
-                    <span>{upperBound} </span>
-                  </div>
-                {/if}
-              {/each}
-            </div>
-          </div>
-        {/if}
       {:else}
         <div class="duel_card_info_row">
           <div>

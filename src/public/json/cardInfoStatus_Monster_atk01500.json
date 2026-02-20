@@ -46578,5 +46578,31 @@
       "BottomLeft",
       "BottomRight"
     ]
+  ],
+  [
+    22829,
+    "憑依共鳴－ウィン",
+    null,
+    "Monster",
+    [
+      "憑依"
+    ],
+    null,
+    [
+      "Fusion",
+      "Effect",
+      "SpecialSummon"
+    ],
+    null,
+    null,
+    [
+      "Wind"
+    ],
+    [
+      "Spellcaster"
+    ],
+    1850,
+    1500,
+    5
   ]
 ]

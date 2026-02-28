@@ -26033,5 +26033,37 @@
     2500,
     null,
     8
+  ],
+  [
+    22707,
+    "サイバース・コントラクト・ウィッチ",
+    "2026-02-28",
+    "Monster",
+    [
+      "サイバー"
+    ],
+    null,
+    [
+      "Link",
+      "Effect",
+      "SpecialSummon"
+    ],
+    null,
+    null,
+    [
+      "Dark"
+    ],
+    [
+      "Cyberse"
+    ],
+    800,
+    null,
+    null,
+    null,
+    2,
+    [
+      "BottomLeft",
+      "BottomCenter"
+    ]
   ]
 ]

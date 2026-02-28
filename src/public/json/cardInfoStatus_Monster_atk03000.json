@@ -16938,5 +16938,64 @@
     3000,
     null,
     10
+  ],
+  [
+    22713,
+    "A BF－叢雲のクサナギ",
+    "2026-02-28",
+    "Monster",
+    [
+      "A BF",
+      "BF"
+    ],
+    null,
+    [
+      "Synchro",
+      "Effect",
+      "SpecialSummon"
+    ],
+    null,
+    null,
+    [
+      "Dark"
+    ],
+    [
+      "WingedBeast"
+    ],
+    3000,
+    1000,
+    9
+  ],
+  [
+    22714,
+    "大精霊機巧軍－ペンデュラム・ルーラー",
+    "2026-02-28",
+    "Monster",
+    [
+      "ペンデュラム"
+    ],
+    null,
+    [
+      "Fusion",
+      "Pendulum",
+      "Effect",
+      "SpecialSummon"
+    ],
+    null,
+    null,
+    [
+      "Light"
+    ],
+    [
+      "Machine"
+    ],
+    3500,
+    3000,
+    12,
+    null,
+    null,
+    null,
+    1,
+    1
   ]
 ]

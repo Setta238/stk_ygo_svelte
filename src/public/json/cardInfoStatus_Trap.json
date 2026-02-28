@@ -23994,5 +23994,44 @@
     null,
     null,
     "Continuous"
+  ],
+  [
+    22698,
+    "シンクロ・エマージェンシー",
+    "2026-02-28",
+    "Trap",
+    [
+      "シンクロ"
+    ],
+    null,
+    null,
+    null,
+    "Normal"
+  ],
+  [
+    22711,
+    "Sin Force",
+    "2026-02-28",
+    "Trap",
+    [
+      "Sin"
+    ],
+    null,
+    null,
+    null,
+    "Normal"
+  ],
+  [
+    22712,
+    "Sin Paradigm Shift",
+    "2026-02-28",
+    "Trap",
+    [
+      "Sin"
+    ],
+    null,
+    null,
+    null,
+    "Normal"
   ]
 ]

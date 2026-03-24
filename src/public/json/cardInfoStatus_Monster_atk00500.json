@@ -26065,5 +26065,27 @@
       "BottomLeft",
       "BottomCenter"
     ]
+  ],
+  [
+    22739,
+    "ガトリング・オーガ",
+    "2026-03-20",
+    "Monster",
+    null,
+    null,
+    [
+      "Effect"
+    ],
+    null,
+    null,
+    [
+      "Fire"
+    ],
+    [
+      "Fiend"
+    ],
+    800,
+    800,
+    3
   ]
 ]
